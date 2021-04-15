@@ -51,10 +51,9 @@ set JAVA_OPTS=-server %JAVA_OPTS%
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
 set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\*;%GATLING_CONF%;
-set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
 
 set JAVA=java
-SET JAR=jar
+set JAR=jar
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
 goto run
 
@@ -78,7 +77,7 @@ echo JAR = "%JAR%"
 rem Run the compiler
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
 rem Create the artifact
-%JAR% cfm "%GATLING_HOME%"\target\artifact.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes .
+%JAR% cfm "%GATLING_HOME%"\target\artifact.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes . -C "%GATLING_HOME%"\user-files\resources .
 
 if %errorlevel% neq 0 exit /b %errorlevel%
 rem The above line will forward any potential exit codes from Java if jar failed

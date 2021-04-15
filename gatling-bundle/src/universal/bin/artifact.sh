@@ -41,7 +41,6 @@ COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 
 # Setup classpaths
 COMPILER_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:"
-GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$GATLING_CONF:"
 
 
 # Use the extra compiler options flag only if they are provided
@@ -64,7 +63,9 @@ EOT
 
 # Create the jar
 echo -n "Creating jar..."
-"$JAR" cfm "${GATLING_HOME}/target/artifact.jar" "${MANIFEST_FILE}" -C "${GATLING_HOME}/target/test-classes" .
+"$JAR" cfm "${GATLING_HOME}/target/artifact.jar" "${MANIFEST_FILE}" \
+  -C "${GATLING_HOME}/target/test-classes" . \
+  -C "${GATLING_HOME}/user-files/resources" .
 echo "done"
 
 rm "${MANIFEST_FILE}"
