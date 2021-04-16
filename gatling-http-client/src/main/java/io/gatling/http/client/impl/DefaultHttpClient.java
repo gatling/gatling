@@ -521,7 +521,7 @@ public class DefaultHttpClient implements HttpClient {
           }
 
           channelGroup.add(channel);
-          resources.channelPool.register(channel, tx.key);
+          ChannelPool.registerPoolKey(channel, tx.key);
 
           if (tx.request.getUri().isSecured()) {
             LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
@@ -568,7 +568,7 @@ public class DefaultHttpClient implements HttpClient {
           }
 
           channelGroup.add(channel);
-          resources.channelPool.register(channel, tx.key);
+          ChannelPool.registerPoolKey(channel, tx.key);
 
           LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
           installSslHandler(tx, channel).addListener(f -> {
@@ -778,13 +778,15 @@ public class DefaultHttpClient implements HttpClient {
             tx.listener.onProtocolAwareness(true);
             Http2Connection connection = new DefaultHttp2Connection(false);
 
+            ChannelPool.registerHttp2Connection(channel, connection);
+
             HttpToHttp2ConnectionHandler http2Handler = new HttpToHttp2ConnectionHandlerBuilder()
               .initialSettings(DEFAULT_HTTP2_SETTINGS)
               .connection(connection)
               .frameListener(
                 new CustomDelegatingDecompressorFrameListener(
                   connection,
-                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, whenAlpn, tx, channelPool, ctx)
+                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, whenAlpn)
                 )
               ).build();
 

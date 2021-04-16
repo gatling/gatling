@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import io.gatling.http.client.pool.ChannelPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
@@ -33,24 +32,15 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
   private final Http2Connection connection;
   private final boolean validateHttpHeaders;
   private final Promise<Void> whenAlpn;
-  private final HttpTx tx;
-  private final ChannelPool channelPool;
-  private final ChannelHandlerContext parentCtx;
 
   ChunkedInboundHttp2ToHttpAdapter(Http2Connection connection,
                                    boolean validateHttpHeaders,
-                                   Promise<Void> whenAlpn,
-                                   HttpTx tx,
-                                   ChannelPool channelPool,
-                                   ChannelHandlerContext parentCtx) {
+                                   Promise<Void> whenAlpn) {
 
     checkNotNull(connection, "connection");
     this.connection = connection;
     this.validateHttpHeaders = validateHttpHeaders;
     this.whenAlpn = whenAlpn;
-    this.tx = tx;
-    this.channelPool = channelPool;
-    this.parentCtx = parentCtx;
   }
 
   @Override
@@ -109,9 +99,6 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
   @Override
   public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings) {
-    if (settings.maxConcurrentStreams() != null) {
-      channelPool.updateMaxConcurrentStreams(ctx.channel(), settings.maxConcurrentStreams());
-    }
     if (!whenAlpn.isDone()) {
       whenAlpn.setSuccess(null);
     }
