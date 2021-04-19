@@ -30,7 +30,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
+import io.gatling.http.client.{ HttpClientConfig, Param, Request, SignatureCalculator }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.resolver.InetAddressNameResolver
@@ -90,6 +90,91 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
       )
       .succeeded shouldBe Seq("BAR")
+  }
+
+  it should "work when passing formParamMap. Key - ElString, Value - ElString" in {
+    val form = Map(
+      "foo" -> "FOO",
+      "baz" -> "BAZ"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "${foo}" -> "${baz}"
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - String, Value - ElString" in {
+    val form = Map(
+      "baz" -> "BAZ"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "FOO" -> "${baz}"
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - ElString, Value - String" in {
+    val form = Map(
+      "foo" -> "FOO"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "${foo}" -> "BAZ"
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - ElString, Value - Int" in {
+    val form = Map(
+      "foo" -> "FOO"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "${foo}" -> 1
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "1")
   }
 
   it should "work when passing only a form" in {
