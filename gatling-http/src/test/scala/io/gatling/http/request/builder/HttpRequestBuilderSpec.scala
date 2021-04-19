@@ -17,7 +17,8 @@
 package io.gatling.http.request.builder
 
 import scala.jdk.CollectionConverters._
-import io.gatling.{BaseSpec, ValidationValues}
+
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.EmptySession
@@ -29,12 +30,13 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.{HttpClientConfig, Param, Request, SignatureCalculator}
+import io.gatling.http.client.{ HttpClientConfig, Param, Request, SignatureCalculator }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
+
 import io.netty.handler.codec.http.HttpMethod
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySession {

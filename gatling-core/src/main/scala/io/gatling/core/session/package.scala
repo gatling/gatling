@@ -16,10 +16,10 @@
 
 package io.gatling.core
 
+import scala.annotation.tailrec
+
 import io.gatling.commons.validation._
 import io.gatling.core.session.el._
-
-import scala.annotation.tailrec
 
 package object session {
 
