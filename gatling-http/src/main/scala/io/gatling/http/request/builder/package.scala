@@ -84,7 +84,7 @@ package object builder {
           for {
             seq <- seq(session)
           } yield {
-            seq.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
+            seq.foreach { case (key, value) => clientParams.add(new Param(key.toString, value.toString)) }
             clientParams
           }
 

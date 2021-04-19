@@ -16,10 +16,10 @@
 
 package io.gatling.core
 
-import scala.annotation.tailrec
-
 import io.gatling.commons.validation._
 import io.gatling.core.session.el._
+
+import scala.annotation.tailrec
 
 package object session {
 
@@ -30,6 +30,7 @@ package object session {
 
   final case class StaticValueExpression[T](value: T) extends Expression[T] {
     private val valueV = value.success
+
     override def apply(session: Session): Validation[T] = valueV
   }
 
@@ -54,16 +55,21 @@ package object session {
     case _         => NoneSuccess
   }
 
-  def resolveIterable[X](iterable: Iterable[(String, Expression[X])]): Expression[Seq[(String, X)]] = {
+  def resolveIterable[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(X, X)]] = {
 
     @tailrec
-    def resolveRec(session: Session, entries: Iterator[(String, Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
+    def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(X, X)]): Validation[Seq[(X, X)]] = {
       if (entries.isEmpty)
         acc.reverse.success
       else {
-        val (key, elValue) = entries.next()
-        elValue(session) match {
-          case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
+        val (elKey, elValue) = entries.next()
+
+        elKey(session) match {
+          case Success(key) =>
+            elValue(session) match {
+              case Success(value)   => resolveRec(session, entries, (key -> value :: acc))
+              case failure: Failure => failure
+            }
           case failure: Failure => failure
         }
       }
@@ -72,26 +78,22 @@ package object session {
     resolveRec(_, iterable.iterator, Nil)
   }
 
-  def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
-    val elValues: Seq[(String, Expression[Any])] = seq.map { case (key, value) =>
-      val elValue = value match {
-        case s: String => s.el[Any]
-        case v         => v.expressionSuccess
+  def seq2SeqExpression(seq: Seq[(Any, Any)]): Expression[Seq[(Any, Any)]] = {
+    val el = seq.map { case (key, value) =>
+      def itemToEl(item: Any) = {
+        item match {
+          case s: String => s.el[Any]
+          case v         => v.expressionSuccess
+        }
       }
-      key -> elValue
+
+      itemToEl(key) -> itemToEl(value)
     }
 
-    resolveIterable(elValues)
+    resolveIterable(el)
   }
 
-  def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
-    val elValues: Map[String, Expression[Any]] = map.view
-      .mapValues {
-        case s: String => s.el[Any]
-        case v         => v.expressionSuccess
-      }
-      .to(Map)
-
-    resolveIterable(elValues)
+  def map2SeqExpression(map: Map[String, String]): Expression[Seq[(Any, Any)]] = {
+    seq2SeqExpression(map.toSeq)
   }
 }

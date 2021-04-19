@@ -174,10 +174,10 @@ final case class BodyPartAttributes(
     fileName: Option[Expression[String]],
     contentId: Option[Expression[String]],
     transferEncoding: Option[String],
-    customHeaders: List[(String, Expression[String])]
+    customHeaders: List[(Expression[String], Expression[String])]
 ) {
 
-  lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)
+  lazy val customHeadersExpression = resolveIterable(customHeaders)
 }
 
 final case class BodyPart(
@@ -207,7 +207,7 @@ final case class BodyPart(
 
   def transferEncoding(transferEncoding: String): BodyPart = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
 
-  def header(name: String, value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
+  def header(name: Expression[String], value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
 
   def toMultiPart(session: Session): Validation[Part[_]] =
     for {
