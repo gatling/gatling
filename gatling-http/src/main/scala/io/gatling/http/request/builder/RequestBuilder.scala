@@ -121,7 +121,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamSeq(seq: Seq[(String, Any)]): B = queryParamSeq(seq2SeqExpression(seq))
   def queryParamSeq(seq: Expression[Seq[(String, Any)]]): B = queryParam(ParamSeq(seq))
 
-  def queryParamMap(map: Map[String, String]): B = queryParamSeq(map2SeqExpression(map))
+  def queryParamMap(map: Map[String, Any]): B = queryParamSeq(map2SeqExpression(map))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
   private def queryParam(param: HttpParam): B = newInstance(modify(commonAttributes)(_.queryParams).using(_ ::: List(param)))
