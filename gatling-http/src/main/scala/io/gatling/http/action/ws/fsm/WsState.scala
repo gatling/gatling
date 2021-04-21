@@ -77,12 +77,14 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
     onIllegalState(s"Unexpected onTimeout call in $stateName state", fsm.clock.nowMillis)
 
   private def onIllegalState(message: String, timestamp: Long): NextWsState = {
+    fsm.cancelTimeout()
     val error = new IllegalStateException(message)
     logger.error(error.getMessage, error)
     onWebSocketCrashed(error, timestamp)
   }
 
   def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
+    fsm.cancelTimeout()
     logger.debug(s"WebSocket crashed by the server while in $stateName state", t)
     NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
   }
