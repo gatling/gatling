@@ -55,10 +55,10 @@ package object session {
     case _         => NoneSuccess
   }
 
-  def resolveIterable[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(X, X)]] = {
+  def resolveIterable[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(String, X)]] = {
 
     @tailrec
-    def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(X, X)]): Validation[Seq[(X, X)]] = {
+    def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
       if (entries.isEmpty)
         acc.reverse.success
       else {
@@ -67,7 +67,7 @@ package object session {
         elKey(session) match {
           case Success(key) =>
             elValue(session) match {
-              case Success(value)   => resolveRec(session, entries, (key -> value :: acc))
+              case Success(value)   => resolveRec(session, entries, key.toString -> value :: acc)
               case failure: Failure => failure
             }
           case failure: Failure => failure
@@ -78,7 +78,7 @@ package object session {
     resolveRec(_, iterable.iterator, Nil)
   }
 
-  def seq2SeqExpression(seq: Seq[(Any, Any)]): Expression[Seq[(Any, Any)]] = {
+  def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
     val el = seq.map { case (key, value) =>
       def itemToEl(item: Any) = {
         item match {
@@ -93,7 +93,7 @@ package object session {
     resolveIterable(el)
   }
 
-  def map2SeqExpression(map: Map[String, String]): Expression[Seq[(Any, Any)]] = {
+  def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
     seq2SeqExpression(map.toSeq)
   }
 }

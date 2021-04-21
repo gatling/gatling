@@ -92,7 +92,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
       .succeeded shouldBe Seq("BAR")
   }
 
-  it should "work when passing formParamMap" in {
+  it should "work when passing formParamMap. Key - ElString, Value - ElString" in {
     val form = Map(
       "foo" -> "FOO",
       "baz" -> "BAZ"
@@ -112,6 +112,69 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
       .succeeded
 
     params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - String, Value - ElString" in {
+    val form = Map(
+      "baz" -> "BAZ"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "FOO" -> "${baz}"
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - ElString, Value - String" in {
+    val form = Map(
+      "foo" -> "FOO"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "${foo}" -> "BAZ"
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "BAZ")
+  }
+
+  it should "work when passing formParamMap. Key - ElString, Value - Int" in {
+    val form = Map(
+      "foo" -> "FOO"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val params = httpRequestDef(
+      _.formParamMap(
+        Map(
+          "${foo}" -> 1
+        )
+      )
+    )
+      .build("requestName", session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("FOO", "1")
   }
 
   it should "work when passing only a form" in {
