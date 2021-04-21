@@ -55,13 +55,13 @@ package object session {
     case _         => Validation.NoneSuccess
   }
 
-  def resolveIterable[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(String, X)]] = {
+  def expressionSeq2SeqExpression[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(String, X)]] = {
 
     @tailrec
-    def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
-      if (entries.isEmpty)
+    def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] =
+      if (entries.isEmpty) {
         acc.reverse.success
-      else {
+      } else {
         val (elKey, elValue) = entries.next()
 
         elKey(session) match {
@@ -73,27 +73,21 @@ package object session {
           case failure: Failure => failure
         }
       }
-    }
 
     resolveRec(_, iterable.iterator, Nil)
   }
 
-  def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
-    val el = seq.map { case (key, value) =>
-      def itemToEl(item: Any) = {
-        item match {
-          case s: String => s.el[Any]
-          case v         => v.expressionSuccess
-        }
+  def tupleSeq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
+    val expressionSequence: Seq[(Expression[String], Expression[Any])] = seq.map { case (key, value) =>
+      val keyExpression = key.el[String]
+      val valueExpression = value match {
+        case s: String => s.el[Any]
+        case v         => v.expressionSuccess
       }
 
-      itemToEl(key) -> itemToEl(value)
+      keyExpression -> valueExpression
     }
 
-    resolveIterable(el)
-  }
-
-  def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
-    seq2SeqExpression(map.toSeq)
+    expressionSeq2SeqExpression(expressionSequence)
   }
 }
