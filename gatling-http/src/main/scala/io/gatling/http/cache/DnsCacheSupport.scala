@@ -27,6 +27,8 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, HttpProtocolDnsPart, JavaDnsNameResolution }
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, SharedAsyncDnsNameResolverFactory, ShufflingNameResolver }
 
+import io.netty.resolver.dns.DefaultDnsCache
+
 private[http] object DnsCacheSupport {
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 }
@@ -58,7 +60,7 @@ private[http] trait DnsCacheSupport {
       case AsyncDnsNameResolution(dnsServers) =>
         if (perUserNameResolution) { session =>
           {
-            val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers)
+            val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers, new DefaultDnsCache)
             setDecoratedResolver(session, actualResolver, hostNameAliases)
           }
         } else {
