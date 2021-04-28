@@ -178,7 +178,7 @@ class HttpEngine(
     InetAddressNameResolver.JAVA_RESOLVER
 
   // [fl]
-  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolver =
+  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress], cache: DnsCache): InetAddressNameResolver =
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
         .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport))
@@ -188,6 +188,7 @@ class HttpEngine(
         )
         .queryTimeoutMillis(configuration.http.dns.queryTimeout.toMillis.toInt)
         .maxQueriesPerResolve(configuration.http.dns.maxQueriesPerResolve)
+        .resolveCache(cache)
         .build()
     )
 

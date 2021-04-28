@@ -26,6 +26,7 @@ import io.gatling.http.engine.HttpEngine
 
 import akka.actor.ActorSystem
 import io.netty.channel.EventLoop
+import io.netty.resolver.dns.{ DefaultDnsCache, DnsCache }
 import io.netty.util.concurrent.{ Future, Promise }
 
 object SharedAsyncDnsNameResolverFactory {
@@ -38,9 +39,11 @@ object SharedAsyncDnsNameResolverFactory {
 
     val inProgressResolutions = new ConcurrentHashMap[String, Promise[ju.List[InetAddress]]]
 
+    val sharedCache: DnsCache = new DefaultDnsCache
+
     val computer: ju.function.Function[EventLoop, InetAddressNameResolver] =
       el => {
-        val actualResolver = httpEngine.newAsyncDnsNameResolver(el, dnsServers)
+        val actualResolver = httpEngine.newAsyncDnsNameResolver(el, dnsServers, sharedCache)
         new InflightInetAddressNameResolver(actualResolver, inProgressResolutions)
       }
 
@@ -52,7 +55,6 @@ class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgre
     extends InetAddressNameResolver {
 
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] = {
-
     val earlyPromise = inProgressResolutions.putIfAbsent(inetHost, promise)
     if (earlyPromise != null) {
       // name resolution for the specified inetHost is already in progress
