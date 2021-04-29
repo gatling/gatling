@@ -1,0 +1,7 @@
+node_modules/
+resources/
+public/
+
+go.sum
+package.json
+package-lock.json

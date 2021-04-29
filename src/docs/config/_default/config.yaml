@@ -1,0 +1,70 @@
+baseurl: /
+
+theme: "github.com/gatling/gatling.io-doc-theme"
+
+disableHugoGeneratorInject: true
+enableEmoji: true
+enableGitInfo: false
+enableRobotsTXT: true
+languageCode: en-US
+paginate: 7
+rssLimit: 10
+
+outputs:
+  home:
+    - HTML
+    - RSS
+  section:
+    - HTML
+    - RSS
+    - SITEMAP
+
+outputFormats:
+  SITEMAP:
+    mediaType: application/xml
+    baseName: sitemap
+    isHTML: false
+    isPlainText: true
+    noUgly: true
+    rel: sitemap
+
+markup:
+  goldmark:
+    extensions:
+      linkify: false
+    parser:
+      autoHeadingID: true
+      autoHeadingIDType: github
+      attribute:
+        block: true
+        title: true
+    renderer:
+      unsafe: true
+  highlight:
+    codeFences: true
+    guessSyntax: false
+    hl_Lines: ''
+    lineNoStart: 1
+    lineNos: false
+    lineNumbersInTable: true
+    noClasses: false
+    style: dracula
+    tabWidth: 4
+
+sitemap:
+  changefreq: weekly
+  filename: sitemap.xml
+  priority: 0.5
+
+module:
+  noProxy: none
+  noVendor: ''
+  private: '*.*'
+  proxy: direct
+  imports:
+    - path: github.com/gatling/gatling.io-doc-theme
+  mounts:
+    - source: node_modules/flexsearch
+      target: assets/js/vendor/flexsearch
+    - source: node_modules/@fortawesome/fontawesome-free/webfonts
+      target: static/webfonts
