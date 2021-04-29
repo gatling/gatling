@@ -12,7 +12,7 @@ import VersionFile._
 ThisBuild / Keys.useCoursier := false
 
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
+  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
   .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(
     nettyUtil,
@@ -37,7 +37,17 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(basicSettings)
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
-  .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
+  .settings(unmanagedSourceDirectories in Test := ((sourceDirectory.value / "docs") ** "code").get)
+  .settings(scalafmtConfig := Def.task {
+    val file = scalafmtConfig.value
+    IO.append(
+      file,
+      """
+        |project.excludeFilters = ["src/docs"]
+        |""".stripMargin
+    )
+    file
+  }.value)
 
 // Modules
 
