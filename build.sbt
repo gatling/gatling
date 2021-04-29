@@ -23,7 +23,7 @@ Global / gatlingDevelopers := Seq(
 Global / scalaVersion := "2.13.5"
 
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(GatlingOssPlugin, SphinxPlugin)
+  .enablePlugins(GatlingOssPlugin)
   .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(
     nettyUtil,
@@ -49,13 +49,13 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(basicSettings)
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
-  .settings(Test / unmanagedSourceDirectories := ((Sphinx / sourceDirectory).value ** "code").get)
+  .settings(Test / unmanagedSourceDirectories := (sourceDirectory.value / "docs" ** "code").get)
   .settings(scalafmtConfig := Def.task {
     val file = scalafmtConfig.value
     IO.append(
       file,
       """
-        |project.excludeFilters = ["src/sphinx"]
+        |project.excludeFilters = ["src/docs"]
         |""".stripMargin
     )
     file
