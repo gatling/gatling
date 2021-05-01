@@ -18,7 +18,7 @@ One has to manually add the following imports:
 ||< include-static "JmsSample.scala#imprts" >||
 ```
 
-## JMS Protocol
+## JMS Protocol {#protocol}
 
 Use the `jms` object in order to create a JMS protocol.
 
@@ -76,7 +76,7 @@ If different logic is required, it can be specified using `messageMatcher(JmsMes
 
 One can send additional properties with `property(Expression[String], Expression[Any])`.
 
-### JMS Type
+### JMS Type {#type}
 
 Jms type can be specified with `jmsType(Expression[String])`.
 

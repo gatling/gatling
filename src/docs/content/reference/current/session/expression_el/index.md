@@ -98,5 +98,5 @@ The reason is that there are implicit conversions:
 {{< /alert >}}
 
 {{< alert tip >}}
-  For more information about `Validation`, please check out the [Validation reference](||< ref "docs/validation" >||).
+  For more information about `Validation`, please check out the [Validation reference]({{< ref "../validation" >}}).
 {{< /alert >}}

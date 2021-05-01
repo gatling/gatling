@@ -61,7 +61,7 @@ Each HTTP Request is easy to grasp (excluding page resources):
 1. *Access Github* is a *GET* request pointing at *http://github.com*
 2. *Search for 'gatling'* is a *GET* request pointing at *http://github.com/search?q=gatling*
 
-For more information, check the [Scenario reference section](||< ref "docs/scenario" >||).
+For more information, check the [Scenario reference section]({{< ref "../scenario" >}}).
 
 ## Simulation
 
@@ -73,7 +73,7 @@ Here is an example of simulation definition:
 ||< include-static "ConceptSample.scala#example-definition" >||
 ```
 
-For more information, check the [Simulation Setup reference section](||< ref "docs/simulation-setup" >||).
+For more information, check the [Simulation Setup reference section]({{< ref "../../general/simulation_setup" >}}).
 
 ## Session
 
@@ -81,7 +81,7 @@ Each virtual user is backed by a *Session*.
 Those *Sessions* are the actual messages that go down the scenario workflow.
 A *Session* is basically a state placeholder, where testers can inject or capture and store data.
 
-For more information, check the [Session reference section](||< ref "docs/session" >||).
+For more information, check the [Session reference section]({{< ref "../../session/session_api#session" >}}).
 
 ## Feeders
 
@@ -91,7 +91,7 @@ Gatling doesn't provide tools to generate this test data.
 
 *Feeders* are a convenient API for testers to inject data from an external source into the virtual users' sessions.
 
-For more information, check the [Feeders reference section](||< ref "docs/feeder" >||).
+For more information, check the [Feeders reference section]({{< ref "../../session/feeder" >}}).
 
 ## Checks
 
@@ -104,17 +104,17 @@ For example, when sending an HTTP request, you could expect a HTTP redirect; wit
 
 *Checks* can also be used to capture some elements and store them into the Session so that they can be reused later, for example to build the next request.
 
-For more information, check the [Checks reference section](||< ref "docs/http-check" >||).
+For more information, check the [Checks reference section]({{< ref "../../http/check" >}}).
 
 ## Assertions
 
 *Assertions* are used to define acceptance criteria on Gatling statistics (e.g. 99th percentile response time) that would make Gatling fail and return an error status code for the test as a whole.
 
-For more information, check the [Assertions reference section](||< ref "docs/assertions" >||).
+For more information, check the [Assertions reference section]({{< ref "../assertions" >}}).
 
 ## Reports
 
 By default, reports are automatically generated at the end of a simulation.
 They consist of HTML files. Therefore, they are portable and they can be viewed on any device with a web browser.
 
-For more information, check the [Reports reference section](||< ref "docs/reports" >||).
+For more information, check the [Reports reference section]({{< ref "../reports" >}}).

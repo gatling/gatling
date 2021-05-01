@@ -10,8 +10,8 @@ This is where you define the load you want to inject to your server.
 
 You can configure assertions and protocols with these two methods:
 
-* `assertions`: set assertions on the simulation, see the dedicated section [here](||< ref "docs/assertions" >||)
-* `protocols`: set protocols definitions, see the dedicated section [here](||< ref "docs/http-protocol" >||).
+* `assertions`: set assertions on the simulation, see the dedicated section [here]({{< ref "../assertions" >}})
+* `protocols`: set protocols definitions, see the dedicated section [here]({{< ref "../../http/protocol" >}})
 
 ## Injection
 
@@ -79,7 +79,7 @@ If you have a high creation rate of users with a short lifespan, you'll end up o
 As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
 This behavior makes perfect sense when the load you're modeling is internet traffic. You then might consider scaling out, for example with FrontLine, our Enterprise product.
 
-If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to fine-tune Gatling's behavior and [share the connection pool amongst virtual users](||< ref "docs/http-protocol-connection-sharing" >||).
+If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to fine-tune Gatling's behavior and [share the connection pool amongst virtual users]({{< ref "../../http/protocol#connection-sharing" >}}).
 {{< /alert >}}
 
 {{< alert warning >}}
@@ -175,7 +175,7 @@ If you don't provide enough users, you won't reach the throttle.
 If your injection lasts less than the throttle, your simulation will simply stop when all the users are done.
 If your injection lasts longer than the throttle, the simulation will stop at the end of the throttle.
 
-Throttling can also be configured [per scenario](||< ref "docs/scenario-throttling" >||).
+Throttling can also be configured [per scenario]({{< ref "../scenario#throttling" >}}).
 {{< /alert >}}
 
 ```scala
