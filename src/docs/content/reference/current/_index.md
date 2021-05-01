@@ -1,5 +1,5 @@
 ---
 cascade:
-  version: 3.5
+  version: 3.6
   latest: true
 ---

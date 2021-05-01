@@ -35,8 +35,8 @@ The first step is to inject state into the virtual users.
 
 There's 3 ways of doing that:
 
-* using [Feeders](||< ref "docs/feeder" >||)
-* extracting data from responses and saving them, e.g. with [HTTP Check's saveAs](||< ref "docs/http-check-saving" >||)
+* using [Feeders]({{< ref "../feeder" >}})
+* extracting data from responses and saving them, e.g. with [HTTP Check's saveAs]({{< ref "../../http/check#saving" >}})
 * manually with the Session API
 
 ### Fetching Data
@@ -45,7 +45,7 @@ Once you have injected data into your virtual users, you'll naturally want to re
 
 There's 2 ways of doing that:
 
-* using Gatling's [Expression Language](||< ref "docs/el" >||)
+* using Gatling's [Expression Language]({{< ref "../expression_el" >}})
 * manually with the Session API
 
 {{< alert tip >}}

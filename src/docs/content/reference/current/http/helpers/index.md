@@ -38,7 +38,7 @@ maxAge is optional, defaulting to `Long.MinValue`
 
 secure is optional, defaulting to false
 
-### Getting a Cookie Value
+### Getting a Cookie Value {#getting-cookie-value}
 
 Get the cookie value and put it in the session
 

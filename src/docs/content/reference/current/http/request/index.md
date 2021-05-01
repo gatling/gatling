@@ -55,7 +55,7 @@ For example, `https://github.com/gatling/gatling/issues?milestone=1&state=open` 
 * `state=open` : the key is *state* and its value is *open*
 
 {{< alert tip >}}
-Query parameter keys and values have to be [URL encoded <http://www.w3schools.com/tags/ref_urlencode.asp>`_, as per `RFC3986](http://tools.ietf.org/html/rfc3986).
+Query parameter keys and values have to be [URL encoded](http://www.w3schools.com/tags/ref_urlencode.asp), as per `RFC3986](http://tools.ietf.org/html/rfc3986).
 Sometimes, HTTP server implementations are very permissive, but Gatling currently isn't and sticks to the RFC.
 {{< /alert >}}
 
@@ -73,7 +73,7 @@ In order to set the query parameters of an HTTP request, you can:
 ||< include-static "HttpRequestSample.scala#query-params-no-el" >||
 ```
 
-Of course, you can use [Gatling Expression Language (EL)](||< ref "docs/el" >||) to make those values dynamic based on data in the virtual user's session:
+Of course, you can use [Gatling Expression Language (EL)]({{< ref "../../session/expression_el" >}}) to make those values dynamic based on data in the virtual user's session:
 
 ```scala
 ||< include-static "HttpRequestSample.scala#query-params-with-el" >||
@@ -108,7 +108,7 @@ If you want to add multiple query parameters at once, there are two suitable met
 {{< alert tip >}}
 As all method parameters are `Expression[T]`, i.e. 'key' parameter is an `Expression[String]` and so on, if you have more specific needs you can also provide an arbitrary `Expression[T]`, i.e. a `Session => Validation[T]` function.
 This function will be evaluated against the user session every time this one pass through it.
-For a deeper look at `Expression` see dedicated section [here](||< ref "docs/expression" >||).
+For a deeper look at `Expression` see dedicated section [here]({{< ref "../../session/expression_el" >}}).
 {{< /alert >}}
 
 ## Headers
@@ -249,7 +249,7 @@ You can add checks on a request:
 ||< include-static "HttpRequestSample.scala#check" >||
 ```
 
-For more information, see the [HTTP Checks reference section](||< ref "docs/http-check" >||).
+For more information, see the [HTTP Checks reference section]({{< ref "../check" >}}).
 
 For a given request, you can also disable common checks that were defined on the `HttpProtocol` with `ignoreProtocolChecks`:
 
@@ -274,7 +274,7 @@ If you know that your urls are already properly encoded, you can disable this fe
 
 ## Silencing
 
-See [silencing protocol section](||< ref "docs/http-protocol-silencing" >||) for more details.
+See [silencing protocol section]({{< ref "../protocol#silencing" >}}) for more details.
 
 You can then make the request *silent*:
 
@@ -420,7 +420,7 @@ Here, you can pass a Stream.
 * `PebbleStringBody(template: String)` and `PebbleFileBody(path: Expression[String])`
 
 Gatling Expression Language is definitively the most optimized templating engine for Gatling, in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
-If you want loops and conditional blocks, you can use Gatling's [Pebble](||< ref "docs/https://github.com/PebbleTemplates/pebble" >||) based templating engine.
+If you want loops and conditional blocks, you can use Gatling's [Pebble](https://github.com/PebbleTemplates/pebble) based templating engine.
 
 ```scala
 ||< include-static "HttpRequestSample.scala#PebbleBody" >||
@@ -460,34 +460,34 @@ You can add a multipart body to an HTTP request and add parts with the dedicated
 
 where path is the location of a file that will be uploaded as is.
 
-Similar to [RawFileBody](||< ref "docs/http-request-body-rawfile" >||).
+Similar to [RawFileBody]({{< ref "#request-body" >}}).
 
 * `ElFileBodyPart(path: Expression[String])`
 * `ElFileBodyPart(name: Expression[String], path: Expression[String])`
 
 where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
 
-Similar to [ElFileBody](||< ref "docs/http-request-body-elfile" >||).
+Similar to [ElFileBody]({{< ref "#request-body" >}}).
 
 * `StringBodyPart(string: Expression[String])`
 * `StringBodyPart(name: Expression[String], string: Expression[String])`
 
-Similar to [StringBody](||< ref "docs/http-request-body-string" >||).
+Similar to [StringBody]({{< ref "#request-body" >}}).
 
 * `PebbleStringBodyPart(string: String)`
 * `PebbleStringBodyPart(name: Expression[String], string: String)`
 
-Similar to [PebbleStringBody](||< ref "docs/http-request-body-pebble" >||).
+Similar to [PebbleStringBody]({{< ref "#request-body" >}}).
 
 * `PebbleFileBodyPart(path: Expression[String])`
 * `PebbleFileBodyPart(name: Expression[String], path: Expression[String])`
 
-Similar to [PebbleFileBody](||< ref "docs/http-request-body-pebble" >||).
+Similar to [PebbleFileBody]({{< ref "#request-body" >}}).
 
 * `ByteArrayBodyPart(bytes: Expression[Array[Byte])`
 * `ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])`
 
-Similar to [ByteArrayBody](||< ref "docs/http-request-body-bytes" >||).
+Similar to [ByteArrayBody]({{< ref "#request-body" >}}).
 
 Once bootstrapped, BodyPart has the following methods for setting additional optional information:
 
