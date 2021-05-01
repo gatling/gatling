@@ -18,7 +18,7 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 The Maven's coordinates for the archetype are `io.gatling.highcharts:gatling-highcharts-maven-archetype`.
 
-You can either use your IDE's facilities for creating a new project using a Maven archetype or, from the command line, type::
+You can either use your IDE's facilities for creating a new project using a Maven archetype or, from the command line, type:
 
 ```shell
 mvn archetype:generate -DarchetypeGroupId=io.gatling.highcharts -DarchetypeArtifactId=gatling-highcharts-maven-archetype

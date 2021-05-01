@@ -51,7 +51,7 @@ For WebSockets it takes the name of the check and not the name of the request. `
 
 {{< alert tip >}}
 When `path` is a group, assertions are matched against the cumulated response time, not the group total duration.
-For more information on the distinction between groups cumulated response time and duration, see [the Groups timings documentation](||< ref "docs/groups-timings" >||).
+For more information on the distinction between groups cumulated response time and duration, see [the Groups timings documentation]({{< ref "../timings#groups" >}}).
 {{< /alert >}}
 
 ## Statistics

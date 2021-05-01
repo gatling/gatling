@@ -45,7 +45,7 @@ You can also use the [gatling-highcharts-maven-archetype](`docs/maven-archetype`
 
 ### Directly running maven goal
 
-You can directly launch the gatling-maven-plugin with the `test` goal::
+You can directly launch the gatling-maven-plugin with the `test` goal:
 
   mvn gatling:test
 
@@ -55,7 +55,7 @@ The gatling-maven-plugin will take care of compiling your code.
 ### Running from maven lifecycle
 
 If you want to have the gatling-maven-plugin during maven's phases lifecycle, eg because you want it to be triggered with `mvn verify`,
-you must explicitly configure an execution block::
+you must explicitly configure an execution block:
 
 ```xml
 <plugin>

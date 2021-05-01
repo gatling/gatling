@@ -85,7 +85,7 @@ Note that:
 * `ElFileBody`, `PebbleStringBody` and `PebbleFileBody` implement `Expression[String]` so they can be passed to `sendText`
 * `RawFileBody` and `ByteArrayBody` implement `Expression[Array[Byte]]` so they can be passed to `sendBytes`.
 
-See [http-request-body](||< ref "docs/HTTP request body for more information" >||).
+See [HTTP request body]({{< ref "../request#request-body" >}}) for more information.
 
 ## Server Messages: Checks
 

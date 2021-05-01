@@ -32,9 +32,9 @@ For example, when using the Gatling HTTP module you would write the following li
 ||< include-static "ScenarioSample.scala#exec-example" >||
 ```
 
-`exec` can also be passed an [Expression](||< ref "docs/expression" >||) function.
+`exec` can also be passed an [Expression]({{< ref "../../session/expression_el#expression" >}}) function.
 
-This can be used for manually debugging or editing the [Session](||< ref "docs/expression" >||), e.g.:
+This can be used for manually debugging or editing the [Session]({{< ref "../../session/session_api#session" >}}), e.g.:
 
 ```scala
 ||< include-static "ScenarioSample.scala#session-lambda" >||
@@ -85,7 +85,7 @@ There are several ways of using it:
 
 {{< alert tip >}}
 All those methods also have an optional force parameter that overrides the pause type defined in the set up.
-Possible values are the [same ones than for global definition](||< ref "docs/simulation-setup-pause" >||).
+Possible values are the [same ones than for global definition]({{< ref "../simulation_setup#global-pause-configuration" >}}).
 {{< /alert >}}
 
 #### `pace`
@@ -411,11 +411,11 @@ You can configure protocols at scenario level with `protocols` method:
 ||< include-static "ScenarioSample.scala#protocol" >||
 ```
 
-See the dedicated section for http protocol definition [here](||< ref "docs/http-protocol" >||).
+See the dedicated section for http protocol definition [here]({{< ref "../../http/protocol" >}}).
 
 ## Pause definition
 
-You can configure pause definition at scenario level, see [here](||< ref "docs/simulation-setup-pause" >||) for more information.
+You can configure pause definition at scenario level, see [here]({{< ref "../simulation_setup#global-pause-configuration" >}}) for more information.
 
 ## Throttling
 
@@ -427,4 +427,4 @@ This way, you can configure different throttling profiles for different scenario
 ||< include-static "ScenarioSample.scala#throttling" >||
 ```
 
-For further information see the dedicated section [here](||< ref "docs/simulation-setup-throttling" >||).
+For further information see the dedicated section [here]({{< ref "../simulation_setup#throttling" >}}).

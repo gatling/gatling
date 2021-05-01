@@ -49,7 +49,7 @@ libraryDependencies ++= /* Gatling dependencies */
 
 You can find a [sample project demoing the gatling-sbt-plugin](https://github.com/gatling/gatling-sbt-plugin-demo) in Gatling's Github organization.
 
-You can also use the [Giter8 template](||< ref "docs/g8-template" >||) to bootstrap your project.
+You can also use the [Giter8 template]({{< ref "giter8_template" >}}) to bootstrap your project.
 
 ## Usage
 

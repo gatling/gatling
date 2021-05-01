@@ -11,7 +11,7 @@ lastmod: 2021-04-20T18:30:56+02:00
 By default, each virtual user will have its own `SSLContext` and `SSLSession`.
 This behavior is realistic when it comes to simulating web traffic so your server has to deal with the proper number of `SSLSession`.
 
-You can only have a shared `SSLContext` if you decide to [shareConnections](||< ref "docs/http-protocol-connection-sharing" >||).
+You can only have a shared `SSLContext` if you decide to [shareConnections]({{< ref "../protocol#connection-sharing" >}}).
 
 ## Disabling OpenSSL
 
@@ -36,4 +36,4 @@ meaning that it works out of the box with self-signed certificates.
 
 You can pass your own keystore and trustore in `gatling.conf`.
 
-[perUserKeyManagerFactory](||< ref "docs/http-protocol-kmf" >||) can be used to set the `KeyManagerFactory` for each virtual user.
+[perUserKeyManagerFactory]({{< ref "../protocol#keymanagerfactory" >}}) can be used to set the `KeyManagerFactory` for each virtual user.

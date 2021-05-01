@@ -96,7 +96,7 @@ mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
   .wait(100 milliseconds)
 ```
 
-You can optionally define in which topic the expected message will be received::
+You can optionally define in which topic the expected message will be received:
 
 ```scala
 .wait(100 milliseconds, "repub/${myTopic}")
