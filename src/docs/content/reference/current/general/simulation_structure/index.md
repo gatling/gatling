@@ -144,5 +144,5 @@ The lifecycle is as below:
 
 {{< alert tip >}}
 You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.
-If you're looking for executing Gatling DSL, you might consider using [sequential scenarios](||< ref "docs/simulation-inject-seq" >||).
+If you're looking for executing Gatling DSL, you might consider using [sequential scenarios]({{< ref "../simulation_setup#sequential-scenarios" >}}).
 {{< /alert >}}

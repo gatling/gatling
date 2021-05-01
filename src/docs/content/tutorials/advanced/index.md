@@ -6,7 +6,7 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 ---
 
-In this section, we assume that you have already gone through the [quickstart` section and that you have a basic simulation to work with.
+In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.
 We will apply a series of refactorings to introduce more advanced concepts and DSL constructs.
 
 ## Step 01: Isolate processes
@@ -111,9 +111,9 @@ Explanations:
 6. We use the previously saved hyperlink to get a specific page.
 
 {{< alert tip >}}
-For more details regarding *Feeders*, please check out [Feeder reference page](||< ref "docs/feeder" >||).
+For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/session/feeder" >}}).
 
-For more details regarding *HTTP Checks*, please check out [Checks reference page](||< ref "docs/http-check" >||).
+For more details regarding *HTTP Checks*, please check out [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
 {{< /alert >}}
 
 ## Step 04: Looping
@@ -142,7 +142,7 @@ Explanations:
 2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
 {{< alert tip >}}
-For more details regarding loops, please check out [Loops reference page](||< ref "docs/scenario-loops" >||).
+For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/general/scenario#loops" >}}).
 {{< /alert >}}
 
 ## Step 05: Check and failure management
@@ -177,7 +177,7 @@ Explanations:
 2. If all tries failed, the user exits the whole scenario due to `exitHereIfFailed`.
 
 {{< alert tip >}}
-For more details regarding conditional blocks, please check out [Conditional Statements reference page](||< ref "docs/scenario-conditions" >||).
+For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/general/scenario#conditional-statements" >}}).
 {{< /alert >}}
 
 That's all Folks!

@@ -28,18 +28,18 @@ One can of course perform multiple checks:
 
 This API provides a dedicated DSL for chaining the following steps:
 
-1. [defining the check type](||< ref "docs/http-check-type" >||)
-2. [extracting](||< ref "docs/http-check-extracting" >||)
-3. [transforming](||< ref "docs/http-check-transform" >||)
-4. [validating](||< ref "docs/http-check-validating" >||)
-5. [saving](||< ref "docs/http-check-saving" >||)
+1. [defining the check type]({{< ref "#defining-check-type" >}})
+2. [extracting]({{< ref "#extracting" >}})
+3. [transforming]({{< ref "#transforming" >}})
+4. [validating]({{< ref "#validating" >}})
+5. [saving]({{< ref "#saving" >}})
 
 {{< alert tip >}}
-By default, Gatling follows redirects (can be disabled in the [protocol](||< ref "docs/http-protocol-redirect" >||)).
+By default, Gatling follows redirects (can be disabled in the [protocol]({{< ref "../protocol#follow-redirects" >}})).
 If this behavior is enabled, checks will ignore intermediate responses and will target the landing response.
 {{< /alert >}}
 
-## Defining the check type
+## Defining the check type {#defining-check-type}
 
 The HTTP Check implementation provides the following built-ins:
 
@@ -125,7 +125,7 @@ Returns the response time of this request in milliseconds = the time between sta
 * `bodyString`
 
 Return the full response body String.
-Note that this can be matched against content from the the filesystem using [RawFileBody](||< ref "docs/http-request-body-rawfile" >||) or [ElFileBody](||< ref "docs/http-request-body-elfile" >||).
+Note that this can be matched against content from the the filesystem using [RawFileBody]({{< ref "../request#request-body" >}}) or [ElFileBody]({{< ref "../request#request-body" >}}).
 
 * `bodyBytes`
 
@@ -244,7 +244,7 @@ The example below shows how to extract Ints:
 
 * `jsonpJsonPath(expression)`
 
-Same as [jsonPath](||< ref "docs/http-check-jsonpath" >||) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as `jsonPath` but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
 
 * `jmesPath(expression)`
 
@@ -288,7 +288,7 @@ You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to 
 
 * `jsonpJmesPath(expression)`
 
-Same as [jmesPath](||< ref "docs/http-check-jmespath" >||) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as `jmesPath` but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
 
 * `css(expression, attribute)`
 
@@ -562,4 +562,4 @@ Verifies that the response body matches the binary content of the file `user-fil
 ||< include-static "CheckSample.scala#bodyString-isElFileBody" >||
 ```
 
-Verifies that the response body matches the text content of the file `user-files/bodies/expected_template.json` resolved with [Gatling Expression Language (EL)](||< ref "docs/el" >||).
+Verifies that the response body matches the text content of the file `user-files/bodies/expected_template.json` resolved with [Gatling Expression Language (EL)]({{< ref "../../session/expression_el" >}}).

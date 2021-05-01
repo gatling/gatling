@@ -23,7 +23,7 @@ For further information, you should have a look at [Logback Documentation](http:
 In order to log requests and responses, uncomment the dedicated loggers in the [default logging configuration file](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy).
 {{< /alert >}}
 
-### gatling.conf
+### gatling.conf {#gatling-conf}
 
 Gatling configuration is based on the great [Typesafe Config library](https://github.com/typesafehub/config).
 
@@ -50,7 +50,7 @@ If you want to override default values, you have two possibilities:
 When editing `gatling.conf`, don't forget to remove the leading `#` that comments the line, otherwise your change will be ineffective.
 {{< /alert >}}
 
-## Zip Bundle Command Line Options
+## Zip Bundle Command Line Options {#cli-options}
 
 Gatling can be started with several options listed below:
 

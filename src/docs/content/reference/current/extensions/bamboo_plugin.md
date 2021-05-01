@@ -10,4 +10,4 @@ lastmod: 2021-04-20T18:30:56+02:00
 This plugin can launch a FrontLine simulation and display live metrics.
 Please refer to Gatling FrontLine documentation for the installation of this plugin.
 
-There is no Bamboo plugin for Gatling OSS, but you can launch a Gatling run with our [Maven](||< ref "docs/maven_plugin" >||) or [SBT](||< ref "docs/sbt_plugin" >||) plugin.
+There is no Bamboo plugin for Gatling OSS, but you can launch a Gatling run with our [Maven]({{< ref "maven_plugin" >}}) or [SBT]({{< ref "sbt_plugin" >}}) plugin.

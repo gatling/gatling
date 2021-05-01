@@ -34,5 +34,5 @@ FrontLine is a web interface with more features: real-time monitoring, clusterin
 
 ### Migrating from a Previous Version of Gatling
 
-* If you're migrating from Gatling 2.3 to Gatling 3.0, please check the [dedicated migration guide](||< ref "reference/current/migration/2.3-to-3.0.md" >||).
+* If you're migrating from Gatling 2.3 to Gatling 3.0, please check the [dedicated migration guide]({{< ref "reference/current/migration/2.3-to-3.0.md" >}}).
 * Otherwise, please follow the [previous migration guides]({{< ref "reference/current/migration" >}}).

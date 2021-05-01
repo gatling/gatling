@@ -16,7 +16,7 @@ Details menu points to per-request-type statistics.
 You can use the `-ro` option to generate reports from a truncated simulation.log file, for example when the run was interrupted (Ctrl+C or process killed).
 
 Note that the component in charge of logging into the simulation.log file uses a buffer, so last data might be missing if you forcefully interrupt.
-See [Configuration page](||< ref "docs/gatling-cli-options" >||).
+See [Configuration page]({{< ref "../configuration#cli-options" >}}).
 {{< /alert >}}
 
 ## Overall Simulation charts
