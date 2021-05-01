@@ -12,7 +12,7 @@ In this section we will use Gatling to load test a simple cloud hosted web serve
 
 ### Installing
 
-Please check the [installation section](||< ref "docs/installation" >||) to pick a setup that matches your needs.
+Please check the [installation section]({{< ref "installation" >}}) to pick a setup that matches your needs.
 Non developers are recommended to start with the bundle setup.
 
 ### A Word on Encoding
@@ -94,7 +94,7 @@ Set it up with the following options:
 After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
 
 {{< alert tip >}}
-For more information regarding Recorder and browser configuration, please check out [Recorder reference page](||< ref "docs/recorder" >||).
+For more information regarding Recorder and browser configuration, please check out [Recorder reference page]({{< ref "../../reference/current/http/recorder" >}}).
 {{< /alert >}}
 
 ### Recording the scenario
@@ -156,7 +156,7 @@ Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `pause(5 s
 13. Attaching the HTTP configuration declared above.
 
 {{< alert tip >}}
-For more details regarding Simulation structure, please check out [Simulation reference page](||< ref "docs/simulation-structure" >||).
+For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/general/simulation_structure" >}}).
 {{< /alert >}}
 
 ### Running Gatling
@@ -185,9 +185,9 @@ Choose a simulation number:
 When the simulation is done, the console will display a link to the HTML reports.
 
 {{< alert tip >}}
-If Gatling doesn't work as expected, see our [FAQ](||< ref "docs/faq" >||) or ask on our [Google Group](https://groups.google.com/forum/#!forum/gatling).
+If Gatling doesn't work as expected, see our [FAQ]({{< ref "../../reference/current/project/faq" >}}) or ask on our [Google Group](https://groups.google.com/forum/#!forum/gatling).
 {{< /alert >}}
 
 ### Going Further
 
-When you're ready to go further, please check out the [Advanced Tutorial](||< ref "docs/advanced_tutorial" >||).
+When you're ready to go further, please check out the [Advanced Tutorial]({{< ref "../advanced" >}}).

@@ -46,7 +46,7 @@ If you want to load test several servers at the same time, to bypass a load-bala
 
 Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
 
-### Automatic warm up
+### Automatic warm up {#warmup}
 
 The Java/NIO engine start up introduces an overhead on the first request to be executed.
 In order to compensate this effect, Gatling automatically performs a request to https://gatling.io.
@@ -90,7 +90,7 @@ This behavior meets your needs when you want to simulate internet traffic where 
 Instead, if you want to simulate server to server traffic where the actual client has a long lived connection pool, you want to have the virtual users share a single global connection pool.
 You can achieve this behavior with the `.shareConnections` param.
 
-### HTTP/2 Support
+### HTTP/2 Support {#http2}
 
 HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
 
@@ -133,7 +133,7 @@ If you configure a remote in prior knowledge and set it to true, but that the AL
 Use the `http2PriorKnowledge` option only if you are sure about your remote configuration.
 {{< /alert >}}
 
-### DNS Name Resolution
+### DNS Name Resolution {#dns}
 
 By default, Gatling uses Java's DNS name resolution. This cache has a TTL of 30s by default on OpenJDK and doesn't honor the DNS records' own TTL.
 You can control the TTL with `-Dsun.net.inetaddr.ttl=N` where `N` is a number of seconds.
@@ -223,7 +223,7 @@ Url components are supposed to be [urlencoded](http://www.w3schools.com/tags/ref
 Gatling will encode them for you, there might be some corner cases where already encoded components might be encoded twice.
 
 If you know that your urls are already properly encoded, you can disable this feature with `.disableUrlEncoding`.
-Note that this feature can also be [disabled per request](||< ref "docs/http-request-urlencoding" >||).
+Note that this feature can also be [disabled per request]({{< ref "../request#url-encoding" >}}).
 
 ### Silencing
 
@@ -232,14 +232,14 @@ Sometimes, some requests may be important for you for generating load, but you d
 Typically, reporting all static resources might generate a lot of noise, and yet failed static resources might not be blocking from a user experience perspective.
 
 Gatling provides several means to turn requests silent.
-Silent requests won't be reported and won't influence error triggers such as [tryMax](||< ref "docs/scenario-trymax" >||) and [exitHereIfFailed](||< ref "docs/scenario-exithereiffailed" >||).
+Silent requests won't be reported and won't influence error triggers such as [tryMax]({{< ref "../../general/scenario#trymax" >}}) and [exitHereIfFailed]({{< ref "../../general/scenario#exithereiffailed" >}}).
 Yet, response times will be accounted for in `group` times.
 
 Some parameters are available here at protocol level, some others are available at request level.
 
 Rules are:
 
-* explicitly turning a given request [silent](||< ref "docs/http-request-silent" >||) or [notSilent](||< ref "docs/http-request-notsilent" >||) has precedence over everything else
+* explicitly turning a given request [silent]({{< ref "../request#silencing" >}}) or [notSilent]({{< ref "../request#silencing" >}}) has precedence over everything else
 * otherwise, a request is silent if it matches protocol's `silentUri` filter
 * otherwise, a request is silent if it's a resource (not a top level request) and protocol's `silentResources` flag has been turned on
 * otherwise, a request is not silent
@@ -293,7 +293,7 @@ signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[S
 ```
 
 {{< alert tip >}}
-For more details see the dedicated section [here](||< ref "docs/http-request-signature" >||).
+For more details see the dedicated section [here]({{< ref "../request#signature-calculator" >}}).
 {{< /alert >}}
 
 ### Authentication
@@ -304,7 +304,7 @@ You can set the authentication methods at protocol level with these methods:
 * `digestAuth(username: Expression[String], password: Expression[String])`
 
 {{< alert tip >}}
-For more details see the dedicated section [here](||< ref "docs/http-request-authentication" >||).
+For more details see the dedicated section [here]({{< ref "../request#authentication" >}}).
 {{< /alert >}}
 
 ## Response handling parameters
@@ -324,7 +324,7 @@ You can disable this behavior with `.strict302Handling`.
 Some people might want to process manually the response. Gatling protocol provides a hook for that need: `transformResponse(responseTransformer: ResponseTransformer)`
 
 {{< alert tip >}}
-For more details see the dedicated section [here](||< ref "docs/http-response-transformer" >||).
+For more details see the dedicated section [here]({{< ref "../request#response-transformers" >}}).
 {{< /alert >}}
 
 ### Checks
@@ -333,7 +333,7 @@ You can define checks at the http protocol definition level with: `check(checks:
 They will be apply on all the requests, however you can disable them for given request thanks to the `ignoreProtocolChecks` method.
 
 {{< alert tip >}}
-For more details see the dedicated section [here](||< ref "docs/http-check" >||).
+For more details see the dedicated section [here]({{< ref "../check" >}}).
 {{< /alert >}}
 
 ### Resource inferring

@@ -43,7 +43,7 @@ Windows users : we recommend that you do not place Gatling in the *Programs* fol
 In order to run Gatling, you need to have a JDK installed.
 Gatling requires at least **JDK8**. Then, we recommend that you use an up-to-date version.
 
-For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations](||< ref "docs/general/operations" >||) section.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/general/operations" >}}) section.
 
 {{< alert warning >}}
 Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
@@ -59,19 +59,19 @@ you might want to explicitly set `JAVA_HOME`.
 
 Gatling provides an official maven plugin named `gatling-maven-plugin`. This plugin lets you compile your Scala code and launch Gatling simulations.
 
-Check the [maven plugin documentation](||< ref "docs/extensions/maven-plugin" >||) for more information.
+Check the [maven plugin documentation]({{< ref "../../reference/current/extensions/maven_plugin" >}}) for more information.
 
 ### Sbt
 
 Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
 
-Check the [sbt plugin documentation](||< ref "docs/sbt-plugin" >||) for more information.
+Check the [sbt plugin documentation]({{< ref "../../reference/current/extensions/sbt_plugin" >}}) for more information.
 
 ### Gradle
 
 Gatling provides an official gradle plugin named `io.gatling.gradle`. This plugin lets you launch your Gatling simulations.
 
-Check the [gradle plugin documentation](||< ref "docs/gradle-plugin" >||) for more information.
+Check the [gradle plugin documentation]({{< ref "../../reference/current/extensions/gradle_plugin" >}}) for more information.
 
 ## Using an IDE
 
@@ -152,7 +152,7 @@ You'll have to add the following section in your `pom.xml`:
 
 ### Launching Gatling and the Recorder from the IDE
 
-The [gatling-highcharts-maven-archetype](||< ref "docs/maven-archetype" >||) generates some helper classes that you can use to launch Gatling and the Recorder manually from your IDE.
+The [gatling-highcharts-maven-archetype]({{< ref "../../reference/current/extensions/maven_archetype" >}}) generates some helper classes that you can use to launch Gatling and the Recorder manually from your IDE.
 You can perfectly copy [those 3 classes](https://github.com/gatling/gatling-highcharts-maven-archetype/tree/master/src/main/scala) (`Engine`, `Recorder` and `IDEPathHelper`) in your own project.
 
-Please check the [launchers documentation section](||< ref "docs/launchers" >||).
+Please check the [launchers documentation section]({{< ref "../../reference/current/extensions/maven_archetype#launchers" >}}).

@@ -74,7 +74,7 @@ In order the locate the file, Gatling try the following strategies in sequence:
 {{< alert warning >}}
 Do NOT rely on having an exploded gradle/maven/sbt project structure.
 Typically, don't use strategy #2 and paths such as `src/main/resources/data/file.csv`.
-The exploded structure might no longer be there at runtime, all the more when deploying with [FrontLine](||< ref "docs/https://gatling.io/gatling-frontline/" >||).
+The exploded structure might no longer be there at runtime, all the more when deploying with [FrontLine](https://gatling.io/gatling-frontline/).
 Use strategy #1 and classpath paths such as `data/file.csv`.
 {{< /alert >}}
 
@@ -245,7 +245,7 @@ record3: Map(
   "changefreq" -> "weekly")
 ```
 
-## Redis feeder
+## Redis feeder {#redis}
 
 This feature was originally contributed by Krishnen Chedambarum.
 
@@ -322,7 +322,7 @@ Beware that each `readRecords` call will read the underlying source, eg parse th
 
 Sometimes, you could want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
 
-Still, it's quite easy to build, thanks to [flattenMapIntoAttributes](||< ref "docs/scenario-exec-function-flatten" >||)  e.g.:
+Still, it's quite easy to build, thanks to [flattenMapIntoAttributes]({{< ref "../../general/scenario#exec" >}})  e.g.:
 
 ```scala
 ||< include-static "FeederSample.scala#non-shared" >||
