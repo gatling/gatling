@@ -49,9 +49,7 @@ Open and closed workload models are antinomical and you can't mix them in the sa
 
 ### Open Model
 
-```scala
-||< include-static "SimulationSetupSample.scala#open-injection" >||
-```
+{{< include-code "SimulationSetupSample.scala#open-injection" scala >}}
 
 The building blocks for profile injection the way you want are:
 
@@ -66,9 +64,7 @@ The building blocks for profile injection the way you want are:
 
 ### Closed Model
 
-```scala
-||< include-static "SimulationSetupSample.scala#closed-injection" >||
-```
+{{< include-code "SimulationSetupSample.scala#closed-injection" scala >}}
 
 1. `constantConcurrentUsers(nbUsers) during(duration)`: Inject so that number of concurrent users in the system is constant
 2. `rampConcurrentUsers(fromNbUsers) to(toNbUsers) during(duration)`: Inject so that number of concurrent users in the system ramps linearly from a number to another
@@ -92,15 +88,11 @@ It is possible to use elements of Meta DSL to write tests in an easier way.
 If you want to chain levels and ramps to reach the limit of your application (a test sometimes called capacity load testing), you can do it manually using the regular DSL and looping using map and flatMap.
 But there is now an alternative using the meta DSL.
 
-```scala
-||< include-static "SimulationSetupSample.scala#incrementUsersPerSec" >||
-```
+{{< include-code "SimulationSetupSample.scala#incrementUsersPerSec" scala >}}
 
 * `incrementUsersPerSec(usersPerSecAddedByStage)`
 
-```scala
-||< include-static "SimulationSetupSample.scala#incrementConcurrentUsers" >||
-```
+{{< include-code "SimulationSetupSample.scala#incrementConcurrentUsers" scala >}}
 
 * `incrementConcurrentUsers(concurrentUsersAddedByStage)`
 
@@ -114,17 +106,13 @@ If you don't specify the number of starting users the test will start at 0 concu
 
 You can configure multiple scenarios in the same `setUp` block to started at the same time and executed concurrently.
 
-```scala
-||< include-static "SimulationSetupSample.scala#multiple" >||
-```
+{{< include-code "SimulationSetupSample.scala#multiple" scala >}}
 
 ### Sequential Scenarios
 
 It's also possible with `andThen` to chain scenarios so that children scenarios starts once all the users in the parent scenario terminate.
 
-```scala
-||< include-static "SimulationSetupSample.scala#andThen" >||
-```
+{{< include-code "SimulationSetupSample.scala#andThen" scala >}}
 
 ### Disabling FrontLine Load Sharding
 
@@ -135,9 +123,7 @@ Indeed, only one node would run this user, leaving the other nodes without an in
 
 You can user `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
 
-```scala
-||< include-static "SimulationSetupSample.scala#noShard" >||
-```
+{{< include-code "SimulationSetupSample.scala#noShard" scala >}}
 
 ## Global Pause configuration
 
@@ -178,9 +164,7 @@ If your injection lasts longer than the throttle, the simulation will stop at th
 Throttling can also be configured [per scenario]({{< ref "../scenario#throttling" >}}).
 {{< /alert >}}
 
-```scala
-||< include-static "SimulationSetupSample.scala#throttling" >||
-```
+{{< include-code "SimulationSetupSample.scala#throttling" scala >}}
 
 This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
 
@@ -196,6 +180,4 @@ Finally, with `maxDuration` you can force your run to terminate based on a durat
 
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
-```scala
-||< include-static "SimulationSetupSample.scala#max-duration" >||
-```
+{{< include-code "SimulationSetupSample.scala#max-duration" scala >}}

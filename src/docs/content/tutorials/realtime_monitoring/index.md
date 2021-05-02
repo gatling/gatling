@@ -4,6 +4,7 @@ description: ""
 lead: ""
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 040
 ---
 
 ## Introduction
@@ -225,4 +226,4 @@ To run the script:
 nc -l 2003 | awk -f a.awk
 ```
 
-[^1] A time series is a sequence of data points that are measured over time and a time-series database optimises that data.
+[1](#influxdb) A time series is a sequence of data points that are measured over time and a time-series database optimises that data.

@@ -2,8 +2,8 @@
 ##################################################################################################################
 # Gatling scale out/cluster run script:
 # Before running this script some assumptions are made:
-# 1) Public keys were exchange inorder to ssh with no password promot (ssh-copy-id on all remotes)
-# 2) Check  read/write permissions on all folders declared in this script.
+# 1) Public keys were exchange in order to ssh with no password promote (ssh-copy-id on all remotes)
+# 2) Check read/write permissions on all folders declared in this script.
 # 3) Gatling installation (GATLING_HOME variable) is the same on all hosts
 # 4) Assuming all hosts has the same user name (if not change in script)
 ##################################################################################################################

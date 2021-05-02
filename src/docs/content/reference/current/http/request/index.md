@@ -13,9 +13,7 @@ If the same name appears in multiple places in a Simulation, Gatling will consid
 
 HTTP requests have to be passed to the `exec()` method in order to be attached to the scenario and be executed.
 
-```scala
-||< include-static "HttpRequestSample.scala#example-embedded-or-not" >||
-```
+{{< include-code "HttpRequestSample.scala#example-embedded-or-not" scala >}}
 
 ## Method and URL
 
@@ -41,9 +39,7 @@ Gatling also supports custom methods (e.g. you can use the method *PURGE* to pur
 
 This is how an HTTP request is declared:
 
-```scala
-||< include-static "HttpRequestSample.scala#general-structure,builtins-or-custom" >||
-```
+{{< include-code "HttpRequestSample.scala#general-structure,builtins-or-custom" scala >}}
 
 ## Query Parameters
 
@@ -63,47 +59,33 @@ In order to set the query parameters of an HTTP request, you can:
 
 * either pass the full query in the url, e.g.:
 
-```scala
-||< include-static "HttpRequestSample.scala#getting-issues" >||
-```
+{{< include-code "HttpRequestSample.scala#getting-issues" scala >}}
 
 * or pass query parameters one by one to the method named `queryParam(key: Expression[String], value: Expression[Any])`, e.g.:
 
-```scala
-||< include-static "HttpRequestSample.scala#query-params-no-el" >||
-```
+{{< include-code "HttpRequestSample.scala#query-params-no-el" scala >}}
 
 Of course, you can use [Gatling Expression Language (EL)]({{< ref "../../session/expression_el" >}}) to make those values dynamic based on data in the virtual user's session:
 
-```scala
-||< include-static "HttpRequestSample.scala#query-params-with-el" >||
-```
+{{< include-code "HttpRequestSample.scala#query-params-with-el" scala >}}
 
 If you'd like to specify a query parameter without value, you have to use `queryParam("key", "")`:
 
-```scala
-||< include-static "HttpRequestSample.scala#query-param-no-value" >||
-```
+{{< include-code "HttpRequestSample.scala#query-param-no-value" scala >}}
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use `multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#multivaluedQueryParam" >||
-```
+{{< include-code "HttpRequestSample.scala#multivaluedQueryParam" scala >}}
 
 If you want to add multiple query parameters at once, there are two suitable methods:
 
 * `queryParamSeq(seq: Expression[Seq[(String, Any)]])`
 
-```scala
-||< include-static "HttpRequestSample.scala#queryParamSeq" >||
-```
+{{< include-code "HttpRequestSample.scala#queryParamSeq" scala >}}
 
 * `queryParamMap(map: Expression[Map[String, Any]])`
 
-```scala
-||< include-static "HttpRequestSample.scala#queryParamMap" >||
-```
+{{< include-code "HttpRequestSample.scala#queryParamMap" scala >}}
 
 {{< alert tip >}}
 As all method parameters are `Expression[T]`, i.e. 'key' parameter is an `Expression[String]` and so on, if you have more specific needs you can also provide an arbitrary `Expression[T]`, i.e. a `Session => Validation[T]` function.
@@ -119,9 +101,7 @@ Gatling HTTP allows you to specify any header you want to with the `header(name:
 
 Here are some examples:
 
-```scala
-||< include-static "HttpRequestSample.scala#headers" >||
-```
+{{< include-code "HttpRequestSample.scala#headers" scala >}}
 
 {{< alert tip >}}
 Headers keys are defined as constants usable in the scenario, for example: `HttpHeaderNames.ContentType`.
@@ -134,15 +114,11 @@ There are two handful methods to help you set the required headers for JSON and 
 
 * `http("foo").get("bar").asJson` is equivalent to:
 
-```scala
-||< include-static "HttpRequestSample.scala#asJson" >||
-```
+{{< include-code "HttpRequestSample.scala#asJson" scala >}}
 
 * `http("foo").get("bar").asXml` is equivalent to:
 
-```scala
-||< include-static "HttpRequestSample.scala#asXml" >||
-```
+{{< include-code "HttpRequestSample.scala#asXml" scala >}}
 
 {{< alert tip >}}
 Headers can also be defined on the `HttpProtocol`.
@@ -150,9 +126,7 @@ Headers can also be defined on the `HttpProtocol`.
 
 For a given request, you can also disable common headers that were defined on the `HttpProtocol` with `ignoreProtocolHeaders`:
 
-```scala
-||< include-static "HttpRequestSample.scala#ignoreProtocolHeaders" >||
-```
+{{< include-code "HttpRequestSample.scala#ignoreProtocolHeaders" scala >}}
 
 ## Request Timeout
 
@@ -161,9 +135,7 @@ The default request timeout is controlled by the ``gatling.http.requestTimeout` 
 However, you might want to use `requestTimeout(timeout: FiniteDuration)`
 to override the global value for a specific request, typically a long file upload or download.
 
-```scala
-||< include-static "HttpRequestSample.scala#requestTimeout" >||
-```
+{{< include-code "HttpRequestSample.scala#requestTimeout" scala >}}
 
 ## Signature Calculator
 
@@ -207,9 +179,7 @@ You can set the authentication methods at request level with these methods:
 * `basicAuth(username: Expression[String], password: Expression[String])`
 * `digestAuth(username: Expression[String], password: Expression[String])`
 
-```scala
-||< include-static "HttpRequestSample.scala#authentication" >||
-```
+{{< include-code "HttpRequestSample.scala#authentication" scala >}}
 
 {{< alert tip >}}
 Authentication can also be defined on the `HttpProtocol`.
@@ -220,9 +190,7 @@ Authentication can also be defined on the `HttpProtocol`.
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-```scala
-||< include-static "HttpRequestSample.scala#outgoing-proxy" >||
-```
+{{< include-code "HttpRequestSample.scala#outgoing-proxy" scala >}}
 
 {{< alert tip >}}
 Proxy can also be defined on the `HttpProtocol`.
@@ -233,9 +201,7 @@ Proxy can also be defined on the `HttpProtocol`.
 
 You can tell Gatling to override the default computed virtual host with the method `virtualHost(virtualHost: Expression[String])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#virtual-host" >||
-```
+{{< include-code "HttpRequestSample.scala#virtual-host" scala >}}
 
 {{< alert tip >}}
 Virtual Host can also be defined on the `HttpProtocol`.
@@ -245,25 +211,19 @@ Virtual Host can also be defined on the `HttpProtocol`.
 
 You can add checks on a request:
 
-```scala
-||< include-static "HttpRequestSample.scala#check" >||
-```
+{{< include-code "HttpRequestSample.scala#check" scala >}}
 
 For more information, see the [HTTP Checks reference section]({{< ref "../check" >}}).
 
 For a given request, you can also disable common checks that were defined on the `HttpProtocol` with `ignoreProtocolChecks`:
 
-```scala
-||< include-static "HttpRequestSample.scala#ignoreProtocolChecks" >||
-```
+{{< include-code "HttpRequestSample.scala#ignoreProtocolChecks" scala >}}
 
 ## FollowRedirect
 
 For a given request, you can use `disableFollowRedirect`, just like it can be done globally on the `HttpProtocol`:
 
-```scala
-||< include-static "HttpRequestSample.scala#disableFollowRedirect" >||
-```
+{{< include-code "HttpRequestSample.scala#disableFollowRedirect" scala >}}
 
 ## Url Encoding
 
@@ -278,15 +238,11 @@ See [silencing protocol section]({{< ref "../protocol#silencing" >}}) for more d
 
 You can then make the request *silent*:
 
-```scala
-||< include-static "HttpRequestSample.scala#silent" >||
-```
+{{< include-code "HttpRequestSample.scala#silent" scala >}}
 
 You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at protocol level:
 
-```scala
-||< include-static "HttpRequestSample.scala#notSilent" >||
-```
+{{< include-code "HttpRequestSample.scala#notSilent" scala >}}
 
 ## Form Parameters
 
@@ -295,37 +251,27 @@ This is typically used for form submission, where all the values are stored as P
 
 To add such parameters to a POST request, you must use the method `formParam(key: Expression[String], value: Expression[Any])` which is actually the same as `queryParam` in **terms of usage** (it has the same signatures).
 
-```scala
-||< include-static "HttpRequestSample.scala#formParam" >||
-```
+{{< include-code "HttpRequestSample.scala#formParam" scala >}}
 
 As for `queryParam` you have two methods to add multiple parameters at once:
 
 * `formParamSeq(seq: Expression[Seq[(String, Any)]])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#formParamSeq" >||
-```
+{{< include-code "HttpRequestSample.scala#formParamSeq" scala >}}
 
 * `formParamMap(map: Expression[Map[String, Any]])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#formParamMap" >||
-```
+{{< include-code "HttpRequestSample.scala#formParamMap" scala >}}
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use `multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#multivaluedFormParam" >||
-```
+{{< include-code "HttpRequestSample.scala#multivaluedFormParam" scala >}}
 
 The method `formParam` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
 * `form(seq: Expression[Map[String, Any])`:
 
-```scala
-||< include-static "HttpRequestSample.scala#form" >||
-```
+{{< include-code "HttpRequestSample.scala#form" scala >}}
 
 Typically used after capturing a whole form with a `form` check.
 
@@ -356,9 +302,7 @@ The `Content-Type` header will be set to `multipart/form-data` and the file adde
 
 One can call `formUpload()` multiple times in order to upload multiple files.
 
-```scala
-||< include-static "HttpRequestSample.scala#formUpload" >||
-```
+{{< include-code "HttpRequestSample.scala#formUpload" scala >}}
 
 {{< alert tip >}}
 Gatling will automatically set the `Content-Type` header to `multipart/form-data` if you didn't specify one.
@@ -386,9 +330,7 @@ You can add a full body to an HTTP request with the dedicated method `body(body)
 Over regular HTTP, Gatling can optimise sending such a body and directly stream from the file to the socket, without copying in memory.
 Of course, this optimisation is disabled over HTTPS, as bytes have to be encoded, i.e. loaded in memory.:
 
-```scala
-||< include-static "HttpRequestSample.scala#RawFileBody" >||
-```
+{{< include-code "HttpRequestSample.scala#RawFileBody" scala >}}
 
 * `ElFileBody(path: Expression[String])` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
 
@@ -405,9 +347,7 @@ Of course, it can't be binary.:
 
 Here, you can pass a raw String, a Gatling EL String, or an Expression function.:
 
-```scala
-||< include-static "HttpRequestSample.scala#StringBody" >||
-```
+{{< include-code "HttpRequestSample.scala#StringBody" scala >}}
 
 * `ByteArrayBody(bytes: Expression[Array[Byte]])`
 
@@ -422,9 +362,7 @@ Here, you can pass a Stream.
 Gatling Expression Language is definitively the most optimized templating engine for Gatling, in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
 If you want loops and conditional blocks, you can use Gatling's [Pebble](https://github.com/PebbleTemplates/pebble) based templating engine.
 
-```scala
-||< include-static "HttpRequestSample.scala#PebbleBody" >||
-```
+{{< include-code "HttpRequestSample.scala#PebbleBody" scala >}}
 
 {{< alert tip >}}
 Template inheritance is only available when using `PebbleFileBody`.
@@ -443,9 +381,7 @@ See [Scala 2.10 string interpolation](http://docs.scala-lang.org/overviews/core/
 
 For example:
 
-```scala
-||< include-static "HttpRequestSample.scala#templates" >||
-```
+{{< include-code "HttpRequestSample.scala#templates" scala >}}
 
 {{< alert tip >}}
 For simple use cases, prefer EL strings or based files, for more complex ones where programming capability is required, prefer String interpolation or Fastring.
@@ -518,9 +454,7 @@ Similarly, one might want to process the response before it's passed to the chec
 
 The example below shows how to decode some Base64 encoded response body:
 
-```scala
-||< include-static "HttpRequestSample.scala#resp-processors-imports,response-processors" >||
-```
+{{< include-code "HttpRequestSample.scala#resp-processors-imports,response-processors" scala >}}
 
 ## Resources
 
@@ -530,6 +464,4 @@ At the request level you can use the `resources(res: AbstractHttpRequestBuilder[
 
 For example:
 
-```scala
-||< include-static "HttpRequestSample.scala#resources" >||
-```
+{{< include-code "HttpRequestSample.scala#resources" scala >}}

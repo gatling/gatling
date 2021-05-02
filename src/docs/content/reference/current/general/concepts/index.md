@@ -42,9 +42,7 @@ This allows fast writing of scenarios and easy maintenance of existing scenarios
 
 Here is a simple example of a scenario:
 
-```scala
-||< include-static "ConceptSample.scala#simple-scenario" >||
-```
+{{< include-code "ConceptSample.scala#simple-scenario" scala >}}
 
 As we can easily guess, this scenario:
 
@@ -69,9 +67,7 @@ A simulation is a description of the load test. It describes how, possibly sever
 
 Here is an example of simulation definition:
 
-```scala
-||< include-static "ConceptSample.scala#example-definition" >||
-```
+{{< include-code "ConceptSample.scala#example-definition" scala >}}
 
 For more information, check the [Simulation Setup reference section]({{< ref "../../general/simulation_setup" >}}).
 

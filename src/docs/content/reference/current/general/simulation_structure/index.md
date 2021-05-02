@@ -64,9 +64,7 @@ Adding common headers can seem useless, but don't forget that they add load on y
 
 Headers are declared as Scala Maps:
 
-```scala
-||< include-static "SimulationStructureSample.scala#headers" >||
-```
+{{< include-code "SimulationStructureSample.scala#headers" scala >}}
 
 ## Scenario definition
 
@@ -74,18 +72,14 @@ After the headers definition comes the scenario definition.
 This definition has a name because you can define several scenarios in the same simulation.
 A scenario is usually stored in a Scala value:
 
-```scala
-||< include-static "SimulationStructureSample.scala#scenario-definition" >||
-```
+{{< include-code "SimulationStructureSample.scala#scenario-definition" scala >}}
 
 The scenario structure basically consists of chaining two methods: `exec` and `pause`.
 The first one is used to describe an action, usually a request sent to the tested application; the second one is used to simulate the think time of the user between consecutive requests.
 
 HTTP requests are defined as follows in a scenario:
 
-```scala
-||< include-static "SimulationStructureSample.scala#http-request-sample" >||
-```
+{{< include-code "SimulationStructureSample.scala#http-request-sample" scala >}}
 
 The above example produces a POST HTTP request that creates a new computer model:
 
@@ -111,9 +105,7 @@ params=
 
 The last part of the file contains the simulation definition, this is where you define the load you want to inject to your server, e.g.:
 
-```scala
-||< include-static "SimulationStructureSample.scala#setUp" >||
-```
+{{< include-code "SimulationStructureSample.scala#setUp" scala >}}
 
 which correspond to:
 
@@ -138,9 +130,7 @@ The lifecycle is as below:
 7. HTML reports are generated if enabled
 8. Gatling shuts down
 
-```scala
-||< include-static "SimulationStructureSample.scala#hooks" >||
-```
+{{< include-code "SimulationStructureSample.scala#hooks" scala >}}
 
 {{< alert tip >}}
 You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.

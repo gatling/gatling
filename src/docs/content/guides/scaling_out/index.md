@@ -31,6 +31,4 @@ Gatling open-source doesn't have a cluster mode, but you can achieve similar res
 
 Example script using the above commands: (the script will run the same simulation parallel on given hosts, gather logs and generate a single report)
 
-```shell
-||< include-static "GatlingScalingOut.sh" >||
-```
+{{< include-code "GatlingScalingOut.sh" shell >}}

@@ -14,9 +14,7 @@ Gatling JMS DSL is not imported by default.
 
 One has to manually add the following imports:
 
-```scala
-||< include-static "JmsSample.scala#imprts" >||
-```
+{{< include-code "JmsSample.scala#imprts" scala >}}
 
 ## JMS Protocol {#protocol}
 
@@ -96,6 +94,4 @@ Additionally you can define your custom check that implements `Check[javax.jms.M
 
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named "jmstestq":
 
-```scala
-||< include-static "JmsSample.scala#example-simulation" >||
-```
+{{< include-code "JmsSample.scala#example-simulation" scala >}}

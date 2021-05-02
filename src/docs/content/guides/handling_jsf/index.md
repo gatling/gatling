@@ -15,15 +15,11 @@ Hopefully, we can factor out these operations.
 
 Define factory methods for building JSF requests that would automatically perform those operations:
 
-```scala
-||< include-static "HandlingJsfSample.scala#factory-methods" >||
-```
+{{< include-code "HandlingJsfSample.scala#factory-methods" scala >}}
 
 You can then build your requests just like you're used to:
 
-```scala
-||< include-static "HandlingJsfSample.scala#example-scenario" >||
-```
+{{< include-code "HandlingJsfSample.scala#example-scenario" scala >}}
 
 {{< alert tip >}}
 The sample above is taken from the [Primefaces demo](http://www.primefaces.org/showcase-labs).
@@ -35,6 +31,4 @@ See Rafael Pestano's [demo project](https://github.com/rmpestano/gatling-jsf-dem
 
 Trinidad's `_afPfm` query parameter can be handled similarly:
 
-```scala
-||< include-static "HandlingJsfSample.scala#trinidad" >||
-```
+{{< include-code "HandlingJsfSample.scala#trinidad" scala >}}
