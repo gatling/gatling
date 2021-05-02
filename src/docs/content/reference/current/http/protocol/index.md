@@ -21,9 +21,7 @@ Use the `http` object in order to create an HTTP protocol.
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
 This is done thanks to the following statements:
 
-```scala
-||< include-static "HttpProtocolSample.scala#bootstrapping" >||
-```
+{{< include-code "HttpProtocolSample.scala#bootstrapping" scala >}}
 
 ## Core parameters
 
@@ -32,17 +30,13 @@ This is done thanks to the following statements:
 As you may have seen in the previous example, you can set a base URL.
 This base URL will be prepended to all urls that does not start with `http`, e.g.:
 
-```scala
-||< include-static "HttpProtocolSample.scala#baseUrl" >||
-```
+{{< include-code "HttpProtocolSample.scala#baseUrl" scala >}}
 
 ### Load testing several servers with client based load balancing
 
 If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named `baseUrls` which accepts a `String*` or a `List[String]`:
 
-```scala
-||< include-static "HttpProtocolSample.scala#baseUrls" >||
-```
+{{< include-code "HttpProtocolSample.scala#baseUrls" scala >}}
 
 Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
 
@@ -54,9 +48,7 @@ In order to compensate this effect, Gatling automatically performs a request to 
 To disable this feature, just add `.disableWarmUp` to an HTTP Protocol Configuration definition.
 To change the warm up url, just add `.warmUp("newUrl")`.
 
-```scala
-||< include-static "HttpProtocolSample.scala#warmUp" >||
-```
+{{< include-code "HttpProtocolSample.scala#warmUp" scala >}}
 
 ## Engine parameters
 
@@ -78,9 +70,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 * `maxConnectionsPerHostLikeIE10`
 * `maxConnectionsPerHostLikeChrome`
 
-```scala
-||< include-static "HttpProtocolSample.scala#maxConnectionsPerHost" >||
-```
+{{< include-code "HttpProtocolSample.scala#maxConnectionsPerHost" scala >}}
 
 ### Connection Sharing
 
@@ -96,9 +86,7 @@ HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
 
 Note that you'll either need your injectors to run with Java 9+, or make sure that `gatling.http.ahc.useOpenSsl` wasn't turned to `false` in Gatling configuration.
 
-```scala
-||< include-static "HttpProtocolSample.scala#enableHttp2" >||
-```
+{{< include-code "HttpProtocolSample.scala#enableHttp2" scala >}}
 
 {{< alert warning >}}
 HTTP/2 Push is currently not supported.
@@ -117,9 +105,7 @@ If the remote is using HTTP/1, these connections will be used if needed. If it i
 
 It is possible to populate the Gatling cache concerning protocol and remotes before the run, using the `http2PriorKnowledgeMap(Map[String, Boolean])` method on the protocol.
 
-```scala
-||< include-static "HttpProtocolSample.scala#http2PriorKnowledgeMap" >||
-```
+{{< include-code "HttpProtocolSample.scala#http2PriorKnowledge" scala >}}
 
 With this method, you are able to tell Gatling that remotes support HTTP/2 or not.
 It means that if you are setting a remote to true (it supports HTTP/2), additional connections won't be created the first time the remote is encountered in the simulation.
@@ -156,9 +142,7 @@ You can of course define hostname aliases at the OS level in the `/etc/hosts` fi
 
 But you can use `.hostNameAliases` to pass aliases programmatically:
 
-```scala
-||< include-static "HttpProtocolSample.scala#hostNameAliases" >||
-```
+{{< include-code "HttpProtocolSample.scala#hostNameAliases" scala >}}
 
 ### Virtual Host
 
@@ -246,9 +230,7 @@ Rules are:
 
 `silentUri` lets you pass a regular expression that would disable logging for ALL matching requests:
 
-```scala
-||< include-static "HttpProtocolSample.scala#silentUri" >||
-```
+{{< include-code "HttpProtocolSample.scala#silentUri" scala >}}
 
 `silentResources` silences all resource requests, except the ones that were explicitly turned `notSilent`.
 
@@ -261,9 +243,7 @@ Gatling lets you set some generic headers at the http protocol definition level 
 
 e.g.:
 
-```scala
-||< include-static "HttpProtocolSample.scala#headers" >||
-```
+{{< include-code "HttpProtocolSample.scala#headers" scala >}}
 
 You have also the following built-ins for the more commons headers:
 
@@ -383,12 +363,8 @@ Finally, you can specify the strategy for naming those requests in the reports:
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-```scala
-||< include-static "HttpProtocolSample.scala#proxy" >||
-```
+{{< include-code "HttpProtocolSample.scala#proxy" scala >}}
 
 You can also disable the use of proxy for a given list of hosts with `noProxyFor(hosts: String*)`:
 
-```scala
-||< include-static "HttpProtocolSample.scala#noProxyFor" >||
-```
+{{< include-code "HttpProtocolSample.scala#noProxyFor" scala >}}

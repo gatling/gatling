@@ -81,9 +81,7 @@ if there are 2n `$` before `${` -- an odd number totally -- there will be n `$` 
 Most Gatling DSL methods actually take `Expression[T]` parameters, which is a type alias for `Session => Validation[T]`.
 This way, one can pass functions to generate parameters, possibly based on the Session's content.
 
-```scala
-||< include-static "ExpressionSample.scala#inline-expression" >||
-```
+{{< include-code "ExpressionSample.scala#inline-expression" scala >}}
 
 How is it that one can also pass Strings and other values then?
 
