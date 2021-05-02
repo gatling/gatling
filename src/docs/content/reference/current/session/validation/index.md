@@ -28,29 +28,21 @@ The goal of such an abstraction is to deal with "unexpected results" in a compos
 
 First, import the `validation` package:
 
-```scala
-||< include-static "ValidationSample.scala#import" >||
-```
+{{< include-code "ValidationSample.scala#import" scala >}}
 
 Then, you can either directly create new instance of the case classes:
 
-```scala
-||< include-static "ValidationSample.scala#with-classes" >||
-```
+{{< include-code "ValidationSample.scala#with-classes" scala >}}
 
 or use the helpers:
 
-```scala
-||< include-static "ValidationSample.scala#with-helpers" >||
-```
+{{< include-code "ValidationSample.scala#with-helpers" scala >}}
 
 ### Manipulating
 
 `Validation` can be used with pattern matching:
 
-```scala
-||< include-static "ValidationSample.scala#pattern-matching" >||
-```
+{{< include-code "ValidationSample.scala#pattern-matching" scala >}}
 
 `Validation` has the standard Scala "monadic" methods such as:
 
@@ -59,21 +51,15 @@ or use the helpers:
 
 Basically, `map` is used to **chain with an operation that can't fail**, hence return a raw value:
 
-```scala
-||< include-static "ValidationSample.scala#map" >||
-```
+{{< include-code "ValidationSample.scala#map" scala >}}
 
 `flatMap` is used to **chain with an operation that can fail**, hence return a `Validation`:
 
-```scala
-||< include-static "ValidationSample.scala#flatMap" >||
-```
+{{< include-code "ValidationSample.scala#flatMap" scala >}}
 
 In both case, the chained function is not called if the original `Validation` was a `Failure`:
 
-```scala
-||< include-static "ValidationSample.scala#map-failure" >||
-```
+{{< include-code "ValidationSample.scala#map-failure" scala >}}
 
 You can also use Scala *"for comprehension"* syntactic sugar.
 
@@ -81,6 +67,4 @@ For the impatient, just consider it's like a super loop that can iterate other m
 
 Here's what the above example would look like using a *"for comprehension"*:
 
-```scala
-||< include-static "ValidationSample.scala#for-comp" >||
-```
+{{< include-code "ValidationSample.scala#for-comp" scala >}}

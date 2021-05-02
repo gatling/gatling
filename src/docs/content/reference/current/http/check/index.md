@@ -16,15 +16,11 @@ The Check API is used for 2 things:
 Checks are performed on a request with the `check` method.
 For example, on an HTTP request:
 
-```scala
-||< include-static "CheckSample.scala#status-is-200" >||
-```
+{{< include-code "CheckSample.scala#status-is-200" scala >}}
 
 One can of course perform multiple checks:
 
-```scala
-||< include-static "CheckSample.scala#status-is-not-404-or-500" >||
-```
+{{< include-code "CheckSample.scala#status-is-not-404-or-500" scala >}}
 
 This API provides a dedicated DSL for chaining the following steps:
 
@@ -69,17 +65,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is `String`
 
 One can extract more than 1 capture group and define an different type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#currentLocationRegex-ofType" >||
-```
+{{< include-code "CheckSample.scala#currentLocationRegex-ofType" scala >}}
 
 Gatling provides built-in support for extracting String tuples from `Tuple2[String]` to `Tuple8[String]`.
 
 The example below will capture two capture groups:
 
-```scala
-||< include-static "CheckSample.scala#currentLocationRegex-example" >||
-```
+{{< include-code "CheckSample.scala#currentLocationRegex-example" scala >}}
 
 ### HTTP header
 
@@ -100,17 +92,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is `String`
 
 One can extract more than 1 capture group and define an different type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#headerRegex-ofType" >||
-```
+{{< include-code "CheckSample.scala#headerRegex-ofType" scala >}}
 
 Gatling provides built-in support for extracting String tuples from `Tuple2[String]` to `Tuple8[String]`.
 
 The example below will capture two capture groups:
 
-```scala
-||< include-static "CheckSample.scala#headerRegex-example" >||
-```
+{{< include-code "CheckSample.scala#headerRegex-example" scala >}}
 
 ### HTTP response body
 
@@ -145,9 +133,7 @@ Scans for the indices of a given substring inside the body string.
 
 *expression*  can be a plain `String`, a `String` using Gatling EL or an `Expression[String]`.
 
-```scala
-||< include-static "CheckSample.scala#substring" >||
-```
+{{< include-code "CheckSample.scala#substring" scala >}}
 
 {{< alert tip >}}
 Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
@@ -161,9 +147,7 @@ Defines a Java regular expression to be applied on any text response body.
 
 It can contain multiple capture groups.
 
-```scala
-||< include-static "CheckSample.scala#regex" >||
-```
+{{< include-code "CheckSample.scala#regex" scala >}}
 
 {{< alert tip >}}
 In Scala, you can use escaped strings with this notation: `"""my "non-escaped" string"""`.
@@ -175,17 +159,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is `String`
 
 You can extract more than 1 capture group and define an different type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#regex-ofType" >||
-```
+{{< include-code "CheckSample.scala#regex-ofType" scala >}}
 
 Gatling provides built-in support for extracting String tuples from `Tuple2[String]` to `Tuple8[String]`.
 
 The example below will capture two capture groups:
 
-```scala
-||< include-static "CheckSample.scala#regex-example" >||
-```
+{{< include-code "CheckSample.scala#regex-example" scala >}}
 
 * `xpath(expression, namespaces)`
 
@@ -195,9 +175,7 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 
 *namespaces* is an optional List of couples of (prefix, uri)
 
-```scala
-||< include-static "CheckSample.scala#xpath" >||
-```
+{{< include-code "CheckSample.scala#xpath" scala >}}
 
 {{< alert tip >}}
 XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
@@ -212,17 +190,13 @@ Please check [Goessner's website](http://goessner.net/articles/JsonPath) for mor
 
 *expression*  can be a plain `String`, a `String` using Gatling EL or an `Expression[String]`.
 
-```scala
-||< include-static "CheckSample.scala#jsonPath" >||
-```
+{{< include-code "CheckSample.scala#jsonPath" scala >}}
 
 By default, it extracts `String`s, so JSON values of different types get serialized.
 
 You can define an different type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#jsonPath-ofType" >||
-```
+{{< include-code "CheckSample.scala#jsonPath-ofType" scala >}}
 
 Gatling provides built-in support for the following types:
 
@@ -238,9 +212,7 @@ Gatling provides built-in support for the following types:
 
 The example below shows how to extract Ints:
 
-```scala
-||< include-static "CheckSample.scala#json-response,jsonPath-Int" >||
-```
+{{< include-code "CheckSample.scala#json-response,jsonPath-Int" scala >}}
 
 * `jsonpJsonPath(expression)`
 
@@ -252,17 +224,13 @@ Same as `jsonPath` but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
 
 *expression*  can be a plain `String`, a `String` using Gatling EL or an `Expression[String]`.
 
-```scala
-||< include-static "CheckSample.scala#jmesPath" >||
-```
+{{< include-code "CheckSample.scala#jmesPath" scala >}}
 
 By default, it extracts `String`s, so JSON values of different types get serialized.
 
 You can define an different type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#jmesPath-ofType" >||
-```
+{{< include-code "CheckSample.scala#jmesPath-ofType" scala >}}
 
 Gatling provides built-in support for the following types:
 
@@ -278,9 +246,7 @@ Gatling provides built-in support for the following types:
 
 The example below shows how to extract Ints:
 
-```scala
-||< include-static "CheckSample.scala#json-response,jmesPath-Int" >||
-```
+{{< include-code "CheckSample.scala#json-response,jmesPath-Int" scala >}}
 
 {{< alert tip >}}
 You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to register custom functions.
@@ -301,15 +267,11 @@ Gatling supports [CSS Selectors](https://lagarto.jodd.org/csselly/csselly).
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
 
-```scala
-||< include-static "CheckSample.scala#css" >||
-```
+{{< include-code "CheckSample.scala#css" scala >}}
 
 You can define an different return type with the `ofType[T]` extra step:
 
-```scala
-||< include-static "CheckSample.scala#css-ofType" >||
-```
+{{< include-code "CheckSample.scala#css-ofType" scala >}}
 
 Gatling provides built-in support for the following types:
 
@@ -390,9 +352,7 @@ You can also gain read access to the `Session` with `transformWithSession` and p
 You can also gain read access to the `Session` with `transformOptionWithSession` and pass a `(Option[X], Session) => Validation[X2]` instead.
 {{< /alert >}}
 
-```scala
-||< include-static "CheckSample.scala#transform,transformOption" >||
-```
+{{< include-code "CheckSample.scala#transform,transformOption" scala >}}
 
 ## Validating
 
@@ -400,9 +360,7 @@ You can also gain read access to the `Session` with `transformOptionWithSession`
 
 Validate that the value is equal to the expected one, e.g.:
 
-```scala
-||< include-static "CheckSample.scala#is" >||
-```
+{{< include-code "CheckSample.scala#is" scala >}}
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -412,17 +370,13 @@ In case of a `String`, it can also be a `String` using Gatling EL or an `Express
 
 Validate that the extracted value is null, typically a JSON value, e.g.:
 
-```scala
-||< include-static "CheckSample.scala#isNull" >||
-```
+{{< include-code "CheckSample.scala#isNull" scala >}}
 
 * `not(expected)`
 
 Validate that the extracted value is different from the expected one:
 
-```scala
-||< include-static "CheckSample.scala#not" >||
-```
+{{< include-code "CheckSample.scala#not" scala >}}
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -432,33 +386,25 @@ In case of a `String`, it can also be a `String` using Gatling EL or an `Express
 
 Validate that the extracted value is not null, typically a JSON value, e.g.:
 
-```scala
-||< include-static "CheckSample.scala#notNull" >||
-```
+{{< include-code "CheckSample.scala#notNull" scala >}}
 
 * `exists`
 
 Validate that the extracted value exists:
 
-```scala
-||< include-static "CheckSample.scala#exists" >||
-```
+{{< include-code "CheckSample.scala#exists" scala >}}
 
 * `notExists`
 
 Validate that the check didn't match and couldn't extract anything:
 
-```scala
-||< include-static "CheckSample.scala#notExists" >||
-```
+{{< include-code "CheckSample.scala#notExists" scala >}}
 
 * `in(sequence)`
 
 Validate that the extracted value belongs to a given sequence or vararg:
 
-```scala
-||< include-static "CheckSample.scala#in" >||
-```
+{{< include-code "CheckSample.scala#in" scala >}}
 
 *sequence* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
 
@@ -474,9 +420,7 @@ Built-ins validation steps actually resolve to this method.
 
 *validator* is a `Expression[Validator[X]]` function that performs the validation logic.
 
-```scala
-||< include-static "CheckSample.scala#validator" >||
-```
+{{< include-code "CheckSample.scala#validator" scala >}}
 
 The `apply` method takes the actual extracted value and return a the Validation:
 a Success containing the value to be passed to the next step, a Failure with the error message otherwise.
@@ -516,50 +460,34 @@ Nested thenCheck will only be performed if condition is successful.
 
 To help you understand the checks, here is a list of examples:
 
-```scala
-||< include-static "CheckSample.scala#regex-count-is" >||
-```
+{{< include-code "CheckSample.scala#regex-count-is" scala >}}
 
 Verifies that there are exactly 5 HTTPS links in the response.
 
-```scala
-||< include-static "CheckSample.scala#regex-findAll-is" >||
-```
+{{< include-code "CheckSample.scala#regex-findAll-is" scala >}}
 
 Verifies that there are two secured links pointing at the specified websites.
 
-```scala
-||< include-static "CheckSample.scala#status-is" >||
-```
+{{< include-code "CheckSample.scala#status-is" scala >}}
 
 Verifies that the status is equal to 200.
 
-```scala
-||< include-static "CheckSample.scala#status-in" >||
-```
+{{< include-code "CheckSample.scala#status-in" scala >}}
 
 Verifies that the status is one of: 200, 201, 202, ..., 209, 210.
 
-```scala
-||< include-static "CheckSample.scala#regex-find-exists" >||
-```
+{{< include-code "CheckSample.scala#regex-find-exists" scala >}}
 
 Verifies that there are at least **two** occurrences of "aWord".
 
-```scala
-||< include-static "CheckSample.scala#regex-notExists" >||
-```
+{{< include-code "CheckSample.scala#regex-notExists" scala >}}
 
 Verifies that the response doesn't contain "aWord".
 
-```scala
-||< include-static "CheckSample.scala#bodyBytes-is-RawFileBody" >||
-```
+{{< include-code "CheckSample.scala#bodyBytes-is-RawFileBody" scala >}}
 
 Verifies that the response body matches the binary content of the file `user-files/bodies/expected_response.json`
 
-```scala
-||< include-static "CheckSample.scala#bodyString-isElFileBody" >||
-```
+{{< include-code "CheckSample.scala#bodyString-isElFileBody" scala >}}
 
 Verifies that the response body matches the text content of the file `user-files/bodies/expected_template.json` resolved with [Gatling Expression Language (EL)]({{< ref "../../session/expression_el" >}}).

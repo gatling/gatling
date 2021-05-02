@@ -1,9 +1,10 @@
 ---
 title: "Quickstart"
-description: ""
-lead: ""
+description: "Learn the basics about Gatling"
+lead: "Learn Gatling concepts, and use the recorder to create a runnable Gatling simulation"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 020
 ---
 
 ## Introduction
@@ -124,9 +125,7 @@ The Simulation will be generated in the folder `user-files/simulations/computerd
 
 Here is the produced output:
 
-```scala
-||< include-static "QuickStartSample.scala#quickstart-recorder-output" >||
-```
+{{< include-code "QuickStartSample.scala#quickstart-recorder-output" scala >}}
 
 What does it mean?
 

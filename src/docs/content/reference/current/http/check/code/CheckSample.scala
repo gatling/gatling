@@ -20,6 +20,14 @@ import io.gatling.http.Predef._
 
 class CheckSample {
 
+  //#status-is
+  status.is(200)
+  //#status-is
+
+  //#status-in
+  status.in(200 to 210)
+  //#status-in
+
   //#status-is-200
   http("My Request").get("myUrl").check(status.is(200))
   //#status-is-200
@@ -93,7 +101,6 @@ class CheckSample {
     """
 
     //#jsonPath-Int
-
     jsonPath("$..foo").ofType[Int] // will match 1
     //#jsonPath-Int
 
@@ -106,7 +113,6 @@ class CheckSample {
     //#jmesPath-ofType
 
     //#jmesPath-Int
-
     jmesPath("foo").ofType[Int] // will match 1
     //#jmesPath-Int
 
@@ -121,12 +127,12 @@ class CheckSample {
     jsonPath("$..foo.bar[2].baz").
       //#transform
       transform(string => string + "foo")
-    //#transform
+      //#transform
 
     jsonPath("$..foo.bar[2].baz").
       //#transformOption
       transformOption(extract => extract.orElse(Some("default")))
-    //#transformOption
+      //#transformOption
 
     //#is
     status.is(200)
@@ -140,9 +146,9 @@ class CheckSample {
     status.not(500)
     //#not
 
-    //#isNull
+    //#notNull
     jsonPath("$.foo").notNull
-    //#isNull
+    //#notNull
 
     //#exists
     jsonPath("$..foo").exists
@@ -172,14 +178,6 @@ class CheckSample {
       .findAll
       .is(List("www.google.com", "www.mysecuredsite.com"))
     //#regex-findAll-is
-
-    //#status-is
-    status.is(200)
-    //#status-is
-
-    //#status-in
-    status.in(200 to 210)
-    //#status-in
 
     //#regex-find-exists
     regex("aWord").find(1).exists
