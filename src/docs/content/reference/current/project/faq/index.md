@@ -96,9 +96,7 @@ In Java and Scala, there's a method size limit. Here, the method is your Simulat
 
 Typically, you have to move your chains out of your Simulation class, for example into objects:
 
-```scala
-||< include-static "FaqSample.scala#chains" >||
-```
+{{< include-code "FaqSample.scala#chains" scala >}}
 
 **I have dandling connections that don't get closed after timeout**
 

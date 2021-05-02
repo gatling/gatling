@@ -18,9 +18,7 @@ you have to give them a name and pass this name on each polling operation:
 
 For example:
 
-```scala
-||< include-static "PollingSample.scala#pollerName" >||
-```
+{{< include-code "PollingSample.scala#pollerName" scala >}}
 
 Of course, this step is not required if you deal with one single poller per virtual user.
 
@@ -34,9 +32,7 @@ The `period` parameter is from response received to next request sent.
 
 For example:
 
-```scala
-||< include-static "PollingSample.scala#pollerStart" >||
-```
+{{< include-code "PollingSample.scala#pollerStart" scala >}}
 
 ### Stop polling
 
@@ -46,9 +42,7 @@ When you don't need to poll a request anymore, you can stop the poller:
 
 For example:
 
-```scala
-||< include-static "PollingSample.scala#pollerStop" >||
-```
+{{< include-code "PollingSample.scala#pollerStop" scala >}}
 
 {{< alert tip >}}
 Stopping a poller works in the same fashion as SSE or WebSockets `reconcile`:

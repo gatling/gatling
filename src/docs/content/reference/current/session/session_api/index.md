@@ -77,23 +77,17 @@ so immutability is the best way to deal with state without relying on synchroniz
 A very common pitfall is to forget that `set` and `setAll` actually return new instances.
 {{< /alert >}}
 
-```scala
-||< include-static "SessionSample.scala#sessions-are-immutable" >||
-```
+{{< include-code "SessionSample.scala#sessions-are-immutable" scala >}}
 
 ### Getting Attributes
 
 Let's say a Session instance variable named session contains a String attribute named "foo".
 
-```scala
-||< include-static "SessionSample.scala#session" >||
-```
+{{< include-code "SessionSample.scala#session" scala >}}
 
 Then:
 
-```scala
-||< include-static "SessionSample.scala#session-attribute" >||
-```
+{{< include-code "SessionSample.scala#session-attribute" scala >}}
 
 {{< alert warning >}}
 `session("foo")` doesn't return the value, but a wrapper.

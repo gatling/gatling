@@ -1,0 +1,56 @@
+{{- $pathWithAnchorTag := (.Get 0) -}}
+{{- if $pathWithAnchorTag -}}
+  {{- $language := (.Get 1) -}}
+  {{- if $language -}}
+    {{- $path := "" -}}
+    {{- $tag := "" -}}
+    {{- if in $pathWithAnchorTag "#" -}}
+      {{- $split := split $pathWithAnchorTag "#" -}}
+      {{- $path = index $split 0 -}}
+      {{- $tag = index $split 1 -}}
+    {{- else -}}
+      {{- $path = $pathWithAnchorTag -}}
+    {{- end -}}
+    {{- $page := .Page.Resources.GetMatch (printf "**%s" $path) -}}
+    {{- if $page -}}
+      {{- $content := $page.Content -}}
+      {{- if $tag -}}
+        {{- $content = "" -}}
+        {{- range (split $tag ",") -}}
+          {{- $anchor := printf "//#%s" . -}}
+          {{- if in ($page.Content) $anchor -}}
+            {{- $extract := index (split ($page.Content) $anchor) 1 -}}
+            {{- $trimmed := trim $extract "\r\n" -}}
+            {{- if $content -}}
+              {{- $content = printf "%s\n%s" $content $trimmed -}}
+            {{- else -}}
+              {{- $content = $trimmed -}}
+            {{- end -}}
+          {{- else -}}
+            {{- errorf "%s: missing anchor tag %s inside file %s" $.Position $anchor $path -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $split := split $content "\n" -}}
+      {{- $indent := 100 -}}
+      {{- range $split -}}
+        {{- if gt (len .) 0 -}}
+          {{- $subindent := sub (len .) (len (trim . " ")) -}}
+          {{- $indent = cond (lt $subindent $indent) $subindent $indent -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $reindent := $split -}}
+      {{- if gt $indent 0 -}}
+        {{- $reindent = apply $split "substr" "." $indent -}}
+      {{- end -}}
+      {{- $content = delimit $reindent "\n" -}}
+      {{- highlight $content $language "" -}}
+    {{- else -}}
+      {{- errorf "%s: file %s not found" .Position $path -}}
+    {{- end -}}
+  {{- else -}}
+    {{- errorf "%s: missing highlight language" .Position -}}
+  {{- end -}}
+{{- else -}}
+  {{- errorf "%s: missing resource name" .Position -}}
+{{- end -}}

@@ -12,9 +12,7 @@ The Assertions API is used to verify that global statistics like response time o
 
 Assertions are registered for a simulation using the method `assertions` on the `setUp`. For example:
 
-```scala
-||< include-static "AssertionSample.scala#setUp" >||
-```
+{{< include-code "AssertionSample.scala#setUp" scala >}}
 
 This method takes as many assertions as you like.
 
@@ -37,15 +35,11 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 For example, to perform an assertion on the request `MyRequest`, use:
 
-```scala
-||< include-static "AssertionSample.scala#details" >||
-```
+{{< include-code "AssertionSample.scala#details" scala >}}
 
 and to perform an assertion on the request `MyRequest` in the group `MyGroup`, use:
 
-```scala
-||< include-static "AssertionSample.scala#details-group" >||
-```
+{{< include-code "AssertionSample.scala#details-group" scala >}}
 
 For WebSockets it takes the name of the check and not the name of the request. `ws.checkTextMessage("use this name")`
 
@@ -102,9 +96,7 @@ Conditions can be chained to apply several conditions on the same metric.
 
 To help you understand how to use assertions, here is a list of examples:
 
-```scala
-||< include-static "AssertionSample.scala#examples" >||
-```
+{{< include-code "AssertionSample.scala#examples" scala >}}
 
 ## Reports
 

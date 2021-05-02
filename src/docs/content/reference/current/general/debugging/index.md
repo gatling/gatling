@@ -12,9 +12,7 @@ Print all the values within a session with this function literal.
 
 Print a session value
 
-```scala
-||< include-static "ComputerDatabaseSample.scala#print-session-value" >||
-```
+{{< include-code "ComputerDatabaseSample.scala#print-session-value" scala >}}
 
 ## Logback
 

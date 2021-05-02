@@ -124,9 +124,7 @@ The Simulation will be generated in the folder `user-files/simulations/computerd
 
 Here is the produced output:
 
-```scala
-||< include-static "QuickStartSample.scala#quickstart-recorder-output" >||
-```
+{{< include-code "QuickStartSample.scala#quickstart-recorder-output" scala >}}
 
 What does it mean?
 
