@@ -16,9 +16,7 @@ However, some use cases require a more fine grain control.
 
 One might want to manually add or compute a cookie:
 
-```scala
-||< include-static "HttpHelperSample.scala#cookie" >||
-```
+{{< include-code "HttpHelperSample.scala#cookie" scala >}}
 
 Cookie can also take more optional parameters:
 
@@ -42,9 +40,7 @@ secure is optional, defaulting to false
 
 Get the cookie value and put it in the session
 
-```scala
-||< include-static "HttpHelperSample.scala#getCookie" >||
-```
+{{< include-code "HttpHelperSample.scala#getCookie" scala >}}
 
 CookieKey can also take more optional parameters:
 
@@ -68,17 +64,13 @@ saveAs is optional, defaulting to `name` param
 
 One might want to simulate closing a browser, so Session cookies are dropped but permanent cookies are still there:
 
-```scala
-||< include-static "HttpHelperSample.scala#flushSessionCookies" >||
-```
+{{< include-code "HttpHelperSample.scala#flushSessionCookies" scala >}}
 
 ### Flushing All Cookies
 
 One might want to flush the whole CookieJar:
 
-```scala
-||< include-static "HttpHelperSample.scala#flushCookieJar" >||
-```
+{{< include-code "HttpHelperSample.scala#flushCookieJar" scala >}}
 
 ## Dealing with Caching
 
@@ -86,6 +78,4 @@ One might want to flush the whole CookieJar:
 
 One might want to flush the whole HTTP cache (for the virtual user):
 
-```scala
-||< include-static "HttpHelperSample.scala#flushHttpCache" >||
-```
+{{< include-code "HttpHelperSample.scala#flushHttpCache" scala >}}

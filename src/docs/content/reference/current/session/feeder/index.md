@@ -10,15 +10,11 @@ Feeder is a type alias for `Iterator[Map[String, T]]`, meaning that the componen
 
 It's very simple to build a custom one. For example, here's how one could build a random email generator:
 
-```scala
-||< include-static "FeederSample.scala#random-mail-generator" >||
-```
+{{< include-code "FeederSample.scala#random-mail-generator" scala >}}
 
 The structure DSL provides a `feed` method.
 
-```scala
-||< include-static "FeederSample.scala#feed" >||
-```
+{{< include-code "FeederSample.scala#feed" scala >}}
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
@@ -31,17 +27,13 @@ You can also feed multiple records all at once. If so, attribute names, will be 
 For example, if the columns are name "foo" and "bar" and you're feeding 2 records at once, you'll get "foo1", "bar1", "foo2" and "bar2" session attributes.
 {{< /alert >}}
 
-```scala
-||< include-static "FeederSample.scala#feed-multiple" >||
-```
+{{< include-code "FeederSample.scala#feed-multiple" scala >}}
 
 ## Strategies
 
 Gatling provides multiple strategies for the built-in feeders:
 
-```scala
-||< include-static "FeederSample.scala#strategies" >||
-```
+{{< include-code "FeederSample.scala#strategies" scala >}}
 
 {{< alert warning >}}
 When using the default `queue` strategy, make sure that your dataset contains enough records.
@@ -53,9 +45,7 @@ If your feeder runs out of record, behavior is undefined and Gatling will forcef
 An `Array[Map[String, T]]` or a `IndexedSeq[Map[String, T]]` can be implicitly turned into a Feeder.
 For example:
 
-```scala
-||< include-static "FeederSample.scala#feeder-from-array-with-random" >||
-```
+{{< include-code "FeederSample.scala#feeder-from-array-with-random" scala >}}
 
 ## File Based Feeders
 
@@ -86,9 +76,7 @@ Our parser honors the [RFC4180](https://tools.ietf.org/html/rfc4180) specificati
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 
-```scala
-||< include-static "FeederSample.scala#sep-values-feeders" >||
-```
+{{< include-code "FeederSample.scala#sep-values-feeders" scala >}}
 
 ## Loading mode
 
@@ -98,9 +86,7 @@ CSV files feeders provide several options for how data should be loaded in memor
 This mode works best with reasonably small files that can be parsed quickly without delaying simulation start time and easily sit in memory.
 This behavior was the default prior to Gatling 3.1 and you can still force it.
 
-```scala
-||< include-static "FeederSample.scala#eager" >||
-```
+{{< include-code "FeederSample.scala#eager" scala >}}
 
 `batch` works better with large files whose parsing would delay simulation start time and eat a lot of heap space.
 Data is then read by chunks.
@@ -110,9 +96,7 @@ When in `batch` mode, `random` and `shuffle` can't of course operate on the full
 The default size of this buffer is 2,000 and can be changed.
 {{< /alert >}}
 
-```scala
-||< include-static "FeederSample.scala#batch" >||
-```
+{{< include-code "FeederSample.scala#batch" scala >}}
 
 Default behavior is an adaptive policy based on (unzipped, sharded) file size, see `gatling.core.feederAdaptiveLoadModeThreshold` in config file.
 Gatling will use `eager` below threshold and `batch` above.
@@ -121,9 +105,7 @@ Gatling will use `eager` below threshold and `batch` above.
 
 If your files are very large, you can provide them zipped and ask gatling to `unzip` them on the fly:
 
-```scala
-||< include-static "FeederSample.scala#unzip" >||
-```
+{{< include-code "FeederSample.scala#unzip" scala >}}
 
 Supported formats are gzip and zip (but archive most contain only one single file).
 
@@ -137,17 +119,13 @@ For example, if you have a file with 30,000 records deployed on 3 nodes, each wi
 `shard` is only effective when running with FrontLine, otherwise it's just a noop.
 {{< /alert >}}
 
-```scala
-||< include-static "FeederSample.scala#shard" >||
-```
+{{< include-code "FeederSample.scala#shard" scala >}}
 
 ## JSON feeders
 
 Some might want to use data in JSON format instead of CSV:
 
-```scala
-||< include-static "FeederSample.scala#json-feeders" >||
-```
+{{< include-code "FeederSample.scala#json-feeders" scala >}}
 
 For example, the following JSON:
 
@@ -177,9 +155,7 @@ Note that the root element has of course to be an array.
 
 Gatling also provide a builtin that reads from a JDBC connection.
 
-```scala
-||< include-static "FeederSample.scala#jdbc-feeder" >||
-```
+{{< include-code "FeederSample.scala#jdbc-feeder" scala >}}
 
 Just like File parser built-ins, this return a `RecordSeqFeederBuilder` instance.
 
@@ -197,9 +173,7 @@ Do not forget to add the required JDBC driver jar in the classpath (`lib` folder
 
 Gatling supports a feeder that reads data from a [Sitemap](http://www.sitemaps.org/protocol.html) file.
 
-```scala
-||< include-static "FeederSample.scala#sitemap-feeder" >||
-```
+{{< include-code "FeederSample.scala#sitemap-feeder" scala >}}
 
 The following Sitemap file:
 
@@ -257,28 +231,20 @@ Gatling can read data from Redis using one of the following Redis commands.
 
 By default RedisFeeder uses LPOP command:
 
-```scala
-||< include-static "FeederSample.scala#redis-LPOP" >||
-```
+{{< include-code "FeederSample.scala#redis-LPOP" scala >}}
 
 You can then override the desired Redis command:
 
-```scala
-||< include-static "FeederSample.scala#redis-SPOP" >||
-```
+{{< include-code "FeederSample.scala#redis-SPOP" scala >}}
 
-```scala
-||< include-static "FeederSample.scala#redis-SRANDMEMBER" >||
-```
+{{< include-code "FeederSample.scala#redis-SRANDMEMBER" scala >}}
 
 Note that since v2.1.14, Redis supports mass insertion of data from a [file](https://redis.io/topics/mass-insert).
 It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*:
 
-```scala
-||< include-static "FeederSample.scala#redis-1million" >||
-```
+{{< include-code "FeederSample.scala#redis-1million" scala >}}
 
 The urls can then be loaded in Redis using the following command:
 
@@ -300,9 +266,7 @@ For example, a csv feeder would give you only Strings, but you might want to con
 
 For example:
 
-```scala
-||< include-static "FeederSample.scala#convert" >||
-```
+{{< include-code "FeederSample.scala#convert" scala >}}
 
 ## Grabbing Records
 
@@ -310,9 +274,7 @@ Sometimes, you just might want to reuse or convenient built-in feeders for custo
 
 `readRecords` returns a `Seq[Map[String, Any]]`.
 
-```scala
-||< include-static "FeederSample.scala#records" >||
-```
+{{< include-code "FeederSample.scala#records" scala >}}
 
 {{< alert warning >}}
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.
@@ -324,9 +286,7 @@ Sometimes, you could want all virtual users to play all the records in a file, a
 
 Still, it's quite easy to build, thanks to [flattenMapIntoAttributes]({{< ref "../../general/scenario#exec" >}})  e.g.:
 
-```scala
-||< include-static "FeederSample.scala#non-shared" >||
-```
+{{< include-code "FeederSample.scala#non-shared" scala >}}
 
 ## User Dependent Data
 
@@ -366,6 +326,4 @@ bProject,64
 
 Here's how you can randomly inject an issue, depending on the project:
 
-```scala
-||< include-static "FeederSample.scala#user-dependent-data" >||
-```
+{{< include-code "FeederSample.scala#user-dependent-data" scala >}}

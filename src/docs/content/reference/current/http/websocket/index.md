@@ -23,9 +23,7 @@ If you want to deal with several WebSockets per virtual users, you have to give 
 
 For example:
 
-```scala
-||< include-static "WsSample.scala#wsName" >||
-```
+{{< include-code "WsSample.scala#wsName" scala >}}
 
 If you set an explicit name for the WebSocket, you'll have to make it explicit for every other WebSocket actions you'll define later in the scenario.
 
@@ -39,21 +37,15 @@ The first thing is to connect a WebSocket:
 
 For example:
 
-```scala
-||< include-static "WsSample.scala#connect" >||
-```
+{{< include-code "WsSample.scala#connect" scala >}}
 
 You can specify a subprotocol:
 
-```scala
-||< include-static "WsSample.scala#subprotocol" >||
-```
+{{< include-code "WsSample.scala#subprotocol" scala >}}
 
 You can define a chain of actions to be performed after (re-)connecting with `onConnected`:
 
-```scala
-||< include-static "WsSample.scala#onConnected" >||
-```
+{{< include-code "WsSample.scala#onConnected" scala >}}
 
 ### Close
 
@@ -63,9 +55,7 @@ When you're done with a WebSocket, you can close it:
 
 For example:
 
-```scala
-||< include-static "WsSample.scala#close" >||
-```
+{{< include-code "WsSample.scala#close" scala >}}
 
 ### Send a Message
 
@@ -76,9 +66,7 @@ You may send text or binary messages:
 
 For example:
 
-```scala
-||< include-static "WsSample.scala#sendText" >||
-```
+{{< include-code "WsSample.scala#sendText" scala >}}
 
 Note that:
 
@@ -95,51 +83,37 @@ Gatling currently only supports blocking checks that will waiting until receivin
 
 You can set a check right after connecting:
 
-```scala
-||< include-static "WsSample.scala#check-from-connect" >||
-```
+{{< include-code "WsSample.scala#check-from-connect" scala >}}
 
 Or you can set a check right after sending a message to the server:
 
-```scala
-||< include-static "WsSample.scala#check-from-message" >||
-```
+{{< include-code "WsSample.scala#check-from-message" scala >}}
 
 You can set multiple checks sequentially. Each one will expect one single frame.
 
 You can configure multiple checks in a single sequence:
 
-```scala
-||< include-static "WsSample.scala#check-single-sequence" >||
-```
+{{< include-code "WsSample.scala#check-single-sequence" scala >}}
 
 You can also configure multiple check sequences with different timeouts:
 
-```scala
-||< include-static "WsSample.scala#check-check-multiple-sequence" >||
-```
+{{< include-code "WsSample.scala#check-multiple-sequence" scala >}}
 
 ### Create a check
 
 You can create checks for text and binary frames with `checkTextMessage` and `checkBinaryMessage`.
 You can use almost all the same check criteria as for HTTP requests.
 
-```scala
-||< include-static "WsSample.scala#create-single-check" >||
-```
+{{< include-code "WsSample.scala#create-single-check" scala >}}
 
 You can have multiple criteria for a given message:
 
-```scala
-||< include-static "WsSample.scala#create-multiple-checks" >||
-```
+{{< include-code "WsSample.scala#create-multiple-checks" scala >}}
 
 checks can be marked as `silent`.
 Silent checks won't be reported whatever their outcome.
 
-```scala
-||< include-static "WsSample.scala#silent-check" >||
-```
+{{< include-code "WsSample.scala#silent-check" scala >}}
 
 ### Matching messages
 
@@ -147,9 +121,7 @@ You can define `matching` criteria to filter messages you want to check.
 Matching criterion is a standard check, except it doesn't take `saveAs`.
 Non matching messages will be ignored.
 
-```scala
-||< include-static "WsSample.scala#matching" >||
-```
+{{< include-code "WsSample.scala#matching" scala >}}
 
 ## Configuration
 
@@ -175,6 +147,4 @@ In your logback configuration, lower logging level to `DEBUG` on logger `io.gatl
 
 Here's an example that runs against [Play 2.2](https://www.playframework.com/download#older-versions)'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
-```scala
-||< include-static "WsSample.scala#chatroom-example" >||
-```
+{{< include-code "WsSample.scala#chatroom-example" scala >}}

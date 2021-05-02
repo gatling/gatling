@@ -12,9 +12,7 @@ This is the reference of the different components available to write scenarios w
 
 `scenario` is the way to bootstrap a new scenario.
 
-```scala
-||< include-static "ScenarioSample.scala#bootstrapping" >||
-```
+{{< include-code "ScenarioSample.scala#bootstrapping" scala >}}
 
 You can use any character in the name of the scenario **except** tabulations: **\t**.
 
@@ -28,17 +26,13 @@ Any action that will be executed will be called with `exec`.
 
 For example, when using the Gatling HTTP module you would write the following line:
 
-```scala
-||< include-static "ScenarioSample.scala#exec-example" >||
-```
+{{< include-code "ScenarioSample.scala#exec-example" scala >}}
 
 `exec` can also be passed an [Expression]({{< ref "../../session/expression_el#expression" >}}) function.
 
 This can be used for manually debugging or editing the [Session]({{< ref "../../session/session_api#session" >}}), e.g.:
 
-```scala
-||< include-static "ScenarioSample.scala#session-lambda" >||
-```
+{{< include-code "ScenarioSample.scala#session-lambda" scala >}}
 
 {{< alert tip >}}
 For those who wonder how the plumbing works and how you can return a `Session` instead of `Validation[Session]` in the above examples,
@@ -53,17 +47,13 @@ As a result, creating such DSL components at runtime in functions is completely 
 If you want conditional paths in your execution flow, use the proper DSL components (`doIf`, `randomSwitch`, etc)
 {{< /alert >}}
 
-```scala
-||< include-static "ScenarioSample.scala#session-improper" >||
-```
+{{< include-code "ScenarioSample.scala#session-improper" scala >}}
 
 `flattenMapIntoAttributes` is a built-in Session Expression as mentioned above.
 
 It exposes the content of a Map into attributes, e.g.:
 
-```scala
-||< include-static "ScenarioSample.scala#flattenMapIntoAttributes" >||
-```
+{{< include-code "ScenarioSample.scala#flattenMapIntoAttributes" scala >}}
 
 ### Pause
 
@@ -94,9 +84,7 @@ If you want to control how frequently an action is executed, to target *iteratio
 Gatling support a dedicated type of pause: `pace`, which adjusts its wait time depending on how long the chained action took.
 E.g.:
 
-```scala
-||< include-static "ScenarioSample.scala#pace" >||
-```
+{{< include-code "ScenarioSample.scala#pace" scala >}}
 
 There are several ways of using it:
 
@@ -125,18 +113,14 @@ Otherwise, you might break Gatling underlying component's internal logic.
 
 Repeat the loop a specified amount of times.
 
-```scala
-||< include-static "ScenarioSample.scala#repeat-example" >||
-```
+{{< include-code "ScenarioSample.scala#repeat-example" scala >}}
 
 *times* can be an Int, an EL string pointing to an Int Session attribute, or an `Expression[Int]`.
 
 *counterName* is optional and can be used to force the name of the loop counter.
 Current value can be retrieved on the Session as an attribute with a *counterName* name.
 
-```scala
-||< include-static "ScenarioSample.scala#repeat-variants" >||
-```
+{{< include-code "ScenarioSample.scala#repeat-variants" scala >}}
 
 {{< alert warning >}}
 Don't forget that the counter starts at 0!
@@ -146,9 +130,7 @@ Don't forget that the counter starts at 0!
 
 Repeat the loop for each element in the specified sequence.
 
-```scala
-||< include-static "ScenarioSample.scala#foreach" >||
-```
+{{< include-code "ScenarioSample.scala#foreach" scala >}}
 
 *sequenceName* can be a sequence, an EL string pointing to a `Seq[Any]` Session attribute, or an `Expression[Seq[Any]]`
 
@@ -160,9 +142,7 @@ Repeat the loop for each element in the specified sequence.
 
 Iterate over the loop during the specified amount of time.
 
-```scala
-||< include-static "ScenarioSample.scala#during" >||
-```
+{{< include-code "ScenarioSample.scala#during" scala >}}
 
 *duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
 
@@ -174,9 +154,7 @@ Iterate over the loop during the specified amount of time.
 
 Iterate over the loop as long as the condition is satisfied.
 
-```scala
-||< include-static "ScenarioSample.scala#asLongAs" >||
-```
+{{< include-code "ScenarioSample.scala#asLongAs" scala >}}
 
 *condition* is a session function that returns a boolean.
 
@@ -188,9 +166,7 @@ Iterate over the loop as long as the condition is satisfied.
 
 Similar to `asLongAs` but the condition is evaluated after the loop.
 
-```scala
-||< include-static "ScenarioSample.scala#doWhile" >||
-```
+{{< include-code "ScenarioSample.scala#doWhile" scala >}}
 
 *condition* is a session function that returns a boolean.
 
@@ -200,9 +176,7 @@ Similar to `asLongAs` but the condition is evaluated after the loop.
 
 Iterate over the loop as long as the condition is satisfied and the duration hasn't been reached.
 
-```scala
-||< include-static "ScenarioSample.scala#asLongAsDuring" >||
-```
+{{< include-code "ScenarioSample.scala#asLongAsDuring" scala >}}
 
 *condition* is a session function that returns a boolean.
 
@@ -214,9 +188,7 @@ Iterate over the loop as long as the condition is satisfied and the duration has
 
 Similar to `asLongAsDuring` but the condition is evaluated after the loop.
 
-```scala
-||< include-static "ScenarioSample.scala#doWhileDuring" >||
-```
+{{< include-code "ScenarioSample.scala#doWhileDuring" scala >}}
 
 *condition* is a session function that returns a boolean.
 
@@ -228,9 +200,7 @@ Similar to `asLongAsDuring` but the condition is evaluated after the loop.
 
 Iterate over the loop forever.
 
-```scala
-||< include-static "ScenarioSample.scala#forever" >||
-```
+{{< include-code "ScenarioSample.scala#forever" scala >}}
 
 *counterName* is optional.
 
@@ -241,31 +211,23 @@ Iterate over the loop forever.
 Gatling's DSL has conditional execution support.
 If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the `doIf` method.
 
-```scala
-||< include-static "ScenarioSample.scala#doIf" >||
-```
+{{< include-code "ScenarioSample.scala#doIf" scala >}}
 
 If you want to test complex conditions, you'll have to pass an `Expression[Boolean]`:
 
-```scala
-||< include-static "ScenarioSample.scala#doIf-session" >||
-```
+{{< include-code "ScenarioSample.scala#doIf-session" scala >}}
 
 #### `doIfEquals`
 
 Îf your test condition is simply to compare two values, you can simply use `doIfEquals`:
 
-```scala
-||< include-static "ScenarioSample.scala#doIfEquals" >||
-```
+{{< include-code "ScenarioSample.scala#doIfEquals" scala >}}
 
 #### `doIfOrElse`
 
 Similar to `doIf`, but with a fallback if the condition evaluates to false.
 
-```scala
-||< include-static "ScenarioSample.scala#doIfOrElse" >||
-```
+{{< include-code "ScenarioSample.scala#doIfOrElse" scala >}}
 
 {{< alert warning >}}
 `doIfOrElse` only takes an `Expression[Boolean]`, not the key/value signature.
@@ -275,9 +237,7 @@ Similar to `doIf`, but with a fallback if the condition evaluates to false.
 
 Similar to `doIfEquals` but with a fallback if the condition evaluates to false.
 
-```scala
-||< include-static "ScenarioSample.scala#doIfEqualsOrElse" >||
-```
+{{< include-code "ScenarioSample.scala#doIfEqualsOrElse" scala >}}
 
 #### `doSwitch`
 
@@ -285,9 +245,7 @@ Add a switch in the chain. Every possible sub-chain is defined with a key.
 Switch is selected through the matching of a key with the evaluation of the passed expression.
 If no switch is selected, the switch is bypassed.
 
-```scala
-||< include-static "ScenarioSample.scala#doSwitch" >||
-```
+{{< include-code "ScenarioSample.scala#doSwitch" scala >}}
 
 {{< alert warning >}}
 When using any kind of switch component, make sure to use parentheses, not curly braces!
@@ -297,18 +255,14 @@ When using any kind of switch component, make sure to use parentheses, not curly
 
 Similar to `doSwitch`, but with a fallback if no switch is selected.
 
-```scala
-||< include-static "ScenarioSample.scala#doSwitchOrElse" >||
-```
+{{< include-code "ScenarioSample.scala#doSwitchOrElse" scala >}}
 
 #### `randomSwitch`
 
 `randomSwitch` can be used to emulate simple Markov chains.
 Simple means cyclic graphs are not currently supported.
 
-```scala
-||< include-static "ScenarioSample.scala#randomSwitch" >||
-```
+{{< include-code "ScenarioSample.scala#randomSwitch" scala >}}
 
 Percentages sum can't exceed 100%.
 If sum is less than 100%, users that won't fall into one of the chains will simply exit the switch and continue.
@@ -322,33 +276,25 @@ Percentages should be format as following: 50% -> 50, 33.3% -> 33.3 and so on.
 
 Similar to `randomSwitch`, but with a fallback if no switch is selected (i.e.: random number exceeds percentages sum).
 
-```scala
-||< include-static "ScenarioSample.scala#randomSwitchOrElse" >||
-```
+{{< include-code "ScenarioSample.scala#randomSwitchOrElse" scala >}}
 
 #### `uniformRandomSwitch`
 
 Similar to `randomSwitch`, but with an uniform distribution amongst chains.
 
-```scala
-||< include-static "ScenarioSample.scala#uniformRandomSwitch" >||
-```
+{{< include-code "ScenarioSample.scala#uniformRandomSwitch" scala >}}
 
 #### `roundRobinSwitch`
 
 Similar to `randomSwitch`, but dispatch uses a round-robin strategy.
 
-```scala
-||< include-static "ScenarioSample.scala#roundRobinSwitch" >||
-```
+{{< include-code "ScenarioSample.scala#roundRobinSwitch" scala >}}
 
 ### Errors handling
 
 #### `tryMax`
 
-```scala
-||< include-static "ScenarioSample.scala#tryMax" >||
-```
+{{< include-code "ScenarioSample.scala#tryMax" scala >}}
 
 *myChain* is expected to succeed as a whole.
 If an error happens (a technical exception such as a timeout, or a failed check), the user will bypass the rest of the chain and start over from the beginning.
@@ -359,42 +305,32 @@ If an error happens (a technical exception such as a timeout, or a failed check)
 
 #### `exitBlockOnFail`
 
-```scala
-||< include-static "ScenarioSample.scala#exitBlockOnFail" >||
-```
+{{< include-code "ScenarioSample.scala#exitBlockOnFail" scala >}}
 
 Quite similar to tryMax, but without looping on failure.
 
 #### `exitHere`
 
-```scala
-||< include-static "ScenarioSample.scala#exitHere" >||
-```
+{{< include-code "ScenarioSample.scala#exitHere" scala >}}
 
 Make the user exit the scenario from this point.
 
 #### `exitHereIf`
 
-```scala
-||< include-static "ScenarioSample.scala#exitHereIf" >||
-```
+{{< include-code "ScenarioSample.scala#exitHereIf" scala >}}
 
 Make the user exit the scenario from this point if the condition holds.
 Condition parameter is an `Expression[Boolean]`.
 
 #### `exitHereIfFailed`
 
-```scala
-||< include-static "ScenarioSample.scala#exitHereIfFailed" >||
-```
+{{< include-code "ScenarioSample.scala#exitHereIfFailed" scala >}}
 
 Make the user exit the scenario from this point if it previously had an error.
 
 ### Groups definition
 
-```scala
-||< include-static "ScenarioSample.scala#group" >||
-```
+{{< include-code "ScenarioSample.scala#group" scala >}}
 
 Create group of requests to model process or requests in a same page.
 Groups can be nested.
@@ -407,9 +343,7 @@ Beware that group names mustn't contain commas.
 
 You can configure protocols at scenario level with `protocols` method:
 
-```scala
-||< include-static "ScenarioSample.scala#protocol" >||
-```
+{{< include-code "ScenarioSample.scala#protocol" scala >}}
 
 See the dedicated section for http protocol definition [here]({{< ref "../../http/protocol" >}}).
 
@@ -423,8 +357,6 @@ You can also configure throttling at scenario level with `throttle` method.
 
 This way, you can configure different throttling profiles for different scenarios running in the same simulation.
 
-```scala
-||< include-static "ScenarioSample.scala#throttling" >||
-```
+{{< include-code "ScenarioSample.scala#throttling" scala >}}
 
 For further information see the dedicated section [here]({{< ref "../simulation_setup#throttling" >}}).
