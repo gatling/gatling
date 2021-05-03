@@ -6,13 +6,13 @@ import wartremover.Wart
 object CodeAnalysis {
 
   lazy val disable = Seq(
-    wartremoverErrors in (Compile, compile) := Seq.empty,
-    wartremoverErrors in (Test, compile) := Seq.empty
+    Compile / compile / wartremoverErrors := Seq.empty,
+    Test / compile / wartremoverErrors := Seq.empty
   )
 
   lazy val settings = Seq(
-    wartremoverErrors in (Compile, compile) := Warts.allBut(disabledWarts: _*),
-    wartremoverErrors in (Test, compile) := (wartremoverErrors in (Compile, compile)).value
+    Compile / compile / wartremoverErrors := Warts.allBut(disabledWarts: _*),
+    Test / compile / wartremoverErrors := (Compile / compile / wartremoverErrors).value
   )
 
   private def disabledWarts: List[Wart] =

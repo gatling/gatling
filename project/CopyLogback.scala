@@ -5,8 +5,8 @@ import sbt._
 object CopyLogback {
 
   def copyLogbackXml(fromProject: Project) = Seq(
-    resourceGenerators in Compile += Def.task {
-      copyDummyLogbackXml((resources in Compile in fromProject).value, (sourceDirectory in Universal).value)
+    Compile / resourceGenerators += Def.task {
+      copyDummyLogbackXml((fromProject / Compile / resources).value, (Universal / sourceDirectory).value)
     }.taskValue
   )
 

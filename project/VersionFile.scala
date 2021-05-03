@@ -4,8 +4,8 @@ import sbt.Keys._
 object VersionFile {
 
   val generateVersionFileSettings = Seq(
-    resourceGenerators in Compile += Def.task {
-      Seq(generateVersionFile((resourceDirectory in Compile).value, version.value))
+    Compile / resourceGenerators += Def.task {
+      Seq(generateVersionFile((Compile / resourceDirectory).value, (ThisBuild / version).value))
     }.taskValue
   )
 

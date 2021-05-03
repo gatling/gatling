@@ -4,7 +4,7 @@ import sbt._
 object BuildSettings {
 
   lazy val basicSettings = Seq(
-    parallelExecution in Test := false,
+    Test / parallelExecution := false,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
     // [fl]
@@ -17,20 +17,20 @@ object BuildSettings {
     basicSettings ++ scaladocSettings ++ utf8Encoding
 
   lazy val skipPublishing =
-    skip in publish := true
+    publish / skip := true
 
   lazy val noSrcToPublish =
-    publishArtifact in packageDoc in Compile := false
+    Compile / packageDoc / publishArtifact := false
 
   lazy val noDocToPublish =
-    publishArtifact in packageSrc in Compile := false
+    Compile / packageSrc / publishArtifact := false
 
   // UTF-8
 
   lazy val utf8Encoding = Seq(
     fork := true,
-    javacOptions in Compile ++= Seq("-encoding", "utf8"),
-    javacOptions in Test ++= Seq("-encoding", "utf8")
+    Compile / javacOptions ++= Seq("-encoding", "utf8"),
+    Test / javacOptions ++= Seq("-encoding", "utf8")
   )
 
   // Documentation settings
@@ -43,12 +43,12 @@ object BuildSettings {
 
   lazy val chartTestsSettings = Seq(
     fork := true,
-    javaOptions in Test := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
+    Test / javaOptions := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
   )
 
   lazy val excludeDummyComponentLibrary = Seq(
-    mappings in (Compile, packageBin) := {
-      val compiledClassesMappings = (mappings in (Compile, packageBin)).value
+    Compile / packageBin / mappings := {
+      val compiledClassesMappings = (Compile / packageBin / mappings).value
       compiledClassesMappings.filter { case (_, path) => !path.contains("io/gatling/charts/component/impl") }
     }
   )

@@ -51,7 +51,7 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(basicSettings)
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
-  .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
+  .settings(Test / unmanagedSourceDirectories := ((Sphinx / sourceDirectory).value ** "code").get)
   .settings(scalafmtConfig := Def.task {
     val file = scalafmtConfig.value
     IO.append(
@@ -119,7 +119,7 @@ lazy val http = gatlingModule("gatling-http")
 lazy val jms = gatlingModule("gatling-jms")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jmsDependencies)
-  .settings(parallelExecution in Test := false)
+  .settings(Test / parallelExecution := false)
 
 lazy val charts = gatlingModule("gatling-charts")
   .dependsOn(core % "compile->compile;test->test")

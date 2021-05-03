@@ -7,14 +7,14 @@ object ConfigFiles {
   private val LeadingSpacesRegex = """^(\s+)"""
 
   def generateConfigFiles(fromProject: Project) = Seq(
-    resourceGenerators in Compile += Def.task {
-      generateCommentedConfigFile((resources in Compile in fromProject).value, (sourceDirectory in Universal).value)
+    Compile / resourceGenerators += Def.task {
+      generateCommentedConfigFile((fromProject / Compile / resources).value, (Universal / sourceDirectory).value)
     }.taskValue
   )
 
   def copyGatlingDefaults(destProject: Project) = Seq(
-    resourceGenerators in Compile in destProject += Def.task {
-      copyGatlingDefaultConfigFile((resourceDirectory in Compile in destProject).value, (resourceDirectory in Compile).value)
+    destProject / Compile / resourceGenerators += Def.task {
+      copyGatlingDefaultConfigFile((destProject / Compile / resourceDirectory).value, (Compile / resourceDirectory).value)
     }.taskValue
   )
 
