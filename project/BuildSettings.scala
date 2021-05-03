@@ -20,10 +20,10 @@ object BuildSettings {
     publish / skip := true
 
   lazy val noSrcToPublish =
-    Compile / packageDoc / publishArtifact := false
+    Compile / packageSrc / publishArtifact := false
 
   lazy val noDocToPublish =
-    Compile / packageSrc / publishArtifact := false
+    Compile / packageDoc / publishArtifact := false
 
   // UTF-8
 
