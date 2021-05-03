@@ -124,19 +124,6 @@ There are two handful methods to help you set the required headers for JSON and 
 Headers can also be defined on the `HttpProtocol`.
 {{< /alert >}}
 
-For a given request, you can also disable common headers that were defined on the `HttpProtocol` with `ignoreProtocolHeaders`:
-
-{{< include-code "HttpRequestSample.scala#ignoreProtocolHeaders" scala >}}
-
-## Request Timeout
-
-The default request timeout is controlled by the ``gatling.http.requestTimeout` configuration parameter.
-
-However, you might want to use `requestTimeout(timeout: FiniteDuration)`
-to override the global value for a specific request, typically a long file upload or download.
-
-{{< include-code "HttpRequestSample.scala#requestTimeout" scala >}}
-
 ## Signature Calculator
 
 You might want to edit the HTTP requests before they're being sent over the wire, based on other request information: url, headers and/or body.
@@ -215,9 +202,9 @@ You can add checks on a request:
 
 For more information, see the [HTTP Checks reference section]({{< ref "../check" >}}).
 
-For a given request, you can also disable common checks that were defined on the `HttpProtocol` with `ignoreProtocolChecks`:
+For a given request, you can also disable common checks that were defined on the `HttpProtocol` with `ignoreDefaultChecks`:
 
-{{< include-code "HttpRequestSample.scala#ignoreProtocolChecks" scala >}}
+{{< include-code "HttpRequestSample.scala#ignoreDefaultChecks" scala >}}
 
 ## FollowRedirect
 

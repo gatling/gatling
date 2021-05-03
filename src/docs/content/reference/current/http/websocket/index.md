@@ -110,11 +110,6 @@ You can have multiple criteria for a given message:
 
 {{< include-code "WsSample.scala#create-multiple-checks" scala >}}
 
-checks can be marked as `silent`.
-Silent checks won't be reported whatever their outcome.
-
-{{< include-code "WsSample.scala#silent-check" scala >}}
-
 ### Matching messages
 
 You can define `matching` criteria to filter messages you want to check.

@@ -142,8 +142,6 @@ You can of course define hostname aliases at the OS level in the `/etc/hosts` fi
 
 But you can use `.hostNameAliases` to pass aliases programmatically:
 
-{{< include-code "HttpProtocolSample.scala#hostNameAliases" scala >}}
-
 ### Virtual Host
 
 One can set a different Host than the url one:

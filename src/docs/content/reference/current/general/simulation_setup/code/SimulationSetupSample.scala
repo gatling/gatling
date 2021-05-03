@@ -93,4 +93,46 @@ class SimulationSetupSample extends Simulation {
     )
   )
   //#incrementUsersPerSec
+
+  private val scenario1 = scenario("scenario1")
+  private val scenario2 = scenario("scenario2")
+  private val injectionProfile1 = atOnceUsers(1)
+  private val injectionProfile2 = atOnceUsers(1)
+
+  //#multiple
+  setUp(
+    scenario1.inject(injectionProfile1),
+    scenario2.inject(injectionProfile2)
+  )
+  //#multiple
+
+  private val parent = scenario("parent")
+  private val child1 = scenario("child1")
+  private val child2 = scenario("child2")
+  private val grandChild = scenario("grandChild")
+  private val injectionProfile = constantConcurrentUsers(5) during (5)
+
+  //#andThen
+  setUp(
+    parent.inject(injectionProfile)
+      // child1 and child2 will start at the same time when last parent user will terminate
+      .andThen(
+        child1.inject(injectionProfile)
+          // grandChild will start when last child1 user will terminate
+          .andThen(grandChild.inject(injectionProfile)),
+        child2.inject(injectionProfile)
+      )
+  )
+  //#andThen
+
+  //#noShard
+  setUp(
+    // parent load won't be sharded
+    parent.inject(atOnceUsers(1)).noShard
+      .andThen(
+        // child load will be sharded
+        child1.inject(injectionProfile)
+      )
+  )
+  //#noShard
 }

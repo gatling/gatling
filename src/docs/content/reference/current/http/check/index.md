@@ -343,13 +343,13 @@ Transforming is an **optional** step for transforming the result of the extracti
 `transform(function)` takes a `X => X2` function, meaning that it can only transform the result when it exists.
 
 {{< alert tip >}}
-You can also gain read access to the `Session` with `transformWithSession` and pass a `(X, Session) => X2` instead.
+You can also gain read access to the `Session` with `transform` and pass a `(X, Session) => X2` instead.
 {{< /alert >}}
 
 `transformOption(function)` takes a `Option[X] => Validation[Option[X2]]` function, meaning that it gives full control over the extracted result, even providing a default value.
 
 {{< alert tip >}}
-You can also gain read access to the `Session` with `transformOptionWithSession` and pass a `(Option[X], Session) => Validation[X2]` instead.
+You can also gain read access to the `Session` with `transformOption` and pass a `(Option[X], Session) => Validation[X2]` instead.
 {{< /alert >}}
 
 {{< include-code "CheckSample.scala#transform,transformOption" scala >}}
