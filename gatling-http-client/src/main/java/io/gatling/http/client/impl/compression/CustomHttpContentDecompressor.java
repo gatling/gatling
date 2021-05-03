@@ -18,7 +18,6 @@ package io.gatling.http.client.impl.compression;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 
-import io.gatling.http.client.impl.compression.BrotliDecoder;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.util.AsciiString;
