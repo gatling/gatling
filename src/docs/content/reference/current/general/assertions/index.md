@@ -44,7 +44,7 @@ and to perform an assertion on the request `MyRequest` in the group `MyGroup`, u
 For WebSockets it takes the name of the check and not the name of the request. `ws.checkTextMessage("use this name")`
 
 {{< alert tip >}}
-When `path` is a group, assertions are matched against the cumulated response time, not the group total duration.
+When `path` is a group, assertions are made against the group's response time, not its cumulated time.
 For more information on the distinction between groups cumulated response time and duration, see [the Groups timings documentation]({{< ref "../timings#groups" >}}).
 {{< /alert >}}
 
