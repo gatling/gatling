@@ -1,9 +1,10 @@
 ---
 title: "Session API"
-description: ""
+description: "Concepts of the Gatling Session API"
 lead: ""
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 4010
 ---
 
 ## Concept

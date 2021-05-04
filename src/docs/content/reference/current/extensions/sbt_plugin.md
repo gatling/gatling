@@ -4,6 +4,7 @@ description: "SBT plugin to run Gatling test"
 lead: "The SBT plugin allows you to run Gatling test from the command line, without the bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 9030
 ---
 
 This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testing framework.

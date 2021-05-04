@@ -4,6 +4,7 @@ description: "Structure of the Gatling Bundle"
 lead: "Explanation of the bin, conf, lib, results and user-files directories of the Gatling Bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 003020
 ---
 
 The bundle structure is as following:

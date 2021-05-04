@@ -1,9 +1,10 @@
 ---
 title: "Contributors"
 description: ""
-lead: ""
+lead: "Gatling contributors on Github"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 11010
 ---
 
 Some amazing people have greatly contributed to Gatling and helped make it a great project!
