@@ -4,6 +4,7 @@ description: "Use SSL to do HTTPS with Gatling"
 lead: "Configure the SSLContext, SNI, keystore and truststore"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 005040
 ---
 
 ## SSLContext

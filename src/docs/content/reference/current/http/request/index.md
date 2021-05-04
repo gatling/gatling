@@ -4,6 +4,7 @@ description: "Create HTTP requests"
 lead: "Learn about get put post delete head patch options method, and configure the query parameters, HTTP checks, multipart and request body"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 005020
 ---
 
 HTTP support has a dedicated DSL, whose entry point is the `http(requestName: Expression[String])` method.

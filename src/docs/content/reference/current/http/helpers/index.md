@@ -4,6 +4,7 @@ description: "Learn how to deal with cookies and cache"
 lead: "Add and retrieve manually a cookie with Gatling"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 005050
 ---
 
 ## Dealing with Cookies
