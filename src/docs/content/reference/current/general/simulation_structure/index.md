@@ -4,6 +4,7 @@ description: "Learn about the structure of the Gatling simulation"
 lead: "Learn about the main parts of a Gatling simulation: DSL import, protocol configuration, headers definition, scenario definition, simulation definitions, hooks"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 003050
 ---
 
 A `Simulation` is a real Scala class containing 4 different parts:

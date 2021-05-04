@@ -4,6 +4,7 @@ description: "Gradle plugin to run Gatling test"
 lead: "The Gradle plugin allows you to run Gatling test from the command line, without the bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 9050
 ---
 
 This Gradle plugin was initially contributed by [Ievgenii Shepeliuk](https://github.com/eshepelyuk) and [Laszlo Kishalmi](https://github.com/lkishalmi).

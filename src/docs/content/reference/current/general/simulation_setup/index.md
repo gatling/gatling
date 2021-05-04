@@ -4,6 +4,7 @@ description: "Define the load you want to inject to your server"
 lead: "Setup the assertions, protocols, injection, and learn about the differences between open and closed workload models"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 003060
 ---
 
 This is where you define the load you want to inject to your server.

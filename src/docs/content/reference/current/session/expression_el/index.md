@@ -1,9 +1,10 @@
 ---
 title: "Expression and EL"
-description: ""
-lead: ""
+description: "Expression Language (EL) is used to write dynamic values by fetching values in the session"
+lead: "Work with the session with the Expression Language"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 4020
 ---
 
 ## Expression Language
