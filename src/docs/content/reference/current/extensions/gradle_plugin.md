@@ -241,14 +241,14 @@ option is not set the value from `gatling` global config is taken.
 
 Run all simulations
 
-```bash
-$ gradle gatlingRun
+```console
+gradle gatlingRun
 ```
 
 Run single simulation implemented in `com.project.simu.MySimulation` class
 
-```bash
-$ gradle gatlingRun-com.project.simu.MySimulation
+```console
+gradle gatlingRun-com.project.simu.MySimulation
 ```
 
 ## Troubleshooting and known issues
