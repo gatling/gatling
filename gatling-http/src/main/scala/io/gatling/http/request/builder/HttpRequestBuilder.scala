@@ -111,10 +111,15 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   def processRequestBody(processor: Body => Body): HttpRequestBuilder = this.modify(_.httpAttributes.body)(_.map(processor))
 
-  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts)(_ ::: List(bodyPart))
+  def bodyPart(part: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts)(_ ::: List(part))
+  def bodyParts(parts: BodyPart*): HttpRequestBuilder = {
+    require(parts.nonEmpty, "bodyParts can't be empty.")
+    require(!parts.contains(null), "bodyParts can't contain null elements. Forward reference issue?")
+    this.modify(_.httpAttributes.bodyParts)(_ ::: parts.toList)
+  }
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {
-    require(!res.contains(null), "Resources can't contain null elements. Forward reference issue?")
+    require(!res.contains(null), "resources can't contain null elements. Forward reference issue?")
     this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
   }
 
