@@ -52,7 +52,9 @@ gatling {
 
 ### InfluxDB
 
-InfluxDB is one of the new crop of time-series databases [^1]. It is self-contained, easy-to-install and resource efficient.
+InfluxDB is one of the new crop of time-series databases[^1]. It is self-contained, easy-to-install and resource efficient.
+
+[^1]: A time series is a sequence of data points that are measured over time and a time-series database optimises that data.
 
 #### Install
 
@@ -225,5 +227,3 @@ To run the script:
 ```console
 nc -l 2003 | awk -f a.awk
 ```
-
-[1](#influxdb) A time series is a sequence of data points that are measured over time and a time-series database optimises that data.
