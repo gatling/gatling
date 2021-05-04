@@ -51,6 +51,11 @@ markup:
     style: dracula
     tabWidth: 4
 
+minify:
+  tdewolff:
+    html:
+      keepWhitespace: true
+
 sitemap:
   changefreq: weekly
   filename: sitemap.xml
