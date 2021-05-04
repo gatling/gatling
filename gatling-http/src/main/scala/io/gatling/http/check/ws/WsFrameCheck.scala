@@ -33,12 +33,12 @@ final case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinary
 
   def matching(newMatchConditions: WsBinaryCheck*): WsBinaryFrameCheck = {
     require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
-    this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)
+    this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)
   }
 
   def check(newChecks: WsBinaryCheck*): WsBinaryFrameCheck = {
     require(!newChecks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checks).using(_ ::: newChecks.toList)
+    this.modify(_.checks)(_ ::: newChecks.toList)
   }
 
   def silent: WsBinaryFrameCheck =
@@ -49,12 +49,12 @@ final case class WsTextFrameCheck(name: String, matchConditions: List[WsTextChec
 
   def matching(newMatchConditions: WsTextCheck*): WsTextFrameCheck = {
     require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
-    this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)
+    this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)
   }
 
   def check(newChecks: WsTextCheck*): WsTextFrameCheck = {
     require(!newChecks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checks).using(_ ::: newChecks.toList)
+    this.modify(_.checks)(_ ::: newChecks.toList)
   }
 
   def silent: WsTextFrameCheck =

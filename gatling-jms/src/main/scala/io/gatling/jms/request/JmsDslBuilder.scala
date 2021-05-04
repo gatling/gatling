@@ -108,7 +108,7 @@ final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttribute
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]): SendDslBuilder = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
+  def property(key: Expression[String], value: Expression[Any]): SendDslBuilder = this.modify(_.attributes.messageProperties)(_ + (key -> value))
 
   def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
@@ -120,7 +120,7 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]): RequestReplyDslBuilder = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
+  def property(key: Expression[String], value: Expression[Any]): RequestReplyDslBuilder = this.modify(_.attributes.messageProperties)(_ + (key -> value))
 
   def jmsType(jmsType: Expression[String]): RequestReplyDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
@@ -129,7 +129,7 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
    */
   def check(checks: JmsCheck*): RequestReplyDslBuilder = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.attributes.checks).using(_ ::: checks.toList)
+    this.modify(_.attributes.checks)(_ ::: checks.toList)
   }
 
   def build: ActionBuilder = factory(attributes)

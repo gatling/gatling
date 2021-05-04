@@ -39,7 +39,7 @@ final case class WsSendTextFrameBuilder(
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
+    this.modify(_.checkSequences)(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action =
@@ -66,7 +66,7 @@ final case class WsSendBinaryFrameBuilder(
 
   def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
+    this.modify(_.checkSequences)(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action =

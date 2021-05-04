@@ -207,7 +207,7 @@ final case class BodyPart(
 
   def transferEncoding(transferEncoding: String): BodyPart = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
 
-  def header(name: Expression[String], value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
+  def header(name: Expression[String], value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders)(_ ::: List(name -> value))
 
   def toMultiPart(session: Session): Validation[Part[_]] =
     for {

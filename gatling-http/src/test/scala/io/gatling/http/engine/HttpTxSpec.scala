@@ -90,8 +90,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentUri).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
+      .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
 
     tx(ahcRequest, config, root = true).silent shouldBe true
   }
@@ -102,8 +101,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
+      .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = false).silent shouldBe true
   }
@@ -114,8 +112,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
+      .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = true).silent shouldBe false
   }

@@ -87,7 +87,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   def check(checks: HttpCheck*): HttpRequestBuilder = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
+    this.modify(_.httpAttributes.checks)(_ ::: checks.toList)
   }
 
   @deprecated("Please use ignoreProtocolChecks instead. Will be removed in 3.5.0", "3.4.0")
@@ -109,9 +109,9 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   def body(bd: Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).setTo(Some(bd))
 
-  def processRequestBody(processor: Body => Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).using(_.map(processor))
+  def processRequestBody(processor: Body => Body): HttpRequestBuilder = this.modify(_.httpAttributes.body)(_.map(processor))
 
-  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts).using(_ ::: List(bodyPart))
+  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts)(_ ::: List(bodyPart))
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {
     require(!res.contains(null), "Resources can't contain null elements. Forward reference issue?")
@@ -134,7 +134,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestBuilder = formParam(ParamMap(map))
 
   private def formParam(formParam: HttpParam): HttpRequestBuilder =
-    this.modify(_.httpAttributes.formParams).using(_ ::: List(formParam))
+    this.modify(_.httpAttributes.formParams)(_ ::: List(formParam))
 
   def form(form: Expression[Map[String, Any]]): HttpRequestBuilder =
     this.modify(_.httpAttributes.form).setTo(Some(form))

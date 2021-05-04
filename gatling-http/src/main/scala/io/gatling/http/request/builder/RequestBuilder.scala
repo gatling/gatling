@@ -124,7 +124,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamMap(map: Map[String, Any]): B = queryParamSeq(map2SeqExpression(map))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
-  private def queryParam(param: HttpParam): B = newInstance(modify(commonAttributes)(_.queryParams).using(_ ::: List(param)))
+  private def queryParam(param: HttpParam): B = newInstance(modify(commonAttributes)(_.queryParams)(_ ::: List(param)))
 
   /**
    * Adds a header to the request
@@ -132,7 +132,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param name the name of the header
    * @param value the value of the header
    */
-  def header(name: CharSequence, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ + (name -> value)))
+  def header(name: CharSequence, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers)(_ + (name -> value)))
 
   /**
    * Adds several headers to the request at the same time
@@ -140,7 +140,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param newHeaders a scala map containing the headers to add
    */
   def headers(newHeaders: Map[_ <: CharSequence, String]): B =
-    newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.view.mapValues(_.el[String])))
+    newInstance(modify(commonAttributes)(_.headers)(_ ++ newHeaders.view.mapValues(_.el[String])))
 
   @deprecated("Please use ignoreProtocolHeaders instead. Will be removed in 3.5.0", "3.4.0")
   def ignoreDefaultHeaders: B = ignoreProtocolHeaders
