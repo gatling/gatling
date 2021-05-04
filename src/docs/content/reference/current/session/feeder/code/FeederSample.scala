@@ -81,7 +81,7 @@ class FeederSample {
 
   {
     //#shard
-    val csvFeeder = csv("foo.csv.zip").shard
+    val csvFeeder = csv("foo.csv").shard
     //#shard
   }
 

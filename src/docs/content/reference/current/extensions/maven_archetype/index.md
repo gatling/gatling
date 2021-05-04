@@ -4,6 +4,7 @@ description: "Maven archetype to create new Gatling maven project"
 lead: "The maven archetype creates a new maven project with Gatling dependencies and plugin"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 020
 ---
 
 Gatling's Maven Archetype helps you bootstrap a maven project with Gatling dependencies and plugin.

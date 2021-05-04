@@ -1,9 +1,10 @@
 ---
 title: "Validation"
-description: ""
-lead: ""
+description: "Work with Gatling Validation, know more about Success and Failure"
+lead: "Use Validations with your Sessions to make sure everything is correct"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 4040
 ---
 
 ## Concept

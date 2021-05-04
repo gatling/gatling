@@ -4,6 +4,7 @@ description: "Debugging of Gatling"
 lead: "Debug Gatling by printing session values or with logback"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 003120
 ---
 
 ## Print Session Values
