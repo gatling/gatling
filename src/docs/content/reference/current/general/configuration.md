@@ -71,8 +71,8 @@ Gatling can be started with several options listed below:
 Default command line options for JAVA are set in the launch scripts.
 You can use the JAVA_OPTS var to override those defaults, eg:
 
-```shell
-$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
+```console
+JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 ```
 
 [Default configuration file](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf)

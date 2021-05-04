@@ -248,7 +248,7 @@ For example: a simple Scala function to generate a file with 1 million different
 
 The urls can then be loaded in Redis using the following command:
 
-```shell
+```console
 cat /tmp/loadtest.txt | redis-cli --pipe
 ```
 

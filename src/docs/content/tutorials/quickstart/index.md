@@ -68,13 +68,13 @@ This tool is launched with a script located in the *bin* directory:
 
 * On Linux/Unix:
 
-```shell
+```console
 $GATLING_HOME/bin/recorder.sh
 ```
 
 * On Windows:
 
-```shell
+```console
 %GATLING_HOME%\bin\recorder.bat
 ```
 
@@ -163,13 +163,13 @@ Launch the second script located in the *bin* directory:
 
 * On Linux/Unix:
 
-```shell
+```console
 $GATLING_HOME/bin/gatling.sh
 ```
 
 * On Windows:
 
-```shell
+```console
 %GATLING_HOME%\bin\gatling.bat
 ```
 
