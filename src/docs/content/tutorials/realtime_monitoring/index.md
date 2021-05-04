@@ -76,16 +76,16 @@ Add the below to the Graphite section of `/etc/influxdb/influxdb.conf`
 
 #### Start
 
-```shell
-$ sudo service influxdb start
+```console
+sudo service influxdb start
 ```
 
 #### Verification
 
 From the [gatling-sbt-plugin-demo project](https://github.com/gatling/gatling-sbt-plugin-demo) run the ComputerWorld simulation, and
 
-```shell
-$ influx -database 'gatlingdb' -execute 'SELECT * FROM gatling where count != 0 LIMIT 10'
+```console
+influx -database 'gatlingdb' -execute 'SELECT * FROM gatling where count != 0 LIMIT 10'
 ```
 
 You should be presented with something similar to this:
@@ -222,7 +222,7 @@ BEGIN{
 
 To run the script:
 
-```bash
+```console
 nc -l 2003 | awk -f a.awk
 ```
 
