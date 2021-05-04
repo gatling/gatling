@@ -26,7 +26,6 @@ import io.netty.handler.codec.compression.DecompressionException;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BrotliDecoder extends ByteToMessageDecoder {
 
@@ -34,15 +33,24 @@ public class BrotliDecoder extends ByteToMessageDecoder {
     DONE, NEEDS_MORE_INPUT, ERROR
   }
 
-  private DecoderJNI.Wrapper decoder;
-  private final AtomicBoolean destroyed = new AtomicBoolean();
-
   static {
     try {
       Brotli4jLoader.ensureAvailability();
     } catch (Throwable throwable) {
       throw new ExceptionInInitializerError(throwable);
     }
+  }
+
+  private final int inputBufferSize;
+  private DecoderJNI.Wrapper decoder;
+  private boolean destroyed;
+
+  public BrotliDecoder() {
+    this(8 * 1024);
+  }
+
+  public BrotliDecoder(int inputBufferSize) {
+    this.inputBufferSize = inputBufferSize;
   }
 
   private ByteBuf pull(ByteBufAllocator alloc) {
@@ -98,11 +106,17 @@ public class BrotliDecoder extends ByteToMessageDecoder {
 
   @Override
   public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-    decoder = new DecoderJNI.Wrapper(8 * 1024);
+    decoder = new DecoderJNI.Wrapper(inputBufferSize);
   }
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    if (destroyed) {
+      // Skip data received after finished.
+      in.skipBytes(in.readableBytes());
+      return;
+    }
+
     if (!in.isReadable()) {
       return;
     }
@@ -121,7 +135,8 @@ public class BrotliDecoder extends ByteToMessageDecoder {
   }
 
   private void destroy() {
-    if (destroyed.compareAndSet(false, true)) {
+    if (!destroyed) {
+      destroyed = true;
       decoder.destroy();
     }
   }
