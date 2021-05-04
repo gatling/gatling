@@ -39,12 +39,12 @@ The archetype structure closely follows the bundle's structure :
 
 ### Launchers
 
-You can right click on the `Engine` class in your IDE and launch the Gatling load test engine.
+You can right-click on the `Engine` class in your IDE and launch the Gatling load test engine.
 Simulation reports will be written in the `target/gatling` directory.
 
-You can right click on the `Recorder` class in your IDEand launch the Recorder.
+You can right-click on the `Recorder` class in your IDE and launch the Recorder.
 Simulations will be generated in the `src/test/scala` directory.
 
 ### Sources
 
-If you're interested in contributing, you can find the [gatling-highcharts-maven-archetype sources](https://github.com/gatling/gatling-highcharts-maven-archetype) on Github.
+If you're interested in contributing, you can find the [gatling-highcharts-maven-archetype sources](https://github.com/gatling/gatling-highcharts-maven-archetype) on GitHub.
