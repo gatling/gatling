@@ -71,7 +71,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
     }
 
     groupChainedRequests.map {
-      case List(request)            => request
+      case request :: Nil           => request
       case mainRequest :: resources =>
         // TODO NRE : are we sure they are both absolute URLs?
         val nonEmbeddedResources = resources.filterNot(request => mainRequest.element.embeddedResources.exists(_.url == request.element.uri)).map(_.element)
@@ -80,6 +80,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
           .setTo(resources.map(_.arrivalTime).max)
           .modify(_.element.nonEmbeddedResources)
           .setTo(nonEmbeddedResources)
+      case _ => throw new IllegalArgumentException(s"groupChainedRequests shouldn't be empty")
     }
   }
 
