@@ -33,15 +33,15 @@ Typically, operating systems limit this number, so you may have to tweak a few o
 
 Most operating systems can change the open-files limit using the `ulimit -n` command. Example:
 
-```shell
-$ ulimit -n 65536
+```console
+ulimit -n 65536
 ```
 
 However, this only changes the limit for the current shell session. Changing the limit on a system-wide, permanent basis varies more between systems.
 
 To permanently set the soft and hard values *for all users of the system* to allow for up to 65536 open files ; edit `/etc/security/limits.conf` and append the following two lines:
 
-```shell
+```
 *       soft    nofile  65535
 *       hard    nofile  65535
 ```
@@ -58,7 +58,7 @@ Also, if accessing the machine via SSH, be sure to have `UseLogin yes` in `/etc/
 
 For more tuning, you may want to do the following:
 
-```shell
+```console
 # more ports for testing
 sudo sysctl -w net.ipv4.ip_local_port_range="1025 65535"
 
@@ -71,7 +71,7 @@ echo 300000 | sudo tee /proc/sys/fs/file-max
 
 Consider tuning kernel and network and add this kind of following settings in /etc/sysctl.conf
 
-```shell
+```ini
 net.ipv4.tcp_max_syn_backlog = 40000
 net.core.somaxconn = 40000
 net.core.wmem_default = 8388608
