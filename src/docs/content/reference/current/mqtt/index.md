@@ -80,8 +80,6 @@ mqtt("Publishing")
   .message(StringBody("${myTextPayload}"))
 ```
 
-.. mqtt-check:
-
 ## MQTT Checks
 
 You can define blocking checks with `await` and non-blocking checks with `expect`.
@@ -115,8 +113,6 @@ You can use `waitForMessages` and block for all pending non-blocking checks:
 ```scala
 exec(waitForMessages.timeout(100 milliseconds))
 ```
-
-.. mqtt-conf:
 
 ## MQTT configuration
 
