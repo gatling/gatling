@@ -103,7 +103,7 @@ simulation class as prefix for the request name instead.
 
 ### Response bodies
 
-When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using [RawFileBody]({{< ref "../request#request-body" >}}) to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using [ElFileBody]({{< ref "../request#response-body" >}}) instead.
+When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using [RawFileBody]({{< ref "../request#raw-file-body" >}}) to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using [ElFileBody]({{< ref "../request#el-file-body" >}}) instead.
 
 ## Running
 
