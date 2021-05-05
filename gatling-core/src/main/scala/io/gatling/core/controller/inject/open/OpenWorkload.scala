@@ -43,7 +43,7 @@ class OpenWorkload(
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
     val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)
     if (!isEmpty) {
-      logger.debug(s"Injecting ${result.count} users in scenario ${scenario.name}, continue=${result.continue}")
+      logger.trace(s"Injecting ${result.count} users in scenario ${scenario.name}, continue=${result.continue}")
     }
     if (!result.continue) {
       setAllScheduled()
