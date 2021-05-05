@@ -20,8 +20,6 @@ Global / gatlingDevelopers := Seq(
 
 // Root project
 
-ThisBuild / Keys.useCoursier := false
-
 Global / scalaVersion := "2.13.5"
 
 lazy val root = Project("gatling-parent", file("."))
