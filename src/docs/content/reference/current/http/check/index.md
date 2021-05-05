@@ -113,7 +113,7 @@ Returns the response time of this request in milliseconds = the time between sta
 * `bodyString`
 
 Return the full response body String.
-Note that this can be matched against content from the the filesystem using [RawFileBody]({{< ref "../request#request-body" >}}) or [ElFileBody]({{< ref "../request#request-body" >}}).
+Note that this can be matched against content from the the filesystem using [RawFileBody]({{< ref "../request#raw-file-body" >}}) or [ElFileBody]({{< ref "../request#el-file-body" >}}).
 
 * `bodyBytes`
 
@@ -178,10 +178,12 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 {{< include-code "CheckSample.scala#xpath" scala >}}
 
 {{< alert tip >}}
-XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
+XPath only works on well-formed XML documents, which regular HTML is not (while XHTML is).
 
-If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
+If you're looking for path expression for matching HTML documents, please have a look at our [CSS selectors support]({{< ref "#css" >}}).
 {{< /alert >}}
+
+{{< anchor "jsonPath" >}}
 
 * `jsonPath(expression)`
 
@@ -216,7 +218,9 @@ The example below shows how to extract Ints:
 
 * `jsonpJsonPath(expression)`
 
-Same as `jsonPath` but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as [`jsonPath`]({{< ref "#jsonPath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+
+{{< anchor "jmesPath" >}}
 
 * `jmesPath(expression)`
 
@@ -254,7 +258,9 @@ You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to 
 
 * `jsonpJmesPath(expression)`
 
-Same as `jmesPath` but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as [`jmesPath`]({{< ref "#jmesPath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+
+{{< anchor css >}}
 
 * `css(expression, attribute)`
 

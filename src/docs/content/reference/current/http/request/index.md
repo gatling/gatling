@@ -269,8 +269,6 @@ Gatling will automatically set the `Content-Type` header for you if you didn't s
 It will use `application/x-www-form-urlencoded` except if there's also some body parts, in which case it will set `multipart/form-data`.
 {{< /alert >}}
 
-.. http-files:
-
 ## File Based Request Bodies
 
 Gatling provides various ways of sending files.
@@ -311,6 +309,8 @@ If you use `formUpload` the header is automatically set for you.
 
 You can add a full body to an HTTP request with the dedicated method `body(body)`, where body can be:
 
+{{< anchor "raw-file-body" >}}
+
 * `RawFileBody(path: Expression[String])` where path is the location of a file that will be uploaded as is
 
 `RawFileBody` lets you pass a raw file that will be sent as is.
@@ -318,6 +318,8 @@ Over regular HTTP, Gatling can optimise sending such a body and directly stream 
 Of course, this optimisation is disabled over HTTPS, as bytes have to be encoded, i.e. loaded in memory.:
 
 {{< include-code "HttpRequestSample.scala#RawFileBody" scala >}}
+
+{{< anchor "el-file-body" >}}
 
 * `ElFileBody(path: Expression[String])` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
 
@@ -330,11 +332,15 @@ Of course, it can't be binary.:
 .body(ElFileBody("myFileBody.json")).asJson
 ```
 
+{{< anchor "string-body" >}}
+
 * `StringBody(string: Expression[String])`
 
 Here, you can pass a raw String, a Gatling EL String, or an Expression function.:
 
 {{< include-code "HttpRequestSample.scala#StringBody" scala >}}
+
+{{< anchor "byte-array-body" >}}
 
 * `ByteArrayBody(bytes: Expression[Array[Byte]])`
 
@@ -343,6 +349,8 @@ Here, you can pass bytes instead of text.
 * `InputStreamBody(stream: Expression[InputStream])`
 
 Here, you can pass a Stream.
+
+{{< anchor "pebble-body" >}}
 
 * `PebbleStringBody(template: String)` and `PebbleFileBody(path: Expression[String])`
 
@@ -383,34 +391,34 @@ You can add a multipart body to an HTTP request and add parts with the dedicated
 
 where path is the location of a file that will be uploaded as is.
 
-Similar to [RawFileBody]({{< ref "#request-body" >}}).
+Similar to [RawFileBody]({{< ref "#raw-file-body" >}}).
 
 * `ElFileBodyPart(path: Expression[String])`
 * `ElFileBodyPart(name: Expression[String], path: Expression[String])`
 
 where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
 
-Similar to [ElFileBody]({{< ref "#request-body" >}}).
+Similar to [ElFileBody]({{< ref "#el-file-body" >}}).
 
 * `StringBodyPart(string: Expression[String])`
 * `StringBodyPart(name: Expression[String], string: Expression[String])`
 
-Similar to [StringBody]({{< ref "#request-body" >}}).
+Similar to [StringBody]({{< ref "#string-body" >}}).
 
 * `PebbleStringBodyPart(string: String)`
 * `PebbleStringBodyPart(name: Expression[String], string: String)`
 
-Similar to [PebbleStringBody]({{< ref "#request-body" >}}).
+Similar to [PebbleStringBody]({{< ref "#pebble-body" >}}).
 
 * `PebbleFileBodyPart(path: Expression[String])`
 * `PebbleFileBodyPart(name: Expression[String], path: Expression[String])`
 
-Similar to [PebbleFileBody]({{< ref "#request-body" >}}).
+Similar to [PebbleFileBody]({{< ref "#pebble-body" >}}).
 
 * `ByteArrayBodyPart(bytes: Expression[Array[Byte])`
 * `ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])`
 
-Similar to [ByteArrayBody]({{< ref "#request-body" >}}).
+Similar to [ByteArrayBody]({{< ref "#byte-array-body" >}}).
 
 Once bootstrapped, BodyPart has the following methods for setting additional optional information:
 
