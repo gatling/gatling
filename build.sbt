@@ -157,15 +157,3 @@ lazy val bundle = gatlingModule("gatling-bundle")
   .settings(bundleSettings)
   .settings(exportJars := false, publishArtifact in Compile := false)
   .settings(CodeAnalysis.disable)
-
-addCommandAlias(
-  "ci-checks",
-  List(
-    "all clean",
-    "all scalafmtSbtCheck",
-    "all scalafmtCheckAll",
-    "all compile:gatlingScalafixCheck",
-    "all test:gatlingScalafixCheck",
-    "test"
-  ).mkString(";", ";", "")
-)
