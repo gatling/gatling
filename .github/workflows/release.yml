@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    if: github.repository == 'gatling/gatling'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      JVM_OPTS: "-Xmx6G"
+      SBT_OPTS: "-Dsbt.ci=true"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.8"
+
+      - name: Prepare environment
+        env:
+          SONATYPE_SBT: ${{ secrets.SONATYPE_SBT }}
+          SONATYPE_PGP_SECRET: ${{ secrets.SONATYPE_PGP_SECRET }}
+        run: |
+          mkdir --parents ~/.sbt/1.0 || true
+          echo "$SONATYPE_SBT" > ~/.sbt/1.0/sonatype.sbt
+          echo -n "$SONATYPE_PGP_SECRET" | base64 --decode | gpg --batch --import
+
+      #     - name: Cache
+      #       No cache for release! We want clean and full release!
+
+      - name: Release
+        id: release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.SONATYPE_PGP_PASSPHRASE }}
+        run: sbt "release with-defaults"
+
+      - name: Message
+        run: echo "Do NOT forget to release the staging repository on https://oss.sonatype.org/"

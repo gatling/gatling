@@ -1,0 +1,68 @@
+name: Create release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'milestone|patch|minor'
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      JVM_OPTS: "-Xmx6G"
+      SBT_OPTS: "-Dsbt.ci=true"
+    steps:
+      - name: Validate inputs
+        run: exit 1
+        if: |
+          github.event.inputs.releaseType != 'minor' &&
+          github.event.inputs.releaseType != 'patch' &&
+          github.event.inputs.releaseType != 'milestone'
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # indicates all history for all branches and tags
+          token: ${{ secrets.GATLING_CI_TOKEN }} # for tag to trigger other workflows (release)
+
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.8"
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt/launchers
+            ~/.sbt/boot
+            ~/.sbt/preloaded
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', '**/plugins.sbt', '**/build.properties') }}
+
+      - name: Next version
+        id: tag
+        run: |
+          sbt "gatlingWriteBumpVersion ${{ github.event.inputs.releaseType }}"
+          export CURRENT_TAG="v$(cat target/gatlingNextVersion)"
+          echo "tag='$CURRENT_TAG'"
+          echo "::set-output name=tag::$CURRENT_TAG"
+
+      - name: Git tag
+        run: |
+          git config user.name "${{ secrets.GATLING_CI_NAME }}"
+          git config user.email "${{ secrets.GATLING_CI_EMAIL }}"
+          if [ "${{github.event.inputs.releaseType}}" = "milestone" ]; then
+            git tag "${{ steps.tag.outputs.tag }}"
+          else
+            git tag "${{ steps.tag.outputs.tag }}" -m "Version ${{ steps.tag.outputs.tag }}"
+          fi
+          git push origin "${{ steps.tag.outputs.tag }}"

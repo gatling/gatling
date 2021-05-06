@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      JVM_OPTS: "-Xmx6G"
+      SBT_OPTS: "-Dsbt.ci=true"
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+
+      - uses: actions/checkout@v2
+
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: "adopt@1.8"
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt/launchers
+            ~/.sbt/boot
+            ~/.sbt/preloaded
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', '**/plugins.sbt', '**/build.properties') }}
+
+      - name: Test
+        run: |
+          sbt \
+            "all headerCheck" \
+            "all scalafmtSbtCheck" \
+            "all scalafmtCheckAll" \
+            "all compile:gatlingScalafixCheck" \
+            "all test:gatlingScalafixCheck" \
+            "all gatlingScalafixCheck" \
+            "test"
