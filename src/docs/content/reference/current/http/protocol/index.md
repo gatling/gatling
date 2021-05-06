@@ -39,7 +39,7 @@ If you want to load test several servers at the same time, to bypass a load-bala
 
 {{< include-code "HttpProtocolSample.scala#baseUrls" scala >}}
 
-Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
+The selection of the URL is made once and for all for a given virtual user.
 
 ### Automatic warm up {#warmup}
 
@@ -75,11 +75,11 @@ Gatling ships a bunch of built-ins for well-known browsers:
 
 ### Connection Sharing
 
-The default behavior is that every virtual user has its own connection pool and its own SSLContext.
-This behavior meets your needs when you want to simulate internet traffic where each virtual user simulates a web browser.
+In Gatling 1, connections are shared amongst users until 1.5 version.
+This behavior does not match real browsers, and doesn't support SSL session tracking.
 
-Instead, if you want to simulate server to server traffic where the actual client has a long lived connection pool, you want to have the virtual users share a single global connection pool.
-You can achieve this behavior with the `.shareConnections` param.
+In Gatling 2, the default behavior is that every user has his own connection pool.
+This can be tuned with the `.shareConnections` param.
 
 ### HTTP/2 Support {#http2}
 
@@ -122,26 +122,31 @@ Use the `http2PriorKnowledge` option only if you are sure about your remote conf
 
 ### DNS Name Resolution {#dns}
 
-By default, Gatling uses Java's DNS name resolution. This cache has a TTL of 30s by default on OpenJDK and doesn't honor the DNS records' own TTL.
+By default, Gatling uses Java's DNS name resolution, meaning that it uses a cache shared amongst all virtual users.
+More over, Java's cache doesn't honor DNS records TTL.
 You can control the TTL with `-Dsun.net.inetaddr.ttl=N` where `N` is a number of seconds.
-Please note the [`sun.net.inetaddr.ttl` System property is deprecated and one should use the `networkaddress.cache.ttl` Security property instead, see [doc](https://docs.oracle.com/javase/8/docs/technotes/guides/net/properties.html).
 
-If you're using the Java DNS name resolution and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically shuffle them
+If you're using the JDK resolution and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically shuffle them
 to emulate DNS round-robin.
 
 You can use a Netty based DNS resolution instead, with `.asyncNameResolution()`.
 This method can take a sequence of DNS server adresses, eg `.asyncNameResolution("8.8.8.8")`.
-If you don't pass DNS servers, Gatling will use the ones from your OS configuration on Linux and MacOS only,
+If you don't pass DNS servers, Gatling will use the one from your OS configuration on Linux and MacOS only,
 and to Google's ones on Windows(don't run with heavy load as Google will block you).
 
 You can also make it so that every virtual user performs its own DNS name resolution with `.perUserNameResolution`.
 This parameter is only effective when using `asyncNameResolution`.
 
+Note this feature is experimental.
+This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
+for example with AWS ALB and Route53.
+
 ### Hostname Aliasing
 
 You can of course define hostname aliases at the OS level in the `/etc/hosts` file.
 
-But you can use `.hostNameAliases` to pass aliases programmatically:
+But you can also pass a `Map[String, String]` to `.hostNameAliases` where values are valid IP addresses.
+Note that, just like with `/etc/hosts` you can only define one IP per alias.
 
 ### Virtual Host
 
@@ -158,8 +163,6 @@ You can bind the sockets from specific local addresses instead of the default on
 ```scala
 localAddress(localAddress: String)
 localAddresses(localAddress1: String, localAddress2: String)
-useAllLocalAddresses // automatically discover all bindable local addresses
-useAllLocalAddressesMatching(regex1, regex2) // automatically discover all bindable local addresses matching one of the pattern parameters (String)
 ```
 
 When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
@@ -254,7 +257,6 @@ You have also the following built-ins for the more commons headers:
 * `connectionHeader(value: Expression[String])`: set `Connection` header.
 * `contentTypeHeader(value: Expression[String])`: set `Content-Type` header.
 * `doNotTrackHeader(value: Expression[String])`: set `DNT` header.
-* `originHeader(value: Expression[String])`: set `Origin` header.
 * `userAgentHeader(value: Expression[String])`: set `User-Agent` header.
 
 ### Signature Calculator
@@ -309,7 +311,7 @@ For more details see the dedicated section [here]({{< ref "../request#response-t
 ### Checks
 
 You can define checks at the http protocol definition level with: `check(checks: HttpCheck*)`.
-They will be apply on all the requests, however you can disable them for given request thanks to the `ignoreProtocolChecks` method.
+They will be apply on all the requests, however you can disable them for given request thanks to the `ignoreDefaultChecks` method.
 
 {{< alert tip >}}
 For more details see the dedicated section [here]({{< ref "../check" >}}).
@@ -344,8 +346,7 @@ You can also specify black/white list or custom filters to have a more fine grai
 
 * `inferHtmlResources(white: WhiteList)`: fetch all resources matching a pattern in the white list.
 * `inferHtmlResources(white: WhiteList, black: BlackList)`: fetch all resources matching a pattern in the white list excepting those in the black list.
-* `inferHtmlResources(black: BlackList)`: fetch all resources excepting those matching a pattern in the black list.
-* `inferHtmlResources(black: BlackList, white: WhiteList)`: fetch all resources excepting those matching a pattern in the black list and not in the white list.
+* `inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))`: fetch all resources excepting those matching a pattern in the black list and not in the white list.
 * `inferHtmlResources(filters: Option[Filters])`
 
 Finally, you can specify the strategy for naming those requests in the reports:

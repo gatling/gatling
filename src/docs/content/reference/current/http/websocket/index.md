@@ -69,13 +69,6 @@ For example:
 
 {{< include-code "WsSample.scala#sendText" scala >}}
 
-Note that:
-
-* `ElFileBody`, `PebbleStringBody` and `PebbleFileBody` implement `Expression[String]` so they can be passed to `sendText`
-* `RawFileBody` and `ByteArrayBody` implement `Expression[Array[Byte]]` so they can be passed to `sendBytes`.
-
-See [HTTP request body]({{< ref "../request#request-body" >}}) for more information.
-
 ## Server Messages: Checks
 
 Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
@@ -130,14 +123,6 @@ Websocket support introduces new HttpProtocol parameters:
 `wsReconnect`: automatically reconnect a WebSocket that would have been closed by someone else than the client.
 
 `wsMaxReconnects(max: Int)`: set a limit on the number of times a WebSocket will be automatically reconnected
-
-## Debugging
-
-In your logback configuration, lower logging level to `DEBUG` on logger `io.gatling.http.action.ws.fsm`:
-
-```xml
-<logger name="io.gatling.http.action.ws.fsm" level="DEBUG" />
-```
 
 ## Example
 

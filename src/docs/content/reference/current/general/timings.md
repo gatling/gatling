@@ -43,7 +43,7 @@ When dealing with embedded resources (inferred or explicitly set), the behaviour
 the cumulated response time for embedded resources starts from the beginning of the first resource request to the end of the last resource request.
 {{< /alert >}}
 
-### Cumulated Time
+### Duration
 
-The cumulated time of a group is the elapsed time from the start of the group's first request to the end of the group's last request, including  pauses.
+The cumulated time of a group is the elapsed time from the start of the group's first request to the end of the group's last request, including pauses.
 Groups' cumulated time are only reported in the "Cumulated response time" chart.

@@ -30,17 +30,15 @@ request("page").get("/foo?${bar}")
 Moreover, Gatling EL provide the following built-in functions:
 
 ```scala
-"${foo.size()}"             // expects `foo` to point to a Scala or Java collection attribute and returns its size
-"${foo.random()}"           // expects `foo` to point to an indexed collection and returns a random element
-"${foo.exists()}"           // returns true if the session contains a `foo` attribute, false otherwise
-"${foo.isUndefined()}"      // returns true if the session doesn't contains a `foo` attribute, false otherwise
-"${foo(5)}"                 // expects `foo` to point to an indexed collection or a Tuple and returns the 5-th element
-"${foo(n)}"                 // expects `foo` to point to an indexed collection or a Tuple and `n` to point to an Int and returns the n-th element
-"${foo.bar}"                // expects foo to point to a Map and returns the value associated with key `bar`
-"${foo._2}"                 // expects `foo` points to a Tuple and returns the second element (identical to idiomatic Scala Tuple syntax, 1 based index)
-"${foo.jsonStringify()}"    // properly formats into a JSON value (wrap Strings with double quotes, deal with null)
-"${currentTimeMillis()}"    // System.currentTimeMillis
-"${currentDate(<pattern>)}" // new Date() formatted with a java.text.SimpleDateFormat pattern
+"${foo.size()}"          // returns the size of `foo` if `foo` points to a Scala or Java collection attribute
+"${foo.random()}"        // returns a random element of `foo` if `foo` points to an indexed collection
+"${foo.exists()}"        // returns true if the session contains a `foo` attribute, false otherwise
+"${foo.isUndefined()}"   // returns true if the session doesn't contains a `foo` attribute, false otherwise
+"${foo(5)}"              // returns the 5th element of `foo` if `foo` points to an indexed collection
+"${foo(n)}"              // returns the n-th element of `foo` if `n` points to an Int and `foo` to an indexed collection or a Tuple
+"${foo.bar}"             // returns the value associated with key `bar` if `foo` points to a map
+"${foo._2}"              // returns the second element if `foo` points to a Tuple object (identical to idiomatic Scala Tuple syntax, 1 based index)
+"${foo.jsonStringify()}" // properly formats into a JSON value (wrap Strings with double quotes, deal with null)
 ```
 
 You can also combine different Gatling EL builtin functions. For example if `foo` is a List of Lists `${foo(0)(0)}` will return first element of the first list in `foo`. `${foo.list.random()}` will return random element from an indexed collection associated with key `list` in a map `foo`.
@@ -79,10 +77,7 @@ if there are 2n `$` before `${` -- an odd number totally -- there will be n `$` 
 
 ## Expression
 
-Most Gatling DSL methods actually take `Expression[T]` parameters, which is a type alias for `Session => Validation[T]`.
-This way, one can pass functions to generate parameters, possibly based on the Session's content.
-
-{{< include-code "ExpressionSample.scala#inline-expression" scala >}}
+Most Gatling DSL methods actually takes `Expression[T]` parameters, which is a type alias for `Session => Validation[T]`.
 
 How is it that one can also pass Strings and other values then?
 

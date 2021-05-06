@@ -26,8 +26,9 @@ Basically, it's a `Map[String, Any]`: a map with key Strings.
 In Gatling, entries in this map are called **Session attributes**.
 
 {{< alert tip >}}
-A Gatling scenario is a workflow where every step is an `Action`.
-A `Session` is the message that is passed along a scenario workflow.
+Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
+
+A `Session` is actually the message that are passed along a scenario workflow.
 {{< /alert >}}
 
 ### Injecting Data

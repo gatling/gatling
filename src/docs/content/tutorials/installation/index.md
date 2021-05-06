@@ -15,15 +15,8 @@ Other JVMs such as JDK 12+, client JVMs, 32bits systems or OpenJ9 are not suppor
 
 ### Scala Version
 
-Gatling 3.5 requires Scala 2.13.
-Gatling 3.0 to 3.4 requires Scala 2.12.
-
-### Gatling Version
-
-Make sure to use the latest version as documented on [our website](https://gatling.io/open-source/).
-
-In particular, don't use milestones (M versions) you could find on maven central,
-those are not documented and released only for internal use or [FrontLine](https://gatling.io/gatling-frontline/) customers.
+Since 3.0, Gatling requires Scala 2.12.
+Gatling is not compatible with Scala 2.11 nor Scala 2.13.
 
 ## Using the Bundle
 
@@ -69,9 +62,9 @@ Check the [sbt plugin documentation]({{< ref "../../reference/current/extensions
 
 ### Gradle
 
-Gatling provides an official gradle plugin named `io.gatling.gradle`. This plugin lets you launch your Gatling simulations.
+Gatling doesn't provide an official gradle plugin. Still, you can find several community ones.
 
-Check the [gradle plugin documentation]({{< ref "../../reference/current/extensions/gradle_plugin" >}}) for more information.
+Check the [third parties list]({{< ref "../../reference/current/extensions#third-parties" >}}) for more links to those external projects.
 
 ## Using an IDE
 

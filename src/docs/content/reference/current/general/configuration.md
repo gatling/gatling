@@ -51,7 +51,7 @@ If you want to override default values, you have two possibilities:
 When editing `gatling.conf`, don't forget to remove the leading `#` that comments the line, otherwise your change will be ineffective.
 {{< /alert >}}
 
-## Zip Bundle Command Line Options {#cli-options}
+## Command Line Options {#cli-options}
 
 Gatling can be started with several options listed below:
 

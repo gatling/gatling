@@ -34,11 +34,11 @@ An assertion can test a statistic calculated from all requests or only a part.
 * `forAll`: use statistics calculated for each individual request.
 * `details(path)`: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
 
-For example, to perform an assertion on the request `MyRequest`, use:
+For example, to perform an assertion on the request `Search`, use:
 
 {{< include-code "AssertionSample.scala#details" scala >}}
 
-and to perform an assertion on the request `MyRequest` in the group `MyGroup`, use:
+and to perform an assertion on the request `Index` in the group `Search`, use:
 
 {{< include-code "AssertionSample.scala#details-group" scala >}}
 
@@ -46,7 +46,7 @@ For WebSockets it takes the name of the check and not the name of the request. `
 
 {{< alert tip >}}
 When `path` is a group, assertions are made against the group's response time, not its cumulated time.
-For more information on the distinction between groups cumulated response time and duration, see [the Groups timings documentation]({{< ref "../timings#groups" >}}).
+For more information on the distinction between groups response time and cumulated time, see [the Groups timings documentation]({{< ref "../timings#groups" >}}).
 {{< /alert >}}
 
 ## Statistics
@@ -86,10 +86,6 @@ Conditions can be chained to apply several conditions on the same metric.
 * `gte(threshold)`: check that the value of the metric is greater than or equal to the threshold.
 * `between(thresholdMin, thresholdMax)`: check that the value of the metric is between two thresholds.
 * `between(thresholdMin, thresholdMax, inclusive = false)`: same as above but doesn't include bounds
-* `around(value, plusOrMinus)`: check that the value of the metric is around a target value plus or minus a given margin.
-* `around(value, plusOrMinus, inclusive = false)`: same as above but doesn't include bounds
-* `deviatesAround(target, percentDeviationThreshold)`: check that metric is around a target value plus or minus a given relative margin
-* `deviatesAround(target, percentDeviationThreshold, inclusive = false)`: same as above but doesn't include bounds
 * `is(value)`: check that the value of the metric is equal to the given value.
 * `in(sequence)`: check that the value of metric is in a sequence.
 

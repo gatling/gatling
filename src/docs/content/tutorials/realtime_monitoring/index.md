@@ -36,16 +36,13 @@ In the `gatling.conf` add "graphite" to the data writers and specify the host
 of the Carbon or InfluxDB server.
 
 ```hocon
-gatling {
-  data {
-    writers = [console, file, graphite]
+data {
+  writers = [console, file, graphite]
+}
 
-    graphite {
-      host = "192.0.2.235"  # InfluxDB or Carbon server
-      port = 2003           # The port to which the Carbon server listens to (2003 is default for plaintext, 2004 is default for pickle)
-      # writePeriod = 1     # Default write interval of one second
-    }
-  }
+graphite {
+  host = "192.0.2.235"  # InfluxDB or Carbon server
+  # writePeriod = 1   # Default write interval of one second
 }
 ```
 

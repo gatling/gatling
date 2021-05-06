@@ -9,7 +9,7 @@ weight: 005050
 
 ## Dealing with Cookies
 
-Gatling supports cookies out-of-the-box and transparently, just like a browser would.
+Cookie support is enabled by default and then Gatling handles Cookies transparently, just like a browser would.
 
 However, some use cases require a more fine grain control.
 
@@ -22,7 +22,7 @@ One might want to manually add or compute a cookie:
 Cookie can also take more optional parameters:
 
 ```scala
-Cookie(name: Expression[String], value: Expression[String])
+Cookie(name: String, value: Expression[String])
   .withDomain(domain: String)
   .withPath(path: String)
   .withMaxAge(maxAge: Int)
@@ -46,7 +46,7 @@ Get the cookie value and put it in the session
 CookieKey can also take more optional parameters:
 
 ```scala
-CookieKey(name: Expression[String])
+CookieKey(name: String)
   .withDomain(domain: String)
   .withPath(path: String)
   .withSecure(secure: Boolean)

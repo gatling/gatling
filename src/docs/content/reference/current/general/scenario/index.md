@@ -310,19 +310,6 @@ If an error happens (a technical exception such as a timeout, or a failed check)
 
 Quite similar to tryMax, but without looping on failure.
 
-#### `exitHere`
-
-{{< include-code "ScenarioSample.scala#exitHere" scala >}}
-
-Make the user exit the scenario from this point.
-
-#### `exitHereIf`
-
-{{< include-code "ScenarioSample.scala#exitHereIf" scala >}}
-
-Make the user exit the scenario from this point if the condition holds.
-Condition parameter is an `Expression[Boolean]`.
-
 #### `exitHereIfFailed`
 
 {{< include-code "ScenarioSample.scala#exitHereIfFailed" scala >}}

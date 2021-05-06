@@ -117,23 +117,11 @@ which correspond to:
 
 Gatling provides two hooks:
 
-* `before` for executing some arbitrary code before the simulation actually runs
-* `after` for executing some arbitrary code after the simulation actually runs
-
-The lifecycle is as below:
-
-1. Gatling starts
-2. Simulation constructor is called and all the code in the class body not delayed in `before` and `after` hooks is executed
-3. `before` hook is executed
-4. Simulation runs
-5. Simulation terminates
-6. `after` hook is executed
-7. HTML reports are generated if enabled
-8. Gatling shuts down
+* `before` for executing some code before the simulation actually runs
+* `after` for executing some code after the simulation actually runs
 
 {{< include-code "SimulationStructureSample.scala#hooks" scala >}}
 
 {{< alert tip >}}
-You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.
-If you're looking for executing Gatling DSL, you might consider using [sequential scenarios]({{< ref "../simulation_setup#sequential-scenarios" >}}).
+You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your custom code.
 {{< /alert >}}

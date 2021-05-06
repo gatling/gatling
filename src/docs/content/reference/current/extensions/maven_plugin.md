@@ -77,21 +77,43 @@ The `test` goal is bound by default to the `integration-test` phase
 
 ## Configuration
 
-The plugin supports many configuration options, eg:
+The example below shows the default values (so don't bother specifying options you don't override!!!):
 
-```xml  
-<plugin>
-  <groupId>io.gatling</groupId>
-  <artifactId>gatling-maven-plugin</artifactId>
-  <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
-  <configuration>
-      <simulationClass>foo.Bar</simulationClass>
-  </configuration>
-</plugin>
+```xml
+<configuration>
+  <simulationClass>foo.Bar</simulationClass>                               <!-- the name of the single Simulation class to run -->
+  <runMultipleSimulations>false</runMultipleSimulations>                   <!-- if the plugin should run multiple simulations sequentially -->
+  <includes>                                                               <!-- include filters, see dedicated section below -->
+    <include></include>
+  </includes>
+  <excludes>                                                               <!-- exclude filters, see dedicated section below -->
+    <exclude></exclude>
+  </excludes>
+  <noReports>false</noReports>                                             <!-- to disable generating HTML reports -->
+  <reportsOnly></reportsOnly>                                              <!-- to only trigger generating HTML reports from the log file contained in folder parameter -->
+  <runDescription>This-is-the-run-description</runDescription>             <!-- short text that will be displayed in the HTML reports -->
+  <skip>false</skip>                                                       <!-- skip executing this plugin -->
+  <failOnError>true</failOnError>                                          <!-- report failure in case of assertion failure, typically to fail CI pipeline -->
+  <continueOnAssertionFailure>false</continueOnAssertionFailure>           <!-- keep on executing multiple simulations even if one fails -->
+  <useOldJenkinsJUnitSupport>false</useOldJenkinsJUnitSupport>             <!-- report results to Jenkins JUnit support (workaround until we manage to get Gatling support into Jenkins) -->
+  <jvmArgs>
+    <jvmArg>-DmyExtraParam=foo</jvmArg>                                    <!-- pass extra parameters to the Gatling JVM -->
+  </jvmArgs>
+  <overrideJvmArgs>false</overrideJvmArgs>                                 <!-- if above option should override the defaults instead of replacing them -->
+  <propagateSystemProperties>true</propagateSystemProperties>              <!-- if System properties from the maven JVM should be propagated to the Gatling forked one -->
+  <compilerJvmArgs>
+    <compilerJvmArg>-DmyExtraParam=foo</compilerJvmArg>                    <!-- pass extra parameters to the Compiler JVM -->
+  </compilerJvmArgs>
+  <overrideCompilerJvmArgs>false</overrideCompilerJvmArgs>                 <!-- if above option should override the defaults instead of replacing them -->
+  <extraScalacOptions>                                                     <!-- extra options to be passed to scalac -->
+    <extraScalacOption></extraScalacOption>
+  </extraScalacOptions>
+  <disableCompiler>false</disableCompiler>                                 <!-- if compiler should be disabled, typically because another plugin has already compiled sources -->
+  <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder> <!-- where the simulations to be compiled are located -->
+  <resourcesFolder>${project.basedir}/src/test/resources</resourcesFolder> <!-- where the test resources are located -->
+  <resultsFolder>${project.basedir}/target/gatling</resultsFolder>         <!-- where the simulation log and the HTML reports will be generated -->
+</configuration>
 ```
-
-Use `mvn gatling:help -Ddetail=true -Dgoal=test` to print the description of all the available configuration options on the `test` goal.
-Use `mvn gatling:help -Ddetail=true -Dgoal=recorder` to print the description of all the available configuration options on the `recorder` goal.
 
 ### Includes/Excludes filters
 
@@ -116,21 +138,12 @@ Also note that those filters are only applied against the classes that were comp
 The order of filters has no impact on execution order, simulations will be sorted by class name alphabetically.
 {{< /alert >}}
 
-## Working Along with scala-maven-plugin
+## Disabling compiler
 
 By default, the gatling-maven-plugin takes care of compiling your Scala code, so you can directly run `mvn gatling:test`.
 
-Then, for some reason, you might want to have the [scala-maven-plugin](https://github.com/davidB/scala-maven-plugin) take care of compiling.
-
-Make sure to properly configure it, in particular set `testSourceDirectory` to point to the directory that contains your Gatling classes, typically:
-
-```xml  
-<build>
-  <testSourceDirectory>src/test/scala</testSourceDirectory>
-</build>
-```
-
-Then, you should disable the Gatling compiler so you don't compile twice:
+Then, for some reason, you might want to have another plugin, such as the [scala-maven-plugin](https://github.com/davidB/scala-maven-plugin) or the [scalor-maven-plugin](https://github.com/random-maven/scalor-maven-plugin), take care of compiling.
+Then, you can disable the Gatling compiler so you don't compile twice:
 
 ```xml  
 <configuration>
