@@ -4,6 +4,7 @@ description: "Maven plugin to run Gatling test"
 lead: "The Maven plugin allows you to run Gatling test from the command line, without the bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 9010
 ---
 
 Using this plugin, Gatling can be launched when building your project, for example with your favorite Continuous Integration (CI) solution.

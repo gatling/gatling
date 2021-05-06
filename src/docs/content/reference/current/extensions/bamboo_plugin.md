@@ -4,6 +4,7 @@ description: "Bamboo plugin for Gatling FrontLine"
 lead: "Bamboo CI plugin for Gatling FrontLine"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 9070
 ---
 
 [Gatling FrontLine](https://gatling.io/gatling-frontline/) has a dedicated Bamboo plugin.

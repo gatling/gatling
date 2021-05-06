@@ -1,9 +1,10 @@
 ---
 title: "Feeders"
-description: ""
-lead: ""
+description: "Use a feeder to inject dynamic data to your Gatling simulations"
+lead: "Use a feeder to inject dynamic data to your Gatling simulations"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 4030
 ---
 
 Feeder is a type alias for `Iterator[Map[String, T]]`, meaning that the component created by the feed method will poll `Map[String, T]` records and inject its content.
@@ -24,7 +25,7 @@ If the Feeder can't produce enough records, Gatling will complain about it and y
 
 {{< alert tip >}}
 You can also feed multiple records all at once. If so, attribute names, will be suffixed.
-For example, if the columns are name "foo" and "bar" and you're feeding 2 records at once, you'll get "foo1", "bar1", "foo2" and "bar2" session attributes.
+For example, if the columns are named "foo" and "bar" and you're feeding 2 records at once, you'll get "foo1", "bar1", "foo2" and "bar2" session attributes.
 {{< /alert >}}
 
 {{< include-code "FeederSample.scala#feed-multiple" scala >}}

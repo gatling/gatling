@@ -4,6 +4,7 @@ description: "WebSocket support is an extension to the HTTP DSL"
 lead: "Learn the possible WebSocket operations with Gatling: connect, close, send"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 005080
 ---
 
 WebSocket support was initially contributed by [Andrew Duffy](https://github.com/amjjd).
