@@ -15,8 +15,8 @@ Other JVMs such as JDK 12+, client JVMs, 32bits systems or OpenJ9 are not suppor
 
 ### Scala Version
 
-Gatling 3.5 requires Scala 2.13.
-Gatling 3.0 to 3.4 requires Scala 2.12.
+Since 3.0, Gatling requires Scala 2.12.
+Gatling is not compatible with Scala 2.11 nor Scala 2.13.
 
 ### Gatling Version
 

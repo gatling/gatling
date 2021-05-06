@@ -120,10 +120,6 @@ Note that this can be matched against content from the the filesystem using [Raw
 
 Return the full response body byte array.
 
-* `bodyLength`
-
-Return the length of the response body in bytes (without the overhead of computing the bytes array).
-
 * `bodyStream`
 
 Return an InputStream of the full response body bytes.

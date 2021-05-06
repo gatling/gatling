@@ -419,16 +419,6 @@ Similar to [ElFileBody]({{< ref "#el-file-body" >}}).
 
 Similar to [StringBody]({{< ref "#string-body" >}}).
 
-* `PebbleStringBodyPart(string: String)`
-* `PebbleStringBodyPart(name: Expression[String], string: String)`
-
-Similar to [PebbleStringBody]({{< ref "#pebble-body" >}}).
-
-* `PebbleFileBodyPart(path: Expression[String])`
-* `PebbleFileBodyPart(name: Expression[String], path: Expression[String])`
-
-Similar to [PebbleFileBody]({{< ref "#pebble-body" >}}).
-
 * `ByteArrayBodyPart(bytes: Expression[Array[Byte])`
 * `ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])`
 

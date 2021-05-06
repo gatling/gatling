@@ -100,14 +100,6 @@ Server sent event support uses the same parameter as the HttpProtocol:
 
 `baseUrls(urls: String*)`: serves as round-robin roots that will be prepended to all relative server sent event urls
 
-## Debugging
-
-In your logback configuration, lower logging level to `DEBUG` on logger `io.gatling.http.action.sse.fsm`:
-
-```xml
-<logger name="io.gatling.http.action.sse.fsm" level="DEBUG" />
-```
-
 ## Example
 
 Here's an example that runs against a stock market sample:

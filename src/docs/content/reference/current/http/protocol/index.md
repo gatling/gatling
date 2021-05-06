@@ -39,7 +39,7 @@ If you want to load test several servers at the same time, to bypass a load-bala
 
 {{< include-code "HttpProtocolSample.scala#baseUrls" scala >}}
 
-Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
+The selection of the URL is made once and for all for a given virtual user.
 
 ### Automatic warm up {#warmup}
 
@@ -75,11 +75,11 @@ Gatling ships a bunch of built-ins for well-known browsers:
 
 ### Connection Sharing
 
-The default behavior is that every virtual user has its own connection pool and its own SSLContext.
-This behavior meets your needs when you want to simulate internet traffic where each virtual user simulates a web browser.
+In Gatling 1, connections are shared amongst users until 1.5 version.
+This behavior does not match real browsers, and doesn't support SSL session tracking.
 
-Instead, if you want to simulate server to server traffic where the actual client has a long lived connection pool, you want to have the virtual users share a single global connection pool.
-You can achieve this behavior with the `.shareConnections` param.
+In Gatling 2, the default behavior is that every user has his own connection pool.
+This can be tuned with the `.shareConnections` param.
 
 ### HTTP/2 Support {#http2}
 
@@ -161,7 +161,6 @@ You can bind the sockets from specific local addresses instead of the default on
 localAddress(localAddress: String)
 localAddresses(localAddress1: String, localAddress2: String)
 useAllLocalAddresses // automatically discover all bindable local addresses
-useAllLocalAddressesMatching(regex1, regex2) // automatically discover all bindable local addresses matching one of the pattern parameters (String)
 ```
 
 When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
@@ -256,7 +255,6 @@ You have also the following built-ins for the more commons headers:
 * `connectionHeader(value: Expression[String])`: set `Connection` header.
 * `contentTypeHeader(value: Expression[String])`: set `Content-Type` header.
 * `doNotTrackHeader(value: Expression[String])`: set `DNT` header.
-* `originHeader(value: Expression[String])`: set `Origin` header.
 * `userAgentHeader(value: Expression[String])`: set `User-Agent` header.
 
 ### Signature Calculator
