@@ -1,7 +1,7 @@
 ---
 title: "Continuous Integration"
-description: ""
-lead: ""
+description: "Travis and Sonatype references"
+lead: "Travis and Sonatype references"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 11040
