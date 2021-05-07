@@ -1,5 +1,7 @@
 ---
 title: "Extensions"
+description: "Third party plugins"
+lead: "Third party plugins"
 ---
 
 ## Third Parties
