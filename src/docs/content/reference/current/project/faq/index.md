@@ -1,7 +1,7 @@
 ---
 title: "FAQ"
-description: ""
-lead: ""
+description: "Common questions and answers"
+lead: "Common questions and answers"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 11020
