@@ -1,6 +1,6 @@
 ---
 title: "Issue Tracking"
-description: ""
+description: "Github's Bug Tracker and Google Group"
 lead: "Github issue tracking"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

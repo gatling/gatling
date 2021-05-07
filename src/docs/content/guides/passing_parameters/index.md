@@ -1,7 +1,7 @@
 ---
 title: "Passing Parameters"
-description: ""
-lead: ""
+description: "Using Java options in a Gatling Simulation"
+lead: "Using Java options in a Gatling Simulation"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 ---
