@@ -1,6 +1,6 @@
 ---
 title: "Licenses"
-description: ""
+description: "Gatling projects licenses"
 lead: "Gatling is licensed under the Apache License v2.0"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
