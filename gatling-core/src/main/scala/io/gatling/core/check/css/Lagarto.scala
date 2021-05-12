@@ -34,8 +34,6 @@ object Lagarto extends StrictLogging {
       config.setErrorLogConsumer((logger, message) => logger.debug(message))
     } else {
       config.setErrorLogEnabled(false)
-      // FIXME remove once https://github.com/oblac/jodd-lagarto/pull/20 is merged, released and shipped here
-      config.setErrorLogConsumer((_, _) => {})
     }
     config
   }
