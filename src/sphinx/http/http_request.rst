@@ -421,7 +421,9 @@ For example:
 Multipart Request
 =================
 
-You can add a multipart body to an HTTP request and add parts with the dedicated method ``bodyPart(bodyPart)``, where bodyPart can be:
+You can add a multipart body to an HTTP request and add parts with the dedicated methods
+``bodyPart(bodyPart)`` for single part and ``bodyParts(bodyPart*)`` for multiple parts,
+where bodyPart can be:
 
 * ``RawFileBodyPart(path: Expression[String])``
 * ``RawFileBodyPart(name: Expression[String], path: Expression[String])``

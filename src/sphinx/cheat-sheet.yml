@@ -787,7 +787,7 @@
               description: Parses, resolves and then uploads a Pebble template from the <i>path</i>
 
         - keyword: bodyPart
-          description: Add a multi-part body from a resource to the request
+          description: Add a multipart body to the request
           syntax:
             - signature: (RawFileBodyPart(path))
               description: Uploads a file as is from the <i>path</i>
@@ -801,6 +801,12 @@
               description: Parses, resolves and then uploads a Pebble template from the <i>string</i>
             - signature: (PebbleBodyFilePart(string))
               description: Parses, resolves and then uploads a Pebble template from the <i>path</i>
+
+        - keyword: bodyParts
+          description: Add several multipart bodies to the request
+          syntax:
+            - signature: (parts...)
+              description: Where <i>parts</i> is a varag of <i>BodyPart</i>s
 
         - keyword: formParam
           description: Adds a form parameter to the request body
