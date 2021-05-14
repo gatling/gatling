@@ -106,7 +106,7 @@ Here are some examples:
 .. includecode:: code/HttpRequestSample.scala#headers
 
 .. note:: Headers keys are defined as constants usable in the scenario, for example: ``HttpHeaderNames.ContentType``.
-          You can find a list of the predefined constants `here <https://github.com/gatling/gatling/blob/master/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
+          You can find a list of the predefined constants `here <https://github.com/gatling/gatling/blob/main/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
 
 .. note::
   There are two handful methods to help you set the required headers for JSON and XML requests:

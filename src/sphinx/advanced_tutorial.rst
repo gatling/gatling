@@ -157,4 +157,4 @@ Explanations:
 That's all Folks!
 
 .. note::
-  The files for this tutorial can be found in the distribution in the ``user-files/simulations`` directory, and on Github `here <https://github.com/gatling/gatling/tree/master/gatling-bundle/src/main/scala/computerdatabase>`__.
+  The files for this tutorial can be found in the distribution in the ``user-files/simulations`` directory, and on Github `here <https://github.com/gatling/gatling/tree/main/gatling-bundle/src/main/scala/computerdatabase>`__.
