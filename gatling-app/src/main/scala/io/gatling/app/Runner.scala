@@ -101,4 +101,8 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     println(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone
   }
+
+  // [fl]
+  //
+  // [fl]
 }
