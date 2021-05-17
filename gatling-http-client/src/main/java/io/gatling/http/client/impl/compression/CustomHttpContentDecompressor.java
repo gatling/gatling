@@ -16,25 +16,9 @@
 
 package io.gatling.http.client.impl.compression;
 
-import com.aayushatharva.brotli4j.Brotli4jLoader;
-
-import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.HttpContentDecompressor;
-import io.netty.util.AsciiString;
 
 public class CustomHttpContentDecompressor extends HttpContentDecompressor {
-
-  static final AsciiString BR = new AsciiString("br");
-
-  @Override
-  protected EmbeddedChannel newContentDecoder(String contentEncoding) throws Exception {
-    if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
-      return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
-        ctx.channel().config(), new BrotliDecoder());
-    } else {
-      return super.newContentDecoder(contentEncoding);
-    }
-  }
 
   @Override
   protected String getTargetContentEncoding(String contentEncoding) {

@@ -16,12 +16,8 @@
 
 package io.gatling.http.client.impl.compression;
 
-import com.aayushatharva.brotli4j.Brotli4jLoader;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http2.DelegatingDecompressorFrameListener;
 import io.netty.handler.codec.http2.Http2Connection;
-import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2FrameListener;
 
 public class CustomDelegatingDecompressorFrameListener extends DelegatingDecompressorFrameListener {
@@ -33,16 +29,5 @@ public class CustomDelegatingDecompressorFrameListener extends DelegatingDecompr
   @Override
   protected CharSequence getTargetContentEncoding(CharSequence contentEncoding) {
     return contentEncoding;
-  }
-
-  @Override
-  protected EmbeddedChannel newContentDecompressor(final ChannelHandlerContext ctx, CharSequence contentEncoding)
-    throws Http2Exception {
-    if (Brotli4jLoader.isAvailable() && CustomHttpContentDecompressor.BR.contentEqualsIgnoreCase(contentEncoding)) {
-      return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
-        ctx.channel().config(), new BrotliDecoder());
-    } else {
-      return super.newContentDecompressor(ctx, contentEncoding);
-    }
   }
 }
