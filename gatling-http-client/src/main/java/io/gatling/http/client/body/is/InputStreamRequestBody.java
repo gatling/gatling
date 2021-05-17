@@ -40,6 +40,11 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
       consumed = true;
       return is.read();
     }
+
+    @Override
+    public int available() throws IOException {
+      return is.available();
+    }
   }
 
   public InputStreamRequestBody(InputStream stream, String contentType) {
