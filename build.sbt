@@ -155,5 +155,7 @@ lazy val bundle = gatlingModule("gatling-bundle")
   .settings(generateConfigFiles(recorder))
   .settings(copyLogbackXml(core))
   .settings(bundleSettings)
-  .settings(exportJars := false, publishArtifact in Compile := false)
+  .settings(packageDoc / publishArtifact := false) // no javadoc
+  .settings(packageSrc / publishArtifact := false) // no source
+  .settings(packageBin / publishArtifact := false) // no jar (remains the bundle.zip)
   .settings(CodeAnalysis.disable)
