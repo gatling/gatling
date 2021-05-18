@@ -61,7 +61,13 @@ private[recorder] object RequestElement {
       HttpHeaderNames.IF_UNMODIFIED_SINCE.toString
     )
 
-  private val HtmlContentType = """(?i)text/html\s*;\s+charset=(.+)?""".r
+  private val HtmlContentType = """(?i)text/html\s*;\s+charset="?([\w\-]+)"?""".r
+
+  private[scenario] def extractCharsetFromContentType(contentType: String): Option[String] =
+    contentType match {
+      case HtmlContentType(charset) => Some(charset)
+      case _                        => None
+    }
 
   def apply(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders = request.headers
@@ -90,7 +96,10 @@ private[recorder] object RequestElement {
     val embeddedResources = Option(response.headers.get(HttpHeaderNames.CONTENT_TYPE))
       .collect {
         case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
-          val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
+          val charset = Option(headerCharset)
+            .flatMap(extractCharsetFromContentType)
+            .collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }
+            .getOrElse(UTF_8)
           val htmlChars = new String(response.body, charset).toCharArray
           new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars)
       }
