@@ -306,11 +306,27 @@ Run all simulations
 
    $ gradle gatlingRun
 
+.. note::
+  If you need to run a task several times in a row (with different environment or configuration), you may use the ``--rerun-tasks`` flag.
+  example:
+
+  .. code-block:: bash
+
+    $ gradle --rerun-tasks gatlingRun
+
+  To always rerun the gatling task when called, you may add this line in ``build.gradle``:
+
+  .. code-block:: groovy
+
+    tasks.gatlingRun.outputs.upToDateWhen { false }
+
 Run single simulation implemented in ``com.project.simu.MySimulation`` class
 
 .. code-block:: bash
 
    $ gradle gatlingRun-com.project.simu.MySimulation
+
+
 
 Troubleshooting and known issues
 ================================
