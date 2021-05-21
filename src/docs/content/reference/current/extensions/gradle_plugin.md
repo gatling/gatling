@@ -121,7 +121,7 @@ gatling {
 ### Override gatling.conf settings
 
 To override
-[default parameters](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf)
+[default parameters](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf)
 of Gatling just put own version of `gatling.conf` into `src/gatling/resources`.
 
 ### Logging management

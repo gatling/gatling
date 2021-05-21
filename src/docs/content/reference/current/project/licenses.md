@@ -32,4 +32,4 @@ Making it short, we distribute this module for free with the following restricti
 * one can not edit the source code without buying a Highcharts license for working on Gatling
 * the shipped Highcharts or Highstock copies cannot be used outside of Gatling standard usage
 
-For more information, please refer to the [gatling-highcharts license](https://github.com/gatling/gatling-highcharts/blob/master/LICENSE) or feel free to [ask](https://groups.google.com/forum/#!forum/gatling).
+For more information, please refer to the [gatling-highcharts license](https://github.com/gatling/gatling-highcharts/blob/main/LICENSE) or feel free to [ask](https://groups.google.com/forum/#!forum/gatling).
