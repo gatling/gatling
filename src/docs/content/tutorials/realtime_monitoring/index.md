@@ -188,7 +188,7 @@ sign-in as admin/admin (change in /etc/grafana/grafana.ini at the earliest
 opportunity).
 
 InfluxDB or Graphite can be set as a datasource as described [here](http://docs.grafana.org/datasources/overview/).
-There is a ready made [Grafana template](https://github.com/gatling/gatling/tree/main/src/sphinx/realtime_monitoring/code/gatling.json)
+There is a ready made [Grafana template](https://github.com/gatling/gatling/tree/main/src/docs/content/tutorials/realtime_monitoring/code/gatling.json)
 if InfluxDB is used as a datasource. The graphs should look similar to the below when running a simulation:
 
 {{< img src="gatling-grafana.png" alt="gatling-grafana" >}}
