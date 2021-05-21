@@ -21,7 +21,7 @@ This file allows you to configure the log level of Gatling.
 For further information, you should have a look at [Logback Documentation](http://logback.qos.ch/manual/index.html).
 
 {{< alert tip >}}
-In order to log requests and responses, uncomment the dedicated loggers in the [default logging configuration file](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy).
+In order to log requests and responses, uncomment the dedicated loggers in the [default logging configuration file](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/logback.dummy).
 {{< /alert >}}
 
 ### gatling.conf {#gatling-conf}
@@ -76,4 +76,4 @@ You can use the JAVA_OPTS var to override those defaults, eg:
 JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 ```
 
-[Default configuration file](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf)
+[Default configuration file](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf)
