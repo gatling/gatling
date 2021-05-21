@@ -14,7 +14,7 @@ A `Simulation` is a real Scala class containing 4 different parts:
 * The scenario definition
 * The simulation definition
 
-To illustrate this point we will take one of our sample simulations: [computerdatabase.BasicSimulation](https://github.com/gatling/gatling/blob/master/gatling-bundle/src/main/scala/computerdatabase/BasicSimulation.scala)
+To illustrate this point we will take one of our sample simulations: [computerdatabase.BasicSimulation](https://github.com/gatling/gatling/blob/main/gatling-bundle/src/main/scala/computerdatabase/BasicSimulation.scala)
 
 {{< alert warning >}}
 We recommend your Simulation's name doesn't start with `Test`.

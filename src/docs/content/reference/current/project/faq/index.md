@@ -42,7 +42,7 @@ This parameter can be increased with the `-Xss` JVM parameter.
 Another solution is of course to split into smaller chains.
 
 Since 2M3, Gatling forks a new process for running so compiler, so that one can tune JVM differently for compiler and running.
-The compiler JVM can be tuned with a parameter named `gatling.core.zinc` in [gatling.conf](https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf#49).
+The compiler JVM can be tuned with a parameter named `gatling.core.zinc` in [gatling.conf](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf#49).
 
 **I get a "Connection timed out: no further information to http://gatling-tool.org", what happened?**
 
