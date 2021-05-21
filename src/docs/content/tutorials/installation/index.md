@@ -154,6 +154,6 @@ You'll have to add the following section in your `pom.xml`:
 ### Launching Gatling and the Recorder from the IDE
 
 The [gatling-highcharts-maven-archetype]({{< ref "../../reference/current/extensions/maven_archetype" >}}) generates some helper classes that you can use to launch Gatling and the Recorder manually from your IDE.
-You can perfectly copy [those 3 classes](https://github.com/gatling/gatling-highcharts-maven-archetype/tree/master/src/main/scala) (`Engine`, `Recorder` and `IDEPathHelper`) in your own project.
+You can perfectly copy [those 3 classes](https://github.com/gatling/gatling-highcharts-maven-archetype/tree/main/src/main/scala) (`Engine`, `Recorder` and `IDEPathHelper`) in your own project.
 
 Please check the [launchers documentation section]({{< ref "../../reference/current/extensions/maven_archetype#launchers" >}}).
