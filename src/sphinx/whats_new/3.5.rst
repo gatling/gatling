@@ -2,7 +2,7 @@
 What's New in 3.5
 #################
 
-See full `Release Note <https://github.com/gatling/gatling/milestone/94?closed=1>`_ on Github.
+See full `Release Note <https://github.com/gatling/gatling/milestone/94?closed=1>`_ on GitHub.
 
 Core
 ====

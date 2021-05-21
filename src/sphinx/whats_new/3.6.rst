@@ -1,0 +1,17 @@
+#################
+What's New in 3.6
+#################
+
+See full `Release Note <https://github.com/gatling/gatling/milestone/98?closed=1>`_ on GitHub.
+
+HTTP
+====
+
+* `#3992 <https://github.com/gatling/gatling/issues/3992>`__: formParamMap now supports EL for key
+* `#4076 <https://github.com/gatling/gatling/issues/4076>`__: Support passing multiple BodyParts at once
+* `#4034 <https://github.com/gatling/gatling/issues/4034>`__: Support Brotli compressed response bodies
+
+MQTT
+====
+
+* `#4043 <https://github.com/gatling/gatling/issues/4043>`__: Support configuring distinct KeyManagers per virtual user
