@@ -94,9 +94,15 @@ final case class WsPerformingCheckState(
 
   override def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState = {
     // unexpected close, fail check
-    logger.debug("WebSocket remotely closed while waiting for checks")
+    logger.debug(s"WebSocket remotely closed while in $stateName state")
     cancelTimeout()
     handleWebSocketCheckCrash(session, next, Some(Integer.toString(code)), reason)
+  }
+
+  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
+    logger.debug(s"WebSocket crashed by the server while in $stateName state", t)
+    cancelTimeout()
+    handleWebSocketCheckCrash(session, next, None, t.rootMessage)
   }
 
   private def logCheckResult(sessionWithCheckUpdate: Session, end: Long, status: Status, code: Option[String], reason: Option[String]): Session =

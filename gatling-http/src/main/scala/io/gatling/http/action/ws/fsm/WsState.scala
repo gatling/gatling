@@ -35,7 +35,7 @@ final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = Next
 
 abstract class WsState(fsm: WsFsm) extends StrictLogging {
 
-  private val stateName = getClass.getSimpleName
+  protected val stateName = getClass.getSimpleName
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
     onIllegalState(s"Can't call onPerformInitialConnect in $stateName state", fsm.clock.nowMillis)
