@@ -29,7 +29,7 @@ import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.engine.response.IsHttpDebugEnabled
+import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
 
@@ -189,7 +189,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
         .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }
         .toMap
 
-    val storeBodyParts = IsHttpDebugEnabled ||
+    val storeBodyParts = HttpTracing.IS_HTTP_DEBUG_ENABLED ||
       // we can't assume anything about if and how the response body will be used,
       // let's force bytes so we don't risk decoding binary content
       resolvedResponseTransformer.isDefined ||

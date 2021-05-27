@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package io.gatling.http.engine
+package io.gatling.http.engine.response;
 
-import com.typesafe.scalalogging.StrictLogging
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-package object response extends StrictLogging {
-  val IsHttpDebugEnabled: Boolean = logger.underlying.isDebugEnabled
-  val IsHttpTraceEnabled: Boolean = logger.underlying.isTraceEnabled
+public class HttpTracing {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpTracing.class.getPackage().getName());
+  public static final boolean IS_HTTP_DEBUG_ENABLED = LOGGER.isDebugEnabled();
+  public static final boolean IS_HTTP_TRACE_ENABLED = LOGGER.isTraceEnabled();
 }
