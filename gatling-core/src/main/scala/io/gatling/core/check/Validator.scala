@@ -74,10 +74,10 @@ class NotMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (!equality.equals(actualValue, expected)) {
-        actual.success
-      } else {
+      if (equality.equals(actualValue, expected)) {
         s"unexpectedly found $actualValue".failure
+      } else {
+        actual.success
       }
     case _ => Validation.NoneSuccess
   }
@@ -89,10 +89,11 @@ class NotNullMatcher[A] extends Matcher[A] {
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (actualValue != null)
-        actual.success
-      else
+      if (actualValue == null) {
         "found null".failure
+      } else {
+        actual.success
+      }
     case _ => Validator.FoundNothingFailure
   }
 }
@@ -103,10 +104,11 @@ class InMatcher[A](expected: Seq[A]) extends Matcher[A] {
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (expected.contains(actualValue))
+      if (expected.contains(actualValue)) {
         actual.success
-      else
+      } else {
         s"found $actualValue".failure
+      }
     case _ => Validator.FoundNothingFailure
   }
 }
@@ -117,10 +119,11 @@ class CompareMatcher[A](val comparisonName: String, message: String, compare: (A
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (compare(actualValue, expected))
+      if (compare(actualValue, expected)) {
         actual.success
-      else
+      } else {
         s"$actualValue is not $message $expected".failure
+      }
 
     case _ => s"can't compare nothing and $expected".failure
   }
