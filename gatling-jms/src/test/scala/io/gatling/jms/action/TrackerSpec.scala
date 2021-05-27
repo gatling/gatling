@@ -25,7 +25,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
-import io.gatling.jms.check.JmsSimpleCheck
 import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
 import akka.testkit.TestActorRef
@@ -51,7 +50,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
   }
 
   it should "pass KO to next actor when check fails" in {
-    val failedCheck = new JmsSimpleCheck(_ => false)
+    val failedCheck = simpleCheck(_ => false)
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(Tracker.props(statsEngine, clock, configuration))
 
@@ -91,7 +90,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val newSession = groupSession.logGroupRequestTimings(15, 30)
     val nextSession1 = expectMsgType[Session]
 
-    val failedCheck = new JmsSimpleCheck(_ => false)
+    val failedCheck = simpleCheck(_ => false)
     tracker ! MessageSent("2", 25, 0, List(failedCheck), newSession, new ActorDelegatingAction("next", testActor), "logGroupResponse")
     tracker ! MessageReceived("2", 50, textMessage("group"))
 

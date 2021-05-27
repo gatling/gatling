@@ -20,6 +20,7 @@ import java.security.MessageDigest
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.check.ChecksumCheck
 import io.gatling.core.config.GatlingConfiguration
@@ -32,6 +33,7 @@ import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
+import io.gatling.http.response.Response
 
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
@@ -89,6 +91,12 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.httpAttributes.checks)(_ ::: checks.toList)
   }
+
+  def checkIf(condition: Expression[Boolean])(thenChecks: HttpCheck*): HttpRequestBuilder =
+    check(thenChecks.map(_.withUntypedCondition(condition)): _*)
+
+  def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpRequestBuilder =
+    check(thenChecks.map(_.copy(condition = Some(condition))): _*)
 
   @deprecated("Please use ignoreProtocolChecks instead. Will be removed in 3.5.0", "3.4.0")
   def ignoreDefaultChecks: HttpRequestBuilder = ignoreProtocolChecks

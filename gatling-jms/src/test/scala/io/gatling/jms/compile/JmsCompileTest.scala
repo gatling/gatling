@@ -107,7 +107,10 @@ class JmsCompileTest extends Simulation {
       jms("req").requestReply
         .queue("queue")
         .textMessage("hello")
-        .check(checkBodyTextCorrect)
+        .check(simpleCheck {
+          case tm: TextMessage => tm.getText == "hello"
+          case _               => false
+        })
         .check(xpath("//TEST").saveAs("name"))
         .check(jsonPath("$.foo"))
         .check(jmesPath("[].foo"))
@@ -118,10 +121,16 @@ class JmsCompileTest extends Simulation {
         .check(
           bodyString.is("hello"),
           substring("he").count.is(1),
-          checkIf(_ => true) {
-            jsonPath("$").is("hello")
+          checkIf("${bool}") {
+            jsonPath("$..foo")
           }
         )
+        .checkIf("${bool}") {
+          jsonPath("$..foo")
+        }
+        .checkIf(_ => true) {
+          jsonPath("$").is("hello")
+        }
     )
     // extra
     .exec(
@@ -184,9 +193,4 @@ class JmsCompileTest extends Simulation {
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2.minutes)))
     .protocols(jmsProtocolWithNativeConnectionFactory)
-
-  private def checkBodyTextCorrect = simpleCheck {
-    case tm: TextMessage => tm.getText == "hello"
-    case _               => false
-  }
 }

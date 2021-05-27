@@ -17,9 +17,11 @@
 package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
+import javax.jms.Message
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
+import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper, Session }
 import io.gatling.jms.JmsCheck
 import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
@@ -131,6 +133,12 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.attributes.checks)(_ ::: checks.toList)
   }
+
+  def checkIf(condition: Expression[Boolean])(thenChecks: JmsCheck*): RequestReplyDslBuilder =
+    check(thenChecks.map(_.withUntypedCondition(condition)): _*)
+
+  def checkIf(condition: (Message, Session) => Validation[Boolean])(thenChecks: JmsCheck*): RequestReplyDslBuilder =
+    check(thenChecks.map(_.copy(condition = Some(condition))): _*)
 
   def build: ActionBuilder = factory(attributes)
 }

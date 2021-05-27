@@ -16,13 +16,13 @@
 
 package io.gatling.jms.check
 
-import java.util.{ Map => JMap }
 import javax.jms.Message
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation.{ FailureWrapper, Validation }
 import io.gatling.core.check._
+import io.gatling.core.check.Check.PreparedCache
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
@@ -38,7 +38,16 @@ import com.fasterxml.jackson.databind.JsonNode
 import net.sf.saxon.s9api.XdmNode
 
 trait JmsCheckSupport {
-  def simpleCheck(f: Message => Boolean): JmsSimpleCheck = new JmsSimpleCheck(f)
+  def simpleCheck(f: Message => Boolean): JmsCheck =
+    JmsCheck(
+      (response: Message, _: Session, _: PreparedCache) =>
+        if (f(response)) {
+          CheckResult.NoopCheckResultSuccess
+        } else {
+          "JMS check failed".failure
+        },
+      None
+    )
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
   implicit def checkBuilder2JmsCheck[T, P, X](
@@ -93,16 +102,9 @@ trait JmsCheckSupport {
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
     JmsCheckMaterializer.jmesPath(jsonParsers, configuration.core.charset)
 
-  implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
-    (condition: Expression[Boolean], thenCheck: JmsCheck) =>
-      new Check[Message] {
-        private val typedCondition = (_: Message, ses: Session) => condition(ses)
-
-        override def check(response: Message, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
-          ConditionalCheck(typedCondition, thenCheck).check(response, session, preparedCache)
-      }
-
   implicit val jmsTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Message, JmsCheck] =
-    (condition: (Message, Session) => Validation[Boolean], thenCheck: JmsCheck) =>
-      (response: Message, session: Session, preparedCache: JMap[Any, Any]) => ConditionalCheck(condition, thenCheck).check(response, session, preparedCache)
+    (condition: (Message, Session) => Validation[Boolean], thenCheck: JmsCheck) => thenCheck.copy(condition = Some(condition))
+
+  implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
+    (condition: Expression[Boolean], thenCheck: JmsCheck) => thenCheck.withUntypedCondition(condition)
 }

@@ -22,6 +22,7 @@ import javax.net.ssl.KeyManagerFactory
 
 import scala.jdk.CollectionConverters._
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
@@ -33,6 +34,7 @@ import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
+import io.gatling.http.response.Response
 import io.gatling.http.util.{ HttpHelper, InetAddresses }
 
 import com.softwaremill.quicklens._
@@ -155,6 +157,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder =
     this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks)(_ ::: checks.toList)
+  def checkIf(condition: Expression[Boolean])(thenChecks: HttpCheck*): HttpProtocolBuilder =
+    check(thenChecks.map(_.withUntypedCondition(condition)): _*)
+  def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpProtocolBuilder =
+    check(thenChecks.map(_.copy(condition = Some(condition))): _*)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, BlackList.Empty)))
   def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, black)))

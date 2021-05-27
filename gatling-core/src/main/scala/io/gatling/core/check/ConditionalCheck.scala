@@ -27,14 +27,20 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
   def wrap(condition: Expression[Boolean], thenCheck: C): C
 }
 
-final case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
+abstract trait ConditionalCheck[R] extends Check[R] {
+  protected def wrapped: Check[R]
+  protected def condition: Option[(R, Session) => Validation[Boolean]]
 
-  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
-    condition(response, session).flatMap { boolean =>
-      if (boolean) {
-        thenCheck.check(response, session, preparedCache)
-      } else {
-        CheckResult.NoopCheckResultSuccess
-      }
+  override def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+    condition match {
+      case Some(cond) =>
+        cond(response, session).flatMap { boolean =>
+          if (boolean) {
+            wrapped.check(response, session, preparedCache)
+          } else {
+            CheckResult.NoopCheckResultSuccess
+          }
+        }
+      case _ => wrapped.check(response, session, preparedCache)
     }
 }

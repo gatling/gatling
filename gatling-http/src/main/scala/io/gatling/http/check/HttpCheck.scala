@@ -17,20 +17,18 @@
 package io.gatling.http.check
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult, Preparer }
-import io.gatling.core.session.Session
+import io.gatling.core.check.{ Check, CheckMaterializer, ConditionalCheck, Preparer }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.response.Response
 
-/**
- * This class serves as model for the HTTP-specific checks
- *
- * @param wrapped the underlying check
- * @param scope the part of the response this check targets
- */
-final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) extends Check[Response] {
-  override def check(response: Response, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
-    wrapped.check(response, session, preparedCache)
+final case class HttpCheck(wrapped: Check[Response], condition: Option[(Response, Session) => Validation[Boolean]], scope: HttpCheckScope)
+    extends ConditionalCheck[Response] {
+
+  private[http] def withUntypedCondition(condition: Expression[Boolean]): HttpCheck = {
+    val typedCondition = (_: Response, session: Session) => condition(session)
+    copy(condition = Some(typedCondition))
+  }
 }
 
 class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
-    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))
+    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, None, scope))

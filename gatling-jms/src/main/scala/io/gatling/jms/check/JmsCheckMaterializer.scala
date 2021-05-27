@@ -33,7 +33,7 @@ import io.gatling.jms.JmsCheck
 import com.fasterxml.jackson.databind.JsonNode
 import net.sf.saxon.s9api.XdmNode
 
-class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)
+class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](JmsCheck(_, None))
 
 object JmsCheckMaterializer {
 

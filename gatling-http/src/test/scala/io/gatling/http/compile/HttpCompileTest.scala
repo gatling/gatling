@@ -72,7 +72,18 @@ class HttpCompileTest extends Simulation {
         .transform { foo: Map[String, Any] =>
           foo
         }
-        .saveAs("theForm")
+        .saveAs("theForm"),
+      checkIf("${bool}") {
+        jsonPath("$..foo")
+      }
+    )
+    .checkIf("${bool}")(
+      jsonPath("$..foo"),
+      jsonPath("$..foo")
+    )
+    .checkIf((response: Response, _: Session) => isJsonResponse(response))(
+      jsonPath("$..foo"),
+      jsonPath("$..foo")
     )
     .disableFollowRedirect
     .maxRedirects(5)
@@ -212,7 +223,14 @@ class HttpCompileTest extends Simulation {
           xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
           md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
           sha1.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
-          responseTimeInMillis.lt(1000)
+          responseTimeInMillis.lt(1000),
+          checkIf("${bool}") {
+            jsonPath("$..foo")
+          }
+        )
+        .checkIf("${bool}")(
+          jsonPath("$..foo"),
+          jsonPath("$..foo")
         )
     )
     .exec(http("Request").get("/tests").check(header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE).is("text/html; charset=utf-8")))
@@ -324,11 +342,9 @@ class HttpCompileTest extends Simulation {
   private val requestWithUntypedCheckIf =
     http("untypedCheckIf")
       .get("/")
-      .check(
-        checkIf("${bool}") {
-          jsonPath("$..foo")
-        }
-      )
+      .checkIf("${bool}") {
+        jsonPath("$..foo")
+      }
 
   def isJsonResponse(response: Response): Boolean =
     response
@@ -338,11 +354,9 @@ class HttpCompileTest extends Simulation {
   private val requestWithTypedCheckIf =
     http("typedCheckIf")
       .get("/")
-      .check(
-        checkIf((response: Response, _: Session) => isJsonResponse(response)) {
-          jsonPath("$..foo")
-        }
-      )
+      .checkIf((response: Response, _: Session) => isJsonResponse(response)) {
+        jsonPath("$..foo")
+      }
 
   //[fl]
   //

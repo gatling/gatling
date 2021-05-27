@@ -122,15 +122,9 @@ trait HttpCheckSupport {
   implicit val httpResponseTimeCheckMaterializer: CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] =
     HttpResponseTimeCheckMaterializer.Instance
 
-  implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
-    override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck): HttpCheck =
-      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope)
-  }
+  implicit val HttpTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Response, HttpCheck] =
+    (condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) => thenCheck.copy(condition = Some(condition))
 
-  implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
-    override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck): HttpCheck = {
-      val typedCondition = (_: Response, session: Session) => condition(session)
-      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope)
-    }
-  }
+  implicit val HttpUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[HttpCheck] =
+    (condition: Expression[Boolean], thenCheck: HttpCheck) => thenCheck.withUntypedCondition(condition)
 }

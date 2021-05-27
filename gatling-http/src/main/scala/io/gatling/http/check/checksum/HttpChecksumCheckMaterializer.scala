@@ -30,7 +30,7 @@ object HttpChecksumCheckMaterializer {
 }
 
 class HttpChecksumCheckMaterializer[T](algorithm: String)
-    extends CheckMaterializer[T, HttpCheck, Response, String](check => HttpCheck(new ChecksumCheck(check, algorithm), Chunks)) {
+    extends CheckMaterializer[T, HttpCheck, Response, String](check => HttpCheck(new ChecksumCheck(check, algorithm), None, Chunks)) {
 
   override val preparer: Preparer[Response, String] = _.checksum(algorithm) match {
     case Some(chk) => chk.success

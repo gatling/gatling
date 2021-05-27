@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package io.gatling
+package io.gatling.jms
 
 import javax.jms.Message
 
-import io.gatling.core.check.Check
+import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ Check, CheckResult, ConditionalCheck }
+import io.gatling.core.session.{ Expression, Session }
 
-package object jms {
+final case class JmsCheck(wrapped: Check[Message], condition: Option[(Message, Session) => Validation[Boolean]]) extends ConditionalCheck[Message] {
 
-  /**
-   * Type for jms checks
-   */
-  type JmsCheck = Check[Message]
+  private[jms] def withUntypedCondition(condition: Expression[Boolean]): JmsCheck = {
+    val typedCondition = (_: Message, session: Session) => condition(session)
+    copy(condition = Some(typedCondition))
+  }
 }
