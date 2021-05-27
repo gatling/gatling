@@ -47,10 +47,10 @@ object SubstringExtractors {
         @tailrec
         def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
           if (fromIndex >= substring.length)
-            NoneSuccess
+            Validation.NoneSuccess
           else
             text.indexOf(substring, fromIndex) match {
-              case -1 => NoneSuccess
+              case -1 => Validation.NoneSuccess
               case i =>
                 if (occ == occurrence)
                   Some(i).success
@@ -67,7 +67,7 @@ object SubstringExtractors {
       "substring",
       substring,
       extractAll(_, substring) match {
-        case Nil => NoneSuccess
+        case Nil => Validation.NoneSuccess
         case is  => Some(is.reverse).success
       }
     )

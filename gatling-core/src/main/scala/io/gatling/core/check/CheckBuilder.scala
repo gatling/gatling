@@ -74,7 +74,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
                 s"Failed to collect $num matches".failure
 
               } else if (seq.isEmpty) {
-                NoneSuccess
+                Validation.NoneSuccess
 
               } else {
                 val randomSeq =
@@ -88,7 +88,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
                 Some(randomSeq).success
               }
 
-            case _ => NoneSuccess
+            case _ => Validation.NoneSuccess
           }
     }
   }

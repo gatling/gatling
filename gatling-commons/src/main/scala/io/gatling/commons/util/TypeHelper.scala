@@ -102,7 +102,7 @@ object TypeCaster extends LowPriorityTypeCaster {
 
     override def validate(key: String, value: Any): Validation[Boolean] =
       value match {
-        case v: Boolean => if (v) TrueSuccess else FalseSuccess
+        case v: Boolean => if (v) Validation.TrueSuccess else Validation.FalseSuccess
         case s: String  => tryParseV(key, s, classOf[Boolean])(_.toBoolean)
         case _          => cceMessage(key, value, classOf[Boolean]).failure
       }

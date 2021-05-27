@@ -87,16 +87,16 @@ final case class RandomPart(seq: ElPart[Any], name: String) extends ElPart[Any] 
 final case class ExistsPart(part: ElPart[Any], name: String) extends ElPart[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
-      case _: Failure => FalseSuccess
-      case _          => TrueSuccess
+      case _: Failure => Validation.FalseSuccess
+      case _          => Validation.TrueSuccess
     }
 }
 
 final case class IsUndefinedPart(part: ElPart[Any], name: String) extends ElPart[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
-      case _: Failure => TrueSuccess
-      case _          => FalseSuccess
+      case _: Failure => Validation.TrueSuccess
+      case _          => Validation.FalseSuccess
     }
 }
 
@@ -104,7 +104,7 @@ final case class JsonStringify(part: ElPart[Any], name: String) extends ElPart[S
   def apply(session: Session): Validation[String] =
     part(session) match {
       case Success(value)   => Json.stringify(value, isRootObject = false).success
-      case failure: Failure => if (TypeHelper.isNullValueFailure(failure)) NullStringSuccess else failure
+      case failure: Failure => if (TypeHelper.isNullValueFailure(failure)) Validation.NullStringSuccess else failure
     }
 }
 

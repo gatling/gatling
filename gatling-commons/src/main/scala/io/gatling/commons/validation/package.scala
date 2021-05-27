@@ -25,11 +25,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 package object validation extends StrictLogging {
 
-  val TrueSuccess: Validation[Boolean] = true.success
-  val FalseSuccess: Validation[Boolean] = false.success
-  val NoneSuccess: Validation[None.type] = None.success
-  val NullStringSuccess: Validation[String] = "null".success
-
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def safely[T](errorMapper: String => String = identity)(f: => Validation[T]): Validation[T] =
     try {

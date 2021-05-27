@@ -26,7 +26,7 @@ import io.gatling.core.session.el._
 class ExpressionUtilsSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "resolveOptionalExpression" should "return NoneSuccess if the expression was None" in {
-    resolveOptionalExpression(None, emptySession) shouldBe NoneSuccess
+    resolveOptionalExpression(None, emptySession) shouldBe Validation.NoneSuccess
   }
 
   it should "return the expression's result wrapped in a Success if the expression wasn't None" in {

@@ -52,7 +52,7 @@ package object session {
 
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
     case Some(exp) => exp(session).map(Some.apply)
-    case _         => NoneSuccess
+    case _         => Validation.NoneSuccess
   }
 
   def resolveIterable[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(String, X)]] = {

@@ -17,7 +17,7 @@
 package io.gatling.core.action.builder
 
 import io.gatling.commons.util.Clock
-import io.gatling.commons.validation._
+import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{ Action, Loop }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
@@ -43,7 +43,7 @@ abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP
     val actualCondition =
       if (loopType.evaluateConditionAfterLoop) { session: Session =>
         if (session.attributes(counterName) == 0) {
-          TrueSuccess
+          Validation.TrueSuccess
         } else {
           safeCondition(session)
         }

@@ -79,7 +79,7 @@ class NotMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
       } else {
         s"unexpectedly found $actualValue".failure
       }
-    case _ => NoneSuccess
+    case _ => Validation.NoneSuccess
   }
 }
 
@@ -138,7 +138,7 @@ class NotExistsValidator[A] extends Validator[A] {
   val name = "notExists"
   def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
     case Some(actualValue) => s"unexpectedly found $actualValue".failure
-    case _                 => NoneSuccess
+    case _                 => Validation.NoneSuccess
   }
 }
 

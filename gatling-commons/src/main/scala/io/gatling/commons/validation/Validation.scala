@@ -18,6 +18,10 @@ package io.gatling.commons.validation
 
 object Validation {
   val unit: Validation[Unit] = ().success
+  val TrueSuccess: Validation[Boolean] = true.success
+  val FalseSuccess: Validation[Boolean] = false.success
+  val NoneSuccess: Validation[None.type] = None.success
+  val NullStringSuccess: Validation[String] = "null".success
 }
 
 sealed trait Validation[@specialized(Short, Int, Long, Double, Char, Boolean) +T] {
