@@ -201,7 +201,7 @@ class FeederSample {
     //#user-dependent-data
     import java.util.concurrent.ThreadLocalRandom
 
-    import io.gatling.core.feeder._
+    import io.gatling.core.Predef._
 
     // index records by project
     val issuesByProject: Map[String, Seq[Any]] =
