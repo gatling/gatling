@@ -101,6 +101,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
 
   // requestPart
   def disableAutoReferer: HttpProtocolBuilder = this.modify(_.protocol.requestPart.autoReferer).setTo(false)
+  def disableAutoOrigin: HttpProtocolBuilder = this.modify(_.protocol.requestPart.autoOrigin).setTo(false)
   def disableCaching: HttpProtocolBuilder = this.modify(_.protocol.requestPart.cache).setTo(false)
   def header(name: CharSequence, value: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.headers)(_ + (name -> value))
   def headers(headers: Map[_ <: CharSequence, String]): HttpProtocolBuilder =

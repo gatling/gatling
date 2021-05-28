@@ -149,7 +149,7 @@ abstract class RequestExpressionBuilder(
   private def configureVirtualHost0(virtualHost: Expression[String]): RequestBuilderConfigure =
     session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
 
-  protected def addDefaultHeaders(session: Session)(requestBuilder: ClientRequestBuilder): ClientRequestBuilder = {
+  private def addDefaultHeaders(session: Session)(requestBuilder: ClientRequestBuilder): ClientRequestBuilder = {
     if (httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined) {
       RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
     }
@@ -235,7 +235,9 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
-          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver).setDefaultCharset(charset)
+          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver)
+            .setDefaultCharset(charset)
+            .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build
       }

@@ -88,6 +88,7 @@ class HttpCompileTest extends Simulation {
     .disableFollowRedirect
     .maxRedirects(5)
     .disableAutoReferer
+    .disableAutoOrigin
     .disableWarmUp
     .warmUp("https://gatling.io")
     .inferHtmlResources(white = WhiteList(".*\\.html"))

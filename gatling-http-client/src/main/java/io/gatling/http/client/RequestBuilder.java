@@ -52,6 +52,7 @@ public class RequestBuilder {
   private RequestBodyBuilder bodyBuilder;
   private long requestTimeout;
   private String virtualHost;
+  private boolean autoOrigin;
   private InetAddress localIpV4Address;
   private InetAddress localIpV6Address;
   private Realm realm;
@@ -76,6 +77,7 @@ public class RequestBuilder {
     bodyBuilder = request.getBody() != null ? request.getBody().newBuilder() : null;
     requestTimeout = request.getRequestTimeout();
     virtualHost = request.getVirtualHost();
+    autoOrigin = request.isAutoOrigin();
     localIpV4Address = request.getLocalIpV4Address();
     localIpV6Address = request.getLocalIpV6Address();
     realm = request.getRealm();
@@ -118,6 +120,11 @@ public class RequestBuilder {
 
   public RequestBuilder setVirtualHost(String virtualHost) {
     this.virtualHost = virtualHost;
+    return this;
+  }
+
+  public RequestBuilder setAutoOrigin(boolean autoOrigin) {
+    this.autoOrigin = autoOrigin;
     return this;
   }
 
@@ -194,14 +201,16 @@ public class RequestBuilder {
       headers.set(COOKIE, ClientCookieEncoder.LAX.encode(cookies));
     }
 
-    String referer = headers.get(REFERER);
-    if (referer != null
-      && !HttpMethod.GET.equals(method)
-      && !HttpMethod.HEAD.equals(method)
-      && !headers.contains(ORIGIN)) {
-      String origin = originHeader(referer);
-      if (origin != null) {
-        headers.set(ORIGIN, origin);
+    if (autoOrigin) {
+      String referer = headers.get(REFERER);
+      if (referer != null
+        && !HttpMethod.GET.equals(method)
+        && !HttpMethod.HEAD.equals(method)
+        && !headers.contains(ORIGIN)) {
+        String origin = originHeader(referer);
+        if (origin != null) {
+          headers.set(ORIGIN, origin);
+        }
       }
     }
 
@@ -228,6 +237,7 @@ public class RequestBuilder {
       body,
       requestTimeout,
       virtualHost,
+      autoOrigin,
       localIpV4Address,
       localIpV6Address,
       realm,

@@ -37,6 +37,7 @@ public class Request {
   private final RequestBody body;
   private final long requestTimeout;
   private final String virtualHost;
+  private final boolean autoOrigin;
   private final InetAddress localIpV4Address;
   private final InetAddress localIpV6Address;
   private final Realm realm;
@@ -55,6 +56,7 @@ public class Request {
                  RequestBody body,
                  long requestTimeout,
                  String virtualHost,
+                 boolean autoOrigin,
                  InetAddress localIpV4Address,
                  InetAddress localIpV6Address,
                  Realm realm,
@@ -72,6 +74,7 @@ public class Request {
     this.body = body;
     this.requestTimeout = requestTimeout;
     this.virtualHost = virtualHost;
+    this.autoOrigin = autoOrigin;
     this.localIpV4Address = localIpV4Address;
     this.localIpV6Address = localIpV6Address;
     this.realm = realm;
@@ -93,6 +96,7 @@ public class Request {
       this.body,
       this.requestTimeout,
       this.virtualHost,
+      this.autoOrigin,
       this.localIpV4Address,
       this.localIpV6Address,
       this.realm,
@@ -131,6 +135,10 @@ public class Request {
 
   public String getVirtualHost() {
     return virtualHost;
+  }
+
+  public boolean isAutoOrigin() {
+    return autoOrigin;
   }
 
   public InetAddress getLocalIpV4Address() {
