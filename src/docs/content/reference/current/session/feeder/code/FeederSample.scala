@@ -195,8 +195,9 @@ class FeederSample {
 
   {
     //#user-dependent-data
-    import io.gatling.core.feeder._
     import java.util.concurrent.ThreadLocalRandom
+
+    import io.gatling.Predef.feeder._
 
     // index records by project
     val recordsByProject: Map[String, Seq[Record[Any]]] =
