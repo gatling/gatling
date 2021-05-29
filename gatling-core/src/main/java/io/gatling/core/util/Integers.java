@@ -47,14 +47,15 @@ public class Integers {
           9999999,
           99999999,
           999999999,
-          Integer.MAX_VALUE };
+          0xFFFFFFFF };
 
-  public static int positiveIntStringSize(int x) {
-    for (int i = 0;; i++) {
-      if (x <= SIZE_TABLE[i]) {
-        return i + 1;
-      }
+  public static int positiveIntStringSize(int num) {
+    int l2 = 31 - Integer.numberOfLeadingZeros(num);
+    int ans = ((77*l2)>>>8);
+    if (num > SIZE_TABLE[ans]) {
+      ans += 1;
     }
+    return ans + 1;
   }
 
   public static void writePositiveIntString(int i, ByteBuffer bb) {
