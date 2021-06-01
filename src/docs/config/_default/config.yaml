@@ -1,4 +1,4 @@
-baseurl: /
+baseurl: http://localhost:1313/docs
 
 theme: "github.com/gatling/gatling.io-doc-theme"
 
@@ -41,15 +41,19 @@ markup:
     renderer:
       unsafe: true
   highlight:
+    anchorLineNos: false
     codeFences: true
     guessSyntax: false
-    hl_Lines: ''
+    hl_Lines: ""
+    lineAnchors: ""
     lineNoStart: 1
+    lineNumbersInTable: false
     lineNos: false
-    lineNumbersInTable: true
-    noClasses: false
-    style: dracula
-    tabWidth: 4
+    noClasses: true
+    style: monokailight
+    tabWidth: 2
+
+pygmentsUseClasses: true
 
 minify:
   tdewolff:
@@ -66,8 +70,6 @@ module:
   noVendor: ''
   private: '*.*'
   proxy: direct
-  imports:
-    - path: github.com/gatling/gatling.io-doc-theme
   mounts:
     - source: assets
       target: assets

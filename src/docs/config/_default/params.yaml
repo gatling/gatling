@@ -3,9 +3,12 @@
 title: "Gatling"
 titleSeparator: "-"
 description: "Documentation"
+logos:
+  white: "/images/logo-gatling.svg"
+  black: "/images/logo-gatling-noir.svg"
 
 ## Open Graph + Twitter Cards
-images: ["gatling-logo.png"]
+images: ["images/og-gatling.png"]
 twitterSite: "GatlingTool"
 twitterCreator: "GatlingTool"
 facebookAuthor: "GatlingTool"
@@ -13,13 +16,11 @@ facebookPublisher: "GatlingTool"
 ogLocale: "en_US"
 
 ## JSON-LD
-schemaType: "Organization"
 schemaName: "Gatling Corp"
 schemaLogo: "gatling-logo.png"
 schemaTwitter: "https://twitter.com/GatlingTool"
 schemaLinkedIn: "https://www.linkedin.com/company/gatling/"
 schemaGitHub: https://github.com/gatling
-schemaSection: tutorials
 
 ## Sitelinks Search Box
 siteLinksSearchBox: false
@@ -35,7 +36,7 @@ portraitPhotoWidths: [800, 700, 600, 500]
 lqipWidth: "20x"
 
 # Footer
-footer: "Powered by <a href=\"https://gohugo.io/\">Hugo</a>, and <a href=\"https://getdoks.org/\">Doks</a>"
+footer: ""
 
 # Alert
 alert: false
