@@ -1,19 +1,7 @@
 main:
-  - name: OSS
-    url: /
-    weight: 10
-
-oss-reference:
-  - identifier: category-1
-    name: Category 1
-    weight: 20
-  - identifier: part-1
-    parent: category-1
-    name: Part 1
-    url: /
-    weight: 20
-  - identifier: category-2
-    name: Category 2
+  - name: Gatling
+    identifier: gatling
+    url: gatling/
     weight: 10
 
 social:

@@ -12,8 +12,13 @@ facebookAuthor: "GatlingTool"
 facebookPublisher: "GatlingTool"
 ogLocale: "en_US"
 
+# Header
+
+logos:
+  white: "/images/logo-gatling.svg"
+  black: "/images/logo-gatling-noir.svg"
+
 ## JSON-LD
-schemaType: "Organization"
 schemaName: "Gatling Corp"
 schemaLogo: "gatling-logo.png"
 schemaTwitter: "https://twitter.com/GatlingTool"
@@ -34,9 +39,6 @@ landscapePhotoWidths: [900, 800, 700, 600, 500]
 portraitPhotoWidths: [800, 700, 600, 500]
 lqipWidth: "20x"
 
-# Footer
-footer: "Powered by <a href=\"https://gohugo.io/\">Hugo</a>, and <a href=\"https://getdoks.org/\">Doks</a>"
-
 # Alert
 alert: false
 alertText: ""
@@ -47,7 +49,6 @@ editPage: true
 
 options:
   lazySizes: true
-  clipBoard: true
   instantPage: true
   flexSearch: true
   darkMode: true
