@@ -18,6 +18,8 @@ package io.gatling.commons.util
 
 import java.{ lang => jl }
 
+import scala.annotation.tailrec
+
 object Classes {
 
   private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
@@ -48,11 +50,20 @@ object Classes {
     sb.toString
   }
 
-  def nonAnonSuperclass(clazz: Class[_]): Class[_] = {
-    var res: Class[_] = clazz
-    while (res.isAnonymousClass || res.getName.contains("$anon$")) {
-      res = clazz.getSuperclass
+  private def isAnonymousClass(res: Class[_]): Boolean =
+    try {
+      res.isAnonymousClass
+    } catch {
+      case e: InternalError if e.getMessage == "Malformed class name" =>
+        // https://github.com/scala/bug/issues/2034, FIXED in Java 9
+        false
     }
-    res
-  }
+
+  @tailrec
+  def nonAnonSuperclass(clazz: Class[_]): Class[_] =
+    if (isAnonymousClass(clazz) || clazz.getName.contains("$anon$")) {
+      nonAnonSuperclass(clazz.getSuperclass)
+    } else {
+      clazz
+    }
 }
