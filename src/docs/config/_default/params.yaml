@@ -1,0 +1,56 @@
+# Meta Data for SEO
+
+title: "Gatling"
+titleSeparator: "-"
+description: "Documentation"
+
+## Open Graph + Twitter Cards
+images: ["gatling-logo.png"]
+twitterSite: "GatlingTool"
+twitterCreator: "GatlingTool"
+facebookAuthor: "GatlingTool"
+facebookPublisher: "GatlingTool"
+ogLocale: "en_US"
+
+# Header
+
+logos:
+  white: "/images/logo-gatling.svg"
+  black: "/images/logo-gatling-noir.svg"
+
+## JSON-LD
+schemaName: "Gatling Corp"
+schemaLogo: "gatling-logo.png"
+schemaTwitter: "https://twitter.com/GatlingTool"
+schemaLinkedIn: "https://www.linkedin.com/company/gatling/"
+schemaGitHub: https://github.com/gatling
+schemaSection: tutorials
+
+## Sitelinks Search Box
+siteLinksSearchBox: false
+
+## Chrome Browser
+themeColor: "#fff"
+
+# Images
+quality: 85
+bgColor: "#fff"
+landscapePhotoWidths: [900, 800, 700, 600, 500]
+portraitPhotoWidths: [800, 700, 600, 500]
+lqipWidth: "20x"
+
+# Alert
+alert: false
+alertText: ""
+
+# Edit Page
+docsRepo: "https://github.com/gatling/frontline-cloud-doc"
+editPage: true
+
+options:
+  lazySizes: true
+  instantPage: true
+  flexSearch: true
+  darkMode: true
+  bootStrapJs: false
+  breadCrumb: false
