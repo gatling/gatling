@@ -11,7 +11,7 @@ weight: 040
 
 By default, Gatling only provides live feedback in the console output, and generates static HTML reports.
 
-## FrontLine
+## Gatling Enterprise
 
 [Gatling Enterprise](/enterprise/), formerly know as Gatling FrontLine, is a management interface for Gatling, that includes advanced metrics and advanced features for integration and automation.
 

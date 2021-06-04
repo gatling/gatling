@@ -65,7 +65,7 @@ In order the locate the file, Gatling try the following strategies in sequence:
 {{< alert warning >}}
 Do NOT rely on having an exploded gradle/maven/sbt project structure.
 Typically, don't use strategy #2 and paths such as `src/main/resources/data/file.csv`.
-The exploded structure might no longer be there at runtime, all the more when deploying with [FrontLine](https://gatling.io/gatling-frontline/).
+The exploded structure might no longer be there at runtime, all the more when deploying with [Gatling Enterprise]/enterprise/).
 Use strategy #1 and classpath paths such as `data/file.csv`.
 {{< /alert >}}
 
@@ -110,14 +110,14 @@ If your files are very large, you can provide them zipped and ask gatling to `un
 
 Supported formats are gzip and zip (but archive most contain only one single file).
 
-## Distributed files (FrontLine only)
+## Distributed files (Gatling Enterprise only)
 
-If you want to run distributed with [FrontLine](https://gatling.io/gatling-frontline/)
+If you want to run distributed with [Gatling Enterprise](/enterprise/)
 and you want to distribute data so that users don't use the same data when they run on different cluster nodes, you can use the `shard` option.
 For example, if you have a file with 30,000 records deployed on 3 nodes, each will use a 10,000 records slice.
 
 {{< alert warning >}}
-`shard` is only effective when running with FrontLine, otherwise it's just a noop.
+`shard` is only effective when running with Gatling Enterprise, otherwise it's just a noop.
 {{< /alert >}}
 
 {{< include-code "FeederSample.scala#shard" scala >}}

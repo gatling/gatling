@@ -6,7 +6,7 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 ---
 
-MQTT support is only available in [FrontLine](https://gatling.io/gatling-frontline/).
+MQTT support is only available in [Gatling Enterprise](/enterprise/).
 
 Jar published in Gatling OSS only contains noop stubs.
 
@@ -14,7 +14,7 @@ It only supports MQTT 3.1 and 3.1.1. More recent versions are not currently supp
 
 ## Prerequisites
 
-Gatling FrontLine MQTT DSL is not imported by default.
+Gatling Enterprise MQTT DSL is not imported by default.
 
 One has to manually add the following imports:
 
