@@ -10,13 +10,13 @@ Sometimes, generating some very heavy load from a single machine might lead to s
 
 In this case, you might want to use several Gatling instances hosted using multiple machines.
 
-## Scaling out easily with Gatling FrontLine
+## Scaling out easily with Gatling Enterprise
 
-The clustering mode is a built-in feature of [Gatling FrontLine](https://gatling.io/gatling-frontline/), our enterprise version. It will run your tests on multiple load injectors, aggregate your results live and close the instances after the tests.
+The clustering mode is a built-in feature of [Gatling Enterprise](/enterprise/), our enterprise version. It will run your tests on multiple load injectors, aggregate your results live and close the instances after the tests.
 
 These injectors can be deployed on an on-premises instances, or on the cloud: Amazon Web Services, Google Cloud Platform, Microsoft Azure, Digital Ocean, ...
 
-{{< img src="pools.png" alt="FrontLine Injectors configuration" >}}
+{{< img src="pools.png" alt="Gatling Enterprise Injectors configuration" >}}
 
 ## Scaling out with Gatling open-source
 

@@ -1,7 +1,7 @@
 ---
 title: "Jenkins plugin"
-description: "Jenkins plugin for Gatling FrontLine"
-lead: "Jenkins CI plugin for Gatling FrontLine"
+description: "Jenkins plugin for Gatling Enterprise"
+lead: "Jenkins CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 9060
@@ -35,6 +35,6 @@ As long as you are able to configure a job that will launch Gatling, execute a s
 
 However, note that the Jenkins plugin relies on the report folder's naming convention *runname-rundate* (ex: mysimulation-201305132230). You must not change the report folder's name in order to get the Jenkins plugin to work.
 
-## Using Jenkins with Gatling FrontLine
+## Using Jenkins with Gatling Enterprise
 
-[Gatling FrontLine](https://gatling.io/gatling-frontline/) has a dedicated Jenkins plugin. This plugin can launch a FrontLine simulation and display live metrics. Please refer to Gatling FrontLine documentation for the installation of this plugin.
+[Gatling Enterprise](/enterprise/) has a dedicated Jenkins plugin. This plugin can launch a Gatling Enterprise simulation and display live metrics. Please refer to Gatling Enterprise documentation for the installation of this plugin.

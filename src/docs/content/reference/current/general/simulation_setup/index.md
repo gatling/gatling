@@ -74,7 +74,7 @@ The building blocks for profile injection the way you want are:
 You have to understand that Gatling's default behavior is to mimic human users with browsers so, each virtual user has its own connections.
 If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every second.
 As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
-This behavior makes perfect sense when the load you're modeling is internet traffic. You then might consider scaling out, for example with FrontLine, our Enterprise product.
+This behavior makes perfect sense when the load you're modeling is internet traffic. You then might consider scaling out, for example with Gatling Enterprise, our Enterprise product.
 
 If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to fine-tune Gatling's behavior and [share the connection pool amongst virtual users]({{< ref "../../http/protocol#connection-sharing" >}}).
 {{< /alert >}}
@@ -115,9 +115,9 @@ It's also possible with `andThen` to chain scenarios so that children scenarios 
 
 {{< include-code "SimulationSetupSample.scala#andThen" scala >}}
 
-### Disabling FrontLine Load Sharding
+### Disabling Gatling Enterprise Load Sharding
 
-By default, FrontLine will distribute your injection profile amongst all injectors when running a distributed test from multiple node.
+By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple node.
 
 This might not be the desirable behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
 Indeed, only one node would run this user, leaving the other nodes without an initialized token.

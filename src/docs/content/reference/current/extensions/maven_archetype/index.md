@@ -13,7 +13,7 @@ Gatling's Maven Archetype helps you bootstrap a maven project with Gatling depen
 
 Check out available versions on [Maven Central](https://search.maven.org/search?q=g:io.gatling.highcharts%20AND%20a:gatling-highcharts-maven-archetype&core=gav).
 
-Beware that milestones (M versions) are not documented for OSS users and are only released for [FrontLine](https://gatling.io/gatling-frontline/) customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](/enterprise/) customers.
 
 ## Usage
 

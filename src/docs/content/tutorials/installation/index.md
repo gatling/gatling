@@ -24,7 +24,7 @@ Gatling 3.0 to 3.4 requires Scala 2.12.
 Make sure to use the latest version as documented on [our website](https://gatling.io/open-source/).
 
 In particular, don't use milestones (M versions) you could find on maven central,
-those are not documented and released only for internal use or [FrontLine](https://gatling.io/gatling-frontline/) customers.
+those are not documented and released only for internal use or [Gatling Enterprise](/enterprise/) customers.
 
 ## Using the Bundle
 
