@@ -35,6 +35,6 @@ If you want to disable SNI, you can set the `gatling.http.ahc.enableSni` propert
 Default Gatling TrustStore is very permissive and doesn't validate certificates,
 meaning that it works out of the box with self-signed certificates.
 
-You can pass your own keystore and trustore in `gatling.conf`.
+You can pass your own keystore and truststore in `gatling.conf`.
 
 [perUserKeyManagerFactory]({{< ref "../protocol#keymanagerfactory" >}}) can be used to set the `KeyManagerFactory` for each virtual user.

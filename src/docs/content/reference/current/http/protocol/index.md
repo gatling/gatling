@@ -78,7 +78,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 The default behavior is that every virtual user has its own connection pool and its own SSLContext.
 This behavior meets your needs when you want to simulate internet traffic where each virtual user simulates a web browser.
 
-Instead, if you want to simulate server to server traffic where the actual client has a long lived connection pool, you want to have the virtual users share a single global connection pool.
+Instead, if you want to simulate server to server traffic where the actual client has a long-lived connection pool, you want to have the virtual users share a single global connection pool.
 You can achieve this behavior with the `.shareConnections` param.
 
 ### HTTP/2 Support {#http2}
@@ -93,7 +93,7 @@ Note that you'll either need your injectors to run with Java 9+, or make sure th
 HTTP/2 Push is currently not supported.
 {{< /alert >}}
 
-When HTTP/2 is enabled Gatling will try to connect to your remotes using HTTP/2 through the ALPN protocol.
+When HTTP/2 is enabled, Gatling will try to connect to your remotes using HTTP/2 through the ALPN protocol.
 If your remote supports HTTP/2, Gatling will use the protocol, and fall back to HTTP/1 otherwise. There is no specific code to add in the middle of your requests.
 
 Next time you use that remote with the same user, if Gatling knows that your remote doesn't support HTTP/2, it won't try again and therefore won't use ALPN.

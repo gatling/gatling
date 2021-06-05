@@ -319,4 +319,4 @@ These options ensure that `4.0.51.Final` will be used only for `gatling` configu
 
 ## Sources
 
-If you're interested in contributing, you can find the [io.gatling.gradle plugin sources](https://github.com/gatling/gatling-gradle-plugin) on Github.
+If you're interested in contributing, you can find the [io.gatling.gradle plugin sources](https://github.com/gatling/gatling-gradle-plugin) on GitHub.

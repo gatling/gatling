@@ -109,7 +109,7 @@ Beware that, as an optimization, Gatling doesn't pile up response chunks unless 
 
 * `responseTimeInMillis`
 
-Returns the response time of this request in milliseconds = the time between starting to send the request and finishing to receive the response.
+Returns the response time of this request in milliseconds = the time between starting to send the request and to finish receiving the response.
 
 * `bodyString`
 

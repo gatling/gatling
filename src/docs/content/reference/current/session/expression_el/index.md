@@ -17,7 +17,7 @@ Gatling parses Strings parameter values and turn them into functions that will c
 
 The Gatling EL is not a dynamic language, but just placeholders with a few additional helpers.
 
-If you need a full blown templating engine, you can use our Pebble support.
+If you need a full-blown templating engine, you can use our Pebble support.
 
 Gatling EL uses a `${attributeName}` syntax, where *attributeName* is the name of an attribute in the Session.
 

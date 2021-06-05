@@ -122,7 +122,7 @@ By default, Gatling Enterprise will distribute your injection profile amongst al
 This might not be the desirable behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
 Indeed, only one node would run this user, leaving the other nodes without an initialized token.
 
-You can user `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
+You can use `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
 
 {{< include-code "SimulationSetupSample.scala#noShard" scala >}}
 
@@ -156,7 +156,7 @@ Throttling is implemented per protocol with support for regular HTTP and JMS.
 
 {{< alert tip >}}
 You still have to inject users at the scenario level.
-Throttling tries to ensure a targeted throughput with the given scenarios and their injection profiles (number of users and duration).
+Throttling tries to ensure a targeted throughput with the given scenario and its injection profile (number of users and duration).
 It's a bottleneck, ie an upper limit.
 If you don't provide enough users, you won't reach the throttle.
 If your injection lasts less than the throttle, your simulation will simply stop when all the users are done.

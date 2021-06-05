@@ -85,7 +85,7 @@ The order of evaluation between the whitelist and the blacklist entries can be d
 
 ### Embedded resources fetching
 
-If you check the 'Infer html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
+If you check the 'Infer html resources?' option, the Recorder will fetch the embedded HTML resources as follows:
 
 * Add `inferHtmlResources` with the proper white/black lists on the HTTP protocol definition.
 * Parse HTML response body to retrieve embedded HTML resources.
@@ -98,7 +98,7 @@ This remaining resources are currently loaded sequentially as regular requests.
 {{< /alert >}}
 
 ### HTTP request naming
-By default gatling will use the prefix `request_` for recorded and converted http requests.
+By default, Gatling will use the prefix `request_` for recorded and converted http requests.
 When the 'Use class name as request prefix?' option is enabled, http requests will use the
 simulation class as prefix for the request name instead.
 
@@ -140,7 +140,7 @@ With Chrome Developer Tools, go to *Network* tab, and make sure you've selected 
 Select the requests you want to export, then right click and select *Copy All as HAR* and save what's in your clipboard into a file.
 
 Please don't use [Charles Proxy](http://www.charlesproxy.com) for this.
-Charles is an amazing tool and has an HAR export feature, but it's a proxy, so when you use it, you change the HTTP behavior, and the HAR would contain requests that should be here, such as CONNECTs.
+Charles is an amazing tool and has an HAR export feature, but it's a proxy, so when you use it, you change the HTTP behavior, and the HAR would contain requests that should be here, such as CONNECT requests.
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
 

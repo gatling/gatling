@@ -144,4 +144,4 @@ You can either have a `logback-test.xml` that has precedence over the embedded `
 
 ## Sources
 
-If you're interested in contributing, you can find the [gatling-maven-plugin sources](https://github.com/gatling/gatling-maven-plugin) on Github.
+If you're interested in contributing, you can find the [gatling-maven-plugin sources](https://github.com/gatling/gatling-maven-plugin) on GitHub.

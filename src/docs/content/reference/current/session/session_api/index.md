@@ -14,7 +14,7 @@ weight: 4010
 In most load testing use cases, it's important that the virtual users don't play the same data.
 Otherwise, you might end up not testing your application but your caches.
 
-Moreover, if you're running an application on a Java Virtual Machine, the Just In Time compiler (JIT) will make dramatic optimizations and your system will behave very differently from your actual one.
+Moreover, if you're running an application on a Java Virtual Machine, the Just In Time compiler (JIT) will make dramatic optimizations, and your system will behave very differently from your actual one.
 
 Though, **you have to make your scenario steps dynamic, based on virtual user specific data**.
 
@@ -44,7 +44,7 @@ There's 3 ways of doing that:
 
 Once you have injected data into your virtual users, you'll naturally want to retrieve and use it.
 
-There's 2 ways of doing that:
+There are 2 ways of implementing this:
 
 * using Gatling's [Expression Language]({{< ref "../expression_el" >}})
 * manually with the Session API
