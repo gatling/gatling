@@ -42,7 +42,7 @@ that's thanks to an implicit conversion.
 
 {{< alert warning >}}
 Gatling DSL components are immutable `ActionBuilder`\(s) that have to be chained altogether and are only built once on startup.
-The results is a workflow chain of `Action`\(s).
+The result is a workflow chain of `Action`\(s).
 These builders don't do anything by themselves, they don't trigger any side effect, they are just definitions.
 As a result, creating such DSL components at runtime in functions is completely meaningless.
 If you want conditional paths in your execution flow, use the proper DSL components (`doIf`, `randomSwitch`, etc)
@@ -270,7 +270,7 @@ If sum is less than 100%, users that won't fall into one of the chains will simp
 Once users are done with the switch, they simply continue with the rest of the scenario.
 
 {{< alert tip >}}
-Percentages should be format as following: 50% -> 50, 33.3% -> 33.3 and so on.
+Percentages should be formatted as following: 50% -> 50, 33.3% -> 33.3 and so on.
 {{< /alert >}}
 
 #### `randomSwitchOrElse`

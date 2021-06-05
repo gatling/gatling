@@ -19,7 +19,7 @@ Some other tools implement those *virtual users* as threads. Gatling implements 
 
 To represent users' behaviors, testers will have to define scenarios which will be written as scripts given to Gatling.
 
-These scenarios can be the result of measurements on the running application with analytic tools, or expected users behavior of a new application.
+These scenarios can be the result of measurements on the running application with analytic tools, or expected users' behavior of a new application.
 In any case, the creation of these scenarios is the key to meaningful results of the load test.
 
 A scenario represents a typical user behavior. It's a workflow that virtual users will follow.
@@ -57,8 +57,8 @@ When a real user clicks on a link, the page has to be loaded in their browser an
 HTTP requests are actually sent to the application under test when a user clicks on a button or a link.
 Each HTTP Request is easy to grasp (excluding page resources):
 
-1. *Access Github* is a *GET* request pointing at *http://github.com*
-2. *Search for 'gatling'* is a *GET* request pointing at *http://github.com/search?q=gatling*
+1. *Access GitHub* is a *GET* request pointing at *https://github.com*
+2. *Search for 'gatling'* is a *GET* request pointing at *https://github.com/search?q=gatling*
 
 For more information, check the [Scenario reference section]({{< ref "../scenario" >}}).
 

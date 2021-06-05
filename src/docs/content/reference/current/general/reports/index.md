@@ -76,8 +76,8 @@ This chart displays the distribution of the response times.
 
 {{< img src="charts-response-percentiles-per-sec.png" alt="ResponseTimePercentilesPerSecond" >}}
 
-This charts displays a variety of response time percentiles over time, but only for successful requests.
-As failed requests can end prematurely or be caused by timeouts, they would have a drastic effect on the percentiles computation.
+This chart displays a variety of response time percentiles over time, but only for successful requests.
+As failed requests can end prematurely or be caused by timeouts, they would have a drastic effect on the percentiles' computation.
 
 ### Requests per second over time
 

@@ -92,6 +92,6 @@ Additionally you can define your custom check that implements `Check[javax.jms.M
 
 ## Example
 
-Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named "jmstestq":
+Short example, assuming FFMQ on localhost, using a `reqreply` query, to the queue named "jmstestq":
 
 {{< include-code "JmsSample.scala#example-simulation" scala >}}

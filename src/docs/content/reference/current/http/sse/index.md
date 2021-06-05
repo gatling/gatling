@@ -49,9 +49,9 @@ For example:
 
 You deal with incoming messages with checks.
 
-Beware to not miss messages that would be received prior to setting the check.
+Beware of not missing messages that would be received prior to setting the check.
 
-Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
+Gatling currently only supports blocking checks that will wait until receiving expected message or timing out.
 
 ### Set a Check
 

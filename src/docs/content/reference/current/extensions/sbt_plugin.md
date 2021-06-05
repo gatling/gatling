@@ -55,7 +55,7 @@ You can also use the [Giter8 template]({{< ref "giter8_template" >}}) to bootstr
 ## Usage
 
 As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks.
-However, since the SBT Plugin introduces many customizations that we don't want interfering with unit tests, those commands are integrated into custom configurations,
+However, since the SBT Plugin introduces many customizations that we don't want to interfere with unit tests, those commands are integrated into custom configurations,
 meaning you'll need to prefix them with `gatling` or `gatling-it`, eg. `gatling:test` or `gatling-it:test`.
 
 {{< alert tip >}}
@@ -122,4 +122,4 @@ javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
 
 ## Sources
 
-If you're interested in contributing, you can find the [gatling-sbt plugin sources](https://github.com/gatling/gatling-sbt) on Github.
+If you're interested in contributing, you can find the [gatling-sbt plugin sources](https://github.com/gatling/gatling-sbt) on GitHub.
