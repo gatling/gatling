@@ -136,6 +136,10 @@ Websocket support introduces new HttpProtocol parameters:
 
 `wsMaxReconnects(max: Int)`: set a limit on the number of times a WebSocket will be automatically reconnected
 
+`wsAutoReplyTextFrame(f: PartialFunction[String, String])`: configure auto reply for specific WebSocket text messages. Example: `wsAutoReplyTextFrame({ case "ping" => "pong" })` will automatically reply with message `"pong"` when message `"ping"` is received. Those messages won't be visible in any reports or statistics.
+
+`wsAutoReplySocketIo4`: enable partial support for Engine.IO v4 - Gatling will automatically respond to server ping messages (`2`) with pong (`3`). Cannot be used together with `wsAutoReplyTextFrame`.
+
 ## Debugging
 
 In your logback configuration, lower logging level to `DEBUG` on logger `io.gatling.http.action.ws.fsm`:

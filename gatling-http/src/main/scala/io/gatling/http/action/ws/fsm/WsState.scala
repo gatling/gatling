@@ -25,6 +25,7 @@ import io.gatling.http.client.WebSocket
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.Cookie
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 
 object NextWsState {
   val DoNothing: () => Unit = () => {}
@@ -119,4 +120,15 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
       case SendBinaryFrame(actionName, message, checkSequences, next) =>
         () => fsm.onSendBinaryFrame(actionName, message, checkSequences, session, next)
     }
+
+  protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean = {
+    val autoReply = fsm.httpProtocol.wsPart.autoReplyTextFrames
+    if (autoReply.isDefinedAt(message)) {
+      logger.debug(s"Auto Reply to message '${message}' with '${autoReply(message)}'")
+      webSocket.sendFrame(new TextWebSocketFrame(autoReply(message)))
+      true
+    } else {
+      false
+    }
+  }
 }

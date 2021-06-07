@@ -187,6 +187,9 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsBaseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseUrls).setTo(urls)
   def wsReconnect: HttpProtocolBuilder = wsMaxReconnects(Int.MaxValue)
   def wsMaxReconnects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.wsPart.maxReconnects).setTo(max)
+  def wsAutoReplyTextFrame(f: PartialFunction[String, String]): HttpProtocolBuilder =
+    this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f)
+  def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame({ case "2" => "3" })
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

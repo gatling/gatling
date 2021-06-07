@@ -1483,6 +1483,15 @@ content:
               - signature: (count)
                 description: Where <i>count</i> is the number of maximum reconnections url
 
+          - keyword: wsAutoReplyTextFrame
+            description: Configure auto reply for specific WebSocket text messages
+            syntax:
+              - signature: (PartialFunction[message, response])
+                description: Where <i>PartialFunction</i> can be a case statement like <i>{ case "ping" => "pong" }</i>
+
+          - keyword: wsAutoReplySocketIo4
+            description: Enable partial support for Engine.IO v4 - Gatling will automatically respond to server ping messages (<i>2</i>) with pong (<i>3</i>).
+
   - title: SSE (Server Sent Events)
     description: Define the SSE requests sent in your scenario
     sections:

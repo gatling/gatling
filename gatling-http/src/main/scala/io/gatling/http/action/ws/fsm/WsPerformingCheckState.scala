@@ -74,9 +74,11 @@ final case class WsPerformingCheckState(
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
-        logger.debug(s"Received unmatched text frame $message")
-        // server unmatched message, just log
-        logUnmatchedServerMessage(session)
+        // server unmatched message, try to auto reply or log the message
+        if (!autoReplyTextFrames(message, webSocket)) {
+          logger.debug(s"Received unmatched text frame $message")
+          logUnmatchedServerMessage(session)
+        }
         NextWsState(this)
     }
 

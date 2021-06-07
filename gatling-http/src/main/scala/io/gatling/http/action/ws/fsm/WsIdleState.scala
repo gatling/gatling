@@ -109,8 +109,10 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
-    // server push message, just log
-    logUnmatchedServerMessage(session)
+    // try to auto reply or log the message
+    if (!autoReplyTextFrames(message, webSocket)) {
+      logUnmatchedServerMessage(session)
+    }
     NextWsState(this)
   }
 
