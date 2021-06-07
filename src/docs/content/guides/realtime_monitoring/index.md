@@ -4,7 +4,7 @@ description: "Analyze reports metrics as it is happening"
 lead: "Analyze reports metrics as it is happening"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 040
+weight: 020
 ---
 
 ## Introduction
@@ -24,12 +24,17 @@ For more information, please get in touch at **contact@gatling.io**.
 
 ## Graphite-InfluxDB-Grafana
 
-Gatling can provide live metrics via the Graphite protocol which can be
-persisted and visualised.
+Gatling can provide live metrics via the Graphite protocol which can be persisted and visualised.
 
-The sections below describe how to configure Gatling with InfluxDB and
-Graphite, and use Grafana as a graphing library. We also present a lo-fi solution
-which prints parsed Graphite data to standard out.
+The sections below describe how to configure Gatling with InfluxDB and Graphite, and use Grafana as a graphing library. We also present a lo-fi solution which prints parsed Graphite data to standard out.
+
+{{< alert warning >}}
+As explained in [one of our blog posts](/2018/11/metrics-analysis-part-1-mean-standard-deviation/), Graphite and InfluxDB can't store distributions but only numbers. As a result, only one-second-resolution non-aggregated response time stats are correct.
+
+**All aggregations will result in computing averages on percentiles and will inherently be broken.**
+
+This is not a limitation of Gatling, but a limitation of those time series databases.
+{{< /alert >}}
 
 ### Gatling
 
@@ -52,9 +57,9 @@ gatling {
 
 ### InfluxDB
 
-InfluxDB is one of the new crop of time-series databases[^1]. It is self-contained, easy-to-install and resource efficient.
+InfluxDB is a popular time-series database[^1].
 
-[^1]: A time series is a sequence of data points that are measured over time and a time-series database optimises that data.
+[^1]: A time series is a sequence of data points that are measured over time, and a time-series database optimises that data.
 
 #### Install
 
