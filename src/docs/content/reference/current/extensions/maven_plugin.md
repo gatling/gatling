@@ -40,7 +40,7 @@ In your `pom.xml`, add:
 
 You can find a [sample project demoing the gatling-maven-plugin](https://github.com/gatling/gatling-maven-plugin-demo) in Gatling's Github organization.
 
-You can also use the [gatling-highcharts-maven-archetype](`docs/maven-archetype`) to bootstrap your project.
+You can also use the [gatling-highcharts-maven-archetype]({{< ref "maven_archetype" >}}) to bootstrap your project.
 
 ## Usage
 
