@@ -69,17 +69,19 @@ final case class WsPerformingCheckState(
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState =
-    currentCheck match {
-      case WsTextFrameCheck(_, matchConditions, checks, _) =>
-        tryApplyingChecks(message, timestamp, matchConditions, checks)
+    if (autoReplyTextFrames(message, webSocket)) {
+      NextWsState(this)
+    } else {
+      currentCheck match {
+        case WsTextFrameCheck(_, matchConditions, checks, _) =>
+          tryApplyingChecks(message, timestamp, matchConditions, checks)
 
-      case _ =>
-        // server unmatched message, try to auto reply or log the message
-        if (!autoReplyTextFrames(message, webSocket)) {
+        case _ =>
           logger.debug(s"Received unmatched text frame $message")
+          // server unmatched message, just log
           logUnmatchedServerMessage(session)
-        }
-        NextWsState(this)
+          NextWsState(this)
+      }
     }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
