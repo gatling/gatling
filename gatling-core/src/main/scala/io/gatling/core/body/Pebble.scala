@@ -77,6 +77,7 @@ private[gatling] object Pebble extends StrictLogging {
     case m: mutable.Map[_, _]   => mutableMapToJava(m)
     case m: immutable.Map[_, _] => immutableMapToJava(m)
     case anyRef: AnyRef         => anyRef // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
+    case null                   => null
   }
 
   private[body] def sessionAttributesToJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
