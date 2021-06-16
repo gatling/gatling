@@ -165,6 +165,10 @@ If your injection lasts longer than the throttle, the simulation will stop at th
 Throttling can also be configured [per scenario]({{< ref "../scenario#throttling" >}}).
 {{< /alert >}}
 
+{{< alert tip >}}
+Enabling `throttle` disables `pause`s so that it can take over throughput definition.
+{{< /alert >}}
+
 {{< include-code "SimulationSetupSample.scala#throttling" scala >}}
 
 This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
