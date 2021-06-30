@@ -45,6 +45,12 @@ object RequestExpressionBuilder {
 
   val ConfigureIdentityRaw: RequestBuilderConfigureRaw = _ => identity
   val ConfigureIdentity: RequestBuilderConfigure = _ => _.success
+
+  private def mergeCaseInsensitive[T](left: Map[CharSequence, T], right: Map[CharSequence, T]): Map[CharSequence, T] =
+    right.foldLeft(left) { case (acc, (key, value)) =>
+      val targetKey = acc.keySet.find(_.toString.equalsIgnoreCase(key.toString)).getOrElse(key)
+      acc.updated(targetKey, value)
+    }
 }
 
 abstract class RequestExpressionBuilder(
@@ -57,12 +63,14 @@ abstract class RequestExpressionBuilder(
   import RequestExpressionBuilder._
 
   protected val charset: Charset = configuration.core.charset
-  protected val headers: Map[CharSequence, Expression[String]] =
+  protected val headers: Map[CharSequence, Expression[String]] = {
     if (commonAttributes.ignoreProtocolHeaders) {
-      commonAttributes.headers
+      mergeCaseInsensitive(Map.empty, commonAttributes.headers)
     } else {
-      httpProtocol.requestPart.headers ++ commonAttributes.headers
+      val deduplicatedProtocolHeaders = mergeCaseInsensitive(Map.empty, httpProtocol.requestPart.headers)
+      mergeCaseInsensitive(deduplicatedProtocolHeaders, commonAttributes.headers)
     }
+  }
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
