@@ -16,8 +16,6 @@
 
 package io.gatling.recorder.scenario
 
-import io.gatling.http.MissingNettyHttpHeaderNames
-
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaders }
 
 private[scenario] object ProtocolDefinition {
@@ -31,10 +29,10 @@ private[scenario] object ProtocolDefinition {
     .add(HttpHeaderNames.AUTHORIZATION, "authorizationHeader")
     .add(HttpHeaderNames.CONNECTION, "connectionHeader")
     .add(HttpHeaderNames.CONTENT_TYPE, "contentTypeHeader")
-    .add(MissingNettyHttpHeaderNames.DNT, "doNotTrackHeader")
+    .add(HttpHeaderNames.DNT, "doNotTrackHeader")
     .add(HttpHeaderNames.ORIGIN, "originHeader")
     .add(HttpHeaderNames.USER_AGENT, "userAgentHeader")
-    .add(MissingNettyHttpHeaderNames.UpgradeInsecureRequests, "upgradeInsecureRequestsHeader")
+    .add(HttpHeaderNames.UPGRADE_INSECURE_REQUESTS, "upgradeInsecureRequestsHeader")
 }
 
 private[scenario] final case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)

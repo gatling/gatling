@@ -18,7 +18,6 @@ package io.gatling.http.request.builder.sse
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.action.sse.SseConnectBuilder
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
@@ -28,7 +27,7 @@ import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMeth
 
 object SseConnectRequestBuilder {
 
-  private val SseHeaderValueExpression = MissingNettyHttpHeaderValues.TextEventStream.toString.expressionSuccess
+  private val SseHeaderValueExpression = HttpHeaderValues.TEXT_EVENT_STREAM.toString.expressionSuccess
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =

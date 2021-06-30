@@ -18,14 +18,13 @@ package io.gatling.http.action.sse
 
 import java.io.IOException
 
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.action.sse.fsm._
 import io.gatling.http.client.HttpListener
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
 
 class SseInvalidStatusException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
   override def fillInStackTrace(): Throwable = this
@@ -58,7 +57,7 @@ class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
 
       status match {
         case HttpResponseStatus.OK =>
-          if (contentType != null && contentType.startsWith(MissingNettyHttpHeaderValues.TextEventStream.toString)) {
+          if (contentType != null && contentType.startsWith(HttpHeaderValues.TEXT_EVENT_STREAM.toString)) {
             stream.connected()
 
           } else {

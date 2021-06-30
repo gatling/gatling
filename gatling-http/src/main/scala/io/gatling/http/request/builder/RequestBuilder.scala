@@ -20,7 +20,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.Validator
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
@@ -90,7 +89,7 @@ object RequestBuilder {
   }
 
   private val JsonHeaderValueExpression = HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess
-  private val XmlHeaderValueExpression = MissingNettyHttpHeaderValues.ApplicationXml.toString.expressionSuccess
+  private val XmlHeaderValueExpression = HttpHeaderValues.APPLICATION_XML.toString.expressionSuccess
   val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 

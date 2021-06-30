@@ -25,12 +25,12 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
-import io.gatling.http.{ MissingNettyHttpHeaderNames, MissingNettyHttpHeaderValues }
+import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.client.uri.Uri
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpResponseStatus._
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
@@ -106,10 +106,10 @@ private[gatling] object HttpHelper extends StrictLogging {
       case mt                      => mt.startsWith("text/")
     }
 
-  def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(MissingNettyHttpHeaderValues.TextCss.toString)
+  def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(HttpHeaderValues.TEXT_CSS.toString)
   def isHtml(headers: HttpHeaders): Boolean =
-    mimeType(headers).exists(mt => mt == MissingNettyHttpHeaderValues.TextHtml.toString || mt == MissingNettyHttpHeaderValues.ApplicationXhtml.toString)
-  def isAjax(headers: HttpHeaders): Boolean = headers.contains(MissingNettyHttpHeaderNames.XRequestedWith, MissingNettyHttpHeaderValues.XmlHttpRequest, false)
+    mimeType(headers).exists(mt => mt == HttpHeaderValues.TEXT_HTML.toString || mt == HttpHeaderValues.APPLICATION_XHTML.toString)
+  def isAjax(headers: HttpHeaders): Boolean = headers.contains(HttpHeaderNames.X_REQUESTED_WITH, MissingNettyHttpHeaderValues.XmlHttpRequest, false)
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
