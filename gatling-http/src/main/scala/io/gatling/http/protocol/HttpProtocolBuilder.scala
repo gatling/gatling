@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.{ MissingNettyHttpHeaderNames, ResponseTransformer }
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.realm.Realm
@@ -113,10 +113,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def authorizationHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.AUTHORIZATION, value)
   def connectionHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONNECTION, value)
   def contentTypeHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONTENT_TYPE, value)
-  def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.DNT, value)
+  def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.DNT, value)
   def originHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ORIGIN, value)
   def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.USER_AGENT, value)
-  def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.UpgradeInsecureRequests, value)
+  def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.UPGRADE_INSECURE_REQUESTS, value)
   def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder =
     authRealm(HttpHelper.buildDigestAuthRealm(username, password))

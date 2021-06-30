@@ -19,13 +19,6 @@ package io.gatling.http
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 import io.netty.util.AsciiString
 
-// FIXME contribute upstream
-private[gatling] object MissingNettyHttpHeaderNames {
-  val DNT: AsciiString = AsciiString.cached("dnt")
-  val UpgradeInsecureRequests: AsciiString = AsciiString.cached("upgrade-insecure-requests")
-  val XRequestedWith: AsciiString = AsciiString.cached("x-requested-with")
-}
-
 object HeaderNames {
   val Accept: CharSequence = HttpHeaderNames.ACCEPT
   val AcceptCharset: CharSequence = HttpHeaderNames.ACCEPT_CHARSET
@@ -49,7 +42,7 @@ object HeaderNames {
   val ContentType: CharSequence = HttpHeaderNames.CONTENT_TYPE
   val Cookie: CharSequence = HttpHeaderNames.COOKIE
   val Date: CharSequence = HttpHeaderNames.DATE
-  val DNT: CharSequence = MissingNettyHttpHeaderNames.DNT
+  val DNT: CharSequence = HttpHeaderNames.DNT
   val ETag: CharSequence = HttpHeaderNames.ETAG
   val Expect: CharSequence = HttpHeaderNames.EXPECT
   val Expires: CharSequence = HttpHeaderNames.EXPIRES
@@ -87,7 +80,7 @@ object HeaderNames {
   val TransferEncoding: CharSequence = HttpHeaderNames.TRANSFER_ENCODING
   val Upgrade: CharSequence = HttpHeaderNames.UPGRADE
   val UserAgent: CharSequence = HttpHeaderNames.USER_AGENT
-  val UpgradeInsecureRequests: CharSequence = MissingNettyHttpHeaderNames.UpgradeInsecureRequests
+  val UpgradeInsecureRequests: CharSequence = HttpHeaderNames.UPGRADE_INSECURE_REQUESTS
   val Vary: CharSequence = HttpHeaderNames.VARY
   val Via: CharSequence = HttpHeaderNames.VIA
   val Warning: CharSequence = HttpHeaderNames.WARNING
@@ -95,16 +88,11 @@ object HeaderNames {
   val WebSocketOrigin: CharSequence = HttpHeaderNames.WEBSOCKET_ORIGIN
   val WebSocketProtocol: CharSequence = HttpHeaderNames.WEBSOCKET_PROTOCOL
   val WWWAuthenticate: CharSequence = HttpHeaderNames.WWW_AUTHENTICATE
-  val XRequestedWith: CharSequence = MissingNettyHttpHeaderNames.XRequestedWith
+  val XRequestedWith: CharSequence = HttpHeaderNames.X_REQUESTED_WITH
 }
 
 // FIXME contribute upstream
 private[gatling] object MissingNettyHttpHeaderValues {
-  val ApplicationXml: AsciiString = AsciiString.cached("application/xml")
-  val ApplicationXhtml: AsciiString = AsciiString.cached("application/xhtml+xml")
-  val TextCss: AsciiString = AsciiString.cached("text/css")
-  val TextHtml: AsciiString = AsciiString.cached("text/html")
-  val TextEventStream: AsciiString = AsciiString.cached("text/event-stream")
   val XmlHttpRequest: AsciiString = AsciiString.cached("XMLHttpRequest")
 }
 
@@ -112,15 +100,15 @@ object HeaderValues {
   val ApplicationJson: String = HttpHeaderValues.APPLICATION_JSON.toString
   val ApplicationOctetStream: String = HttpHeaderValues.APPLICATION_OCTET_STREAM.toString
   val ApplicationFormUrlEncoded: String = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString
-  val ApplicationXml: String = MissingNettyHttpHeaderValues.ApplicationXml.toString
-  val ApplicationXhtml: String = MissingNettyHttpHeaderValues.ApplicationXhtml.toString
+  val ApplicationXml: String = HttpHeaderValues.APPLICATION_XML.toString
+  val ApplicationXhtml: String = HttpHeaderValues.APPLICATION_XHTML.toString
   val Close: String = HttpHeaderValues.CLOSE.toString
   val MultipartFormData: String = HttpHeaderValues.MULTIPART_FORM_DATA.toString
   val NoCache: String = HttpHeaderValues.NO_CACHE.toString
   val NoStore: String = HttpHeaderValues.NO_STORE.toString
-  val TextCss: String = MissingNettyHttpHeaderValues.TextCss.toString
-  val TextHtml: String = MissingNettyHttpHeaderValues.TextHtml.toString
+  val TextCss: String = HttpHeaderValues.TEXT_CSS.toString
+  val TextHtml: String = HttpHeaderValues.TEXT_HTML.toString
   val TextPlain: String = HttpHeaderValues.TEXT_PLAIN.toString
-  val TextEventStream: String = MissingNettyHttpHeaderValues.TextEventStream.toString
+  val TextEventStream: String = HttpHeaderValues.TEXT_EVENT_STREAM.toString
   val XmlHttpRequest: String = MissingNettyHttpHeaderValues.XmlHttpRequest.toString
 }

@@ -20,10 +20,9 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.xml.Elem
 
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.response.{ ByteArrayResponseBody, Response, ResponseBody, StringResponseBody }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpResponseStatus }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpResponseStatus }
 
 package object body {
 
@@ -36,7 +35,7 @@ package object body {
   def mockResponse(xml: Elem): Response =
     mockResponse(xml.toString).copy(
       headers = new DefaultHttpHeaders()
-        .add(HttpHeaderNames.CONTENT_TYPE, s"${MissingNettyHttpHeaderValues.ApplicationXml}; charset=$UTF_8")
+        .add(HttpHeaderNames.CONTENT_TYPE, s"${HttpHeaderValues.APPLICATION_XML}; charset=$UTF_8")
     )
 
   def mockResponse(body: ResponseBody): Response =
