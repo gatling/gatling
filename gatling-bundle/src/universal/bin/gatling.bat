@@ -66,7 +66,10 @@ rem Run the compiler
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
 rem Run Gatling
 %JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
-if %errorlevel% neq 0 exit /b %errorlevel%
+if %errorlevel% neq 0 (
+ if not defined NO_PAUSE pause
+ exit /b %errorlevel%
+)
 rem The above line will forward any potential exit codes from Java if Gatling failed
 
 goto exit
