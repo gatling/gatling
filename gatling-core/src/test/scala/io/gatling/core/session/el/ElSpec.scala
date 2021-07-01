@@ -616,7 +616,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "currentDate" should "generate a String" in {
     val currentDateExpression = """${currentDate(yyyy-MM-dd HH:mm:ss)}""".el[String]
-    currentDateExpression(emptySession) shouldBe a[Success[_]]
+    currentDateExpression(emptySession).succeeded.length shouldBe 19
   }
 
   it should "support patterns with a dot" in {
