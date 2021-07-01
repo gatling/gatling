@@ -79,7 +79,10 @@ rem Run the compiler
 rem Create the artifact
 %JAR% cfm "%GATLING_HOME%"\target\artifact.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes . -C "%GATLING_HOME%"\user-files\resources .
 
-if %errorlevel% neq 0 exit /b %errorlevel%
+if %errorlevel% neq 0 (
+ if not defined NO_PAUSE pause
+ exit /b %errorlevel%
+)
 rem The above line will forward any potential exit codes from Java if jar failed
 
 del /f %MANIFEST_FILE%
