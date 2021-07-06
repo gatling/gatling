@@ -20,22 +20,22 @@ import java.{ util => ju }
 
 trait LowPriorityEqualityImplicits {
 
-  implicit def default[T]: Equality[T] = (left: T, right: T) => left == right
+  implicit def default[T]: Equality[T] = _ == _
 }
 
 object Equality extends LowPriorityEqualityImplicits {
 
-  implicit val IntEquality: Equality[Int] = (left: Int, right: Int) => left == right
-  implicit val StringEquality: Equality[String] = (left: String, right: String) => left == right
-  implicit val LongArrayEquality: Equality[Array[Long]] = (left: Array[Long], right: Array[Long]) => ju.Arrays.equals(left, right)
-  implicit val IntArrayEquality: Equality[Array[Int]] = (left: Array[Int], right: Array[Int]) => ju.Arrays.equals(left, right)
-  implicit val ShortArrayEquality: Equality[Array[Short]] = (left: Array[Short], right: Array[Short]) => ju.Arrays.equals(left, right)
-  implicit val CharArrayEquality: Equality[Array[Char]] = (left: Array[Char], right: Array[Char]) => ju.Arrays.equals(left, right)
-  implicit val ByteArrayEquality: Equality[Array[Byte]] = (left: Array[Byte], right: Array[Byte]) => ju.Arrays.equals(left, right)
-  implicit val BooleanArrayEquality: Equality[Array[Boolean]] = (left: Array[Boolean], right: Array[Boolean]) => ju.Arrays.equals(left, right)
-  implicit val DoubleArrayEquality: Equality[Array[Double]] = (left: Array[Double], right: Array[Double]) => ju.Arrays.equals(left, right)
-  implicit val FloatArrayEquality: Equality[Array[Float]] = (left: Array[Float], right: Array[Float]) => ju.Arrays.equals(left, right)
-  implicit val ObjectArrayEquality: Equality[Array[Object]] = (left: Array[Object], right: Array[Object]) => ju.Arrays.equals(left, right)
+  implicit val IntEquality: Equality[Int] = _ == _
+  implicit val StringEquality: Equality[String] = _ == _
+  implicit val LongArrayEquality: Equality[Array[Long]] = ju.Arrays.equals(_, _)
+  implicit val IntArrayEquality: Equality[Array[Int]] = ju.Arrays.equals(_, _)
+  implicit val ShortArrayEquality: Equality[Array[Short]] = ju.Arrays.equals(_, _)
+  implicit val CharArrayEquality: Equality[Array[Char]] = ju.Arrays.equals(_, _)
+  implicit val ByteArrayEquality: Equality[Array[Byte]] = ju.Arrays.equals(_, _)
+  implicit val BooleanArrayEquality: Equality[Array[Boolean]] = ju.Arrays.equals(_, _)
+  implicit val DoubleArrayEquality: Equality[Array[Double]] = ju.Arrays.equals(_, _)
+  implicit val FloatArrayEquality: Equality[Array[Float]] = ju.Arrays.equals(_, _)
+  implicit val ObjectArrayEquality: Equality[Array[Object]] = ju.Arrays.equals(_, _)
 }
 
 trait Equality[T] {
