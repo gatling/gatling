@@ -51,8 +51,8 @@ import net.sf.saxon.s9api.XdmNode
 trait HttpCheckSupport {
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def checkBuilder2HttpCheck[T, P, X](
-      checkBuilder: CheckBuilder[T, P, X]
+  implicit def checkBuilder2HttpCheck[T, P](
+      checkBuilder: CheckBuilder[T, P]
   )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
     checkBuilder.build(materializer)
 

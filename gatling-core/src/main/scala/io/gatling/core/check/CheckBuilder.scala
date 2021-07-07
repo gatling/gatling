@@ -114,21 +114,21 @@ trait ValidatorCheckBuilder[T, P, X] {
   def transformWithSession[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[T, P, X2]
   def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
   def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
-  def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X]
-  def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X]
-  def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X]
-  def isNull: CheckBuilder[T, P, X]
-  def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X]
-  def notNull: CheckBuilder[T, P, X]
-  def in(expected: X*): CheckBuilder[T, P, X]
-  def in(expected: Expression[Seq[X]]): CheckBuilder[T, P, X]
-  def exists: CheckBuilder[T, P, X]
-  def notExists: CheckBuilder[T, P, X]
-  def optional: CheckBuilder[T, P, X]
-  def lt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X]
-  def lte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X]
-  def gt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X]
-  def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X]
+  def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P]
+  def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P]
+  def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P]
+  def isNull: CheckBuilder[T, P]
+  def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P]
+  def notNull: CheckBuilder[T, P]
+  def in(expected: X*): CheckBuilder[T, P]
+  def in(expected: Expression[Seq[X]]): CheckBuilder[T, P]
+  def exists: CheckBuilder[T, P]
+  def notExists: CheckBuilder[T, P]
+  def optional: CheckBuilder[T, P]
+  def lt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P]
+  def lte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P]
+  def gt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P]
+  def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P]
 }
 
 private object DefaultValidatorCheckBuilder {
@@ -175,10 +175,10 @@ private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expres
   override def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
-  override def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X] =
+  override def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P] =
     new DefaultCheckBuilder[T, P, X](this.extractor, validator, displayActualValue, None, None)
 
-  override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] =
+  override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P] =
     validate((session: Session) =>
       new Validator[X] {
         override val name: String = opName
@@ -186,30 +186,30 @@ private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expres
       }.success
     )
 
-  override def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] =
+  override def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P] =
     validate(expected.map(new IsMatcher(_, equality)))
-  override def isNull: CheckBuilder[T, P, X] = validate(new IsNullMatcher[X].expressionSuccess)
-  override def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] =
+  override def isNull: CheckBuilder[T, P] = validate(new IsNullMatcher[X].expressionSuccess)
+  override def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P] =
     validate(expected.map(new NotMatcher(_, equality)))
-  override def notNull: CheckBuilder[T, P, X] = validate(new NotNullMatcher[X].expressionSuccess)
-  override def in(expected: X*): CheckBuilder[T, P, X] = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
-  override def in(expected: Expression[Seq[X]]): CheckBuilder[T, P, X] = validate(expected.map(new InMatcher(_)))
-  override def exists: CheckBuilder[T, P, X] = validate(new ExistsValidator[X]().expressionSuccess)
-  override def notExists: CheckBuilder[T, P, X] = validate(new NotExistsValidator[X]().expressionSuccess)
-  override def optional: CheckBuilder[T, P, X] = validate(new NoopValidator[X]().expressionSuccess)
-  override def lt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] =
+  override def notNull: CheckBuilder[T, P] = validate(new NotNullMatcher[X].expressionSuccess)
+  override def in(expected: X*): CheckBuilder[T, P] = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
+  override def in(expected: Expression[Seq[X]]): CheckBuilder[T, P] = validate(expected.map(new InMatcher(_)))
+  override def exists: CheckBuilder[T, P] = validate(new ExistsValidator[X]().expressionSuccess)
+  override def notExists: CheckBuilder[T, P] = validate(new NotExistsValidator[X]().expressionSuccess)
+  override def optional: CheckBuilder[T, P] = validate(new NoopValidator[X]().expressionSuccess)
+  override def lt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P] =
     validate(expected.map(new CompareMatcher("lessThan", "less than", ordering.lt, _)))
-  override def lte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] =
+  override def lte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P] =
     validate(expected.map(new CompareMatcher("lessThanOrEqual", "less than or equal to", ordering.lteq, _)))
-  override def gt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] =
+  override def gt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P] =
     validate(expected.map(new CompareMatcher("greaterThan", "greater than", ordering.gt, _)))
-  override def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] =
+  override def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P] =
     validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
 }
 
-trait CheckBuilder[T, P, X] {
-  def name(n: String): CheckBuilder[T, P, X]
-  def saveAs(key: String): CheckBuilder[T, P, X]
+trait CheckBuilder[T, P] {
+  def name(n: String): CheckBuilder[T, P]
+  def saveAs(key: String): CheckBuilder[T, P]
   def build[C <: Check[R], R](materializer: CheckMaterializer[T, C, R, P]): C
 }
 
@@ -219,10 +219,10 @@ final case class DefaultCheckBuilder[T, P, X](
     displayActualValue: Boolean,
     customName: Option[String],
     saveAs: Option[String]
-) extends CheckBuilder[T, P, X] {
-  override def name(n: String): CheckBuilder[T, P, X] = copy(customName = Some(n))
+) extends CheckBuilder[T, P] {
+  override def name(n: String): CheckBuilder[T, P] = copy(customName = Some(n))
 
-  override def saveAs(key: String): CheckBuilder[T, P, X] = copy(saveAs = Some(key))
+  override def saveAs(key: String): CheckBuilder[T, P] = copy(saveAs = Some(key))
 
   override def build[C <: Check[R], R](materializer: CheckMaterializer[T, C, R, P]): C =
     materializer.materialize(this)

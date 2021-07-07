@@ -40,11 +40,11 @@ import net.sf.saxon.s9api.XdmNode
 
 trait CheckSupport {
 
-  implicit def validatorCheckBuilder2CheckBuilder[T, P, X](validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]): CheckBuilder[T, P, X] =
+  implicit def validatorCheckBuilder2CheckBuilder[T, P, X](validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]): CheckBuilder[T, P] =
     validatorCheckBuilder.exists
   implicit def findCheckBuilder2ValidatorCheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): ValidatorCheckBuilder[T, P, X] =
     findCheckBuilder.find
-  implicit def findCheckBuilder2CheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): CheckBuilder[T, P, X] =
+  implicit def findCheckBuilder2CheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): CheckBuilder[T, P] =
     findCheckBuilder.find.exists
 
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =

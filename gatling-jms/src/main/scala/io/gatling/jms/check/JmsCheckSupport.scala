@@ -50,8 +50,8 @@ trait JmsCheckSupport {
     )
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
-  implicit def checkBuilder2JmsCheck[T, P, X](
-      checkBuilder: CheckBuilder[T, P, X]
+  implicit def checkBuilder2JmsCheck[T, P](
+      checkBuilder: CheckBuilder[T, P]
   )(implicit materializer: CheckMaterializer[T, JmsCheck, Message, P]): JmsCheck =
     checkBuilder.build(materializer)
 

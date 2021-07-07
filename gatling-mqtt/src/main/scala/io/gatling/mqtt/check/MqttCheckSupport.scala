@@ -59,7 +59,7 @@ trait MqttCheckSupport {
 
   // checks
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for MQTT.")
-  implicit def checkBuilder2MqttCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X]) //
+  implicit def checkBuilder2MqttCheck[A, P](checkBuilder: CheckBuilder[A, P]) //
   (implicit materializer: CheckMaterializer[A, MqttCheck, ByteBuf, P]): MqttCheck =
     checkBuilder.build(materializer)
 

@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.JsonNode
 
 trait WsCheckSupport {
 
-  implicit def checkBuilder2WsTextCheck[T, P, X](
-      checkBuilder: CheckBuilder[T, P, X]
+  implicit def checkBuilder2WsTextCheck[T, P](
+      checkBuilder: CheckBuilder[T, P]
   )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
     checkBuilder.build(materializer)
 
@@ -44,8 +44,8 @@ trait WsCheckSupport {
   )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
     findCheckBuilder.find.exists
 
-  implicit def checkBuilder2WsBinaryCheck[T, P, X](
-      checkBuilder: CheckBuilder[T, P, X]
+  implicit def checkBuilder2WsBinaryCheck[T, P](
+      checkBuilder: CheckBuilder[T, P]
   )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
     checkBuilder.build(materializer)
 
