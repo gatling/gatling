@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Using
 
 import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.commons.util.Io._
 
 import net.sf.saxon.s9api.XdmNode
 
@@ -31,9 +30,9 @@ class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
   private val xmlParsers = new XmlParsers(Long.MaxValue)
 
-  private def dom(file: String): Option[XdmNode] =
+  private def dom(file: String): XdmNode =
     Using.resource(getClass.getResourceAsStream(file)) { is =>
-      Some(XmlParsers.parse(is, UTF_8))
+      XmlParsers.parse(is, UTF_8)
     }
 
   private def testCount(expression: String, file: String, expected: Int): Unit = {

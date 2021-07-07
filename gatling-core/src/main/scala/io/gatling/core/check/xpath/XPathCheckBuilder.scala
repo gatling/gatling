@@ -27,10 +27,10 @@ class XPathCheckBuilder(
     path: Expression[String],
     namespaces: Map[String, String],
     xmlParsers: XmlParsers
-) extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String](displayActualValue = true) {
+) extends DefaultMultipleFindCheckBuilder[XPathCheckType, XdmNode, String](displayActualValue = true) {
 
-  override protected def findExtractor(occurrence: Int): Expression[Extractor[Option[XdmNode], String]] =
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[XdmNode, String]] =
     path.map(XPathExtractors.find(_, namespaces, occurrence, xmlParsers))
-  override protected def findAllExtractor: Expression[Extractor[Option[XdmNode], Seq[String]]] = path.map(XPathExtractors.findAll(_, namespaces, xmlParsers))
-  override protected def countExtractor: Expression[Extractor[Option[XdmNode], Int]] = path.map(XPathExtractors.count(_, namespaces, xmlParsers))
+  override protected def findAllExtractor: Expression[Extractor[XdmNode, Seq[String]]] = path.map(XPathExtractors.findAll(_, namespaces, xmlParsers))
+  override protected def countExtractor: Expression[Extractor[XdmNode, Int]] = path.map(XPathExtractors.count(_, namespaces, xmlParsers))
 }

@@ -31,7 +31,7 @@ import net.sf.saxon.s9api.XdmNode
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
+  private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, XdmNode] =
     HttpBodyXPathCheckMaterializer.Instance
 
   "xpath.find.exists" should "find single result" in {

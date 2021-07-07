@@ -29,20 +29,13 @@ object HttpBodyXPathCheckMaterializer {
 
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
-  val Instance: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] = {
+  val Instance: CheckMaterializer[XPathCheckType, HttpCheck, Response, XdmNode] = {
 
-    val preparer: Preparer[Response, Option[XdmNode]] = response =>
+    val preparer: Preparer[Response, XdmNode] = response =>
       safely(ErrorMapper) {
-        val root =
-          if (response.body.length > 0) {
-            Some(XmlParsers.parse(response.body.stream, response.body.charset))
-
-          } else {
-            None
-          }
-        root.success
+        XmlParsers.parse(response.body.stream, response.body.charset).success
       }
 
-    new HttpCheckMaterializer[XPathCheckType, Option[XdmNode]](Body, preparer)
+    new HttpCheckMaterializer[XPathCheckType, XdmNode](Body, preparer)
   }
 }

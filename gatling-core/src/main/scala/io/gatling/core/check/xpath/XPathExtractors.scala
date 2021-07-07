@@ -19,6 +19,7 @@ package io.gatling.core.check.xpath
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
+import io.gatling.commons.validation.Validation.NoneSuccess
 import io.gatling.core.check._
 
 import net.sf.saxon.s9api.XdmNode
@@ -30,46 +31,44 @@ object XPathExtractors {
       namespaces: Map[String, String],
       occurrence: Int,
       xmlParsers: XmlParsers
-  ): FindCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String] =
-    new FindCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
+  ): FindCriterionExtractor[XdmNode, (String, Map[String, String]), String] =
+    new FindCriterionExtractor[XdmNode, (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
       occurrence,
-      _.flatMap { document =>
+      document => {
         val xdmValue = xmlParsers.evaluateXPath(path, namespaces, document)
         if (occurrence < xdmValue.size)
-          Some(xdmValue.itemAt(occurrence).getStringValue)
+          Some(xdmValue.itemAt(occurrence).getStringValue).success
         else
-          None
-      }.success
+          NoneSuccess
+      }
     )
 
   def findAll(
       path: String,
       namespaces: Map[String, String],
       xmlParsers: XmlParsers
-  ): FindAllCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String] =
-    new FindAllCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
+  ): FindAllCriterionExtractor[XdmNode, (String, Map[String, String]), String] =
+    new FindAllCriterionExtractor[XdmNode, (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
-      _.flatMap { document =>
+      document => {
         val xdmValue = xmlParsers.evaluateXPath(path, namespaces, document).asScala
 
         if (xdmValue.nonEmpty)
           // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
           // we don't want it to lazy load and hold a reference to the underlying DOM
-          Some(xdmValue.map(_.getStringValue).toVector)
+          Some(xdmValue.map(_.getStringValue).toVector).success
         else
-          None
-      }.success
+          NoneSuccess
+      }
     )
 
-  def count(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers): CountCriterionExtractor[Option[XdmNode], (String, Map[String, String])] =
-    new CountCriterionExtractor[Option[XdmNode], (String, Map[String, String])](
+  def count(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers): CountCriterionExtractor[XdmNode, (String, Map[String, String])] =
+    new CountCriterionExtractor[XdmNode, (String, Map[String, String])](
       "xpath",
       (path, namespaces),
-      _.map { document =>
-        xmlParsers.evaluateXPath(path, namespaces, document).size
-      }.orElse(Some(0)).success
+      document => Some(xmlParsers.evaluateXPath(path, namespaces, document).size).success
     )
 }

@@ -66,11 +66,11 @@ trait CheckSupport {
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
-  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
+  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, XdmNode, String] =
     xpath(path, Map.empty[String, String])
   def xpath(path: Expression[String], namespaces: Map[String, String])(implicit
       xmlParsers: XmlParsers
-  ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
+  ): MultipleFindCheckBuilder[XPathCheckType, XdmNode, String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
