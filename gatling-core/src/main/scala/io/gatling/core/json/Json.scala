@@ -305,6 +305,6 @@ private[gatling] object Json {
           case BIG_INTEGER => node.bigIntegerValue
           case BIG_DECIMAL => node.decimalValue
         }
-      case _ => new IllegalArgumentException(s"Unsupported node type ${node.getNodeType}")
+      case _ => throw new IllegalArgumentException(s"Unsupported node type ${node.getNodeType}")
     }
 }
