@@ -12,5 +12,5 @@ We use [Github's Bug Tracker](https://github.com/gatling/gatling/issues).
 {{< alert warning >}}
 A bug tracker is intended for reporting bugs and asking for features.
 
-For asking questions, please join our [Google Group](https://groups.google.com/forum/#!forum/gatling).
+For asking questions, please join our [Google Group](https://groups.google.com/g/gatling).
 {{< /alert >}}
