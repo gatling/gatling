@@ -32,15 +32,18 @@ Gatling configuration files, such as the default configuration file uses the [HO
 
 Gatling uses a fallback strategy, where:
 
-**System properties > gatling.conf > gatling-defaults.conf**
+**System properties > `gatling.conf` > gatling-defaults.conf**
 
-In the bundle packaging, `gatling.conf` is placed in the `conf` directory. It serves as an easy-to-edit base: all properties are commented and all values are the defaults.
+`gatling-defaults.conf` is shipped in the gatling-core jar and must not be edited.
 
-In maven/sbt/gradle projects, it must be placed in the `resources`.
+`gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a maven/gradle/sbt project and in `conf` in the bundle distribution. 
 
-The name of this file can be overriding from a System property named `gatling.conf.file`, eg `-Dgatling.conf.file=gatling-special.conf`.
+This file can be changed with a System property named `gatling.conf.file`, eg `-Dgatling.conf.file=gatling-special.conf`. Again, beware it's loaded from the ClassLoader, not the filesystem, eg:
 
-`gatling-defaults.conf` is shipped in the gatling-core jar and should not be edited.
+* `-Dgatling.conf.file=src/test/resource/gatling-special.conf` is incorrect
+* `-Dgatling.conf.file=gatling-special.conf` where `gatling-special.conf` is placed in `src/test/resource` is correct
+
+The bundle distribution and the maven/gradle/sbt plugins demo projects contain an easy-to-edit `gatling.conf` file with all the available properties commented with the default values.
 
 If you want to override default values, you have two possibilities:
 
