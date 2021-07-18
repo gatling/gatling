@@ -17,7 +17,6 @@
 package io.gatling.http
 
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
-import io.netty.util.AsciiString
 
 object HeaderNames {
   val Accept: CharSequence = HttpHeaderNames.ACCEPT
@@ -91,11 +90,6 @@ object HeaderNames {
   val XRequestedWith: CharSequence = HttpHeaderNames.X_REQUESTED_WITH
 }
 
-// FIXME contribute upstream
-private[gatling] object MissingNettyHttpHeaderValues {
-  val XmlHttpRequest: AsciiString = AsciiString.cached("XMLHttpRequest")
-}
-
 object HeaderValues {
   val ApplicationJson: String = HttpHeaderValues.APPLICATION_JSON.toString
   val ApplicationOctetStream: String = HttpHeaderValues.APPLICATION_OCTET_STREAM.toString
@@ -110,5 +104,5 @@ object HeaderValues {
   val TextHtml: String = HttpHeaderValues.TEXT_HTML.toString
   val TextPlain: String = HttpHeaderValues.TEXT_PLAIN.toString
   val TextEventStream: String = HttpHeaderValues.TEXT_EVENT_STREAM.toString
-  val XmlHttpRequest: String = MissingNettyHttpHeaderValues.XmlHttpRequest.toString
+  val XmlHttpRequest: String = HttpHeaderValues.XML_HTTP_REQUEST.toString
 }

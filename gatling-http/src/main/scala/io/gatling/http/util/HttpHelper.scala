@@ -25,7 +25,6 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.client.uri.Uri
 
@@ -109,7 +108,7 @@ private[gatling] object HttpHelper extends StrictLogging {
   def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(HttpHeaderValues.TEXT_CSS.toString)
   def isHtml(headers: HttpHeaders): Boolean =
     mimeType(headers).exists(mt => mt == HttpHeaderValues.TEXT_HTML.toString || mt == HttpHeaderValues.APPLICATION_XHTML.toString)
-  def isAjax(headers: HttpHeaders): Boolean = headers.contains(HttpHeaderNames.X_REQUESTED_WITH, MissingNettyHttpHeaderValues.XmlHttpRequest, false)
+  def isAjax(headers: HttpHeaders): Boolean = headers.contains(HttpHeaderNames.X_REQUESTED_WITH, HttpHeaderValues.XML_HTTP_REQUEST.toString, false)
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
