@@ -258,7 +258,9 @@ gradle --rerun-tasks gatlingRun
 To always rerun the gatling task when called, you may add this line in ``build.gradle``:
 
 ```groovy
-tasks.gatlingRun.outputs.upToDateWhen { false }
+tasks.withType(io.gatling.gradle.GatlingRunTask) {
+  outputs.upToDateWhen { false }
+}
 ```
 {{< /alert >}}
 
