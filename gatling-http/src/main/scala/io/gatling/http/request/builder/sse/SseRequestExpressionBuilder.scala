@@ -20,7 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder, RequestExpressionBuilder }
 import io.gatling.http.request.builder.RequestExpressionBuilder._
 
 class SseRequestExpressionBuilder(
@@ -28,11 +28,9 @@ class SseRequestExpressionBuilder(
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
-) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
+) extends HttpRequestExpressionBuilder(commonAttributes, HttpAttributes.Empty, httpCaches, httpProtocol, configuration) {
 
   // disable request timeout for SSE
   override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
     requestBuilder.setRequestTimeout(-1)
-
-  override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure = ConfigureIdentity
 }
