@@ -31,14 +31,14 @@ You can find a [sample project demoing the io.gatling.gradle plugin](https://git
 
 ## Compatibility
 
-Gradle version
+### Gradle version
 
-* Minimal supported Gradle version is 4.0.
-* Maximum version is 6.6.1
+The latest version of this plugin is tested against Gradle versions ranging from 4.0.1 to 7.1.1.
+Any version outside of this range is not guaranteed to work.
 
-Scala version
+### Scala version
 
-* Gatling uses Scala version 2.12 since version 3.0.0, so the plugin does.
+This plugin supports the same versions of Scala as the Gatling version you're using, meaning Scala 2.13 since Gatling 3.5.
 
 ## Installation
 
