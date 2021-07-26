@@ -333,7 +333,7 @@ class HttpCompileTest extends Simulation {
     // flushHttpCache
     .exec(flushHttpCache)
     // transformResponse
-    .exec(http("Request").get("/").transformResponse { (_, response) =>
+    .exec(http("Request").get("/").transformResponse { (response, _) =>
       import io.gatling.http.response._
       response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.body.charset))
     })

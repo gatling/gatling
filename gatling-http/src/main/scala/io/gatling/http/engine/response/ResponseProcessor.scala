@@ -149,12 +149,12 @@ class DefaultResponseProcessor(
         nextExecutor.executeNextOnCrash(newSession)
     }
 
-  private def applyResponseTransformer(rawResponse: Response): Validation[Response] =
+  private def applyResponseTransformer(originalResponse: Response): Validation[Response] =
     tx.request.requestConfig.responseTransformer match {
       case Some(transformer) =>
         safely("Response transformer crashed: " + _) {
-          transformer(tx.currentSession, rawResponse)
+          transformer(originalResponse, tx.currentSession)
         }
-      case _ => rawResponse.success
+      case _ => originalResponse.success
     }
 }

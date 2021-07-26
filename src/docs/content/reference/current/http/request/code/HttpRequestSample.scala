@@ -290,12 +290,13 @@ class HttpRequestSample {
       //#response-processors
 
       // ignore when response status code is not 200
-      .transformResponse { (session, response) =>
-        if (response.status.code == 200) {
-          response.copy(body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8))
-        } else {
-          response
-        }
+      .transformResponse {
+        (response, session) =>
+          if (response.status.code == 200) {
+            response.copy(body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8))
+          } else {
+            response
+          }
       }
     //#response-processors
   }

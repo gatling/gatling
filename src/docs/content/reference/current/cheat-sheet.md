@@ -855,7 +855,7 @@ content:
           - keyword: transformResponse
             description: Allows to process the response before it is sent to the checks pipeline.
             syntax:
-              - signature: ((Session => Response) => Validation[Response]))
+              - signature: ((Response, Session) => Validation[Response]))
                 description: Takes a function to transform the Response, possibly based on data from the Session
 
           - keyword: formUpload
