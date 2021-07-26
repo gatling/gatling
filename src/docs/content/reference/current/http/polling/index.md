@@ -39,7 +39,7 @@ For example:
 
 When you don't need to poll a request anymore, you can stop the poller:
 
-`poller.stop`
+`poll.stop`
 
 For example:
 

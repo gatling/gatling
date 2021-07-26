@@ -22,18 +22,18 @@ import io.gatling.http.Predef._
 class PollingSample {
 
   //#pollerName
-  polling.pollerName("myCustomName")
+  poll.pollerName("myCustomName")
   //#pollerName
 
   //#pollerStart
   exec(
-    polling
+    poll
       .every(10.seconds)
       .exec(http("name").get("url"))
   )
   //#pollerStart
 
   //#pollerStop
-  exec(polling.stop)
+  exec(poll.stop)
   //#pollerStop
 }
