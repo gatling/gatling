@@ -341,13 +341,13 @@ The supported resources are:
 
 Other resources are not supported: css images, javascript triggered resources, conditional comments, etc.
 
-You can also specify black/white list or custom filters to have a more fine grain control on resource fetching.
-`WhiteList` and `BlackList` take a sequence of pattern, eg `Seq("http://www.google.com/.*", "http://www.github.com/.*")`, to include and exclude respectively.
+You can also specify black/allow list or custom filters to have a more fine grain control on resource fetching.
+`AllowList` and `DenyList` take a sequence of pattern, eg `Seq("http://www.google.com/.*", "http://www.github.com/.*")`, to include and exclude respectively.
 
-* `inferHtmlResources(white: WhiteList)`: fetch all resources matching a pattern in the white list.
-* `inferHtmlResources(white: WhiteList, black: BlackList)`: fetch all resources matching a pattern in the white list excepting those in the black list.
-* `inferHtmlResources(black: BlackList)`: fetch all resources excepting those matching a pattern in the black list.
-* `inferHtmlResources(black: BlackList, white: WhiteList)`: fetch all resources excepting those matching a pattern in the black list and not in the white list.
+* `inferHtmlResources(white: AllowList)`: fetch all resources matching a pattern in the allow list.
+* `inferHtmlResources(white: AllowList, black: DenyList)`: fetch all resources matching a pattern in the allow list excepting those in the deny list.
+* `inferHtmlResources(black: DenyList)`: fetch all resources excepting those matching a pattern in the deny list.
+* `inferHtmlResources(black: DenyList, white: AllowList)`: fetch all resources excepting those matching a pattern in the deny list and not in the allow list.
 * `inferHtmlResources(filters: Option[Filters])`
 
 Finally, you can specify the strategy for naming those requests in the reports:

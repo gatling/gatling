@@ -41,8 +41,8 @@ class FiltersSpec extends AnyFlatSpec with Matchers with MockitoSugar with Inspe
     path <- paths
   } yield host + path
 
-  private val whiteList = new WhiteList(List("http://takima\\.fr.*"))
-  private val blackList = new BlackList(List("http[s]?://.*/assets/.*"))
+  private val allowList = new AllowList(List("http://takima\\.fr.*"))
+  private val denyList = new DenyList(List("http[s]?://.*/assets/.*"))
 
   private def checkRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
     val (expectedAccepted, expectedRejected) = partition
@@ -55,31 +55,31 @@ class FiltersSpec extends AnyFlatSpec with Matchers with MockitoSugar with Inspe
     }
   }
 
-  "Filters" should "filter whitelist correctly when blacklist is empty" in {
-    checkRequestAccepted(new Filters(whiteList, BlackList.Empty), urls.partition(_.contains("takima")))
+  "Filters" should "filter AllowList correctly when DenyList is empty" in {
+    checkRequestAccepted(new Filters(allowList, DenyList.Empty), urls.partition(_.contains("takima")))
   }
 
-  it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
+  it should "filter AllowList then DenyList when both are specified on allow-first mode" in {
     checkRequestAccepted(
-      new Filters(whiteList, blackList),
+      new Filters(allowList, denyList),
       urls.partition { url =>
         url.contains("takima") && !url.contains("assets")
       }
     )
   }
 
-  it should "filter blacklist correctly when whitelist is empty" in {
+  it should "filter DenyList correctly when AllowList is empty" in {
     checkRequestAccepted(
-      new Filters(blackList, WhiteList.Empty),
+      new Filters(denyList, AllowList.Empty),
       urls.partition { url =>
         !url.contains("assets")
       }
     )
   }
 
-  it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
+  it should "filter DenyList then AllowList when both are specified on deny-first mode" in {
     checkRequestAccepted(
-      new Filters(blackList, whiteList),
+      new Filters(denyList, allowList),
       urls.partition { url =>
         !url.contains("assets") && url.contains("takima")
       }
@@ -90,18 +90,18 @@ class FiltersSpec extends AnyFlatSpec with Matchers with MockitoSugar with Inspe
     val patterns = List(".*foo.*", ".*bar.*")
     val url = "https://gatling.io/foo.html"
 
-    new BlackList(patterns).accept(url) shouldBe false
-    new WhiteList(patterns).accept(url) shouldBe true
+    new DenyList(patterns).accept(url) shouldBe false
+    new AllowList(patterns).accept(url) shouldBe true
   }
 
   it should "filter correctly when there are no patterns" in {
     val url = "https://gatling.io/foo.html"
-    new BlackList(Nil).accept(url) shouldBe true
-    new WhiteList(Nil).accept(url) shouldBe true
+    new DenyList(Nil).accept(url) shouldBe true
+    new AllowList(Nil).accept(url) shouldBe true
   }
 
   it should "be able to deal with incorrect patterns" in {
-    val w = new WhiteList(List("http://foo\\.com.*", "},{"))
+    val w = new AllowList(List("http://foo\\.com.*", "},{"))
     w.regexes should not be empty
     w.accept("http://foo.com/bar.html") shouldBe true
   }

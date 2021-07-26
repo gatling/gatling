@@ -62,12 +62,12 @@ private[scenario] object ProtocolTemplate {
         val filtersConfig = config.filters
 
         def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-        def blackListPatterns = s"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-        def whiteListPatterns = s"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+        def denyListPatterns = s"DenyList(${quotedStringList(filtersConfig.denyList.patterns)})"
+        def allowListPatterns = s"AllowList(${quotedStringList(filtersConfig.allowList.patterns)})"
 
         val patterns = filtersConfig.filterStrategy match {
-          case FilterStrategy.WhiteListFirst => s"$whiteListPatterns, $blackListPatterns"
-          case FilterStrategy.BlackListFirst => s"$blackListPatterns, $whiteListPatterns"
+          case FilterStrategy.AllowListFirst => s"$allowListPatterns, $denyListPatterns"
+          case FilterStrategy.DenyListFirst  => s"$denyListPatterns, $allowListPatterns"
           case FilterStrategy.Disabled       => ""
         }
 

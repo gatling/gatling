@@ -23,11 +23,11 @@ sealed abstract class FilterStrategy(val label: String) extends Labelled with Cl
 
 object FilterStrategy {
 
-  case object WhiteListFirst extends FilterStrategy("WhiteList First")
-  case object BlackListFirst extends FilterStrategy("BlackList First")
+  case object AllowListFirst extends FilterStrategy("AllowList First")
+  case object DenyListFirst extends FilterStrategy("DenyList First")
   case object Disabled extends FilterStrategy("Disabled")
 
-  val AllStrategies: List[FilterStrategy] = List(WhiteListFirst, BlackListFirst, Disabled)
+  val AllStrategies: List[FilterStrategy] = List(AllowListFirst, DenyListFirst, Disabled)
 
   def apply(s: String): FilterStrategy =
     AllStrategies.find(_.toString.equalsIgnoreCase(s)).getOrElse {

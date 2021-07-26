@@ -82,12 +82,12 @@ class RecorderPropertiesBuilder {
   }
 
   def whitelist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
-    props += filters.WhitelistPatterns -> patterns
+    props += filters.AllowListPatterns -> patterns
     this
   }
 
   def blacklist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
-    props += filters.BlacklistPatterns -> patterns
+    props += filters.DenylistPatterns -> patterns
     this
   }
 

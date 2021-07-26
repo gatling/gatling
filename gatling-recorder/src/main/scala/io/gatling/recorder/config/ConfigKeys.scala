@@ -34,8 +34,8 @@ private[recorder] object ConfigKeys {
   }
   object filters {
     val FilterStrategy = "recorder.filters.filterStrategy"
-    val WhitelistPatterns = "recorder.filters.whitelist"
-    val BlacklistPatterns = "recorder.filters.blacklist"
+    val AllowListPatterns = "recorder.filters.allowList"
+    val DenylistPatterns = "recorder.filters.denyList"
   }
   object http {
     val AutomaticReferer = "recorder.http.automaticReferer"

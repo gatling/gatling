@@ -24,7 +24,7 @@ import com.typesafe.scalalogging.StrictLogging
 object Filters {
   val BrowserNoiseFilters: Filters =
     new Filters(
-      new BlackList(
+      new DenyList(
         Seq(
           ".*/detectportal.firefox.com/.*",
           ".*/incoming.telemetry.mozilla.org/.*",
@@ -36,7 +36,7 @@ object Filters {
           ".*/tracking-protection.cdn.mozilla.net/.*"
         )
       ),
-      WhiteList.Empty
+      AllowList.Empty
     )
 }
 
@@ -56,18 +56,18 @@ sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
   def accept(url: String): Boolean
 }
 
-object WhiteList {
-  val Empty: WhiteList = new WhiteList(Nil)
+object AllowList {
+  val Empty: AllowList = new AllowList(Nil)
 }
 
-final class WhiteList(val patterns: Seq[String]) extends Filter(patterns) {
+final class AllowList(val patterns: Seq[String]) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
-object BlackList {
-  val Empty: BlackList = new BlackList(Nil)
+object DenyList {
+  val Empty: DenyList = new DenyList(Nil)
 }
 
-final class BlackList(val patterns: Seq[String]) extends Filter(patterns) {
+final class DenyList(val patterns: Seq[String]) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

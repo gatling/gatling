@@ -1250,20 +1250,20 @@ content:
           - keyword: inferHtmlResources
             description: Allows to fetch resources in parallel in order to emulate the behaviour of a real web browser
             syntax:
-              - signature: (WhiteList)
-                description: Fetch all resources matching a pattern in the white list
-              - signature: (WhiteList, BlackList)
-                description: Fetch all resources matching a pattern in the white list excepting those in the black list
+              - signature: (AllowList)
+                description: Fetch all resources matching a pattern in the allow list
+              - signature: (AllowList, DenyList)
+                description: Fetch all resources matching a pattern in the allow list excepting those in the deny list
               - signature: (Filters)
                 description: More generic version taking any kind of filters
 
           - keyword: nameInferredHtmlResourcesAfterUrlTail
             description: Name requests after the resource's url tail (after last `/`) (default)
             syntax:
-              - signature: (WhiteList)
-                description: Fetch all resources matching a pattern in the white list
-              - signature: (WhiteList, BlackList)
-                description: Fetch all resources matching a pattern in the white list excepting those in the black list
+              - signature: (AllowList)
+                description: Fetch all resources matching a pattern in the allow list
+              - signature: (AllowList, DenyList)
+                description: Fetch all resources matching a pattern in the allow list excepting those in the deny list
               - signature: (Filters)
                 description: More generic version taking any kind of filters
 

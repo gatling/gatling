@@ -32,7 +32,7 @@ import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
-import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
+import io.gatling.core.filter.{ AllowList, DenyList, Filters }
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
@@ -148,8 +148,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       ),
       filters = FiltersConfiguration(
         filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
-        whiteList = new WhiteList(config.getStringList(filters.WhitelistPatterns).asScala.toList),
-        blackList = new BlackList(config.getStringList(filters.BlacklistPatterns).asScala.toList)
+        allowList = new AllowList(config.getStringList(filters.AllowListPatterns).asScala.toList),
+        denyList = new DenyList(config.getStringList(filters.DenylistPatterns).asScala.toList)
       ),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
@@ -195,14 +195,14 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
 private[recorder] final case class FiltersConfiguration(
     filterStrategy: FilterStrategy,
-    whiteList: WhiteList,
-    blackList: BlackList
+    allowList: AllowList,
+    denyList: DenyList
 ) {
 
   def filters: Option[Filters] = filterStrategy match {
     case FilterStrategy.Disabled       => None
-    case FilterStrategy.BlackListFirst => Some(new Filters(blackList, whiteList))
-    case FilterStrategy.WhiteListFirst => Some(new Filters(whiteList, blackList))
+    case FilterStrategy.DenyListFirst  => Some(new Filters(denyList, allowList))
+    case FilterStrategy.AllowListFirst => Some(new Filters(allowList, denyList))
   }
 }
 

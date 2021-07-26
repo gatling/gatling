@@ -115,7 +115,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
                 regexCheck("<title>Resource Test</title>")
               )
           ),
-        protocolCustomizer = _.inferHtmlResources(BlackList(".*/bad_resource.png"))
+        protocolCustomizer = _.inferHtmlResources(DenyList(".*/bad_resource.png"))
       )
 
       session.isFailed shouldBe false

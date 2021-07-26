@@ -42,9 +42,15 @@ trait CoreDsl
 
   def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "), Nil)
 
-  def WhiteList(patterns: String*): io.gatling.core.filter.WhiteList = new io.gatling.core.filter.WhiteList(patterns.toList)
+  @deprecated("Will be removed in a future release. Please use AllowList instead.", "3.7.0")
+  def WhiteList(patterns: String*): io.gatling.core.filter.AllowList = AllowList(patterns: _*)
 
-  def BlackList(patterns: String*): io.gatling.core.filter.BlackList = new io.gatling.core.filter.BlackList(patterns.toList)
+  def AllowList(patterns: String*): io.gatling.core.filter.AllowList = new io.gatling.core.filter.AllowList(patterns.toList)
+
+  @deprecated("Will be removed in a future release. Please use DenyList instead.", "3.7.0")
+  def BlackList(patterns: String*): io.gatling.core.filter.DenyList = DenyList(patterns: _*)
+
+  def DenyList(patterns: String*): io.gatling.core.filter.DenyList = new io.gatling.core.filter.DenyList(patterns.toList)
 
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))

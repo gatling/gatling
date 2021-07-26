@@ -91,7 +91,7 @@ class HttpCompileTest extends Simulation {
     .disableAutoOrigin
     .disableWarmUp
     .warmUp("https://gatling.io")
-    .inferHtmlResources(white = WhiteList(".*\\.html"))
+    .inferHtmlResources(allow = AllowList(".*\\.html"))
     .maxConnectionsPerHost(6)
     .shareConnections
     .perUserNameResolution

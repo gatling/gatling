@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
+import io.gatling.core.filter.{ AllowList, DenyList, Filters }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.ResponseTransformer
@@ -163,10 +163,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpProtocolBuilder =
     check(thenChecks.map(_.copy(condition = Some(condition))): _*)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
-  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, BlackList.Empty)))
-  def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, black)))
-  def inferHtmlResources(black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(black, WhiteList.Empty)))
-  def inferHtmlResources(black: BlackList, white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(black, white)))
+  def inferHtmlResources(allow: AllowList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, DenyList.Empty)))
+  def inferHtmlResources(allow: AllowList, deny: DenyList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, deny)))
+  def inferHtmlResources(deny: DenyList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(deny, AllowList.Empty)))
+  def inferHtmlResources(deny: DenyList, allow: AllowList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(deny, allow)))
   private def inferHtmlResources(filters: Option[Filters]): HttpProtocolBuilder =
     this
       .modify(_.protocol.responsePart.inferHtmlResources)

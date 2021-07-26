@@ -30,7 +30,7 @@ import scala.util.Try
 
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
-import io.gatling.recorder.config.FilterStrategy.BlackListFirst
+import io.gatling.recorder.config.FilterStrategy.DenyListFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
@@ -97,16 +97,16 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val simulationsFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
 
   /* Filters panel components */
-  private val whiteListTable = new FilterTable("Whitelist")
-  private val addWhiteListFilter = Button("+")(whiteListTable.addRow())
-  private val removeWhiteListFilter = Button("-")(whiteListTable.removeSelectedRow())
-  private val clearWhiteListFilters = Button("Clear")(whiteListTable.removeAllElements())
+  private val allowListTable = new FilterTable("AllowList")
+  private val addAllowListFilter = Button("+")(allowListTable.addRow())
+  private val removeAllowListFilter = Button("-")(allowListTable.removeSelectedRow())
+  private val clearAllowListFilters = Button("Clear")(allowListTable.removeAllElements())
 
-  private val blackListTable = new FilterTable("Blacklist")
-  private val addBlackListFilter = Button("+")(blackListTable.addRow())
-  private val removeBlackListFilter = Button("-")(blackListTable.removeSelectedRow())
-  private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements())
-  private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources())
+  private val denyListTable = new FilterTable("DenyList")
+  private val addDenyListFilter = Button("+")(denyListTable.addRow())
+  private val removeDenyListFilter = Button("-")(denyListTable.removeSelectedRow())
+  private val clearDenyListFilters = Button("Clear")(denyListTable.removeAllElements())
+  private val ruleOutStaticResources = Button("No static resources")(denyListStaticResources())
 
   private val filterStrategies = new LabelledComboBox[FilterStrategy](FilterStrategy.AllStrategies)
 
@@ -259,26 +259,26 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
           layout(strategy) = East
         }
 
-        val whiteList = new BoxPanel(Orientation.Vertical) {
-          contents += whiteListTable
+        val allowList = new BoxPanel(Orientation.Vertical) {
+          contents += allowListTable
           contents += new CenterAlignedFlowPanel {
-            contents += addWhiteListFilter
-            contents += removeWhiteListFilter
-            contents += clearWhiteListFilters
+            contents += addAllowListFilter
+            contents += removeAllowListFilter
+            contents += clearAllowListFilters
           }
         }
 
-        val blackList = new BoxPanel(Orientation.Vertical) {
-          contents += blackListTable
+        val denyList = new BoxPanel(Orientation.Vertical) {
+          contents += denyListTable
           contents += new CenterAlignedFlowPanel {
-            contents += addBlackListFilter
-            contents += removeBlackListFilter
-            contents += clearBlackListFilters
+            contents += addDenyListFilter
+            contents += removeDenyListFilter
+            contents += clearDenyListFilters
             contents += ruleOutStaticResources
           }
         }
 
-        val bothLists = new SplitPane(Orientation.Vertical, whiteList, blackList)
+        val bothLists = new SplitPane(Orientation.Vertical, allowList, denyList)
         bothLists.resizeWeight = 0.5
 
         layout(labelAndStrategySelection) = North
@@ -346,10 +346,10 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   }
 
   private def toggleFiltersEdition(enabled: Boolean): Unit = {
-    whiteListTable.setEnabled(enabled)
-    whiteListTable.setFocusable(enabled)
-    blackListTable.setEnabled(enabled)
-    blackListTable.setFocusable(enabled)
+    allowListTable.setEnabled(enabled)
+    allowListTable.setFocusable(enabled)
+    denyListTable.setEnabled(enabled)
+    denyListTable.setFocusable(enabled)
   }
 
   private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = {
@@ -440,7 +440,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     publish(keyReleased(outgoingProxyHttpsPort))
   }
 
-  private def blackListStaticResources(): Unit = {
+  private def denyListStaticResources(): Unit = {
     List(
       """.*\.js""",
       """.*\.css""",
@@ -453,9 +453,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       """.*\.(t|o)tf""",
       """.*\.png""",
       """.*detectportal\.firefox\.com.*"""
-    ).foreach(blackListTable.addRow)
+    ).foreach(denyListTable.addRow)
 
-    filterStrategies.selection.item = BlackListFirst
+    filterStrategies.selection.item = DenyListFirst
   }
 
   reactions += { case KeyReleased(field, _, _, _) =>
@@ -529,8 +529,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     removeCacheHeaders.selected = configuration.http.removeCacheHeaders
     checkResponseBodies.selected = configuration.http.checkResponseBodies
     automaticReferers.selected = configuration.http.automaticReferer
-    configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
-    configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
+    configuration.filters.denyList.patterns.foreach(denyListTable.addRow)
+    configuration.filters.allowList.patterns.foreach(allowListTable.addRow)
     simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
     useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
@@ -545,14 +545,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
    */
   private def reloadConfigurationAndStart(): Unit = {
     // clean up filters
-    whiteListTable.cleanUp()
-    blackListTable.cleanUp()
+    allowListTable.cleanUp()
+    allowListTable.cleanUp()
 
     val filterValidationFailures =
       if (filterStrategies.selection.item == FilterStrategy.Disabled)
         Nil
       else
-        whiteListTable.verify ::: blackListTable.verify
+        denyListTable.verify ::: denyListTable.verify
 
     if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
@@ -595,8 +595,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
 
       // Filters
       props.filterStrategy(filterStrategies.selection.item.toString)
-      props.whitelist(whiteListTable.getRegexs.asJava)
-      props.blacklist(blackListTable.getRegexs.asJava)
+      props.whitelist(allowListTable.getRegexs.asJava)
+      props.blacklist(denyListTable.getRegexs.asJava)
 
       // Simulation config
       props.simulationPackage(simulationPackage.text)
