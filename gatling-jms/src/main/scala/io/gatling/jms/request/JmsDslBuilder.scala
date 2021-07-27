@@ -135,10 +135,10 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   }
 
   def checkIf(condition: Expression[Boolean])(thenChecks: JmsCheck*): RequestReplyDslBuilder =
-    check(thenChecks.map(_.withUntypedCondition(condition)): _*)
+    check(thenChecks.map(_.checkIf(condition)): _*)
 
   def checkIf(condition: (Message, Session) => Validation[Boolean])(thenChecks: JmsCheck*): RequestReplyDslBuilder =
-    check(thenChecks.map(_.copy(condition = Some(condition))): _*)
+    check(thenChecks.map(_.checkIf(condition)): _*)
 
   def build: ActionBuilder = factory(attributes)
 }

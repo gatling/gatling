@@ -97,7 +97,10 @@ class WsCompileTest extends Simulation {
           ws.checkTextMessage("checkName1")
             .check(
               regex("somePattern1").saveAs("message1"),
-              regex("somePattern2").saveAs("message2")
+              regex("somePattern2").saveAs("message2"),
+              checkIf("${cond}") {
+                regex("somePattern1")
+              }
             ),
           ws.checkTextMessage("checkName2").check(regex("somePattern2").saveAs("message2"))
         )
@@ -118,7 +121,10 @@ class WsCompileTest extends Simulation {
           ws.checkBinaryMessage("checkName")
             .check(
               bodyLength.lte(50),
-              bodyBytes.transform(_.length).saveAs("bytesLength")
+              bodyBytes.transform(_.length).saveAs("bytesLength"),
+              checkIf("${cond}") {
+                bodyLength.lte(10)
+              }
             )
             .silent
         )

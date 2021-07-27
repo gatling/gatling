@@ -78,4 +78,12 @@ trait WsCheckSupport {
 
   implicit val wsBodyLengthCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Int] =
     WsBinaryCheckMaterializer.BodyLength
+
+  implicit val wsTextUntypedCheckIfMaker: UntypedCheckIfMaker[WsTextCheck] = _.checkIf(_)
+
+  implicit val wsTextTypedCheckIfMaker: TypedCheckIfMaker[String, WsTextCheck] = _.checkIf(_)
+
+  implicit val wsBinaryUntypedCheckIfMaker: UntypedCheckIfMaker[WsBinaryCheck] = _.checkIf(_)
+
+  implicit val wsBinaryTypedCheckIfMaker: TypedCheckIfMaker[Array[Byte], WsBinaryCheck] = _.checkIf(_)
 }

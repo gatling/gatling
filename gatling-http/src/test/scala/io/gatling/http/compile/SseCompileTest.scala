@@ -33,8 +33,16 @@ class SseCompileTest extends Simulation {
         )
     )
     .exec(
-      sse("waitForSomeMEssage").setCheck.await(30.seconds)(
-        sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))
+      sse("waitForSomeMessage").setCheck.await(30.seconds)(
+        sse
+          .checkMessage("checkName1")
+          .check(
+            jsonPath("$.foo"),
+            jmesPath("foo"),
+            checkIf("${cond}") {
+              jsonPath("$.foo")
+            }
+          )
       )
     )
     .pause(15)

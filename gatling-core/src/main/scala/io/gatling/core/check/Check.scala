@@ -62,41 +62,78 @@ object Check {
 
     checkRec(session, checks, None)
   }
+
+  abstract class ConditionalCheck[R](condition: Option[(R, Session) => Validation[Boolean]]) extends Check[R] {
+
+    override def checkIf(condition: Expression[Boolean]): Check[R] = checkIf((_: R, session: Session) => condition(session))
+
+    protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult]
+
+    override def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+      condition match {
+        case Some(cond) =>
+          cond(response, session).flatMap { boolean =>
+            if (boolean) {
+              check0(response, session, preparedCache)
+            } else {
+              CheckResult.NoopCheckResultSuccess
+            }
+          }
+        case _ => check0(response, session, preparedCache)
+      }
+  }
+
+  final case class Simple[R](
+      f: (R, Session, Check.PreparedCache) => Validation[CheckResult],
+      condition: Option[(R, Session) => Validation[Boolean]]
+  ) extends ConditionalCheck[R](condition) {
+
+    override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
+
+    override protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+      f(response, session, preparedCache)
+  }
+
+  final case class Default[R, P, X](
+      preparer: Preparer[R, P],
+      extractorExpression: Expression[Extractor[P, X]],
+      validatorExpression: Expression[Validator[X]],
+      displayActualValue: Boolean,
+      customName: Option[String],
+      condition: Option[(R, Session) => Validation[Boolean]],
+      saveAs: Option[String]
+  ) extends ConditionalCheck[R](condition) {
+
+    override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
+
+    private val unbuiltName: String = customName.getOrElse("Check")
+
+    protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] = {
+      def memoizedPrepared: Validation[P] =
+        if (preparedCache == null) {
+          preparer(response)
+        } else {
+          preparedCache.computeIfAbsent(preparer, _ => preparer(response)).asInstanceOf[Validation[P]]
+        }
+
+      def builtName(extractor: Extractor[P, X], validator: Validator[X]): String =
+        customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
+
+      for {
+        extractor <- extractorExpression(session).mapFailure(message => s"$unbuiltName extractor resolution crashed: $message")
+        validator <- validatorExpression(session).mapFailure(message => s"$unbuiltName validator resolution crashed: $message")
+        prepared <- memoizedPrepared.mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
+        actual <- extractor(prepared).mapFailure(message => s"${builtName(extractor, validator)} extraction crashed: $message")
+        matched <- validator(actual, displayActualValue).mapFailure(message => s"${builtName(extractor, validator)}, $message")
+      } yield new CheckResult(matched, saveAs)
+    }
+  }
 }
 
 trait Check[R] {
-
   def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult]
-}
-
-final class CheckBase[R, P, X](
-    val preparer: Preparer[R, P],
-    val extractorExpression: Expression[Extractor[P, X]],
-    val validatorExpression: Expression[Validator[X]],
-    val displayActualValue: Boolean,
-    val customName: Option[String],
-    val saveAs: Option[String]
-) extends Check[R] {
-
-  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] = {
-
-    def unbuiltName: String = customName.getOrElse("Check")
-    def memoizedPrepared: Validation[P] =
-      if (preparedCache == null) {
-        preparer(response)
-      } else {
-        preparedCache.computeIfAbsent(preparer, _ => preparer(response)).asInstanceOf[Validation[P]]
-      }
-    def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
-
-    for {
-      extractor <- extractorExpression(session).mapFailure(message => s"$unbuiltName extractor resolution crashed: $message")
-      validator <- validatorExpression(session).mapFailure(message => s"$unbuiltName validator resolution crashed: $message")
-      prepared <- memoizedPrepared.mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
-      actual <- extractor(prepared).mapFailure(message => s"${builtName(extractor, validator)} extraction crashed: $message")
-      matched <- validator(actual, displayActualValue).mapFailure(message => s"${builtName(extractor, validator)}, $message")
-    } yield new CheckResult(matched, saveAs)
-  }
+  def checkIf(condition: Expression[Boolean]): Check[R]
+  def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R]
 }
 
 object CheckResult {
@@ -114,4 +151,12 @@ final case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]
       } yield session.set(s, v)
     maybeUpdatedSession.getOrElse(session)
   }
+}
+
+trait UntypedCheckIfMaker[C <: Check[_]] {
+  def make(thenCheck: C, condition: Expression[Boolean]): C
+}
+
+trait TypedCheckIfMaker[R, C <: Check[R]] {
+  def make(thenCheck: C, condition: (R, Session) => Validation[Boolean]): C
 }

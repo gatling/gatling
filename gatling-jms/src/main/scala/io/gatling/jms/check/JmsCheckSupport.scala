@@ -20,7 +20,7 @@ import javax.jms.Message
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.commons.validation.{ FailureWrapper, Validation }
+import io.gatling.commons.validation.FailureWrapper
 import io.gatling.core.check._
 import io.gatling.core.check.Check.PreparedCache
 import io.gatling.core.check.bytes.BodyBytesCheckType
@@ -31,7 +31,7 @@ import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.xpath._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 import io.gatling.jms.JmsCheck
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -39,7 +39,7 @@ import net.sf.saxon.s9api.XdmNode
 
 trait JmsCheckSupport {
   def simpleCheck(f: Message => Boolean): JmsCheck =
-    JmsCheck(
+    Check.Simple(
       (response: Message, _: Session, _: PreparedCache) =>
         if (f(response)) {
           CheckResult.NoopCheckResultSuccess
@@ -102,9 +102,7 @@ trait JmsCheckSupport {
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
     JmsCheckMaterializer.jmesPath(jsonParsers, configuration.core.charset)
 
-  implicit val jmsTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Message, JmsCheck] =
-    (condition: (Message, Session) => Validation[Boolean], thenCheck: JmsCheck) => thenCheck.copy(condition = Some(condition))
+  implicit val jmsUntypedCheckIfMaker: UntypedCheckIfMaker[JmsCheck] = _.checkIf(_)
 
-  implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
-    (condition: Expression[Boolean], thenCheck: JmsCheck) => thenCheck.withUntypedCondition(condition)
+  implicit val jmsTypedCheckIfMaker: TypedCheckIfMaker[Message, JmsCheck] = _.checkIf(_)
 }

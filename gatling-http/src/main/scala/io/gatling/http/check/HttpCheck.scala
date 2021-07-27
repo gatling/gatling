@@ -17,18 +17,20 @@
 package io.gatling.http.check
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ Check, CheckMaterializer, ConditionalCheck, Preparer }
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult, Preparer }
+import io.gatling.core.check.Check.PreparedCache
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.response.Response
 
-final case class HttpCheck(wrapped: Check[Response], condition: Option[(Response, Session) => Validation[Boolean]], scope: HttpCheckScope)
-    extends ConditionalCheck[Response] {
+final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) extends Check[Response] {
 
-  private[http] def withUntypedCondition(condition: Expression[Boolean]): HttpCheck = {
-    val typedCondition = (_: Response, session: Session) => condition(session)
-    copy(condition = Some(typedCondition))
-  }
+  override def check(response: Response, session: Session, preparedCache: PreparedCache): Validation[CheckResult] =
+    wrapped.check(response, session, preparedCache)
+
+  override def checkIf(condition: (Response, Session) => Validation[Boolean]): HttpCheck = copy(wrapped.checkIf(condition))
+
+  override def checkIf(condition: Expression[Boolean]): HttpCheck = copy(wrapped.checkIf(condition))
 }
 
 class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
-    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, None, scope))
+    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))

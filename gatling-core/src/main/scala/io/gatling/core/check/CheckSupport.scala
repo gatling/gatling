@@ -47,11 +47,11 @@ trait CheckSupport {
   implicit def findCheckBuilder2CheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): CheckBuilder[T, P] =
     findCheckBuilder.find.exists
 
-  def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
-    cw.wrap(condition, thenCheck)
+  def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit maker: UntypedCheckIfMaker[C]): C =
+    maker.make(thenCheck, condition)
 
-  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: TypedConditionalCheckWrapper[R, C]): C =
-    cw.wrap(condition, thenCheck)
+  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit maker: TypedCheckIfMaker[R, C]): C =
+    maker.make(thenCheck, condition)
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, String, String] with RegexOfType =
     RegexCheckBuilder.regex(pattern, patterns)

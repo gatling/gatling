@@ -54,4 +54,8 @@ trait SseCheckSupport {
 
   implicit val sseBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] =
     SseCheckMaterializer.BodyString
+
+  implicit val sseUntypedCheckIfMaker: UntypedCheckIfMaker[SseCheck] = _.checkIf(_)
+
+  implicit val sseTypedCheckIfMaker: TypedCheckIfMaker[String, SseCheck] = _.checkIf(_)
 }

@@ -17,9 +17,15 @@
 package io.gatling.core.check
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 
 class ChecksumCheck[R](wrapped: Check[R], val algorithm: String) extends Check[R] {
   override def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
+
+  override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] =
+    new ChecksumCheck(wrapped.checkIf(condition), algorithm)
+
+  override def checkIf(condition: Expression[Boolean]): Check[R] =
+    new ChecksumCheck(wrapped.checkIf(condition), algorithm)
 }

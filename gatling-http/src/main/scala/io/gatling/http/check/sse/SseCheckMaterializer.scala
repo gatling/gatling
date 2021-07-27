@@ -26,7 +26,7 @@ import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class SseCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, SseCheck, String, P](SseCheck.apply)
+class SseCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, SseCheck, String, P](new SseCheck(_))
 
 object SseCheckMaterializer {
 

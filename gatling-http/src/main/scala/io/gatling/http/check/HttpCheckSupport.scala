@@ -20,7 +20,6 @@ import java.io.InputStream
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.commons.validation.Validation
 import io.gatling.core.check._
 import io.gatling.core.check.bytes._
 import io.gatling.core.check.checksum._
@@ -34,7 +33,7 @@ import io.gatling.core.check.substring._
 import io.gatling.core.check.time._
 import io.gatling.core.check.xpath._
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Expression
 import io.gatling.core.stats.message._
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum._
@@ -122,9 +121,7 @@ trait HttpCheckSupport {
   implicit val httpResponseTimeCheckMaterializer: CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] =
     HttpResponseTimeCheckMaterializer.Instance
 
-  implicit val HttpTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Response, HttpCheck] =
-    (condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) => thenCheck.copy(condition = Some(condition))
+  implicit val httpUntypedCheckIfMaker: UntypedCheckIfMaker[HttpCheck] = _.checkIf(_)
 
-  implicit val HttpUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[HttpCheck] =
-    (condition: Expression[Boolean], thenCheck: HttpCheck) => thenCheck.withUntypedCondition(condition)
+  implicit val httpTypedCheckIfMaker: TypedCheckIfMaker[Response, HttpCheck] = _.checkIf(_)
 }
