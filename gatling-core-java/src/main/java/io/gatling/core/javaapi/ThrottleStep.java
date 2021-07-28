@@ -16,15 +16,21 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.toScalaDuration;
+
 import java.time.Duration;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.toScalaDuration;
-
+/**
+ * Java wrapper of a Scala ThrottleStep.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class ThrottleStep {
 
   private final io.gatling.core.controller.throttle.ThrottleStep wrapped;
 
-  public ThrottleStep(io.gatling.core.controller.throttle.ThrottleStep wrapped) {
+  ThrottleStep(io.gatling.core.controller.throttle.ThrottleStep wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -32,19 +38,35 @@ public final class ThrottleStep {
     return wrapped;
   }
 
+  /** DSL step to define the duration of a throttling ramp. */
   public static final class ReachIntermediate {
     private final int target;
 
-    public ReachIntermediate(int target) {
+    ReachIntermediate(int target) {
       this.target = target;
     }
 
+    /**
+     * Define the duration of a throttling ramp
+     *
+     * @param duration the duration in seconds
+     * @return a new ThrottleStep
+     */
+    @Nonnull
     public ThrottleStep in(int duration) {
       return in(Duration.ofSeconds(duration));
     }
 
-    public ThrottleStep in(Duration duration) {
-      return new ThrottleStep(new io.gatling.core.controller.throttle.Reach(target, toScalaDuration(duration)));
+    /**
+     * Define the duration of a throttling ramp
+     *
+     * @param duration the duration
+     * @return a new ThrottleStep
+     */
+    @Nonnull
+    public ThrottleStep in(@Nonnull Duration duration) {
+      return new ThrottleStep(
+          new io.gatling.core.controller.throttle.Reach(target, toScalaDuration(duration)));
     }
   }
 }

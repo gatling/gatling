@@ -24,19 +24,14 @@ public class NoopHandler implements ChannelHandler {
 
   public static final NoopHandler INSTANCE = new NoopHandler();
 
-  private NoopHandler() {
-  }
-  
-  
-  @Override
-  public void handlerAdded(ChannelHandlerContext ctx) {
-  }
+  private NoopHandler() {}
 
   @Override
-  public void handlerRemoved(ChannelHandlerContext ctx) {
-  }
+  public void handlerAdded(ChannelHandlerContext ctx) {}
 
   @Override
-  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-  }
+  public void handlerRemoved(ChannelHandlerContext ctx) {}
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {}
 }

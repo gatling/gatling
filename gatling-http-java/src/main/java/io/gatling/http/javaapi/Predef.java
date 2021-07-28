@@ -16,403 +16,1017 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import io.gatling.commons.validation.Validation;
-import io.gatling.core.Predef$;
-import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.core.action.builder.SessionHookBuilder;
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.core.javaapi.CheckBuilder;
+import io.gatling.core.javaapi.FeederBuilder;
 import io.gatling.core.javaapi.Session;
-import io.gatling.http.action.sse.Sse$;
-import io.gatling.http.action.ws.Ws$;
+import io.gatling.http.javaapi.internal.HttpCheckBuilder;
+import io.gatling.http.javaapi.internal.HttpCheckBuilders;
 import io.gatling.http.javaapi.internal.HttpCheckType;
-import io.gatling.http.protocol.HttpProtocolBuilder$;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
 import scala.Function1;
 
-import java.util.function.Function;
-
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/** The entrypoint of the Gatling HTTP DSL */
 public final class Predef {
-  private Predef() {
-  }
+  private Predef() {}
 
   ////////// HttpDsl
+
+  /**
+   * Bootstrap a HTTP protocol configuration
+   *
+   * @return a new HttpProtocolBuilder
+   */
+  @Nonnull
   public static HttpProtocolBuilder http() {
     return new HttpProtocolBuilder(
-      HttpProtocolBuilder$.MODULE$.apply(io.gatling.core.Predef$.MODULE$.configuration())
-    );
+        io.gatling.http.protocol.HttpProtocolBuilder.apply(io.gatling.core.Predef.configuration()));
   }
 
-  public static Http http(String name) {
+  /**
+   * Bootstrap a HTTP request configuration
+   *
+   * @param name the HTTP request name, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Http http(@Nonnull String name) {
     return new Http(toStringExpression(name));
   }
 
-  public static Http http(Function<Session, String> name) {
-      return new Http(toTypedGatlingSessionFunction(name));
+  /**
+   * Bootstrap a HTTP request configuration
+   *
+   * @param name the HTTP request name, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Http http(@Nonnull Function<Session, String> name) {
+    return new Http(javaFunctionToExpression(name));
   }
 
-  public static Ws ws(String name) {
-    return new Ws(Ws$.MODULE$.apply(toStringExpression(name)));
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
+   * @param name the WebSocket request name, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Ws ws(@Nonnull String name) {
+    return new Ws(io.gatling.http.action.ws.Ws.apply(toStringExpression(name)));
   }
 
-  public static Ws ws(String name, String wsName) {
-    return new Ws(Ws$.MODULE$.apply(toStringExpression(name), toStringExpression(wsName)));
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
+   * @param name the WebSocket request name, expressed as a Gatling Expression Language String
+   * @param wsName the name of the WebSocket so multiple WebSockets for the same virtual users don't
+   *     conflict, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Ws ws(@Nonnull String name, @Nonnull String wsName) {
+    return new Ws(
+        io.gatling.http.action.ws.Ws.apply(toStringExpression(name), toStringExpression(wsName)));
   }
 
   public static final Ws.Prefix ws = Ws.Prefix.INSTANCE;
 
-  public static Sse sse(String name) {
-    return new Sse(Sse$.MODULE$.apply(toStringExpression(name)));
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
+   * @param name the SSE request name, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Sse sse(@Nonnull String name) {
+    return new Sse(io.gatling.http.action.sse.Sse.apply(toStringExpression(name)));
   }
 
-  public static Sse sse(String name, String sseName) {
-    return new Sse(Sse$.MODULE$.apply(toStringExpression(name), toStringExpression(sseName)));
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
+   * @param name the SSE request name, expressed as a Gatling Expression Language String
+   * @param sseName the name of the SSE stream so multiple SSE streams for the same virtual users
+   *     don't conflict, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Sse sse(@Nonnull String name, @Nonnull String sseName) {
+    return new Sse(
+        io.gatling.http.action.sse.Sse.apply(
+            toStringExpression(name), toStringExpression(sseName)));
   }
 
+  /** The prefix to bootstrap SSE specific DSL */
+  public static final Sse.Prefix sse = Sse.Prefix.INSTANCE;
+
+  /** The prefix to bootstrap polling specific DSL */
   public static Polling poll() {
     return Polling.DEFAULT;
   }
 
   ////////// HttpCheckSupport
+
+  /**
+   * Bootstrap a check that capture the response HTTP status code
+   *
+   * @return the next step in the check DSL
+   */
+  @Nonnull
   public static CheckBuilder.Find<Integer> status() {
-    return new CheckBuilder.Find.Default<>(io.gatling.http.Predef$.MODULE$.status(), HttpCheckType.Status, Integer.class::cast);
+    return HttpCheckBuilders.status();
   }
 
+  /**
+   * Bootstrap a check that capture the response location, eg the landing url in a chain of
+   * redirects
+   *
+   * @return the next step in the check DSL
+   */
+  @Nonnull
   public static CheckBuilder.Find<String> currentLocation() {
-    return new CheckBuilder.Find.Default<>(io.gatling.http.Predef$.MODULE$.currentLocation(), HttpCheckType.CurrentLocation, Function.identity());
+    return new CheckBuilder.Find.Default<>(
+        io.gatling.http.Predef.currentLocation(),
+        HttpCheckType.CurrentLocation,
+        Function.identity());
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder currentLocationRegex(String pattern) {
-    return new HttpCheckBuilder.CurrentLocationRegex(io.gatling.http.Predef$.MODULE$.currentLocationRegex(toStringExpression(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on the response location, eg the landing url in a chain of
+   * redirects
+   *
+   * @param pattern the regular expression, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder currentLocationRegex(
+      @Nonnull String pattern) {
+    return new HttpCheckBuilder.CurrentLocationRegex(
+        io.gatling.http.Predef.currentLocationRegex(
+            toStringExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static HttpCheckBuilder.CurrentLocationRegex currentLocationRegex(Function<Session, String> pattern) {
-    return new HttpCheckBuilder.CurrentLocationRegex(io.gatling.http.Predef$.MODULE$.currentLocationRegex(toTypedGatlingSessionFunction(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on the response location, eg the landing url in a chain of
+   * redirects
+   *
+   * @param pattern the regular expression, expressed as a function
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static HttpCheckBuilder.CurrentLocationRegex currentLocationRegex(
+      @Nonnull Function<Session, String> pattern) {
+    return new HttpCheckBuilder.CurrentLocationRegex(
+        io.gatling.http.Predef.currentLocationRegex(
+            javaFunctionToExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.MultipleFind<String> header(CharSequence name) {
-    return new CheckBuilder.MultipleFind.Default<>(io.gatling.http.Predef$.MODULE$.header(toStaticValueExpression(name)), HttpCheckType.Header, Function.identity());
+  /**
+   * Bootstrap a check that capture the value of a HTTP header
+   *
+   * @param name the static name of the HTTP header
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.MultipleFind<String> header(@Nonnull CharSequence name) {
+    return new CheckBuilder.MultipleFind.Default<>(
+        io.gatling.http.Predef.header(toStaticValueExpression(name)),
+        HttpCheckType.Header,
+        Function.identity());
   }
 
-  public static CheckBuilder.MultipleFind<String> header(String name) {
-    return new CheckBuilder.MultipleFind.Default<>(io.gatling.http.Predef$.MODULE$.header(toExpression(name, CharSequence.class)), HttpCheckType.Header, Function.identity());
+  /**
+   * Bootstrap a check that capture the value of a HTTP header
+   *
+   * @param name the name of the HTTP header, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.MultipleFind<String> header(@Nonnull String name) {
+    return new CheckBuilder.MultipleFind.Default<>(
+        io.gatling.http.Predef.header(toExpression(name, CharSequence.class)),
+        HttpCheckType.Header,
+        Function.identity());
   }
 
-  public static CheckBuilder.MultipleFind<String> header(Function<Session, CharSequence> name) {
-    return new CheckBuilder.MultipleFind.Default<>(io.gatling.http.Predef$.MODULE$.header(toTypedGatlingSessionFunction(name)), HttpCheckType.Header, Function.identity());
+  /**
+   * Bootstrap a check that capture the value of a HTTP header
+   *
+   * @param name the name of the HTTP header, expressed as a function
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.MultipleFind<String> header(
+      @Nonnull Function<Session, CharSequence> name) {
+    return new CheckBuilder.MultipleFind.Default<>(
+        io.gatling.http.Predef.header(javaFunctionToExpression(name)),
+        HttpCheckType.Header,
+        Function.identity());
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(CharSequence name, String pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toStaticValueExpression(name), toStringExpression(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the static name of the HTTP header
+   * @param pattern the regular expression, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      CharSequence name, String pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            toStaticValueExpression(name),
+            toStringExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(String name, String pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toExpression(name, CharSequence.class), toStringExpression(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the name of the HTTP header, expressed as a Gatling Expression Language String
+   * @param pattern the regular expression, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      @Nonnull String name, @Nonnull String pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            toExpression(name, CharSequence.class),
+            toStringExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(Function<Session, CharSequence> name, String pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toTypedGatlingSessionFunction(name), toStringExpression(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the name of the HTTP header, expressed as a function
+   * @param pattern the regular expression, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      @Nonnull Function<Session, CharSequence> name, @Nonnull String pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            javaFunctionToExpression(name),
+            toStringExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(CharSequence name, Function<Session, String> pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toStaticValueExpression(name), toTypedGatlingSessionFunction(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the static name of the HTTP header
+   * @param pattern the regular expression, expressed as a function
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      @Nonnull CharSequence name, @Nonnull Function<Session, String> pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            toStaticValueExpression(name),
+            javaFunctionToExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(String name, Function<Session, String> pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toExpression(name, CharSequence.class), toTypedGatlingSessionFunction(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the name of the HTTP header, expressed as a Gatling Expression Language String
+   * @param pattern the regular expression, expressed as a function
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      @Nonnull String name, @Nonnull Function<Session, String> pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            toExpression(name, CharSequence.class),
+            javaFunctionToExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
-  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(Function<Session, CharSequence> name, Function<Session, String> pattern) {
-    return new HttpCheckBuilder.HeaderRegexCheck(io.gatling.http.Predef$.MODULE$.headerRegex(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(pattern), Predef$.MODULE$.defaultPatterns()));
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on a response header
+   *
+   * @param name the name of the HTTP header, expressed as a function
+   * @param pattern the regular expression, expressed as a function
+   * @return the next step in the check DSL
+   */
+  @Nonnull
+  public static CheckBuilder.CaptureGroupCheckBuilder headerRegex(
+      @Nonnull Function<Session, CharSequence> name, @Nonnull Function<Session, String> pattern) {
+    return new HttpCheckBuilder.HeaderRegexCheck(
+        io.gatling.http.Predef.headerRegex(
+            javaFunctionToExpression(name),
+            javaFunctionToExpression(pattern),
+            io.gatling.core.Predef.defaultPatterns()));
   }
 
   ////////// SitemapFeederSupport
-  public static io.gatling.core.feeder.SourceFeederBuilder<String> sitemap(String fileName) {
-    return io.gatling.http.Predef$.MODULE$.sitemap(fileName, io.gatling.core.Predef$.MODULE$.configuration());
+
+  /**
+   * Bootstrap a feeder that reads from a sitemap XML file
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static FeederBuilder.FileBased<String> sitemap(@Nonnull String filePath) {
+    return new FeederBuilder.Impl<>(
+        io.gatling.http.Predef.sitemap(filePath, io.gatling.core.Predef.configuration()));
   }
 
   ////////// BodyPartSupport
-  public static BodyPart ElFileBodyPart(String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String. The name of the part is equal to the file name.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(@Nonnull String filePath) {
     return ElFileBodyPart(toStringExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(Function<Session, String> filePath) {
-    return ElFileBodyPart(toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String The name of the part is equal to the file name.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(@Nonnull Function<Session, String> filePath) {
+    return ElFileBodyPart(javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart ElFileBodyPart(
+      @Nonnull Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.ElFileBodyPart(
-        filePath,
-        io.gatling.core.Predef$.MODULE$.configuration(),
-        io.gatling.core.Predef$.MODULE$.elFileBodies()
-      )
-    );
+        io.gatling.http.Predef.ElFileBodyPart(
+            filePath,
+            io.gatling.core.Predef.configuration(),
+            io.gatling.core.Predef.elFileBodies()));
   }
 
-  public static BodyPart ElFileBodyPart(String name, String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(@Nonnull String name, @Nonnull String filePath) {
     return ElFileBodyPart(toStringExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(String name, Function<Session, String> filePath) {
-    return ElFileBodyPart(toStringExpression(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(
+      @Nonnull String name, @Nonnull Function<Session, String> filePath) {
+    return ElFileBodyPart(toStringExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(Function<Session, String> name, String filePath) {
-    return ElFileBodyPart(toTypedGatlingSessionFunction(name), toStringExpression(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String filePath) {
+    return ElFileBodyPart(javaFunctionToExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(Function<Session, String> name, Function<Session, String> filePath) {
-    return ElFileBodyPart(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file whose text context will be interpreted as a
+   * Gatling Expression Language String.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ElFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> filePath) {
+    return ElFileBodyPart(javaFunctionToExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart ElFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart ElFileBodyPart(
+      @Nonnull Function1<io.gatling.core.session.Session, Validation<String>> name,
+      @Nonnull Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.ElFileBodyPart(
-        name,
-        filePath,
-        io.gatling.core.Predef$.MODULE$.configuration(),
-        io.gatling.core.Predef$.MODULE$.elFileBodies()
-      )
-    );
+        io.gatling.http.Predef.ElFileBodyPart(
+            name,
+            filePath,
+            io.gatling.core.Predef.configuration(),
+            io.gatling.core.Predef.elFileBodies()));
   }
 
-  public static BodyPart StringBodyPart(String string) {
-    return StringBodyPart(toStringExpression(string));
-  }
-
-  public static BodyPart StringBodyPart(Function<Session, String> string) {
-    return ElFileBodyPart(toTypedGatlingSessionFunction(string));
-  }
-
-  public static BodyPart StringBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> string) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param string the string, interpreted as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(@Nonnull String string) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.StringBodyPart(
-        string,
-        io.gatling.core.Predef$.MODULE$.configuration()
-      )
-    );
+        io.gatling.http.Predef.StringBodyPart(
+            toStringExpression(string), io.gatling.core.Predef.configuration()));
   }
 
-  public static BodyPart StringBodyPart(String name, String string) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param string the string, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(@Nonnull Function<Session, String> string) {
+    return ElFileBodyPart(javaFunctionToExpression(string));
+  }
+
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param string the string, interpreted as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(@Nonnull String name, @Nonnull String string) {
     return StringBodyPart(toStringExpression(name), toStringExpression(string));
   }
 
-  public static BodyPart StringBodyPart(String name, Function<Session, String> string) {
-    return StringBodyPart(toStringExpression(name), toTypedGatlingSessionFunction(string));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param string the string, interpreted as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(
+      @Nonnull String name, @Nonnull Function<Session, String> string) {
+    return StringBodyPart(toStringExpression(name), javaFunctionToExpression(string));
   }
 
-  public static BodyPart StringBodyPart(Function<Session, String> name, String string) {
-    return StringBodyPart(toTypedGatlingSessionFunction(name), toStringExpression(string));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param name the name of the part, expressed as a function
+   * @param string the string, interpreted as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String string) {
+    return StringBodyPart(javaFunctionToExpression(name), toStringExpression(string));
   }
 
-  public static BodyPart StringBodyPart(Function<Session, String> name, Function<Session, String> string) {
-    return StringBodyPart(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(string));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String
+   *
+   * @param name the name of the part, expressed as a function
+   * @param string the string, interpreted as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart StringBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> string) {
+    return StringBodyPart(javaFunctionToExpression(name), javaFunctionToExpression(string));
   }
 
-  public static BodyPart StringBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, Function1<io.gatling.core.session.Session, Validation<String>> string) {
+  private static BodyPart StringBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> name,
+      Function1<io.gatling.core.session.Session, Validation<String>> string) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.StringBodyPart(
-        name,
-        string,
-        io.gatling.core.Predef$.MODULE$.configuration()
-      )
-    );
+        io.gatling.http.Predef.StringBodyPart(
+            name, string, io.gatling.core.Predef.configuration()));
   }
 
-  public static BodyPart RawFileBodyPart(String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is. The name of the
+   * part is equal to the name of the file.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(@Nonnull String filePath) {
     return RawFileBodyPart(toStringExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(Function<Session, String> filePath) {
-    return RawFileBodyPart(toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is. The name of the
+   * part is equal to the name of the file.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(@Nonnull Function<Session, String> filePath) {
+    return RawFileBodyPart(javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart RawFileBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.RawFileBodyPart(
-        filePath,
-        io.gatling.core.Predef$.MODULE$.rawFileBodies()
-      )
-    );
+        io.gatling.http.Predef.RawFileBodyPart(filePath, io.gatling.core.Predef.rawFileBodies()));
   }
 
-  public static BodyPart RawFileBodyPart(String name, String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(@Nonnull String name, @Nonnull String filePath) {
     return RawFileBodyPart(toStringExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(String name, Function<Session, String> filePath) {
-    return RawFileBodyPart(toStringExpression(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(
+      @Nonnull String name, @Nonnull Function<Session, String> filePath) {
+    return RawFileBodyPart(toStringExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(Function<Session, String> name, String filePath) {
-    return RawFileBodyPart(toTypedGatlingSessionFunction(name), toStringExpression(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String filePath) {
+    return RawFileBodyPart(javaFunctionToExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(Function<Session, String> name, Function<Session, String> filePath) {
-    return RawFileBodyPart(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose bytes will be sent as is.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart RawFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> filePath) {
+    return RawFileBodyPart(javaFunctionToExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart RawFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart RawFileBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> name,
+      Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.RawFileBodyPart(
-        name,
-        filePath,
-        io.gatling.core.Predef$.MODULE$.rawFileBodies()
-      )
-    );
+        io.gatling.http.Predef.RawFileBodyPart(
+            name, filePath, io.gatling.core.Predef.rawFileBodies()));
   }
 
-  public static BodyPart PebbleFileBodyPart(String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template. The name of the part is equal to the
+   * name of the file.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(@Nonnull String filePath) {
     return PebbleFileBodyPart(toStringExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(Function<Session, String> filePath) {
-    return PebbleFileBodyPart(toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template. The name of the part is equal to the
+   * name of the file.
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(@Nonnull Function<Session, String> filePath) {
+    return PebbleFileBodyPart(javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart PebbleFileBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.PebbleFileBodyPart(
-        filePath,
-        io.gatling.core.Predef$.MODULE$.configuration(),
-        io.gatling.core.Predef$.MODULE$.pebbleFileBodies()
-      )
-    );
+        io.gatling.http.Predef.PebbleFileBodyPart(
+            filePath,
+            io.gatling.core.Predef.configuration(),
+            io.gatling.core.Predef.pebbleFileBodies()));
   }
 
-  public static BodyPart PebbleFileBodyPart(String name, String filePath) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(@Nonnull String name, @Nonnull String filePath) {
     return PebbleFileBodyPart(toStringExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(String name, Function<Session, String> filePath) {
-    return PebbleFileBodyPart(toStringExpression(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(
+      @Nonnull String name, @Nonnull Function<Session, String> filePath) {
+    return PebbleFileBodyPart(toStringExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(Function<Session, String> name, String filePath) {
-    return PebbleFileBodyPart(toTypedGatlingSessionFunction(name), toStringExpression(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String filePath) {
+    return PebbleFileBodyPart(javaFunctionToExpression(name), toStringExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(Function<Session, String> name, Function<Session, String> filePath) {
-    return PebbleFileBodyPart(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(filePath));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a file, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param filePath the path of the file, either relative to the root of the classpath, or
+   *     absolute, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleFileBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> filePath) {
+    return PebbleFileBodyPart(javaFunctionToExpression(name), javaFunctionToExpression(filePath));
   }
 
-  public static BodyPart PebbleFileBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
+  private static BodyPart PebbleFileBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> name,
+      Function1<io.gatling.core.session.Session, Validation<String>> filePath) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.PebbleFileBodyPart(
-        name,
-        filePath,
-        io.gatling.core.Predef$.MODULE$.configuration(),
-        io.gatling.core.Predef$.MODULE$.pebbleFileBodies()
-      )
-    );
+        io.gatling.http.Predef.PebbleFileBodyPart(
+            name,
+            filePath,
+            io.gatling.core.Predef.configuration(),
+            io.gatling.core.Predef.pebbleFileBodies()));
   }
 
-  public static BodyPart PebbleStringBodyPart(String string) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param string the Pebble String template
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleStringBodyPart(@Nonnull String string) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.PebbleStringBodyPart(
-        string,
-        io.gatling.core.Predef$.MODULE$.configuration()
-      )
-    );
+        io.gatling.http.Predef.PebbleStringBodyPart(
+            string, io.gatling.core.Predef.configuration()));
   }
 
-  public static BodyPart PebbleStringBodyPart(String name, String string) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param string the Pebble String template
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleStringBodyPart(@Nonnull String name, @Nonnull String string) {
     return PebbleStringBodyPart(toStringExpression(name), string);
   }
 
-  public static BodyPart PebbleStringBodyPart(Function<Session, String> name, String string) {
-    return PebbleStringBodyPart(toTypedGatlingSessionFunction(name), string);
+  /**
+   * Bootstrap a {@link BodyPart} backed by a String, whose content is interpreted as a <a
+   * href="https://pebbletemplates.io/">Pebble</a> template.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param string the Pebble String template
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart PebbleStringBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String string) {
+    return PebbleStringBodyPart(javaFunctionToExpression(name), string);
   }
 
-  public static BodyPart PebbleStringBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, String string) {
+  private static BodyPart PebbleStringBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> name, String string) {
     return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.PebbleStringBodyPart(
-        name,
-        string,
-        io.gatling.core.Predef$.MODULE$.configuration()
-      )
-    );
+        io.gatling.http.Predef.PebbleStringBodyPart(
+            name, string, io.gatling.core.Predef.configuration()));
   }
 
-  public static BodyPart ByteArrayBodyPart(String name, byte[] bytes) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param bytes the static bytes
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(@Nonnull String name, @Nonnull byte[] bytes) {
     return ByteArrayBodyPart(toStringExpression(name), toStaticValueExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(Function<Session, String> name, byte[] bytes) {
-    return ByteArrayBodyPart(toTypedGatlingSessionFunction(name), toStaticValueExpression(bytes));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param bytes the static bytes
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull byte[] bytes) {
+    return ByteArrayBodyPart(javaFunctionToExpression(name), toStaticValueExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(String name, String bytes) {
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param bytes the bytes, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(@Nonnull String name, @Nonnull String bytes) {
     return ByteArrayBodyPart(toStringExpression(name), toBytesExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(Function<Session, String> name, String bytes) {
-    return ByteArrayBodyPart(toTypedGatlingSessionFunction(name), toBytesExpression(bytes));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param bytes the bytes, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull String bytes) {
+    return ByteArrayBodyPart(javaFunctionToExpression(name), toBytesExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(String name, Function<Session, byte[]> bytes) {
-    return ByteArrayBodyPart(toStringExpression(name), toTypedGatlingSessionFunction(bytes));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a Gatling Expression Language String
+   * @param bytes the bytes, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(
+      @Nonnull String name, @Nonnull Function<Session, byte[]> bytes) {
+    return ByteArrayBodyPart(toStringExpression(name), javaFunctionToExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(Function<Session, String> name, Function<Session, byte[]> bytes) {
-    return ByteArrayBodyPart(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(bytes));
+  /**
+   * Bootstrap a {@link BodyPart} backed by a byte array. Bytes are sent as is.
+   *
+   * @param name the name of the part, expressed as a function
+   * @param bytes the bytes, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static BodyPart ByteArrayBodyPart(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, byte[]> bytes) {
+    return ByteArrayBodyPart(javaFunctionToExpression(name), javaFunctionToExpression(bytes));
   }
 
-  public static BodyPart ByteArrayBodyPart(Function1<io.gatling.core.session.Session, Validation<String>> name, Function1<io.gatling.core.session.Session, Validation<byte[]>> bytes) {
-    return new BodyPart(
-      io.gatling.http.Predef$.MODULE$.ByteArrayBodyPart(
-        name,
-        bytes
-      )
-    );
+  private static BodyPart ByteArrayBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> name,
+      Function1<io.gatling.core.session.Session, Validation<byte[]>> bytes) {
+    return new BodyPart(io.gatling.http.Predef.ByteArrayBodyPart(name, bytes));
   }
 
   ////////// CookieSupport
-  public static ActionBuilder addCookie(AddCookie cookie) {
-    return io.gatling.http.action.cookie.AddCookieBuilder$.MODULE$.apply(cookie.asScala());
+  /**
+   * Create an action to add a Cookie
+   *
+   * @param cookie the DSL for adding a cookie
+   * @return an ActionBuilder
+   */
+  @Nonnull
+  public static ActionBuilder addCookie(@Nonnull AddCookie cookie) {
+    return () -> io.gatling.http.action.cookie.AddCookieBuilder.apply(cookie.asScala());
   }
 
-  public static ActionBuilder getCookieValue(GetCookie cookie) {
-    return io.gatling.http.action.cookie.GetCookieBuilder$.MODULE$.apply(cookie.asScala());
+  /**
+   * Create an action to get a Cookie value into the Session
+   *
+   * @param cookie the DSL for getting a cookie
+   * @return an ActionBuilder
+   */
+  @Nonnull
+  public static ActionBuilder getCookieValue(@Nonnull GetCookie cookie) {
+    return () -> io.gatling.http.action.cookie.GetCookieBuilder.apply(cookie.asScala());
   }
 
+  /**
+   * Create an action to flush the Session (non-persistent) Cookies of the user
+   *
+   * @return an ActionBuilder
+   */
+  @Nonnull
   public static ActionBuilder flushSessionCookies() {
-    return new SessionHookBuilder(io.gatling.http.Predef$.MODULE$.flushSessionCookies(), true);
+    return () -> new SessionHookBuilder(io.gatling.http.Predef.flushSessionCookies(), true);
   }
+
+  /**
+   * Create an action to flush all the Cookies of the user
+   *
+   * @return an ActionBuilder
+   */
+  @Nonnull
   public static ActionBuilder flushCookieJar() {
-    return new SessionHookBuilder(io.gatling.http.Predef$.MODULE$.flushCookieJar(), true);
+    return () -> new SessionHookBuilder(io.gatling.http.Predef.flushCookieJar(), true);
   }
+
+  /**
+   * Create an action to flush the HTTP cache of the user
+   *
+   * @return an ActionBuilder
+   */
+  @Nonnull
   public static ActionBuilder flushHttpCache() {
-    return new SessionHookBuilder(io.gatling.http.Predef$.MODULE$.flushHttpCache(), true);
+    return () -> new SessionHookBuilder(io.gatling.http.Predef.flushHttpCache(), true);
   }
 
-  public static AddCookie Cookie(String name, String value) {
-    return new AddCookie(io.gatling.http.Predef$.MODULE$.Cookie(toStringExpression(name), toStringExpression(value)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to add
+   *
+   * @param name the name of the cookie, expressed as a Gatling Expression Language String
+   * @param value the value of the cookie, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static AddCookie Cookie(@Nonnull String name, @Nonnull String value) {
+    return new AddCookie(
+        io.gatling.http.Predef.Cookie(toStringExpression(name), toStringExpression(value)));
   }
 
-  public static AddCookie Cookie(Function<Session, String> name, String value) {
-    return new AddCookie(io.gatling.http.Predef$.MODULE$.Cookie(toTypedGatlingSessionFunction(name), toStringExpression(value)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to add
+   *
+   * @param name the name of the cookie, expressed as a function
+   * @param value the value of the cookie, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static AddCookie Cookie(@Nonnull Function<Session, String> name, @Nonnull String value) {
+    return new AddCookie(
+        io.gatling.http.Predef.Cookie(javaFunctionToExpression(name), toStringExpression(value)));
   }
 
-  public static AddCookie Cookie(String name, Function<Session, String> value) {
-    return new AddCookie(io.gatling.http.Predef$.MODULE$.Cookie(toStringExpression(name), toTypedGatlingSessionFunction(value)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to add
+   *
+   * @param name the name of the cookie, expressed as a Gatling Expression Language String
+   * @param value the value of the cookie, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static AddCookie Cookie(@Nonnull String name, @Nonnull Function<Session, String> value) {
+    return new AddCookie(
+        io.gatling.http.Predef.Cookie(toStringExpression(name), javaFunctionToExpression(value)));
   }
 
-  public static AddCookie Cookie(Function<Session, String> name, Function<Session, String> value) {
-    return new AddCookie(io.gatling.http.Predef$.MODULE$.Cookie(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(value)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to add
+   *
+   * @param name the name of the cookie, expressed as a function
+   * @param value the value of the cookie, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static AddCookie Cookie(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> value) {
+    return new AddCookie(
+        io.gatling.http.Predef.Cookie(
+            javaFunctionToExpression(name), javaFunctionToExpression(value)));
   }
 
-  public static GetCookie CookieKey(String name) {
-    return new GetCookie(io.gatling.http.Predef$.MODULE$.CookieKey(toStringExpression(name)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to get
+   *
+   * @param name the name of the cookie, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static GetCookie CookieKey(@Nonnull String name) {
+    return new GetCookie(io.gatling.http.Predef.CookieKey(toStringExpression(name)));
   }
 
-  public static GetCookie CookieKey(Function<Session, String> name) {
-    return new GetCookie(io.gatling.http.Predef$.MODULE$.CookieKey(toTypedGatlingSessionFunction(name)));
+  /**
+   * Bootstrap the DSL for defining a Cookie to get
+   *
+   * @param name the name of the cookie, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static GetCookie CookieKey(@Nonnull Function<Session, String> name) {
+    return new GetCookie(io.gatling.http.Predef.CookieKey(javaFunctionToExpression(name)));
   }
 
   ////////// ProxySupport
-  public static Proxy Proxy(String host, int port) {
-    return new Proxy(io.gatling.http.Predef$.MODULE$.Proxy(host, port));
+  /**
+   * Bootstrap the DSL for defining a Proxy
+   *
+   * @param host the proxy host
+   * @param port the proxy prot
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Proxy Proxy(@Nonnull String host, int port) {
+    return new Proxy(io.gatling.http.Predef.Proxy(host, port));
   }
 }

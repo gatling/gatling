@@ -16,18 +16,21 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.Action;
-import io.gatling.core.structure.ScenarioContext;
+import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.http.action.ws.WsSendTextFrameBuilder;
-import io.gatling.http.check.ws.WsFrameCheck;
-
 import java.util.function.Function;
 
-public class WsSendTextActionBuilder implements WsAwaitActionBuilder<WsSendTextActionBuilder, WsSendTextFrameBuilder, WsFrameCheck.Text> {
+/**
+ * DSL for building actions to send TEXT frames
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class WsSendTextActionBuilder
+    implements WsAwaitActionBuilder<WsSendTextActionBuilder, WsSendTextFrameBuilder> {
 
   private final WsSendTextFrameBuilder wrapped;
 
-  public WsSendTextActionBuilder(WsSendTextFrameBuilder wrapped) {
+  WsSendTextActionBuilder(WsSendTextFrameBuilder wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -37,7 +40,7 @@ public class WsSendTextActionBuilder implements WsAwaitActionBuilder<WsSendTextA
   }
 
   @Override
-  public Action build(ScenarioContext ctx, Action next) {
-    return wrapped.build(ctx, next);
+  public ActionBuilder asScala() {
+    return wrapped;
   }
 }

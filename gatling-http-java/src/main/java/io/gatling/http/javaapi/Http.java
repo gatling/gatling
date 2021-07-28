@@ -16,83 +16,221 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import io.gatling.commons.validation.Validation;
 import io.gatling.core.javaapi.Session;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
 import scala.Function1;
 
-import java.util.function.Function;
-
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public class Http {
+/**
+ * DSL for bootstrapping HTTP requests.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class Http {
 
   private final Function1<io.gatling.core.session.Session, Validation<String>> name;
 
-  public Http(Function1<io.gatling.core.session.Session, Validation<String>> name) {
+  Http(Function1<io.gatling.core.session.Session, Validation<String>> name) {
     this.name = name;
   }
 
-  public HttpRequestActionBuilder get(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).get(toStringExpression(url)));
+  /**
+   * Define a GET request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder get(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).get(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder get(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).get(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a GET request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder get(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).get(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder put(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).put(toStringExpression(url)));
+  /**
+   * Define a PUT request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder put(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).put(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder put(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).put(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a PUT request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder put(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).put(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder post(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
+  /**
+   * Define a POST request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder post(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder post(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).post(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a POST request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder post(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).post(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder patch(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
+  /**
+   * Define a PATCH request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder patch(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder patch(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).patch(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a PATCH request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder patch(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).patch(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder head(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).head(toStringExpression(url)));
+  /**
+   * Define a HEAD request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder head(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).head(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder head(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).head(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a HEAD request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder head(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).head(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder delete(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).delete(toStringExpression(url)));
+  /**
+   * Define a DELETE request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder delete(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).delete(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder delete(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).delete(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a DELETE request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder delete(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).delete(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder options(String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).options(toStringExpression(url)));
+  /**
+   * Define a OPTIONS request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder options(@Nonnull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).options(toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder options(Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).options(toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a OPTIONS request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder options(@Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).options(javaFunctionToExpression(url)));
   }
 
-  public HttpRequestActionBuilder httpRequest(String method, String url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).httpRequest(method, toStringExpression(url)));
+  /**
+   * Define a HTTP request
+   *
+   * @param method the HTTP method
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder httpRequest(@Nonnull String method, String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name)
+            .httpRequest(method, toStringExpression(url)));
   }
 
-  public HttpRequestActionBuilder httpRequest(String method, Function<Session, String> url) {
-    return new HttpRequestActionBuilder(new io.gatling.http.request.builder.Http(name).httpRequest(method, toTypedGatlingSessionFunction(url)));
+  /**
+   * Define a HTTP request
+   *
+   * @param method the HTTP method
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  @Nonnull
+  public HttpRequestActionBuilder httpRequest(
+      @Nonnull String method, @Nonnull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name)
+            .httpRequest(method, javaFunctionToExpression(url)));
   }
 }

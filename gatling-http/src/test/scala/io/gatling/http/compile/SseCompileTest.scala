@@ -29,7 +29,7 @@ class SseCompileTest extends Simulation {
         .sseName("sse")
         .connect("/stocks/prices")
         .await(30.seconds)(
-          sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
+          sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))
         )
     )
     .exec(

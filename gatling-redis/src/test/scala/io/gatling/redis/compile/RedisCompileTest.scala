@@ -25,7 +25,7 @@ class RedisCompileTest extends Simulation {
 
   private val redisPool = new RedisClientPool("localhost", 6379)
 
-  redisFeeder(???, "key")
+  redisFeeder(redisPool, "key")
 
   after {
     redisPool.close()

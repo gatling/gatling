@@ -25,7 +25,7 @@ class ExtractedUrisSpec extends BaseSpec {
 
   private def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-  private def extractUris(uris: Seq[String]): ExtractedUris = ExtractedUris(uris.map(mockRequestElement))
+  private def extractUris(uris: Seq[String]): ExtractedUris = ExtractedUris(uris.map(mockRequestElement), Format.Scala)
 
   "extracting uris" should "extract common root" in {
     val commonRoot = "http://gatling.io/path1"

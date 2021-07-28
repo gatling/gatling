@@ -25,21 +25,20 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.util;
 
 import io.gatling.netty.util.StringBuilderPool;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 public final class StringUtils {
 
-  private StringUtils() {
-  }
+  private StringUtils() {}
 
   public static ByteBuffer charSequence2ByteBuffer(CharSequence cs, Charset charset) {
     return charset.encode(CharBuffer.wrap(cs));
@@ -70,12 +69,10 @@ public final class StringUtils {
     for (byte b : bytes) {
       int bi = 0xff & b;
       int c = '0' + (bi / base) % base;
-      if (c > '9')
-        c = 'a' + (c - '0' - 10);
+      if (c > '9') c = 'a' + (c - '0' - 10);
       buf.append((char) c);
       c = '0' + bi % base;
-      if (c > '9')
-        c = 'a' + (c - '0' - 10);
+      if (c > '9') c = 'a' + (c - '0' - 10);
       buf.append((char) c);
     }
   }

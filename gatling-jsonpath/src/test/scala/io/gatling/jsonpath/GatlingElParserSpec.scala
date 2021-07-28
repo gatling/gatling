@@ -385,6 +385,10 @@ trait ParsingMatchers {
             s"parsing issue, $msg",
             s"parsing issue, $msg"
           )
+        case error: GatlingElParser.Error =>
+          throw new Exception(error.toString)
+        case failure: GatlingElParser.Failure =>
+          throw new Exception(failure.toString)
       }
     }
   }

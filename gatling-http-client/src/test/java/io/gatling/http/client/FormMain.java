@@ -16,19 +16,18 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.uri.Uri;
+import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FormMain {
 
@@ -41,25 +40,32 @@ public class FormMain {
       params.add(new Param("firstname", "Mickey"));
       params.add(new Param("lastname", "Mouse"));
 
-      Request request = client.newRequestBuilder(HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
-        .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
-        .setRequestTimeout(TIMEOUT_SECONDS * 1000)
-        .build();
+      Request request =
+          client
+              .newRequestBuilder(
+                  HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
+              .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
+              .setRequestTimeout(TIMEOUT_SECONDS * 1000)
+              .build();
 
       final CountDownLatch latch1 = new CountDownLatch(1);
-      client.execute(request, 0, true, new ResponseAsStringListener() {
-        @Override
-        public void onComplete() {
-          LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
-          latch1.countDown();
-        }
+      client.execute(
+          request,
+          0,
+          true,
+          new ResponseAsStringListener() {
+            @Override
+            public void onComplete() {
+              LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
+              latch1.countDown();
+            }
 
-        @Override
-        public void onThrowable(Throwable e) {
-          e.printStackTrace();
-          latch1.countDown();
-        }
-      });
+            @Override
+            public void onThrowable(Throwable e) {
+              e.printStackTrace();
+              latch1.countDown();
+            }
+          });
       latch1.await();
     }
   }

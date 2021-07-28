@@ -33,14 +33,21 @@ private[convert] object RequestTemplate {
 private[convert] class RequestTemplate(
     requestBodies: Map[Int, DumpedBody],
     responseBodies: Map[Int, DumpedBody],
-    configuration: RecorderConfiguration
+    config: RecorderConfiguration
 ) {
+  private val format = config.core.format
+
+  private val isCheck = format match {
+    case Format.Kotlin => "`is`"
+    case _             => "is"
+  }
+
   private def renderMethod(request: RequestElement, extractedUri: ExtractedUris): String = {
     val renderedUrl =
       if (request.printedUrl == request.uri) {
         extractedUri.renderUri(request.uri)
       } else {
-        protectWithTripleQuotes(request.printedUrl)
+        request.printedUrl.protect(format)
       }
 
     if (RequestTemplate.BuiltInHttpMethods.contains(request.method)) {
@@ -60,16 +67,17 @@ private[convert] class RequestTemplate(
 
     def renderLongString(value: String) =
       if (value.length > RequestTemplate.MaxLiteralSize)
-        s"""Seq(${value.grouped(RequestTemplate.MaxLiteralSize).map(protectWithTripleQuotes).mkString(", ")}).mkString"""
+        s"""Seq(${value.grouped(RequestTemplate.MaxLiteralSize).map(_.protect(format)).mkString(", ")}).mkString"""
       else
-        protectWithTripleQuotes(value)
+        value.protect(format)
 
     request.body match {
       case Some(RequestBodyParams(params)) =>
-        params.map { case (key, value) =>
-          s"""
-             |			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})""".stripMargin
-        }.mkString
+        params
+          .map { case (key, value) =>
+            s".formParam(${key.protect(format)}, ${renderLongString(value)})".stripMargin
+          }
+          .mkString(s"$Eol  ")
       case _ =>
         requestBodies.get(request.id) match {
           case Some(dumpedBody) => s""".body(RawFileBody("${dumpedBody.classPathLocation}"))"""
@@ -81,7 +89,7 @@ private[convert] class RequestTemplate(
   private def renderBasicAuthCredentials(request: RequestElement): String =
     request.basicAuthCredentials match {
       case Some((username, password)) =>
-        s""".basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
+        s".basicAuth(${username.protect(format)},${password.protect(format)})"
       case _ =>
         ""
     }
@@ -89,19 +97,18 @@ private[convert] class RequestTemplate(
   private def renderResources(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): String =
     if (request.nonEmbeddedResources.nonEmpty) {
       s""".resources(
-         |        ${request.nonEmbeddedResources.zipWithIndex
-        .map { case (resource, _) => render(simulationClass, resource, extractedUri, mainRequest = false) }
-        .mkString(
-          """,
-            |        """.stripMargin
-        )})""".stripMargin
+         |${request.nonEmbeddedResources.zipWithIndex
+        .map { case (resource, _) => render(simulationClass, resource, extractedUri) }
+        .mkString(s",$Eol")
+        .indent(2)}
+         |)""".stripMargin
     } else {
       ""
     }
 
   private def renderStatusCheck(request: RequestElement): String =
     if (!HttpHelper.isOk(request.statusCode)) {
-      s".check(status.is(${request.statusCode}))"
+      s".check(status${format.parameterlessMethodCall}.$isCheck(${request.statusCode}))"
     } else {
       ""
     }
@@ -109,25 +116,22 @@ private[convert] class RequestTemplate(
   private def renderResponseBodyCheck(request: RequestElement): String =
     responseBodies.get(request.id) match {
       case Some(dumpedBody) =>
-        s""".check(bodyBytes.is(RawFileBody("${dumpedBody.classPathLocation}")))"""
+        s""".check(bodyBytes${format.parameterlessMethodCall}.$isCheck(RawFileBody("${dumpedBody.classPathLocation}")))"""
       case _ =>
         ""
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris, mainRequest: Boolean): String = {
-    val leftMargin = " " * (if (mainRequest) 6 else 10)
-    val prefix = if (configuration.http.useSimulationAsPrefix) simulationClass else "request"
-    val postfix = if (configuration.http.useMethodAndUriAsPostfix) ":" + RequestTemplate.sanitizeRequestPostfix(s"${request.method}_${request.uri}") else ""
+  def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): String = {
+    val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"
+    val postfix = if (config.http.useMethodAndUriAsPostfix) ":" + RequestTemplate.sanitizeRequestPostfix(s"${request.method}_${request.uri}") else ""
     s"""http("${prefix}_${request.id}$postfix")
-       |$leftMargin.${renderMethod(request, extractedUri)}
-       |$leftMargin${renderHeaders(request)}
-       |$leftMargin${renderBodyOrParams(request)}
-       |$leftMargin${renderBasicAuthCredentials(request)}
-       |$leftMargin${renderResources(simulationClass, request, extractedUri)}
-       |$leftMargin${renderStatusCheck(request)}
-       |$leftMargin${renderResponseBodyCheck(request)}""".stripMargin.linesIterator
-      .filter(_.exists(_ != ' '))
-      .mkString(Eol)
+       |  .${renderMethod(request, extractedUri)}
+       |  ${renderHeaders(request)}
+       |  ${renderBodyOrParams(request)}
+       |  ${renderBasicAuthCredentials(request)}
+       |  ${renderStatusCheck(request)}
+       |  ${renderResponseBodyCheck(request)}
+       |${renderResources(simulationClass, request, extractedUri).indent(2)}""".stripMargin.noEmptyLines
   }
 }

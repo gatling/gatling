@@ -25,7 +25,8 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.oauth;
@@ -33,9 +34,8 @@ package io.gatling.http.client.oauth;
 import io.gatling.http.client.util.Utf8UrlEncoder;
 
 /**
- * Value class used for OAuth tokens (request secret, access secret);
- * simple container with two parts, public id part ("key") and
- * confidential ("secret") part.
+ * Value class used for OAuth tokens (request secret, access secret); simple container with two
+ * parts, public id part ("key") and confidential ("secret") part.
  */
 public class RequestToken {
   public final String key;

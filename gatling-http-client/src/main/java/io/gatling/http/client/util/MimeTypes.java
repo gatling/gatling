@@ -30,20 +30,23 @@ public final class MimeTypes {
   static final Map<String, String> MIME_TYPES_FILE_TYPE_MAP = new HashMap<>();
 
   static {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("gatling-mime.types")))) {
+    try (BufferedReader reader =
+        new BufferedReader(
+            new InputStreamReader(
+                Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResourceAsStream("gatling-mime.types")))) {
 
       String line;
       while ((line = reader.readLine()) != null) {
         // comment
-        if (line.charAt(0) == '#')
-          continue;
+        if (line.charAt(0) == '#') continue;
 
         StringTokenizer tokenizer = new StringTokenizer(line);
         int tokenCount = tokenizer.countTokens();
 
         // empty line
-        if (tokenCount == 0)
-          continue;
+        if (tokenCount == 0) continue;
 
         String mimeType = tokenizer.nextToken();
         while (tokenizer.hasMoreTokens()) {
@@ -57,8 +60,7 @@ public final class MimeTypes {
     }
   }
 
-  private MimeTypes() {
-  }
+  private MimeTypes() {}
 
   public static String getMimeType(String fileName) {
     int dotIdx = fileName.lastIndexOf('.');

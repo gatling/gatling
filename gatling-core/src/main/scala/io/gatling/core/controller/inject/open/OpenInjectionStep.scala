@@ -324,40 +324,40 @@ sealed trait CompositeOpenInjectionStepLike extends OpenInjectionStep {
   private[inject] def composite: CompositeOpenInjectionStep
 }
 
-final case class IncreasingUsersPerSecCompositeStep private[inject] (
-    usersPerSec: Double,
-    nbOfSteps: Int,
+final case class StairsUsersPerSecCompositeStep private[inject] (
+    rateIncrement: Double,
+    levels: Int,
     duration: FiniteDuration,
-    startingUsers: Double,
+    startingRate: Double,
     rampDuration: FiniteDuration
 ) extends CompositeOpenInjectionStepLike {
-  def startingFrom(startingUsers: Double): IncreasingUsersPerSecCompositeStep = this.copy(startingUsers = startingUsers)
-  def separatedByRampsLasting(duration: FiniteDuration): IncreasingUsersPerSecCompositeStep = this.copy(rampDuration = duration)
+  def startingFrom(startingRate: Double): StairsUsersPerSecCompositeStep = this.copy(startingRate = startingRate)
+  def separatedByRampsLasting(duration: FiniteDuration): StairsUsersPerSecCompositeStep = this.copy(rampDuration = duration)
 
   override private[inject] lazy val composite = {
     val injectionSteps =
-      List.range(0, nbOfSteps).flatMap { stepIdx =>
+      List.range(0, levels).flatMap { stepIdx =>
         if (rampDuration > Duration.Zero) {
-          if (startingUsers == 0) {
+          if (startingRate == 0) {
             // (ramp, level)*
-            val rampStartRate = stepIdx * usersPerSec
-            val levelRate = (stepIdx + 1) * usersPerSec
+            val rampStartRate = stepIdx * rateIncrement
+            val levelRate = (stepIdx + 1) * rateIncrement
             RampRateOpenInjection(rampStartRate, levelRate, rampDuration) :: ConstantRateOpenInjection(levelRate, duration) :: Nil
 
           } else {
             // (level, ramp)* + level
-            val levelRate = stepIdx * usersPerSec + startingUsers
+            val levelRate = stepIdx * rateIncrement + startingRate
             val level = ConstantRateOpenInjection(levelRate, duration)
-            if (stepIdx == nbOfSteps - 1) {
+            if (stepIdx == levels - 1) {
               level :: Nil
             } else {
-              val rampEndRate = (stepIdx + 1) * usersPerSec + startingUsers
+              val rampEndRate = (stepIdx + 1) * rateIncrement + startingRate
               level :: RampRateOpenInjection(levelRate, rampEndRate, rampDuration) :: Nil
             }
           }
         } else {
           // only levels
-          val levelRate = stepIdx * usersPerSec + startingUsers
+          val levelRate = stepIdx * rateIncrement + startingRate
           ConstantRateOpenInjection(levelRate, duration) :: Nil
         }
       }

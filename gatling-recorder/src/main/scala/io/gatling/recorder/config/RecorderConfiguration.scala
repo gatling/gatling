@@ -33,6 +33,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ AllowList, DenyList, Filters }
+import io.gatling.recorder.convert.template.Format
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
@@ -84,7 +85,11 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     } catch {
       case NonFatal(e) =>
         logger.warn(s"Loading configuration crashed: ${e.rootMessage}. Probable cause is a format change, resetting.")
-        configFile.foreach(_.delete())
+        configFile.foreach { file =>
+          if (file.exists) {
+            file.delete()
+          }
+        }
         _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig)))
     }
   }
@@ -146,12 +151,13 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation).milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig),
         headless = config.getBoolean(core.Headless),
-        harFilePath = config.getString(core.HarFilePath).trimToOption
+        harFilePath = config.getString(core.HarFilePath).trimToOption,
+        format = Format.fromString(config.getString(core.Format).trim)
       ),
       filters = FiltersConfiguration(
-        filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
+        enabled = config.getBoolean(filters.Enable),
         allowList = new AllowList(config.getStringList(filters.AllowListPatterns).asScala.toList),
-        denyList = new DenyList(config.getStringList(filters.DenylistPatterns).asScala.toList)
+        denyList = new DenyList(config.getStringList(filters.DenyListPatterns).asScala.toList)
       ),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
@@ -196,16 +202,17 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 }
 
 private[recorder] final case class FiltersConfiguration(
-    filterStrategy: FilterStrategy,
+    enabled: Boolean,
     allowList: AllowList,
     denyList: DenyList
 ) {
 
-  def filters: Option[Filters] = filterStrategy match {
-    case FilterStrategy.Disabled       => None
-    case FilterStrategy.DenyListFirst  => Some(new Filters(denyList, allowList))
-    case FilterStrategy.AllowListFirst => Some(new Filters(allowList, denyList))
-  }
+  def filters: Option[Filters] =
+    if (enabled) {
+      Some(new Filters(denyList, allowList))
+    } else {
+      None
+    }
 }
 
 private[recorder] final case class CoreConfiguration(
@@ -218,7 +225,8 @@ private[recorder] final case class CoreConfiguration(
     thresholdForPauseCreation: Duration,
     saveConfig: Boolean,
     headless: Boolean,
-    harFilePath: Option[String]
+    harFilePath: Option[String],
+    format: Format
 )
 
 private[recorder] final case class HttpConfiguration(

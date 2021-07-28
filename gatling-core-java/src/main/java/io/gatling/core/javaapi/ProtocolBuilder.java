@@ -16,7 +16,13 @@
 
 package io.gatling.core.javaapi;
 
+/**
+ * A builder for a protocol configuration
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public interface ProtocolBuilder {
 
+  /** @return a Scala protocol */
   io.gatling.core.protocol.Protocol protocol();
 }

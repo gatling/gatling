@@ -16,18 +16,17 @@
 
 package io.gatling.http.client.body.multipart;
 
-import io.gatling.http.client.body.RequestBody;
-import io.gatling.http.client.body.RequestBodyBuilder;
-import io.netty.handler.codec.http.HttpHeaderValues;
-
-import java.nio.charset.Charset;
-import java.util.List;
-
 import static io.gatling.http.client.util.HttpUtils.computeMultipartBoundary;
 import static io.gatling.http.client.util.HttpUtils.extractContentTypeBoundaryAttribute;
 import static io.gatling.http.client.util.HttpUtils.patchContentTypeWithBoundaryAttribute;
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static java.nio.charset.StandardCharsets.US_ASCII;
+
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import java.nio.charset.Charset;
+import java.util.List;
 
 public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder.Base<List<Part<?>>> {
 
@@ -44,7 +43,9 @@ public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder.Base
       boundary = contentTypeBoundaryAttribute.getBytes(US_ASCII);
     } else {
       boundary = computeMultipartBoundary();
-      contentType = patchContentTypeWithBoundaryAttribute(withDefault(contentType, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
+      contentType =
+          patchContentTypeWithBoundaryAttribute(
+              withDefault(contentType, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
     }
 
     return new MultipartFormDataRequestBody(content, contentType, boundary);

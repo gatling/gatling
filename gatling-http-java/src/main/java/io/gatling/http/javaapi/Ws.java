@@ -16,80 +16,160 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.builder.ActionBuilder;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.core.javaapi.Session;
-import io.gatling.http.Predef$;
-import io.gatling.http.check.ws.WsFrameCheck;
-
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public class Ws {
+/**
+ * DSL for building WebSocket configurations
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class Ws {
   private final io.gatling.http.action.ws.Ws wrapped;
 
-  public Ws(final io.gatling.http.action.ws.Ws wrapped) {
+  Ws(final io.gatling.http.action.ws.Ws wrapped) {
     this.wrapped = wrapped;
   }
 
-  public Ws wsName(String wsName) {
+  /**
+   * Define a custom WebSocket name so multiple WebSockets for the same virtual users don't conflict
+   *
+   * @param wsName the name, expressed as a Gatling Expression Language String
+   * @return a new Ws instance
+   */
+  @Nonnull
+  public Ws wsName(@Nonnull String wsName) {
     return new Ws(wrapped.wsName(toStringExpression(wsName)));
   }
 
-  public Ws wsName(Function<Session, String> wsName) {
-    return new Ws(wrapped.wsName(toTypedGatlingSessionFunction(wsName)));
+  /**
+   * Define a custom WebSocket name so multiple WebSockets for the same virtual users don't conflict
+   *
+   * @param wsName the name, expressed as a function
+   * @return a new Ws instance
+   */
+  @Nonnull
+  public Ws wsName(@Nonnull Function<Session, String> wsName) {
+    return new Ws(wrapped.wsName(javaFunctionToExpression(wsName)));
   }
 
-  public WsConnectActionBuilder connect(String url) {
+  /**
+   * Boostrap an action to connect the WebSocket
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsConnectActionBuilder connect(@Nonnull String url) {
     return new WsConnectActionBuilder(wrapped.connect(toStringExpression(url)));
   }
 
-  public WsConnectActionBuilder connect(Function<Session, String> url) {
-    return new WsConnectActionBuilder(wrapped.connect(toTypedGatlingSessionFunction(url)));
+  /**
+   * Boostrap an action to connect the WebSocket
+   *
+   * @param url the url to connect to, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsConnectActionBuilder connect(@Nonnull Function<Session, String> url) {
+    return new WsConnectActionBuilder(wrapped.connect(javaFunctionToExpression(url)));
   }
 
-  public WsSendTextActionBuilder sendText(String text) {
+  /**
+   * Boostrap an action to send a TEXT frame
+   *
+   * @param text the text to send, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsSendTextActionBuilder sendText(@Nonnull String text) {
     return new WsSendTextActionBuilder(wrapped.sendText(toStringExpression(text)));
   }
 
-  public WsSendTextActionBuilder sendText(Function<Session, String> text) {
-    return new WsSendTextActionBuilder(wrapped.sendText(toTypedGatlingSessionFunction(text)));
+  /**
+   * Boostrap an action to send a TEXT frame
+   *
+   * @param text the text to send, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsSendTextActionBuilder sendText(@Nonnull Function<Session, String> text) {
+    return new WsSendTextActionBuilder(wrapped.sendText(javaFunctionToExpression(text)));
   }
 
-  public WsSendBinaryActionBuilder sendBytes(byte[] bytes) {
+  /**
+   * Boostrap an action to send a BINARY frame
+   *
+   * @param bytes the static bytes to send
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsSendBinaryActionBuilder sendBytes(@Nonnull byte[] bytes) {
     return new WsSendBinaryActionBuilder(wrapped.sendBytes(toStaticValueExpression(bytes)));
   }
 
-  public WsSendBinaryActionBuilder sendBytes(String bytes) {
+  /**
+   * Boostrap an action to send a BINARY frame
+   *
+   * @param bytes the bytes to send, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsSendBinaryActionBuilder sendBytes(@Nonnull String bytes) {
     return new WsSendBinaryActionBuilder(wrapped.sendBytes(toBytesExpression(bytes)));
   }
 
-  public WsSendBinaryActionBuilder sendBytes(Function<Session, byte[]> bytes) {
-    return new WsSendBinaryActionBuilder(wrapped.sendBytes(toTypedGatlingSessionFunction(bytes)));
+  /**
+   * Boostrap an action to send a BINARY frame
+   *
+   * @param bytes the bytes to send, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public WsSendBinaryActionBuilder sendBytes(@Nonnull Function<Session, byte[]> bytes) {
+    return new WsSendBinaryActionBuilder(wrapped.sendBytes(javaFunctionToExpression(bytes)));
   }
 
-  // TODO
-//  public SseSetCheckActionBuilder setCheck() {
-//    return new SseSetCheckActionBuilder(wrapped.setCheck());
-//  }
-
+  /**
+   * Boostrap an action to send a CLOSE frame
+   *
+   * @return the next DSL step
+   */
+  @Nonnull
   public ActionBuilder close() {
-    return wrapped.close();
+    return wrapped::close;
   }
 
   public static final class Prefix {
 
     public static final Prefix INSTANCE = new Prefix();
 
-    private Prefix() {
+    private Prefix() {}
+
+    /**
+     * Bootstrap a check on inbound TEXT frames
+     *
+     * @param name the name of the check
+     * @return the next DSL step
+     */
+    @Nonnull
+    public WsFrameCheck.Text checkTextMessage(@Nonnull String name) {
+      return new WsFrameCheck.Text(io.gatling.http.Predef.ws().checkTextMessage(name));
     }
 
-    public WsFrameCheck.Text checkTextMessage(String name) {
-      return Predef$.MODULE$.ws().checkTextMessage(name);
-    }
-
-    public WsFrameCheck.Binary checkBinaryMessage(String name) {
-      return Predef$.MODULE$.ws().checkBinaryMessage(name);
+    /**
+     * Bootstrap a check on inbound BINARY frames
+     *
+     * @param name the name of the check
+     * @return the next DSL step
+     */
+    @Nonnull
+    public WsFrameCheck.Binary checkBinaryMessage(@Nonnull String name) {
+      return new WsFrameCheck.Binary(io.gatling.http.Predef.ws().checkBinaryMessage(name));
     }
   }
 }

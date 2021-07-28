@@ -20,7 +20,6 @@ import io.gatling.http.client.HttpListener;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public abstract class CompleteResponseListener implements HttpListener {
 
   private void releaseChunks() {
     if (chunks != null) {
-      for (ByteBuf chunk: chunks) {
+      for (ByteBuf chunk : chunks) {
         chunk.release();
       }
     }

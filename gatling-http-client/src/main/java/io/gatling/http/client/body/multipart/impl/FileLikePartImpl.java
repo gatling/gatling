@@ -16,16 +16,14 @@
 
 package io.gatling.http.client.body.multipart.impl;
 
-import io.gatling.http.client.body.multipart.FileLikePart;
-
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import io.gatling.http.client.body.multipart.FileLikePart;
+
 public abstract class FileLikePartImpl<T extends FileLikePart<?>> extends PartImpl {
 
-  /**
-   * Attachment's file name as a byte array
-   */
+  /** Attachment's file name as a byte array */
   private static final byte[] FILE_NAME_BYTES = "; filename=".getBytes(US_ASCII);
 
   FileLikePartImpl(T part, byte[] boundary) {

@@ -16,32 +16,32 @@
 
 package io.gatling.http.client.util;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 class Utf8UrlEncoderTest {
 
-    private static String encodeQueryElement(String input) {
-        StringBuilder sb = new StringBuilder(input.length() + 6);
-        Utf8UrlEncoder.encodeAndAppendQueryElement(sb, input);
-        return sb.toString();
-    }
+  private static String encodeQueryElement(String input) {
+    StringBuilder sb = new StringBuilder(input.length() + 6);
+    Utf8UrlEncoder.encodeAndAppendQueryElement(sb, input);
+    return sb.toString();
+  }
 
-    @Test
-    void testEncodeQueryElement() {
-        assertEquals("foobar", encodeQueryElement("foobar"));
-        // application/x-www-form-urlencoded leaves *, -, . and _ as is
-        assertEquals("*-._", encodeQueryElement("*-._"));
-        // space should be encoded as +
-        assertEquals("+", encodeQueryElement(" "));
-        // other chars should be encoded
-        assertEquals("%7E%26%2B", encodeQueryElement("~&+"));
-    }
+  @Test
+  void testEncodeQueryElement() {
+    assertEquals("foobar", encodeQueryElement("foobar"));
+    // application/x-www-form-urlencoded leaves *, -, . and _ as is
+    assertEquals("*-._", encodeQueryElement("*-._"));
+    // space should be encoded as +
+    assertEquals("+", encodeQueryElement(" "));
+    // other chars should be encoded
+    assertEquals("%7E%26%2B", encodeQueryElement("~&+"));
+  }
 
-    @Test
-    void testPercentEncodeQueryElement() {
-        assertEquals("foobar", Utf8UrlEncoder.percentEncodeQueryElement("foobar"));
-        assertEquals("%2A%26%2B~_", Utf8UrlEncoder.percentEncodeQueryElement("*&+~_"));
-    }
+  @Test
+  void testPercentEncodeQueryElement() {
+    assertEquals("foobar", Utf8UrlEncoder.percentEncodeQueryElement("foobar"));
+    assertEquals("%2A%26%2B~_", Utf8UrlEncoder.percentEncodeQueryElement("*&+~_"));
+  }
 }

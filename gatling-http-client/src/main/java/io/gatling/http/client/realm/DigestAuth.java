@@ -16,16 +16,15 @@
 
 package io.gatling.http.client.realm;
 
-import io.gatling.netty.util.StringBuilderPool;
-import io.netty.handler.codec.http.HttpMethod;
-
-import java.security.MessageDigest;
-import java.util.concurrent.ThreadLocalRandom;
-
 import static io.gatling.http.client.util.MessageDigestUtils.pooledMd5MessageDigest;
+import static io.gatling.http.client.util.MiscUtils.*;
 import static io.gatling.http.client.util.StringUtils.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static io.gatling.http.client.util.MiscUtils.*;
+
+import io.gatling.netty.util.StringBuilderPool;
+import io.netty.handler.codec.http.HttpMethod;
+import java.security.MessageDigest;
+import java.util.concurrent.ThreadLocalRandom;
 
 class DigestAuth {
 
@@ -43,17 +42,17 @@ class DigestAuth {
   private final HttpMethod requestMethod;
   private final String realmUri;
 
-
-  DigestAuth(String username,
-             String password,
-             String realm,
-             String nonce,
-             String opaque,
-             String algorithm,
-             String qop,
-             String nc,
-             HttpMethod requestMethod,
-             String realmUri) {
+  DigestAuth(
+      String username,
+      String password,
+      String realm,
+      String nonce,
+      String opaque,
+      String algorithm,
+      String qop,
+      String nc,
+      HttpMethod requestMethod,
+      String realmUri) {
     this.username = username;
     this.password = password;
     this.realm = realm;
@@ -128,7 +127,8 @@ class DigestAuth {
 
   private byte[] ha1(StringBuilder sb, MessageDigest md, String cnonce) {
     // if algorithm is "MD5" or is unspecified => A1 = username ":" realm-value ":" passwd
-    // if algorithm is "MD5-sess" => A1 = MD5( username-value ":" realm-value ":" passwd ) ":" nonce-value ":" cnonce-value
+    // if algorithm is "MD5-sess" => A1 = MD5( username-value ":" realm-value ":" passwd ) ":"
+    // nonce-value ":" cnonce-value
 
     sb.append(username).append(':').append(realm).append(':').append(password);
     byte[] core = md5FromRecycledStringBuilder(sb, md);
@@ -174,10 +174,8 @@ class DigestAuth {
 
   private static void append(StringBuilder builder, String name, String value, boolean quoted) {
     builder.append(name).append('=');
-    if (quoted)
-      builder.append('"').append(value).append('"');
-    else
-      builder.append(value);
+    if (quoted) builder.append('"').append(value).append('"');
+    else builder.append(value);
 
     builder.append(", ");
   }

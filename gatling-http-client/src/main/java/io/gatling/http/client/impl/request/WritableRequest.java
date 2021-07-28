@@ -60,9 +60,6 @@ public class WritableRequest {
 
   @Override
   public String toString() {
-    return "WritableRequest{" +
-      "request=" + request +
-      ", content=" + content +
-      '}';
+    return "WritableRequest{" + "request=" + request + ", content=" + content + '}';
   }
 }

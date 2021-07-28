@@ -16,15 +16,14 @@
 
 package io.gatling.http.client.body.form;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.netty.handler.codec.http.HttpHeaderValues;
-
 import java.nio.charset.Charset;
 import java.util.List;
-
-import static io.gatling.http.client.util.MiscUtils.withDefault;
 
 public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<List<Param>> {
 
@@ -34,6 +33,11 @@ public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<Li
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new FormUrlEncodedRequestBody(content, contentType != null ? contentType : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(), withDefault(charset, defaultCharset));
+    return new FormUrlEncodedRequestBody(
+        content,
+        contentType != null
+            ? contentType
+            : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(),
+        withDefault(charset, defaultCharset));
   }
 }

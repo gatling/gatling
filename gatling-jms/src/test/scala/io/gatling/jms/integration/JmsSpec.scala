@@ -45,11 +45,11 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
     val consumedDestination: Destination =
       destination match {
-        case JmsTemporaryQueue                     => jmsSession.createTemporaryQueue()
-        case JmsTemporaryTopic                     => jmsSession.createTemporaryTopic()
-        case JmsQueue(StaticValueExpression(name)) => jmsSession.createQueue(name)
-        case JmsTopic(StaticValueExpression(name)) => jmsSession.createTopic(name)
-        case _                                     => throw new UnsupportedOperationException("Support not implemented in this test yet")
+        case JmsDestination.TemporaryQueue                     => jmsSession.createTemporaryQueue()
+        case JmsDestination.TemporaryTopic                     => jmsSession.createTemporaryTopic()
+        case JmsDestination.Queue(StaticValueExpression(name)) => jmsSession.createQueue(name)
+        case JmsDestination.Topic(StaticValueExpression(name)) => jmsSession.createTopic(name)
+        case _                                                 => throw new UnsupportedOperationException("Support not implemented in this test yet")
       }
 
     val consumer = jmsSession.createConsumer(consumedDestination)

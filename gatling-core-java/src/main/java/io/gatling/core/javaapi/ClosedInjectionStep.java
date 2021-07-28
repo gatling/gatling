@@ -16,133 +16,254 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.toScalaDuration;
+
+import io.gatling.core.javaapi.internal.ClosedInjectionSteps;
 import java.time.Duration;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.toScalaDuration;
-
+/**
+ * An injection profile step for using a closed workload model where you control the concurrent
+ * number of users. Only use if your system has a queue limiting entry. Don't use otherwise or your
+ * test will not match any production use case.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public class ClosedInjectionStep {
 
   private final io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped;
 
-  ClosedInjectionStep(io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
+  private ClosedInjectionStep(
+      @Nonnull io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
     this.wrapped = wrapped;
   }
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
+  @Nonnull
   public io.gatling.core.controller.inject.closed.ClosedInjectionStep asScala() {
     return wrapped;
   }
 
-  public static final class ConstantConcurrentUsersBuilder {
+  /**
+   * DSL component for building a {@link ClosedInjectionStep} that will inject new users in a way to
+   * maintain a constant number of concurrent users for a given duration.
+   */
+  public static final class Constant {
     private final int users;
 
-    ConstantConcurrentUsersBuilder(int users) {
+    Constant(int users) {
       this.users = users;
     }
 
+    /**
+     * Define the duration of the step
+     *
+     * @param durationSeconds the duration in seconds
+     * @return a new ClosedInjectionStep
+     */
+    @Nonnull
     public ClosedInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
-    public ClosedInjectionStep during(Duration duration) {
-      return new ClosedInjectionStep(new io.gatling.core.controller.inject.closed.ConstantConcurrentUsersInjection(users, toScalaDuration(duration)));
+    /**
+     * Define the duration of the step
+     *
+     * @param duration the duration
+     * @return a new ClosedInjectionStep
+     */
+    @Nonnull
+    public ClosedInjectionStep during(@Nonnull Duration duration) {
+      return new ClosedInjectionStep(
+          new io.gatling.core.controller.inject.closed.ConstantConcurrentUsersInjection(
+              users, toScalaDuration(duration)));
     }
   }
 
-  public static final class RampConcurrentUsersInjectionFrom {
+  /**
+   * DSL step for building a {@link ClosedInjectionStep} that will inject new users in a way to ramp
+   * the number of concurrent users for a given duration.
+   */
+  public static final class Ramp {
     private final int from;
 
-    public RampConcurrentUsersInjectionFrom(int from) {
+    public Ramp(int from) {
       this.from = from;
     }
 
-    public RampConcurrentUsersInjectionTo to(int t) {
-      return new RampConcurrentUsersInjectionTo(from, t);
+    /**
+     * Define the target number of concurrent users at the end of the ramp.
+     *
+     * @param t the target number
+     * @return a RampConcurrentUsersInjectionTo
+     */
+    @Nonnull
+    public RampTo to(int t) {
+      return new RampTo(from, t);
     }
   }
 
-  public static final class RampConcurrentUsersInjectionTo {
+  /**
+   * DSL step for building a {@link ClosedInjectionStep} that will inject new users in a way to ramp
+   * the number of concurrent users for a given duration.
+   */
+  public static final class RampTo {
     private final int from;
     private final int to;
 
-    public RampConcurrentUsersInjectionTo(int from, int to) {
+    public RampTo(int from, int to) {
       this.from = from;
       this.to = to;
     }
 
+    /**
+     * Define the duration of the ramp.
+     *
+     * @param durationSeconds the duration in seconds
+     * @return a complete ClosedInjectionStep
+     */
+    @Nonnull
     public ClosedInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
-    public ClosedInjectionStep during(Duration duration) {
-      return new ClosedInjectionStep(new io.gatling.core.controller.inject.closed.RampConcurrentUsersInjection(from, to, toScalaDuration(duration)));
+    /**
+     * Define the duration of the ramp.
+     *
+     * @param duration the duration
+     * @return a complete ClosedInjectionStep
+     */
+    @Nonnull
+    public ClosedInjectionStep during(@Nonnull Duration duration) {
+      return new ClosedInjectionStep(
+          new io.gatling.core.controller.inject.closed.RampConcurrentUsersInjection(
+              from, to, toScalaDuration(duration)));
     }
   }
 
-  public static final class IncreasingConcurrentUsersProfileBuilder {
-    private final int concurrentUsers;
+  /**
+   * DSL step for building a {@link ClosedInjectionStep} that will inject new users in a way to ramp
+   * the number of concurrent users in a stairs fashion
+   */
+  public static final class Stairs {
+    private final int usersIncrement;
 
-    public IncreasingConcurrentUsersProfileBuilder(int concurrentUsers) {
-      this.concurrentUsers = concurrentUsers;
+    Stairs(int usersIncrement) {
+      this.usersIncrement = usersIncrement;
     }
 
-    public IncreasingConcurrentUsersProfileBuilderWithTime times(int nbOfSteps) {
-      return new IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps);
+    /**
+     * Define the number of levels
+     *
+     * @param levels the number of levels in the stairs
+     * @return the next DSL step
+     */
+    @Nonnull
+    public StairsWithTime times(int levels) {
+      return new StairsWithTime(usersIncrement, levels);
     }
   }
 
-  public static final class IncreasingConcurrentUsersProfileBuilderWithTime {
-    private final int concurrentUsers;
-    private final int nbOfSteps;
+  /**
+   * DSL step for building a {@link ClosedInjectionStep} that will inject new users in a way to ramp
+   * the number of concurrent users in a stairs fashion
+   */
+  public static final class StairsWithTime {
+    private final int usersIncrement;
+    private final int levels;
 
-    public IncreasingConcurrentUsersProfileBuilderWithTime(int concurrentUsers, int nbOfSteps) {
-      this.concurrentUsers = concurrentUsers;
-      this.nbOfSteps = nbOfSteps;
+    public StairsWithTime(int usersIncrement, int levels) {
+      this.usersIncrement = usersIncrement;
+      this.levels = levels;
     }
 
-    public IncreasingConcurrentUsersCompositeStep eachLevelLasting(int durationSeconds) {
+    /**
+     * Define the duration of each level
+     *
+     * @param durationSeconds the duration in seconds
+     * @return the next DSL step
+     */
+    @Nonnull
+    public Composite eachLevelLasting(int durationSeconds) {
       return eachLevelLasting(Duration.ofSeconds(durationSeconds));
     }
 
-    public IncreasingConcurrentUsersCompositeStep eachLevelLasting(Duration duration) {
-      return new IncreasingConcurrentUsersCompositeStep(new io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps).eachLevelLasting(toScalaDuration(duration)));
+    /**
+     * Define the duration of each level
+     *
+     * @param duration the duration
+     * @return the next DSL step
+     */
+    @Nonnull
+    public Composite eachLevelLasting(@Nonnull Duration duration) {
+      return new Composite(
+          ClosedInjectionSteps.newEachLevelLasting(usersIncrement, levels)
+              .eachLevelLasting(toScalaDuration(duration)));
     }
   }
 
-  public static final class IncreasingConcurrentUsersCompositeStep extends ClosedInjectionStep {
-    IncreasingConcurrentUsersCompositeStep(io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
+  /**
+   * DSL step for building a {@link ClosedInjectionStep} that will inject new users in a way to ramp
+   * the number of concurrent users in a stairs fashion
+   */
+  public static final class Composite extends ClosedInjectionStep {
+    Composite(io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
       super(wrapped);
     }
 
-    public IncreasingConcurrentUsersCompositeStep startingFrom(int startingUsers) {
-      io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep step = (io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep) asScala();
+    /**
+     * Define the initial number of concurrent users (optional)
+     *
+     * @param startingUsers the initial number of concurrent users
+     * @return a usable {@link ClosedInjectionStep}
+     */
+    @Nonnull
+    public Composite startingFrom(int startingUsers) {
+      io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep step =
+          (io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep) asScala();
 
-      return new IncreasingConcurrentUsersCompositeStep(
-        new io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep(
-          step.concurrentUsers(),
-          step.nbOfSteps(),
-          step.duration(),
-          startingUsers,
-          step.rampDuration()
-        )
-      );
+      return new Composite(
+          new io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep(
+              step.usersIncrement(),
+              step.levels(),
+              step.duration(),
+              startingUsers,
+              step.rampDuration()));
     }
 
-    public IncreasingConcurrentUsersCompositeStep separatedByRampsLasting(int durationSeconds) {
+    /**
+     * Define ramps separating levels (optional)
+     *
+     * @param durationSeconds the duration of the ramps in seconds
+     * @return a usable {@link ClosedInjectionStep}
+     */
+    @Nonnull
+    public Composite separatedByRampsLasting(int durationSeconds) {
       return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
     }
 
-    public IncreasingConcurrentUsersCompositeStep separatedByRampsLasting(Duration duration) {
-      io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep step = (io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep) asScala();
+    /**
+     * Define ramps separating levels (optional)
+     *
+     * @param duration the duration of the ramps
+     * @return a usable {@link ClosedInjectionStep}
+     */
+    @Nonnull
+    public Composite separatedByRampsLasting(Duration duration) {
+      io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep step =
+          (io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep) asScala();
 
-      return new IncreasingConcurrentUsersCompositeStep(
-        new io.gatling.core.controller.inject.closed.IncreasingConcurrentUsersCompositeStep(
-          step.concurrentUsers(),
-          step.nbOfSteps(),
-          step.duration(),
-          step.startingUsers(),
-          toScalaDuration(duration)
-        )
-      );
+      return new Composite(
+          new io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep(
+              step.usersIncrement(),
+              step.levels(),
+              step.duration(),
+              step.startingUsers(),
+              toScalaDuration(duration)));
     }
   }
 }

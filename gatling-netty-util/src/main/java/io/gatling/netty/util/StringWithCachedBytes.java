@@ -20,7 +20,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -33,7 +32,8 @@ public class StringWithCachedBytes {
       case 1:
         return Unpooled.wrappedBuffer(chunks.get(0).bytes);
       default:
-        CompositeByteBuf comp = new CompositeByteBuf(ByteBufAllocator.DEFAULT, false, chunks.size());
+        CompositeByteBuf comp =
+            new CompositeByteBuf(ByteBufAllocator.DEFAULT, false, chunks.size());
         for (StringWithCachedBytes chunk : chunks) {
           comp.addComponent(true, Unpooled.wrappedBuffer(chunk.bytes));
         }
@@ -43,7 +43,7 @@ public class StringWithCachedBytes {
 
   public static String toString(List<StringWithCachedBytes> chunks) {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    for (StringWithCachedBytes chunk: chunks) {
+    for (StringWithCachedBytes chunk : chunks) {
       sb.append(chunk.string);
     }
     return sb.toString();

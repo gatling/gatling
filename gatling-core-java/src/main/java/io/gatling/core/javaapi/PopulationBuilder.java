@@ -16,81 +16,193 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.*;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public class PopulationBuilder {
+/**
+ * A builder for a Population = a Scenario + an injection profile.
+ *
+ * <p>Immutable, meaning each method doesn't mutate the current instance but return a new one.
+ */
+public final class PopulationBuilder {
   private final io.gatling.core.structure.PopulationBuilder wrapped;
 
   public PopulationBuilder(io.gatling.core.structure.PopulationBuilder wrapped) {
     this.wrapped = wrapped;
   }
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
   public io.gatling.core.structure.PopulationBuilder asScala() {
     return wrapped;
   }
 
-  public PopulationBuilder protocols(ProtocolBuilder... protocols) {
+  /**
+   * Define the optional protocols for this PopulationBuilder
+   *
+   * @param protocols the protocols
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder protocols(@Nonnull ProtocolBuilder... protocols) {
     return protocols(Arrays.asList(protocols));
   }
 
-  public PopulationBuilder protocols(List<ProtocolBuilder> protocols) {
-    return new PopulationBuilder(wrapped.protocols(toScalaSeq(protocols.stream().map(ProtocolBuilder::protocol).collect(Collectors.toList()))));
+  /**
+   * Define the optional protocols for this PopulationBuilder
+   *
+   * @param protocols the protocols
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder protocols(@Nonnull List<ProtocolBuilder> protocols) {
+    return new PopulationBuilder(
+        wrapped.protocols(
+            toScalaSeq(
+                protocols.stream().map(ProtocolBuilder::protocol).collect(Collectors.toList()))));
   }
 
-  public PopulationBuilder andThen(PopulationBuilder... children) {
+  /**
+   * Define some other PopulationBuilder to be executed once all the users of this PopulationBuilder
+   * complete their Scenario.
+   *
+   * @param children the children PopulationBuilder
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder andThen(@Nonnull PopulationBuilder... children) {
     return andThen(Arrays.asList(children));
   }
 
-  public PopulationBuilder andThen(List<PopulationBuilder> children) {
-    return new PopulationBuilder(wrapped.andThen(toScalaSeq(children.stream().map(PopulationBuilder::asScala).collect(Collectors.toList()))));
+  /**
+   * Define some other PopulationBuilder to be executed once all the users of this PopulationBuilder
+   * complete their Scenario.
+   *
+   * @param children the children PopulationBuilder
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder andThen(@Nonnull List<PopulationBuilder> children) {
+    return new PopulationBuilder(
+        wrapped.andThen(
+            toScalaSeq(
+                children.stream().map(PopulationBuilder::asScala).collect(Collectors.toList()))));
   }
 
+  /**
+   * Disable the pauses, see {@link PauseType#Disabled}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
   public PopulationBuilder disablePauses() {
     return new PopulationBuilder(wrapped.disablePauses());
   }
 
+  /**
+   * Use constant pauses, see {@link PauseType#Constant}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
   public PopulationBuilder constantPauses() {
     return new PopulationBuilder(wrapped.constantPauses());
   }
 
+  /**
+   * Use exponential pauses, see {@link PauseType#Exponential}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
   public PopulationBuilder exponentialPauses() {
     return new PopulationBuilder(wrapped.exponentialPauses());
   }
 
-  public PopulationBuilder customPauses(Function<Session, Long> custom) {
-    return new PopulationBuilder(wrapped.customPauses(toUntypedGatlingSessionFunction(custom)));
+  /**
+   * Use custom pauses, see {@link PauseType.Custom}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder customPauses(@Nonnull Function<Session, Long> custom) {
+    return new PopulationBuilder(wrapped.customPauses(javaLongFunctionToExpression(custom)));
   }
 
+  /**
+   * Use uniform pauses with a standard deviation percentage, see {@link
+   * PauseType.UniformPercentage}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
   public PopulationBuilder uniformPauses(double plusOrMinus) {
     return new PopulationBuilder(wrapped.uniformPauses(plusOrMinus));
   }
 
-  public PopulationBuilder uniformPauses(int plusOrMinus) {
-    return uniformPauses(Duration.ofSeconds(plusOrMinus));
-  }
-
-  public PopulationBuilder uniformPauses(Duration plusOrMinus) {
+  /**
+   * Use uniform pauses with a standard deviation value, see {@link PauseType.UniformDuration}
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder uniformPauses(@Nonnull Duration plusOrMinus) {
     return new PopulationBuilder(wrapped.uniformPauses(toScalaDuration(plusOrMinus)));
   }
 
-  public PopulationBuilder pauses(PauseType pauseType) {
+  /**
+   * Use pauses configured with a given {@link PauseType}
+   *
+   * @param pauseType the pause type
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder pauses(@Nonnull PauseType pauseType) {
     return new PopulationBuilder(wrapped.pauses(pauseType.asScala()));
   }
 
-  public PopulationBuilder throttle(ThrottleStep... throttleSteps) {
+  /**
+   * Define the optional throttling profile
+   *
+   * @param throttleSteps the throttling profile steps
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder throttle(@Nonnull ThrottleStep... throttleSteps) {
     return throttle(Arrays.asList(throttleSteps));
   }
 
-  public PopulationBuilder throttle(List<ThrottleStep> throttleSteps) {
-    return new PopulationBuilder(wrapped.throttle(toScalaSeq(throttleSteps.stream().map(ThrottleStep::asScala).collect(Collectors.toList()))));
+  /**
+   * Define the optional throttling profile
+   *
+   * @param throttleSteps the throttling profile steps
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
+  public PopulationBuilder throttle(@Nonnull List<ThrottleStep> throttleSteps) {
+    return new PopulationBuilder(
+        wrapped.throttle(
+            toScalaSeq(
+                throttleSteps.stream().map(ThrottleStep::asScala).collect(Collectors.toList()))));
   }
 
+  /**
+   * Disable the injection profile sharding that happens normally when running with Gatling
+   * Enterprise. Only effective when the test is running with Gatling Enterprise, noop otherwise.
+   *
+   * @return a new PopulationBuilder
+   */
+  @Nonnull
   public PopulationBuilder noShard() {
     return new PopulationBuilder(wrapped.noShard());
   }

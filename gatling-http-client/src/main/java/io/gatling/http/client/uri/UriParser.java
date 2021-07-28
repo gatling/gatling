@@ -25,15 +25,16 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.uri;
 
-import java.util.Locale;
-
 import static io.gatling.http.client.util.Assertions.assertNotNull;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
+
+import java.util.Locale;
 
 final class UriParser {
 
@@ -84,7 +85,9 @@ final class UriParser {
   }
 
   private boolean isValidProtocol(String protocol) {
-    return protocol.length() > 0 && Character.isLetter(protocol.charAt(0)) && isValidProtocolChars(protocol);
+    return protocol.length() > 0
+        && Character.isLetter(protocol.charAt(0))
+        && isValidProtocolChars(protocol);
   }
 
   private void computeInitialScheme() {
@@ -231,8 +234,7 @@ final class UriParser {
     if (colonPosition >= 0) {
       // see RFC2396: port can be null
       int portPosition = colonPosition + 1;
-      if (host.length() > portPosition)
-        port = Integer.parseInt(host.substring(portPosition));
+      if (host.length() > portPosition) port = Integer.parseInt(host.substring(portPosition));
       host = host.substring(0, colonPosition);
     }
   }
@@ -297,7 +299,7 @@ final class UriParser {
   private void handleConsecutiveSlashes() {
     StringBuilder sb = null;
     boolean inSlashSequence = false;
-    for (int i = 0; i < path.length(); i ++) {
+    for (int i = 0; i < path.length(); i++) {
       char c = path.charAt(i);
       if (c == '/') {
         if (inSlashSequence) {

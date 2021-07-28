@@ -18,7 +18,6 @@ package io.gatling.http.client.proxy;
 
 import io.netty.handler.proxy.ProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
-
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
@@ -40,11 +39,17 @@ public class Socks4ProxyServer extends SockProxyServer {
 
   @Override
   public String toString() {
-    return "Socks4ProxyServer{" +
-      "address=" + address +
-      ", username='" + username + '\'' +
-      ", host='" + host + '\'' +
-      ", port=" + port +
-      '}';
+    return "Socks4ProxyServer{"
+        + "address="
+        + address
+        + ", username='"
+        + username
+        + '\''
+        + ", host='"
+        + host
+        + '\''
+        + ", port="
+        + port
+        + '}';
   }
 }

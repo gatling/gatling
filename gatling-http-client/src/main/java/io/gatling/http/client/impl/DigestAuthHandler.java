@@ -16,6 +16,9 @@
 
 package io.gatling.http.client.impl;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
+import static io.netty.handler.codec.http.HttpHeaderNames.WWW_AUTHENTICATE;
+
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
@@ -26,11 +29,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.ReferenceCountUtil;
-
 import java.util.List;
-
-import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
-import static io.netty.handler.codec.http.HttpHeaderNames.WWW_AUTHENTICATE;
 
 class DigestAuthHandler extends ChannelInboundHandlerAdapter {
 
@@ -53,9 +52,12 @@ class DigestAuthHandler extends ChannelInboundHandlerAdapter {
       if (msg instanceof HttpResponse) {
         HttpResponse response = (HttpResponse) msg;
         if (response.status() == HttpResponseStatus.UNAUTHORIZED) {
-          String authenticateHeader = getHeaderWithPrefix(response.headers().getAll(WWW_AUTHENTICATE), "Digest");
+          String authenticateHeader =
+              getHeaderWithPrefix(response.headers().getAll(WWW_AUTHENTICATE), "Digest");
           if (authenticateHeader != null) {
-            digestHeader = realm.computeAuthorizationHeader(tx.request.getMethod(), tx.request.getUri(), authenticateHeader);
+            digestHeader =
+                realm.computeAuthorizationHeader(
+                    tx.request.getMethod(), tx.request.getUri(), authenticateHeader);
             ReferenceCountUtil.release(msg);
             return;
           }
@@ -67,16 +69,17 @@ class DigestAuthHandler extends ChannelInboundHandlerAdapter {
       ctx.fireChannelRead(msg);
 
     } else if (msg instanceof LastHttpContent) {
-        ReferenceCountUtil.release(msg);
-        // send new request
-        // FIXME make sure connection can be reused, otherwise use a new one
-        // FIXME check what happens if buildRequest throws
-        WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
-        request.getRequest().headers().add(AUTHORIZATION, digestHeader);
+      ReferenceCountUtil.release(msg);
+      // send new request
+      // FIXME make sure connection can be reused, otherwise use a new one
+      // FIXME check what happens if buildRequest throws
+      WritableRequest request =
+          WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
+      request.getRequest().headers().add(AUTHORIZATION, digestHeader);
 
-        // FIXME write can throw Exception!!!
-        request.write(ctx);
-        ctx.pipeline().remove(this);
+      // FIXME write can throw Exception!!!
+      request.write(ctx);
+      ctx.pipeline().remove(this);
     } else {
       // initial response chunks are just ignored
       ReferenceCountUtil.release(msg);

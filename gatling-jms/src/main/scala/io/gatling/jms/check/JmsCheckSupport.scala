@@ -82,12 +82,12 @@ trait JmsCheckSupport {
   ): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =
     JmsCheckMaterializer.bodyString(configuration.core.charset)
 
-  implicit def jmsBodySubstringCheckMaterializer(implicit
+  implicit def jmsSubstringCheckMaterializer(implicit
       configuration: GatlingConfiguration
   ): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
     JmsCheckMaterializer.substring(configuration.core.charset)
 
-  implicit val jmsXPathmaterializer: CheckMaterializer[XPathCheckType, JmsCheck, Message, XdmNode] =
+  implicit val jmsXPathMaterializer: CheckMaterializer[XPathCheckType, JmsCheck, Message, XdmNode] =
     JmsCheckMaterializer.Xpath
 
   implicit def jmsJsonPathCheckMaterializer(implicit

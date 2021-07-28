@@ -48,10 +48,13 @@ public class DefaultResponse<T> implements Response<T> {
 
   @Override
   public String toString() {
-    return "DefaultResponse{" +
-            "status=" + status +
-            ", headers=" + headers +
-            ", body=" + body +
-            '}';
+    return "DefaultResponse{"
+        + "status="
+        + status
+        + ", headers="
+        + headers
+        + ", body="
+        + body
+        + '}';
   }
 }

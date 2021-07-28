@@ -16,41 +16,106 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.builder.ActionBuilder;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.core.javaapi.Session;
-
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public class Sse {
+/**
+ * DSL for building <a
+ * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">SSE</a>
+ * configurations
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class Sse {
   private final io.gatling.http.action.sse.Sse wrapped;
 
-  public Sse(final io.gatling.http.action.sse.Sse wrapped) {
+  Sse(final io.gatling.http.action.sse.Sse wrapped) {
     this.wrapped = wrapped;
   }
 
-  public Sse sseName(String sseName) {
+  /**
+   * Define a custom stream name so multiple SSEs for the same virtual users don't conflict
+   *
+   * @param sseName the name, expressed as a Gatling Expression Language String
+   * @return a new Sse instance
+   */
+  @Nonnull
+  public Sse sseName(@Nonnull String sseName) {
     return new Sse(wrapped.sseName(toStringExpression(sseName)));
   }
 
-  public Sse sseName(Function<Session, String> sseName) {
-    return new Sse(wrapped.sseName(toTypedGatlingSessionFunction(sseName)));
+  /**
+   * Define a custom stream name so multiple SSEs for the same virtual users don't conflict
+   *
+   * @param sseName the name, expressed as a function
+   * @return a new Sse instance
+   */
+  @Nonnull
+  public Sse sseName(@Nonnull Function<Session, String> sseName) {
+    return new Sse(wrapped.sseName(javaFunctionToExpression(sseName)));
   }
 
-  public SseConnectActionBuilder connect(String url) {
+  /**
+   * Boostrap an action to connect the SSE
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  public SseConnectActionBuilder connect(@Nonnull String url) {
     return new SseConnectActionBuilder(wrapped.connect(toStringExpression(url)));
   }
 
-  public SseConnectActionBuilder connect(Function<Session, String> url) {
-    return new SseConnectActionBuilder(wrapped.connect(toTypedGatlingSessionFunction(url)));
+  /**
+   * Boostrap an action to connect the SSE
+   *
+   * @param url the url to connect to, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public SseConnectActionBuilder connect(@Nonnull Function<Session, String> url) {
+    return new SseConnectActionBuilder(wrapped.connect(javaFunctionToExpression(url)));
   }
 
+  /**
+   * Boostrap an action to set a check
+   *
+   * @return the next DSL step
+   */
+  @Nonnull
   public SseSetCheckActionBuilder setCheck() {
     return new SseSetCheckActionBuilder(wrapped.setCheck());
   }
 
+  /**
+   * Create an action to close the stream
+   *
+   * @return an ActionBuilder
+   */
+  @Nonnull
   public ActionBuilder close() {
-    return wrapped.close();
+    return wrapped::close;
+  }
+
+  public static final class Prefix {
+
+    public static final Prefix INSTANCE = new Prefix();
+
+    private Prefix() {}
+
+    /**
+     * Boostrap a SSE check
+     *
+     * @param name
+     * @return the next DSL step
+     */
+    @Nonnull
+    public SseMessageCheck checkMessage(@Nonnull String name) {
+      return new SseMessageCheck(io.gatling.http.Predef.sse().checkMessage(name));
+    }
   }
 }

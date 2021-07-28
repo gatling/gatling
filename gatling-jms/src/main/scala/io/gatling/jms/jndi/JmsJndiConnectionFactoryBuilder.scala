@@ -26,33 +26,32 @@ import io.gatling.commons.model.Credentials
 
 import com.typesafe.scalalogging.StrictLogging
 
-case object JmsJndiConnectionFactoryBuilderBase {
+object JmsJndiConnectionFactoryBuilder {
 
-  def connectionFactoryName(cfn: String): JmsJndiConnectionFactoryBuilderUrlStep =
-    new JmsJndiConnectionFactoryBuilderUrlStep(cfn)
-}
+  object Base {
+    def connectionFactoryName(cfn: String): Url = new Url(cfn)
+  }
 
-final class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
+  final class Url(connectionFactoryName: String) {
+    def url(theUrl: String): ContextFactory =
+      ContextFactory(connectionFactoryName, theUrl, None, Map.empty)
+  }
 
-  def url(theUrl: String): JmsJndiConnectionFactoryBuilderFactoryStep =
-    JmsJndiConnectionFactoryBuilderFactoryStep(connectionFactoryName, theUrl, None, Map.empty)
-}
+  final case class ContextFactory(
+      connectionFactoryName: String,
+      url: String,
+      credentials: Option[Credentials],
+      properties: Map[String, String]
+  ) {
+    def credentials(user: String, password: String): ContextFactory =
+      copy(credentials = Some(Credentials(user, password)))
 
-final case class JmsJndiConnectionFactoryBuilderFactoryStep(
-    connectionFactoryName: String,
-    url: String,
-    credentials: Option[Credentials],
-    properties: Map[String, String]
-) {
+    def property(key: String, value: String): ContextFactory =
+      copy(properties = properties.updated(key, value))
 
-  def credentials(user: String, password: String): JmsJndiConnectionFactoryBuilderFactoryStep =
-    copy(credentials = Some(Credentials(user, password)))
-
-  def property(key: String, value: String): JmsJndiConnectionFactoryBuilderFactoryStep =
-    copy(properties = properties.updated(key, value))
-
-  def contextFactory(cf: String): JmsJndiConnectionFactoryBuilder =
-    new JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
+    def contextFactory(cf: String): JmsJndiConnectionFactoryBuilder =
+      new JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
+  }
 }
 
 final class JmsJndiConnectionFactoryBuilder(
@@ -83,5 +82,4 @@ final class JmsJndiConnectionFactoryBuilder(
     logger.debug(s"Got ConnectionFactory $qcf")
     qcf
   }
-
 }

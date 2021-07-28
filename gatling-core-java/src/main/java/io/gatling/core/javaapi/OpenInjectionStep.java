@@ -16,166 +16,323 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.toScalaDuration;
+
+import io.gatling.core.javaapi.internal.OpenInjectionSteps;
 import java.time.Duration;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.toScalaDuration;
-
+/**
+ * An injection profile step for using an open workload model where you control the arrival rate of
+ * new users. In 99.99% of the cases, the right choice, over closed workload model.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public class OpenInjectionStep {
 
   private final io.gatling.core.controller.inject.open.OpenInjectionStep wrapped;
 
-  OpenInjectionStep(io.gatling.core.controller.inject.open.OpenInjectionStep wrapped) {
+  private OpenInjectionStep(
+      @Nonnull io.gatling.core.controller.inject.open.OpenInjectionStep wrapped) {
     this.wrapped = wrapped;
   }
 
+  /**
+   * Inject a bunch of users at the same time.
+   *
+   * @param users the number of users to inject
+   * @return a new OpenInjectionStep
+   */
+  @Nonnull
+  public static OpenInjectionStep atOnceUsers(int users) {
+    return new OpenInjectionStep(
+        new io.gatling.core.controller.inject.open.AtOnceOpenInjection(users));
+  }
+
+  /**
+   * Don't inject any new user for a given duration
+   *
+   * @param duration the duration
+   * @return a new OpenInjectionStep
+   */
+  @Nonnull
+  public static OpenInjectionStep nothingFor(@Nonnull Duration duration) {
+    return new OpenInjectionStep(
+        new io.gatling.core.controller.inject.open.NothingForOpenInjection(
+            toScalaDuration(duration)));
+  }
+
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
+  @Nonnull
   public io.gatling.core.controller.inject.open.OpenInjectionStep asScala() {
     return wrapped;
   }
 
-  public static final class RampBuilder {
-    private final int users;
+  /**
+   * A DSL for creating a {@link OpenInjectionStep} that will inject a stock of users distributed
+   * evenly on a given period of time. Strictly equivalent to {@link ConstantRate}
+   */
+  public static final class Ramp {
+    private final io.gatling.core.controller.inject.open.OpenInjectionBuilder.Ramp wrapped;
 
-    RampBuilder(int users) {
-      this.users = users;
+    Ramp(int users) {
+      this.wrapped = new io.gatling.core.controller.inject.open.OpenInjectionBuilder.Ramp(users);
     }
 
+    /**
+     * Define the duration of the ramp
+     *
+     * @param durationSeconds the ramp duration in seconds
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
     public OpenInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
-    public OpenInjectionStep during(Duration duration) {
-      return new OpenInjectionStep(new io.gatling.core.controller.inject.open.RampOpenInjection(users, toScalaDuration(duration)));
+    /**
+     * Define the duration of the ramp
+     *
+     * @param duration the ramp duration
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
+    public OpenInjectionStep during(@Nonnull Duration duration) {
+      return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
   }
 
-  public static final class HeavisideBuilder {
-    private final int users;
+  /**
+   * A DSL for creating a {@link OpenInjectionStep} that will inject a stock of users distributed
+   * with a <a hreh="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside</a>
+   * distribution on a given period of time. Strictly equivalent to {@link ConstantRate}
+   */
+  public static final class Heaviside {
+    private final io.gatling.core.controller.inject.open.OpenInjectionBuilder.Heaviside wrapped;
 
-    HeavisideBuilder(int users) {
-      this.users = users;
+    Heaviside(int users) {
+      this.wrapped =
+          new io.gatling.core.controller.inject.open.OpenInjectionBuilder.Heaviside(users);
     }
 
+    /**
+     * Define the duration of the Heaviside distribution
+     *
+     * @param durationSeconds the duration in seconds
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
     public OpenInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
-    public OpenInjectionStep during(Duration duration) {
-      return new OpenInjectionStep(new io.gatling.core.controller.inject.open.HeavisideOpenInjection(users, toScalaDuration(duration)));
+    /**
+     * Define the duration of the Heaviside distribution
+     *
+     * @param duration the duration
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
+    public OpenInjectionStep during(@Nonnull Duration duration) {
+      return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
   }
 
-  public static final class ConstantRateBuilder {
-    private final double rate;
+  /**
+   * A DSL for creating a {@link OpenInjectionStep} that will inject users at a constant rate for a
+   * given duration.
+   */
+  public static final class ConstantRate {
+    private final io.gatling.core.controller.inject.open.OpenInjectionBuilder.ConstantRate wrapped;
 
-    ConstantRateBuilder(double rate) {
-      this.rate = rate;
+    ConstantRate(double rate) {
+      this.wrapped =
+          new io.gatling.core.controller.inject.open.OpenInjectionBuilder.ConstantRate(rate);
     }
 
+    /**
+     * Define the duration of the step
+     *
+     * @param durationSeconds the duration in seconds
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
     public OpenInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
-    public OpenInjectionStep during(Duration duration) {
-      return new OpenInjectionStep(new io.gatling.core.controller.inject.open.ConstantRateOpenInjection(rate, toScalaDuration(duration)));
+    /**
+     * Define the duration of the step
+     *
+     * @param duration the duration
+     * @return a new OpenInjectionStep
+     */
+    @Nonnull
+    public OpenInjectionStep during(@Nonnull Duration duration) {
+      return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
   }
 
-  public static final class PartialRampRateBuilder {
-    private final double rate1;
+  /**
+   * A DSL for creating a {@link OpenInjectionStep} that will inject users at a rate that will
+   * increase linearly for a given duration.
+   */
+  public static final class RampRate {
+    private final double from;
 
-    PartialRampRateBuilder(double rate1) {
-      this.rate1 = rate1;
+    RampRate(double from) {
+      this.from = from;
     }
 
+    /**
+     * Define the target rate at the end of the ramp
+     *
+     * @param to the target rate
+     * @return the next DSL step
+     */
+    @Nonnull
+    public During to(double to) {
+      return new During(from, to);
+    }
 
-    public RampRateBuilder to(double rate2) {
-      return new RampRateBuilder(rate1, rate2);
+    /**
+     * A DSL for creating a {@link OpenInjectionStep} that will inject users at a rate that will
+     * increase linearly for a given duration.
+     */
+    public static final class During {
+      private final double from;
+      private final double to;
+
+      private During(double from, double to) {
+        this.from = from;
+        this.to = to;
+      }
+
+      /**
+       * Define the duration of the ramp
+       *
+       * @param durationSeconds the duration in seconds
+       * @return a new OpenInjectionStep
+       */
+      @Nonnull
+      public OpenInjectionStep during(int durationSeconds) {
+        return during(Duration.ofSeconds(durationSeconds));
+      }
+
+      /**
+       * Define the duration of the ramp
+       *
+       * @param duration the duration
+       * @return a new OpenInjectionStep
+       */
+      @Nonnull
+      public OpenInjectionStep during(@Nonnull Duration duration) {
+        return new OpenInjectionStep(
+            OpenInjectionSteps.newRampRateTo(from, to).during(toScalaDuration(duration)));
+      }
     }
   }
 
-  public static final class RampRateBuilder {
-    private final double rate1;
-    private final double rate2;
+  /** A DSL for creating a {@link OpenInjectionStep} that will inject users with stairs rates. */
+  public static final class Stairs {
+    private final double rateIncrement;
 
-    RampRateBuilder(double rate1, double rate2) {
-      this.rate1 = rate1;
-      this.rate2 = rate2;
+    Stairs(double rateIncrement) {
+      this.rateIncrement = rateIncrement;
     }
 
-    public OpenInjectionStep during(int durationSeconds) {
-      return during(Duration.ofSeconds(durationSeconds));
+    /**
+     * Define the number of levels
+     *
+     * @param levels the number of levels in the stairs
+     * @return the next DSL step
+     */
+    @Nonnull
+    public Times times(int levels) {
+      return new Times(rateIncrement, levels);
     }
 
-    public OpenInjectionStep during(Duration duration) {
-      return new OpenInjectionStep(new io.gatling.core.controller.inject.open.RampRateOpenInjection(rate1, rate2, toScalaDuration(duration)));
-    }
-  }
+    /** A DSL for creating a {@link OpenInjectionStep} that will inject users with stairs rates. */
+    public static final class Times {
+      private final double rateIncrement;
+      private final int levels;
 
-  public static final class IncreasingUsersPerSecProfileBuilder {
-    private final double usersPerSec;
+      private Times(double rateIncrement, int levels) {
+        this.rateIncrement = rateIncrement;
+        this.levels = levels;
+      }
 
-    IncreasingUsersPerSecProfileBuilder(double usersPerSec) {
-      this.usersPerSec = usersPerSec;
-    }
+      /**
+       * Define the duration of each level
+       *
+       * @param durationSeconds the duration in seconds
+       * @return the next DSL step
+       */
+      @Nonnull
+      public Composite eachLevelLasting(int durationSeconds) {
+        return eachLevelLasting(Duration.ofSeconds(durationSeconds));
+      }
 
-    public IncreasingUsersPerSecProfileBuilderWithTime times(int nbOfSteps) {
-      return new IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec, nbOfSteps);
-    }
-  }
-
-  public static final class IncreasingUsersPerSecProfileBuilderWithTime {
-    private final double usersPerSec;
-    private final int nbOfSteps;
-
-    IncreasingUsersPerSecProfileBuilderWithTime(double usersPerSec, int nbOfSteps) {
-      this.usersPerSec = usersPerSec;
-      this.nbOfSteps = nbOfSteps;
-    }
-
-    public IncreasingUsersPerSecCompositeStep eachLevelLasting(int durationSeconds) {
-      return eachLevelLasting(Duration.ofSeconds(durationSeconds));
-    }
-
-    public IncreasingUsersPerSecCompositeStep eachLevelLasting(Duration duration) {
-      return new IncreasingUsersPerSecCompositeStep(new io.gatling.core.controller.inject.open.IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec, nbOfSteps).eachLevelLasting(toScalaDuration(duration)));
-    }
-  }
-
-  public static final class IncreasingUsersPerSecCompositeStep extends OpenInjectionStep {
-    IncreasingUsersPerSecCompositeStep(io.gatling.core.controller.inject.open.OpenInjectionStep wrapped) {
-      super(wrapped);
+      /**
+       * Define the duration of each level
+       *
+       * @param duration the duration
+       * @return the next DSL step
+       */
+      @Nonnull
+      public Composite eachLevelLasting(@Nonnull Duration duration) {
+        return new Composite(
+            OpenInjectionSteps.newEachLevelLasting(rateIncrement, levels)
+                .eachLevelLasting(toScalaDuration(duration)));
+      }
     }
 
-    public IncreasingUsersPerSecCompositeStep startingFrom(double startingUsers) {
-      io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep step = (io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep) asScala();
+    /** A DSL for creating a {@link OpenInjectionStep} that will inject users with stairs rates. */
+    public static final class Composite extends OpenInjectionStep {
+      Composite(io.gatling.core.controller.inject.open.StairsUsersPerSecCompositeStep wrapped) {
+        super(wrapped);
+      }
 
-      return new IncreasingUsersPerSecCompositeStep(
-        new io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep(
-          step.usersPerSec(),
-          step.nbOfSteps(),
-          step.duration(),
-          startingUsers,
-          step.rampDuration()
-        )
-      );
-    }
+      private io.gatling.core.controller.inject.open.StairsUsersPerSecCompositeStep wrapped() {
+        return (io.gatling.core.controller.inject.open.StairsUsersPerSecCompositeStep) asScala();
+      }
 
-    public IncreasingUsersPerSecCompositeStep separatedByRampsLasting(int durationSeconds) {
-      return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
-    }
+      /**
+       * Define the initial number of users per second rate (optional)
+       *
+       * @param startingRate the initial rate
+       * @return a usable {@link OpenInjectionStep}
+       */
+      @Nonnull
+      public Composite startingFrom(double startingRate) {
+        return new Composite(wrapped().startingFrom(startingRate));
+      }
 
-    public IncreasingUsersPerSecCompositeStep separatedByRampsLasting(Duration duration) {
-      io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep step = (io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep) asScala();
+      /**
+       * Define ramps separating levels (optional)
+       *
+       * @param durationSeconds the duration of the ramps in seconds
+       * @return a usable {@link OpenInjectionStep}
+       */
+      @Nonnull
+      public Composite separatedByRampsLasting(int durationSeconds) {
+        return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
+      }
 
-      return new IncreasingUsersPerSecCompositeStep(
-        new io.gatling.core.controller.inject.open.IncreasingUsersPerSecCompositeStep(
-          step.usersPerSec(),
-          step.nbOfSteps(),
-          step.duration(),
-          step.startingUsers(),
-          toScalaDuration(duration)
-        )
-      );
+      /**
+       * Define ramps separating levels (optional)
+       *
+       * @param duration the duration
+       * @return a usable {@link OpenInjectionStep}
+       */
+      @Nonnull
+      public Composite separatedByRampsLasting(@Nonnull Duration duration) {
+        return new Composite(wrapped().separatedByRampsLasting(toScalaDuration(duration)));
+      }
     }
   }
 }

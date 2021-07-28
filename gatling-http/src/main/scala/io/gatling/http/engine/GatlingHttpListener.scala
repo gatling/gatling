@@ -164,7 +164,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
     } else {
       try {
         // Clock source might not be monotonic.
-        // Moreover, ProgressListener might be called AFTER ChannelHandler methods
         // ensure response doesn't end before starting
         requestEndTimestamp = max(requestEndTimestamp, requestStartTimestamp)
 

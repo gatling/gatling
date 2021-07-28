@@ -16,12 +16,11 @@
 
 package io.gatling.http.client.uri;
 
-import io.gatling.http.client.Param;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import io.gatling.http.client.Param;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 public class UriEncoderTest {
 
@@ -35,8 +34,12 @@ public class UriEncoderTest {
     assertEquals("https://gatling.io", encode(encoder, "https://gatling.io"));
     assertEquals("https://gatling.io/foo", encode(encoder, "https://gatling.io/foo"));
     assertEquals("https://gatling.io/foo bar", encode(encoder, "https://gatling.io/foo bar"));
-    assertEquals("https://gatling.io?foo=bar&F OO=B AR", encode(encoder, "https://gatling.io", new Param("foo", "bar"), new Param("F OO", "B AR")));
-    assertEquals("https://gatling.io/f oo?f oo=b ar&F OO=B AR", encode(encoder, "https://gatling.io/f oo?f oo=b ar", new Param("F OO", "B AR")));
+    assertEquals(
+        "https://gatling.io?foo=bar&F OO=B AR",
+        encode(encoder, "https://gatling.io", new Param("foo", "bar"), new Param("F OO", "B AR")));
+    assertEquals(
+        "https://gatling.io/f oo?f oo=b ar&F OO=B AR",
+        encode(encoder, "https://gatling.io/f oo?f oo=b ar", new Param("F OO", "B AR")));
   }
 
   @Test
@@ -44,8 +47,12 @@ public class UriEncoderTest {
     UriEncoder encoder = UriEncoder.FIXING;
     assertEquals("https://gatling.io", encode(encoder, "https://gatling.io"));
     assertEquals("https://gatling.io/foo", encode(encoder, "https://gatling.io/foo"));
-    assertEquals("https://gatling.io/foo%20bar", encode(encoder,"https://gatling.io/foo bar"));
-    assertEquals("https://gatling.io?foo=bar&F+OO=B+AR", encode(encoder, "https://gatling.io", new Param("foo", "bar"), new Param("F OO", "B AR")));
-    assertEquals("https://gatling.io/f%20oo?f+oo=b+ar&F+OO=B+AR", encode(encoder, "https://gatling.io/f oo?f oo=b ar", new Param("F OO", "B AR")));
+    assertEquals("https://gatling.io/foo%20bar", encode(encoder, "https://gatling.io/foo bar"));
+    assertEquals(
+        "https://gatling.io?foo=bar&F+OO=B+AR",
+        encode(encoder, "https://gatling.io", new Param("foo", "bar"), new Param("F OO", "B AR")));
+    assertEquals(
+        "https://gatling.io/f%20oo?f+oo=b+ar&F+OO=B+AR",
+        encode(encoder, "https://gatling.io/f oo?f oo=b ar", new Param("F OO", "B AR")));
   }
 }

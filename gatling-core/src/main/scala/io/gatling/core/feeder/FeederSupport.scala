@@ -32,28 +32,28 @@ trait FeederSupport extends ResourceCache {
     SourceFeederBuilder(InMemoryFeederSource(ArraySeq.unsafeWrapArray(data)), configuration)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
-    separatedValues(fileName, CommaSeparator, quoteChar)
+  def csv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(filePath, CommaSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def ssv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
-    separatedValues(fileName, SemicolonSeparator, quoteChar)
+  def ssv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(filePath, SemicolonSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tsv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
-    separatedValues(fileName, TabulationSeparator, quoteChar)
+  def tsv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(filePath, TabulationSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
+  def separatedValues(filePath: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
       configuration: GatlingConfiguration
   ): BatchableFeederBuilder[String] =
-    cachedResource(GatlingFiles.customResourcesDirectory(configuration), fileName) match {
+    cachedResource(GatlingFiles.customResourcesDirectory(configuration), filePath) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
-  def jsonFile(fileName: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
-    cachedResource(GatlingFiles.customResourcesDirectory(configuration), fileName) match {
+  def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
+    cachedResource(GatlingFiles.customResourcesDirectory(configuration), filePath) match {
       case Success(resource) =>
         val data = new JsonFeederFileParser(jsonParsers).parse(resource, configuration.core.charset)
         SourceFeederBuilder(InMemoryFeederSource(data), configuration)

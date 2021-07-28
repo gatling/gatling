@@ -16,6 +16,8 @@
 
 package io.gatling.http.client.impl;
 
+import static java.util.Collections.singletonList;
+
 import io.gatling.http.client.HttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
@@ -53,9 +55,6 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -66,8 +65,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.singletonList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultHttpClient implements HttpClient {
 
@@ -97,13 +96,7 @@ public class DefaultHttpClient implements HttpClient {
   public static final String APP_HTTP_HANDLER = "app-http";
 
   private HttpClientCodec newHttpClientCodec() {
-    return new HttpClientCodec(
-      4096,
-      Integer.MAX_VALUE,
-      8192,
-      false,
-      false,
-      128);
+    return new HttpClientCodec(4096, Integer.MAX_VALUE, 8192, false, false, 128);
   }
 
   private class EventLoopResources {
@@ -114,11 +107,13 @@ public class DefaultHttpClient implements HttpClient {
     private final ChannelPool channelPool;
 
     private void addHttpHandlers(Channel channel) {
-      channel.pipeline()
-        .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-        .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
-        .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
-        .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+      channel
+          .pipeline()
+          .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
+          .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
+          .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
+          .addLast(
+              APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
 
       if (config.getAdditionalChannelInitializer() != null) {
         config.getAdditionalChannelInitializer().accept(channel);
@@ -126,12 +121,13 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     private void addWsHandlers(Channel channel) {
-      channel.pipeline()
-        .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-        .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
-        .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
-        .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
-        .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
+      channel
+          .pipeline()
+          .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
+          .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
+          .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
+          .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
+          .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
 
       if (config.getAdditionalChannelInitializer() != null) {
         config.getAdditionalChannelInitializer().accept(channel);
@@ -143,71 +139,88 @@ public class DefaultHttpClient implements HttpClient {
       long channelPoolIdleCleanerPeriod = config.getChannelPoolIdleCleanerPeriod();
       long idleTimeoutNanos = config.getChannelPoolIdleTimeout() * 1_000_000;
       eventLoop.scheduleWithFixedDelay(
-        () -> channelPool.closeIdleChannels(idleTimeoutNanos),
-        channelPoolIdleCleanerPeriod,
-        channelPoolIdleCleanerPeriod,
-        TimeUnit.MILLISECONDS);
+          () -> channelPool.closeIdleChannels(idleTimeoutNanos),
+          channelPoolIdleCleanerPeriod,
+          channelPoolIdleCleanerPeriod,
+          TimeUnit.MILLISECONDS);
 
-      http1Bootstrap = new Bootstrap()
-        .channelFactory(Transports.newSocketChannelFactory(config.isUseNativeTransport()))
-        .group(eventLoop)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
-        .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
-        .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
-        .option(ChannelOption.SO_KEEPALIVE, config.isSoKeepAlive())
-        .resolver(NoopAddressResolverGroup.INSTANCE)
-        .handler(new ChannelInitializer<Channel>() {
-          @Override
-          protected void initChannel(Channel channel) {
-            channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
-            addHttpHandlers(channel);
-          }
-        });
+      http1Bootstrap =
+          new Bootstrap()
+              .channelFactory(Transports.newSocketChannelFactory(config.isUseNativeTransport()))
+              .group(eventLoop)
+              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
+              .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
+              .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
+              .option(ChannelOption.SO_KEEPALIVE, config.isSoKeepAlive())
+              .resolver(NoopAddressResolverGroup.INSTANCE)
+              .handler(
+                  new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel channel) {
+                      channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
+                      addHttpHandlers(channel);
+                    }
+                  });
 
-      http2Bootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
-        @Override
-        protected void initChannel(Channel channel) {
-          channel.pipeline()
-            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-            .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
+      http2Bootstrap =
+          http1Bootstrap
+              .clone()
+              .handler(
+                  new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel channel) {
+                      channel
+                          .pipeline()
+                          .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
+                          .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
 
-          if (config.getAdditionalChannelInitializer() != null) {
-            config.getAdditionalChannelInitializer().accept(channel);
-          }
-        }
-      });
+                      if (config.getAdditionalChannelInitializer() != null) {
+                        config.getAdditionalChannelInitializer().accept(channel);
+                      }
+                    }
+                  });
 
-      wsBootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
-        @Override
-        protected void initChannel(Channel channel) {
-          channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
-          addWsHandlers(channel);
-        }
-      });
+      wsBootstrap =
+          http1Bootstrap
+              .clone()
+              .handler(
+                  new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel channel) {
+                      channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
+                      addWsHandlers(channel);
+                    }
+                  });
     }
 
     private Bootstrap getHttp1BootstrapWithProxy(ProxyServer proxy) {
-      return http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
-        @Override
-        protected void initChannel(Channel ch) {
-          ch.pipeline()
-            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-            .addLast(PROXY_HANDLER, proxy.newHandler());
-          addHttpHandlers(ch);
-        }
-      });
+      return http1Bootstrap
+          .clone()
+          .handler(
+              new ChannelInitializer<Channel>() {
+                @Override
+                protected void initChannel(Channel ch) {
+                  ch.pipeline()
+                      .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
+                      .addLast(PROXY_HANDLER, proxy.newHandler());
+                  addHttpHandlers(ch);
+                }
+              });
     }
 
     private Bootstrap getWsBootstrapWithProxy(ProxyServer proxy) {
-      return wsBootstrap.clone().handler(new ChannelInitializer<Channel>() {
-        @Override
-        protected void initChannel(Channel ch) {
-          ch.pipeline()
-            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-            .addLast(PROXY_HANDLER, proxy.newHandler());
-          addWsHandlers(ch);
-        }
-      });
+      return wsBootstrap
+          .clone()
+          .handler(
+              new ChannelInitializer<Channel>() {
+                @Override
+                protected void initChannel(Channel ch) {
+                  ch.pipeline()
+                      .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
+                      .addLast(PROXY_HANDLER, proxy.newHandler());
+                  addWsHandlers(ch);
+                }
+              });
     }
   }
 
@@ -234,7 +247,13 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   @Override
-  public void sendRequest(Request request, long clientId, EventLoop eventLoop, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
+  public void sendRequest(
+      Request request,
+      long clientId,
+      EventLoop eventLoop,
+      HttpListener listener,
+      SslContext sslContext,
+      SslContext alpnSslContext) {
     if (isClosed()) {
       return;
     }
@@ -254,7 +273,12 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   @Override
-  public void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, EventLoop eventLoop, SslContext sslContext, SslContext alpnSslContext) {
+  public void sendHttp2Requests(
+      Pair<Request, HttpListener>[] requestsAndListeners,
+      long clientId,
+      EventLoop eventLoop,
+      SslContext sslContext,
+      SslContext alpnSslContext) {
     if (isClosed()) {
       return;
     }
@@ -267,7 +291,8 @@ public class DefaultHttpClient implements HttpClient {
     if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && !config.isEnableSni()) {
       for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
         HttpListener listener = requestAndListener.getRight();
-        listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
+        listener.onThrowable(
+            new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       }
       return;
     }
@@ -302,16 +327,28 @@ public class DefaultHttpClient implements HttpClient {
     return resources;
   }
 
-  private HttpTx buildTx(Request request, long clientId, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
-    RequestTimeout requestTimeout = RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
-    ChannelPoolKey key = new ChannelPoolKey(clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
+  private HttpTx buildTx(
+      Request request,
+      long clientId,
+      HttpListener listener,
+      SslContext sslContext,
+      SslContext alpnSslContext) {
+    RequestTimeout requestTimeout =
+        RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
+    ChannelPoolKey key =
+        new ChannelPoolKey(
+            clientId,
+            RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
     return new HttpTx(request, listener, requestTimeout, key, sslContext, alpnSslContext);
   }
 
-  // only retry pooled keep-alive connections = when keep-alive timeout triggered server side while we were writing and request can be replayed
+  // only retry pooled keep-alive connections = when keep-alive timeout triggered server side while
+  // we were writing and request can be replayed
   boolean canRetry(HttpTx tx) {
     return tx.channelState == HttpTx.ChannelState.POOLED
-      && !(tx.request.getBody() instanceof InputStreamRequestBody && ((InputStreamRequestBody) tx.request.getBody()).isConsumed()); // InputStreamRequestBody can't be replayed
+        && !(tx.request.getBody() instanceof InputStreamRequestBody
+            && ((InputStreamRequestBody) tx.request.getBody())
+                .isConsumed()); // InputStreamRequestBody can't be replayed
   }
 
   void retry(HttpTx tx, EventLoop eventLoop) {
@@ -343,14 +380,16 @@ public class DefaultHttpClient implements HttpClient {
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
     Uri requestUri = request.getUri();
-    boolean tryHttp2 = request.isHttp2Enabled() && requestUri.isSecured() && !requestUri.isWebSocket();
+    boolean tryHttp2 =
+        request.isHttp2Enabled() && requestUri.isSecured() && !requestUri.isWebSocket();
 
     // use a fresh channel for WebSocket
     Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
     listener.onSend();
     if (tryHttp2 && !config.isEnableSni()) {
-      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
+      listener.onThrowable(
+          new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       return;
     }
 
@@ -361,32 +400,41 @@ public class DefaultHttpClient implements HttpClient {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
-      InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(request.getProxyServer(), requestUri);
+      InetSocketAddress unresolvedRemoteAddressThroughTunnelling =
+          unresolvedRemoteAddressThroughTunnelling(request.getProxyServer(), requestUri);
       boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
 
-      resolveRemoteAddresses(request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
-        .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
-          if (requestTimeout.isDone()) {
-            return;
-          }
+      resolveRemoteAddresses(
+              request,
+              eventLoop,
+              unresolvedRemoteAddressThroughTunnelling,
+              listener,
+              requestTimeout)
+          .addListener(
+              (Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
+                if (requestTimeout.isDone()) {
+                  return;
+                }
 
-          if (whenRemoteAddresses.isSuccess()) {
-            List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
+                if (whenRemoteAddresses.isSuccess()) {
+                  List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-            if (tryHttp2 && tx.channelState != HttpTx.ChannelState.RETRY) {
-              String domain = requestUri.getHost();
-              Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
-              if (coalescedChannel != null) {
-                tx.listener.onProtocolAwareness(true);
-                sendTxWithChannel(tx, coalescedChannel);
-              } else {
-                sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
-              }
-            } else {
-              sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
-            }
-          }
-        });
+                  if (tryHttp2 && tx.channelState != HttpTx.ChannelState.RETRY) {
+                    String domain = requestUri.getHost();
+                    Channel coalescedChannel =
+                        resources.channelPool.pollCoalescedChannel(
+                            tx.key.clientId, domain, addresses);
+                    if (coalescedChannel != null) {
+                      tx.listener.onProtocolAwareness(true);
+                      sendTxWithChannel(tx, coalescedChannel);
+                    } else {
+                      sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
+                    }
+                  } else {
+                    sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
+                  }
+                }
+              });
     }
   }
 
@@ -405,27 +453,31 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     ProxyServer proxyServer = request.getProxyServer();
-    InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(proxyServer, requestUri);
+    InetSocketAddress unresolvedRemoteAddressThroughTunnelling =
+        unresolvedRemoteAddressThroughTunnelling(proxyServer, requestUri);
     boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
 
-    resolveRemoteAddresses(request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
-      .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
-        if (requestTimeout.isDone()) {
-          return;
-        }
+    resolveRemoteAddresses(
+            request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
+        .addListener(
+            (Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
+              if (requestTimeout.isDone()) {
+                return;
+              }
 
-        if (whenRemoteAddresses.isSuccess()) {
-          List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
+              if (whenRemoteAddresses.isSuccess()) {
+                List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-          String domain = requestUri.getHost();
-          Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
-          if (coalescedChannel != null) {
-            sendHttp2TxsWithChannel(txs, coalescedChannel);
-          } else {
-            sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses, logProxyAddress);
-          }
-        }
-      });
+                String domain = requestUri.getHost();
+                Channel coalescedChannel =
+                    resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
+                if (coalescedChannel != null) {
+                  sendHttp2TxsWithChannel(txs, coalescedChannel);
+                } else {
+                  sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses, logProxyAddress);
+                }
+              }
+            });
   }
 
   private void sendTxWithChannel(HttpTx tx, Channel channel) {
@@ -445,7 +497,12 @@ public class DefaultHttpClient implements HttpClient {
       // FIXME is it the right place?
       // FIXME wouldn't work for WebSocket
       // FIXME wouldn't work with HTTP/2
-      channel.pipeline().addBefore(APP_HTTP_HANDLER, DIGEST_AUTH_HANDLER, new DigestAuthHandler(tx, (DigestRealm) realm, config));
+      channel
+          .pipeline()
+          .addBefore(
+              APP_HTTP_HANDLER,
+              DIGEST_AUTH_HANDLER,
+              new DigestAuthHandler(tx, (DigestRealm) realm, config));
     }
 
     channel.write(tx);
@@ -464,129 +521,174 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private InetSocketAddress unresolvedRemoteAddressThroughTunnelling(ProxyServer proxyServer, Uri requestUri) {
-    return proxyServer != null && (proxyServer instanceof SockProxyServer || requestUri.isSecured() || requestUri.isWebSocket()) ?
-      InetSocketAddress.createUnresolved(requestUri.getHost(), requestUri.getExplicitPort()) :
-      null;
+  private InetSocketAddress unresolvedRemoteAddressThroughTunnelling(
+      ProxyServer proxyServer, Uri requestUri) {
+    return proxyServer != null
+            && (proxyServer instanceof SockProxyServer
+                || requestUri.isSecured()
+                || requestUri.isWebSocket())
+        ? InetSocketAddress.createUnresolved(requestUri.getHost(), requestUri.getExplicitPort())
+        : null;
   }
 
-  private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, InetSocketAddress unresolvedRemoteAddressThroughTunnelling, HttpListener listener, RequestTimeout requestTimeout) {
+  private Future<List<InetSocketAddress>> resolveRemoteAddresses(
+      Request request,
+      EventLoop eventLoop,
+      InetSocketAddress unresolvedRemoteAddressThroughTunnelling,
+      HttpListener listener,
+      RequestTimeout requestTimeout) {
     ProxyServer proxyServer = request.getProxyServer();
     if (proxyServer != null) {
-      InetSocketAddress remoteAddress = unresolvedRemoteAddressThroughTunnelling != null ?
-        // ProxyHandler will take care of the connect logic
-        unresolvedRemoteAddressThroughTunnelling :
-        // directly connect to proxy over clear HTTP
-        proxyServer.getAddress();
+      InetSocketAddress remoteAddress =
+          unresolvedRemoteAddressThroughTunnelling != null
+              ?
+              // ProxyHandler will take care of the connect logic
+              unresolvedRemoteAddressThroughTunnelling
+              :
+              // directly connect to proxy over clear HTTP
+              proxyServer.getAddress();
 
       return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
 
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();
 
-      request.getNameResolver().resolveAll(request.getUri().getHost(), eventLoop.newPromise(), listener)
-        .addListener((Future<List<InetAddress>> whenAddresses) -> {
-          if (whenAddresses.isSuccess()) {
-            List<InetSocketAddress> remoteInetSocketAddresses = whenAddresses.getNow().stream()
-              .map(address -> new InetSocketAddress(address, request.getUri().getExplicitPort()))
-              .collect(Collectors.toList());
+      request
+          .getNameResolver()
+          .resolveAll(request.getUri().getHost(), eventLoop.newPromise(), listener)
+          .addListener(
+              (Future<List<InetAddress>> whenAddresses) -> {
+                if (whenAddresses.isSuccess()) {
+                  List<InetSocketAddress> remoteInetSocketAddresses =
+                      whenAddresses.getNow().stream()
+                          .map(
+                              address ->
+                                  new InetSocketAddress(
+                                      address, request.getUri().getExplicitPort()))
+                          .collect(Collectors.toList());
 
-            p.setSuccess(remoteInetSocketAddresses);
-          } else {
-            if (!requestTimeout.isDone()) {
-              // only report if we haven't timed out
-              listener.onThrowable(whenAddresses.cause());
-            }
-            p.setFailure(whenAddresses.cause());
-            requestTimeout.cancel();
-          }
-        });
+                  p.setSuccess(remoteInetSocketAddresses);
+                } else {
+                  if (!requestTimeout.isDone()) {
+                    // only report if we haven't timed out
+                    listener.onThrowable(whenAddresses.cause());
+                  }
+                  p.setFailure(whenAddresses.cause());
+                  requestTimeout.cancel();
+                }
+              });
       return p;
     }
   }
 
-  private void sendTxWithNewChannel(HttpTx tx,
-                                    EventLoopResources resources,
-                                    EventLoop eventLoop,
-                                    List<InetSocketAddress> addresses,
-                                    boolean logProxyAddress) {
+  private void sendTxWithNewChannel(
+      HttpTx tx,
+      EventLoopResources resources,
+      EventLoop eventLoop,
+      List<InetSocketAddress> addresses,
+      boolean logProxyAddress) {
     tx.channelState = HttpTx.ChannelState.NEW;
-    openNewChannel(tx.request, logProxyAddress, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
-      .addListener((Future<Channel> whenNewChannel) -> {
-        if (whenNewChannel.isSuccess()) {
-          Channel channel = whenNewChannel.getNow();
-          if (tx.requestTimeout.isDone()) {
-            channel.close();
-            return;
-          }
+    openNewChannel(
+            tx.request,
+            logProxyAddress,
+            eventLoop,
+            resources,
+            addresses,
+            tx.listener,
+            tx.requestTimeout)
+        .addListener(
+            (Future<Channel> whenNewChannel) -> {
+              if (whenNewChannel.isSuccess()) {
+                Channel channel = whenNewChannel.getNow();
+                if (tx.requestTimeout.isDone()) {
+                  channel.close();
+                  return;
+                }
 
-          channelGroup.add(channel);
-          ChannelPool.registerPoolKey(channel, tx.key);
+                channelGroup.add(channel);
+                ChannelPool.registerPoolKey(channel, tx.key);
 
-          if (tx.request.getUri().isSecured()) {
-            LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-            installSslHandler(tx, channel).addListener(f -> {
-              if (tx.requestTimeout.isDone() || !f.isSuccess()) {
-                channel.close();
-                return;
-              }
+                if (tx.request.getUri().isSecured()) {
+                  LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+                  installSslHandler(tx, channel)
+                      .addListener(
+                          f -> {
+                            if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                              channel.close();
+                              return;
+                            }
 
-              if (tx.request.isAlpnRequired()) {
-                LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
-                installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
-                  if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
-                    channel.close();
-                    return;
-                  }
+                            if (tx.request.isAlpnRequired()) {
+                              LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
+                              installHttp2Handler(tx, channel, resources.channelPool)
+                                  .addListener(
+                                      f2 -> {
+                                        if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
+                                          channel.close();
+                                          return;
+                                        }
+                                        sendTxWithChannel(tx, channel);
+                                      });
+
+                            } else {
+                              sendTxWithChannel(tx, channel);
+                            }
+                          });
+                } else {
                   sendTxWithChannel(tx, channel);
-                });
-
-              } else {
-                sendTxWithChannel(tx, channel);
+                }
               }
             });
-          } else {
-            sendTxWithChannel(tx, channel);
-          }
-        }
-      });
   }
 
-  private void sendHttp2TxsWithNewChannel(List<HttpTx> txs,
-                                          EventLoopResources resources,
-                                          EventLoop eventLoop,
-                                          List<InetSocketAddress> addresses,
-                                          boolean logProxyAddress) {
+  private void sendHttp2TxsWithNewChannel(
+      List<HttpTx> txs,
+      EventLoopResources resources,
+      EventLoop eventLoop,
+      List<InetSocketAddress> addresses,
+      boolean logProxyAddress) {
     HttpTx tx = txs.get(0);
-    openNewChannel(tx.request, logProxyAddress, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
-      .addListener((Future<Channel> whenNewChannel) -> {
-        if (whenNewChannel.isSuccess()) {
-          Channel channel = whenNewChannel.getNow();
-          if (tx.requestTimeout.isDone()) {
-            channel.close();
-            return;
-          }
+    openNewChannel(
+            tx.request,
+            logProxyAddress,
+            eventLoop,
+            resources,
+            addresses,
+            tx.listener,
+            tx.requestTimeout)
+        .addListener(
+            (Future<Channel> whenNewChannel) -> {
+              if (whenNewChannel.isSuccess()) {
+                Channel channel = whenNewChannel.getNow();
+                if (tx.requestTimeout.isDone()) {
+                  channel.close();
+                  return;
+                }
 
-          channelGroup.add(channel);
-          ChannelPool.registerPoolKey(channel, tx.key);
+                channelGroup.add(channel);
+                ChannelPool.registerPoolKey(channel, tx.key);
 
-          LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-          installSslHandler(tx, channel).addListener(f -> {
-            if (tx.requestTimeout.isDone() || !f.isSuccess()) {
-              channel.close();
-              return;
-            }
-            LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
-            installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
-              if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
-                channel.close();
-                return;
+                LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+                installSslHandler(tx, channel)
+                    .addListener(
+                        f -> {
+                          if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                            channel.close();
+                            return;
+                          }
+                          LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
+                          installHttp2Handler(tx, channel, resources.channelPool)
+                              .addListener(
+                                  f2 -> {
+                                    if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
+                                      channel.close();
+                                      return;
+                                    }
+                                    sendHttp2TxsWithChannel(txs, channel);
+                                  });
+                        });
               }
-              sendHttp2TxsWithChannel(txs, channel);
             });
-          });
-        }
-      });
   }
 
   private Bootstrap bootstrap(Request request, EventLoopResources resources) {
@@ -615,37 +717,50 @@ public class DefaultHttpClient implements HttpClient {
     return localAddress != null ? new InetSocketAddress(localAddress, 0) : null;
   }
 
-  private Future<Channel> openNewChannel(Request request,
-                                         boolean logProxyAddress,
-                                         EventLoop eventLoop,
-                                         EventLoopResources resources,
-                                         List<InetSocketAddress> remoteAddresses,
-                                         HttpListener listener,
-                                         RequestTimeout requestTimeout) {
+  private Future<Channel> openNewChannel(
+      Request request,
+      boolean logProxyAddress,
+      EventLoop eventLoop,
+      EventLoopResources resources,
+      List<InetSocketAddress> remoteAddresses,
+      HttpListener listener,
+      RequestTimeout requestTimeout) {
 
     Bootstrap bootstrap = bootstrap(request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
-    InetSocketAddress loggedProxyAddress = logProxyAddress ? request.getProxyServer().getAddress() : null;
-    openNewChannelRec(remoteAddresses, loggedProxyAddress, localAddressWithRandomPort(request.getLocalIpV4Address()), localAddressWithRandomPort(request.getLocalIpV6Address()), 0, channelPromise, bootstrap, listener, requestTimeout);
+    InetSocketAddress loggedProxyAddress =
+        logProxyAddress ? request.getProxyServer().getAddress() : null;
+    openNewChannelRec(
+        remoteAddresses,
+        loggedProxyAddress,
+        localAddressWithRandomPort(request.getLocalIpV4Address()),
+        localAddressWithRandomPort(request.getLocalIpV6Address()),
+        0,
+        channelPromise,
+        bootstrap,
+        listener,
+        requestTimeout);
     return channelPromise;
   }
 
-  private static final Exception IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT = new TimeoutException("Request timeout reached while trying to connect, should be ignored") {
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-      return this;
-    }
-  };
+  private static final Exception IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT =
+      new TimeoutException("Request timeout reached while trying to connect, should be ignored") {
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+          return this;
+        }
+      };
 
-  private void openNewChannelRec(List<InetSocketAddress> remoteAddresses,
-                                 InetSocketAddress loggedProxyAddress,
-                                 InetSocketAddress localIpV4Address,
-                                 InetSocketAddress localIpV6Address,
-                                 int i,
-                                 Promise<Channel> channelPromise,
-                                 Bootstrap bootstrap,
-                                 HttpListener listener,
-                                 RequestTimeout requestTimeout) {
+  private void openNewChannelRec(
+      List<InetSocketAddress> remoteAddresses,
+      InetSocketAddress loggedProxyAddress,
+      InetSocketAddress localIpV4Address,
+      InetSocketAddress localIpV6Address,
+      int i,
+      Promise<Channel> channelPromise,
+      Bootstrap bootstrap,
+      HttpListener listener,
+      RequestTimeout requestTimeout) {
 
     if (isClosed()) {
       return;
@@ -668,98 +783,142 @@ public class DefaultHttpClient implements HttpClient {
       }
     } else {
       // IPv4
-      localAddress = NetUtil.isIpV6AddressesPreferred() && localIpV6Address != null ? localIpV6Address : localIpV4Address;
+      localAddress =
+          NetUtil.isIpV6AddressesPreferred() && localIpV6Address != null
+              ? localIpV6Address
+              : localIpV4Address;
     }
 
     if (forceMoveToNextRemoteAddress) {
       int nextI = i + 1;
       if (nextI < remoteAddresses.size()) {
-        openNewChannelRec(remoteAddresses, loggedProxyAddress, localIpV4Address, null, nextI, channelPromise, bootstrap, listener, requestTimeout);
+        openNewChannelRec(
+            remoteAddresses,
+            loggedProxyAddress,
+            localIpV4Address,
+            null,
+            nextI,
+            channelPromise,
+            bootstrap,
+            listener,
+            requestTimeout);
 
       } else {
         requestTimeout.cancel();
-        Exception cause = new UnsupportedOperationException("Can't connect to IPv6 remote " + remoteAddress + " + from IPv4 local one " + localIpV4Address);
+        Exception cause =
+            new UnsupportedOperationException(
+                "Can't connect to IPv6 remote "
+                    + remoteAddress
+                    + " + from IPv4 local one "
+                    + localIpV4Address);
         listener.onThrowable(cause);
         channelPromise.setFailure(cause);
       }
     } else {
-      //[fl]
+      // [fl]
       //
-      //[fl]
+      // [fl]
       ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
 
-      whenChannel.addListener(f -> {
-        if (f.isSuccess()) {
-          //[fl]
-          //
-          //[fl]
-          channelPromise.setSuccess(whenChannel.channel());
+      whenChannel.addListener(
+          f -> {
+            if (f.isSuccess()) {
+              // [fl]
+              //
+              // [fl]
+              channelPromise.setSuccess(whenChannel.channel());
 
-        } else {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Failed to connect to remoteAddress=" + remoteAddress + " from localAddress=" + localAddress, f.cause());
-          }
-          //[fl]
-          //
-          //[fl]
+            } else {
+              if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                    "Failed to connect to remoteAddress="
+                        + remoteAddress
+                        + " from localAddress="
+                        + localAddress,
+                    f.cause());
+              }
+              // [fl]
+              //
+              // [fl]
 
-          if (requestTimeout.isDone()) {
-            channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
-            return;
-          }
+              if (requestTimeout.isDone()) {
+                channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
+                return;
+              }
 
-          int nextI = i + 1;
-          if (nextI < remoteAddresses.size()) {
-            openNewChannelRec(remoteAddresses, loggedProxyAddress, localIpV4Address, localIpV6Address, nextI, channelPromise, bootstrap, listener, requestTimeout);
+              int nextI = i + 1;
+              if (nextI < remoteAddresses.size()) {
+                openNewChannelRec(
+                    remoteAddresses,
+                    loggedProxyAddress,
+                    localIpV4Address,
+                    localIpV6Address,
+                    nextI,
+                    channelPromise,
+                    bootstrap,
+                    listener,
+                    requestTimeout);
 
-          } else {
-            requestTimeout.cancel();
-            listener.onThrowable(f.cause());
-            channelPromise.setFailure(f.cause());
-          }
-        }
-      });
+              } else {
+                requestTimeout.cancel();
+                listener.onThrowable(f.cause());
+                channelPromise.setFailure(f.cause());
+              }
+            }
+          });
     }
   }
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
 
     try {
-      SslHandler sslHandler = SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), tx.request.getUri(), tx.request.getVirtualHost(), config);
-      //[fl]
+      SslHandler sslHandler =
+          SslHandlers.newSslHandler(
+              tx.sslContext(),
+              channel.alloc(),
+              tx.request.getUri(),
+              tx.request.getVirtualHost(),
+              config);
+      // [fl]
       //
-      //[fl]
+      // [fl]
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
       pipeline.addAfter(after, SSL_HANDLER, sslHandler);
 
-      return sslHandler.handshakeFuture().addListener(f -> {
-        if (tx.requestTimeout.isDone()) {
-          return;
-        }
+      return sslHandler
+          .handshakeFuture()
+          .addListener(
+              f -> {
+                if (tx.requestTimeout.isDone()) {
+                  return;
+                }
 
-        if (f.isSuccess()) {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("TLS handshake successful: protocol={} cipher suite={}", sslHandler.engine().getSession().getProtocol(), sslHandler.engine().getSession().getCipherSuite());
-          }
+                if (f.isSuccess()) {
+                  if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                        "TLS handshake successful: protocol={} cipher suite={}",
+                        sslHandler.engine().getSession().getProtocol(),
+                        sslHandler.engine().getSession().getCipherSuite());
+                  }
 
-          //[fl]
-          //
-          //[fl]
-        } else {
-          tx.requestTimeout.cancel();
-          //[fl]
-          //
-          //[fl]
-          tx.listener.onThrowable(f.cause());
-        }
-      });
+                  // [fl]
+                  //
+                  // [fl]
+                } else {
+                  tx.requestTimeout.cancel();
+                  // [fl]
+                  //
+                  // [fl]
+                  tx.listener.onThrowable(f.cause());
+                }
+              });
     } catch (RuntimeException e) {
       tx.requestTimeout.cancel();
-      //[fl]
+      // [fl]
       //
-      //[fl]
+      // [fl]
       tx.listener.onThrowable(e);
       return new DefaultPromise<Channel>(ImmediateEventExecutor.INSTANCE).setFailure(e);
     }
@@ -769,73 +928,105 @@ public class DefaultHttpClient implements HttpClient {
 
     Promise<Void> whenAlpn = channel.eventLoop().newPromise();
 
-    channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
-      @Override
-      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
-        switch (protocol) {
-          case ApplicationProtocolNames.HTTP_2:
-            LOGGER.debug("ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
-            tx.listener.onProtocolAwareness(true);
-            Http2Connection connection = new DefaultHttp2Connection(false);
+    channel
+        .pipeline()
+        .addAfter(
+            SSL_HANDLER,
+            ALPN_HANDLER,
+            new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
+              @Override
+              protected void configurePipeline(ChannelHandlerContext ctx, String protocol)
+                  throws Exception {
+                switch (protocol) {
+                  case ApplicationProtocolNames.HTTP_2:
+                    LOGGER.debug(
+                        "ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
+                    tx.listener.onProtocolAwareness(true);
+                    Http2Connection connection = new DefaultHttp2Connection(false);
 
-            ChannelPool.registerHttp2Connection(channel, connection);
+                    ChannelPool.registerHttp2Connection(channel, connection);
 
-            HttpToHttp2ConnectionHandler http2Handler = new HttpToHttp2ConnectionHandlerBuilder()
-              .initialSettings(DEFAULT_HTTP2_SETTINGS)
-              .connection(connection)
-              .frameListener(
-                new CustomDelegatingDecompressorFrameListener(
-                  connection,
-                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, whenAlpn)
-                )
-              ).build();
+                    HttpToHttp2ConnectionHandler http2Handler =
+                        new HttpToHttp2ConnectionHandlerBuilder()
+                            .initialSettings(DEFAULT_HTTP2_SETTINGS)
+                            .connection(connection)
+                            .frameListener(
+                                new CustomDelegatingDecompressorFrameListener(
+                                    connection,
+                                    new ChunkedInboundHttp2ToHttpAdapter(
+                                        connection, false, whenAlpn)))
+                            .build();
 
-            ctx.pipeline()
-              .addLast(HTTP2_HANDLER, http2Handler)
-              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool, config));
+                    ctx.pipeline()
+                        .addLast(HTTP2_HANDLER, http2Handler)
+                        .addLast(
+                            APP_HTTP2_HANDLER,
+                            new Http2AppHandler(
+                                DefaultHttpClient.this, http2Handler, channelPool, config));
 
-            channelPool.offer(channel);
+                    channelPool.offer(channel);
 
-            SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
-            Set<String> subjectAlternativeNames = Tls.extractSubjectAlternativeNames(sslHandler.engine());
-            if (LOGGER.isDebugEnabled()) {
-              LOGGER.debug("TLS handshake successful: protocol={} cipher suite={}", sslHandler.engine().getSession().getProtocol(), sslHandler.engine().getSession().getCipherSuite());
-            }
-            if (!subjectAlternativeNames.isEmpty()) {
-              channelPool.offerCoalescedChannel(subjectAlternativeNames, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
-            }
-            break;
+                    SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
+                    Set<String> subjectAlternativeNames =
+                        Tls.extractSubjectAlternativeNames(sslHandler.engine());
+                    if (LOGGER.isDebugEnabled()) {
+                      LOGGER.debug(
+                          "TLS handshake successful: protocol={} cipher suite={}",
+                          sslHandler.engine().getSession().getProtocol(),
+                          sslHandler.engine().getSession().getCipherSuite());
+                    }
+                    if (!subjectAlternativeNames.isEmpty()) {
+                      channelPool.offerCoalescedChannel(
+                          subjectAlternativeNames,
+                          (InetSocketAddress) channel.remoteAddress(),
+                          channel,
+                          tx.key);
+                    }
+                    break;
 
-          case ApplicationProtocolNames.HTTP_1_1:
-            LOGGER.debug("ALPN led to HTTP/1 with remote {}", tx.request.getUri().getHost());
-            if (tx.request.isHttp2PriorKnowledge()) {
-              IllegalStateException e = new IllegalStateException("HTTP/2 Prior knowledge was set on host " + tx.request.getUri().getHost() + " but it only supports HTTP/1");
-              whenAlpn.setFailure(e);
-              throw e;
-            }
-            tx.listener.onProtocolAwareness(false);
-            ctx.pipeline()
-              .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
-              .addBefore(CHUNKED_WRITER_HANDLER, INFLATER_HANDLER, new CustomHttpContentDecompressor())
-              .addAfter(CHUNKED_WRITER_HANDLER, APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
-            whenAlpn.setSuccess(null);
-            break;
+                  case ApplicationProtocolNames.HTTP_1_1:
+                    LOGGER.debug(
+                        "ALPN led to HTTP/1 with remote {}", tx.request.getUri().getHost());
+                    if (tx.request.isHttp2PriorKnowledge()) {
+                      IllegalStateException e =
+                          new IllegalStateException(
+                              "HTTP/2 Prior knowledge was set on host "
+                                  + tx.request.getUri().getHost()
+                                  + " but it only supports HTTP/1");
+                      whenAlpn.setFailure(e);
+                      throw e;
+                    }
+                    tx.listener.onProtocolAwareness(false);
+                    ctx.pipeline()
+                        .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
+                        .addBefore(
+                            CHUNKED_WRITER_HANDLER,
+                            INFLATER_HANDLER,
+                            new CustomHttpContentDecompressor())
+                        .addAfter(
+                            CHUNKED_WRITER_HANDLER,
+                            APP_HTTP_HANDLER,
+                            new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+                    whenAlpn.setSuccess(null);
+                    break;
 
-          default:
-            IllegalStateException e = new IllegalStateException("Unknown protocol: " + protocol);
-            whenAlpn.setFailure(e);
-            ctx.close();
-            // FIXME do we really need to throw?
-            throw e;
-        }
-      }
-    });
+                  default:
+                    IllegalStateException e =
+                        new IllegalStateException("Unknown protocol: " + protocol);
+                    whenAlpn.setFailure(e);
+                    ctx.close();
+                    // FIXME do we really need to throw?
+                    throw e;
+                }
+              }
+            });
 
-    whenAlpn.addListener(f -> {
-      if (!f.isSuccess()) {
-        tx.listener.onThrowable(f.cause());
-      }
-    });
+    whenAlpn.addListener(
+        f -> {
+          if (!f.isSuccess()) {
+            tx.listener.onThrowable(f.cause());
+          }
+        });
 
     return whenAlpn;
   }
@@ -850,7 +1041,11 @@ public class DefaultHttpClient implements HttpClient {
     if (eventLoop.inEventLoop()) {
       eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId);
     } else if (!eventLoop.isShutdown()) {
-      eventLoop.execute(() -> eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId));
+      eventLoop.execute(
+          () ->
+              eventLoopResources(eventLoop)
+                  .channelPool
+                  .flushClientIdChannelPoolPartitions(clientId));
     }
   }
 }

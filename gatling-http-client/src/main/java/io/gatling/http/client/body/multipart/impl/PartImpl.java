@@ -17,73 +17,51 @@
 package io.gatling.http.client.body.multipart.impl;
 
 import static io.gatling.http.client.util.MiscUtils.*;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.multipart.Part;
 import io.gatling.http.client.body.multipart.impl.PartVisitor.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-
 public abstract class PartImpl implements Closeable {
 
-  /**
-   * Content disposition as a byte
-   */
+  /** Content disposition as a byte */
   static final byte QUOTE_BYTE = '\"';
-  /**
-   * Carriage return/linefeed as a byte array
-   */
+  /** Carriage return/linefeed as a byte array */
   static final byte[] CRLF_BYTES = "\r\n".getBytes(US_ASCII);
-  /**
-   * Extra characters as a byte array
-   */
+  /** Extra characters as a byte array */
   static final byte[] EXTRA_BYTES = "--".getBytes(US_ASCII);
 
-  /**
-   * Content disposition as a byte array
-   */
-  private static final byte[] CONTENT_DISPOSITION_BYTES = "Content-Disposition: ".getBytes(US_ASCII);
+  /** Content disposition as a byte array */
+  private static final byte[] CONTENT_DISPOSITION_BYTES =
+      "Content-Disposition: ".getBytes(US_ASCII);
 
-  /**
-   * form-data as a byte array
-   */
+  /** form-data as a byte array */
   private static final byte[] FORM_DATA_DISPOSITION_TYPE_BYTES = "form-data".getBytes(US_ASCII);
 
-  /**
-   * name as a byte array
-   */
+  /** name as a byte array */
   private static final byte[] NAME_BYTES = "; name=".getBytes(US_ASCII);
 
-  /**
-   * Content type header as a byte array
-   */
+  /** Content type header as a byte array */
   private static final byte[] CONTENT_TYPE_BYTES = "Content-Type: ".getBytes(US_ASCII);
 
-  /**
-   * Content charset as a byte array
-   */
+  /** Content charset as a byte array */
   private static final byte[] CHARSET_BYTES = "; charset=".getBytes(US_ASCII);
 
-  /**
-   * Content type header as a byte array
-   */
-  private static final byte[] CONTENT_TRANSFER_ENCODING_BYTES = "Content-Transfer-Encoding: ".getBytes(US_ASCII);
+  /** Content type header as a byte array */
+  private static final byte[] CONTENT_TRANSFER_ENCODING_BYTES =
+      "Content-Transfer-Encoding: ".getBytes(US_ASCII);
 
-  /**
-   * Content type header as a byte array
-   */
+  /** Content type header as a byte array */
   private static final byte[] HEADER_NAME_VALUE_SEPARATOR_BYTES = ": ".getBytes(US_ASCII);
 
-  /**
-   * Content type header as a byte array
-   */
+  /** Content type header as a byte array */
   private static final byte[] CONTENT_ID_BYTES = "Content-ID: ".getBytes(US_ASCII);
 
   protected final Part<?> part;
@@ -137,14 +115,12 @@ public abstract class PartImpl implements Closeable {
   }
 
   private ByteBuf lazyLoadPreContentBuffer() {
-    if (preContentBuffer == null)
-      preContentBuffer = computePreContentBytes(preContentLength);
+    if (preContentBuffer == null) preContentBuffer = computePreContentBytes(preContentLength);
     return preContentBuffer;
   }
 
   private ByteBuf lazyLoadPostContentBuffer() {
-    if (postContentBuffer == null)
-      postContentBuffer = computePostContentBytes(postContentLength);
+    if (postContentBuffer == null) postContentBuffer = computePostContentBytes(postContentLength);
     return postContentBuffer;
   }
 
@@ -209,7 +185,10 @@ public abstract class PartImpl implements Closeable {
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     visitor.withBytes(CRLF_BYTES);
     visitor.withBytes(CONTENT_DISPOSITION_BYTES);
-    visitor.withBytes(part.getDispositionType() != null ? part.getDispositionType().getBytes(US_ASCII) : FORM_DATA_DISPOSITION_TYPE_BYTES);
+    visitor.withBytes(
+        part.getDispositionType() != null
+            ? part.getDispositionType().getBytes(US_ASCII)
+            : FORM_DATA_DISPOSITION_TYPE_BYTES);
     if (part.getName() != null) {
       visitor.withBytes(NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);

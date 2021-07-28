@@ -30,8 +30,8 @@ import scala.util.Try
 
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
-import io.gatling.recorder.config.FilterStrategy.DenyListFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
+import io.gatling.recorder.convert.template.Format
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
@@ -84,6 +84,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
   private val simulationClassName = new TextField(30)
+  private val simulationFormat = new LabelledComboBox[Format](Format.AllFormats)
   private val followRedirects = new CheckBox("Follow Redirects?")
   private val inferHtmlResources = new CheckBox("Infer HTML resources?")
   private val removeCacheHeaders = new CheckBox("Remove cache headers?")
@@ -108,7 +109,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   private val clearDenyListFilters = Button("Clear")(denyListTable.removeAllElements())
   private val ruleOutStaticResources = Button("No static resources")(denyListStaticResources())
 
-  private val filterStrategies = new LabelledComboBox[FilterStrategy](FilterStrategy.AllStrategies)
+  private val enableFilters = new CheckBox("Enable Filters") { horizontalTextPosition = Alignment.Left }
 
   /* Bottom panel components */
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
@@ -212,9 +213,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
             contents += new Label("Class Name*: ")
             contents += simulationClassName
           }
+          val format = new LeftAlignedFlowPanel {
+            contents += new Label("Format*: ")
+            contents += simulationFormat
+          }
 
           layout(packageName) = West
-          layout(className) = East
+          layout(className) = Center
+          layout(format) = East
         }
 
         val options = new GridPanel(2, 3) {
@@ -248,15 +254,11 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       val filters = new BorderPanel {
         border = titledBorder("Filters")
 
-        val labelAndStrategySelection = new BorderPanel {
+        val labelAndEnableCheckbox = new BorderPanel {
           val label = new Label("Java regular expressions that match the entire URI")
           label.font_=(label.font.deriveFont(Font.PLAIN))
-          val strategy = new RightAlignedFlowPanel {
-            contents += new Label("Strategy")
-            contents += filterStrategies
-          }
           layout(label) = West
-          layout(strategy) = East
+          layout(enableFilters) = East
         }
 
         val allowList = new BoxPanel(Orientation.Vertical) {
@@ -281,7 +283,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
         val bothLists = new SplitPane(Orientation.Vertical, allowList, denyList)
         bothLists.resizeWeight = 0.5
 
-        layout(labelAndStrategySelection) = North
+        layout(labelAndEnableCheckbox) = North
         layout(bothLists) = Center
       }
 
@@ -328,14 +330,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   }
 
   /* Reactions I: handling filters, save checkbox, table edition and switching between Proxy and HAR mode */
-  listenTo(filterStrategies.selection, modeSelector.selection, httpsModes.selection, savePreferences)
+  listenTo(enableFilters, modeSelector.selection, httpsModes.selection, savePreferences)
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
       toggleModeSelector(modeSelector.selection.item)
-    case SelectionChanged(`filterStrategies`) =>
-      val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
-      toggleFiltersEdition(isNotDisabledStrategy)
+    case SelectionChanged(`enableFilters`) =>
+      val isNotDisabled = !enableFilters.selected
+      toggleFiltersEdition(isNotDisabled)
     case SelectionChanged(`httpsModes`) =>
       toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
@@ -455,7 +457,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       """.*detectportal\.firefox\.com.*"""
     ).foreach(denyListTable.addRow)
 
-    filterStrategies.selection.item = DenyListFirst
+    enableFilters.selected = true
   }
 
   reactions += { case KeyReleased(field, _, _, _) =>
@@ -523,7 +525,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     }
     configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
     simulationClassName.text = configuration.core.className
-    filterStrategies.selection.item = configuration.filters.filterStrategy
+    simulationFormat.selection.item = configuration.core.format
+    enableFilters.selected = configuration.filters.enabled
     followRedirects.selected = configuration.http.followRedirect
     inferHtmlResources.selected = configuration.http.inferHtmlResources
     removeCacheHeaders.selected = configuration.http.removeCacheHeaders
@@ -536,7 +539,6 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
     useMethodAndUriAsPostfix.selected = configuration.http.useMethodAndUriAsPostfix
     savePreferences.selected = configuration.core.saveConfig
-
   }
 
   /**
@@ -549,10 +551,10 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     allowListTable.cleanUp()
 
     val filterValidationFailures =
-      if (filterStrategies.selection.item == FilterStrategy.Disabled)
+      if (enableFilters.enabled)
         Nil
       else
-        denyListTable.verify ::: denyListTable.verify
+        allowListTable.verify ::: denyListTable.verify
 
     if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
@@ -594,13 +596,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       }
 
       // Filters
-      props.filterStrategy(filterStrategies.selection.item.toString)
-      props.whitelist(allowListTable.getRegexs.asJava)
-      props.blacklist(denyListTable.getRegexs.asJava)
+      props.enableFilters(enableFilters.enabled)
+      props.allowList(allowListTable.getRegexs.asJava)
+      props.denyList(denyListTable.getRegexs.asJava)
 
       // Simulation config
       props.simulationPackage(simulationPackage.text)
       props.simulationClassName(simulationClassName.text.trim)
+      props.simulationFormat(simulationFormat.selection.item)
       props.followRedirect(followRedirects.selected)
       props.inferHtmlResources(inferHtmlResources.selected)
       props.removeCacheHeaders(removeCacheHeaders.selected)

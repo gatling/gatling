@@ -36,6 +36,8 @@ import io.gatling.core.json.Json
 import io.gatling.core.session._
 import io.gatling.netty.util.StringBuilderPool
 
+import jodd.bean.BeanUtil
+
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
   def undefinedSessionAttribute(name: String): Failure = s"No attribute named '$name' is defined".failure
@@ -172,7 +174,11 @@ final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) exte
 
     case product: Product => lookup(product)
 
-    case other => ElMessages.accessByKeyNotSupported(other, mapName)
+    case other =>
+      Pojos.getProperty(other, key) match {
+        case _: Failure => ElMessages.accessByKeyNotSupported(other, mapName)
+        case success    => success
+      }
   }
 }
 

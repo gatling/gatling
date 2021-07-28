@@ -39,31 +39,51 @@ class RequestTemplateSpec extends BaseSpec {
 
   "request template" should "not wrap with joinStrings strings shorter than 65535 characters" in {
     val mockedRequest1 = mockRequestElement("name", "short")
-    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest1, ExtractedUris(Seq(mockedRequest1)), mainRequest = true)
+    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest1,
+      ExtractedUris(Seq(mockedRequest1), config.core.format)
+    )
     res1 should include(".formParam(\"name\", \"short\")")
 
     val mockedRequest2 = mockRequestElement("name", "1" * 65534)
-    val res2 = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest2, ExtractedUris(Seq(mockedRequest2)), mainRequest = true)
+    val res2 = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest2,
+      ExtractedUris(Seq(mockedRequest2), config.core.format)
+    )
     res2 should not include "Seq"
     res2 should not include ".mkString"
   }
 
   it should "wrap with joinStrings strings with not less than 65535 characters" in {
     val mockedRequest = mockRequestElement("name", "a" * 65535)
-    val res = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest, ExtractedUris(Seq(mockedRequest)), mainRequest = true)
+    val res = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest,
+      ExtractedUris(Seq(mockedRequest), config.core.format)
+    )
     res should include("Seq(\"" + "a" * 65534 + "\", \"a\").mkString")
   }
 
   it should "use request as prefix by default" in {
     val mockedRequest1 = mockRequestElement("name", "short")
-    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest1, ExtractedUris(Seq(mockedRequest1)), mainRequest = true)
+    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest1,
+      ExtractedUris(Seq(mockedRequest1), config.core.format)
+    )
     res1 should include("request_0")
   }
 
   it should "use simulation as prefix when requested" in {
     val mockedRequest1 = mockRequestElement("name", "short")
     implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
-    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest1, ExtractedUris(Seq(mockedRequest1)), mainRequest = true)
+    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest1,
+      ExtractedUris(Seq(mockedRequest1), config.core.format)
+    )
     res1 should include(s"${simulationClass}_0")
     res1 should not include "request_0"
   }
@@ -71,7 +91,11 @@ class RequestTemplateSpec extends BaseSpec {
   it should "use method and URI as postfix when requested" in {
     val mockedRequest1 = mockRequestElement("name", "short")
     implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
-    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(simulationClass, mockedRequest1, ExtractedUris(Seq(mockedRequest1)), mainRequest = true)
+    val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
+      simulationClass,
+      mockedRequest1,
+      ExtractedUris(Seq(mockedRequest1), config.core.format)
+    )
     res1 should include(s"request_0:post_http://gatling.io/path1/file1")
   }
 

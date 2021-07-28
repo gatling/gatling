@@ -19,7 +19,6 @@ package io.gatling.http.client.impl;
 import io.gatling.http.client.HttpListener;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -95,13 +94,10 @@ public interface RequestTimeout {
 
     private static final NoopRequestTimeout INSTANCE = new NoopRequestTimeout();
 
-    private NoopRequestTimeout() {
-
-    }
+    private NoopRequestTimeout() {}
 
     @Override
-    public void start(EventLoop eventLoop) {
-    }
+    public void start(EventLoop eventLoop) {}
 
     @Override
     public boolean isDone() {
@@ -109,15 +105,12 @@ public interface RequestTimeout {
     }
 
     @Override
-    public void cancel() {
-    }
+    public void cancel() {}
 
     @Override
-    public void setChannel(Channel channel) {
-    }
+    public void setChannel(Channel channel) {}
 
     @Override
-    public void setStreamId(int streamId) {
-    }
+    public void setStreamId(int streamId) {}
   }
 }

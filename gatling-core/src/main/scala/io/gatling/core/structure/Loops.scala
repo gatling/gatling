@@ -18,7 +18,7 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
@@ -62,11 +62,10 @@ private[structure] trait Loops[B] extends Execs[B] {
       DuringLoopType
     )
 
-  def forever(chain: ChainBuilder): B = forever()(chain)
+  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString)(chain)
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    simpleLoop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeverLoopType)
+  def forever(counterName: String)(chain: ChainBuilder): B =
+    simpleLoop(TrueExpressionSuccess, chain, counterName, exitASAP = false, ForeverLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
@@ -76,7 +75,11 @@ private[structure] trait Loops[B] extends Execs[B] {
   def doWhile(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
     simpleLoop(condition, chain, counterName, exitASAP = false, DoWhileType)
 
-  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String): Clock => Session => Validation[Boolean] =
+  private def continueCondition(
+      condition: Expression[Boolean],
+      duration: Expression[FiniteDuration],
+      counterName: String
+  ): Clock => Session => Validation[Boolean] =
     clock =>
       session =>
         for {

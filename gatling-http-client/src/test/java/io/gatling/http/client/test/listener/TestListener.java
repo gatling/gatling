@@ -20,31 +20,31 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class TestListener extends ResponseAsStringListener {
 
-    private final CompletableFuture<Void> result = new CompletableFuture<>();
+  private final CompletableFuture<Void> result = new CompletableFuture<>();
 
-    public abstract void onComplete0();
+  public abstract void onComplete0();
 
+  @Override
+  public void onComplete() {
+    try {
+      onComplete0();
+      result.complete(null);
+    } catch (Throwable e) {
+      result.completeExceptionally(e);
+    }
+  }
+
+  @Override
+  public void onThrowable(Throwable e) {
+    result.completeExceptionally(e);
+  }
+
+  public CompletableFuture<Void> getResult() {
+    return result;
+  }
+
+  public static class NoopTestListener extends TestListener {
     @Override
-    public void onComplete() {
-        try {
-            onComplete0();
-            result.complete(null);
-        } catch (Throwable e) {
-            result.completeExceptionally(e);
-        }
-    }
-
-    @Override
-    public void onThrowable(Throwable e) {
-        result.completeExceptionally(e);
-    }
-
-    public CompletableFuture<Void> getResult() {
-        return result;
-    }
-
-    public static class NoopTestListener extends TestListener {
-        @Override
-        public void onComplete0() {}
-    }
+    public void onComplete0() {}
+  }
 }

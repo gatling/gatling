@@ -16,29 +16,31 @@
 
 package io.gatling.core.javaapi;
 
-import io.gatling.core.action.builder.ActionBuilder;
-import io.gatling.core.javaapi.internal.StructureBuilder;
-
-import java.util.List;
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.toScalaSeq;
+/**
+ * Java wrapper of a Scala ChainBuilder. Builder of a detached chain of Actions that can be attached
+ * to a Gatling scenario.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class ChainBuilder
+    extends StructureBuilder<ChainBuilder, io.gatling.core.structure.ChainBuilder> {
 
-public class ChainBuilder extends StructureBuilder<ChainBuilder, io.gatling.core.structure.ChainBuilder> {
+  public static final ChainBuilder EMPTY =
+      new ChainBuilder(io.gatling.core.structure.ChainBuilder.Empty());
 
-  public static final ChainBuilder EMPTY = new ChainBuilder(io.gatling.core.structure.ChainBuilder.Empty());
-
-  protected ChainBuilder(io.gatling.core.structure.ChainBuilder wrapped) {
+  ChainBuilder(io.gatling.core.structure.ChainBuilder wrapped) {
     super(wrapped);
   }
 
   @Override
-  public ChainBuilder chain(List<ActionBuilder> newActionBuilders) {
-    return new ChainBuilder(wrapped.chain(toScalaSeq(newActionBuilders)));
-  }
-
-  @Override
-  public ChainBuilder make(Function<io.gatling.core.structure.ChainBuilder, io.gatling.core.structure.ChainBuilder> f) {
+  @Nonnull
+  public ChainBuilder make(
+      @Nonnull
+          Function<io.gatling.core.structure.ChainBuilder, io.gatling.core.structure.ChainBuilder>
+              f) {
     return new ChainBuilder(f.apply(wrapped));
   }
 }

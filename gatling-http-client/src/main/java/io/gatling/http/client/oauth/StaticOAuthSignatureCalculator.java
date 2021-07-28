@@ -19,10 +19,9 @@ package io.gatling.http.client.oauth;
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.SignatureCalculator;
-import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,8 @@ class StaticOAuthSignatureCalculator implements SignatureCalculator {
   private final String nonce;
   private final long timestamp;
 
-  StaticOAuthSignatureCalculator(ConsumerKey consumerKey, RequestToken requestToken, String nonce, long timestamp) {
+  StaticOAuthSignatureCalculator(
+      ConsumerKey consumerKey, RequestToken requestToken, String nonce, long timestamp) {
     this.consumerKey = consumerKey;
     this.requestToken = requestToken;
     this.nonce = nonce;
@@ -45,18 +45,20 @@ class StaticOAuthSignatureCalculator implements SignatureCalculator {
 
     RequestBody body = request.getBody();
     List<Param> formParams =
-      body instanceof FormUrlEncodedRequestBody ?
-        ((FormUrlEncodedRequestBody) body).getContent() :
-        Collections.emptyList();
+        body instanceof FormUrlEncodedRequestBody
+            ? ((FormUrlEncodedRequestBody) body).getContent()
+            : Collections.emptyList();
 
-    String authorization = new OAuthSignatureCalculatorInstance().computeAuthorizationHeader(
-      consumerKey,
-      requestToken,
-      request.getMethod(),
-      request.getUri(),
-      formParams,
-      timestamp,
-      nonce);
+    String authorization =
+        new OAuthSignatureCalculatorInstance()
+            .computeAuthorizationHeader(
+                consumerKey,
+                requestToken,
+                request.getMethod(),
+                request.getUri(),
+                formParams,
+                timestamp,
+                nonce);
 
     request.getHeaders().set(HttpHeaderNames.AUTHORIZATION, authorization);
   }

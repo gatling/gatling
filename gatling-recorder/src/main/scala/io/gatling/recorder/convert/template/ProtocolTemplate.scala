@@ -19,7 +19,7 @@ package io.gatling.recorder.convert.template
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.convert.ProtocolDefinition
 import io.gatling.recorder.convert.ProtocolDefinition.BaseHeadersAndProtocolMethods
 import io.gatling.recorder.util.HttpUtils
@@ -27,6 +27,8 @@ import io.gatling.recorder.util.HttpUtils
 import io.netty.handler.codec.http.HttpHeaderNames
 
 private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
+
+  private val format = config.core.format
 
   private def renderProxy = {
     def renderSslPort(proxyPort: Int) = config.proxy.outgoing.sslPort match {
@@ -38,7 +40,7 @@ private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
       val credentials = for {
         proxyUsername <- config.proxy.outgoing.username
         proxyPassword <- config.proxy.outgoing.password
-      } yield s""".credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
+      } yield s""".credentials(${proxyUsername.protect(format)},${proxyPassword.protect(format)})"""
       credentials.getOrElse("")
     }
 
@@ -50,7 +52,12 @@ private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
     protocol.getOrElse("")
   }
 
-  private def renderFollowRedirect = if (config.http.followRedirect) "" else ".disableFollowRedirect"
+  private def renderFollowRedirect =
+    if (config.http.followRedirect) {
+      ""
+    } else {
+      s".disableFollowRedirect${format.parameterlessMethodCall}"
+    }
 
   private def renderInferHtmlResources =
     if (config.http.inferHtmlResources) {
@@ -60,18 +67,24 @@ private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
       def denyListPatterns = s"DenyList(${quotedStringList(filtersConfig.denyList.patterns)})"
       def allowListPatterns = s"AllowList(${quotedStringList(filtersConfig.allowList.patterns)})"
 
-      val patterns = filtersConfig.filterStrategy match {
-        case FilterStrategy.AllowListFirst => s"$allowListPatterns, $denyListPatterns"
-        case FilterStrategy.DenyListFirst  => s"$denyListPatterns, $allowListPatterns"
-        case FilterStrategy.Disabled       => ""
-      }
+      val patterns =
+        if (filtersConfig.enabled) {
+          s"$allowListPatterns, $denyListPatterns"
+        } else {
+          ""
+        }
 
       s".inferHtmlResources($patterns)"
     } else {
       ""
     }
 
-  private def renderAutomaticReferer = if (config.http.automaticReferer) "" else ".disableAutoReferer"
+  private def renderAutomaticReferer =
+    if (config.http.automaticReferer) {
+      ""
+    } else {
+      s".disableAutoReferer${format.parameterlessMethodCall}"
+    }
 
   private def renderHeaders(protocol: ProtocolDefinition) =
     protocol.headers.entries.asScala
@@ -86,20 +99,27 @@ private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
           }
 
         Option(BaseHeadersAndProtocolMethods.get(headerName))
-          .map(methodName => s"""
-                                |    .$methodName(${protectWithTripleQuotes(properHeaderValue)})""".stripMargin)
+          .map(methodName => s""".$methodName(${properHeaderValue.protect(format)})""".stripMargin)
           .toList
       }
-      .mkString
-
-  def render(protocol: ProtocolDefinition): String =
-    s"""http
-       |    .baseUrl("${protocol.baseUrl}")
-       |    $renderProxy
-       |    $renderFollowRedirect
-       |    $renderInferHtmlResources
-       |    $renderAutomaticReferer
-       |    ${renderHeaders(protocol)}""".stripMargin.linesIterator
-      .filter(_.exists(_ != ' '))
       .mkString(Eol)
+
+  private def renderProtocolRoot =
+    s"http${format.parameterlessMethodCall}"
+
+  def render(protocol: ProtocolDefinition): String = {
+    val protocolType = format match {
+      case Format.Scala | Format.Kotlin  => "private val"
+      case Format.Java11 | Format.Java17 => "private HttpProtocolBuilder"
+      case Format.Java8                  => "HttpProtocolBuilder"
+    }
+
+    s"""$protocolType httpProtocol = $renderProtocolRoot
+       |  .baseUrl("${protocol.baseUrl}")
+       |${renderProxy.indent(2)}
+       |${renderFollowRedirect.indent(2)}
+       |${renderInferHtmlResources.indent(2)}
+       |${renderAutomaticReferer.indent(2)}
+       |${renderHeaders(protocol).indent(2)}${format.lineTermination}""".stripMargin.noEmptyLines
+  }
 }

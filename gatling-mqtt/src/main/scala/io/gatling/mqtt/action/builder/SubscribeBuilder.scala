@@ -45,16 +45,10 @@ case class SubscribeBuilder(
   private def qos(newQos: MqttQoS): SubscribeBuilder = copy(qosOverride = Some(newQos))
 
   def wait(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
-    wait(timeout, null)
-  def wait(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = true)))
-      with CheckableSubscribeBuilder
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, None, blocking = true))) with CheckableSubscribeBuilder
 
   def expect(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
-    expect(timeout, null)
-  def expect(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = false)))
-      with CheckableSubscribeBuilder
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = None, blocking = false))) with CheckableSubscribeBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???
 }

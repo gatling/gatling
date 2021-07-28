@@ -374,6 +374,32 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     "${foo.char}".el[Char].apply(session).succeeded shouldBe 'a'
   }
 
+  it should "support POJO String attributes" in {
+    val pojo = new MyPojo
+    pojo.setMyString("hello")
+
+    val session = newSession(Map("foo" -> pojo))
+    val expression = "${foo.myString}".el[String]
+    expression(session).succeeded shouldBe "hello"
+  }
+
+  it should "support POJO boolean attributes" in {
+    val pojo = new MyPojo
+    pojo.setMyBoolean(true)
+
+    val session = newSession(Map("foo" -> pojo))
+    val expression = "${foo.myBoolean}".el[Boolean]
+    expression(session).succeeded shouldBe true
+  }
+
+  it should "fail on POJO null attributes" in {
+    val pojo = new MyPojo
+
+    val session = newSession(Map("foo" -> pojo))
+    val expression = "${foo.myString}".el[String]
+    expression(session).failed shouldBe "Value is null"
+  }
+
   it should "handle wrong key" in {
     val session = newSession(Map("foo" -> Foo("hello")))
     val expression = "${foo.qix}".el[String]
@@ -598,6 +624,14 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val session = newSession(Map("bar" -> Bar(Baz("fux"))))
     val expression = """${bar.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """{"baz":{"qix":"fux"}}"""
+  }
+
+  it should "support POJOs" in {
+    val pojo = new MyPojo
+    pojo.setMyString("hello")
+    val session = newSession(Map("pojo" -> pojo))
+    val expression = """${pojo.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """{"myString":"hello","myBoolean":false}"""
   }
 
   it should "support key access" in {

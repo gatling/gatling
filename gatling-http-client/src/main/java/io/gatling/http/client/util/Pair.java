@@ -41,8 +41,7 @@ public class Pair<L, R> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Pair<?, ?> pair = (Pair<?, ?>) o;
-    return Objects.equals(left, pair.left) &&
-      Objects.equals(right, pair.right);
+    return Objects.equals(left, pair.left) && Objects.equals(right, pair.right);
   }
 
   @Override
@@ -52,9 +51,6 @@ public class Pair<L, R> {
 
   @Override
   public String toString() {
-    return "Pair{" +
-      "left=" + left +
-      ", right=" + right +
-      '}';
+    return "Pair{" + "left=" + left + ", right=" + right + '}';
   }
 }

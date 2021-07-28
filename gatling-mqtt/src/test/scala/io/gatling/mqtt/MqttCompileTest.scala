@@ -106,7 +106,7 @@ class MqttCompileTest extends Simulation {
       mqtt("Publishing")
         .publish("${myTopic}")
         .message(StringBody("${myPayload}"))
-        .wait(100.milliseconds)
+        .wait(100.milliseconds, "${responseTopic}")
         .check(jsonPath("$.error").notExists)
     )
     .exec(

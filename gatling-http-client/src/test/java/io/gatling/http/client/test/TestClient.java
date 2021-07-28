@@ -16,11 +16,10 @@
 
 package io.gatling.http.client.test;
 
-import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.GatlingHttpClient;
+import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.test.listener.TestListener;
-
 import java.util.concurrent.CompletableFuture;
 
 public class TestClient extends GatlingHttpClient {

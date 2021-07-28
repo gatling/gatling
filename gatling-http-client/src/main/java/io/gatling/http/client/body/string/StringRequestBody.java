@@ -22,7 +22,6 @@ import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
-
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -39,9 +38,9 @@ public final class StringRequestBody extends RequestBody.Base<String> {
   @Override
   public WritableContent build(ByteBufAllocator alloc) {
     ByteBuf bb =
-            charset.equals(StandardCharsets.UTF_8) ?
-                    ByteBufUtil.writeUtf8(alloc, content) :
-                    ByteBufUtil.encodeString(alloc, CharBuffer.wrap(content), charset);
+        charset.equals(StandardCharsets.UTF_8)
+            ? ByteBufUtil.writeUtf8(alloc, content)
+            : ByteBufUtil.encodeString(alloc, CharBuffer.wrap(content), charset);
 
     return new WritableContent(bb, bb.readableBytes());
   }
@@ -58,10 +57,14 @@ public final class StringRequestBody extends RequestBody.Base<String> {
 
   @Override
   public String toString() {
-    return "StringRequestBody{" +
-      "contentType='" + contentType + '\'' +
-      ", charset=" + charset +
-      ", content=" + content +
-      '}';
+    return "StringRequestBody{"
+        + "contentType='"
+        + contentType
+        + '\''
+        + ", charset="
+        + charset
+        + ", content="
+        + content
+        + '}';
   }
 }

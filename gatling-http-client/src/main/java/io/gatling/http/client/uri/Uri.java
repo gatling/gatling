@@ -25,24 +25,24 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.uri;
 
+import static io.gatling.http.client.util.Assertions.assertNotEmpty;
+import static io.gatling.http.client.util.MiscUtils.isEmpty;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
+
 import io.gatling.http.client.Param;
 import io.gatling.http.client.util.MiscUtils;
 import io.gatling.netty.util.StringBuilderPool;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static io.gatling.http.client.util.Assertions.assertNotEmpty;
-import static io.gatling.http.client.util.MiscUtils.isEmpty;
-import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 public class Uri {
 
@@ -61,13 +61,14 @@ public class Uri {
   private boolean secured;
   private boolean webSocket;
 
-  public Uri(String scheme,
-             String userInfo,
-             String host,
-             int port,
-             String path,
-             String query,
-             String fragment) {
+  public Uri(
+      String scheme,
+      String userInfo,
+      String host,
+      int port,
+      String path,
+      String query,
+      String fragment) {
 
     this.scheme = assertNotEmpty(scheme, "scheme");
     this.userInfo = userInfo;
@@ -89,19 +90,22 @@ public class Uri {
     parser.parse(context, originalUrl);
 
     if (isEmpty(parser.scheme)) {
-      throw new IllegalArgumentException(originalUrl + " could not be parsed into a proper Uri, missing scheme");
+      throw new IllegalArgumentException(
+          originalUrl + " could not be parsed into a proper Uri, missing scheme");
     }
     if (isEmpty(parser.host)) {
-      throw new IllegalArgumentException(originalUrl + " could not be parsed into a proper Uri, missing host");
+      throw new IllegalArgumentException(
+          originalUrl + " could not be parsed into a proper Uri, missing host");
     }
 
-    return new Uri(parser.scheme,
-            parser.userInfo,
-            parser.host,
-            parser.port,
-            parser.path,
-            parser.query,
-            parser.fragment);
+    return new Uri(
+        parser.scheme,
+        parser.userInfo,
+        parser.host,
+        parser.port,
+        parser.path,
+        parser.query,
+        parser.fragment);
   }
 
   public String getQuery() {
@@ -116,7 +120,7 @@ public class Uri {
     return userInfo;
   }
 
-  //TODO rename to getExplicitPort ?
+  // TODO rename to getExplicitPort ?
   public int getPort() {
     return port;
   }
@@ -145,7 +149,7 @@ public class Uri {
     return new URI(toUrl());
   }
 
-  //TODO rename to getPort / getImplicitPort ?
+  // TODO rename to getPort / getImplicitPort ?
   public int getExplicitPort() {
     return port == -1 ? getSchemeDefaultPort() : port;
   }
@@ -173,7 +177,8 @@ public class Uri {
   }
 
   /**
-   * @return [scheme]://[hostname](:[port])/path. Port is omitted if it matches the scheme's default one.
+   * @return [scheme]://[hostname](:[port])/path. Port is omitted if it matches the scheme's default
+   *     one.
    */
   public String toUrlWithoutQuery() {
     StringBuilder sb = toBaseUrl0();
@@ -205,12 +210,9 @@ public class Uri {
 
   public String toRelativeUrl() {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    if (MiscUtils.isNonEmpty(path))
-      sb.append(path);
-    else
-      sb.append('/');
-    if (query != null)
-      sb.append('?').append(query);
+    if (MiscUtils.isNonEmpty(path)) sb.append(path);
+    else sb.append('/');
+    if (query != null) sb.append('?').append(query);
 
     return sb.toString();
   }
@@ -221,8 +223,8 @@ public class Uri {
 
   public boolean isSameBase(Uri other) {
     return scheme.equals(other.getScheme())
-      && host.equals(other.getHost())
-      && getExplicitPort() == other.getExplicitPort();
+        && host.equals(other.getHost())
+        && getExplicitPort() == other.getExplicitPort();
   }
 
   public String getNonEmptyPath() {
@@ -234,10 +236,10 @@ public class Uri {
       List<Param> queryParams = new ArrayList<>(1);
       for (String queryStringParam : query.split("&")) {
         int pos = queryStringParam.indexOf('=');
-        if (pos <= 0)
-          queryParams.add(new Param(queryStringParam, null));
+        if (pos <= 0) queryParams.add(new Param(queryStringParam, null));
         else
-          queryParams.add(new Param(queryStringParam.substring(0, pos), queryStringParam.substring(pos + 1)));
+          queryParams.add(
+              new Param(queryStringParam.substring(0, pos), queryStringParam.substring(pos + 1)));
       }
       return queryParams;
     }
@@ -246,23 +248,11 @@ public class Uri {
   }
 
   public Uri withNewScheme(String newScheme) {
-    return new Uri(newScheme,
-            userInfo,
-            host,
-            port,
-            path,
-            query,
-            fragment);
+    return new Uri(newScheme, userInfo, host, port, path, query, fragment);
   }
 
   public Uri withNewQuery(String newQuery) {
-    return new Uri(scheme,
-            userInfo,
-            host,
-            port,
-            path,
-            newQuery,
-            fragment);
+    return new Uri(scheme, userInfo, host, port, path, newQuery, fragment);
   }
 
   @Override
@@ -286,40 +276,26 @@ public class Uri {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     Uri other = (Uri) obj;
     if (host == null) {
-      if (other.host != null)
-        return false;
-    } else if (!host.equals(other.host))
-      return false;
+      if (other.host != null) return false;
+    } else if (!host.equals(other.host)) return false;
     if (path == null) {
-      if (other.path != null)
-        return false;
-    } else if (!path.equals(other.path))
-      return false;
-    if (port != other.port)
-      return false;
+      if (other.path != null) return false;
+    } else if (!path.equals(other.path)) return false;
+    if (port != other.port) return false;
     if (query == null) {
-      if (other.query != null)
-        return false;
-    } else if (!query.equals(other.query))
-      return false;
+      if (other.query != null) return false;
+    } else if (!query.equals(other.query)) return false;
     if (scheme == null) {
-      if (other.scheme != null)
-        return false;
-    } else if (!scheme.equals(other.scheme))
-      return false;
+      if (other.scheme != null) return false;
+    } else if (!scheme.equals(other.scheme)) return false;
     if (userInfo == null) {
-      if (other.userInfo != null)
-        return false;
-    } else if (!userInfo.equals(other.userInfo))
-      return false;
+      if (other.userInfo != null) return false;
+    } else if (!userInfo.equals(other.userInfo)) return false;
     return true;
   }
 }

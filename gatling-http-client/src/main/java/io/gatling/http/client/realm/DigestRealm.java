@@ -29,7 +29,8 @@ public class DigestRealm implements Realm {
     this.password = password;
   }
 
-  public String computeAuthorizationHeader(HttpMethod requestMethod, Uri requestUri, String authenticateHeader) {
+  public String computeAuthorizationHeader(
+      HttpMethod requestMethod, Uri requestUri, String authenticateHeader) {
 
     return new DigestAuth(
             username,
@@ -41,8 +42,8 @@ public class DigestRealm implements Realm {
             parseRawQop(match(authenticateHeader, "qop")),
             "00000001", // FIXME
             requestMethod,
-            requestUri.toRelativeUrl()
-    ).computeAuthorization();
+            requestUri.toRelativeUrl())
+        .computeAuthorization();
   }
 
   // TODO: A Pattern/Matcher may be better.
@@ -59,8 +60,10 @@ public class DigestRealm implements Realm {
     // = to skip
     match += token.length() + 1;
     int trailingComa = headerLine.indexOf(",", match);
-    String value = headerLine.substring(match, trailingComa > 0 ? trailingComa : headerLine.length());
-    value = value.length() > 0 && value.charAt(value.length() - 1) == '"'
+    String value =
+        headerLine.substring(match, trailingComa > 0 ? trailingComa : headerLine.length());
+    value =
+        value.length() > 0 && value.charAt(value.length() - 1) == '"'
             ? value.substring(0, value.length() - 1)
             : value;
     return value.charAt(0) == '"' ? value.substring(1) : value;
@@ -79,13 +82,11 @@ public class DigestRealm implements Realm {
 
     // prefer auth over auth-int
     for (String rawServerSupportedQop : serverSupportedQops) {
-      if (rawServerSupportedQop.equals("auth"))
-        return rawServerSupportedQop;
+      if (rawServerSupportedQop.equals("auth")) return rawServerSupportedQop;
     }
 
     for (String rawServerSupportedQop : serverSupportedQops) {
-      if (rawServerSupportedQop.equals("auth-int"))
-        return rawServerSupportedQop;
+      if (rawServerSupportedQop.equals("auth-int")) return rawServerSupportedQop;
     }
 
     return null;

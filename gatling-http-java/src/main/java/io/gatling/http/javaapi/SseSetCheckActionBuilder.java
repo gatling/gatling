@@ -16,17 +16,17 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.Action;
-import io.gatling.core.structure.ScenarioContext;
+import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.http.action.sse.SseSetCheckBuilder;
-
 import java.util.function.Function;
 
-public class SseSetCheckActionBuilder implements SseAwaitActionBuilder<SseSetCheckActionBuilder, io.gatling.http.action.sse.SseSetCheckBuilder> {
+public final class SseSetCheckActionBuilder
+    implements SseAwaitActionBuilder<
+        SseSetCheckActionBuilder, io.gatling.http.action.sse.SseSetCheckBuilder> {
 
   private final io.gatling.http.action.sse.SseSetCheckBuilder wrapped;
 
-  public SseSetCheckActionBuilder(io.gatling.http.action.sse.SseSetCheckBuilder wrapped) {
+  SseSetCheckActionBuilder(io.gatling.http.action.sse.SseSetCheckBuilder wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -36,7 +36,7 @@ public class SseSetCheckActionBuilder implements SseAwaitActionBuilder<SseSetChe
   }
 
   @Override
-  public Action build(ScenarioContext ctx, Action next) {
-    return wrapped.build(ctx, next);
+  public ActionBuilder asScala() {
+    return wrapped;
   }
 }

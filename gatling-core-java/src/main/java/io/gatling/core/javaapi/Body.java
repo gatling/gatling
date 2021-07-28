@@ -19,21 +19,31 @@ package io.gatling.core.javaapi;
 import io.gatling.commons.validation.Failure;
 import io.gatling.commons.validation.Success;
 import io.gatling.commons.validation.Validation;
-
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
+/**
+ * Java wrapper of a Scala request body. Sealed, must not be extended. Implementations are for
+ * internal use only.
+ */
 public abstract class Body {
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
   public abstract io.gatling.core.body.Body asScala();
 
   private Body() {
     // sealed
   }
 
+  /** Default Body */
   public static final class Default extends Body {
     private final io.gatling.core.body.Body wrapped;
 
-    public Default(io.gatling.core.body.Body wrapped) {
+    public Default(@Nonnull io.gatling.core.body.Body wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -43,11 +53,12 @@ public abstract class Body {
     }
   }
 
+  /** Body that is a Function<Session, String> */
   public static final class WithString extends Body implements Function<Session, String> {
 
     private final io.gatling.core.body.BodyWithStringExpression wrapped;
 
-    public WithString(io.gatling.core.body.BodyWithStringExpression wrapped) {
+    public WithString(@Nonnull io.gatling.core.body.BodyWithStringExpression wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -58,7 +69,7 @@ public abstract class Body {
 
     @Override
     @SuppressWarnings("unchecked")
-    public String apply(Session session) {
+    public String apply(@Nonnull Session session) {
       Validation<?> validation = wrapped.apply(session.asScala());
       if (validation instanceof Success) {
         return ((Success<String>) validation).value();
@@ -68,11 +79,12 @@ public abstract class Body {
     }
   }
 
+  /** Body that is a Function<Session, byte[]> */
   public static final class WithBytes extends Body implements Function<Session, byte[]> {
 
     private final io.gatling.core.body.BodyWithBytesExpression wrapped;
 
-    public WithBytes(io.gatling.core.body.BodyWithBytesExpression wrapped) {
+    public WithBytes(@Nonnull io.gatling.core.body.BodyWithBytesExpression wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -83,7 +95,7 @@ public abstract class Body {
 
     @Override
     @SuppressWarnings("unchecked")
-    public byte[] apply(Session session) {
+    public byte[] apply(@Nonnull Session session) {
       Validation<?> validation = wrapped.apply(session.asScala());
       if (validation instanceof Success) {
         return ((Success<byte[]>) validation).value();

@@ -16,26 +16,35 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.Action;
-import io.gatling.core.structure.ScenarioContext;
-
+import io.gatling.core.action.builder.ActionBuilder;
 import java.util.function.Function;
 
+/**
+ * DSL for building SSE connect actions
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class SseConnectActionBuilder
-  extends RequestActionBuilder<SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder>
-  implements SseAwaitActionBuilder<SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder> {
+    extends RequestActionBuilder<
+        SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder>
+    implements SseAwaitActionBuilder<
+        SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder> {
 
-  public SseConnectActionBuilder(io.gatling.http.request.builder.sse.SseConnectRequestBuilder wrapped) {
+  SseConnectActionBuilder(io.gatling.http.request.builder.sse.SseConnectRequestBuilder wrapped) {
     super(wrapped);
   }
 
   @Override
-  public SseConnectActionBuilder make(Function<io.gatling.http.request.builder.sse.SseConnectRequestBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder> f) {
+  public SseConnectActionBuilder make(
+      Function<
+              io.gatling.http.request.builder.sse.SseConnectRequestBuilder,
+              io.gatling.http.request.builder.sse.SseConnectRequestBuilder>
+          f) {
     return new SseConnectActionBuilder(f.apply(wrapped));
   }
 
   @Override
-  public Action build(ScenarioContext ctx, Action next) {
-    return wrapped.build(ctx, next);
+  public ActionBuilder asScala() {
+    return wrapped;
   }
 }

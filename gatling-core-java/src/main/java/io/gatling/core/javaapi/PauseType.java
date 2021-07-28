@@ -16,45 +16,70 @@
 
 package io.gatling.core.javaapi;
 
-import io.gatling.commons.validation.Validation;
-import scala.Function1;
+import static io.gatling.core.javaapi.internal.Converters.toScalaDuration;
+import static io.gatling.core.javaapi.internal.Expressions.javaLongFunctionToExpression;
 
 import java.time.Duration;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.toScalaDuration;
-
+/** The type of pauses to use on a given Scenario or Simulation. */
 public abstract class PauseType {
 
-  private PauseType() {
-  }
+  private PauseType() {}
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
   public abstract io.gatling.core.pause.PauseType asScala();
 
-  public static final PauseType Disabled = new PauseType() {
-    @Override
-    public io.gatling.core.pause.PauseType asScala() {
-      return io.gatling.core.pause.Disabled$.MODULE$;
-    }
-  };
+  /** Pauses are disabled. Note: this type is forced when using Throttling. */
+  public static final PauseType Disabled =
+      new PauseType() {
+        @Override
+        public io.gatling.core.pause.PauseType asScala() {
+          return io.gatling.core.pause.Disabled$.MODULE$;
+        }
+      };
 
-  public static final PauseType Constant = new PauseType() {
-    @Override
-    public io.gatling.core.pause.PauseType asScala() {
-      return io.gatling.core.pause.Constant$.MODULE$;
-    }
-  };
+  /** Pauses use the values defined in the Scenario. */
+  public static final PauseType Constant =
+      new PauseType() {
+        @Override
+        public io.gatling.core.pause.PauseType asScala() {
+          return io.gatling.core.pause.Constant$.MODULE$;
+        }
+      };
 
-  public static final PauseType Exponential = new PauseType() {
-    @Override
-    public io.gatling.core.pause.PauseType asScala() {
-      return io.gatling.core.pause.Exponential$.MODULE$;
-    }
-  };
+  /**
+   * Pauses use an <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential
+   * distribution</a> whose mean is the value defined in the Scenario.
+   */
+  public static final PauseType Exponential =
+      new PauseType() {
+        @Override
+        public io.gatling.core.pause.PauseType asScala() {
+          return io.gatling.core.pause.Exponential$.MODULE$;
+        }
+      };
 
+  /**
+   * Pauses use a <a href="https://en.wikipedia.org/wiki/Normal_distribution">normal
+   * distribution</a> where the standard deviation is defined as a percentage of the value defined
+   * in the Scenario.
+   */
   public static final class NormalWithPercentageDuration extends PauseType {
     private final double stdDev;
 
-    public NormalWithPercentageDuration(double stdDev) {
+    /**
+     * Create a normal with a standard deviation is defined as a percentage of the value defined in
+     * the Scenario.
+     *
+     * @param stdDev the standard deviation of the distribution in percents.
+     */
+    NormalWithPercentageDuration(double stdDev) {
       this.stdDev = stdDev;
     }
 
@@ -64,10 +89,19 @@ public abstract class PauseType {
     }
   }
 
+  /**
+   * Pauses use a <a href="https://en.wikipedia.org/wiki/Normal_distribution">normal
+   * distribution</a> where the standard deviation is defined as an absolute value.
+   */
   public static final class NormalWithStdDevDuration extends PauseType {
     private final Duration stdDev;
 
-    public NormalWithStdDevDuration(Duration stdDev) {
+    /**
+     * Create a normal with a standard deviation is defined as an absolute value.
+     *
+     * @param stdDev the standard deviation of the distribution
+     */
+    NormalWithStdDevDuration(@Nonnull Duration stdDev) {
       this.stdDev = stdDev;
     }
 
@@ -77,23 +111,28 @@ public abstract class PauseType {
     }
   }
 
+  /** Pauses use a custom strategy based on a user provided function */
   public static final class Custom extends PauseType {
-    private final Function1<io.gatling.core.session.Session, Validation<Object>> custom;
+    private final Function<Session, Long> f;
 
-    public Custom(Function1<io.gatling.core.session.Session, Validation<Object>> custom) {
-      this.custom = custom;
+    Custom(@Nonnull Function<Session, Long> f) {
+      this.f = f;
     }
 
     @Override
     public io.gatling.core.pause.PauseType asScala() {
-      return new io.gatling.core.pause.Custom(custom);
+      return new io.gatling.core.pause.Custom(javaLongFunctionToExpression(f));
     }
   }
 
+  /**
+   * Pauses are distributed uniformly in a range around the mean value defined in the Scenario.
+   * Half-width is expressed as a percentage of the mean.
+   */
   public static final class UniformPercentage extends PauseType {
     private final double plusOrMinus;
 
-    public UniformPercentage(double plusOrMinus) {
+    UniformPercentage(double plusOrMinus) {
       this.plusOrMinus = plusOrMinus;
     }
 
@@ -103,10 +142,14 @@ public abstract class PauseType {
     }
   }
 
+  /**
+   * Pauses are distributed uniformly in a range around the mean value defined in the Scenario.
+   * Half-width is expressed as an absolute value.
+   */
   public static final class UniformDuration extends PauseType {
     private final Duration plusOrMinus;
 
-    public UniformDuration(Duration plusOrMinus) {
+    public UniformDuration(@Nonnull Duration plusOrMinus) {
       this.plusOrMinus = plusOrMinus;
     }
 

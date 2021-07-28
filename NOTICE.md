@@ -216,6 +216,16 @@ This product depends on Brotli4j, distributed by Aayush Atharva:
 * License: license/LICENSE.brotli.al20.txt (Apache License v2.0)
 * Homepage: https://github.com/hyperxpro/Brotli4j
 
+This product depends on jsr305, distributed by FindBugs:
+
+* License: license/LICENSE.jsr305.bsd2.txt (BSD 2-Clause License)
+* Homepage: https://code.google.com/archive/p/jsr-305/
+
+This product depends on typetools, distributed by Jonathan Halterman:
+
+* License: license/LICENSE.typetools.al20.txt (Apache License v2.0)
+* Homepage: https://github.com/jhalterman/typetools
+
 Test and documentation dependencies
 ===================================
 

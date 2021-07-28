@@ -20,10 +20,9 @@ import io.gatling.core.session.Expression
 
 sealed trait JmsDestination
 
-final case class JmsQueue(name: Expression[String]) extends JmsDestination
-
-final case class JmsTopic(name: Expression[String]) extends JmsDestination
-
-case object JmsTemporaryQueue extends JmsDestination
-
-case object JmsTemporaryTopic extends JmsDestination
+object JmsDestination {
+  final case class Queue(name: Expression[String]) extends JmsDestination
+  final case class Topic(name: Expression[String]) extends JmsDestination
+  case object TemporaryQueue extends JmsDestination
+  case object TemporaryTopic extends JmsDestination
+}

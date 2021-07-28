@@ -31,11 +31,12 @@ private[recorder] object ConfigKeys {
     val SaveConfig = "recorder.core.saveConfig"
     val Headless = "recorder.core.headless"
     val HarFilePath = "recorder.core.harFilePath"
+    val Format = "recorder.core.format"
   }
   object filters {
-    val FilterStrategy = "recorder.filters.filterStrategy"
+    val Enable = "recorder.filters.enable"
     val AllowListPatterns = "recorder.filters.allowList"
-    val DenylistPatterns = "recorder.filters.denyList"
+    val DenyListPatterns = "recorder.filters.denyList"
   }
   object http {
     val AutomaticReferer = "recorder.http.automaticReferer"

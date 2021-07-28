@@ -35,4 +35,3 @@ public class Http2Content {
     return streamId;
   }
 }
-

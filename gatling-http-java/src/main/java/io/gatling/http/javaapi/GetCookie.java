@@ -16,34 +16,82 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import io.gatling.core.javaapi.Session;
 import io.gatling.http.action.cookie.GetCookieDsl;
-
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/**
+ * DSL for fetching the value of a <a
+ * href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies">cookie</a> from the virtual
+ * user's CookieJar into its {@link Session}.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class GetCookie {
 
   private final GetCookieDsl wrapped;
 
-  public GetCookie(GetCookieDsl wrapped) {
+  GetCookie(GetCookieDsl wrapped) {
     this.wrapped = wrapped;
   }
 
-  public GetCookie withDomain(String domain) {
+  /**
+   * Define the domain of the cookie. If undefined, will try to use the domain of {@link
+   * HttpProtocolBuilder#baseUrl(String)}
+   *
+   * @param domain the cookie domain, expressed as a Gatling Expression Language String
+   * @return a new GetCookie
+   */
+  @Nonnull
+  public GetCookie withDomain(@Nonnull String domain) {
     return new GetCookie(wrapped.withDomain(toStringExpression(domain)));
   }
-  public GetCookie withDomain(Function<Session, String> domain) {
-    return new GetCookie(wrapped.withDomain(toTypedGatlingSessionFunction(domain)));
+
+  /**
+   * Define the domain of the cookie. If undefined, will try to use the domain of {@link
+   * HttpProtocolBuilder#baseUrl(String)}
+   *
+   * @param domain the cookie domain, expressed as a function
+   * @return a new GetCookie
+   */
+  @Nonnull
+  public GetCookie withDomain(@Nonnull Function<Session, String> domain) {
+    return new GetCookie(wrapped.withDomain(javaFunctionToExpression(domain)));
   }
-  public GetCookie withPath(String path) {
+
+  /**
+   * Define the path of the cookie.
+   *
+   * @param path the cookie path
+   * @return a new GetCookie
+   */
+  @Nonnull
+  public GetCookie withPath(@Nonnull String path) {
     return new GetCookie(wrapped.withPath(path));
   }
+
+  /**
+   * Define the secure attribute of the cookie.
+   *
+   * @param secure the cookie secure attribute
+   * @return a new GetCookie
+   */
+  @Nonnull
   public GetCookie withSecure(boolean secure) {
     return new GetCookie(wrapped.withSecure(secure));
   }
-  public GetCookie saveAs(String saveAs) {
+
+  /**
+   * Define the {@link Session} key to save the cookie value. If undefined, will use the cookie name
+   *
+   * @param saveAs the key
+   * @return a new GetCookie
+   */
+  @Nonnull
+  public GetCookie saveAs(@Nonnull String saveAs) {
     return new GetCookie(wrapped.saveAs(saveAs));
   }
 

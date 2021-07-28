@@ -16,12 +16,11 @@
 
 package io.gatling.http.client.body.bytearray;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
-
 import java.nio.charset.Charset;
-
-import static io.gatling.http.client.util.MiscUtils.withDefault;
 
 public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]> {
 
@@ -34,6 +33,7 @@ public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]>
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new ByteArrayRequestBody(content, contentType, fileName, withDefault(charset, defaultCharset));
+    return new ByteArrayRequestBody(
+        content, contentType, fileName, withDefault(charset, defaultCharset));
   }
 }

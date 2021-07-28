@@ -16,33 +16,26 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.Predef.*;
+import static io.gatling.http.javaapi.Predef.*;
+
 import io.gatling.core.javaapi.ChainBuilder;
 import io.gatling.core.javaapi.Simulation;
-
-import static io.gatling.core.javaapi.Predef.exec;
-import static io.gatling.http.javaapi.Predef.sse;
 
 public class SseJavaCompileTest extends Simulation {
 
   private ChainBuilder chain =
-    exec(
-      sse("connect")
-        .sseName("sse")
-        .connect("/stocks/prices")
-        .await(30)
-        .on(
-          //sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
-        )
-    )
-      .exec(
-        sse("waitForSomeMessage")
-          .setCheck()
-          .await(30)
-          .on(
-            //sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))
-          )
-      )
-      .pause(15)
-      .exec(sse("close").close())
-      .exec(sse("foo", "bar").connect("url"));
+      exec(sse("connect")
+              .sseName("sse")
+              .connect("/stocks/prices")
+              .await(30)
+              .on(sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))))
+          .exec(
+              sse("waitForSomeMessage")
+                  .setCheck()
+                  .await(30)
+                  .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))))
+          .pause(15)
+          .exec(sse("close").close())
+          .exec(sse("foo", "bar").connect("url"));
 }

@@ -16,15 +16,14 @@
 
 package io.gatling.netty.util;
 
-import java.util.Arrays;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import org.junit.jupiter.api.Test;
-
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 class Utf8ByteBufCharsetDecoderTest {
 

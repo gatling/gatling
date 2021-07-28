@@ -16,40 +16,50 @@
 
 package io.gatling.http.client.uri;
 
-import io.gatling.http.client.util.HttpUtils;
-import org.junit.jupiter.api.Test;
-
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import io.gatling.http.client.util.HttpUtils;
+import org.junit.jupiter.api.Test;
+
 class HttpUtilsTest {
 
   @Test
   void testExtractCharsetWithoutQuotes() {
-    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/html; charset=iso-8859-1"), ISO_8859_1);
+    assertEquals(
+        HttpUtils.extractContentTypeCharsetAttribute("text/html; charset=iso-8859-1"), ISO_8859_1);
   }
 
   @Test
   void testExtractCharsetWithSingleQuotes() {
-    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/html; charset='iso-8859-1'"), ISO_8859_1);
+    assertEquals(
+        HttpUtils.extractContentTypeCharsetAttribute("text/html; charset='iso-8859-1'"),
+        ISO_8859_1);
   }
 
   @Test
   void testExtractCharsetWithDoubleQuotes() {
-    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/html; charset=\"iso-8859-1\""), ISO_8859_1);
+    assertEquals(
+        HttpUtils.extractContentTypeCharsetAttribute("text/html; charset=\"iso-8859-1\""),
+        ISO_8859_1);
   }
 
   @Test
   void testExtractCharsetWithDoubleQuotesAndSpaces() {
-    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/html; charset= \"iso-8859-1\" "), ISO_8859_1);
+    assertEquals(
+        HttpUtils.extractContentTypeCharsetAttribute("text/html; charset= \"iso-8859-1\" "),
+        ISO_8859_1);
   }
 
   @Test
   void testExtractCharsetWithExtraAttribute() {
-    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/xml; charset=utf-8; action=\"someaction\""), UTF_8);
+    assertEquals(
+        HttpUtils.extractContentTypeCharsetAttribute(
+            "text/xml; charset=utf-8; action=\"someaction\""),
+        UTF_8);
   }
 
   @Test

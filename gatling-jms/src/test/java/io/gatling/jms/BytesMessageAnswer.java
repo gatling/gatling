@@ -20,25 +20,25 @@ import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.invocation.InvocationOnMock;
 
 class BytesMessageAnswer extends ReturnsEmptyValues {
-    private byte[] bytes;
+  private byte[] bytes;
 
-    public BytesMessageAnswer(byte[] bytes) {
-        this.bytes = bytes;
-    }
+  public BytesMessageAnswer(byte[] bytes) {
+    this.bytes = bytes;
+  }
 
-    @Override
-    public Object answer(InvocationOnMock invocation) {
-        switch (invocation.getMethod().getName()) {
-            case "getBodyLength":
-                return (long) bytes.length;
-            case "readBytes":
-                byte[] targetBuffer = invocation.getArgument(0);
-                System.arraycopy(bytes, 0, targetBuffer, 0, targetBuffer.length);
-                return targetBuffer.length;
-            case "readUTF":
-                return new String(bytes);
-            default:
-                return super.answer(invocation);
-        }
+  @Override
+  public Object answer(InvocationOnMock invocation) {
+    switch (invocation.getMethod().getName()) {
+      case "getBodyLength":
+        return (long) bytes.length;
+      case "readBytes":
+        byte[] targetBuffer = invocation.getArgument(0);
+        System.arraycopy(bytes, 0, targetBuffer, 0, targetBuffer.length);
+        return targetBuffer.length;
+      case "readUTF":
+        return new String(bytes);
+      default:
+        return super.answer(invocation);
     }
+  }
 }

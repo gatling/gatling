@@ -22,74 +22,73 @@ import org.slf4j.LoggerFactory;
 
 public abstract class HttpTest {
 
-    public static final int TIMEOUT_SECONDS = 5;
-    protected static final String COMPLETED_EVENT = "Completed";
-    protected static final String STATUS_RECEIVED_EVENT = "StatusReceived";
-    protected static final String HEADERS_RECEIVED_EVENT = "HeadersReceived";
-    protected static final String HEADERS_WRITTEN_EVENT = "HeadersWritten";
-    protected static final String CONNECTION_OPEN_EVENT = "ConnectionOpen";
-    protected static final String HOSTNAME_RESOLUTION_EVENT = "HostnameResolution";
-    protected static final String HOSTNAME_RESOLUTION_SUCCESS_EVENT = "HostnameResolutionSuccess";
-    protected static final String CONNECTION_SUCCESS_EVENT = "ConnectionSuccess";
-    protected static final String TLS_HANDSHAKE_EVENT = "TlsHandshake";
-    protected static final String TLS_HANDSHAKE_SUCCESS_EVENT = "TlsHandshakeSuccess";
-    protected static final String CONNECTION_POOL_EVENT = "ConnectionPool";
-    protected static final String CONNECTION_OFFER_EVENT = "ConnectionOffer";
-    protected static final String REQUEST_SEND_EVENT = "RequestSend";
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+  public static final int TIMEOUT_SECONDS = 5;
+  protected static final String COMPLETED_EVENT = "Completed";
+  protected static final String STATUS_RECEIVED_EVENT = "StatusReceived";
+  protected static final String HEADERS_RECEIVED_EVENT = "HeadersReceived";
+  protected static final String HEADERS_WRITTEN_EVENT = "HeadersWritten";
+  protected static final String CONNECTION_OPEN_EVENT = "ConnectionOpen";
+  protected static final String HOSTNAME_RESOLUTION_EVENT = "HostnameResolution";
+  protected static final String HOSTNAME_RESOLUTION_SUCCESS_EVENT = "HostnameResolutionSuccess";
+  protected static final String CONNECTION_SUCCESS_EVENT = "ConnectionSuccess";
+  protected static final String TLS_HANDSHAKE_EVENT = "TlsHandshake";
+  protected static final String TLS_HANDSHAKE_SUCCESS_EVENT = "TlsHandshakeSuccess";
+  protected static final String CONNECTION_POOL_EVENT = "ConnectionPool";
+  protected static final String CONNECTION_OFFER_EVENT = "ConnectionOffer";
+  protected static final String REQUEST_SEND_EVENT = "RequestSend";
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected ClientTestBody withClient() {
-        return withClient(new HttpClientConfig());
+  protected ClientTestBody withClient() {
+    return withClient(new HttpClientConfig());
+  }
+
+  protected ClientTestBody withClient(HttpClientConfig config) {
+    return new ClientTestBody(config);
+  }
+
+  protected ServerTestBody withServer(TestServer server) {
+    return new ServerTestBody(server);
+  }
+
+  @FunctionalInterface
+  protected interface ClientFunction {
+    void apply(TestClient client) throws Throwable;
+  }
+
+  @FunctionalInterface
+  protected interface ServerFunction {
+    void apply(TestServer server) throws Throwable;
+  }
+
+  protected static class ClientTestBody {
+
+    private final HttpClientConfig config;
+
+    private ClientTestBody(HttpClientConfig config) {
+      this.config = config;
     }
 
-    protected ClientTestBody withClient(HttpClientConfig config) {
-        return new ClientTestBody(config);
+    public void run(ClientFunction f) throws Throwable {
+      try (TestClient client = new TestClient(config)) {
+        f.apply(client);
+      }
+    }
+  }
+
+  protected static class ServerTestBody {
+
+    private final TestServer server;
+
+    private ServerTestBody(TestServer server) {
+      this.server = server;
     }
 
-    protected ServerTestBody withServer(TestServer server) {
-        return new ServerTestBody(server);
+    public void run(ServerFunction f) throws Throwable {
+      try {
+        f.apply(server);
+      } finally {
+        server.reset();
+      }
     }
-
-    @FunctionalInterface
-    protected interface ClientFunction {
-        void apply(TestClient client) throws Throwable;
-    }
-
-    @FunctionalInterface
-    protected interface ServerFunction {
-        void apply(TestServer server) throws Throwable;
-    }
-
-    protected static class ClientTestBody {
-
-        private final HttpClientConfig config;
-
-        private ClientTestBody(HttpClientConfig config) {
-            this.config = config;
-        }
-
-        public void run(ClientFunction f) throws Throwable {
-            try (TestClient client = new TestClient(config)) {
-                f.apply(client);
-            }
-        }
-    }
-
-    protected static class ServerTestBody {
-
-        private final TestServer server;
-
-        private ServerTestBody(TestServer server) {
-            this.server = server;
-        }
-
-        public void run(ServerFunction f) throws Throwable {
-            try {
-                f.apply(server);
-            } finally {
-                server.reset();
-            }
-        }
-    }
+  }
 }
-

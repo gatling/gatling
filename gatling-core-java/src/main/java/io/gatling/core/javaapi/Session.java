@@ -16,16 +16,19 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.*;
+
+import java.util.*;
+import javax.annotation.Nonnull;
 import scala.Option;
 import scala.collection.Seq;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public class Session {
+/**
+ * The state of a given virtual user.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class Session {
 
   private final io.gatling.core.session.Session wrapped;
 
@@ -33,18 +36,39 @@ public class Session {
     this.wrapped = wrapped;
   }
 
+  /**
+   * Get a stored value by its key
+   *
+   * @param key the storage key
+   * @param <T> the type of the desired value
+   * @return the value if it exists, null otherwise
+   */
   @SuppressWarnings("unchecked")
-  public <T> T get(String key) {
+  public <T> T get(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     return valueOption.isDefined() ? (T) valueOption.get() : null;
   }
 
-  public String getString(String key) {
+  /**
+   * Get a stored String by its key
+   *
+   * @param key the storage key
+   * @return the value if it exists, null otherwise
+   */
+  public String getString(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     return valueOption.isDefined() ? valueOption.get().toString() : null;
   }
 
-  public Integer getIntegerWrapper(String key) {
+  /**
+   * Get a stored {@link Integer} by its key. String representation of Integers will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists, null otherwise
+   * @throws NumberFormatException if the value is a String that can't be parsed into a int
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public Integer getIntegerWrapper(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
@@ -60,18 +84,37 @@ public class Session {
     }
   }
 
-  public int getInt(String key) {
+  /**
+   * Get a stored int by its key
+   *
+   * @param key the storage key
+   * @return the value if it exists
+   * @throws NullPointerException if the value is undefined
+   * @throws NumberFormatException if the value is a String that can't be parsed into a int
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public int getInt(@Nonnull String key) {
     Object value = wrapped.attributes().apply(key);
     if (value instanceof Integer) {
-      return ((Integer) value).intValue();
+      return (Integer) value;
     } else if (value instanceof String) {
       return Integer.parseInt((String) value);
+    } else if (value == null) {
+      throw new NullPointerException(key + " is undefined");
     } else {
       throw new ClassCastException(value + " is not an Integer: " + value.getClass());
     }
   }
 
-  public Long getLongWrapper(String key) {
+  /**
+   * Get a stored {@link Long} by its key. String representation of Longs will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists, null otherwise
+   * @throws NumberFormatException if the value is a String that can't be parsed into a long
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public Long getLongWrapper(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
@@ -89,12 +132,21 @@ public class Session {
     }
   }
 
-  public long getLong(String key) {
+  /**
+   * Get a stored long by its key String representation of Longs will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists
+   * @throws NullPointerException if the value is undefined
+   * @throws NumberFormatException if the value is a String that can't be parsed into a long
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public long getLong(@Nonnull String key) {
     Object value = wrapped.attributes().apply(key);
     if (value instanceof Integer) {
       return ((Integer) value).longValue();
     } else if (value instanceof Long) {
-      return ((Long) value).longValue();
+      return (Long) value;
     } else if (value instanceof String) {
       return Long.parseLong((String) value);
     } else {
@@ -102,7 +154,15 @@ public class Session {
     }
   }
 
-  public Double getDoubleWrapper(String key) {
+  /**
+   * Get a stored {@link Double} by its key. String representation of Doubles will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists, null otherwise
+   * @throws NumberFormatException if the value is a String that can't be parsed into a double
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public Double getDoubleWrapper(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
@@ -122,14 +182,23 @@ public class Session {
     }
   }
 
-  public double getDouble(String key) {
+  /**
+   * Get a stored double by its key. String representation of Doubles will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists
+   * @throws NullPointerException if the value is undefined
+   * @throws NumberFormatException if the value is a String that can't be parsed into a double
+   * @throws ClassCastException if the value is neither a number nor a String
+   */
+  public double getDouble(@Nonnull String key) {
     Object value = wrapped.attributes().apply(key);
     if (value instanceof Integer) {
       return ((Integer) value).doubleValue();
     } else if (value instanceof Long) {
       return ((Long) value).doubleValue();
     } else if (value instanceof Double) {
-      return ((Double) value).doubleValue();
+      return (Double) value;
     } else if (value instanceof String) {
       return Long.parseLong((String) value);
     } else {
@@ -137,8 +206,15 @@ public class Session {
     }
   }
 
-
-  public Boolean getBooleanWrapper(String key) {
+  /**
+   * Get a stored {@link Boolean} by its key. String representation of Booleans will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists, null otherwise
+   * @throws NumberFormatException if the value is a String that can't be parsed into a boolean
+   * @throws ClassCastException if the value is neither a boolean nor a String
+   */
+  public Boolean getBooleanWrapper(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
@@ -154,10 +230,19 @@ public class Session {
     }
   }
 
-  public boolean getBoolean(String key) {
+  /**
+   * Get a stored boolean by its key. String representation of Booleans will be parsed.
+   *
+   * @param key the storage key
+   * @return the value if it exists
+   * @throws NullPointerException if the value is undefined
+   * @throws NumberFormatException if the value is a String that can't be parsed into a boolean
+   * @throws ClassCastException if the value is neither a boolean nor a String
+   */
+  public boolean getBoolean(@Nonnull String key) {
     Object value = wrapped.attributes().apply(key);
     if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue();
+      return (Boolean) value;
     } else if (value instanceof String) {
       return Boolean.parseBoolean((String) value);
     } else {
@@ -165,72 +250,157 @@ public class Session {
     }
   }
 
-  public List<Object> getList(String key) {
+  /**
+   * Get a stored {@link List} by its key.
+   *
+   * @param key the storage key
+   * @return the value if it exists, an empty List otherwise
+   * @throws ClassCastException if the value is not a List
+   */
+  @Nonnull
+  @SuppressWarnings("unchecked")
+  public List<Object> getList(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof List<?>) {
-        return ((List<Object>) value);
+        return (List<Object>) value;
       } else if (value instanceof Seq<?>) {
         return toJavaList((Seq<Object>) value);
       } else {
         throw new ClassCastException(value + " is not an List: " + value.getClass());
       }
     } else {
-      return null;
+      return Collections.emptyList();
     }
   }
 
-  public Set<Object> getSet(String key) {
+  /**
+   * Get a stored {@link Set} by its key.
+   *
+   * @param key the storage key
+   * @return the value if it exists, an empty Set otherwise
+   * @throws ClassCastException if the value is not a Set
+   */
+  @Nonnull
+  @SuppressWarnings("unchecked")
+  public Set<Object> getSet(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof Set<?>) {
-        return ((Set<Object>) value);
+        return (Set<Object>) value;
       } else if (value instanceof scala.collection.Set<?>) {
         return toJavaSet((scala.collection.Set<?>) value);
       } else {
         throw new ClassCastException(value + " is not an Set: " + value.getClass());
       }
     } else {
-      return null;
+      return Collections.emptySet();
     }
   }
 
-  public Map<String, Object> getMap(String key) {
+  /**
+   * Get a stored {@link Map} by its key.
+   *
+   * @param key the storage key
+   * @return the value if it exists, an empty Map otherwise
+   * @throws ClassCastException if the value is not a Map
+   */
+  @Nonnull
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> getMap(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof Map<?, ?>) {
-        return ((Map<String, Object>) value);
+        return (Map<String, Object>) value;
       } else if (value instanceof scala.collection.Map<?, ?>) {
         return toJavaMap((scala.collection.Map<String, Object>) value);
       } else {
         throw new ClassCastException(value + " is not an Map: " + value.getClass());
       }
     } else {
-      return null;
+      return Collections.emptyMap();
     }
   }
 
-  public Session set(String key, Object value) {
+  /**
+   * Store (possibly override existing value) a value under a key
+   *
+   * @param key the key
+   * @param value the value to store
+   * @return the new instance with the new stored value
+   */
+  @Nonnull
+  public Session set(@Nonnull String key, Object value) {
     return new Session(wrapped.set(key, value));
   }
 
-  public Session setAll(Map<String, Object> newAttributes) {
+  /**
+   * Store (possibly override existing values) some key value pairs
+   *
+   * @param newAttributes the new attributes
+   * @return the new instance with the new stored value
+   */
+  @Nonnull
+  public Session setAll(@Nonnull Map<String, Object> newAttributes) {
     return new Session(wrapped.setAll(toScalaMap(newAttributes)));
   }
 
-  public Session remove(String key) {
+  /**
+   * Remove an existing attribute
+   *
+   * @param key the key to remove
+   * @return the new instance with the removed key
+   */
+  @Nonnull
+  public Session remove(@Nonnull String key) {
     return new Session(wrapped.remove(key));
   }
 
-  public Session removeAll(String... keys) {
+  /**
+   * Remove multiple existing attributes
+   *
+   * @param keys the keys to remove
+   * @return the new instance with the removed keys
+   */
+  @Nonnull
+  public Session removeAll(@Nonnull String... keys) {
     return new Session(wrapped.removeAll(toScalaSeq(keys)));
   }
 
-  public boolean contains(String key) {
+  /**
+   * @param key the key
+   * @return true is the key is defined
+   */
+  public boolean contains(@Nonnull String key) {
     return wrapped.contains(key);
+  }
+
+  /** @return if the Session's status is failure */
+  public boolean isFailed() {
+    return wrapped.isFailed();
+  }
+
+  /**
+   * Force status to success
+   *
+   * @return the new instance with the new status
+   */
+  @Nonnull
+  public Session markAsSucceeded() {
+    return new Session(wrapped.markAsSucceeded());
+  }
+
+  /**
+   * Force status to failure
+   *
+   * @return the new instance with the new status
+   */
+  @Nonnull
+  public Session markAsFailed() {
+    return new Session(wrapped.markAsFailed());
   }
 
   public io.gatling.core.session.Session asScala() {

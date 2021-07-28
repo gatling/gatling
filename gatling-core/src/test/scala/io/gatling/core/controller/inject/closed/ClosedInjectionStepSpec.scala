@@ -47,9 +47,9 @@ class ClosedInjectionStepSpec extends BaseSpec {
   }
 
   "composite.injectionSteps" should "produce the expected injection profile with starting users and with ramps" in {
-    val steps = IncreasingConcurrentUsersCompositeStep(
-      concurrentUsers = 10,
-      nbOfSteps = 5,
+    val steps = StairsConcurrentUsersCompositeStep(
+      usersIncrement = 10,
+      levels = 5,
       levelDuration = 10.seconds,
       startingUsers = 5,
       rampDuration = 20.seconds
@@ -71,9 +71,9 @@ class ClosedInjectionStepSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile without starting users and without ramps" in {
-    val steps = IncreasingConcurrentUsersCompositeStep(
-      concurrentUsers = 10,
-      nbOfSteps = 5,
+    val steps = StairsConcurrentUsersCompositeStep(
+      usersIncrement = 10,
+      levels = 5,
       levelDuration = 10.seconds,
       startingUsers = 0,
       rampDuration = Duration.Zero
@@ -91,9 +91,9 @@ class ClosedInjectionStepSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile with starting users and without ramps" in {
-    val steps = IncreasingConcurrentUsersCompositeStep(
-      concurrentUsers = 10,
-      nbOfSteps = 5,
+    val steps = StairsConcurrentUsersCompositeStep(
+      usersIncrement = 10,
+      levels = 5,
       levelDuration = 10.seconds,
       startingUsers = 5,
       rampDuration = Duration.Zero
@@ -111,9 +111,9 @@ class ClosedInjectionStepSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile without starting users and with ramps" in {
-    val steps = IncreasingConcurrentUsersCompositeStep(
-      concurrentUsers = 10,
-      nbOfSteps = 5,
+    val steps = StairsConcurrentUsersCompositeStep(
+      usersIncrement = 10,
+      levels = 5,
       levelDuration = 10.seconds,
       startingUsers = 0,
       rampDuration = 80.seconds

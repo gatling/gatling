@@ -25,7 +25,8 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.util;
@@ -133,8 +134,7 @@ public final class Utf8UrlEncoder {
     FORM_URL_ENCODED_SAFE_CHARS.set('*');
   }
 
-  private Utf8UrlEncoder() {
-  }
+  private Utf8UrlEncoder() {}
 
   public static String encodePath(String input) {
     StringBuilder sb = lazyAppendEncoded(null, input, BUILT_PATH_UNTOUCHED_CHARS, false);
@@ -171,7 +171,8 @@ public final class Utf8UrlEncoder {
     return appendEncoded(sb, input, RFC3986_UNRESERVED_CHARS, false);
   }
 
-  private static StringBuilder lazyInitStringBuilder(CharSequence input, int firstNonUsAsciiPosition) {
+  private static StringBuilder lazyInitStringBuilder(
+      CharSequence input, int firstNonUsAsciiPosition) {
     StringBuilder sb = new StringBuilder(input.length() + 6);
     for (int i = 0; i < firstNonUsAsciiPosition; i++) {
       sb.append(input.charAt(i));
@@ -179,7 +180,8 @@ public final class Utf8UrlEncoder {
     return sb;
   }
 
-  private static StringBuilder lazyAppendEncoded(StringBuilder sb, CharSequence input, BitSet dontNeedEncoding, boolean encodeSpaceAsPlus) {
+  private static StringBuilder lazyAppendEncoded(
+      StringBuilder sb, CharSequence input, BitSet dontNeedEncoding, boolean encodeSpaceAsPlus) {
     int c;
     for (int i = 0; i < input.length(); i += Character.charCount(c)) {
       c = Character.codePointAt(input, i);
@@ -204,7 +206,8 @@ public final class Utf8UrlEncoder {
     return sb;
   }
 
-  private static StringBuilder appendEncoded(StringBuilder sb, CharSequence input, BitSet dontNeedEncoding, boolean encodeSpaceAsPlus) {
+  private static StringBuilder appendEncoded(
+      StringBuilder sb, CharSequence input, BitSet dontNeedEncoding, boolean encodeSpaceAsPlus) {
     int c;
     for (int i = 0; i < input.length(); i += Character.charCount(c)) {
       c = Character.codePointAt(input, i);
@@ -221,7 +224,8 @@ public final class Utf8UrlEncoder {
     return sb;
   }
 
-  private static void appendSingleByteEncoded(StringBuilder sb, int value, boolean encodeSpaceAsPlus) {
+  private static void appendSingleByteEncoded(
+      StringBuilder sb, int value, boolean encodeSpaceAsPlus) {
 
     if (value == ' ' && encodeSpaceAsPlus) {
       sb.append('+');

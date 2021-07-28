@@ -21,7 +21,6 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.netty.util.StringWithCachedBytes;
 import io.netty.buffer.ByteBufAllocator;
-
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -30,7 +29,8 @@ public final class StringChunksRequestBody extends RequestBody.Base<List<StringW
   private final Charset charset;
   private final long contentLength;
 
-  public StringChunksRequestBody(List<StringWithCachedBytes> content, String contentType, Charset charset) {
+  public StringChunksRequestBody(
+      List<StringWithCachedBytes> content, String contentType, Charset charset) {
     super(content, contentType);
     long contentLength = 0;
     for (StringWithCachedBytes stringWithCachedBytes : content) {
@@ -54,7 +54,7 @@ public final class StringChunksRequestBody extends RequestBody.Base<List<StringW
   public byte[] getBytes() {
     byte[] bytes = new byte[(int) contentLength];
     int offset = 0;
-    for (StringWithCachedBytes chunk: content) {
+    for (StringWithCachedBytes chunk : content) {
       System.arraycopy(chunk.bytes, 0, bytes, offset, chunk.bytes.length);
       offset += chunk.bytes.length;
     }
@@ -63,10 +63,14 @@ public final class StringChunksRequestBody extends RequestBody.Base<List<StringW
 
   @Override
   public String toString() {
-    return "StringChunksRequestBody{" +
-      "contentType='" + contentType + '\'' +
-      ", charset=" + charset +
-      ", content=" + StringWithCachedBytes.toString(content) +
-      '}';
+    return "StringChunksRequestBody{"
+        + "contentType='"
+        + contentType
+        + '\''
+        + ", charset="
+        + charset
+        + ", content="
+        + StringWithCachedBytes.toString(content)
+        + '}';
   }
 }

@@ -70,6 +70,7 @@ object Dependencies {
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.7.4"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.5"
+  private val jsr305                         = "com.google.code.findbugs"             % "jsr305"                          % "3.0.2"
   private val typetools                      = "net.jodah"                            % "typetools"                       % "0.6.3"
 
   // Test dependencies
@@ -134,8 +135,11 @@ object Dependencies {
     ) ++
       parserDeps ++ testDeps
 
+  val defaultJavaDependencies =
+    Seq(jsr305, junit, junitEngine, jupiterInterface) ++ testDeps
+
   val coreJavaDependencies =
-    Seq(typetools, junit, junitEngine, jupiterInterface) ++ testDeps
+    Seq(typetools) ++ defaultJavaDependencies
 
   val redisDependencies = redisClient +: testDeps
 
@@ -161,9 +165,6 @@ object Dependencies {
   ) ++ loggingDeps
 
   val httpDependencies = Seq(saxon) ++ testDeps
-
-  val httpJavaDependencies =
-    Seq(junit, junitEngine, jupiterInterface) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
 

@@ -42,8 +42,7 @@ public class IpAndPort {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     IpAndPort ipAndPort = (IpAndPort) o;
-    return port == ipAndPort.port &&
-      Arrays.equals(ip, ipAndPort.ip);
+    return port == ipAndPort.port && Arrays.equals(ip, ipAndPort.ip);
   }
 
   @Override
@@ -55,9 +54,6 @@ public class IpAndPort {
 
   @Override
   public String toString() {
-    return "IpAndPort{" +
-      "ip=" + Arrays.toString(ip) +
-      ", port=" + port +
-      '}';
+    return "IpAndPort{" + "ip=" + Arrays.toString(ip) + ", port=" + port + '}';
   }
 }

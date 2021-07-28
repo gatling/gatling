@@ -17,7 +17,6 @@
 package io.gatling.core.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -35,8 +34,8 @@ public final class JsonJava {
             return Collections.singletonList(asJava(node.get(0)));
           default:
             return StreamSupport.stream(node.spliterator(), false)
-              .map(JsonJava::asJava)
-              .collect(Collectors.toList());
+                .map(JsonJava::asJava)
+                .collect(Collectors.toList());
         }
       case OBJECT:
         switch (node.size()) {
@@ -62,14 +61,21 @@ public final class JsonJava {
         return null;
       case NUMBER:
         switch (node.numberType()) {
-        case INT : return node.intValue();
-        case LONG: return node.longValue();
-        case FLOAT       : return node.floatValue();
-        case DOUBLE      : return node.doubleValue();
-        case BIG_INTEGER : return node.bigIntegerValue();
-        case BIG_DECIMAL : return node.decimalValue();
-      }
-      default: throw new IllegalArgumentException("Unsupported node type " + node.getNodeType());
+          case INT:
+            return node.intValue();
+          case LONG:
+            return node.longValue();
+          case FLOAT:
+            return node.floatValue();
+          case DOUBLE:
+            return node.doubleValue();
+          case BIG_INTEGER:
+            return node.bigIntegerValue();
+          case BIG_DECIMAL:
+            return node.decimalValue();
+        }
+      default:
+        throw new IllegalArgumentException("Unsupported node type " + node.getNodeType());
     }
   }
 }

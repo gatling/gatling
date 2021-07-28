@@ -86,7 +86,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
 
   private val simulationFile: Path = {
     val sourcesFolderPath = Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)).mkdirs()
-    sourcesFolderPath / s"${config.core.className}.scala"
+    sourcesFolderPath / s"${config.core.className}.${config.core.format.fileExtension}"
   }
 
   def simulationFileExists: Boolean = simulationFile.exists

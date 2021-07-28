@@ -16,22 +16,21 @@
 
 package io.gatling.http.client.body.form;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
-import io.gatling.netty.util.StringBuilderPool;
 import io.gatling.http.client.util.Utf8UrlEncoder;
+import io.gatling.netty.util.StringBuilderPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param>> {
 
@@ -62,7 +61,8 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
     return sb;
   }
 
-  private static void encodeAndAppendFormParam(StringBuilder sb, String name, String value, Charset charset) {
+  private static void encodeAndAppendFormParam(
+      StringBuilder sb, String name, String value, Charset charset) {
     encodeAndAppendFormField(sb, name, charset);
     if (value != null) {
       sb.append('=');
@@ -89,7 +89,6 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
     return new FormUrlEncodedRequestBodyBuilder(content);
   }
 
-
   @Override
   public byte[] getBytes() {
     return encode().toString().getBytes(charset);
@@ -97,10 +96,14 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
 
   @Override
   public String toString() {
-    return "FormUrlEncodedRequestBody{" +
-      "contentType='" + contentType + '\'' +
-      ", charset=" + charset +
-      ", content=" + encode() +
-      '}';
+    return "FormUrlEncodedRequestBody{"
+        + "contentType='"
+        + contentType
+        + '\''
+        + ", charset="
+        + charset
+        + ", content="
+        + encode()
+        + '}';
   }
 }

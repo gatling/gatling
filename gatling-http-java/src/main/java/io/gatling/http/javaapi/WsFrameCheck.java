@@ -16,52 +16,168 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.http.check.ws.WsCheck;
+import io.gatling.core.javaapi.CheckBuilder;
+import io.gatling.http.javaapi.internal.WsChecks;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/**
+ * DSL for building WebSocket checks
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public abstract class WsFrameCheck {
 
-  private WsFrameCheck() {
-  }
+  private WsFrameCheck() {}
 
+  public abstract io.gatling.http.check.ws.WsFrameCheck asScala();
+
+  /**
+   * DSL for building WebSocket BINARY frames checks
+   *
+   * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+   */
   public static final class Binary extends WsFrameCheck {
     private final io.gatling.http.check.ws.WsFrameCheck.Binary wrapped;
 
-    public Binary(io.gatling.http.check.ws.WsFrameCheck.Binary wrapped) {
+    Binary(io.gatling.http.check.ws.WsFrameCheck.Binary wrapped) {
       this.wrapped = wrapped;
     }
 
-    public Binary matching(WsCheck.Binary... newMatchConditions) {
-      return new Binary(wrapped.matching(toScalaSeq(newMatchConditions)));
+    /**
+     * Define conditions that have to hold true to match inbound messages and apply the checks on
+     * them
+     *
+     * @param newMatchConditions the conditions to match
+     * @return a new Binary instance
+     */
+    @Nonnull
+    public Binary matching(@Nonnull CheckBuilder... newMatchConditions) {
+      return matching(Arrays.asList(newMatchConditions));
     }
 
-    public Binary check(WsCheck.Binary... newChecks) {
-      return new Binary(wrapped.check(toScalaSeq(newChecks)));
+    /**
+     * Define conditions that have to hold true to match inbound messages and apply the checks on
+     * them
+     *
+     * @param newMatchConditions the conditions to match
+     * @return a new Binary instance
+     */
+    @Nonnull
+    public Binary matching(@Nonnull List<CheckBuilder> newMatchConditions) {
+      return new Binary(wrapped.matching(WsChecks.toScalaBinaryChecks(newMatchConditions)));
     }
 
+    /**
+     * Define the checks to apply on inbound messages
+     *
+     * @param checks the checks
+     * @return a new Binary instance
+     */
+    @Nonnull
+    public Binary check(@Nonnull CheckBuilder... checks) {
+      return check(Arrays.asList(checks));
+    }
+
+    /**
+     * Define the checks to apply on inbound messages
+     *
+     * @param checks the checks
+     * @return a new Binary instance
+     */
+    @Nonnull
+    public Binary check(@Nonnull List<CheckBuilder> checks) {
+      return new Binary(wrapped.check(WsChecks.toScalaBinaryChecks(checks)));
+    }
+
+    /**
+     * Make the check silent, not logged by the reporting engine
+     *
+     * @return a new Binary instance
+     */
+    @Nonnull
     public Binary silent() {
       return new Binary(wrapped.silent());
     }
+
+    @Override
+    public io.gatling.http.check.ws.WsFrameCheck asScala() {
+      return wrapped;
+    }
   }
 
+  /**
+   * DSL for building WebSocket TEXT frames checks
+   *
+   * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+   */
   public static final class Text extends WsFrameCheck {
     private final io.gatling.http.check.ws.WsFrameCheck.Text wrapped;
 
-    public Text(io.gatling.http.check.ws.WsFrameCheck.Text wrapped) {
+    Text(io.gatling.http.check.ws.WsFrameCheck.Text wrapped) {
       this.wrapped = wrapped;
     }
 
-    public Text matching(WsCheck.Text... newMatchConditions) {
-      return new Text(wrapped.matching(toScalaSeq(newMatchConditions)));
+    /**
+     * Define conditions that have to hold true to match inbound messages and apply the checks on
+     * them
+     *
+     * @param newMatchConditions the conditions to match
+     * @return a new Text instance
+     */
+    @Nonnull
+    public Text matching(@Nonnull CheckBuilder... newMatchConditions) {
+      return matching(Arrays.asList(newMatchConditions));
     }
 
-    public Text check(WsCheck.Text... newChecks) {
-      return new Text(wrapped.check(toScalaSeq(newChecks)));
+    /**
+     * Define conditions that have to hold true to match inbound messages and apply the checks on
+     * them
+     *
+     * @param newMatchConditions the conditions to match
+     * @return a new Text instance
+     */
+    @Nonnull
+    public Text matching(@Nonnull List<CheckBuilder> newMatchConditions) {
+      return new Text(wrapped.matching(WsChecks.toScalaTextChecks(newMatchConditions)));
     }
 
+    /**
+     * Define the checks to apply on inbound messages
+     *
+     * @param checks the checks
+     * @return a new Text instance
+     */
+    @Nonnull
+    public Text check(@Nonnull CheckBuilder... checks) {
+      return check(Arrays.asList(checks));
+    }
+
+    /**
+     * Define the checks to apply on inbound messages
+     *
+     * @param checks the checks
+     * @return a new Text instance
+     */
+    @Nonnull
+    public Text check(@Nonnull List<CheckBuilder> checks) {
+      return new Text(wrapped.check(WsChecks.toScalaTextChecks(checks)));
+    }
+
+    /**
+     * Make the check silent, not logged by the reporting engine
+     *
+     * @return a new Text instance
+     */
+    @Nonnull
     public Text silent() {
       return new Text(wrapped.silent());
+    }
+
+    @Override
+    public io.gatling.http.check.ws.WsFrameCheck asScala() {
+      return wrapped;
     }
   }
 }

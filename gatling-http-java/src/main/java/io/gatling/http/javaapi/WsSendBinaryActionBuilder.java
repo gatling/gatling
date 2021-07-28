@@ -16,28 +16,32 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.Action;
-import io.gatling.core.structure.ScenarioContext;
+import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.http.action.ws.WsSendBinaryFrameBuilder;
-import io.gatling.http.check.ws.WsFrameCheck;
-
 import java.util.function.Function;
 
-public class WsSendBinaryActionBuilder implements WsAwaitActionBuilder<WsSendBinaryActionBuilder, WsSendBinaryFrameBuilder, WsFrameCheck.Binary> {
+/**
+ * DSL for building actions to send BINARY frames
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
+public final class WsSendBinaryActionBuilder
+    implements WsAwaitActionBuilder<WsSendBinaryActionBuilder, WsSendBinaryFrameBuilder> {
 
   private final WsSendBinaryFrameBuilder wrapped;
 
-  public WsSendBinaryActionBuilder(WsSendBinaryFrameBuilder wrapped) {
+  WsSendBinaryActionBuilder(WsSendBinaryFrameBuilder wrapped) {
     this.wrapped = wrapped;
   }
 
   @Override
-  public WsSendBinaryActionBuilder make(Function<WsSendBinaryFrameBuilder, WsSendBinaryFrameBuilder> f) {
+  public WsSendBinaryActionBuilder make(
+      Function<WsSendBinaryFrameBuilder, WsSendBinaryFrameBuilder> f) {
     return new WsSendBinaryActionBuilder(f.apply(wrapped));
   }
 
   @Override
-  public Action build(ScenarioContext ctx, Action next) {
-    return wrapped.build(ctx, next);
+  public ActionBuilder asScala() {
+    return wrapped;
   }
 }

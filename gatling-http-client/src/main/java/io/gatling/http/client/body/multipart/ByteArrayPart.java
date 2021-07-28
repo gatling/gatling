@@ -19,31 +19,31 @@ package io.gatling.http.client.body.multipart;
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.multipart.impl.ByteArrayPartImpl;
 import io.gatling.http.client.body.multipart.impl.PartImpl;
-
 import java.nio.charset.Charset;
 import java.util.List;
 
 public class ByteArrayPart extends FileLikePart<byte[]> {
 
-  public ByteArrayPart(String name,
-                       byte[] content,
-                       Charset charset,
-                       String transferEncoding,
-                       String contentId,
-                       String dispositionType,
-                       String contentType,
-                       List<Param> customHeaders,
-                       String fileName) {
-    super(name,
-            content,
-            charset,
-            transferEncoding,
-            contentId,
-            dispositionType,
-            contentType,
-            customHeaders,
-            fileName
-    );
+  public ByteArrayPart(
+      String name,
+      byte[] content,
+      Charset charset,
+      String transferEncoding,
+      String contentId,
+      String dispositionType,
+      String contentType,
+      List<Param> customHeaders,
+      String fileName) {
+    super(
+        name,
+        content,
+        charset,
+        transferEncoding,
+        contentId,
+        dispositionType,
+        contentType,
+        customHeaders,
+        fileName);
   }
 
   @Override

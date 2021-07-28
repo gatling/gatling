@@ -16,6 +16,7 @@
 
 package io.gatling.http.client;
 
+@FunctionalInterface
 public interface SignatureCalculator {
 
   void sign(Request request) throws Exception;

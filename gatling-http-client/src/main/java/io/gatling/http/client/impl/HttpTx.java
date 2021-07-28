@@ -27,7 +27,9 @@ import io.netty.util.ReferenceCounted;
 public class HttpTx {
 
   public enum ChannelState {
-    NEW, POOLED, RETRY
+    NEW,
+    POOLED,
+    RETRY
   }
 
   final Request request;
@@ -42,7 +44,13 @@ public class HttpTx {
   boolean closeConnection;
   WritableRequest pendingRequestExpectingContinue;
 
-  HttpTx(Request request, HttpListener listener, RequestTimeout requestTimeout, ChannelPoolKey key, SslContext sslContext, SslContext alpnSslContext) {
+  HttpTx(
+      Request request,
+      HttpListener listener,
+      RequestTimeout requestTimeout,
+      ChannelPoolKey key,
+      SslContext sslContext,
+      SslContext alpnSslContext) {
     this.request = request;
     this.listener = listener;
     this.requestTimeout = requestTimeout;
@@ -50,13 +58,14 @@ public class HttpTx {
     this.channelState = ChannelState.POOLED; // set to NEW in DefaultHttpClient#sendTxWithNewChannel
     this.sslContext = sslContext;
     this.alpnSslContext = alpnSslContext;
-    this.closeConnection =  HttpUtils.isConnectionClose(request.getHeaders());
+    this.closeConnection = HttpUtils.isConnectionClose(request.getHeaders());
   }
 
   SslContext sslContext() {
     if (request.isAlpnRequired()) {
       if (alpnSslContext == null) {
-        throw new UnsupportedOperationException("ALPN is not available (this path shouldn't be possible, please report).");
+        throw new UnsupportedOperationException(
+            "ALPN is not available (this path shouldn't be possible, please report).");
       }
       return alpnSslContext;
     } else {

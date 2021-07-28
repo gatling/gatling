@@ -17,7 +17,6 @@
 package io.gatling.http.client.body.multipart.impl;
 
 public enum PartImplState {
-
   PRE_CONTENT,
 
   CONTENT,
@@ -26,4 +25,3 @@ public enum PartImplState {
 
   DONE
 }
-

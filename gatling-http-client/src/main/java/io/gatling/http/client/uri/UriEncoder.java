@@ -25,7 +25,8 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.uri;
@@ -33,19 +34,18 @@ package io.gatling.http.client.uri;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 import io.gatling.http.client.Param;
-import io.gatling.netty.util.StringBuilderPool;
 import io.gatling.http.client.util.Utf8UrlEncoder;
-
+import io.gatling.netty.util.StringBuilderPool;
 import java.util.List;
 
 public enum UriEncoder {
-
   FIXING {
     public String encodePath(String path) {
       return Utf8UrlEncoder.encodePath(path);
     }
 
-    private void encodeAndAppendQueryParam(final StringBuilder sb, final CharSequence name, final CharSequence value) {
+    private void encodeAndAppendQueryParam(
+        final StringBuilder sb, final CharSequence name, final CharSequence value) {
       Utf8UrlEncoder.encodeAndAppendQueryElement(sb, name);
       if (value != null) {
         sb.append('=');
@@ -89,14 +89,12 @@ public enum UriEncoder {
 
     private void appendRawQueryParam(StringBuilder sb, String name, String value) {
       sb.append(name);
-      if (value != null)
-        sb.append('=').append(value);
+      if (value != null) sb.append('=').append(value);
       sb.append('&');
     }
 
     private void appendRawQueryParams(final StringBuilder sb, final List<Param> queryParams) {
-      for (Param param : queryParams)
-        appendRawQueryParam(sb, param.getName(), param.getValue());
+      for (Param param : queryParams) appendRawQueryParam(sb, param.getName(), param.getValue());
     }
 
     protected String withQueryWithParams(final String query, final List<Param> queryParams) {
@@ -139,7 +137,9 @@ public enum UriEncoder {
   protected abstract String withoutQueryWithParams(final List<Param> queryParams);
 
   private String withQuery(final String query, final List<Param> queryParams) {
-    return isNonEmpty(queryParams) ? withQueryWithParams(query, queryParams) : withQueryWithoutParams(query);
+    return isNonEmpty(queryParams)
+        ? withQueryWithParams(query, queryParams)
+        : withQueryWithoutParams(query);
   }
 
   private String withoutQuery(final List<Param> queryParams) {
@@ -151,15 +151,16 @@ public enum UriEncoder {
     String newPath = encodePath(uri.getPath());
     String originalQuery = uri.getQuery();
     String newQuery = encodeQuery(originalQuery, queryParams);
-    return newPath == null && newQuery == null ?
-      uri :
-      new Uri(uri.getScheme(),
-        uri.getUserInfo(),
-        uri.getHost(),
-        uri.getPort(),
-        newPath == null ? originalPath : newPath,
-        newQuery == null ? originalQuery : newQuery,
-        uri.getFragment());
+    return newPath == null && newQuery == null
+        ? uri
+        : new Uri(
+            uri.getScheme(),
+            uri.getUserInfo(),
+            uri.getHost(),
+            uri.getPort(),
+            newPath == null ? originalPath : newPath,
+            newQuery == null ? originalQuery : newQuery,
+            uri.getFragment());
   }
 
   protected abstract String encodePath(String path);

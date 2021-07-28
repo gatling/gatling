@@ -25,7 +25,8 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.netty.util;
@@ -34,7 +35,8 @@ public class StringBuilderPool {
 
   public static final StringBuilderPool DEFAULT = new StringBuilderPool();
 
-  private final ThreadLocal<StringBuilder> pool = ThreadLocal.withInitial(() -> new StringBuilder(512));
+  private final ThreadLocal<StringBuilder> pool =
+      ThreadLocal.withInitial(() -> new StringBuilder(512));
 
   /**
    * BEWARE: MUSN'T APPEND TO ITSELF!

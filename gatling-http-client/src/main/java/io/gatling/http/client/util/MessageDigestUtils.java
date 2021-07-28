@@ -25,7 +25,8 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.util;
@@ -35,24 +36,27 @@ import java.security.NoSuchAlgorithmException;
 
 public final class MessageDigestUtils {
 
-  private MessageDigestUtils() {
-  }
+  private MessageDigestUtils() {}
 
-  private static final ThreadLocal<MessageDigest> MD5_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
-    try {
-      return MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new InternalError("MD5 not supported on this platform");
-    }
-  });
+  private static final ThreadLocal<MessageDigest> MD5_MESSAGE_DIGESTS =
+      ThreadLocal.withInitial(
+          () -> {
+            try {
+              return MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+              throw new InternalError("MD5 not supported on this platform");
+            }
+          });
 
-  private static final ThreadLocal<MessageDigest> SHA1_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
-    try {
-      return MessageDigest.getInstance("SHA1");
-    } catch (NoSuchAlgorithmException e) {
-      throw new InternalError("SHA1 not supported on this platform");
-    }
-  });
+  private static final ThreadLocal<MessageDigest> SHA1_MESSAGE_DIGESTS =
+      ThreadLocal.withInitial(
+          () -> {
+            try {
+              return MessageDigest.getInstance("SHA1");
+            } catch (NoSuchAlgorithmException e) {
+              throw new InternalError("SHA1 not supported on this platform");
+            }
+          });
 
   public static MessageDigest pooledMd5MessageDigest() {
     MessageDigest md = MD5_MESSAGE_DIGESTS.get();

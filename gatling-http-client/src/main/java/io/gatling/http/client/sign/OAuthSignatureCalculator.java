@@ -16,30 +16,31 @@
 
 package io.gatling.http.client.sign;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
+
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.SignatureCalculator;
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.oauth.ConsumerKey;
 import io.gatling.http.client.oauth.OAuthSignatureCalculatorInstance;
 import io.gatling.http.client.oauth.RequestToken;
-import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
-import io.gatling.http.client.body.RequestBody;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
-
 public class OAuthSignatureCalculator implements SignatureCalculator {
 
-  private static final ThreadLocal<OAuthSignatureCalculatorInstance> INSTANCES = ThreadLocal.withInitial(() -> {
-    try {
-      return new OAuthSignatureCalculatorInstance();
-    } catch (NoSuchAlgorithmException e) {
-      throw new ExceptionInInitializerError(e);
-    }
-  });
+  private static final ThreadLocal<OAuthSignatureCalculatorInstance> INSTANCES =
+      ThreadLocal.withInitial(
+          () -> {
+            try {
+              return new OAuthSignatureCalculatorInstance();
+            } catch (NoSuchAlgorithmException e) {
+              throw new ExceptionInInitializerError(e);
+            }
+          });
 
   private final ConsumerKey consumerAuth;
   private final RequestToken requestToken;
@@ -54,16 +55,15 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
 
     RequestBody body = request.getBody();
     List<Param> formParams =
-      body instanceof FormUrlEncodedRequestBody ?
-        ((FormUrlEncodedRequestBody) body).getContent() :
-        Collections.emptyList();
+        body instanceof FormUrlEncodedRequestBody
+            ? ((FormUrlEncodedRequestBody) body).getContent()
+            : Collections.emptyList();
 
-    String authorization = INSTANCES.get().computeAuthorizationHeader(
-      consumerAuth,
-      requestToken,
-      request.getMethod(),
-      request.getUri(),
-      formParams);
+    String authorization =
+        INSTANCES
+            .get()
+            .computeAuthorizationHeader(
+                consumerAuth, requestToken, request.getMethod(), request.getUri(), formParams);
 
     request.getHeaders().set(AUTHORIZATION, authorization);
   }

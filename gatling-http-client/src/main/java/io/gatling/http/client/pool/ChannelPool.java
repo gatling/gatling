@@ -16,25 +16,27 @@
 
 package io.gatling.http.client.pool;
 
+import static io.gatling.http.client.util.Assertions.assertNotNull;
+
 import io.gatling.http.client.impl.DefaultHttpClient;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.util.AttributeKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.*;
-
-import static io.gatling.http.client.util.Assertions.assertNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChannelPool {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
 
-  private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY = AttributeKey.valueOf("poolKey");
-  private static final AttributeKey<Long> CHANNEL_TOUCH_TIMESTAMP = AttributeKey.valueOf("idleTimestamp");
-  private static final AttributeKey<Http2Connection> CHANNEL_HTTP2_CONNEXION = AttributeKey.valueOf("http2Connection");
+  private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY =
+      AttributeKey.valueOf("poolKey");
+  private static final AttributeKey<Long> CHANNEL_TOUCH_TIMESTAMP =
+      AttributeKey.valueOf("idleTimestamp");
+  private static final AttributeKey<Http2Connection> CHANNEL_HTTP2_CONNEXION =
+      AttributeKey.valueOf("http2Connection");
   private static final AttributeKey<Boolean> HTTP2_POOLED = AttributeKey.valueOf("http2Pooled");
   private static final AttributeKey<Boolean> CHANNEL_GOAWAY = AttributeKey.valueOf("goAway");
 
@@ -42,13 +44,14 @@ public class ChannelPool {
   static final int INITIAL_KEY_PER_CLIENT_MAP_SIZE = 2;
   static final int INITIAL_CHANNEL_QUEUE_SIZE = 2;
 
-  private final Map<Long, Map<RemoteKey, Queue<Channel>>> channels = new HashMap<>(INITIAL_CLIENT_MAP_SIZE);
+  private final Map<Long, Map<RemoteKey, Queue<Channel>>> channels =
+      new HashMap<>(INITIAL_CLIENT_MAP_SIZE);
   private final CoalescingChannelPool coalescingChannelPool = new CoalescingChannelPool();
 
   private Queue<Channel> remoteChannels(ChannelPoolKey key) {
     return channels
-      .computeIfAbsent(key.clientId, k -> new HashMap<>(INITIAL_KEY_PER_CLIENT_MAP_SIZE))
-      .computeIfAbsent(key.remoteKey, k -> new ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
+        .computeIfAbsent(key.clientId, k -> new HashMap<>(INITIAL_KEY_PER_CLIENT_MAP_SIZE))
+        .computeIfAbsent(key.remoteKey, k -> new ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
   }
 
   private static boolean isHttp1(Channel channel) {
@@ -118,15 +121,22 @@ public class ChannelPool {
     return null;
   }
 
-  public Channel pollCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses) {
-    Channel channel = coalescingChannelPool.getCoalescedChannel(clientId, domain, addresses, ChannelPool::canOpenStream);
+  public Channel pollCoalescedChannel(
+      long clientId, String domain, List<InetSocketAddress> addresses) {
+    Channel channel =
+        coalescingChannelPool.getCoalescedChannel(
+            clientId, domain, addresses, ChannelPool::canOpenStream);
     if (channel != null) {
       LOGGER.debug("Retrieving channel from coalescing pool for domain {}", domain);
     }
     return channel;
   }
 
-  public void offerCoalescedChannel(Set<String> subjectAlternativeNames, InetSocketAddress address, Channel channel, ChannelPoolKey key) {
+  public void offerCoalescedChannel(
+      Set<String> subjectAlternativeNames,
+      InetSocketAddress address,
+      Channel channel,
+      ChannelPoolKey key) {
     IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
     coalescingChannelPool.addEntry(key.clientId, ipAndPort, subjectAlternativeNames, channel);
   }
@@ -153,8 +163,7 @@ public class ChannelPool {
         for (Channel channel : deque) {
           boolean http2 = isHttp2(channel);
           if (isLastTouchTooOld(channel, now, idleTimeoutNanos)
-              && (!http2 || getHttp2Connection(channel).numActiveStreams() == 0)
-          ) {
+              && (!http2 || getHttp2Connection(channel).numActiveStreams() == 0)) {
             channel.close();
             deque.remove(channel);
             if (http2) {
@@ -177,9 +186,11 @@ public class ChannelPool {
 
   @Override
   public String toString() {
-    return "ChannelPool{" +
-      "channels=" + channels +
-      ", coalescingChannelPool=" + coalescingChannelPool +
-      '}';
+    return "ChannelPool{"
+        + "channels="
+        + channels
+        + ", coalescingChannelPool="
+        + coalescingChannelPool
+        + '}';
   }
 }

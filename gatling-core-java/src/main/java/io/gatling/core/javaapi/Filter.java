@@ -16,10 +16,16 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.*;
+
 import java.util.List;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/**
+ * Filter. Typically used for filtering HTTP resources.
+ *
+ * @param <W> the underlying Scala instance's type
+ */
 public abstract class Filter<W extends io.gatling.core.filter.Filter> {
 
   private final W wrapped;
@@ -28,18 +34,25 @@ public abstract class Filter<W extends io.gatling.core.filter.Filter> {
     this.wrapped = wrapped;
   }
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
   public W asScala() {
     return wrapped;
   }
 
+  /** A {@link Filter} to allow based on regex patterns */
   public static final class AllowList extends Filter<io.gatling.core.filter.AllowList> {
-    public AllowList(List<String> patterns) {
+    public AllowList(@Nonnull List<String> patterns) {
       super(new io.gatling.core.filter.AllowList(toScalaSeq(patterns)));
     }
   }
 
+  /** A {@link Filter} to deny based on regex patterns */
   public static final class DenyList extends Filter<io.gatling.core.filter.DenyList> {
-    public DenyList(List<String> patterns) {
+    public DenyList(@Nonnull List<String> patterns) {
       super(new io.gatling.core.filter.DenyList(toScalaSeq(patterns)));
     }
   }

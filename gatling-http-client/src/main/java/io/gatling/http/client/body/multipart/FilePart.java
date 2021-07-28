@@ -19,32 +19,32 @@ package io.gatling.http.client.body.multipart;
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.multipart.impl.FilePartImpl;
 import io.gatling.http.client.body.multipart.impl.PartImpl;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 
 public class FilePart extends FileLikePart<File> {
 
-  public FilePart(String name,
-                  File content,
-                  Charset charset,
-                  String transferEncoding,
-                  String contentId,
-                  String dispositionType,
-                  String contentType,
-                  List<Param> customHeaders,
-                  String fileName) {
-    super(name,
-            content,
-            charset,
-            transferEncoding,
-            contentId,
-            dispositionType,
-            contentType,
-            customHeaders,
-            fileName
-    );
+  public FilePart(
+      String name,
+      File content,
+      Charset charset,
+      String transferEncoding,
+      String contentId,
+      String dispositionType,
+      String contentType,
+      List<Param> customHeaders,
+      String fileName) {
+    super(
+        name,
+        content,
+        charset,
+        transferEncoding,
+        contentId,
+        dispositionType,
+        contentType,
+        customHeaders,
+        fileName);
     if (!content.exists()) {
       throw new IllegalArgumentException("File part doesn't exist: " + content.getAbsolutePath());
     } else if (!content.canRead()) {

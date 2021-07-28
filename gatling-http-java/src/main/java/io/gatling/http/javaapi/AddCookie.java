@@ -17,24 +17,63 @@
 package io.gatling.http.javaapi;
 
 import io.gatling.http.action.cookie.AddCookieDsl;
+import javax.annotation.Nonnull;
 
+/**
+ * DSL for adding a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies">cookie</a>
+ * in the virtual user's CookieJar instead of having the server send a Set-Cookie header.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class AddCookie {
 
   private final AddCookieDsl wrapped;
 
-  public AddCookie(AddCookieDsl wrapped) {
+  AddCookie(AddCookieDsl wrapped) {
     this.wrapped = wrapped;
   }
 
-  public AddCookie withDomain(String domain) {
+  /**
+   * Define the domain of the cookie. If undefined, will try to use the domain of {@link
+   * HttpProtocolBuilder#baseUrl(String)}
+   *
+   * @param domain the cookie domain
+   * @return a new AddCookie
+   */
+  @Nonnull
+  public AddCookie withDomain(@Nonnull String domain) {
     return new AddCookie(wrapped.withDomain(domain));
   }
-  public AddCookie withPath(String path) {
+
+  /**
+   * Define the path of the cookie.
+   *
+   * @param path the cookie path
+   * @return a new AddCookie
+   */
+  @Nonnull
+  public AddCookie withPath(@Nonnull String path) {
     return new AddCookie(wrapped.withPath(path));
   }
+
+  /**
+   * Define the maxAge attribute of the cookie.
+   *
+   * @param maxAge the cookie maxAge
+   * @return a new AddCookie
+   */
+  @Nonnull
   public AddCookie withMaxAge(int maxAge) {
     return new AddCookie(wrapped.withMaxAge(maxAge));
   }
+
+  /**
+   * Define the secure attribute of the cookie.
+   *
+   * @param secure if the cookie must only be sent with HTTPS requests
+   * @return a new AddCookie
+   */
+  @Nonnull
   public AddCookie withSecure(boolean secure) {
     return new AddCookie(wrapped.withSecure(secure));
   }

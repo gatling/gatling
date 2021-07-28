@@ -16,6 +16,10 @@
 
 package io.gatling.recorder.convert
 
+import java.{ lang => jl }
+
+import io.gatling.commons.util.StringHelper.Eol
+
 package object template {
 
   val SimpleQuotes: String = "\""
@@ -23,10 +27,42 @@ package object template {
 
   private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
 
-  private def containsCharactersToBeEscaped(string: String) = string.exists(isUnsafeStringChar)
+  private[template] implicit final class TemplateString(val string: String) extends AnyVal {
+    def protect(format: Format): String =
+      format match {
+        case Format.Scala | Format.Kotlin | Format.Java17 => multilineString
+        case _                                            => protectJavaString
+      }
 
-  def protectWithTripleQuotes(string: String): String = {
-    val stringDelimiter = if (containsCharactersToBeEscaped(string)) TripleQuotes else SimpleQuotes
-    s"$stringDelimiter$string$stringDelimiter"
+    private def multilineString: String = {
+      val stringDelimiter = if (string.exists(isUnsafeStringChar)) TripleQuotes else SimpleQuotes
+      s"$stringDelimiter$string$stringDelimiter"
+    }
+
+    private def protectJavaString: String = {
+      val sb = new jl.StringBuilder().append(SimpleQuotes)
+      string.foreach { char =>
+        if (isUnsafeStringChar(char)) {
+          sb.append('\\')
+        }
+        sb.append(char)
+      }
+      sb.append(SimpleQuotes).toString
+    }
+
+    def noEmptyLines: String =
+      string.linesIterator
+        .filter(_.exists(_ != ' '))
+        .mkString(Eol)
+
+    def indent(spaces: Int): String =
+      if (string.isEmpty) {
+        ""
+      } else {
+        val prefix = " " * spaces
+        string.linesIterator
+          .map(line => s"$prefix$line")
+          .mkString(Eol)
+      }
   }
 }

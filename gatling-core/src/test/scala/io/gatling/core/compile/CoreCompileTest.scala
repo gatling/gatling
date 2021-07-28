@@ -39,6 +39,7 @@ class CoreCompileTest extends Simulation {
 
   private val testData = tsv("test-data.tsv")
 
+  feed(Array(Map("foo" -> "bar")))
   feed(csv("foo.csv.zip").unzip)
   feed(csv("foo.csv").eager)
   feed(csv("foo.csv").batch)
@@ -70,7 +71,7 @@ class CoreCompileTest extends Simulation {
       feed(testData.circular)
         .exec(noop)
     }
-    .during(10.seconds) {
+    .during(10) {
       feed(testData)
         .exec(noop)
     }

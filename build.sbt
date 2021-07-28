@@ -24,7 +24,11 @@ Global / scalaVersion := "2.13.6"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
-  .dependsOn(Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .dependsOn(
+    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
+      _ % "compile->compile;test->test"
+    ): _*
+  )
   .aggregate(
     nettyUtil,
     commonsShared,
@@ -34,12 +38,16 @@ lazy val root = Project("gatling-parent", file("."))
     core,
     coreJava,
     jdbc,
+    jdbcJava,
     redis,
+    redisJava,
     httpClient,
     http,
     httpJava,
     jms,
+    jmsJava,
     mqtt,
+    mqttJava,
     charts,
     graphite,
     app,
@@ -104,13 +112,25 @@ lazy val jdbc = gatlingModule("gatling-jdbc")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jdbcDependencies)
 
+lazy val jdbcJava = gatlingModule("gatling-jdbc-java")
+  .dependsOn(coreJava, jdbc % "compile->compile;test->test")
+  .settings(libraryDependencies ++= defaultJavaDependencies)
+
 lazy val mqtt = gatlingModule("gatling-mqtt")
   .dependsOn(nettyUtil, core)
   .settings(libraryDependencies ++= mqttDependencies)
 
+lazy val mqttJava = gatlingModule("gatling-mqtt-java")
+  .dependsOn(coreJava, mqtt % "compile->compile;test->test")
+  .settings(libraryDependencies ++= defaultJavaDependencies)
+
 lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
+
+lazy val redisJava = gatlingModule("gatling-redis-java")
+  .dependsOn(coreJava, redis % "compile->compile;test->test")
+  .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val httpClient = gatlingModule("gatling-http-client")
   .dependsOn(nettyUtil % "compile->compile;test->test")
@@ -122,12 +142,16 @@ lazy val http = gatlingModule("gatling-http")
 
 lazy val httpJava = gatlingModule("gatling-http-java")
   .dependsOn(coreJava, http % "compile->compile;test->test")
-  .settings(libraryDependencies ++= httpJavaDependencies)
+  .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jmsDependencies)
   .settings(Test / parallelExecution := false)
+
+lazy val jmsJava = gatlingModule("gatling-jms-java")
+  .dependsOn(coreJava, jms % "compile->compile;test->test")
+  .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val charts = gatlingModule("gatling-charts")
   .dependsOn(core % "compile->compile;test->test")
@@ -148,7 +172,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, coreJava, http, httpJava, jms, mqtt, jdbc, redis, graphite, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)

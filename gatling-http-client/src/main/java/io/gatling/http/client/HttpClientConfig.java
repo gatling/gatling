@@ -16,13 +16,12 @@
 
 package io.gatling.http.client;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslContext;
-
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpClientConfig {
 
@@ -128,7 +127,8 @@ public class HttpClientConfig {
     return channelPoolIdleCleanerPeriod;
   }
 
-  public HttpClientConfig setAdditionalChannelInitializer(Consumer<Channel> additionalChannelInitializer) {
+  public HttpClientConfig setAdditionalChannelInitializer(
+      Consumer<Channel> additionalChannelInitializer) {
     this.additionalChannelInitializer = additionalChannelInitializer;
     return this;
   }

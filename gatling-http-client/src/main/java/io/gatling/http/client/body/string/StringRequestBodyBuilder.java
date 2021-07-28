@@ -16,12 +16,11 @@
 
 package io.gatling.http.client.body.string;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
-
 import java.nio.charset.Charset;
-
-import static io.gatling.http.client.util.MiscUtils.withDefault;
 
 public class StringRequestBodyBuilder extends RequestBodyBuilder.Base<String> {
 

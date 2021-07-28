@@ -28,30 +28,41 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
-
 import java.util.concurrent.ThreadFactory;
 
 public final class Transports {
 
-  private Transports() {
-  }
+  private Transports() {}
 
-  public static EventLoopGroup newEventLoopGroup(boolean useNativeTransport, int nThreads, String poolName) {
+  public static EventLoopGroup newEventLoopGroup(
+      boolean useNativeTransport, int nThreads, String poolName) {
     ThreadFactory threadFactory = new DefaultThreadFactory(poolName);
-    return useNativeTransport && Epoll.isAvailable() ? new EpollEventLoopGroup(nThreads, threadFactory) : new NioEventLoopGroup(nThreads, threadFactory);
+    return useNativeTransport && Epoll.isAvailable()
+        ? new EpollEventLoopGroup(nThreads, threadFactory)
+        : new NioEventLoopGroup(nThreads, threadFactory);
   }
 
-  private static final ChannelFactory<? extends SocketChannel> EPOLL_SOCKET_CHANNEL_FACTORY = EpollSocketChannel::new;
-  private static final ChannelFactory<? extends SocketChannel> NIO_SOCKET_CHANNEL_FACTORY = NioSocketChannel::new;
+  private static final ChannelFactory<? extends SocketChannel> EPOLL_SOCKET_CHANNEL_FACTORY =
+      EpollSocketChannel::new;
+  private static final ChannelFactory<? extends SocketChannel> NIO_SOCKET_CHANNEL_FACTORY =
+      NioSocketChannel::new;
 
-  public static ChannelFactory<? extends SocketChannel> newSocketChannelFactory(boolean useNativeTransport) {
-    return useNativeTransport && Epoll.isAvailable() ? EPOLL_SOCKET_CHANNEL_FACTORY : NIO_SOCKET_CHANNEL_FACTORY;
+  public static ChannelFactory<? extends SocketChannel> newSocketChannelFactory(
+      boolean useNativeTransport) {
+    return useNativeTransport && Epoll.isAvailable()
+        ? EPOLL_SOCKET_CHANNEL_FACTORY
+        : NIO_SOCKET_CHANNEL_FACTORY;
   }
 
-  private static final ChannelFactory<? extends DatagramChannel> EPOLL_DATAGRAM_CHANNEL_FACTORY = EpollDatagramChannel::new;
-  private static final ChannelFactory<? extends DatagramChannel> NIO_DATAGRAM_CHANNEL_FACTORY = NioDatagramChannel::new;
+  private static final ChannelFactory<? extends DatagramChannel> EPOLL_DATAGRAM_CHANNEL_FACTORY =
+      EpollDatagramChannel::new;
+  private static final ChannelFactory<? extends DatagramChannel> NIO_DATAGRAM_CHANNEL_FACTORY =
+      NioDatagramChannel::new;
 
-  public static ChannelFactory<? extends DatagramChannel> newDatagramChannelFactory(boolean useNativeTransport) {
-    return useNativeTransport && Epoll.isAvailable() ? EPOLL_DATAGRAM_CHANNEL_FACTORY : NIO_DATAGRAM_CHANNEL_FACTORY;
+  public static ChannelFactory<? extends DatagramChannel> newDatagramChannelFactory(
+      boolean useNativeTransport) {
+    return useNativeTransport && Epoll.isAvailable()
+        ? EPOLL_DATAGRAM_CHANNEL_FACTORY
+        : NIO_DATAGRAM_CHANNEL_FACTORY;
   }
 }

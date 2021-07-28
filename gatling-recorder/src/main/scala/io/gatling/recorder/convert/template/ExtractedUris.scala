@@ -41,7 +41,7 @@ object ExtractedUris {
     paths.reduce(longestCommonRootRec).toSeq.mkString("/")
   }
 
-  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String): Map[String, String] =
+  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String, format: Format): Map[String, String] =
     urls.map { url =>
       val restPath = url.getPath.substring(longestCommonPath.length)
       val tail = s"$restPath${query(url)}"
@@ -49,15 +49,15 @@ object ExtractedUris {
         if (tail.isEmpty) {
           valName
         } else {
-          s"$valName + ${protectWithTripleQuotes(tail)}"
+          s"$valName + ${tail.protect(format)}"
         }
 
       url.toString -> urlTail
     }.toMap
 
-  private def extractCommonHostUrls(uris: List[Uri], valName: String): Map[String, String] =
+  private def extractCommonHostUrls(uris: List[Uri], valName: String, format: Format): Map[String, String] =
     uris
-      .map(uri => uri.toString -> s""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}""")
+      .map(uri => uri.toString -> s""""${uri.getScheme}://${user(uri)}" + $valName + ${s"${port(uri)}${uri.getPath}${query(uri)}".protect(format)}""")
       .toMap
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =
@@ -83,7 +83,7 @@ object ExtractedUris {
    *
    * @param scenarioElements - contains uris to extracts common parts from
    */
-  def apply(scenarioElements: Seq[HttpTrafficElement]): ExtractedUris = {
+  def apply(scenarioElements: Seq[HttpTrafficElement], format: Format): ExtractedUris = {
 
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
 
@@ -106,11 +106,11 @@ object ExtractedUris {
           val longestCommonPath = longestCommonRoot(paths)
 
           tmpUrls = UrlVal(valName, uris.head.getBaseUrl + longestCommonPath) :: tmpUrls
-          extractLongestPathUrls(uris, longestCommonPath, valName)
+          extractLongestPathUrls(uris, longestCommonPath, valName, format)
 
         } else {
           tmpUrls = UrlVal(valName, uris.head.getHost) :: tmpUrls
-          extractCommonHostUrls(uris, valName)
+          extractCommonHostUrls(uris, valName, format)
         }
       }
       .to(Map)

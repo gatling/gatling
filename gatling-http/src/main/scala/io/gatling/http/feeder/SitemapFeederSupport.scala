@@ -18,7 +18,7 @@ package io.gatling.http.feeder
 
 import io.gatling.commons.validation._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
+import io.gatling.core.feeder.{ FileBasedFeederBuilder, InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.core.util.{ Resource, ResourceCache }
 
 /**
@@ -26,10 +26,10 @@ import io.gatling.core.util.{ Resource, ResourceCache }
  */
 trait SitemapFeederSupport extends ResourceCache {
 
-  def sitemap(fileName: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
-    sitemap(cachedResource(GatlingFiles.customResourcesDirectory(configuration), fileName))
+  def sitemap(filePath: String)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
+    sitemap(cachedResource(GatlingFiles.customResourcesDirectory(configuration), filePath))
 
-  def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
+  def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     resource match {
       case Success(res)     => SourceFeederBuilder(InMemoryFeederSource(SitemapParser.parse(res, configuration.core.charset)), configuration)
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate sitemap file: $message")

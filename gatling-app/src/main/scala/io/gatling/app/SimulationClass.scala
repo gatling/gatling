@@ -28,10 +28,11 @@ sealed abstract class SimulationClass(clazz: Class[_]) extends Product with Seri
 object SimulationClass {
   final case class Scala(clazz: Class[Simulation]) extends SimulationClass(clazz) {
     override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getDeclaredConstructor().newInstance().params(configuration)
+      clazz.newInstance().params(configuration)
   }
   final case class Java(clazz: Class[JavaSimulation]) extends SimulationClass(clazz) {
-    override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getDeclaredConstructor().newInstance().params(configuration)
+    override def params(configuration: GatlingConfiguration): SimulationParams = {
+      clazz.newInstance().params(configuration)
+    }
   }
 }

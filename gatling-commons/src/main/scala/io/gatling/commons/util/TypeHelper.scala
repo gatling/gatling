@@ -16,14 +16,16 @@
 
 package io.gatling.commons.util
 
-import java.{ util => ju }
+import java.{ time => jt, util => ju }
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
+import scala.jdk.DurationConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
 import io.gatling.commons.NotNothing
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 
 trait TypeCaster[T] {
@@ -72,25 +74,25 @@ trait LowPriorityTypeCaster {
 
 object TypeCaster extends LowPriorityTypeCaster {
 
-  private def parseErrorMessage(key: String, value: String, clazz: Class[_]): String =
+  private def parseErrorMessage(key: String, value: String, clazz: Class[_], t: Throwable): String =
     if (key == null) {
-      s"Can't parse '$value' into $clazz"
+      s"Can't parse '$value' into $clazz: ${t.detailedMessage}"
     } else {
-      s"Can't parse '$key' '$value' into $clazz"
+      s"Can't parse '$key' '$value' into $clazz: ${t.detailedMessage}"
     }
 
   private def tryParse[T](key: String, value: String, clazz: Class[_])(f: String => T): T =
     try {
       f(value)
     } catch {
-      case NonFatal(_) => throw new IllegalArgumentException(parseErrorMessage(key, value, clazz))
+      case NonFatal(t) => throw new IllegalArgumentException(parseErrorMessage(key, value, clazz, t))
     }
 
   private def tryParseV[T](key: String, value: String, clazz: Class[_])(f: String => T): Validation[T] =
     try {
       f(value).success
     } catch {
-      case NonFatal(_) => parseErrorMessage(key, value, classOf[Boolean]).failure
+      case NonFatal(t) => parseErrorMessage(key, value, clazz, t).failure
     }
 
   implicit val BooleanCaster: TypeCaster[Boolean] = new TypeCaster[Boolean] {
@@ -242,17 +244,21 @@ object TypeCaster extends LowPriorityTypeCaster {
     @throws[ClassCastException]
     override def cast(key: String, value: Any): FiniteDuration =
       value match {
+        case v: Int            => v.seconds
         case v: Long           => v.seconds
         case s: String         => tryParse(key, s, classOf[Long])(_.toLong.seconds)
         case v: FiniteDuration => v
+        case v: jt.Duration    => v.toScala
         case _                 => throw new ClassCastException(cceMessage(key, value, classOf[FiniteDuration]))
       }
 
     override def validate(key: String, value: Any): Validation[FiniteDuration] =
       value match {
+        case v: Int            => v.seconds.success
         case v: Long           => v.seconds.success
         case s: String         => tryParseV(key, s, classOf[Long])(_.toLong.seconds)
         case v: FiniteDuration => v.success
+        case v: jt.Duration    => v.toScala.success
         case _                 => cceMessage(key, value, classOf[FiniteDuration]).failure
       }
   }

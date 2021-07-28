@@ -25,10 +25,13 @@
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the Apache License Version 2.0 is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+// See the Apache License Version 2.0 for the specific language governing permissions and
+// limitations there under.
 //
 
 package io.gatling.http.client.util;
+
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import io.gatling.http.client.uri.Uri;
@@ -36,11 +39,8 @@ import io.gatling.netty.util.StringBuilderPool;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import java.nio.charset.Charset;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public final class HttpUtils {
 
@@ -48,8 +48,7 @@ public final class HttpUtils {
   private static final String CONTENT_TYPE_BOUNDARY_ATTRIBUTE = "boundary=";
   private static final String BROTLI_ACCEPT_ENCODING_SUFFIX = ", br";
 
-  private HttpUtils() {
-  }
+  private HttpUtils() {}
 
   public static String hostHeader(Uri uri) {
     String host = uri.getHost();
@@ -59,10 +58,9 @@ public final class HttpUtils {
 
   public static String originHeader(String referer) {
     if (referer.startsWith("http://")
-      || referer.startsWith("https://")
-      || referer.startsWith("ws://")
-      || referer.startsWith("wss://")
-    ) {
+        || referer.startsWith("https://")
+        || referer.startsWith("ws://")
+        || referer.startsWith("wss://")) {
       Uri uri;
       try {
         uri = Uri.create(referer);
@@ -95,8 +93,7 @@ public final class HttpUtils {
     }
 
     for (int i = 0; i < contentType.length(); i++) {
-      if (contentType.regionMatches(true, i, attribute, 0,
-              attribute.length())) {
+      if (contentType.regionMatches(true, i, attribute, 0, attribute.length())) {
         int start = i + attribute.length();
 
         // trim left
@@ -131,7 +128,8 @@ public final class HttpUtils {
   }
 
   // The pool of ASCII chars to be used for generating a multipart boundary.
-  private static final byte[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(US_ASCII);
+  private static final byte[] MULTIPART_CHARS =
+      "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(US_ASCII);
 
   // a fixed size of 35
   public static byte[] computeMultipartBoundary() {
@@ -148,12 +146,16 @@ public final class HttpUtils {
     if (base.length() != 0 && base.charAt(base.length() - 1) != ';') {
       sb.append(';');
     }
-    return sb.append(' ').append(CONTENT_TYPE_BOUNDARY_ATTRIBUTE).append(new String(boundary, US_ASCII)).toString();
+    return sb.append(' ')
+        .append(CONTENT_TYPE_BOUNDARY_ATTRIBUTE)
+        .append(new String(boundary, US_ASCII))
+        .toString();
   }
 
   public static String filterOutBrotliFromAcceptEncodingWhenUnavailable(String acceptEncoding) {
     if (!Brotli4jLoader.isAvailable() && acceptEncoding.endsWith(BROTLI_ACCEPT_ENCODING_SUFFIX)) {
-      return acceptEncoding.substring(0, acceptEncoding.length() - BROTLI_ACCEPT_ENCODING_SUFFIX.length());
+      return acceptEncoding.substring(
+          0, acceptEncoding.length() - BROTLI_ACCEPT_ENCODING_SUFFIX.length());
     }
     return null;
   }

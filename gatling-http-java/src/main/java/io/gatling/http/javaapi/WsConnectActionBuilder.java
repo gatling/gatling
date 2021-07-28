@@ -16,42 +16,73 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.Action;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
+import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.core.javaapi.ChainBuilder;
 import io.gatling.core.javaapi.Session;
-import io.gatling.core.structure.ScenarioContext;
-import io.gatling.http.check.ws.WsFrameCheck;
-
 import java.util.function.Function;
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
+import javax.annotation.Nonnull;
 
+/**
+ * DSL for building WebSocket connect actions
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class WsConnectActionBuilder
-  extends RequestActionBuilder<WsConnectActionBuilder, io.gatling.http.request.builder.ws.WsConnectRequestBuilder>
-  implements WsAwaitActionBuilder<WsConnectActionBuilder, io.gatling.http.request.builder.ws.WsConnectRequestBuilder, WsFrameCheck> {
+    extends RequestActionBuilder<
+        WsConnectActionBuilder, io.gatling.http.request.builder.ws.WsConnectRequestBuilder>
+    implements WsAwaitActionBuilder<
+        WsConnectActionBuilder, io.gatling.http.request.builder.ws.WsConnectRequestBuilder> {
 
-  public WsConnectActionBuilder(io.gatling.http.request.builder.ws.WsConnectRequestBuilder wrapped) {
+  WsConnectActionBuilder(io.gatling.http.request.builder.ws.WsConnectRequestBuilder wrapped) {
     super(wrapped);
   }
 
-  public WsConnectActionBuilder subprotocol(String sub) {
+  /**
+   * Define a WebSocket subprotocol
+   *
+   * @param sub the subprotocol, expressed as a Gatling Expression Language String
+   * @return a new WsConnectActionBuilder instance
+   */
+  @Nonnull
+  public WsConnectActionBuilder subprotocol(@Nonnull String sub) {
     return new WsConnectActionBuilder(wrapped.subprotocol(toStringExpression(sub)));
   }
 
-  public WsConnectActionBuilder subprotocol(Function<Session, String> sub) {
-    return new WsConnectActionBuilder(wrapped.subprotocol(toTypedGatlingSessionFunction(sub)));
+  /**
+   * Define a WebSocket subprotocol
+   *
+   * @param sub the subprotocol, expressed as a function
+   * @return a new WsConnectActionBuilder instance
+   */
+  @Nonnull
+  public WsConnectActionBuilder subprotocol(@Nonnull Function<Session, String> sub) {
+    return new WsConnectActionBuilder(wrapped.subprotocol(javaFunctionToExpression(sub)));
   }
 
-  public WsConnectActionBuilder onConnected(ChainBuilder chain) {
+  /**
+   * Define a chain to execute when the WebSocket gets connected or re-connected
+   *
+   * @param chain the chain
+   * @return a new WsConnectActionBuilder instance
+   */
+  @Nonnull
+  public WsConnectActionBuilder onConnected(@Nonnull ChainBuilder chain) {
     return new WsConnectActionBuilder(wrapped.onConnected(chain.wrapped));
   }
 
   @Override
-  public WsConnectActionBuilder make(Function<io.gatling.http.request.builder.ws.WsConnectRequestBuilder, io.gatling.http.request.builder.ws.WsConnectRequestBuilder> f) {
+  public WsConnectActionBuilder make(
+      Function<
+              io.gatling.http.request.builder.ws.WsConnectRequestBuilder,
+              io.gatling.http.request.builder.ws.WsConnectRequestBuilder>
+          f) {
     return new WsConnectActionBuilder(f.apply(wrapped));
   }
 
   @Override
-  public Action build(ScenarioContext ctx, Action next) {
-    return wrapped.build(ctx, next);
+  public ActionBuilder asScala() {
+    return wrapped;
   }
 }

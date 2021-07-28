@@ -16,54 +16,108 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.internal.Converters.*;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import io.gatling.commons.validation.Validation;
-import io.gatling.core.action.builder.ActionBuilder;
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.core.javaapi.Session;
-import io.gatling.http.check.sse.SseMessageCheck;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import scala.Function1;
 import scala.concurrent.duration.FiniteDuration;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Function;
-
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public interface SseAwaitActionBuilder<T extends SseAwaitActionBuilder<T, W>, W extends io.gatling.http.action.sse.SseAwaitActionBuilder<W>> extends ActionBuilder {
+public interface SseAwaitActionBuilder<
+        T extends SseAwaitActionBuilder<T, W>,
+        W extends io.gatling.http.action.sse.SseAwaitActionBuilder<W>>
+    extends ActionBuilder {
 
   T make(Function<W, W> f);
 
-  default On<T> await(int duration) {
-    return await(Duration.ofSeconds(duration));
+  /**
+   * Boostrap a check that waits for a given duration
+   *
+   * @param timeout the static wait duration in seconds
+   * @return the next DSL step
+   */
+  @Nonnull
+  default On<T> await(int timeout) {
+    return await(Duration.ofSeconds(timeout));
   }
 
-  default On<T> await(String duration) {
-    return new On<>(this, toDurationExpression(duration));
+  /**
+   * Boostrap a check that waits for a given duration
+   *
+   * @param timeout the static wait duration
+   * @return the next DSL step
+   */
+  @Nonnull
+  default On<T> await(@Nonnull Duration timeout) {
+    return new On<>(this, toStaticValueExpression(toScalaDuration(timeout)));
   }
 
-  default On<T> await(Duration duration) {
-    return new On<>(this, toStaticValueExpression(toScalaDuration(duration)));
+  /**
+   * Boostrap a check that waits for a given duration
+   *
+   * @param timeout the wait duration, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  @Nonnull
+  default On<T> await(@Nonnull String timeout) {
+    return new On<>(this, toDurationExpression(timeout));
   }
 
-  default On<T> await(Function<Session, Duration> timeout) {
-    return new On<>(this, toGatlingSessionFunctionDuration(timeout));
+  /**
+   * Boostrap a check that waits for a given duration
+   *
+   * @param timeout the wait duration, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  default On<T> await(@Nonnull Function<Session, Duration> timeout) {
+    return new On<>(this, javaDurationFunctionToExpression(timeout));
   }
 
   final class On<T extends SseAwaitActionBuilder<T, ?>> {
     private final SseAwaitActionBuilder<T, ?> context;
     private final Function1<io.gatling.core.session.Session, Validation<FiniteDuration>> timeout;
 
-    public On(SseAwaitActionBuilder<T, ?> context, Function1<io.gatling.core.session.Session, Validation<FiniteDuration>> timeout) {
+    public On(
+        SseAwaitActionBuilder<T, ?> context,
+        Function1<io.gatling.core.session.Session, Validation<FiniteDuration>> timeout) {
       this.context = context;
       this.timeout = timeout;
     }
 
-    public T on(SseMessageCheck... checks) {
-      return context.make(wrapped -> wrapped.await(timeout, toScalaSeq(checks)));
+    /**
+     * Define the checks to wait on
+     *
+     * @param checks the checks
+     * @return a usable ActionBuilder
+     */
+    @Nonnull
+    public T on(@Nonnull SseMessageCheck... checks) {
+      return on(Arrays.asList(checks));
     }
 
-    public T on(List<SseMessageCheck> checks) {
-      return context.make(wrapped -> wrapped.await(timeout, toScalaSeq(checks)));
+    /**
+     * Define the checks to wait on
+     *
+     * @param checks the checks
+     * @return a usable ActionBuilder
+     */
+    @Nonnull
+    public T on(@Nonnull List<SseMessageCheck> checks) {
+      return context.make(
+          wrapped ->
+              wrapped.await(
+                  timeout,
+                  toScalaSeq(
+                      checks.stream().map(SseMessageCheck::asScala).collect(Collectors.toList()))));
     }
   }
 }

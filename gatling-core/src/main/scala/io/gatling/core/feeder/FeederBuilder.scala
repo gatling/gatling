@@ -21,22 +21,33 @@ import io.gatling.core.config.GatlingConfiguration
 import com.softwaremill.quicklens._
 
 trait FeederBuilderBase[T] extends FeederBuilder {
-  type F <: FeederBuilderBase[T]
-  def queue: F
-  def random: F
-  def shuffle: F
-  def circular: F
-  def convert(f: PartialFunction[(String, T), Any]): F
+  def queue: FeederBuilderBase[T]
+  def random: FeederBuilderBase[T]
+  def shuffle: FeederBuilderBase[T]
+  def circular: FeederBuilderBase[T]
+  def convert(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any]
   def readRecords: Seq[Record[Any]]
-  def shard: F
+  def shard: FeederBuilderBase[T]
 }
 
 trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
-  def unzip: F
+  override def queue: FileBasedFeederBuilder[T]
+  override def random: FileBasedFeederBuilder[T]
+  override def shuffle: FileBasedFeederBuilder[T]
+  override def circular: FileBasedFeederBuilder[T]
+  override def convert(f: PartialFunction[(String, T), Any]): FileBasedFeederBuilder[Any]
+  override def shard: FileBasedFeederBuilder[T]
+  def unzip: FileBasedFeederBuilder[T]
 }
 
 trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
-  override type F <: BatchableFeederBuilder[T]
+  override def queue: BatchableFeederBuilder[T]
+  override def random: BatchableFeederBuilder[T]
+  override def shuffle: BatchableFeederBuilder[T]
+  override def circular: BatchableFeederBuilder[T]
+  override def convert(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any]
+  override def shard: BatchableFeederBuilder[T]
+  override def unzip: BatchableFeederBuilder[T]
   def eager: BatchableFeederBuilder[T]
   def batch: BatchableFeederBuilder[T] = batch(Batch.DefaultBufferSize)
   def batch(bufferSize: Int): BatchableFeederBuilder[T]
@@ -44,7 +55,7 @@ trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
 
 object SourceFeederBuilder {
   def apply[T](source: FeederSource[T], configuration: GatlingConfiguration): SourceFeederBuilder[T] =
-    new SourceFeederBuilder(source, configuration, FeederOptions.default)
+    SourceFeederBuilder(source, configuration, FeederOptions.default)
 }
 
 final case class SourceFeederBuilder[T](
@@ -53,30 +64,28 @@ final case class SourceFeederBuilder[T](
     options: FeederOptions[T]
 ) extends BatchableFeederBuilder[T] {
 
-  override type F = BatchableFeederBuilder[T]
+  def queue: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Queue)
+  def random: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Random)
+  def shuffle: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Shuffle)
+  def circular: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Circular)
 
-  def queue: F = this.modify(_.options.strategy).setTo(Queue)
-  def random: F = this.modify(_.options.strategy).setTo(Random)
-  def shuffle: F = this.modify(_.options.strategy).setTo(Shuffle)
-  def circular: F = this.modify(_.options.strategy).setTo(Circular)
-
-  override def convert(f: PartialFunction[(String, T), Any]): F = {
+  override def convert(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any] = {
     val conversion: Record[T] => Record[Any] =
       _.map {
         case pair if f.isDefinedAt(pair) => pair._1 -> f(pair)
         case pair                        => pair
       }
 
-    this.modify(_.options.conversion).setTo(Some(conversion))
+    this.modify(_.options.conversion).setTo(Some(conversion)).asInstanceOf[BatchableFeederBuilder[Any]]
   }
 
   override def readRecords: Seq[Record[Any]] = apply().toVector
 
-  override def unzip: F = this.modify(_.options.unzip).setTo(true)
+  override def unzip: BatchableFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 
-  override def eager: F = this.modify(_.options.loadingMode).setTo(Eager)
-  override def batch(bufferSize: Int): F = this.modify(_.options.loadingMode).setTo(Batch(bufferSize))
-  override def shard: F = this.modify(_.options.shard).setTo(true)
+  override def eager: BatchableFeederBuilder[T] = this.modify(_.options.loadingMode).setTo(Eager)
+  override def batch(bufferSize: Int): BatchableFeederBuilder[T] = this.modify(_.options.loadingMode).setTo(Batch(bufferSize))
+  override def shard: BatchableFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
 }

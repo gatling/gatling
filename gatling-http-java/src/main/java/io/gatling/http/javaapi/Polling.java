@@ -16,31 +16,58 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.builder.ActionBuilder;
+import static io.gatling.core.javaapi.internal.Converters.*;
+
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.http.request.builder.polling.PollingEveryStep;
-
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
 import java.time.Duration;
+import javax.annotation.Nonnull;
 
+/**
+ * DSL for building HTTP polling configurations
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class Polling {
-  static final Polling DEFAULT = new Polling(io.gatling.http.request.builder.polling.Polling.Default());
+  static final Polling DEFAULT =
+      new Polling(io.gatling.http.request.builder.polling.Polling.Default());
 
   private final io.gatling.http.request.builder.polling.Polling wrapped;
 
-  public Polling(io.gatling.http.request.builder.polling.Polling wrapped) {
+  Polling(io.gatling.http.request.builder.polling.Polling wrapped) {
     this.wrapped = wrapped;
   }
 
-  public Polling pollerName(String pollerName) {
+  /**
+   * Define a custom poller name so multiple pollers for the same virtual users don't conflict
+   *
+   * @param pollerName the name
+   * @return the next DSL step
+   */
+  @Nonnull
+  public Polling pollerName(@Nonnull String pollerName) {
     return new Polling(wrapped.pollerName(pollerName));
   }
 
+  /**
+   * Define the polling period
+   *
+   * @param period the period in seconds
+   * @return the next DSL step
+   */
+  @Nonnull
   public Every every(int period) {
     return new Every(wrapped.every(toScalaDuration(Duration.ofSeconds(period))));
   }
 
-  public Every every(Duration period) {
+  /**
+   * Define the polling period
+   *
+   * @param period the period
+   * @return the next DSL step
+   */
+  @Nonnull
+  public Every every(@Nonnull Duration period) {
     return new Every(wrapped.every(toScalaDuration(period)));
   }
 
@@ -51,12 +78,24 @@ public final class Polling {
       this.wrapped = wrapped;
     }
 
-    public ActionBuilder exec(HttpRequestActionBuilder requestBuilder) {
-      return wrapped.exec(requestBuilder.wrapped);
+    /**
+     * Define the polling request
+     *
+     * @return an ActionBuilder
+     */
+    @Nonnull
+    public ActionBuilder exec(@Nonnull HttpRequestActionBuilder requestBuilder) {
+      return () -> wrapped.exec(requestBuilder.wrapped);
     }
   }
 
+  /**
+   * Stop polling
+   *
+   * @return an ActionBuilder
+   */
+  @Nonnull
   public ActionBuilder stop() {
-    return wrapped.stop();
+    return wrapped::stop;
   }
 }

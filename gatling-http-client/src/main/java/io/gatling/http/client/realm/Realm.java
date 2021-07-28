@@ -16,5 +16,4 @@
 
 package io.gatling.http.client.realm;
 
-public interface Realm {
-}
+public interface Realm {}

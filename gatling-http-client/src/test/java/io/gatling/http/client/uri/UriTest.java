@@ -16,12 +16,11 @@
 
 package io.gatling.http.client.uri;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class UriTest {
 
@@ -35,41 +34,52 @@ class UriTest {
   }
 
   private static void validateAgainstRelativeURI(String context, String url) {
-    assertUriEquals(Uri.create(Uri.create(context), url), URI.create(context).resolve(URI.create(url)));
+    assertUriEquals(
+        Uri.create(Uri.create(context), url), URI.create(context).resolve(URI.create(url)));
   }
 
   @Test
   void testSimpleParsing() {
-    String url = "https://graph.facebook.com/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4";
+    String url =
+        "https://graph.facebook.com/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4";
     assertUriEquals(Uri.create(url), URI.create(url));
   }
 
   @Test
   void testRootRelativeURIWithRootContext() {
-    validateAgainstRelativeURI("https://graph.facebook.com", "/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
+    validateAgainstRelativeURI(
+        "https://graph.facebook.com",
+        "/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
   }
 
   @Test
   void testRootRelativeURIWithNonRootContext() {
-    validateAgainstRelativeURI("https://graph.facebook.com/foo/bar", "/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
+    validateAgainstRelativeURI(
+        "https://graph.facebook.com/foo/bar",
+        "/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
   }
 
   @Test
   void testNonRootRelativeURIWithNonRootContext() {
-    validateAgainstRelativeURI("https://graph.facebook.com/foo/bar", "750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
+    validateAgainstRelativeURI(
+        "https://graph.facebook.com/foo/bar",
+        "750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
   }
 
   @Test
   @Disabled
-    // FIXME weird: java.net.URI#getPath return "750198471659552/accounts/test-users" without a "/"?!
+  // FIXME weird: java.net.URI#getPath return "750198471659552/accounts/test-users" without a "/"?!
   void testNonRootRelativeURIWithRootContext() {
-    validateAgainstRelativeURI("https://graph.facebook.com", "750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
+    validateAgainstRelativeURI(
+        "https://graph.facebook.com",
+        "750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
   }
 
   @Test
   void testAbsoluteURIWithContext() {
-    validateAgainstRelativeURI("https://hello.com/foo/bar",
-      "https://graph.facebook.com/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
+    validateAgainstRelativeURI(
+        "https://hello.com/foo/bar",
+        "https://graph.facebook.com/750198471659552/accounts/test-users?method=get&access_token=750198471659552lleveCvbUu_zqBa9tkT3tcgaPh4");
   }
 
   @Test
@@ -119,7 +129,8 @@ class UriTest {
 
   @Test
   void testRelativeUriWithConsecutiveDotsFromLevel3Resource() {
-    validateAgainstRelativeURI("https://hello.com/level1/level2/level3", "../../../other/content/img.png");
+    validateAgainstRelativeURI(
+        "https://hello.com/level1/level2/level3", "../../../other/content/img.png");
   }
 
   @Test
@@ -131,13 +142,17 @@ class UriTest {
   void testCreateAndToUrl() {
     String url = "https://hello.com/level1/level2/level3";
     Uri uri = Uri.create(url);
-    assertEquals(url, uri.toUrl(), "url used to create uri and url returned from toUrl do not match");
+    assertEquals(
+        url, uri.toUrl(), "url used to create uri and url returned from toUrl do not match");
   }
 
   @Test
   void testToUrlWithUserInfoPortPathAndQuery() {
     Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
-    assertEquals("http://user@example.com:44/path/path2?query=4", uri.toUrl(), "toUrl returned incorrect url");
+    assertEquals(
+        "http://user@example.com:44/path/path2?query=4",
+        uri.toUrl(),
+        "toUrl returned incorrect url");
   }
 
   @Test
@@ -173,7 +188,10 @@ class UriTest {
     Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     Uri newUri = uri.withNewScheme("https");
     assertEquals("https", newUri.getScheme());
-    assertEquals("https://user@example.com:44/path/path2?query=4", newUri.toUrl(), "toUrl returned incorrect url");
+    assertEquals(
+        "https://user@example.com:44/path/path2?query=4",
+        newUri.toUrl(),
+        "toUrl returned incorrect url");
   }
 
   @Test
@@ -181,7 +199,10 @@ class UriTest {
     Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     Uri newUri = uri.withNewQuery("query2=10&query3=20");
     assertEquals("query2=10&query3=20", newUri.getQuery());
-    assertEquals("http://user@example.com:44/path/path2?query2=10&query3=20", newUri.toUrl(), "toUrl returned incorrect url");
+    assertEquals(
+        "http://user@example.com:44/path/path2?query2=10&query3=20",
+        newUri.toUrl(),
+        "toUrl returned incorrect url");
   }
 
   @Test
@@ -202,7 +223,8 @@ class UriTest {
   void testGetSchemeDefaultPortHttpScheme() {
     String url = "https://hello.com/level1/level2/level3";
     Uri uri = Uri.create(url);
-    assertEquals(443, uri.getSchemeDefaultPort(), "schema default port should be 443 for https url");
+    assertEquals(
+        443, uri.getSchemeDefaultPort(), "schema default port should be 443 for https url");
 
     String url2 = "http://hello.com/level1/level2/level3";
     Uri uri2 = Uri.create(url2);
@@ -224,18 +246,23 @@ class UriTest {
   void testGetExplicitPort() {
     String url = "http://hello.com/level1/level2/level3";
     Uri uri = Uri.create(url);
-    assertEquals(80, uri.getExplicitPort(), "getExplicitPort should return port 80 for http url when port is not specified in url");
+    assertEquals(
+        80,
+        uri.getExplicitPort(),
+        "getExplicitPort should return port 80 for http url when port is not specified in url");
 
     String url2 = "http://hello.com:8080/level1/level2/level3";
     Uri uri2 = Uri.create(url2);
-    assertEquals(8080, uri2.getExplicitPort(), "getExplicitPort should return the port given in the url");
+    assertEquals(
+        8080, uri2.getExplicitPort(), "getExplicitPort should return the port given in the url");
   }
 
   @Test
   void testEquals() {
     String url = "http://user@hello.com:8080/level1/level2/level3?q=1";
     Uri createdUri = Uri.create(url);
-    Uri constructedUri = new Uri("http", "user", "hello.com", 8080, "/level1/level2/level3", "q=1", null);
+    Uri constructedUri =
+        new Uri("http", "user", "hello.com", 8080, "/level1/level2/level3", "q=1", null);
     assertEquals(createdUri, constructedUri, "The equals method returned false for two equal urls");
   }
 
@@ -280,70 +307,113 @@ class UriTest {
     try {
       Uri.create("http://localhost");
     } catch (IllegalArgumentException e) {
-      throw new Error("Uri.create should not throw an IllegalArgumentException with 'http://localhost'", e);
+      throw new Error(
+          "Uri.create should not throw an IllegalArgumentException with 'http://localhost'", e);
     }
   }
 
   @Test
   void testCreatingUriWithMissingSchemeThrowsIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> Uri.create("localhost"), "Uri.create should throw an IllegalArgumentException with 'localhost'");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> Uri.create("localhost"),
+        "Uri.create should throw an IllegalArgumentException with 'localhost'");
   }
 
   @Test
   void testCreatingUriWithMissingHostThrowsIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> Uri.create("http://"), "Uri.create should throw an IllegalArgumentException with 'http://'");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> Uri.create("http://"),
+        "Uri.create should throw an IllegalArgumentException with 'http://'");
   }
 
   @Test
   void testGetAuthority() {
-    Uri uri = Uri.create("http://stackoverflow.com/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    assertEquals("stackoverflow.com:80", uri.getAuthority(), "Incorrect authority returned from getAuthority");
+    Uri uri =
+        Uri.create(
+            "http://stackoverflow.com/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    assertEquals(
+        "stackoverflow.com:80",
+        uri.getAuthority(),
+        "Incorrect authority returned from getAuthority");
   }
 
   @Test
   void testGetAuthorityWithPortInUrl() {
-    Uri uri = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    assertEquals("stackoverflow.com:8443", uri.getAuthority(), "Incorrect authority returned from getAuthority");
+    Uri uri =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    assertEquals(
+        "stackoverflow.com:8443",
+        uri.getAuthority(),
+        "Incorrect authority returned from getAuthority");
   }
 
   @Test
   void testGetBaseUrl() {
-    Uri uri = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    assertEquals("http://stackoverflow.com:8443", uri.getBaseUrl(), "Incorrect base URL returned from getBaseURL");
+    Uri uri =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    assertEquals(
+        "http://stackoverflow.com:8443",
+        uri.getBaseUrl(),
+        "Incorrect base URL returned from getBaseURL");
   }
 
   @Test
   void testIsSameBaseUrlReturnsFalseWhenPortDifferent() {
-    Uri uri1 = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    Uri uri2 = Uri.create("http://stackoverflow.com:8442/questions/1057564/pretty-git-branch-graphs");
-    assertFalse(uri1.isSameBase(uri2), "Base URLs should be different, but true was returned from isSameBase");
+    Uri uri1 =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    Uri uri2 =
+        Uri.create("http://stackoverflow.com:8442/questions/1057564/pretty-git-branch-graphs");
+    assertFalse(
+        uri1.isSameBase(uri2),
+        "Base URLs should be different, but true was returned from isSameBase");
   }
 
   @Test
   void testIsSameBaseUrlReturnsFalseWhenSchemeDifferent() {
-    Uri uri1 = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    Uri uri1 =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
     Uri uri2 = Uri.create("ws://stackoverflow.com:8443/questions/1057564/pretty-git-branch-graphs");
-    assertFalse(uri1.isSameBase(uri2), "Base URLs should be different, but true was returned from isSameBase");
+    assertFalse(
+        uri1.isSameBase(uri2),
+        "Base URLs should be different, but true was returned from isSameBase");
   }
 
   @Test
   void testIsSameBaseUrlReturnsFalseWhenHostDifferent() {
-    Uri uri1 = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    Uri uri1 =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
     Uri uri2 = Uri.create("http://example.com:8443/questions/1057564/pretty-git-branch-graphs");
-    assertFalse(uri1.isSameBase(uri2), "Base URLs should be different, but true was returned from isSameBase");
+    assertFalse(
+        uri1.isSameBase(uri2),
+        "Base URLs should be different, but true was returned from isSameBase");
   }
 
   @Test
   void testIsSameBaseUrlReturnsTrueWhenOneUriHasDefaultPort() {
-    Uri uri1 = Uri.create("http://stackoverflow.com:80/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    Uri uri1 =
+        Uri.create(
+            "http://stackoverflow.com:80/questions/17814461/jacoco-maven-testng-0-test-coverage");
     Uri uri2 = Uri.create("http://stackoverflow.com/questions/1057564/pretty-git-branch-graphs");
-    assertTrue(uri1.isSameBase(uri2), "Base URLs should be same, but false was returned from isSameBase");
+    assertTrue(
+        uri1.isSameBase(uri2), "Base URLs should be same, but false was returned from isSameBase");
   }
 
   @Test
   void testGetPathWhenPathIsNonEmpty() {
-    Uri uri = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    assertEquals("/questions/17814461/jacoco-maven-testng-0-test-coverage", uri.getNonEmptyPath(), "Incorrect path returned from getNonEmptyPath");
+    Uri uri =
+        Uri.create(
+            "http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
+    assertEquals(
+        "/questions/17814461/jacoco-maven-testng-0-test-coverage",
+        uri.getNonEmptyPath(),
+        "Incorrect path returned from getNonEmptyPath");
   }
 
   @Test
@@ -355,13 +425,17 @@ class UriTest {
   @Test
   void removeDoubleTrailingSlashes() {
     Uri uri = Uri.create("https://gatling.io//");
-    assertEquals("/", uri.getNonEmptyPath(), "getNonEmptyPath should normalize double trailing slashes");
+    assertEquals(
+        "/", uri.getNonEmptyPath(), "getNonEmptyPath should normalize double trailing slashes");
   }
 
   @Test
   void removeMultipleConsecutiveSlashes() {
     Uri uri = Uri.create("https://gatling.io//foo///bar//");
-    assertEquals("/foo/bar/", uri.getNonEmptyPath(), "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
+    assertEquals(
+        "/foo/bar/",
+        uri.getNonEmptyPath(),
+        "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
   }
 
   @Test
@@ -380,6 +454,9 @@ class UriTest {
   @Test
   void decodeNonAsciiChars() {
     Uri uri = Uri.create("https://www.facebook.com/people/अभिषेक-सिंह/100016673803484");
-    assertEquals("/people/अभिषेक-सिंह/100016673803484", uri.getPath(), "getPath should support non ASCII chars");
+    assertEquals(
+        "/people/अभिषेक-सिंह/100016673803484",
+        uri.getPath(),
+        "getPath should support non ASCII chars");
   }
 }

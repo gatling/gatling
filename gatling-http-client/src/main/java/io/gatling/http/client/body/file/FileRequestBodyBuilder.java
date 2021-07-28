@@ -16,13 +16,12 @@
 
 package io.gatling.http.client.body.file;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
-
 import java.io.File;
 import java.nio.charset.Charset;
-
-import static io.gatling.http.client.util.MiscUtils.withDefault;
 
 public class FileRequestBodyBuilder extends RequestBodyBuilder.Base<File> {
 

@@ -144,11 +144,11 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   "composite.injectionSteps" should "produce the expected injection profile with starting users and with ramps" in {
-    val steps = IncreasingUsersPerSecCompositeStep(
-      usersPerSec = 10,
-      nbOfSteps = 5,
+    val steps = StairsUsersPerSecCompositeStep(
+      rateIncrement = 10,
+      levels = 5,
       duration = 10.seconds,
-      startingUsers = 5,
+      startingRate = 5,
       rampDuration = 20.seconds
     ).composite.steps
 
@@ -168,11 +168,11 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile without starting users and without ramps" in {
-    val steps = IncreasingUsersPerSecCompositeStep(
-      usersPerSec = 10,
-      nbOfSteps = 5,
+    val steps = StairsUsersPerSecCompositeStep(
+      rateIncrement = 10,
+      levels = 5,
       duration = 10.seconds,
-      startingUsers = 0,
+      startingRate = 0,
       rampDuration = Duration.Zero
     ).composite.steps
 
@@ -188,11 +188,11 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile with starting users and without ramps" in {
-    val steps = IncreasingUsersPerSecCompositeStep(
-      usersPerSec = 10,
-      nbOfSteps = 5,
+    val steps = StairsUsersPerSecCompositeStep(
+      rateIncrement = 10,
+      levels = 5,
       duration = 10.seconds,
-      startingUsers = 5,
+      startingRate = 5,
       rampDuration = Duration.Zero
     ).composite.steps
 
@@ -208,11 +208,11 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   it should "produce the expected injection profile without starting users and with ramps" in {
-    val steps = IncreasingUsersPerSecCompositeStep(
-      usersPerSec = 10,
-      nbOfSteps = 5,
+    val steps = StairsUsersPerSecCompositeStep(
+      rateIncrement = 10,
+      levels = 5,
       duration = 10.seconds,
-      startingUsers = 0,
+      startingRate = 0,
       rampDuration = 80.seconds
     ).composite.steps
 

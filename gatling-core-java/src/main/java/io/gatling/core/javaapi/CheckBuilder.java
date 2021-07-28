@@ -16,6 +16,11 @@
 
 package io.gatling.core.javaapi;
 
+import static io.gatling.core.javaapi.internal.Comparisons.*;
+import static io.gatling.core.javaapi.internal.Converters.*;
+import static io.gatling.core.javaapi.internal.CoreCheckBuilders.*;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import io.gatling.core.check.jmespath.JmesPathCheckType;
 import io.gatling.core.check.jmespath.JsonpJmesPathCheckType;
@@ -24,201 +29,298 @@ import io.gatling.core.check.jsonpath.JsonPathCheckType;
 import io.gatling.core.check.jsonpath.JsonpJsonPathCheckType;
 import io.gatling.core.check.regex.GroupExtractor;
 import io.gatling.core.check.regex.RegexCheckType;
+import io.gatling.core.javaapi.internal.Converters;
 import io.gatling.core.javaapi.internal.CoreCheckType;
-import net.jodah.typetools.TypeResolver;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import javax.annotation.Nonnull;
+import net.jodah.typetools.TypeResolver;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/**
+ * Java wrapper of a Scala CheckBuilder. Builder of an Action in a Gatling scenario.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public interface CheckBuilder {
 
+  /**
+   * For internal use only
+   *
+   * @return the wrapped Scala instance
+   */
   io.gatling.core.check.CheckBuilder<?, ?> asScala();
+
+  /**
+   * For internal use only
+   *
+   * @return the type of CheckBuilder
+   */
   CheckType type();
 
-  interface CheckType {
-  }
+  /** A type of check */
+  interface CheckType {}
 
+  /**
+   * Step 1 of the Check DSL when the check can only return one single value Immutable, so all
+   * methods return a new occurrence and leave the original unmodified.
+   *
+   * @param <JavaX> the type of Java values the check can extract
+   */
   interface Find<JavaX> extends Validate<JavaX> {
-     Validate<JavaX> find();
 
+    /**
+     * Target a single/first value
+     *
+     * @return the next Check DSL step
+     */
+    Validate<JavaX> find();
+
+    /**
+     * Default implementation of {@link Find}
+     *
+     * @param <T> the check type
+     * @param <P> the prepared input type
+     * @param <ScalaX> the type of the extracted Scala value
+     * @param <JavaX> the type of the presented Java value
+     */
     class Default<T, P, ScalaX, JavaX> implements Find<JavaX> {
       protected final io.gatling.core.check.CheckBuilder.Find<T, P, ScalaX> wrapped;
       protected final CheckType type;
       protected final Class<?> javaXClass;
       protected final Function<ScalaX, JavaX> scalaXToJavaX;
 
-      public Default(io.gatling.core.check.CheckBuilder.Find<T, P, ScalaX> wrapped, CheckType type, Function<ScalaX, JavaX> scalaXToJavaX) {
+      public Default(
+          io.gatling.core.check.CheckBuilder.Find<T, P, ScalaX> wrapped,
+          CheckType type,
+          Function<ScalaX, JavaX> scalaXToJavaX) {
         this.wrapped = wrapped;
         this.type = type;
-        this.javaXClass = TypeResolver.resolveRawArguments(Function.class, scalaXToJavaX.getClass())[1];;
+        this.javaXClass =
+            TypeResolver.resolveRawArguments(Function.class, scalaXToJavaX.getClass())[1];
         this.scalaXToJavaX = scalaXToJavaX;
       }
 
       @Override
+      @Nonnull
       public Validate<JavaX> find() {
-        return new Validate.Default<>(wrapped.find().transform(toScalaFunction(scalaXToJavaX)), type, javaXClass);
+        return new Validate.Default<>(
+            wrapped.find().transform(toScalaFunction(scalaXToJavaX)), type, javaXClass);
       }
 
       @Override
-      public <X2> Validate<X2> transform(Function<JavaX, X2> f) {
+      @Nonnull
+      public <X2> Validate<X2> transform(@Nonnull Function<JavaX, X2> f) {
         return find().transform(f);
       }
 
       @Override
-      public <X2> Validate<X2> transformWithSession(BiFunction<JavaX, Session, X2> f) {
+      @Nonnull
+      public <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<JavaX, Session, X2> f) {
         return find().transformWithSession(f);
       }
 
       @Override
-      public Final isEL(String expected) {
+      @Nonnull
+      public Validate<JavaX> withDefault(@Nonnull JavaX value) {
+        return find().withDefault(value);
+      }
+
+      @Override
+      @Nonnull
+      public Validate<JavaX> withDefaultEl(@Nonnull String value) {
+        return find().withDefaultEl(value);
+      }
+
+      @Override
+      @Nonnull
+      public Validate<JavaX> withDefault(@Nonnull Function<Session, JavaX> value) {
+        return find().withDefault(value);
+      }
+
+      @Override
+      @Nonnull
+      public Final validate(@Nonnull String opName, @Nonnull BiFunction<JavaX, Session, JavaX> f) {
+        return find().validate(opName, f);
+      }
+
+      @Override
+      @Nonnull
+      public Final isEL(@Nonnull String expected) {
         return find().isEL(expected);
       }
 
       @Override
-      public Final is(JavaX expected) {
+      @Nonnull
+      public Final is(@Nonnull JavaX expected) {
         return find().is(expected);
       }
 
       @Override
-      public Final is(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final is(@Nonnull Function<Session, JavaX> expected) {
         return find().is(expected);
       }
 
       @Override
+      @Nonnull
       public Final isNull() {
         return find().isNull();
       }
 
       @Override
-      public Final notEL(String expected) {
+      @Nonnull
+      public Final notEL(@Nonnull String expected) {
         return find().notEL(expected);
       }
 
       @Override
-      public Final not(JavaX expected) {
+      @Nonnull
+      public Final not(@Nonnull JavaX expected) {
         return find().not(expected);
       }
 
       @Override
-      public Final not(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final not(@Nonnull Function<Session, JavaX> expected) {
         return find().not(expected);
       }
 
       @Override
+      @Nonnull
       public Final notNull() {
         return find().notNull();
       }
 
       @Override
-      public Final in(JavaX... expected) {
+      @Nonnull
+      public Final in(@Nonnull JavaX... expected) {
         return find().in(expected);
       }
 
       @Override
-      public Final in(List<JavaX> expected) {
+      @Nonnull
+      public Final in(@Nonnull List<JavaX> expected) {
         return find().in(expected);
       }
 
       @Override
-      public Final inEL(String expected) {
+      @Nonnull
+      public Final inEL(@Nonnull String expected) {
         return find().inEL(expected);
       }
 
       @Override
-      public Final in(Function<Session, List<JavaX>> expected) {
+      @Nonnull
+      public Final in(@Nonnull Function<Session, List<JavaX>> expected) {
         return find().in(expected);
       }
 
       @Override
+      @Nonnull
       public Final exists() {
         return find().exists();
       }
 
       @Override
+      @Nonnull
       public Final notExists() {
         return find().notExists();
       }
 
       @Override
+      @Nonnull
       public Final optional() {
         return find().optional();
       }
 
       @Override
-      public Final lt(JavaX expected) {
+      @Nonnull
+      public Final lt(@Nonnull JavaX expected) {
         return find().lt(expected);
       }
 
       @Override
-      public Final ltEL(String expected) {
+      @Nonnull
+      public Final ltEL(@Nonnull String expected) {
         return find().ltEL(expected);
       }
 
       @Override
-      public Final lt(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final lt(@Nonnull Function<Session, JavaX> expected) {
         return find().lt(expected);
       }
 
       @Override
-      public Final lte(JavaX expected) {
+      @Nonnull
+      public Final lte(@Nonnull JavaX expected) {
         return find().lte(expected);
       }
 
       @Override
-      public Final lteEL(String expected) {
+      @Nonnull
+      public Final lteEL(@Nonnull String expected) {
         return find().lteEL(expected);
       }
 
       @Override
-      public Final lte(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final lte(@Nonnull Function<Session, JavaX> expected) {
         return find().lte(expected);
       }
 
       @Override
-      public Final gt(JavaX expected) {
+      @Nonnull
+      public Final gt(@Nonnull JavaX expected) {
         return find().gt(expected);
       }
 
       @Override
-      public Final gtEL(String expected) {
+      @Nonnull
+      public Final gtEL(@Nonnull String expected) {
         return find().gtEL(expected);
       }
 
       @Override
-      public Final gt(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final gt(@Nonnull Function<Session, JavaX> expected) {
         return find().gt(expected);
       }
 
       @Override
-      public Final gte(JavaX expected) {
+      @Nonnull
+      public Final gte(@Nonnull JavaX expected) {
         return find().gte(expected);
       }
 
       @Override
-      public Final gteEL(String expected) {
+      @Nonnull
+      public Final gteEL(@Nonnull String expected) {
         return find().gteEL(expected);
       }
 
       @Override
-      public Final gte(Function<Session, JavaX> expected) {
+      @Nonnull
+      public Final gte(@Nonnull Function<Session, JavaX> expected) {
         return find().gte(expected);
       }
 
       @Override
-      public Final name(String n) {
+      @Nonnull
+      public Final name(@Nonnull String n) {
         return find().name(n);
       }
 
       @Override
-      public Final saveAs(String key) {
+      @Nonnull
+      public Final saveAs(@Nonnull String key) {
         return find().saveAs(key);
       }
 
       @Override
+      @Nonnull
       public CheckType type() {
         return find().type();
       }
@@ -230,104 +332,461 @@ public interface CheckBuilder {
     }
   }
 
+  /**
+   * Step 1 of the Check DSL when the check can return multiple values Immutable, so all methods
+   * return a new occurrence and leave the original unmodified.
+   *
+   * @param <JavaX> the type of Java values the check can extract
+   */
   interface MultipleFind<JavaX> extends Find<JavaX> {
+
+    /**
+     * Target the occurrence-th occurrence in the extracted values
+     *
+     * @param occurrence the rank of the target value in the extracted values list
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<JavaX> find(int occurrence);
+
+    /**
+     * Target all the occurrences of the extracted values
+     *
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<List<JavaX>> findAll();
+
+    /**
+     * Target a random occurrence in the extracted values
+     *
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<JavaX> findRandom();
+
+    /**
+     * Target multiple random occurrences in the extracted values
+     *
+     * @param num the number of occurrences to collect
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<List<JavaX>> findRandom(int num);
+
+    /**
+     * Target multiple random occurrences in the extracted values
+     *
+     * @param num the number of occurrences to collect
+     * @param failIfLess fail if num is greater than the number of extracted values
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<List<JavaX>> findRandom(int num, boolean failIfLess);
+
+    /**
+     * Target the count of extracted values
+     *
+     * @return the next Check DSL step
+     */
+    @Nonnull
     Validate<Integer> count();
 
-    class Default<T, P, ScalaX, JavaX> extends Find.Default<T, P, ScalaX, JavaX> implements MultipleFind<JavaX> {
+    /**
+     * Default implementation of {@link MultipleFind}
+     *
+     * @param <T> the check type
+     * @param <P> the prepared input type
+     * @param <ScalaX> the type of the extracted Scala value
+     * @param <JavaX> the type of the presented Java value
+     */
+    class Default<T, P, ScalaX, JavaX> extends Find.Default<T, P, ScalaX, JavaX>
+        implements MultipleFind<JavaX> {
       protected final io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped;
 
-      public Default(io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped, CheckType type, Function<ScalaX, JavaX> scalaXToJavaX) {
+      public Default(
+          @Nonnull io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped,
+          @Nonnull CheckType type,
+          @Nonnull Function<ScalaX, JavaX> scalaXToJavaX) {
         super(wrapped, type, scalaXToJavaX);
         this.wrapped = wrapped;
       }
 
-      private <X2> Validate<X2> makeValidate(io.gatling.core.check.CheckBuilder.Validate<T, P, X2> wrapped) {
+      private <X2> Validate<X2> makeValidate(
+          io.gatling.core.check.CheckBuilder.Validate<T, P, X2> wrapped) {
         return new Validate.Default<>(wrapped, type, javaXClass);
       }
 
       @Override
+      @Nonnull
       public Validate<JavaX> find() {
         return makeValidate(transformSingleCheck(wrapped.find(), scalaXToJavaX));
       }
 
       @Override
+      @Nonnull
       public Validate<JavaX> find(int occurrence) {
         return makeValidate(transformSingleCheck(wrapped.find(occurrence), scalaXToJavaX));
       }
 
       @Override
+      @Nonnull
       public Validate<List<JavaX>> findAll() {
         return makeValidate(transformSeqCheck(wrapped.findAll(), scalaXToJavaX));
       }
 
       @Override
+      @Nonnull
       public Validate<JavaX> findRandom() {
         return makeValidate(transformSingleCheck(wrapped.findRandom(), scalaXToJavaX));
       }
 
       @Override
+      @Nonnull
       public Validate<List<JavaX>> findRandom(int num) {
         return findRandom(num, false);
       }
 
       @Override
+      @Nonnull
       public Validate<List<JavaX>> findRandom(int num, boolean failIfLess) {
         return makeValidate(transformSeqCheck(wrapped.findRandom(num, failIfLess), scalaXToJavaX));
       }
 
       @Override
+      @Nonnull
       public Validate<Integer> count() {
         return makeValidate(toCountCheck(wrapped));
       }
     }
   }
 
+  /**
+   * Step 2 of the Check DSL where we define how to validate the extracted value. Immutable, so all
+   * methods return a new occurrence and leave the original unmodified.
+   *
+   * @param <X> the type of the extracted value
+   */
   interface Validate<X> extends Final {
-    <X2> Validate<X2> transform(Function<X, X2> f);
-    <X2> Validate<X2> transformWithSession(BiFunction<X, Session, X2> f);
-    //    def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
-//    def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
-//    def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X]
-//    def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X]
-    Final isEL(String expected);
-    Final is(X expected);
-    Final is(Function<Session, X> expected);
-    Final isNull();
-    Final notEL(String expected);
-    Final not(X expected);
-    Final not(Function<Session, X> expected);
-    Final notNull();
-    Final in(X... expected);
-    Final in(List<X> expected);
-    Final inEL(String expected);
-    Final in(Function<Session, List<X>> expected);
-    Final exists();
-    Final notExists();
-    Final optional();
-    Final lt(X expected);
-    Final ltEL(String expected);
-    Final lt(Function<Session, X> expected);
-    Final lte(X expected);
-    Final lteEL(String expected);
-    Final lte(Function<Session, X> expected);
-    Final gt(X expected);
-    Final gtEL(String expected);
-    Final gt(Function<Session, X> expected);
-    Final gte(X expected);
-    Final gteEL(String expected);
-    Final gte(Function<Session, X> expected);
 
+    /**
+     * Transform the extracted value
+     *
+     * @param f the transformation function
+     * @param <X2> the transformed value
+     * @return a new Validate
+     */
+    @Nonnull
+    <X2> Validate<X2> transform(@Nonnull Function<X, X2> f);
+
+    /**
+     * Transform the extracted value, whith access to the current {@link Session}
+     *
+     * @param f the transformation function
+     * @param <X2> the transformed value
+     * @return a new Validate
+     */
+    @Nonnull
+    <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<X, Session, X2> f);
+
+    /**
+     * Provide a default value if the check wasn't able to extract anything
+     *
+     * @param value the default value
+     * @return a new Validate
+     */
+    @Nonnull
+    Validate<X> withDefault(@Nonnull X value);
+
+    /**
+     * Provide a default Gatling Expression Language value if the check wasn't able to extract
+     * anything
+     *
+     * @param value the default value as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Validate<X> withDefaultEl(@Nonnull String value);
+
+    /**
+     * Provide a default Gatling Expression Language value if the check wasn't able to extract
+     * anything
+     *
+     * @param value the default value as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Validate<X> withDefault(@Nonnull Function<Session, X> value);
+
+    /**
+     * Provide a custom validation strategy
+     *
+     * @param name the name of the validation, in case of a failure
+     * @param f the custom validation function, must throw to trigger a failure
+     * @return a new Validate
+     */
+    @Nonnull
+    Final validate(@Nonnull String name, @Nonnull BiFunction<X, Session, X> f);
+
+    /**
+     * Validate the extracted value is equal to an expected value
+     *
+     * @param expected the expected value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final is(X expected);
+
+    /**
+     * Validate the extracted value is equal to an expected value, passed as a Gatling Expression
+     * Language String
+     *
+     * @param expected the expected value as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final isEL(String expected);
+
+    /**
+     * Validate the extracted value is equal to an expected value, passed as a function
+     *
+     * @param expected the expected value as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final is(Function<Session, X> expected);
+
+    /**
+     * Validate the extracted value is null
+     *
+     * @return a new Validate
+     */
+    Final isNull();
+
+    /**
+     * Validate the extracted value is not an expected value
+     *
+     * @param expected the unexpected value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final not(@Nonnull X expected);
+
+    /**
+     * Validate the extracted value is not an expected value, passed as a Gatling Expression
+     * Language String
+     *
+     * @param expected the unexpected value as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final notEL(@Nonnull String expected);
+
+    /**
+     * Validate the extracted value is not an expected value, passed as a function
+     *
+     * @param expected the unexpected value as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final not(@Nonnull Function<Session, X> expected);
+
+    /**
+     * Validate the extracted value is not null
+     *
+     * @return a new Validate
+     */
+    Final notNull();
+
+    /**
+     * Validate the extracted value belongs to an expected set
+     *
+     * @param expected the set of possible values
+     * @return a new Validate
+     */
+    @Nonnull
+    Final in(@Nonnull X... expected);
+
+    /**
+     * Validate the extracted value belongs to an expected set
+     *
+     * @param expected the set of possible values
+     * @return a new Validate
+     */
+    @Nonnull
+    Final in(@Nonnull List<X> expected);
+
+    /**
+     * Validate the extracted value belongs to an expected set, passed as a Gatling Expression
+     * Language String
+     *
+     * @param expected the set of possible values, as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final inEL(@Nonnull String expected);
+
+    /**
+     * Validate the extracted value belongs to an expected set, passed as a function
+     *
+     * @param expected the set of possible values, as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final in(@Nonnull Function<Session, List<X>> expected);
+
+    /**
+     * Validate the check was able to extract any value
+     *
+     * @return a new Validate
+     */
+    @Nonnull
+    Final exists();
+
+    /**
+     * Validate the check was not able to extract any value
+     *
+     * @return a new Validate
+     */
+    @Nonnull
+    Final notExists();
+
+    /**
+     * Make the check is successful whenever it was able to extract something or not
+     *
+     * @return a new Validate
+     */
+    @Nonnull
+    Final optional();
+
+    /**
+     * Validate the extracted value is less than a given value
+     *
+     * @param value the value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final lt(@Nonnull X value);
+
+    /**
+     * Validate the extracted value is less than a given value, passed as a Gatling Expression
+     * Language String
+     *
+     * @param value the value, as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final ltEL(@Nonnull String value);
+
+    /**
+     * Validate the extracted value is less than a given value, passed as a function
+     *
+     * @param value the value, as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final lt(@Nonnull Function<Session, X> value);
+
+    /**
+     * Validate the extracted value is less than or equal to a given value
+     *
+     * @param value the value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final lte(@Nonnull X value);
+
+    /**
+     * Validate the extracted value is less than or equal to a given value, passed as a Gatling
+     * Expression Language String
+     *
+     * @param value the value, as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final lteEL(@Nonnull String value);
+
+    /**
+     * Validate the extracted value is less than or equal to a given value, passed as a function
+     *
+     * @param value the value, as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final lte(@Nonnull Function<Session, X> value);
+
+    /**
+     * Validate the extracted value is greater than a given value
+     *
+     * @param value the value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gt(@Nonnull X value);
+
+    /**
+     * Validate the extracted value is greater than a given value, passed as a Gatling Expression
+     * Language String
+     *
+     * @param value the value, as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gtEL(@Nonnull String value);
+
+    /**
+     * Validate the extracted value is greater than a given value, passed as a function
+     *
+     * @param value the value, as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gt(@Nonnull Function<Session, X> value);
+
+    /**
+     * Validate the extracted value is greater than or equal to a given value
+     *
+     * @param value the value
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gte(@Nonnull X value);
+
+    /**
+     * Validate the extracted value is greater than or equal to a given value, passed as a Gatling
+     * Expression Language String
+     *
+     * @param value the value, as a Gatling Expression Language String
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gteEL(@Nonnull String value);
+
+    /**
+     * Validate the extracted value is greater than or equal to a given value, passed as a function
+     *
+     * @param value the value, as a function
+     * @return a new Validate
+     */
+    @Nonnull
+    Final gte(@Nonnull Function<Session, X> value);
+
+    /**
+     * Default implementation of {@link Validate}
+     *
+     * @param <T> the check type
+     * @param <P> the prepared input type
+     * @param <X> the type of the extracted value
+     */
     final class Default<T, P, X> implements Validate<X> {
       private final io.gatling.core.check.CheckBuilder.Validate<T, P, X> wrapped;
       private final CheckType type;
       private final Class<?> xClass;
 
-      public Default(io.gatling.core.check.CheckBuilder.Validate<T, P, X> wrapped, CheckType type, Class<?> xClass) {
+      public Default(
+          io.gatling.core.check.CheckBuilder.Validate<T, P, X> wrapped,
+          CheckType type,
+          Class<?> xClass) {
         this.wrapped = wrapped;
         this.type = type;
         this.xClass = xClass;
@@ -338,163 +797,242 @@ public interface CheckBuilder {
       }
 
       @Override
-      public <X2> Validate<X2> transform(Function<X, X2> f) {
+      @Nonnull
+      public <X2> Validate<X2> transform(@Nonnull Function<X, X2> f) {
         Class<?> x2Class = TypeResolver.resolveRawArguments(Function.class, f.getClass())[1];
-        return new Validate.Default<>(wrapped.transform(f::apply), type, x2Class);
+        return new Validate.Default<>(
+            wrapped.transformOption(
+                optX -> {
+                  X x = optX.isDefined() ? optX.get() : null;
+                  return validation(() -> scala.Option.apply(f.apply(x)));
+                }),
+            type,
+            x2Class);
       }
 
       @Override
-      public <X2> Validate<X2> transformWithSession(BiFunction<X, Session, X2> f) {
+      @Nonnull
+      public <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<X, Session, X2> f) {
         Class<?> x2Class = TypeResolver.resolveRawArguments(BiFunction.class, f.getClass())[2];
-        return new Validate.Default<>(wrapped.transformWithSession((x, session) -> f.apply(x, new Session(session))), type, x2Class);
+        return new Validate.Default<>(
+            wrapped.transformOptionWithSession(
+                (optX, session) -> {
+                  X x = optX.isDefined() ? optX.get() : null;
+                  return validation(() -> scala.Option.apply(f.apply(x, new Session(session))));
+                }),
+            type,
+            x2Class);
       }
 
       @Override
-      public Final is(X expected) {
+      @Nonnull
+      public Validate<X> withDefault(@Nonnull X value) {
+        return new Validate.Default<>(
+            wrapped.withDefault(toStaticValueExpression(value)), type, xClass);
+      }
+
+      @Override
+      @Nonnull
+      public Validate<X> withDefaultEl(@Nonnull String value) {
+        return new Validate.Default<>(
+            wrapped.withDefault(toExpression(value, xClass)), type, xClass);
+      }
+
+      @Override
+      @Nonnull
+      public Validate<X> withDefault(@Nonnull Function<Session, X> value) {
+        return new Validate.Default<>(
+            wrapped.withDefault(javaFunctionToExpression(value)), type, xClass);
+      }
+
+      @Override
+      @Nonnull
+      public Final is(@Nonnull X expected) {
         return makeFinal(wrapped.is(toStaticValueExpression(expected), equality(xClass)));
       }
 
       @Override
-      public Final isEL(String expected) {
+      @Nonnull
+      public Final validate(@Nonnull String opName, @Nonnull BiFunction<X, Session, X> f) {
+        return makeFinal(
+            wrapped.validate(
+                opName,
+                (optX, session) -> {
+                  X x = optX.isDefined() ? optX.get() : null;
+                  return validation(() -> scala.Option.apply(f.apply(x, new Session(session))));
+                }));
+      }
+
+      @Override
+      @Nonnull
+      public Final isEL(@Nonnull String expected) {
         return makeFinal(wrapped.is(toExpression(expected, xClass), equality(xClass)));
       }
 
       @Override
-      public Final is(Function<Session, X> expected) {
-        return makeFinal(wrapped.is(toTypedGatlingSessionFunction(expected), equality(xClass)));
+      @Nonnull
+      public Final is(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.is(javaFunctionToExpression(expected), equality(xClass)));
       }
 
       @Override
+      @Nonnull
       public Final isNull() {
         return makeFinal(wrapped.isNull());
       }
 
       @Override
-      public Final not(X expected) {
+      @Nonnull
+      public Final not(@Nonnull X expected) {
         return makeFinal(wrapped.not(toStaticValueExpression(expected), equality(xClass)));
       }
 
       @Override
-      public Final notEL(String expected) {
+      @Nonnull
+      public Final notEL(@Nonnull String expected) {
         return makeFinal(wrapped.not(toExpression(expected, xClass), equality(xClass)));
       }
 
       @Override
-      public Final not(Function<Session, X> expected) {
-        return makeFinal(wrapped.not(toTypedGatlingSessionFunction(expected), equality(xClass)));
+      @Nonnull
+      public Final not(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.not(javaFunctionToExpression(expected), equality(xClass)));
       }
 
       @Override
+      @Nonnull
       public Final notNull() {
         return makeFinal(wrapped.notNull());
       }
 
       @Override
-      public Final in(X... expected) {
+      @Nonnull
+      public Final in(@Nonnull X... expected) {
         return makeFinal(wrapped.in(toScalaSeq(expected)));
       }
 
       @Override
-      public Final in(List<X> expected) {
+      @Nonnull
+      public Final in(@Nonnull List<X> expected) {
         return makeFinal(wrapped.in(toScalaSeq(expected)));
       }
 
       @Override
-      public Final inEL(String expected) {
+      @Nonnull
+      public Final inEL(@Nonnull String expected) {
         return makeFinal(wrapped.in(toSeqExpression(expected)));
       }
 
       @Override
-      public Final in(Function<Session, List<X>> expected) {
-        return makeFinal(wrapped.in(toGatlingSessionFunctionImmutableSeq(expected)));
+      @Nonnull
+      public Final in(@Nonnull Function<Session, List<X>> expected) {
+        return makeFinal(wrapped.in(javaListFunctionToImmutableSeqExpression(expected)));
       }
 
       @Override
+      @Nonnull
       public Final exists() {
         return makeFinal(wrapped.exists());
       }
 
       @Override
+      @Nonnull
       public Final notExists() {
         return makeFinal(wrapped.notExists());
       }
 
       @Override
+      @Nonnull
       public Final optional() {
         return makeFinal(wrapped.optional());
       }
 
       @Override
-      public Final lt(X expected) {
+      @Nonnull
+      public Final lt(@Nonnull X expected) {
         return makeFinal(wrapped.lt(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final ltEL(String expected) {
+      @Nonnull
+      public Final ltEL(@Nonnull String expected) {
         return makeFinal(wrapped.lt(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      public Final lt(Function<Session, X> expected) {
-        return makeFinal(wrapped.lt(toTypedGatlingSessionFunction(expected), ordering(xClass)));
+      @Nonnull
+      public Final lt(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.lt(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final lte(X expected) {
+      @Nonnull
+      public Final lte(@Nonnull X expected) {
         return makeFinal(wrapped.lte(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final lteEL(String expected) {
+      @Nonnull
+      public Final lteEL(@Nonnull String expected) {
         return makeFinal(wrapped.lte(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      public Final lte(Function<Session, X> expected) {
-        return makeFinal(wrapped.lte(toTypedGatlingSessionFunction(expected), ordering(xClass)));
+      @Nonnull
+      public Final lte(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.lte(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final gt(X expected) {
+      @Nonnull
+      public Final gt(@Nonnull X expected) {
         return makeFinal(wrapped.gt(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final gtEL(String expected) {
+      @Nonnull
+      public Final gtEL(@Nonnull String expected) {
         return makeFinal(wrapped.gt(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      public Final gt(Function<Session, X> expected) {
-        return makeFinal(wrapped.gt(toTypedGatlingSessionFunction(expected), ordering(xClass)));
+      @Nonnull
+      public Final gt(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.gt(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final gte(X expected) {
+      @Nonnull
+      public Final gte(@Nonnull X expected) {
         return makeFinal(wrapped.gte(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final gteEL(String expected) {
+      @Nonnull
+      public Final gteEL(@Nonnull String expected) {
         return makeFinal(wrapped.gte(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      public Final gte(Function<Session, X> expected) {
-        return makeFinal(wrapped.gte(toTypedGatlingSessionFunction(expected), ordering(xClass)));
+      @Nonnull
+      public Final gte(@Nonnull Function<Session, X> expected) {
+        return makeFinal(wrapped.gte(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      public Final name(String n) {
+      @Nonnull
+      public Final name(@Nonnull String n) {
         return exists().name(n);
       }
 
       @Override
-      public Final saveAs(String key) {
+      @Nonnull
+      public Final saveAs(@Nonnull String key) {
         return exists().saveAs(key);
       }
 
       @Override
+      @Nonnull
       public CheckType type() {
         return exists().type();
       }
@@ -506,10 +1044,36 @@ public interface CheckBuilder {
     }
   }
 
+  /**
+   * Last step of the Check DSL Immutable, so all methods return a new occurrence and leave the
+   * original unmodified.
+   */
   interface Final extends CheckBuilder {
-    Final name(String n);
-    Final saveAs(String key);
 
+    /**
+     * Provide a custom name for the check, to be used in case of a failure
+     *
+     * @param n the name
+     * @return a new Final
+     */
+    @Nonnull
+    Final name(@Nonnull String n);
+
+    /**
+     * Save the extracted value in the virtual user's {@link Session}
+     *
+     * @param key the key to store the extracted value in the {@link Session}
+     * @return a new Final
+     */
+    @Nonnull
+    Final saveAs(@Nonnull String key);
+
+    /**
+     * Default implementation of {@link Final}
+     *
+     * @param <T> the check type
+     * @param <P> the prepared input type
+     */
     final class Default<T, P> implements Final {
       private final io.gatling.core.check.CheckBuilder.Final<T, P> wrapped;
       private final CheckType type;
@@ -520,16 +1084,19 @@ public interface CheckBuilder {
       }
 
       @Override
-      public Final name(String n) {
+      @Nonnull
+      public Final name(@Nonnull String n) {
         return new Default<>(wrapped.name(n), type);
       }
 
       @Override
-      public Final saveAs(String key) {
+      @Nonnull
+      public Final saveAs(@Nonnull String key) {
         return new Default<>(wrapped.saveAs(key), type);
       }
 
       @Override
+      @Nonnull
       public CheckType type() {
         return type;
       }
@@ -541,227 +1108,561 @@ public interface CheckBuilder {
     }
   }
 
+  /** A special {@link MultipleFind<String>} that can define regex capture groups */
   interface CaptureGroupCheckBuilder extends MultipleFind<String> {
-    MultipleFind<RegexGroups.Tuple2> capture2();
-    MultipleFind<RegexGroups.Tuple3> capture3();
-    MultipleFind<RegexGroups.Tuple4> capture4();
-    MultipleFind<RegexGroups.Tuple5> capture5();
-    MultipleFind<RegexGroups.Tuple6> capture6();
-    MultipleFind<RegexGroups.Tuple7> capture7();
-    MultipleFind<RegexGroups.Tuple8> capture8();
 
-    abstract class Default<T, P> extends MultipleFind.Default<T, P, String, String> implements CaptureGroupCheckBuilder {
-      public Default(io.gatling.core.check.CheckBuilder.MultipleFind<T, P, String> wrapped, CheckBuilder.CheckType type) {
+    /**
+     * Define that the check extracts 2 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture2();
+
+    /**
+     * Define that the check extracts 3 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture3();
+
+    /**
+     * Define that the check extracts 4 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture4();
+
+    /**
+     * Define that the check extracts 5 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture5();
+
+    /**
+     * Define that the check extracts 6 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture6();
+
+    /**
+     * Define that the check extracts 7 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture7();
+
+    /**
+     * Define that the check extracts 8 values from capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<List<String>> capture8();
+
+    /**
+     * Default implementation of {@link CaptureGroupCheckBuilder}
+     *
+     * @param <T> the check type
+     * @param <P> the prepared input type
+     */
+    abstract class Default<T, P> extends MultipleFind.Default<T, P, String, String>
+        implements CaptureGroupCheckBuilder {
+      public Default(
+          io.gatling.core.check.CheckBuilder.MultipleFind<T, P, String> wrapped,
+          CheckBuilder.CheckType type) {
         super(wrapped, type, Function.identity());
       }
 
-      protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, P, X> extract(io.gatling.core.check.regex.GroupExtractor<X> groupExtractor);
+      protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, P, X> extract(
+          io.gatling.core.check.regex.GroupExtractor<X> groupExtractor);
 
       @Override
-      public MultipleFind<RegexGroups.Tuple2> capture2() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor2()), type, RegexGroups.Tuple2::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture2() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor2()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple3> capture3() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor3()), type, RegexGroups.Tuple3::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture3() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor3()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple4> capture4() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor4()), type, RegexGroups.Tuple4::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture4() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor4()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple5> capture5() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor5()), type, RegexGroups.Tuple5::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture5() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor5()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple6> capture6() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor6()), type, RegexGroups.Tuple6::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture6() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor6()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple7> capture7() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor7()), type, RegexGroups.Tuple7::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture7() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor7()),
+            type,
+            Converters::toJavaList);
       }
 
       @Override
-      public MultipleFind<RegexGroups.Tuple8> capture8() {
-        return new MultipleFind.Default<>(extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor8()), type, RegexGroups.Tuple8::fromScala);
+      @Nonnull
+      public MultipleFind<List<String>> capture8() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor8()),
+            type,
+            Converters::toJavaList);
       }
     }
   }
 
-  final class Regex extends CaptureGroupCheckBuilder.Default<io.gatling.core.check.regex.RegexCheckType, String> {
+  /** An implementation of {@link CaptureGroupCheckBuilder} for regex applied on Strings */
+  final class Regex
+      extends CaptureGroupCheckBuilder.Default<io.gatling.core.check.regex.RegexCheckType, String> {
 
-    public Regex(io.gatling.core.check.CheckBuilder.MultipleFind<io.gatling.core.check.regex.RegexCheckType, String, String> wrapped) {
+    public Regex(
+        io.gatling.core.check.CheckBuilder.MultipleFind<
+                io.gatling.core.check.regex.RegexCheckType, String, String>
+            wrapped) {
       super(wrapped, CoreCheckType.Regex);
     }
 
     @Override
-    protected <X> io.gatling.core.check.CheckBuilder.MultipleFind<RegexCheckType, String, X> extract(GroupExtractor<X> groupExtractor) {
-      io.gatling.core.check.regex.RegexCheckBuilder<String> actual = (io.gatling.core.check.regex.RegexCheckBuilder<String>) wrapped;
-      return new io.gatling.core.check.regex.RegexCheckBuilder<>(actual.pattern(), actual.patterns(), groupExtractor);
+    @Nonnull
+    protected <X>
+        io.gatling.core.check.CheckBuilder.MultipleFind<RegexCheckType, String, X> extract(
+            @Nonnull GroupExtractor<X> groupExtractor) {
+      io.gatling.core.check.regex.RegexCheckBuilder<String> actual =
+          (io.gatling.core.check.regex.RegexCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.regex.RegexCheckBuilder<>(
+          actual.pattern(), actual.patterns(), groupExtractor);
     }
   }
 
+  /** A special {@link Find<String>} that works on JSON */
   interface JsonOfTypeFind extends Find<String> {
+
+    /**
+     * Define that the extracted value is a Boolean
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Boolean> ofBoolean();
+
+    /**
+     * Define that the extracted value is an Integer
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Integer> ofInt();
+
+    /**
+     * Define that the extracted value is a Long
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Long> ofLong();
+
+    /**
+     * Define that the extracted value is a Double
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Double> ofDouble();
+
+    /**
+     * Define that the extracted value is a List (a JSON array)
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<List<Object>> ofList();
+
+    /**
+     * Define that the extracted value is a Map (a JSON object)
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Map<String, Object>> ofMap();
+
+    /**
+     * Define that the extracted value is an untyped object
+     *
+     * @return a new Find
+     */
+    @Nonnull
     Find<Object> ofObject();
 
-    abstract class Default<T> extends Find.Default<T, JsonNode, String, String> implements JsonOfTypeFind {
-      public Default(io.gatling.core.check.CheckBuilder.Find<T, JsonNode, String> wrapped, CheckType type) {
+    /**
+     * Default implementation of {@link JsonOfTypeFind}
+     *
+     * @param <T> the check type
+     */
+    abstract class Default<T> extends Find.Default<T, JsonNode, String, String>
+        implements JsonOfTypeFind {
+      public Default(
+          io.gatling.core.check.CheckBuilder.Find<T, JsonNode, String> wrapped, CheckType type) {
         super(wrapped, type, Function.identity());
       }
 
-      protected abstract <X> io.gatling.core.check.CheckBuilder.Find<T, JsonNode, X> ofType(io.gatling.core.check.jsonpath.JsonFilter<X> filter);
+      @Nonnull
+      protected abstract <X> io.gatling.core.check.CheckBuilder.Find<T, JsonNode, X> ofType(
+          io.gatling.core.check.jsonpath.JsonFilter<X> filter);
 
       @Override
+      @Nonnull
       public Find<Boolean> ofBoolean() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()), type, Boolean.class::cast);
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
+            type,
+            Boolean.class::cast);
       }
 
       @Override
+      @Nonnull
       public Find<Integer> ofInt() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()), type, Integer.class::cast);
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
+            type,
+            Integer.class::cast);
       }
 
       @Override
+      @Nonnull
       public Find<Long> ofLong() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()), type, Long.class::cast);
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
+            type,
+            Long.class::cast);
       }
 
       @Override
+      @Nonnull
       public Find<Double> ofDouble() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()), type, Double.class::cast);
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
+            type,
+            Double.class::cast);
       }
 
       @Override
+      @Nonnull
       public Find<List<Object>> ofList() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()), type, Function.identity());
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
+            type,
+            Function.identity());
       }
 
       @Override
+      @Nonnull
       public Find<Map<String, Object>> ofMap() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()), type, Function.identity());
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
+            type,
+            Function.identity());
       }
 
       @Override
+      @Nonnull
       public Find<Object> ofObject() {
-        return new Find.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()), type, Function.identity());
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
+            type,
+            Function.identity());
       }
     }
   }
 
+  /** A special {@link MultipleFind<String>} that works on JSON */
   interface JsonOfTypeMultipleFind extends MultipleFind<String> {
+
+    /**
+     * Define that the extracted value is a Boolean
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Boolean> ofBoolean();
+
+    /**
+     * Define that the extracted value is an Integer
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Integer> ofInt();
+
+    /**
+     * Define that the extracted value is a Long
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Long> ofLong();
+
+    /**
+     * Define that the extracted value is a Double
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Double> ofDouble();
+
+    /**
+     * Define that the extracted value is a List (a JSON array)
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<List<Object>> ofList();
+
+    /**
+     * Define that the extracted value is a Map (a JSON object)
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Map<String, Object>> ofMap();
+
+    /**
+     * Define that the extracted value is an untyped object
+     *
+     * @return a new Find
+     */
+    @Nonnull
     MultipleFind<Object> ofObject();
 
-    abstract class Default<T> extends MultipleFind.Default<T, JsonNode, String, String> implements JsonOfTypeMultipleFind {
-      public Default(io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, String> wrapped, CheckType type) {
+    /**
+     * Default implementation of {@link JsonOfTypeMultipleFind}
+     *
+     * @param <T> the check type
+     */
+    abstract class Default<T> extends MultipleFind.Default<T, JsonNode, String, String>
+        implements JsonOfTypeMultipleFind {
+      public Default(
+          io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, String> wrapped,
+          CheckType type) {
         super(wrapped, type, Function.identity());
       }
 
-      protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, X> ofType(io.gatling.core.check.jsonpath.JsonFilter<X> filter);
+      @Nonnull
+      protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, X> ofType(
+          io.gatling.core.check.jsonpath.JsonFilter<X> filter);
 
       @Override
+      @Nonnull
       public MultipleFind<Boolean> ofBoolean() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()), type, Boolean.class::cast);
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
+            type,
+            Boolean.class::cast);
       }
 
       @Override
+      @Nonnull
       public MultipleFind<Integer> ofInt() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()), type, Integer.class::cast);
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
+            type,
+            Integer.class::cast);
       }
 
       @Override
+      @Nonnull
       public MultipleFind<Long> ofLong() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()), type, Long.class::cast);
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
+            type,
+            Long.class::cast);
       }
 
       @Override
+      @Nonnull
       public MultipleFind<Double> ofDouble() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()), type, Double.class::cast);
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
+            type,
+            Double.class::cast);
       }
 
       @Override
+      @Nonnull
       public MultipleFind<List<Object>> ofList() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()), type, Function.identity());
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
+            type,
+            Function.identity());
       }
 
       @Override
+      @Nonnull
       public MultipleFind<Map<String, Object>> ofMap() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()), type, Function.identity());
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
+            type,
+            Function.identity());
       }
 
       @Override
+      @Nonnull
       public MultipleFind<Object> ofObject() {
-        return new MultipleFind.Default<>(ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()), type, Function.identity());
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
+            type,
+            Function.identity());
       }
     }
   }
 
-  final class JmesPath extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JmesPathCheckType> {
+  /**
+   * An implementation of {@link JsonOfTypeFind} for JMESPath.
+   *
+   * @see <a href="https://jmespath.org/">https://jmespath.org/</a>
+   */
+  final class JmesPath
+      extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JmesPathCheckType> {
 
-    public JmesPath(io.gatling.core.check.CheckBuilder.Find<io.gatling.core.check.jmespath.JmesPathCheckType, JsonNode, String> wrapped) {
+    public JmesPath(
+        io.gatling.core.check.CheckBuilder.Find<
+                io.gatling.core.check.jmespath.JmesPathCheckType, JsonNode, String>
+            wrapped) {
       super(wrapped, CoreCheckType.JmesPath);
     }
 
     @Override
-    protected <X> io.gatling.core.check.CheckBuilder.Find<JmesPathCheckType, JsonNode, X> ofType(JsonFilter<X> filter) {
-      io.gatling.core.check.jmespath.JmesPathCheckBuilder<String> actual = (io.gatling.core.check.jmespath.JmesPathCheckBuilder<String>) wrapped;
-      return new io.gatling.core.check.jmespath.JmesPathCheckBuilder<>(actual.path(), actual.jmesPaths(), filter);
+    @Nonnull
+    protected <X> io.gatling.core.check.CheckBuilder.Find<JmesPathCheckType, JsonNode, X> ofType(
+        JsonFilter<X> filter) {
+      io.gatling.core.check.jmespath.JmesPathCheckBuilder<String> actual =
+          (io.gatling.core.check.jmespath.JmesPathCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.jmespath.JmesPathCheckBuilder<>(
+          actual.path(), actual.jmesPaths(), filter);
     }
   }
 
-  final class JsonpJmesPath extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JsonpJmesPathCheckType> {
+  /**
+   * An implementation of {@link JsonOfTypeFind} for JSONP + JMESPath.
+   *
+   * @see <a href="https://jmespath.org/">https://jmespath.org/</a>
+   */
+  final class JsonpJmesPath
+      extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JsonpJmesPathCheckType> {
 
-    public JsonpJmesPath(io.gatling.core.check.CheckBuilder.Find<io.gatling.core.check.jmespath.JsonpJmesPathCheckType, JsonNode, String> wrapped) {
+    public JsonpJmesPath(
+        @Nonnull
+            io.gatling.core.check.CheckBuilder.Find<
+                    io.gatling.core.check.jmespath.JsonpJmesPathCheckType, JsonNode, String>
+                wrapped) {
       super(wrapped, CoreCheckType.JsonpJmesPath);
     }
 
     @Override
-    protected <X> io.gatling.core.check.CheckBuilder.Find<JsonpJmesPathCheckType, JsonNode, X> ofType(JsonFilter<X> filter) {
-      io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<String> actual = (io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<String>) wrapped;
-      return new io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<>(actual.path(), actual.jmesPaths(), filter);
+    @Nonnull
+    protected <X>
+        io.gatling.core.check.CheckBuilder.Find<JsonpJmesPathCheckType, JsonNode, X> ofType(
+            JsonFilter<X> filter) {
+      io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<String> actual =
+          (io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.jmespath.JsonpJmesPathCheckBuilder<>(
+          actual.path(), actual.jmesPaths(), filter);
     }
   }
 
-  final class JsonPath extends JsonOfTypeMultipleFind.Default<io.gatling.core.check.jsonpath.JsonPathCheckType> {
+  /**
+   * An implementation of {@link JsonOfTypeFind} for JsonPath.
+   *
+   * @see <a
+   *     href="https://goessner.net/articles/JsonPath/">https://goessner.net/articles/JsonPath/</a>
+   */
+  final class JsonPath
+      extends JsonOfTypeMultipleFind.Default<io.gatling.core.check.jsonpath.JsonPathCheckType> {
 
-    public JsonPath(io.gatling.core.check.CheckBuilder.MultipleFind<io.gatling.core.check.jsonpath.JsonPathCheckType, JsonNode, String> wrapped) {
+    public JsonPath(
+        @Nonnull
+            io.gatling.core.check.CheckBuilder.MultipleFind<
+                    io.gatling.core.check.jsonpath.JsonPathCheckType, JsonNode, String>
+                wrapped) {
       super(wrapped, CoreCheckType.JsonPath);
     }
 
     @Override
-    protected <X> io.gatling.core.check.CheckBuilder.MultipleFind<JsonPathCheckType, JsonNode, X> ofType(JsonFilter<X> filter) {
-      io.gatling.core.check.jsonpath.JsonPathCheckBuilder<String> actual = (io.gatling.core.check.jsonpath.JsonPathCheckBuilder<String>) wrapped;
-      return new io.gatling.core.check.jsonpath.JsonPathCheckBuilder<>(actual.path(), actual.jsonPaths(), filter);
+    @Nonnull
+    protected <X>
+        io.gatling.core.check.CheckBuilder.MultipleFind<JsonPathCheckType, JsonNode, X> ofType(
+            JsonFilter<X> filter) {
+      io.gatling.core.check.jsonpath.JsonPathCheckBuilder<String> actual =
+          (io.gatling.core.check.jsonpath.JsonPathCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.jsonpath.JsonPathCheckBuilder<>(
+          actual.path(), actual.jsonPaths(), filter);
     }
   }
 
-  final class JsonpJsonPath extends JsonOfTypeMultipleFind.Default<io.gatling.core.check.jsonpath.JsonpJsonPathCheckType> {
+  /**
+   * An implementation of {@link JsonOfTypeFind} for JSONP + JsonPath.
+   *
+   * @see <a
+   *     href="https://goessner.net/articles/JsonPath/">https://goessner.net/articles/JsonPath/</a>
+   */
+  final class JsonpJsonPath
+      extends JsonOfTypeMultipleFind.Default<
+          io.gatling.core.check.jsonpath.JsonpJsonPathCheckType> {
 
-    public JsonpJsonPath(io.gatling.core.check.CheckBuilder.MultipleFind<io.gatling.core.check.jsonpath.JsonpJsonPathCheckType, JsonNode, String> wrapped) {
+    public JsonpJsonPath(
+        @Nonnull
+            io.gatling.core.check.CheckBuilder.MultipleFind<
+                    io.gatling.core.check.jsonpath.JsonpJsonPathCheckType, JsonNode, String>
+                wrapped) {
       super(wrapped, CoreCheckType.JsonpJsonPath);
     }
 
     @Override
-    protected <X> io.gatling.core.check.CheckBuilder.MultipleFind<JsonpJsonPathCheckType, JsonNode, X> ofType(JsonFilter<X> filter) {
-      io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<String> actual = (io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<String>) wrapped;
-      return new io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<>(actual.path(), actual.jsonPaths(), filter);
+    @Nonnull
+    protected <X>
+        io.gatling.core.check.CheckBuilder.MultipleFind<JsonpJsonPathCheckType, JsonNode, X> ofType(
+            JsonFilter<X> filter) {
+      io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<String> actual =
+          (io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<>(
+          actual.path(), actual.jsonPaths(), filter);
     }
   }
 }

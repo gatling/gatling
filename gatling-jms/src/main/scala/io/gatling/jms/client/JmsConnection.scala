@@ -46,10 +46,10 @@ class JmsConnection(
   def destination(jmsDestination: JmsDestination): Expression[Destination] = {
     val jmsSession = sessionPool.jmsSession()
     jmsDestination match {
-      case JmsTemporaryQueue => jmsSession.createTemporaryQueue().expressionSuccess
-      case JmsTemporaryTopic => jmsSession.createTemporaryTopic().expressionSuccess
-      case JmsQueue(name)    => name.map(n => staticQueues.computeIfAbsent(n, jmsSession.createQueue _))
-      case JmsTopic(name)    => name.map(n => staticTopics.computeIfAbsent(n, jmsSession.createTopic _))
+      case JmsDestination.TemporaryQueue => jmsSession.createTemporaryQueue().expressionSuccess
+      case JmsDestination.TemporaryTopic => jmsSession.createTemporaryTopic().expressionSuccess
+      case JmsDestination.Queue(name)    => name.map(n => staticQueues.computeIfAbsent(n, jmsSession.createQueue _))
+      case JmsDestination.Topic(name)    => name.map(n => staticTopics.computeIfAbsent(n, jmsSession.createTopic _))
     }
   }
 

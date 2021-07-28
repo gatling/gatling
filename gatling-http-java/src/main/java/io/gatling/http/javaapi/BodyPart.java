@@ -16,17 +16,23 @@
 
 package io.gatling.http.javaapi;
 
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
 import io.gatling.core.javaapi.Session;
-
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
+/**
+ * DSL for building <a href="https://en.wikipedia.org/wiki/MIME#Multipart_messages">multipart</a>
+ * request body parts.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class BodyPart {
 
   private final io.gatling.http.request.BodyPart wrapped;
 
-  public BodyPart(io.gatling.http.request.BodyPart wrapped) {
+  BodyPart(io.gatling.http.request.BodyPart wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -34,59 +40,164 @@ public final class BodyPart {
     return wrapped;
   }
 
-  public BodyPart contentType(String contentType) {
+  /**
+   * Define the contentType attribute
+   *
+   * @param contentType the contentType attribute, expressed as a Gatling Expression Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart contentType(@Nonnull String contentType) {
     return new BodyPart(wrapped.contentType(toStringExpression(contentType)));
   }
 
-  public BodyPart contentType(Function<Session, String> contentType) {
-    return new BodyPart(wrapped.contentType(toTypedGatlingSessionFunction(contentType)));
+  /**
+   * Define the contentType attribute
+   *
+   * @param contentType the contentType attribute, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart contentType(@Nonnull Function<Session, String> contentType) {
+    return new BodyPart(wrapped.contentType(javaFunctionToExpression(contentType)));
   }
 
-  public BodyPart charset(String charset) {
+  /**
+   * Define the charset attribute
+   *
+   * @param charset the static charset attribute
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart charset(@Nonnull String charset) {
     return new BodyPart(wrapped.charset((charset)));
   }
 
-  public BodyPart dispositionType(String dispositionType) {
+  /**
+   * Define the dispositionType attribute
+   *
+   * @param dispositionType the dispositionType attribute, expressed as a Gatling Expression
+   *     Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart dispositionType(@Nonnull String dispositionType) {
     return new BodyPart(wrapped.dispositionType(toStringExpression(dispositionType)));
   }
 
-  public BodyPart dispositionType(Function<Session, String> dispositionType) {
-    return new BodyPart(wrapped.dispositionType(toTypedGatlingSessionFunction(dispositionType)));
+  /**
+   * Define the dispositionType attribute
+   *
+   * @param dispositionType the dispositionType attribute, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart dispositionType(@Nonnull Function<Session, String> dispositionType) {
+    return new BodyPart(wrapped.dispositionType(javaFunctionToExpression(dispositionType)));
   }
 
-  public BodyPart fileName(String fileName) {
+  /**
+   * Define the fileName attribute
+   *
+   * @param fileName the fileName attribute, expressed as a Gatling Expression Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart fileName(@Nonnull String fileName) {
     return new BodyPart(wrapped.fileName(toStringExpression(fileName)));
   }
 
-  public BodyPart fileName(Function<Session, String> fileName) {
-    return new BodyPart(wrapped.fileName(toTypedGatlingSessionFunction(fileName)));
+  /**
+   * Define the fileName attribute
+   *
+   * @param fileName the fileName attribute, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart fileName(@Nonnull Function<Session, String> fileName) {
+    return new BodyPart(wrapped.fileName(javaFunctionToExpression(fileName)));
   }
 
-  public BodyPart contentId(String contentId) {
+  /**
+   * Define the contentId attribute
+   *
+   * @param contentId the contentId attribute, expressed as a Gatling Expression Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart contentId(@Nonnull String contentId) {
     return new BodyPart(wrapped.contentId(toStringExpression(contentId)));
   }
 
-  public BodyPart contentId(Function<Session, String> contentId) {
-    return new BodyPart(wrapped.contentId(toTypedGatlingSessionFunction(contentId)));
+  /**
+   * Define the contentId attribute
+   *
+   * @param contentId the contentId attribute, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart contentId(@Nonnull Function<Session, String> contentId) {
+    return new BodyPart(wrapped.contentId(javaFunctionToExpression(contentId)));
   }
 
-  public BodyPart transferEncoding(String transferEncoding) {
+  /**
+   * Define the transferEncoding attribute
+   *
+   * @param transferEncoding the static transferEncoding attribute
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart transferEncoding(@Nonnull String transferEncoding) {
     return new BodyPart(wrapped.transferEncoding(transferEncoding));
   }
 
-  public BodyPart header(String name, String value) {
+  /**
+   * Define a header
+   *
+   * @param name the header name, expressed as a Gatling Expression Language String
+   * @param value the header value, expressed as a Gatling Expression Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart header(@Nonnull String name, @Nonnull String value) {
     return new BodyPart(wrapped.header(toStringExpression(name), toStringExpression(value)));
   }
 
-  public BodyPart header(String name, Function<Session, String> value) {
-    return new BodyPart(wrapped.header(toStringExpression(name), toTypedGatlingSessionFunction(value)));
+  /**
+   * Define a header
+   *
+   * @param name the header name, expressed as a Gatling Expression Language String
+   * @param value the header value, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart header(@Nonnull String name, @Nonnull Function<Session, String> value) {
+    return new BodyPart(wrapped.header(toStringExpression(name), javaFunctionToExpression(value)));
   }
 
-  public BodyPart header(Function<Session, String> name, String value) {
-    return new BodyPart(wrapped.header(toTypedGatlingSessionFunction(name), toStringExpression(value)));
+  /**
+   * Define a header
+   *
+   * @param name the header name, expressed as a function
+   * @param value the header value, expressed as a Gatling Expression Language String
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart header(@Nonnull Function<Session, String> name, @Nonnull String value) {
+    return new BodyPart(wrapped.header(javaFunctionToExpression(name), toStringExpression(value)));
   }
 
-  public BodyPart header(Function<Session, String> name, Function<Session, String> value) {
-    return new BodyPart(wrapped.header(toTypedGatlingSessionFunction(name), toTypedGatlingSessionFunction(value)));
+  /**
+   * Define a header
+   *
+   * @param name the header name, expressed as a function
+   * @param value the header value, expressed as a function
+   * @return a new BodyPart instance
+   */
+  @Nonnull
+  public BodyPart header(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> value) {
+    return new BodyPart(
+        wrapped.header(javaFunctionToExpression(name), javaFunctionToExpression(value)));
   }
 }

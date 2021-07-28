@@ -16,8 +16,6 @@
 
 package io.gatling.http.client.ssl;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -26,13 +24,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 public final class Tls {
 
-  private Tls() {
-  }
+  private Tls() {}
 
-  public static Set<String> extractSubjectAlternativeNames(SSLEngine sslEngine) throws SSLPeerUnverifiedException, CertificateParsingException {
+  public static Set<String> extractSubjectAlternativeNames(SSLEngine sslEngine)
+      throws SSLPeerUnverifiedException, CertificateParsingException {
     Set<String> sans = new HashSet<>();
     for (Certificate certificate : sslEngine.getSession().getPeerCertificates()) {
       X509Certificate cert = (X509Certificate) certificate;
@@ -58,8 +58,7 @@ public final class Tls {
     String[] sanSplit = CERT_PATTERN.split(san);
     String[] domainSplit = CERT_PATTERN.split(domain);
 
-    if (sanSplit.length != domainSplit.length)
-      return false;
+    if (sanSplit.length != domainSplit.length) return false;
 
     String firstDomainChunk = domainSplit[0];
 
@@ -88,7 +87,9 @@ public final class Tls {
 
     boolean isCertificateAuthoritative = true;
 
-    for (int i = isFirstLabelValid ? 1 : 0; i < domainSplit.length && isCertificateAuthoritative; i++) {
+    for (int i = isFirstLabelValid ? 1 : 0;
+        i < domainSplit.length && isCertificateAuthoritative;
+        i++) {
       isCertificateAuthoritative = sanSplit[i].equals(domainSplit[i]);
     }
 
@@ -97,8 +98,6 @@ public final class Tls {
 
   public static String domain(String hostname) {
     int fqdnLength = hostname.length() - 1;
-    return hostname.charAt(fqdnLength) == '.' ?
-      hostname.substring(0, fqdnLength) :
-      hostname;
+    return hostname.charAt(fqdnLength) == '.' ? hostname.substring(0, fqdnLength) : hostname;
   }
 }

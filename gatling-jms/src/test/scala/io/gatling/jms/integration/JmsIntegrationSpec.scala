@@ -20,15 +20,14 @@ import java.util.Locale
 import javax.jms.TextMessage
 
 import io.gatling.core.CoreDsl
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms._
-import io.gatling.jms.request.JmsQueue
+import io.gatling.jms.request.JmsDestination
 
 class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
 
   "gatling-jms" should "send and receive JMS message" in {
 
-    val requestQueue = JmsQueue("request")
+    val requestQueue = JmsDestination.Queue("request")
 
     replier(
       requestQueue,

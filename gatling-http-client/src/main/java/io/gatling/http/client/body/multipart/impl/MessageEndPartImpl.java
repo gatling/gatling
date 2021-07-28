@@ -38,7 +38,11 @@ public class MessageEndPartImpl extends PartImpl {
   private ByteBuf lazyLoadContentBuffer(ByteBufAllocator alloc) {
     if (contentBuffer == null) {
       contentBuffer = alloc.buffer((int) getContentLength());
-      contentBuffer.writeBytes(EXTRA_BYTES).writeBytes(boundary).writeBytes(EXTRA_BYTES).writeBytes(CRLF_BYTES);
+      contentBuffer
+          .writeBytes(EXTRA_BYTES)
+          .writeBytes(boundary)
+          .writeBytes(EXTRA_BYTES)
+          .writeBytes(CRLF_BYTES);
     }
     return contentBuffer;
   }
@@ -76,7 +80,6 @@ public class MessageEndPartImpl extends PartImpl {
   @Override
   public void close() {
     super.close();
-    if (contentBuffer != null)
-      contentBuffer.release();
+    if (contentBuffer != null) contentBuffer.release();
   }
 }

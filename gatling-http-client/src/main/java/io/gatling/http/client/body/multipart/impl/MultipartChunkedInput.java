@@ -22,12 +22,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.stream.ChunkedInput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
 
@@ -35,19 +34,13 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
 
   private enum ChunkedInputState {
 
-    /**
-     * There's something to read
-     */
+    /** There's something to read */
     CONTINUE,
 
-    /**
-     * There's nothing to read and input has to suspend
-     */
+    /** There's nothing to read and input has to suspend */
     SUSPEND,
 
-    /**
-     * There's nothing to read and input has to stop
-     */
+    /** There's nothing to read and input has to stop */
     STOP
   }
 
@@ -65,7 +58,8 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   public MultipartChunkedInput(List<PartImpl> parts) {
     this.parts = parts;
     this.contentLength = computeContentLength(parts);
-    this.chunkSize = contentLength > 0 ? (int) Math.min(contentLength, DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
+    this.chunkSize =
+        contentLength > 0 ? (int) Math.min(contentLength, DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
   }
 
   private static long computeContentLength(List<PartImpl> partImpls) {

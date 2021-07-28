@@ -61,42 +61,42 @@ sealed trait CompositeClosedInjectionStepLike extends ClosedInjectionStep {
   private[inject] def composite: CompositeClosedInjectionStep
 }
 
-final case class IncreasingConcurrentUsersCompositeStep private[inject] (
-    concurrentUsers: Int,
-    nbOfSteps: Int,
+final case class StairsConcurrentUsersCompositeStep private[inject] (
+    usersIncrement: Int,
+    levels: Int,
     levelDuration: FiniteDuration,
     startingUsers: Int,
     rampDuration: FiniteDuration
 ) extends CompositeClosedInjectionStepLike {
 
-  def startingFrom(startingUsers: Int): IncreasingConcurrentUsersCompositeStep = this.copy(startingUsers = startingUsers)
+  def startingFrom(startingUsers: Int): StairsConcurrentUsersCompositeStep = this.copy(startingUsers = startingUsers)
 
-  def separatedByRampsLasting(duration: FiniteDuration): IncreasingConcurrentUsersCompositeStep = this.copy(rampDuration = duration)
+  def separatedByRampsLasting(duration: FiniteDuration): StairsConcurrentUsersCompositeStep = this.copy(rampDuration = duration)
 
   override private[inject] lazy val composite: CompositeClosedInjectionStep = {
     val injectionSteps =
-      List.range(0, nbOfSteps).flatMap { stepIdx =>
+      List.range(0, levels).flatMap { stepIdx =>
         if (rampDuration > Duration.Zero) {
           if (startingUsers == 0) {
             // (ramp, level)*
-            val rampStartRate = stepIdx * concurrentUsers
-            val levelRate = (stepIdx + 1) * concurrentUsers
+            val rampStartRate = stepIdx * usersIncrement
+            val levelRate = (stepIdx + 1) * usersIncrement
             RampConcurrentUsersInjection(rampStartRate, levelRate, rampDuration) :: ConstantConcurrentUsersInjection(levelRate, levelDuration) :: Nil
 
           } else {
             // (level, ramp)* + level
-            val levelRate = stepIdx * concurrentUsers + startingUsers
+            val levelRate = stepIdx * usersIncrement + startingUsers
             val level = ConstantConcurrentUsersInjection(levelRate, levelDuration)
-            if (stepIdx == nbOfSteps - 1) {
+            if (stepIdx == levels - 1) {
               level :: Nil
             } else {
-              val rampEndRate = (stepIdx + 1) * concurrentUsers + startingUsers
+              val rampEndRate = (stepIdx + 1) * usersIncrement + startingUsers
               level :: RampConcurrentUsersInjection(levelRate, rampEndRate, rampDuration) :: Nil
             }
           }
         } else {
           // only levels
-          val levelRate = stepIdx * concurrentUsers + startingUsers
+          val levelRate = stepIdx * usersIncrement + startingUsers
           ConstantConcurrentUsersInjection(levelRate, levelDuration) :: Nil
         }
       }
@@ -108,7 +108,7 @@ final case class IncreasingConcurrentUsersCompositeStep private[inject] (
 
   override private[inject] def duration: FiniteDuration = composite.duration
 
-  override private[inject] def isEmpty: Boolean = concurrentUsers == 0 && startingUsers == 0
+  override private[inject] def isEmpty: Boolean = usersIncrement == 0 && startingUsers == 0
 }
 
 private[inject] final case class CompositeClosedInjectionStep private[inject] (steps: List[ClosedInjectionStep]) extends ClosedInjectionStep {

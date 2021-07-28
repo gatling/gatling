@@ -21,7 +21,6 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedFile;
-
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -68,10 +67,14 @@ public final class FileRequestBody extends RequestBody.Base<File> {
 
   @Override
   public String toString() {
-    return "FileRequestBody{" +
-      "contentType='" + contentType + '\'' +
-      ", charset=" + charset +
-      ", content=" + content +
-      '}';
+    return "FileRequestBody{"
+        + "contentType='"
+        + contentType
+        + '\''
+        + ", charset="
+        + charset
+        + ", content="
+        + content
+        + '}';
   }
 }

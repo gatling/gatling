@@ -28,81 +28,25 @@ import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 import com.softwaremill.quicklens._
 
 final class JmsDslBuilderBase(requestName: Expression[String]) {
-
-  def send: SendDslBuilderQueue = new SendDslBuilderQueue(requestName)
-
-  def requestReply: RequestReplyDslBuilderQueue = new RequestReplyDslBuilderQueue(requestName)
+  def send: SendDslBuilder.Queue = new SendDslBuilder.Queue(requestName)
+  def requestReply: RequestReplyDslBuilder.Queue = new RequestReplyDslBuilder.Queue(requestName)
 }
 
-final class SendDslBuilderQueue(
-    requestName: Expression[String]
-) {
+object SendDslBuilder {
+  final class Queue(requestName: Expression[String]) {
+    def queue(name: Expression[String]): Message = destination(JmsDestination.Queue(name))
+    def destination(destination: JmsDestination): Message = new Message(requestName, destination)
+  }
 
-  def queue(name: Expression[String]): SendDslDslBuilderMessage = destination(JmsQueue(name))
+  final class Message(requestName: Expression[String], destination: JmsDestination) {
+    def textMessage(text: Expression[String]): SendDslBuilder = message(TextJmsMessage(text))
+    def bytesMessage(bytes: Expression[Array[Byte]]): SendDslBuilder = message(BytesJmsMessage(bytes))
+    def mapMessage(map: Map[String, Any]): SendDslBuilder = mapMessage(map.expressionSuccess)
+    def mapMessage(map: Expression[Map[String, Any]]): SendDslBuilder = message(MapJmsMessage(map))
+    def objectMessage(o: Expression[JSerializable]): SendDslBuilder = message(ObjectJmsMessage(o))
 
-  def destination(destination: JmsDestination): SendDslDslBuilderMessage =
-    new SendDslDslBuilderMessage(requestName, destination)
-}
-
-final class RequestReplyDslBuilderQueue(
-    requestName: Expression[String]
-) {
-
-  def queue(name: Expression[String]): RequestReplyDslBuilderMessage = destination(JmsQueue(name))
-
-  def destination(destination: JmsDestination): RequestReplyDslBuilderMessage =
-    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJmsReplyTo = true, None, None)
-}
-
-final class SendDslDslBuilderMessage(
-    requestName: Expression[String],
-    destination: JmsDestination
-) {
-
-  def textMessage(text: Expression[String]): SendDslBuilder = message(TextJmsMessage(text))
-  def bytesMessage(bytes: Expression[Array[Byte]]): SendDslBuilder = message(BytesJmsMessage(bytes))
-  def mapMessage(map: Map[String, Any]): SendDslBuilder = mapMessage(map.expressionSuccess)
-  def mapMessage(map: Expression[Map[String, Any]]): SendDslBuilder = message(MapJmsMessage(map))
-  def objectMessage(o: Expression[JSerializable]): SendDslBuilder = message(ObjectJmsMessage(o))
-
-  private def message(mess: JmsMessage) =
-    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), new SendBuilder(_))
-}
-
-final case class RequestReplyDslBuilderMessage(
-    requestName: Expression[String],
-    destination: JmsDestination,
-    replyDest: JmsDestination,
-    setJmsReplyTo: Boolean,
-    trackerDest: Option[JmsDestination],
-    selector: Option[Expression[String]]
-) {
-
-  /**
-   * Add a reply queue, if not specified dynamic queue is used
-   */
-  def replyQueue(name: Expression[String]): RequestReplyDslBuilderMessage = replyDestination(JmsQueue(name))
-  def replyDestination(destination: JmsDestination): RequestReplyDslBuilderMessage = this.copy(replyDest = destination)
-  def noJmsReplyTo: RequestReplyDslBuilderMessage = this.copy(setJmsReplyTo = false)
-  def trackerQueue(name: Expression[String]): RequestReplyDslBuilderMessage = trackerDestination(JmsQueue(name))
-  def trackerDestination(destination: JmsDestination): RequestReplyDslBuilderMessage = this.copy(trackerDest = Some(destination))
-
-  /**
-   * defines selector for reply destination that is used for responses
-   */
-  def selector(select: Expression[String]): RequestReplyDslBuilderMessage = this.copy(selector = Some(select))
-
-  def textMessage(text: Expression[String]): RequestReplyDslBuilder = message(TextJmsMessage(text))
-  def bytesMessage(bytes: Expression[Array[Byte]]): RequestReplyDslBuilder = message(BytesJmsMessage(bytes))
-  def mapMessage(map: Map[String, Any]): RequestReplyDslBuilder = mapMessage(map.expressionSuccess)
-  def mapMessage(map: Expression[Map[String, Any]]): RequestReplyDslBuilder = message(MapJmsMessage(map))
-  def objectMessage(o: Expression[JSerializable]): RequestReplyDslBuilder = message(ObjectJmsMessage(o))
-
-  private def message(mess: JmsMessage) =
-    RequestReplyDslBuilder(
-      JmsAttributes(requestName, destination, selector, mess),
-      RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest)
-    )
+    private def message(mess: JmsMessage) = SendDslBuilder(JmsAttributes(requestName, destination, None, mess), new SendBuilder(_))
+  }
 }
 
 final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
@@ -115,6 +59,50 @@ final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttribute
   def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
   def build: ActionBuilder = factory(attributes)
+}
+
+object RequestReplyDslBuilder {
+  final class Queue(requestName: Expression[String]) {
+    def queue(name: Expression[String]): Message = destination(JmsDestination.Queue(name))
+    def destination(destination: JmsDestination): Message =
+      Message(requestName, destination, JmsDestination.TemporaryQueue, setJmsReplyTo = true, None, None)
+  }
+
+  final case class Message(
+      requestName: Expression[String],
+      destination: JmsDestination,
+      replyDest: JmsDestination,
+      setJmsReplyTo: Boolean,
+      trackerDest: Option[JmsDestination],
+      selector: Option[Expression[String]]
+  ) {
+
+    /**
+     * Add a reply queue, if not specified dynamic queue is used
+     */
+    def replyQueue(name: Expression[String]): Message = replyDestination(JmsDestination.Queue(name))
+    def replyDestination(destination: JmsDestination): Message = this.copy(replyDest = destination)
+    def noJmsReplyTo: Message = this.copy(setJmsReplyTo = false)
+    def trackerQueue(name: Expression[String]): Message = trackerDestination(JmsDestination.Queue(name))
+    def trackerDestination(destination: JmsDestination): Message = this.copy(trackerDest = Some(destination))
+
+    /**
+     * defines selector for reply destination that is used for responses
+     */
+    def selector(select: Expression[String]): Message = this.copy(selector = Some(select))
+
+    def textMessage(text: Expression[String]): RequestReplyDslBuilder = message(TextJmsMessage(text))
+    def bytesMessage(bytes: Expression[Array[Byte]]): RequestReplyDslBuilder = message(BytesJmsMessage(bytes))
+    def mapMessage(map: Map[String, Any]): RequestReplyDslBuilder = mapMessage(map.expressionSuccess)
+    def mapMessage(map: Expression[Map[String, Any]]): RequestReplyDslBuilder = message(MapJmsMessage(map))
+    def objectMessage(o: Expression[JSerializable]): RequestReplyDslBuilder = message(ObjectJmsMessage(o))
+
+    private def message(mess: JmsMessage) =
+      RequestReplyDslBuilder(
+        JmsAttributes(requestName, destination, selector, mess),
+        RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest)
+      )
+  }
 }
 
 final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {

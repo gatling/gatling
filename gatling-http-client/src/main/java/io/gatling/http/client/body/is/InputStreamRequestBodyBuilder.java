@@ -18,7 +18,6 @@ package io.gatling.http.client.body.is;
 
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
-
 import java.io.InputStream;
 import java.nio.charset.Charset;
 

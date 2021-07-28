@@ -21,7 +21,6 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedStream;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,7 +29,7 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
   private static class ConsumableInputStream extends InputStream {
     private final InputStream is;
 
-    ConsumableInputStream(InputStream is)  {
+    ConsumableInputStream(InputStream is) {
       this.is = is;
     }
 
@@ -73,9 +72,6 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
 
   @Override
   public String toString() {
-    return "InputStreamRequestBody{" +
-      "contentType='" + contentType + '\'' +
-      ", content=???" +
-      '}';
+    return "InputStreamRequestBody{" + "contentType='" + contentType + '\'' + ", content=???" + '}';
   }
 }

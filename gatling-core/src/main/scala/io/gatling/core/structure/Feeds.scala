@@ -35,6 +35,10 @@ private[structure] trait Feeds[B] extends Execs[B] {
   def feed(feederBuilder: FeederBuilder): B =
     feed(feederBuilder, Feeds.OneExpression)
 
+  // we need this overload because Int => Expression[Int] and Int => Expression[FiniteDuration] suddenly conflict?!
+  def feed(feederBuilder: FeederBuilder, number: Int): B =
+    feed(feederBuilder, number.expressionSuccess)
+
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
    *

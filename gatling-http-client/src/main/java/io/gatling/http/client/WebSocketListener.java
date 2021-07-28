@@ -45,6 +45,5 @@ public abstract class WebSocketListener implements HttpListener, WebSocket {
   }
 
   @Override
-  public void onHttpResponseBodyChunk(ByteBuf chunk, boolean last) {
-  }
+  public void onHttpResponseBodyChunk(ByteBuf chunk, boolean last) {}
 }

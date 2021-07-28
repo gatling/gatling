@@ -22,16 +22,16 @@ class PackageSpec extends BaseSpec {
 
   "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
     val string = "foo\"bar"
-    protectWithTripleQuotes(string).mkString shouldBe s"$TripleQuotes$string$TripleQuotes"
+    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
   }
 
   it should "wrap a String containing backslashes with triple quotes" in {
     val string = "foo\\bar"
-    protectWithTripleQuotes(string).mkString shouldBe s"$TripleQuotes$string$TripleQuotes"
+    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
   }
 
   it should "otherwise wrap a String with simple quotes" in {
     val string = "foobar"
-    protectWithTripleQuotes(string).mkString shouldBe s"$SimpleQuotes$string$SimpleQuotes"
+    string.protect(Format.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
   }
 }

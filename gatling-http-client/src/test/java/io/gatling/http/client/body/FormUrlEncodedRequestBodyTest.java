@@ -16,22 +16,21 @@
 
 package io.gatling.http.client.body;
 
+import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.netty.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import org.junit.jupiter.api.Test;
-
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 class FormUrlEncodedRequestBodyTest {
   private void formUrlEncoding(Charset charset) throws Exception {
@@ -39,7 +38,11 @@ class FormUrlEncodedRequestBodyTest {
     String value = "中文";
     List<Param> params = new ArrayList<>();
     params.add(new Param(key, value));
-    ByteBuf bb = (ByteBuf) new FormUrlEncodedRequestBody(params, TEXT_PLAIN.toString(), charset).build(ByteBufAllocator.DEFAULT).getContent();
+    ByteBuf bb =
+        (ByteBuf)
+            new FormUrlEncodedRequestBody(params, TEXT_PLAIN.toString(), charset)
+                .build(ByteBufAllocator.DEFAULT)
+                .getContent();
     try {
       String ahcString = ByteBufUtils.byteBuf2String(US_ASCII, bb);
       String jdkString = key + "=" + URLEncoder.encode(value, charset.name());

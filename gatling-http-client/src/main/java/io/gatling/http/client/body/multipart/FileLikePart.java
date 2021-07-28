@@ -19,7 +19,6 @@ package io.gatling.http.client.body.multipart;
 import io.gatling.http.client.Param;
 import io.gatling.http.client.util.MimeTypes;
 import io.gatling.http.client.util.MiscUtils;
-
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -27,21 +26,32 @@ public abstract class FileLikePart<T> extends Part<T> {
 
   private final String fileName;
 
-  FileLikePart(String name, T content, Charset charset, String transferEncoding, String contentId, String dispositionType, String contentType, List<Param> customHeaders, String fileName) {
-    super(name,
-            content,
-            charset,
-            transferEncoding,
-            contentId,
-            dispositionType,
-            computeContentType(contentType, fileName),
-            customHeaders
-            );
+  FileLikePart(
+      String name,
+      T content,
+      Charset charset,
+      String transferEncoding,
+      String contentId,
+      String dispositionType,
+      String contentType,
+      List<Param> customHeaders,
+      String fileName) {
+    super(
+        name,
+        content,
+        charset,
+        transferEncoding,
+        contentId,
+        dispositionType,
+        computeContentType(contentType, fileName),
+        customHeaders);
     this.fileName = fileName;
   }
 
   private static String computeContentType(String contentType, String fileName) {
-    return contentType != null ? contentType : MimeTypes.getMimeType(MiscUtils.withDefault(fileName, ""));
+    return contentType != null
+        ? contentType
+        : MimeTypes.getMimeType(MiscUtils.withDefault(fileName, ""));
   }
 
   public String getFileName() {

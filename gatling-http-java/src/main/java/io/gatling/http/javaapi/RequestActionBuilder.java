@@ -16,158 +16,565 @@
 
 package io.gatling.http.javaapi;
 
-import io.gatling.core.action.builder.ActionBuilder;
+import static io.gatling.core.javaapi.internal.Converters.*;
+import static io.gatling.core.javaapi.internal.Expressions.*;
+
+import io.gatling.core.javaapi.ActionBuilder;
 import io.gatling.core.javaapi.Session;
 import io.gatling.http.client.SignatureCalculator;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static io.gatling.core.javaapi.internal.ScalaHelpers.*;
-
-public abstract class RequestActionBuilder<T extends RequestActionBuilder<T, W>, W extends io.gatling.http.request.builder.RequestBuilder<W>> implements ActionBuilder {
+/**
+ * Base DSL for HTTP, WebSocket and SSE requests
+ *
+ * @param <T> the type of Java request builder
+ * @param <W> the type of wrapped Scala request builder
+ */
+public abstract class RequestActionBuilder<
+        T extends RequestActionBuilder<T, W>,
+        W extends io.gatling.http.request.builder.RequestBuilder<W>>
+    implements ActionBuilder {
   final W wrapped;
 
-  public RequestActionBuilder(W wrapped) {
+  RequestActionBuilder(W wrapped) {
     this.wrapped = wrapped;
   }
 
   protected abstract T make(Function<W, W> f);
 
-  public T queryParam(String key, String value) {
-     return make(wrapped -> wrapped.queryParam(toStringExpression(key), toAnyExpression(value)));
-  }
-  public T queryParam(Function<Session, String> key, String value) {
-    return make(wrapped -> wrapped.queryParam(toTypedGatlingSessionFunction(key), toAnyExpression(value)));
-  }
-  public T queryParam(String key, Object value) {
-    return make(wrapped -> wrapped.queryParam(toStringExpression(key), toStaticValueExpression(value)));
-  }
-  public T queryParam(Function<Session, String> key, Object value) {
-    return make(wrapped -> wrapped.queryParam(toTypedGatlingSessionFunction(key), toStaticValueExpression(value)));
-  }
-  public T queryParam(String key, Function<Session, Object> value) {
-    return make(wrapped -> wrapped.queryParam(toStringExpression(key), toTypedGatlingSessionFunction(value)));
-  }
-  public T queryParam(Function<Session, String> key, Function<Session, Object> value) {
-    return make(wrapped -> wrapped.queryParam(toTypedGatlingSessionFunction(key), toTypedGatlingSessionFunction(value)));
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param value the value of the parameter, expressed as a Gatling Expression Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(@Nonnull String name, @Nonnull String value) {
+    return make(wrapped -> wrapped.queryParam(toStringExpression(name), toAnyExpression(value)));
   }
 
-  public T multivaluedQueryParam(String key, List<Object> values) {
-    return make(wrapped -> wrapped.multivaluedQueryParam(toStringExpression(key), toStaticValueExpression(toScalaSeq(values))));
-  }
-  public T multivaluedQueryParam(Function<Session, String> key, List<Object> values) {
-    return make(wrapped -> wrapped.multivaluedQueryParam(toTypedGatlingSessionFunction(key), toStaticValueExpression(toScalaSeq(values))));
-  }
-  public T multivaluedQueryParam(String key, Function<Session, List<Object>> values) {
-    return make(wrapped -> wrapped.multivaluedQueryParam(toStringExpression(key), toGatlingSessionFunctionImmutableSeq(values)));
-  }
-  public T multivaluedQueryParam(Function<Session, String> key, Function<Session, List<Object>> values) {
-    return make(wrapped -> wrapped.multivaluedQueryParam(toTypedGatlingSessionFunction(key), toGatlingSessionFunctionImmutableSeq(values)));
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param value the value of the parameter, expressed as a Gatling Expression Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(@Nonnull Function<Session, String> name, @Nonnull String value) {
+    return make(
+        wrapped -> wrapped.queryParam(javaFunctionToExpression(name), toAnyExpression(value)));
   }
 
-  public T queryParamSeq(List<Map.Entry<String, Object>> seq) {
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param value the static value of the parameter
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(@Nonnull String name, @Nonnull Object value) {
+    return make(
+        wrapped -> wrapped.queryParam(toStringExpression(name), toStaticValueExpression(value)));
+  }
+
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param value the static value of the parameter
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(@Nonnull Function<Session, String> name, @Nonnull Object value) {
+    return make(
+        wrapped ->
+            wrapped.queryParam(javaFunctionToExpression(name), toStaticValueExpression(value)));
+  }
+
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param value the value of the parameter, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(@Nonnull String name, @Nonnull Function<Session, Object> value) {
+    return make(
+        wrapped -> wrapped.queryParam(toStringExpression(name), javaFunctionToExpression(value)));
+  }
+
+  /**
+   * Set some query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param value the value of the parameter, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParam(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, Object> value) {
+    return make(
+        wrapped ->
+            wrapped.queryParam(javaFunctionToExpression(name), javaFunctionToExpression(value)));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param values the static list of values of the parameter
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(@Nonnull String name, @Nonnull List<Object> values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(
+                toStringExpression(name), toStaticValueExpression(toScalaSeq(values))));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param values the static list of values of the parameter
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(
+      @Nonnull Function<Session, String> name, @Nonnull List<Object> values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(
+                javaFunctionToExpression(name), toStaticValueExpression(toScalaSeq(values))));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param values the list of values of the parameter, expressed as a Gatling Expression Language
+   *     String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(@Nonnull String name, @Nonnull String values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(toStringExpression(name), toSeqExpression(values)));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param values the list of values of the parameter, expressed as a Gatling Expression Language
+   *     String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(@Nonnull Function<Session, String> name, @Nonnull String values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(javaFunctionToExpression(name), toSeqExpression(values)));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a Gatling Expression Language String
+   * @param values the list of values of the parameter, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(
+      @Nonnull String name, @Nonnull Function<Session, List<Object>> values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(
+                toStringExpression(name), javaListFunctionToImmutableSeqExpression(values)));
+  }
+
+  /**
+   * Set a multivalued query parameter
+   *
+   * @param name the name of the parameter, expressed as a function
+   * @param values the list of values of the parameter, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T multivaluedQueryParam(
+      @Nonnull Function<Session, String> name, @Nonnull Function<Session, List<Object>> values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedQueryParam(
+                javaFunctionToExpression(name), javaListFunctionToImmutableSeqExpression(values)));
+  }
+
+  /**
+   * Set multiple query params
+   *
+   * @param seq a static List of query params
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamSeq(@Nonnull List<Map.Entry<String, Object>> seq) {
     return make(wrapped -> wrapped.queryParamSeq(toScalaTuple2Seq(seq)));
   }
 
-  public T queryParamSeq(Function<Session, List<Map.Entry<String, Object>>> seq) {
-    return make(wrapped -> wrapped.queryParamSeq(toGatlingSessionFunctionTuple2Seq(seq)));
+  /**
+   * Set multiple query params
+   *
+   * @param seq a List of query params, expressed as a Gatling Expression Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamSeq(@Nonnull String seq) {
+    return make(wrapped -> wrapped.queryParamSeq(toSeqExpression(seq)));
   }
 
-  public T queryParamMap(Map<String, Object> map) {
+  /**
+   * Set multiple query params
+   *
+   * @param seq a List of query params, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamSeq(@Nonnull Function<Session, List<Map.Entry<String, Object>>> seq) {
+    return make(wrapped -> wrapped.queryParamSeq(javaPairListFunctionToTuple2SeqExpression(seq)));
+  }
+
+  /**
+   * Set multiple query params
+   *
+   * @param map a static Map of query params
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamMap(@Nonnull Map<String, Object> map) {
     return make(wrapped -> wrapped.queryParamMap(toScalaMap(map)));
   }
 
-  public T queryParamMap(Function<Session, Map<String, Object>> map) {
-    return make(wrapped -> wrapped.queryParamMap(toGatlingSessionFunctionImmutableMap(map)));
+  /**
+   * Set multiple query params
+   *
+   * @param map a Map of query params, expressed as a Gatling Expression Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamMap(@Nonnull String map) {
+    return make(wrapped -> wrapped.queryParamMap(toMapExpression(map)));
   }
 
-  public T header(CharSequence name, String value) {
+  /**
+   * Set multiple query params
+   *
+   * @param map a Map of query params, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T queryParamMap(@Nonnull Function<Session, Map<String, Object>> map) {
+    return make(wrapped -> wrapped.queryParamMap(javaMapFunctionToImmutableMapExpression(map)));
+  }
+
+  /**
+   * Set a header
+   *
+   * @param name the static header name
+   * @param value the header value, expressed as a Gatling Expression Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T header(@Nonnull CharSequence name, @Nonnull String value) {
     return make(wrapped -> wrapped.header(name, toStringExpression(value)));
   }
 
-  public T header(CharSequence name, Function<Session, String> value) {
-    return make(wrapped -> wrapped.header(name, toTypedGatlingSessionFunction(value)));
+  /**
+   * Set a header
+   *
+   * @param name the static header name
+   * @param value the header value, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T header(@Nonnull CharSequence name, @Nonnull Function<Session, String> value) {
+    return make(wrapped -> wrapped.header(name, javaFunctionToExpression(value)));
   }
 
-  public T headers(Map<? extends CharSequence, String> newHeaders) {
-    return make(wrapped -> wrapped.headers(toScalaMap(newHeaders)));
+  /**
+   * Set multiple headers
+   *
+   * @param headers the headers, names are static but values are expressed as a Gatling Expression
+   *     Language String
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T headers(@Nonnull Map<? extends CharSequence, String> headers) {
+    return make(wrapped -> wrapped.headers(toScalaMap(headers)));
   }
 
+  /**
+   * Instruct to ignore common headers set in the Http protocol configuration
+   *
+   * @return a new DSL instance
+   */
+  @Nonnull
   public T ignoreProtocolHeaders() {
-    return make(wrapped -> wrapped.ignoreProtocolHeaders());
+    return make(io.gatling.http.request.builder.RequestBuilder::ignoreProtocolHeaders);
   }
 
+  /**
+   * Set the content-type header for JSON
+   *
+   * @return a new DSL instance
+   */
+  @Nonnull
   public T asJson() {
-    return make(wrapped -> wrapped.asJson());
+    return make(io.gatling.http.request.builder.RequestBuilder::asJson);
   }
 
+  /**
+   * Set the content-type header for XML
+   *
+   * @return a new DSL instance
+   */
+  @Nonnull
   public T asXml() {
-    return make(wrapped -> wrapped.asXml());
+    return make(io.gatling.http.request.builder.RequestBuilder::asXml);
   }
 
-  public T basicAuth(String username, String password) {
-    return make(wrapped -> wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
+  /**
+   * Set the authorization header for Basic Auth
+   *
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T basicAuth(@Nonnull String username, @Nonnull String password) {
+    return make(
+        wrapped -> wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
   }
 
-  public T basicAuth(String username, Function<Session, String> password) {
-    return make(wrapped -> wrapped.basicAuth(toStringExpression(username), toTypedGatlingSessionFunction(password)));
+  /**
+   * Set the authorization header for Basic Auth
+   *
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T basicAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
+    return make(
+        wrapped ->
+            wrapped.basicAuth(toStringExpression(username), javaFunctionToExpression(password)));
   }
 
-  public T basicAuth(Function<Session, String> username, String password) {
-    return make(wrapped -> wrapped.basicAuth(toTypedGatlingSessionFunction(username), toStringExpression(password)));
+  /**
+   * Set the authorization header for Basic Auth
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T basicAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
+    return make(
+        wrapped ->
+            wrapped.basicAuth(javaFunctionToExpression(username), toStringExpression(password)));
   }
 
-  public T basicAuth(Function<Session, String> username, Function<Session, String> password) {
-    return make(wrapped -> wrapped.basicAuth(toTypedGatlingSessionFunction(username), toTypedGatlingSessionFunction(password)));
+  /**
+   * Set the authorization header for Basic Auth
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T basicAuth(
+      @Nonnull Function<Session, String> username, @Nonnull Function<Session, String> password) {
+    return make(
+        wrapped ->
+            wrapped.basicAuth(
+                javaFunctionToExpression(username), javaFunctionToExpression(password)));
   }
 
-  public T digestAuth(String username, String password) {
-    return make(wrapped -> wrapped.digestAuth(toStringExpression(username), toStringExpression(password)));
+  /**
+   * Set the authorization header for Digest Auth
+   *
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T digestAuth(@Nonnull String username, @Nonnull String password) {
+    return make(
+        wrapped -> wrapped.digestAuth(toStringExpression(username), toStringExpression(password)));
   }
 
-  public T digestAuth(String username, Function<Session, String> password) {
-    return make(wrapped -> wrapped.digestAuth(toStringExpression(username), toTypedGatlingSessionFunction(password)));
+  /**
+   * Set the authorization header for Digest Auth
+   *
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T digestAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
+    return make(
+        wrapped ->
+            wrapped.digestAuth(toStringExpression(username), javaFunctionToExpression(password)));
   }
 
-  public T digestAuth(Function<Session, String> username, String password) {
-    return make(wrapped -> wrapped.digestAuth(toTypedGatlingSessionFunction(username), toStringExpression(password)));
+  /**
+   * Set the authorization header for Digest Auth
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T digestAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
+    return make(
+        wrapped ->
+            wrapped.digestAuth(javaFunctionToExpression(username), toStringExpression(password)));
   }
 
-  public T digestAuth(Function<Session, String> username, Function<Session, String> password) {
-    return make(wrapped -> wrapped.digestAuth(toTypedGatlingSessionFunction(username), toTypedGatlingSessionFunction(password)));
+  /**
+   * Set the authorization header for Digest Auth
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T digestAuth(
+      @Nonnull Function<Session, String> username, @Nonnull Function<Session, String> password) {
+    return make(
+        wrapped ->
+            wrapped.digestAuth(
+                javaFunctionToExpression(username), javaFunctionToExpression(password)));
   }
 
-  public T virtualHost(String virtualHost) {
+  /**
+   * Define a virtual host
+   *
+   * @param virtualHost the virtual host, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T virtualHost(@Nonnull String virtualHost) {
     return make(wrapped -> (wrapped.virtualHost(toStringExpression(virtualHost))));
   }
 
-  public T virtualHost(Function<Session, String> virtualHost) {
-    return make(wrapped -> wrapped.virtualHost(toTypedGatlingSessionFunction(virtualHost)));
+  /**
+   * Define a virtual host
+   *
+   * @param virtualHost the virtual host, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T virtualHost(@Nonnull Function<Session, String> virtualHost) {
+    return make(wrapped -> wrapped.virtualHost(javaFunctionToExpression(virtualHost)));
   }
 
+  /**
+   * Instruct to disable the automatic url encoding that tries to detect unescaped reserved chars
+   *
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
   public T disableUrlEncoding() {
-    return make(wrapped -> wrapped.disableUrlEncoding());
+    return make(io.gatling.http.request.builder.RequestBuilder::disableUrlEncoding);
   }
 
-  public T proxy(Proxy proxy) {
+  /**
+   * Define a Proxy to be used for this request
+   *
+   * @param proxy the proxy
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T proxy(@Nonnull Proxy proxy) {
     return make(wrapped -> wrapped.proxy(proxy.asScala()));
   }
 
-  public T sign(SignatureCalculator calculator) {
+  /**
+   * Instruct to apply a {@link SignatureCalculator} on the request before writing it on the wire
+   *
+   * @param calculator the SignatureCalculator
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T sign(@Nonnull SignatureCalculator calculator) {
     return make(wrapped -> wrapped.sign(toStaticValueExpression(calculator)));
   }
 
-  public T sign(Function<Session, SignatureCalculator> calculator) {
-    return make(wrapped -> wrapped.sign(toTypedGatlingSessionFunction(calculator)));
+  /**
+   * Instruct to apply a {@link SignatureCalculator} on the request before writing it on the wire
+   *
+   * @param calculator the SignatureCalculator as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T sign(@Nonnull Function<Session, SignatureCalculator> calculator) {
+    return make(wrapped -> wrapped.sign(javaFunctionToExpression(calculator)));
   }
 
-  public T signWithOAuth1(String consumerKey, String clientSharedSecret, String token, String tokenSecret) {
-    return make(wrapped -> wrapped.signWithOAuth1(toStringExpression(consumerKey), toStringExpression(clientSharedSecret), toStringExpression(token), toStringExpression(tokenSecret)));
+  /**
+   * Instruct sign the request with OAuth1 before writing it on the wire
+   *
+   * @param consumerKey the consumerKey, expressed as a Gatling Expression Language String
+   * @param clientSharedSecret the clientSharedSecret, expressed as a Gatling Expression Language
+   *     String
+   * @param token the token, expressed as a Gatling Expression Language String
+   * @param tokenSecret the tokenSecret, expressed as a Gatling Expression Language String
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T signWithOAuth1(
+      @Nonnull String consumerKey,
+      @Nonnull String clientSharedSecret,
+      @Nonnull String token,
+      @Nonnull String tokenSecret) {
+    return make(
+        wrapped ->
+            wrapped.signWithOAuth1(
+                toStringExpression(consumerKey),
+                toStringExpression(clientSharedSecret),
+                toStringExpression(token),
+                toStringExpression(tokenSecret)));
   }
 
-  public T signWithOAuth1(Function<Session, String> consumerKey, Function<Session, String> clientSharedSecret, Function<Session, String> token, Function<Session, String> tokenSecret) {
-    return make(wrapped -> wrapped.signWithOAuth1(toTypedGatlingSessionFunction(consumerKey), toTypedGatlingSessionFunction(clientSharedSecret), toTypedGatlingSessionFunction(token), toTypedGatlingSessionFunction(tokenSecret)));
+  /**
+   * Instruct sign the request with OAuth1 before writing it on the wire
+   *
+   * @param consumerKey the consumerKey, expressed as a function
+   * @param clientSharedSecret the clientSharedSecret, expressed as a function
+   * @param token the token, expressed as a function
+   * @param tokenSecret the tokenSecret, expressed as a function
+   * @return a new HttpProtocolBuilder instance
+   */
+  @Nonnull
+  public T signWithOAuth1(
+      @Nonnull Function<Session, String> consumerKey,
+      @Nonnull Function<Session, String> clientSharedSecret,
+      @Nonnull Function<Session, String> token,
+      @Nonnull Function<Session, String> tokenSecret) {
+    return make(
+        wrapped ->
+            wrapped.signWithOAuth1(
+                javaFunctionToExpression(consumerKey),
+                javaFunctionToExpression(clientSharedSecret),
+                javaFunctionToExpression(token),
+                javaFunctionToExpression(tokenSecret)));
   }
 }

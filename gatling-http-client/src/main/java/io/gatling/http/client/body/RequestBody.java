@@ -17,7 +17,6 @@
 package io.gatling.http.client.body;
 
 import io.netty.buffer.ByteBufAllocator;
-
 import java.io.IOException;
 
 public interface RequestBody {

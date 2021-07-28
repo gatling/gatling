@@ -21,6 +21,7 @@ import java.{ util => ju }
 import scala.collection.mutable
 
 import io.gatling.recorder.config.ConfigKeys._
+import io.gatling.recorder.convert.template.Format
 
 class RecorderPropertiesBuilder {
 
@@ -56,6 +57,11 @@ class RecorderPropertiesBuilder {
     this
   }
 
+  def simulationFormat(format: Format): RecorderPropertiesBuilder = {
+    props += core.Format -> format.configValue
+    this
+  }
+
   def thresholdForPauseCreation(threshold: String): RecorderPropertiesBuilder = {
     props += core.ThresholdForPauseCreation -> threshold
     this
@@ -76,18 +82,18 @@ class RecorderPropertiesBuilder {
     this
   }
 
-  def filterStrategy(strategy: String): RecorderPropertiesBuilder = {
-    props += filters.FilterStrategy -> strategy
+  def enableFilters(enable: Boolean): RecorderPropertiesBuilder = {
+    props += filters.Enable -> enable
     this
   }
 
-  def whitelist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
+  def allowList(patterns: ju.List[String]): RecorderPropertiesBuilder = {
     props += filters.AllowListPatterns -> patterns
     this
   }
 
-  def blacklist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
-    props += filters.DenylistPatterns -> patterns
+  def denyList(patterns: ju.List[String]): RecorderPropertiesBuilder = {
+    props += filters.DenyListPatterns -> patterns
     this
   }
 

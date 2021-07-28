@@ -19,7 +19,6 @@ package io.gatling.http.client.resolver;
 import io.gatling.http.client.HttpListener;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -27,22 +26,24 @@ import java.util.List;
 
 public interface InetAddressNameResolver extends AutoCloseable {
 
-  InetAddressNameResolver JAVA_RESOLVER = new InetAddressNameResolver() {
+  InetAddressNameResolver JAVA_RESOLVER =
+      new InetAddressNameResolver() {
 
-    @Override
-    public Future<List<InetAddress>> resolveAll(String inetHost, Promise<List<InetAddress>> promise, HttpListener listener) {
-      try {
-        promise.setSuccess(Arrays.asList(InetAddress.getAllByName(inetHost)));
-      } catch (UnknownHostException e) {
-        promise.setFailure(e);
-      }
-      return promise;
-    }
+        @Override
+        public Future<List<InetAddress>> resolveAll(
+            String inetHost, Promise<List<InetAddress>> promise, HttpListener listener) {
+          try {
+            promise.setSuccess(Arrays.asList(InetAddress.getAllByName(inetHost)));
+          } catch (UnknownHostException e) {
+            promise.setFailure(e);
+          }
+          return promise;
+        }
 
-    @Override
-    public void close() {
-    }
-  };
+        @Override
+        public void close() {}
+      };
 
-  Future<List<InetAddress>> resolveAll(String inetHost, Promise<List<InetAddress>> promise, HttpListener listener);
+  Future<List<InetAddress>> resolveAll(
+      String inetHost, Promise<List<InetAddress>> promise, HttpListener listener);
 }

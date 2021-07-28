@@ -16,10 +16,17 @@
 
 package io.gatling.http.javaapi;
 
+import javax.annotation.Nonnull;
+
+/**
+ * DSL for bootstrapping Proxies.
+ *
+ * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
+ */
 public final class Proxy {
   private final io.gatling.http.protocol.ProxyBuilder wrapped;
 
-  public Proxy(io.gatling.http.protocol.ProxyBuilder wrapped) {
+  Proxy(io.gatling.http.protocol.ProxyBuilder wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -27,23 +34,56 @@ public final class Proxy {
     return wrapped.proxy();
   }
 
+  /**
+   * Define this proxy is an HTTP one (default)
+   *
+   * @return a new Proxy instance
+   */
+  @Nonnull
   public Proxy http() {
     return new Proxy(wrapped.http());
   }
 
+  /**
+   * Define this proxy is an SOCKS4 once
+   *
+   * @return a new Proxy instance
+   */
+  @Nonnull
   public Proxy socks4() {
     return new Proxy(wrapped.socks4());
   }
 
+  /**
+   * Define this proxy is an SOCKS5 once
+   *
+   * @return a new Proxy instance
+   */
+  @Nonnull
   public Proxy socks5() {
     return new Proxy(wrapped.socks5());
   }
 
+  /**
+   * Define this proxy uses a different port for HTTPS
+   *
+   * @param port the https port
+   * @return a new Proxy instance
+   */
+  @Nonnull
   public Proxy httpsPort(int port) {
     return new Proxy(wrapped.httpsPort(port));
   }
 
-  public Proxy credentials(String username, String password) {
+  /**
+   * Define some Basic Auth credentials for this proxy
+   *
+   * @param username the username
+   * @param password the password
+   * @return a new Proxy instance
+   */
+  @Nonnull
+  public Proxy credentials(@Nonnull String username, @Nonnull String password) {
     return new Proxy(wrapped.credentials(username, password));
   }
 }

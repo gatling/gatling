@@ -20,15 +20,14 @@ import java.util.List;
 
 public final class Lists {
 
-  private Lists() {
-  }
+  private Lists() {}
 
   public static <T> boolean isSameSetAssumingNoDuplicate(List<T> left, List<T> right) {
     if (left.size() != right.size()) {
       return false;
     }
 
-    for (T leftElt: left) {
+    for (T leftElt : left) {
       if (!right.contains(leftElt)) {
         return false;
       }

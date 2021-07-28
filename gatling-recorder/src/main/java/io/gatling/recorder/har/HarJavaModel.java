@@ -38,7 +38,7 @@ public class HarJavaModel {
 
   public static class HarEntry {
     private String startedDateTime;
-    private Double  time;
+    private Double time;
     private HarTimings timings;
     private HarRequest request;
     private HarResponse response;
@@ -176,6 +176,7 @@ public class HarJavaModel {
       return comment;
     }
   }
+
   public static class HarTimings {
     private double blocked;
     private double dns;

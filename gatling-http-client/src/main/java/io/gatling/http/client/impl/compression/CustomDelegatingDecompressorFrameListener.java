@@ -22,7 +22,8 @@ import io.netty.handler.codec.http2.Http2FrameListener;
 
 public class CustomDelegatingDecompressorFrameListener extends DelegatingDecompressorFrameListener {
 
-  public CustomDelegatingDecompressorFrameListener(Http2Connection connection, Http2FrameListener listener) {
+  public CustomDelegatingDecompressorFrameListener(
+      Http2Connection connection, Http2FrameListener listener) {
     super(connection, listener);
   }
 

@@ -20,11 +20,11 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.string.StringRequestBody;
 import io.gatling.netty.util.StringWithCachedBytes;
-
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class StringChunksRequestBodyBuilder extends RequestBodyBuilder.Base<List<StringWithCachedBytes>> {
+public class StringChunksRequestBodyBuilder
+    extends RequestBodyBuilder.Base<List<StringWithCachedBytes>> {
 
   public StringChunksRequestBodyBuilder(List<StringWithCachedBytes> content) {
     super(content);

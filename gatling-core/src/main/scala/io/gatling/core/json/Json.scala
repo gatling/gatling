@@ -26,12 +26,13 @@ import io.gatling.commons.util.Spire._
 import io.gatling.netty.util.StringBuilderPool
 
 import com.fasterxml.jackson.core.JsonParser.NumberType._
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
 private[gatling] object Json {
 
   private val stringBuilders = new StringBuilderPool
+  private val objectMapper = new ObjectMapper
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
 
@@ -137,7 +138,7 @@ private[gatling] object Json {
       case seq: Iterable[_]          => appendArray(seq)
       case coll: ju.Collection[_]    => appendArray(coll.asScala)
       case product: Product          => appendProduct(product)
-      case _                         => appendString(value.toString, rootLevel)
+      case someObject                => sb.append(objectMapper.writeValueAsString(someObject))
     }
 
     def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =

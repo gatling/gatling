@@ -17,18 +17,22 @@
 package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
-import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.ssl.Tls;
+import io.gatling.http.client.uri.Uri;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
 public class SslHandlers {
 
-  public static SslHandler newSslHandler(SslContext sslContext, ByteBufAllocator allocator, Uri uri, String virtualHost, HttpClientConfig config) {
+  public static SslHandler newSslHandler(
+      SslContext sslContext,
+      ByteBufAllocator allocator,
+      Uri uri,
+      String virtualHost,
+      HttpClientConfig config) {
     String peerHost;
     int peerPort;
 
@@ -50,11 +54,17 @@ public class SslHandlers {
     return createSslHandler(sslContext, peerHost, peerPort, allocator, config);
   }
 
-  private static SslHandler createSslHandler(SslContext sslContext, String peerHost, int peerPort, ByteBufAllocator allocator, HttpClientConfig config) {
+  private static SslHandler createSslHandler(
+      SslContext sslContext,
+      String peerHost,
+      int peerPort,
+      ByteBufAllocator allocator,
+      HttpClientConfig config) {
 
-    SSLEngine sslEngine = config.isEnableSni() ?
-      sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort) :
-      sslContext.newEngine(allocator);
+    SSLEngine sslEngine =
+        config.isEnableSni()
+            ? sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort)
+            : sslContext.newEngine(allocator);
 
     sslEngine.setUseClientMode(true);
     if (config.isEnableHostnameVerification()) {

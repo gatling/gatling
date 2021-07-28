@@ -20,7 +20,6 @@ import io.gatling.http.client.realm.BasicRealm;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.ProxyHandler;
-
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
@@ -30,9 +29,10 @@ public class HttpProxyServer extends ProxyServer {
   private final int securedPort;
   private final InetSocketAddress securedAddress;
 
-  public HttpProxyServer(String host, int port, int securedPort, BasicRealm realm) throws UnknownHostException {
+  public HttpProxyServer(String host, int port, int securedPort, BasicRealm realm)
+      throws UnknownHostException {
     super(host, port);
-    this.securedPort  = securedPort;
+    this.securedPort = securedPort;
     this.realm = realm;
     this.securedAddress = new InetSocketAddress(inetAddress, securedPort);
   }
@@ -47,19 +47,30 @@ public class HttpProxyServer extends ProxyServer {
 
   @Override
   public ProxyHandler newHandler() {
-    return realm != null ?
-            new HttpProxyHandler(securedAddress, realm.getUsername(), realm.getPassword(), EmptyHttpHeaders.INSTANCE, true) :
-            new HttpProxyHandler(securedAddress, EmptyHttpHeaders.INSTANCE, true);
+    return realm != null
+        ? new HttpProxyHandler(
+            securedAddress,
+            realm.getUsername(),
+            realm.getPassword(),
+            EmptyHttpHeaders.INSTANCE,
+            true)
+        : new HttpProxyHandler(securedAddress, EmptyHttpHeaders.INSTANCE, true);
   }
 
   @Override
   public String toString() {
-    return "HttpProxyServer{" +
-      "realm=" + realm +
-      ", securedPort=" + securedPort +
-      ", securedAddress=" + securedAddress +
-      ", host='" + host + '\'' +
-      ", port=" + port +
-      '}';
+    return "HttpProxyServer{"
+        + "realm="
+        + realm
+        + ", securedPort="
+        + securedPort
+        + ", securedAddress="
+        + securedAddress
+        + ", host='"
+        + host
+        + '\''
+        + ", port="
+        + port
+        + '}';
   }
 }

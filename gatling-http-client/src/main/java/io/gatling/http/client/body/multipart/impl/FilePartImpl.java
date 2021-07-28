@@ -20,7 +20,6 @@ import static io.gatling.http.client.util.MiscUtils.*;
 
 import io.gatling.http.client.body.multipart.FilePart;
 import io.netty.buffer.ByteBuf;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;

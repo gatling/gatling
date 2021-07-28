@@ -16,30 +16,29 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.proxy.HttpProxyServer;
-import io.gatling.http.client.resolver.InetAddressNameResolver;
-import io.gatling.http.client.uri.Uri;
+import static io.gatling.http.client.util.HttpUtils.*;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.BasicRealm;
 import io.gatling.http.client.realm.Realm;
+import io.gatling.http.client.resolver.InetAddressNameResolver;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.util.AsciiString;
-
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
-
-import static io.gatling.http.client.util.HttpUtils.*;
-import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
-import static io.netty.handler.codec.http.HttpHeaderNames.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RequestBuilder {
 
@@ -66,7 +65,8 @@ public class RequestBuilder {
   private String wsSubprotocol;
   private Charset defaultCharset = UTF_8;
 
-  public RequestBuilder(String name, HttpMethod method, Uri uri, InetAddressNameResolver nameResolver) {
+  public RequestBuilder(
+      String name, HttpMethod method, Uri uri, InetAddressNameResolver nameResolver) {
     this.name = name;
     this.method = method;
     this.uri = uri;
@@ -180,7 +180,8 @@ public class RequestBuilder {
 
     String originalAcceptEncoding = headers.get(ACCEPT_ENCODING);
     if (originalAcceptEncoding != null) {
-      String newAcceptEncodingHeader = filterOutBrotliFromAcceptEncodingWhenUnavailable(originalAcceptEncoding);
+      String newAcceptEncodingHeader =
+          filterOutBrotliFromAcceptEncodingWhenUnavailable(originalAcceptEncoding);
       if (newAcceptEncodingHeader != null) {
         headers.set(ACCEPT_ENCODING, newAcceptEncodingHeader);
       }
@@ -193,9 +194,9 @@ public class RequestBuilder {
     if (autoOrigin) {
       String referer = headers.get(REFERER);
       if (referer != null
-        && !HttpMethod.GET.equals(method)
-        && !HttpMethod.HEAD.equals(method)
-        && !headers.contains(ORIGIN)) {
+          && !HttpMethod.GET.equals(method)
+          && !HttpMethod.HEAD.equals(method)
+          && !headers.contains(ORIGIN)) {
         String origin = originHeader(referer);
         if (origin != null) {
           headers.set(ORIGIN, origin);
@@ -219,25 +220,24 @@ public class RequestBuilder {
     }
 
     return new Request(
-      name,
-      method,
-      uri,
-      headers,
-      cookies,
-      body,
-      requestTimeout,
-      virtualHost,
-      autoOrigin,
-      localIpV4Address,
-      localIpV6Address,
-      realm,
-      proxyServer,
-      signatureCalculator,
-      nameResolver,
-      http2Enabled,
-      alpnRequired,
-      http2PriorKnowledge,
-      wsSubprotocol
-      );
+        name,
+        method,
+        uri,
+        headers,
+        cookies != null ? cookies : Collections.emptyList(),
+        body,
+        requestTimeout,
+        virtualHost,
+        autoOrigin,
+        localIpV4Address,
+        localIpV6Address,
+        realm,
+        proxyServer,
+        signatureCalculator,
+        nameResolver,
+        http2Enabled,
+        alpnRequired,
+        http2PriorKnowledge,
+        wsSubprotocol);
   }
 }
