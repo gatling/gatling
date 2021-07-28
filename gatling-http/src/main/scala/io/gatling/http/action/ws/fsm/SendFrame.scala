@@ -27,7 +27,7 @@ sealed trait SendFrame {
 final case class SendTextFrame(
     actionName: String,
     message: String,
-    checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
+    checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
     next: Action
 ) extends SendFrame
 
@@ -35,6 +35,6 @@ final case class SendTextFrame(
 final case class SendBinaryFrame(
     actionName: String,
     message: Array[Byte],
-    checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
+    checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
     next: Action
 ) extends SendFrame

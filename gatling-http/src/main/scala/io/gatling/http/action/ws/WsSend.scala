@@ -28,7 +28,7 @@ class WsSendTextFrame(
     override val requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Text]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action
@@ -56,7 +56,7 @@ class WsSendBinaryFrame(
     override val requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action

@@ -34,7 +34,7 @@ final case class WsConnectRequestBuilder(
     checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
 ) extends RequestBuilder[WsConnectRequestBuilder]
     with HttpActionBuilder
-    with WsAwaitActionBuilder[WsConnectRequestBuilder, WsFrameCheck] {
+    with WsAwaitActionBuilder[WsConnectRequestBuilder] {
 
   def subprotocol(sub: Expression[String]): WsConnectRequestBuilder = copy(subprotocol = Some(sub))
 

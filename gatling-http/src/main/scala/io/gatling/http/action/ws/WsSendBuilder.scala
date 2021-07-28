@@ -28,12 +28,12 @@ final case class WsSendTextFrameBuilder(
     requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Text]]
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
 ) extends HttpActionBuilder
-    with WsAwaitActionBuilder[WsSendTextFrameBuilder, WsFrameCheck.Text] {
+    with WsAwaitActionBuilder[WsSendTextFrameBuilder] {
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck.Text]): WsSendTextFrameBuilder =
+  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): WsSendTextFrameBuilder =
     this.modify(_.checkSequences)(_ :+ checkSequence)
 
   override def build(ctx: ScenarioContext, next: Action): Action =
@@ -52,12 +52,12 @@ final case class WsSendBinaryFrameBuilder(
     requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]]
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
 ) extends HttpActionBuilder
-    with WsAwaitActionBuilder[WsSendBinaryFrameBuilder, WsFrameCheck.Binary] {
+    with WsAwaitActionBuilder[WsSendBinaryFrameBuilder] {
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]): WsSendBinaryFrameBuilder =
+  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): WsSendBinaryFrameBuilder =
     this.modify(_.checkSequences)(_ :+ checkSequence)
 
   override def build(ctx: ScenarioContext, next: Action): Action =

@@ -33,7 +33,6 @@ object WsCheckMaterializer {
   class Binary[T, P](override val preparer: Preparer[Array[Byte], P]) extends CheckMaterializer[T, WsCheck.Binary, Array[Byte], P](new WsCheck.Binary(_))
 
   object Binary {
-
     val BodyBytes: CheckMaterializer[BodyBytesCheckType, WsCheck.Binary, Array[Byte], Array[Byte]] =
       new Binary[BodyBytesCheckType, Array[Byte]](identityPreparer)
 
@@ -44,7 +43,6 @@ object WsCheckMaterializer {
   class Text[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, WsCheck.Text, String, P](new WsCheck.Text(_))
 
   object Text {
-
     val BodyString: CheckMaterializer[BodyStringCheckType, WsCheck.Text, String, String] =
       new Text[BodyStringCheckType, String](identityPreparer)
 

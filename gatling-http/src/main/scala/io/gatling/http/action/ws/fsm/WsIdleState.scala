@@ -33,7 +33,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   override def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
   ): NextWsState = {
@@ -72,7 +72,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   override def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
   ): NextWsState = {

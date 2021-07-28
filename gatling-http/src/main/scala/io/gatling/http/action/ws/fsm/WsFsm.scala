@@ -87,7 +87,7 @@ class WsFsm(
   def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
   ): Unit =
@@ -96,7 +96,7 @@ class WsFsm(
   def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
   ): Unit =

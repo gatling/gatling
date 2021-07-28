@@ -41,15 +41,17 @@ class WsCompileTest extends Simulation {
       ws("Connect WS")
         .connect("/room/chat?username=${id}")
         .subprotocol("FOO")
-        .await(1.second) {
-          ws.checkTextMessage("checkName")
+        .await(1.second)(
+          ws.checkTextMessage("checkText")
             .matching(jsonPath("$.uuid").is("${correlation}"))
             .check(
               jsonPath("$.code").ofType[Int].is(1),
               jmesPath("code").ofType[Int].is(1),
               bodyString.is("echo")
-            )
-        }
+            ),
+          ws.checkBinaryMessage("checkBinary")
+            .check(bodyBytes)
+        )
         .await(1) { // simple int
           ws.checkTextMessage("checkName")
         }

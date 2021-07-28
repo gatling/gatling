@@ -22,15 +22,15 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
 import io.gatling.http.check.ws.WsFrameCheck
 
-trait WsAwaitActionBuilder[T, C <: WsFrameCheck] extends ActionBuilder {
+trait WsAwaitActionBuilder[T] extends ActionBuilder {
 
-  def await(timeout: FiniteDuration)(checks: C*): T =
+  def await(timeout: FiniteDuration)(checks: WsFrameCheck*): T =
     await(timeout.expressionSuccess)(checks: _*)
 
-  def await(timeout: Expression[FiniteDuration])(checks: C*): T = {
+  def await(timeout: Expression[FiniteDuration])(checks: WsFrameCheck*): T = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     appendCheckSequence(WsFrameCheckSequenceBuilder(timeout, checks.toList))
   }
 
-  protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[C]): T
+  protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): T
 }
