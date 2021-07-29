@@ -47,15 +47,19 @@ trait MqttCheckSupport {
 
   implicit val MqttTextBodyStringCorrelatorMaterializer: CheckMaterializer[BodyStringCheckType, Check[String], String, String] = ???
 
-  implicit val MqttBufferBodyStringCorrelatorMaterializer: CheckMaterializer[SubstringCheckType, Check[ByteBuf], ByteBuf, String] = ???
+  implicit val MqttBufferBodyStringCorrelatorMaterializer: CheckMaterializer[BodyStringCheckType, Check[ByteBuf], ByteBuf, String] = ???
 
-  implicit val MqttTextBodySubstringCorrelatorMaterializer: CheckMaterializer[SubstringCheckType, Check[String], String, String] = ???
+  implicit val MqttTextSubstringCorrelatorMaterializer: CheckMaterializer[SubstringCheckType, Check[String], String, String] = ???
 
-  implicit val MqttBufferBodySubstringCorrelatorMaterializer: CheckMaterializer[BodyStringCheckType, Check[ByteBuf], ByteBuf, String] = ???
+  implicit val MqttBufferSubstringCorrelatorMaterializer: CheckMaterializer[SubstringCheckType, Check[ByteBuf], ByteBuf, String] = ???
 
   implicit val MqttTextBodyBytesCorrelatorMaterializer: CheckMaterializer[BodyBytesCheckType, Check[String], String, Array[Byte]] = ???
 
   implicit val MqttBufferBodyBytesCorrelatorMaterializer: CheckMaterializer[BodyBytesCheckType, Check[ByteBuf], ByteBuf, Array[Byte]] = ???
+
+  implicit val MqttTextBodyLengthCorrelatorMaterializer: CheckMaterializer[BodyBytesCheckType, Check[String], String, Int] = ???
+
+  implicit val MqttBufferBodyLengthCorrelatorMaterializer: CheckMaterializer[BodyBytesCheckType, Check[ByteBuf], ByteBuf, Int] = ???
 
   // checks
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for MQTT.")

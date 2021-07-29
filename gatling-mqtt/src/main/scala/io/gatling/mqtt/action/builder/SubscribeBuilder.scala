@@ -26,8 +26,8 @@ import io.gatling.mqtt.check.{ MqttCheck, MqttExpectation }
 import io.netty.handler.codec.mqtt.MqttQoS
 
 trait CheckableSubscribeBuilder { this: SubscribeBuilder =>
-  def check(ck: MqttCheck): SubscribeBuilder =
-    SubscribeBuilder(requestName, topic, qosOverride, expectation.map(_.copy(check = Some(ck))))
+  def check(cks: MqttCheck*): SubscribeBuilder =
+    SubscribeBuilder(requestName, topic, qosOverride, expectation.map(_.copy(checks = cks.toList)))
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.FinalCaseClass"))
@@ -47,13 +47,13 @@ case class SubscribeBuilder(
   def wait(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
     wait(timeout, null)
   def wait(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true)))
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = true)))
       with CheckableSubscribeBuilder
 
   def expect(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
     expect(timeout, null)
   def expect(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false)))
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = false)))
       with CheckableSubscribeBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???

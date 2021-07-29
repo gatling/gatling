@@ -26,7 +26,7 @@ import io.gatling.mqtt.Predef._
 
 class MqttCompileTest extends Simulation {
 
-  private val mqttConf = mqtt
+  private val mqttProtocol = mqtt
     .broker("localhost", 1883)
     .useTls(false)
     .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
@@ -65,6 +65,18 @@ class MqttCompileTest extends Simulation {
       mqtt("Subscribing")
         .subscribe("${myTopic2}")
         .wait(100.milliseconds)
+    )
+    .exec(
+      mqtt("Subscribing")
+        .subscribe("${myTopic2}")
+        .wait(100.milliseconds)
+        .check(jsonPath("$.error").notExists)
+    )
+    .exec(
+      mqtt("Subscribing")
+        .subscribe("${myTopic2}")
+        .expect(100.milliseconds)
+        .check(jsonPath("$.error").notExists)
     )
     .exec(
       mqtt("Subscribing")
@@ -118,5 +130,5 @@ class MqttCompileTest extends Simulation {
     )
     .exec(waitForMessages.timeout(100.milliseconds))
 
-  setUp(scn.inject(atOnceUsers(1))).protocols(mqttConf)
+  setUp(scn.inject(atOnceUsers(1))).protocols(mqttProtocol)
 }

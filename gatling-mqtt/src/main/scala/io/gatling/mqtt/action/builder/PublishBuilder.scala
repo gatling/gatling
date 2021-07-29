@@ -28,8 +28,8 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.mqtt.MqttQoS
 
 trait CheckablePublishBuilder { this: PublishBuilder =>
-  def check(ck: MqttCheck): PublishBuilder =
-    PublishBuilder(requestName, topic, body, qosOverride, retainOverride, expectation.map(_.copy(check = Some(ck))))
+  def check(cks: MqttCheck*): PublishBuilder =
+    PublishBuilder(requestName, topic, body, qosOverride, retainOverride, expectation.map(_.copy(checks = cks.toList)))
 }
 
 @SuppressWarnings(Array("org.wartremover.warts.FinalCaseClass"))
@@ -60,7 +60,7 @@ case class PublishBuilder(
       body,
       qosOverride,
       retainOverride,
-      Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true))
+      Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = true))
     ) with CheckablePublishBuilder
 
   def expect(timeout: FiniteDuration): PublishBuilder with CheckablePublishBuilder =
@@ -72,7 +72,7 @@ case class PublishBuilder(
       body,
       qosOverride,
       retainOverride,
-      Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false))
+      Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = false))
     ) with CheckablePublishBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???
