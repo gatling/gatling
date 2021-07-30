@@ -1,4 +1,4 @@
-**Please don't post questions here but use our [community mailing list](https://gatling.io/community-mailing-list/) instead.**
+**Please don't post questions here but use our [community mailing list](https://gatling.io/community/) instead.**
 
 For bugs, please: 
   1. upgrade to the latest Gatling release
