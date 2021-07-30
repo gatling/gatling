@@ -82,13 +82,13 @@ final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
   def reconnectAttemptsMax(reconnectAttemptsMax: Int): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.reconnect.reconnectAttemptsMax).setTo(reconnectAttemptsMax)
 
-  def reconnectDelay(reconnectDelay: Long): MqttProtocolBuilder =
+  def reconnectDelay(reconnectDelay: FiniteDuration): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.reconnect.reconnectDelay).setTo(reconnectDelay)
 
   def reconnectBackoffMultiplier(reconnectBackOffMultiplier: Float): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.reconnect.reconnectBackOffMultiplier).setTo(reconnectBackOffMultiplier)
 
-  def resendDelay(delay: Int): MqttProtocolBuilder =
+  def resendDelay(delay: FiniteDuration): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.resend.resendDelay).setTo(delay)
 
   def resendBackoffMultiplier(multiplier: Float): MqttProtocolBuilder =

@@ -46,7 +46,7 @@ class MqttCompileTest extends Simulation {
     .mqttVersion_3_1
     .mqttVersion_3_1_1
     .reconnectAttemptsMax(1)
-    .reconnectDelay(1L)
+    .reconnectDelay(1.millis)
     .reconnectBackoffMultiplier(1.2f)
     .resendDelay(1000)
     .resendBackoffMultiplier(2.0f)

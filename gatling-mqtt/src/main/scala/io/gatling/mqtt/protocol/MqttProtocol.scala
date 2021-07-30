@@ -49,11 +49,11 @@ object MqttProtocol extends StrictLogging {
       retain = false,
       reconnect = MqttProtocolReconnectPart(
         reconnectAttemptsMax = 3,
-        reconnectDelay = 100,
+        reconnectDelay = 100.millis,
         reconnectBackOffMultiplier = 1.5f
       ),
       resend = MqttProtocolResendPart(
-        resendDelay = 5000,
+        resendDelay = 5000.millis,
         resendBackoffMultiplier = 1f
       ),
       correlator = None,
@@ -82,11 +82,11 @@ final case class MqttProtocol(
 
 final case class MqttProtocolReconnectPart(
     reconnectAttemptsMax: Int,
-    reconnectDelay: Long,
+    reconnectDelay: FiniteDuration,
     reconnectBackOffMultiplier: Float
 )
 
 final case class MqttProtocolResendPart(
-    resendDelay: Long,
+    resendDelay: FiniteDuration,
     resendBackoffMultiplier: Float
 )
