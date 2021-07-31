@@ -63,6 +63,7 @@ class HttpCompileTest extends Simulation {
     .check(bodyString.transformWithSession((string, session) => string.length).lte(100000))
     .check(bodyString.transformOption(stringO => stringO.map(_.length)).gt(100000))
     .check(bodyString.transformOptionWithSession((stringO, session) => stringO.map(_.length)).gte(100000))
+    .check(bodyString.withDefault(_ => "XXXX").transform(_.length).gt(100000))
     .check(bodyBytes.is("foo".getBytes(UTF_8)))
     .check(md5.is("XXXXX"))
     .check(sha1.is("XXXXX"))
@@ -197,6 +198,7 @@ class HttpCompileTest extends Simulation {
           jsonPath("$..foo.bar[2].baz").transformWithSession((string, session) => string + "foo"),
           jsonPath("$..foo.bar[2].baz").transformOption(_.map(_ + "foo")),
           jsonPath("$..foo.bar[2].baz").transformOptionWithSession((maybeString, session) => maybeString.map(_ + "foo")),
+          jsonPath("$..foo.bar[2].baz").withDefault(_ => "foo"),
           jsonpJsonPath("$..foo").is("bar"),
           jmesPath("[].friends[].name"),
           jmesPath("[].friends[].name").is("bar"),
