@@ -114,6 +114,7 @@ trait ValidatorCheckBuilder[T, P, X] {
   def transformWithSession[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[T, P, X2]
   def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
   def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2]
+  def withDefault(other: Expression[X]): ValidatorCheckBuilder[T, P, X]
   def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P]
   def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P]
   def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P]
@@ -174,6 +175,14 @@ private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expres
 
   override def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
+
+  override def withDefault(other: Expression[X]): ValidatorCheckBuilder[T, P, X] =
+    transformOptionWithSession((actual, session) =>
+      (actual match {
+        case None => other(session).toOption
+        case _    => actual
+      }).success
+    )
 
   override def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P] =
     new DefaultCheckBuilder[T, P, X](this.extractor, validator, displayActualValue, None, None)

@@ -1056,6 +1056,12 @@ content:
               - signature: ((Option[A], Session) => Validation[Option[B]])
                 description: Same as <i>transformOption</i>, but with read access to the current Session.
 
+          - keyword: withDefault
+            description: Transform extracted data before verification.
+            syntax:
+              - signature: (expression)
+                description: provide default one in case of extracted value absence 
+
       - title: Check verifiers
         functions:
 

@@ -356,7 +356,7 @@ You can also gain read access to the `Session` with `transformWithSession` and p
 `transformOption(function)` takes a `Option[X] => Validation[Option[X2]]` function, meaning that it gives full control over the extracted result, even providing a default value.
 
 {{< alert tip >}}
-You can also gain read access to the `Session` with `transformOptionWithSession` and pass a `(Option[X], Session) => Validation[X2]` instead.
+You can also gain read access to the `Session` with `transformOptionWithSession` and pass a `(Option[X], Session) => Validation[X2]` instead. Besides, `withDefault(expression)` is another alternative to provide default value promptly.
 {{< /alert >}}
 
 {{< include-code "CheckSample.scala#transform,transformOption" scala >}}
