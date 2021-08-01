@@ -179,8 +179,8 @@ private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expres
   override def withDefault(other: Expression[X]): ValidatorCheckBuilder[T, P, X] =
     transformOptionWithSession((actual, session) =>
       (actual match {
-        case Some(_) => actual
-        case _       => other(session).toOption
+        case None => other(session).toOption
+        case _ => actual
       }).success
     )
 
