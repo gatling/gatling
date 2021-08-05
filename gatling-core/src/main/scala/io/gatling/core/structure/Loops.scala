@@ -18,7 +18,7 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
@@ -53,10 +53,7 @@ private[structure] trait Loops[B] extends Execs[B] {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
-    during(duration.expressionSuccess, counterName, exitASAP)(chain)
-
-  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+  def during(duration: Expression[FiniteDuration], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
     clockBasedLoop(
       clock => session => duration(session).map(d => clock.nowMillis - session.loopTimestampValue(counterName) <= d.toMillis),
       chain,
