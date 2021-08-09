@@ -68,7 +68,7 @@ object Dependencies {
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.9.2"
   private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.69"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.7.4"
-  private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
+  private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.5"
 
   // Test dependencies
