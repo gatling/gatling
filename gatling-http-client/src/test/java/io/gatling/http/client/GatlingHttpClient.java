@@ -59,12 +59,6 @@ public class GatlingHttpClient implements AutoCloseable {
   }
 
   public void execute(Request request, long clientId, boolean shared, HttpListener listener) {
-    if (request.getNameResolver() == null) {
-      // hack: patch request with name resolver
-      request = new RequestBuilder(request, request.getUri())
-        .build();
-    }
-
     client.sendRequest(request, shared ? - 1 : clientId, eventLoopGroup.next(), listener, sslContext, null);
   }
 
