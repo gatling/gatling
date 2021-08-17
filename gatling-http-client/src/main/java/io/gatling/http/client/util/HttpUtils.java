@@ -151,7 +151,7 @@ public final class HttpUtils {
     return sb.append(' ').append(CONTENT_TYPE_BOUNDARY_ATTRIBUTE).append(new String(boundary, US_ASCII)).toString();
   }
 
-  public static String filterOutBrotliFromAcceptEncoding(String acceptEncoding) {
+  public static String filterOutBrotliFromAcceptEncodingWhenUnavailable(String acceptEncoding) {
     if (!Brotli4jLoader.isAvailable() && acceptEncoding.endsWith(BROTLI_ACCEPT_ENCODING_SUFFIX)) {
       return acceptEncoding.substring(0, acceptEncoding.length() - BROTLI_ACCEPT_ENCODING_SUFFIX.length());
     }

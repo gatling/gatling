@@ -179,7 +179,6 @@ public class RequestBuilder {
   }
 
   public Request build() {
-
     if (!headers.contains(ACCEPT)) {
       headers.set(ACCEPT, ACCEPT_ALL_HEADER_VALUE);
     }
@@ -190,8 +189,7 @@ public class RequestBuilder {
 
     String originalAcceptEncoding = headers.get(ACCEPT_ENCODING);
     if (originalAcceptEncoding != null) {
-      // we don't support Brotly ATM
-      String newAcceptEncodingHeader = filterOutBrotliFromAcceptEncoding(originalAcceptEncoding);
+      String newAcceptEncodingHeader = filterOutBrotliFromAcceptEncodingWhenUnavailable(originalAcceptEncoding);
       if (newAcceptEncodingHeader != null) {
         headers.set(ACCEPT_ENCODING, newAcceptEncodingHeader);
       }
