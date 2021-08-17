@@ -16,6 +16,7 @@
 
 package io.gatling.http.client;
 
+import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.body.RequestBody;
@@ -185,6 +186,13 @@ public class RequestBuilder {
 
     if (realm instanceof BasicRealm) {
       headers.add(AUTHORIZATION, ((BasicRealm) realm).getAuthorizationHeader());
+    }
+
+    if (!uri.isSecured() && proxyServer instanceof HttpProxyServer) {
+      BasicRealm realm = ((HttpProxyServer) proxyServer).getRealm();
+      if (realm != null) {
+        headers.set(PROXY_AUTHORIZATION, realm.getAuthorizationHeader());
+      }
     }
 
     String originalAcceptEncoding = headers.get(ACCEPT_ENCODING);

@@ -105,24 +105,14 @@ public class WritableRequestBuilder {
     HttpHeaders headers = request.getHeaders();
     RequestBody requestBody = request.getBody();
 
-    boolean isClearHttpProxy = !uri.isSecured() && request.getProxyServer() instanceof HttpProxyServer;
-
-    String url = http2 || isClearHttpProxy ?
+    String url = http2 || (request.getProxyServer() instanceof HttpProxyServer && !uri.isSecured()) ?
             uri.toUrl() : // HTTP proxy with clear HTTP uses absolute url
             uri.toRelativeUrl();
-
-    if (isClearHttpProxy) {
-      HttpProxyServer proxyServer = (HttpProxyServer) request.getProxyServer();
-      if (proxyServer.getRealm() != null) {
-        headers.set(PROXY_AUTHORIZATION, proxyServer.getRealm().getAuthorizationHeader());
-      }
-    }
 
     WritableRequest writableRequest =
       requestBody == null ?
             buildRequestWithoutBody(url, request.getMethod(), headers) :
             buildRequestWithBody(url, request.getMethod(), headers, requestBody, alloc);
-
 
     SignatureCalculator signatureCalculator = request.getSignatureCalculator();
     if (signatureCalculator != null) {
