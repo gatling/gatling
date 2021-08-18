@@ -49,7 +49,7 @@ public class RequestBuilder {
   private final Uri uri;
   private final InetAddressNameResolver nameResolver;
   private HttpHeaders headers = new DefaultHttpHeaders(false);
-  private List<Cookie> cookies;
+  private List<Cookie> cookies = Collections.emptyList();
   private RequestBodyBuilder bodyBuilder;
   private long requestTimeout;
   private String virtualHost;
@@ -239,7 +239,7 @@ public class RequestBuilder {
       method,
       uri,
       headers,
-      cookies != null ? cookies : Collections.emptyList(),
+      cookies,
       body,
       requestTimeout,
       virtualHost,
