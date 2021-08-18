@@ -49,11 +49,11 @@ class ValidationSpec extends BaseSpec {
   }
   "mapError" should "return the current instance when called on a Success" in {
     val success = 1.success
-    success.mapError(_.toUpperCase(Locale.ROOT)) should be theSameInstanceAs success
+    success.mapFailure(_.toUpperCase(Locale.ROOT)) should be theSameInstanceAs success
   }
 
   it should "apply the passed function on the error message when called on a Failure" in {
-    "foo".failure.mapError(_.toUpperCase(Locale.ROOT)) shouldBe Failure("FOO")
+    "foo".failure.mapFailure(_.toUpperCase(Locale.ROOT)) shouldBe Failure("FOO")
   }
 
   "filter" should "return the current instance when called on a Success and the predicate holds" in {

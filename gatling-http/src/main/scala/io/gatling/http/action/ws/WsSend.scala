@@ -39,15 +39,16 @@ class WsSendTextFrame(
 
   override val name: String = genName("wsSendTextFrame")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- wsName(session)
       fsm <- fetchFsm(fsmName, session)
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
-      logger.debug(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onSendTextFrame(requestName, message, resolvedCheckSequences, session, next)
+      logger.debug(s"Sending text frame $message with WebSocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      fsm.onSendTextFrame(reqName, message, resolvedCheckSequences, session, next)
     }
 }
 
@@ -66,14 +67,15 @@ class WsSendBinaryFrame(
 
   override val name: String = genName("wsSendBinaryFrame")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- wsName(session)
       fsm <- fetchFsm(fsmName, session)
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
-      logger.debug(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onSendBinaryFrame(requestName, message, resolvedCheckSequences, session, next)
+      logger.debug(s"Sending binary frame of ${message.length} bytes with WebSocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      fsm.onSendBinaryFrame(reqName, message, resolvedCheckSequences, session, next)
     }
 }

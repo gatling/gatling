@@ -30,6 +30,7 @@ import java.util.List;
 
 public class Request {
 
+  private final String name;
   private final HttpMethod method;
   private final Uri uri;
   private final HttpHeaders headers;
@@ -49,7 +50,8 @@ public class Request {
   private final boolean http2PriorKnowledge;
   private final String wsSubprotocol;
 
-  public Request(HttpMethod method,
+  public Request(String name,
+                 HttpMethod method,
                  Uri uri,
                  HttpHeaders headers,
                  List<Cookie> cookies,
@@ -67,6 +69,7 @@ public class Request {
                  boolean alpnRequired,
                  boolean http2PriorKnowledge,
                  String wsSubprotocol) {
+    this.name = name;
     this.method = method;
     this.uri = uri;
     this.headers = headers;
@@ -89,6 +92,7 @@ public class Request {
 
   public Request copyWithAlpnRequiredAndPriorKnowledge(boolean isAlpnRequired, boolean isHttp2PriorKnowledge) {
     return new Request(
+      this.name,
       this.method,
       this.uri,
       this.headers,
@@ -107,6 +111,10 @@ public class Request {
       isAlpnRequired,
       isHttp2PriorKnowledge,
       this.wsSubprotocol);
+  }
+
+  public String getName() {
+    return name;
   }
 
   public HttpMethod getMethod() {

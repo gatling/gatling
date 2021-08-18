@@ -34,12 +34,14 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 object RedirectProcessor {
 
   def redirectRequest(
+      requestName: String,
       originalRequest: Request,
       session: Session,
       responseStatus: HttpResponseStatus,
       httpProtocol: HttpProtocol,
       redirectUri: Uri,
-      defaultCharset: Charset
+      defaultCharset: Charset,
+      redirectCount: Int
   ): Request = {
     val originalMethod = originalRequest.getMethod
 
@@ -63,14 +65,15 @@ object RedirectProcessor {
       newHeaders.remove(HttpHeaderNames.CONTENT_TYPE)
     }
 
-    val requestBuilder = new RequestBuilder(if (switchToGet) GET else originalMethod, redirectUri, originalRequest.getNameResolver)
-      .setHeaders(newHeaders)
-      .setHttp2Enabled(originalRequest.isHttp2Enabled)
-      .setLocalIpV4Address(originalRequest.getLocalIpV4Address)
-      .setLocalIpV6Address(originalRequest.getLocalIpV6Address)
-      .setRealm(originalRequest.getRealm)
-      .setRequestTimeout(originalRequest.getRequestTimeout)
-      .setDefaultCharset(defaultCharset)
+    val requestBuilder =
+      new RequestBuilder(s"$requestName Redirect $redirectCount", if (switchToGet) GET else originalMethod, redirectUri, originalRequest.getNameResolver)
+        .setHeaders(newHeaders)
+        .setHttp2Enabled(originalRequest.isHttp2Enabled)
+        .setLocalIpV4Address(originalRequest.getLocalIpV4Address)
+        .setLocalIpV6Address(originalRequest.getLocalIpV6Address)
+        .setRealm(originalRequest.getRealm)
+        .setRequestTimeout(originalRequest.getRequestTimeout)
+        .setDefaultCharset(defaultCharset)
 
     if (originalRequest.getUri.isSameBase(redirectUri)) {
       // we can only assume the virtual host is still valid if the baseUrl is the same

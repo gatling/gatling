@@ -105,7 +105,7 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
     var session: Session = emptySession
 
     def addRedirect(from: String, to: String): Unit = {
-      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from), null)
+      val request = new RequestBuilder("request", HttpMethod.GET, Uri.create(from), null)
         .build()
       session = httpCaches.addRedirect(session, request, Uri.create(to))
     }

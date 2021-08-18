@@ -110,23 +110,22 @@ trait ExitableAction extends ChainableAction {
 trait RequestAction extends ExitableAction {
 
   def requestName: Expression[String]
-  def sendRequest(requestName: String, session: Session): Validation[Unit]
+  def sendRequest(session: Session): Validation[Unit]
+
+  private def reportUnbuildableRequest(session: Session, message: String): Unit =
+    requestName(session).foreach(statsEngine.reportUnbuildableRequest(session.scenario, session.groups, _, message))
 
   override def execute(session: Session): Unit = recover(session) {
-    requestName(session).flatMap { resolvedRequestName =>
-      val outcome =
-        try {
-          sendRequest(resolvedRequestName, session)
-        } catch {
-          case NonFatal(e) =>
-            statsEngine.reportUnbuildableRequest(session.scenario, session.groups, resolvedRequestName, e.detailedMessage)
-            // rethrow so we trigger exception handling in "ChainableAction!"
-            throw e
-        }
-      outcome.onFailure { errorMessage =>
-        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, resolvedRequestName, errorMessage)
+    try {
+      sendRequest(session).mapFailure { error =>
+        reportUnbuildableRequest(session, error)
+        error
       }
-      outcome
+    } catch {
+      case NonFatal(e) =>
+        reportUnbuildableRequest(session, e.detailedMessage)
+        // rethrow so we trigger exception handling in "ChainableAction!"
+        throw e
     }
   }
 }

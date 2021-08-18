@@ -59,7 +59,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     httpRequestDef(_.sign(new SignatureCalculator {
       override def sign(request: Request): Unit = request.getHeaders.add("X-Token", "foo")
     }.expressionSuccess))
-      .build("requestName", sessionBase)
+      .build(sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
         writableRequest.getRequest.headers.get("X-Token")
@@ -73,7 +73,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val session = sessionBase.set("form", form).set("formParamToOverride", "bar")
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
-      .build("requestName", session)
+      .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
       )
@@ -85,7 +85,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val session = sessionBase.set("formParam", "bar")
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
-      .build("requestName", session)
+      .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
       )
@@ -107,7 +107,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         )
       )
     )
-      .build("requestName", session)
+      .build(session)
       .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
       .succeeded
 
@@ -128,7 +128,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         )
       )
     )
-      .build("requestName", session)
+      .build(session)
       .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
       .succeeded
 
@@ -149,7 +149,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         )
       )
     )
-      .build("requestName", session)
+      .build(session)
       .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
       .succeeded
 
@@ -170,7 +170,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         )
       )
     )
-      .build("requestName", session)
+      .build(session)
       .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
       .succeeded
 
@@ -183,7 +183,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val session = sessionBase.set("form", form)
 
     httpRequestDef(_.form("${form}".el))
-      .build("requestName", session)
+      .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
       )
@@ -199,7 +199,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         .check(currentLocation.is("current location"))
         .check(header("HEADER").is("VALUE"))
         .check(responseTimeInMillis.lt(300))
-    }).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
+    }).build(sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Url,
@@ -218,7 +218,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         .baseUrl("https://gatling.io")
         .check(md5.notNull)
         .build
-    ).build("requestName", sessionBase)
+    ).build(sessionBase)
       .map(_.requestConfig.checks)
       .succeeded
 
@@ -236,7 +236,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         .check(md5.notNull)
         .check(bodyString.notNull)
         .check()
-    }).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
+    }).build(sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Status,
@@ -255,7 +255,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
         .check(md5.notNull)
         .check(bodyString.notNull)
         .build
-    ).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
+    ).build(sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Status,

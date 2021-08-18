@@ -45,6 +45,7 @@ public class RequestBuilder {
 
   private static final AsciiString ACCEPT_ALL_HEADER_VALUE = new AsciiString("*/*");
 
+  private final String name;
   private final HttpMethod method;
   private final Uri uri;
   private final InetAddressNameResolver nameResolver;
@@ -65,7 +66,8 @@ public class RequestBuilder {
   private String wsSubprotocol;
   private Charset defaultCharset = UTF_8;
 
-  public RequestBuilder(HttpMethod method, Uri uri, InetAddressNameResolver nameResolver) {
+  public RequestBuilder(String name, HttpMethod method, Uri uri, InetAddressNameResolver nameResolver) {
+    this.name = name;
     this.method = method;
     this.uri = uri;
     this.nameResolver = nameResolver;
@@ -217,6 +219,7 @@ public class RequestBuilder {
     }
 
     return new Request(
+      name,
       method,
       uri,
       headers,

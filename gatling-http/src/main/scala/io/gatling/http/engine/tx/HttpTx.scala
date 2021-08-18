@@ -31,11 +31,7 @@ final case class HttpTx(
 ) {
   lazy val silent: Boolean = request.isSilent(resourceTx.isEmpty)
 
-  lazy val fullRequestName: String =
-    if (redirectCount > 0)
-      s"${request.requestName} Redirect $redirectCount"
-    else
-      request.requestName
+  def fullRequestName: String = request.clientRequest.getName
 
   def currentSession: Session = resourceTx.map(_.aggregator.currentSession).getOrElse(session)
 }

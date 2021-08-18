@@ -242,8 +242,9 @@ abstract class RequestExpressionBuilder(
       safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
+          requestName <- commonAttributes.requestName(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
-          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver)
+          requestBuilder = new ClientRequestBuilder(requestName, commonAttributes.method, uri, nameResolver)
             .setDefaultCharset(charset)
             .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
           rb <- configureRequestBuilder(session, requestBuilder)

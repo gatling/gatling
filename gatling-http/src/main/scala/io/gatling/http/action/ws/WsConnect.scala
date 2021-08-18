@@ -47,7 +47,7 @@ class WsConnect(
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
       fsmName <- wsName(session)
       _ <- fetchFsm(fsmName, session) match {
@@ -61,7 +61,6 @@ class WsConnect(
             val fsm = new WsFsm(
               fsmName,
               connectRequest,
-              requestName,
               resolvedCheckSequences,
               onConnected,
               statsEngine,

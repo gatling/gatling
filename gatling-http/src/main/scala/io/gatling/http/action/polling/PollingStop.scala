@@ -28,7 +28,7 @@ class PollingStop(pollerName: String, statsEngine: StatsEngine, val clock: Clock
 
   override val name: String = genName("pollingStop")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     session.attributes.get(pollerName) match {
       case Some(poller) =>
         poller.asInstanceOf[Poller].stop(next, session)

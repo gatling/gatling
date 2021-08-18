@@ -90,11 +90,11 @@ final class CheckBase[R, P, X](
     def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
 
     for {
-      extractor <- extractorExpression(session).mapError(message => s"$unbuiltName extractor resolution crashed: $message")
-      validator <- validatorExpression(session).mapError(message => s"$unbuiltName validator resolution crashed: $message")
-      prepared <- memoizedPrepared.mapError(message => s"${builtName(extractor, validator)} preparation crashed: $message")
-      actual <- extractor(prepared).mapError(message => s"${builtName(extractor, validator)} extraction crashed: $message")
-      matched <- validator(actual, displayActualValue).mapError(message => s"${builtName(extractor, validator)}, $message")
+      extractor <- extractorExpression(session).mapFailure(message => s"$unbuiltName extractor resolution crashed: $message")
+      validator <- validatorExpression(session).mapFailure(message => s"$unbuiltName validator resolution crashed: $message")
+      prepared <- memoizedPrepared.mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
+      actual <- extractor(prepared).mapFailure(message => s"${builtName(extractor, validator)} extraction crashed: $message")
+      matched <- validator(actual, displayActualValue).mapFailure(message => s"${builtName(extractor, validator)}, $message")
     } yield new CheckResult(matched, saveAs)
   }
 }

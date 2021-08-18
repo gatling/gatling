@@ -52,20 +52,23 @@ object ResponseProcessor extends StrictLogging {
           } else {
             val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
             val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
+            val newRedirectCount = tx.redirectCount + 1
             val redirectRequest =
               RedirectProcessor.redirectRequest(
+                tx.request.requestName,
                 tx.request.clientRequest,
                 newSession,
                 response.status,
                 tx.request.requestConfig.httpProtocol,
                 redirectUri,
-                defaultCharset
+                defaultCharset,
+                newRedirectCount
               )
             Redirect(
               tx.copy(
                 session = newSession,
                 request = tx.request.copy(clientRequest = redirectRequest),
-                redirectCount = tx.redirectCount + 1
+                redirectCount = newRedirectCount
               )
             )
           }

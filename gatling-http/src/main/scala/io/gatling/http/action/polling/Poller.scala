@@ -54,12 +54,7 @@ private[polling] class Poller(
   // FIXME is currently static
   private def buildHttpTx(): Validation[HttpTx] =
     for {
-      requestName <- requestDef.requestName(session).mapError { errorMessage =>
-        logger.error(s"'$pollerName' failed to execute: $errorMessage")
-        errorMessage
-      }
-
-      httpRequest <- requestDef.build(requestName, session).mapError { errorMessage =>
+      httpRequest <- requestDef.build(session).mapFailure { errorMessage =>
         statsEngine.reportUnbuildableRequest(session.scenario, session.groups, pollerName, errorMessage)
         errorMessage
       }

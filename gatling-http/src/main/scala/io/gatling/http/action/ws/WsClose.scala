@@ -36,12 +36,13 @@ class WsClose(
 
   override val name: String = genName("wsClose")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- wsName(session)
       fsm <- fetchFsm(fsmName, session)
     } yield {
       logger.debug(s"Closing websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onClientCloseRequest(requestName, session, next)
+      fsm.onClientCloseRequest(reqName, session, next)
     }
 }

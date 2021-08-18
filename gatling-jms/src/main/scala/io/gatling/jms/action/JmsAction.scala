@@ -50,14 +50,15 @@ abstract class JmsAction(
   protected val jmsConnection: JmsConnection = pool.jmsConnection(protocol.connectionFactory, protocol.credentials)
   private val jmsDestination = jmsConnection.destination(attributes.destination)
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       jmsType <- resolveOptionalExpression(attributes.jmsType, session)
       props <- resolveProperties(attributes.messageProperties, session)
       resolvedJmsDestination <- jmsDestination(session)
       JmsProducer(jmsSession, producer) = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
       message <- attributes.message.jmsMessage(session, jmsSession)
-      around <- aroundSend(requestName, session, message)
+      around <- aroundSend(reqName, session, message)
     } yield {
       props.foreach { case (key, value) => message.setObjectProperty(key, value) }
       jmsType.foreach(message.setJMSType)

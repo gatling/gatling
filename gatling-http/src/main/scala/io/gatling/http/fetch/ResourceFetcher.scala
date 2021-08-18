@@ -151,19 +151,15 @@ private[http] class ResourceFetcher(
   }
 
   private def buildExplicitResources(resources: List[HttpRequestDef], session: Session): List[HttpRequest] = resources.flatMap { resource =>
-    resource.requestName(session) match {
-      case Success(requestName) =>
-        resource.build(requestName, session) match {
-          case Success(httpRequest) =>
-            httpRequest :: Nil
+    resource.build(session) match {
+      case Success(httpRequest) =>
+        httpRequest :: Nil
 
-          case Failure(m) =>
-            coreComponents.statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, m)
-            Nil
+      case Failure(error) =>
+        resource.requestName(session) match {
+          case Success(requestName) => coreComponents.statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, error)
+          case Failure(m)           => logger.error(s"Could build request name for explicitResource: $error")
         }
-
-      case Failure(m) =>
-        logger.error("Could build request name for explicitResource: " + m)
         Nil
     }
   }

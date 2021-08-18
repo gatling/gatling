@@ -24,25 +24,26 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
 class SseClose(
-    val requestName: Expression[String],
+    override val requestName: Expression[String],
     sseName: Expression[String],
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
 ) extends RequestAction
     with SseAction
     with NameGen {
 
   override val name: String = genName("sseClose")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- sseName(session)
       fsm <- fetchFsm(fsmName, session)
     } yield {
       // [fl]
       //
       // [fl]
-      fsm.onClientCloseRequest(requestName, session, next)
+      fsm.onClientCloseRequest(reqName, session, next)
     }
 }

@@ -28,7 +28,7 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
 class SseConnect(
-    val requestName: Expression[String],
+    override val requestName: Expression[String],
     sseName: Expression[String],
     request: Expression[Request],
     connectCheckSequences: List[SseMessageCheckSequenceBuilder],
@@ -45,8 +45,9 @@ class SseConnect(
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- sseName(session)
       _ <- fetchFsm(fsmName, session) match {
         case _: Failure =>
@@ -59,7 +60,7 @@ class SseConnect(
             val fsm = SseFsm(
               session,
               fsmName,
-              requestName,
+              reqName,
               request,
               resolvedCheckSequences,
               statsEngine,

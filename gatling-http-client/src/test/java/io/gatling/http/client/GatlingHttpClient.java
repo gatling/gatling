@@ -63,7 +63,7 @@ public class GatlingHttpClient implements AutoCloseable {
   }
 
   public RequestBuilder newRequestBuilder(HttpMethod method, Uri uri) {
-    return new RequestBuilder(method, uri, nameResolver);
+    return new RequestBuilder("request", method, uri, nameResolver);
   }
 
   @Override

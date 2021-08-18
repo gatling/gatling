@@ -36,7 +36,6 @@ import io.netty.handler.codec.http.cookie.Cookie
 class WsFsm(
     private[fsm] val wsName: String,
     private[fsm] val connectRequest: Request,
-    private[fsm] val connectActionName: String,
     private[fsm] val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     private[fsm] val onConnected: Option[Action],
     private[fsm] val statsEngine: StatsEngine,

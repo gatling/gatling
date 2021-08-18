@@ -72,7 +72,7 @@ class HttpEngine(
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>
-          val requestBuilder = new RequestBuilder(HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
+          val requestBuilder = new RequestBuilder("warmUp", HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
             .setHeaders(
               new DefaultHttpHeaders()
                 .add(HttpHeaderNames.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")

@@ -32,7 +32,7 @@ abstract class Matcher[A] extends Validator[A] {
   protected def doMatch(actual: Option[A]): Validation[Option[A]]
   def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] =
     if (displayActualValue) {
-      doMatch(actual).mapError(message => s"but actually $message")
+      doMatch(actual).mapFailure(message => s"but actually $message")
     } else {
       doMatch(actual)
     }

@@ -49,7 +49,7 @@ private[gatling] sealed abstract class ConcurrentResource extends Product with S
     val requestName = httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
     val httpRequestDef =
       Http(requestName.expressionSuccess).get(uri).header(HttpHeaderNames.ACCEPT, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
-    httpRequestDef.build(requestName, session)
+    httpRequestDef.build(session)
   }
 }
 

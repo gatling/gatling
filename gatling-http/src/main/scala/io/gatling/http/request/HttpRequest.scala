@@ -45,8 +45,8 @@ final case class HttpRequestDef(
     requestConfig: HttpRequestConfig
 ) {
 
-  def build(requestName: String, session: Session): Validation[HttpRequest] =
-    clientRequest(session).map(HttpRequest(requestName, _, requestConfig))
+  def build(session: Session): Validation[HttpRequest] =
+    clientRequest(session).map(request => HttpRequest(request.getName, request, requestConfig))
 }
 
 final case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {

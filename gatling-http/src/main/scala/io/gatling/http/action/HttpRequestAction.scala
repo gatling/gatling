@@ -45,8 +45,8 @@ class HttpRequestAction(
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    httpRequestDef.build(requestName, session).map { httpRequest =>
+  override def sendRequest(session: Session): Validation[Unit] =
+    httpRequestDef.build(session).map { httpRequest =>
       val tx = HttpTx(
         session,
         httpRequest,

@@ -70,7 +70,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
   override def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], connectEnd: Long): NextWsState = {
     val sessionWithCookies = CookieSupport.storeCookies(session, connectRequest.getUri, cookies, connectEnd)
     val sessionWithGroupTimings =
-      logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WsConnectingState.WsConnectSuccessStatusCode, None)
+      logResponse(sessionWithCookies, connectRequest.getName, connectStart, connectEnd, OK, WsConnectingState.WsConnectSuccessStatusCode, None)
 
     connectCheckSequence match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
@@ -164,7 +164,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
     // crash
     logger.debug(s"WebSocket crashed by the server while in Connecting state", t)
     val failedSession = session.markAsFailed
-    logResponse(failedSession, connectActionName, connectStart, timestamp, KO, Some(t.rootMessage), None)
+    logResponse(failedSession, connectRequest.getName, connectStart, timestamp, KO, Some(t.rootMessage), None)
 
     val n = next match {
       case Left(nextAction) => nextAction
