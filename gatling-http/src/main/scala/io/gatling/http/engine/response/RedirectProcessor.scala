@@ -66,7 +66,12 @@ object RedirectProcessor {
     }
 
     val requestBuilder =
-      new RequestBuilder(s"$requestName Redirect $redirectCount", if (switchToGet) GET else originalMethod, redirectUri, originalRequest.getNameResolver)
+      new RequestBuilder(
+        httpProtocol.responsePart.redirectNamingStrategy(redirectUri, requestName, redirectCount),
+        if (switchToGet) GET else originalMethod,
+        redirectUri,
+        originalRequest.getNameResolver
+      )
         .setHeaders(newHeaders)
         .setHttp2Enabled(originalRequest.isHttp2Enabled)
         .setLocalIpV4Address(originalRequest.getLocalIpV4Address)

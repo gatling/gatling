@@ -292,13 +292,16 @@ For more details see the dedicated section [here]({{< ref "../request#authentica
 
 ### Follow redirects
 
-By default Gatling automatically follow redirects in case of 301, 302, 303, 307 or 308 response status code, you can disable this behavior with `.disableFollowRedirect`.
+By default, Gatling automatically follow redirects in case of 301, 302, 303, 307 or 308 response status code, you can disable this behavior with `.disableFollowRedirect`.
 
 To avoid infinite redirection loops, Gatling sets a limit on the number of redirects.
 The default value is 20. You can tune this limit with: `.maxRedirects(max: Int)`
 
 By default, Gatling will change the method to "GET" on 302 to conform to most user agents' behavior.
 You can disable this behavior with `.strict302Handling`.
+
+By default, Gatling will generate redirected request names such as "<ORIGINAL_REQUEST_NAME> Redirect <REDIRECT_COUNT>".
+You can define your own custom strategy with `.redirectNamingStrategy((uri: Uri, originalRequestName: String, redirectCount: Int) => redirectedRequestName: String)`.
 
 ### Response Transformers
 

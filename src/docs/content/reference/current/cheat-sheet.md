@@ -1241,6 +1241,12 @@ content:
               - signature: (max)
                 description: Where <i>max</i> is the number of max redirects
 
+          - keyword: redirectNamingStrategy
+            description: Specify a custom naming strategy for redirected requests
+            syntax:
+              - signature: (redirectedUri, originalRequestName, redirectCount) => redirectedRequestName
+                description: Where <i>redirectedUri</i> is the new Location, <i>originalRequestName</i> is the name of the original request and <i>redirectCount</i> is the number of redirects.
+
           - keyword: disableAutomaticReferer
             description: Forces Gatling not to set the referer of the requests
 

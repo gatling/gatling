@@ -155,6 +155,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def disableFollowRedirect: HttpProtocolBuilder = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
   def maxRedirects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling: HttpProtocolBuilder = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
+  def redirectNamingStrategy(f: (Uri, String, Int) => String): HttpProtocolBuilder = this.modify(_.protocol.responsePart.redirectNamingStrategy).setTo(f)
   def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder =
     this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks)(_ ::: checks.toList)

@@ -73,8 +73,15 @@ private[cache] trait PermanentRedirectCacheSupport {
     permanentRedirectRec(PermanentRedirectCacheKey(request), redirectCount = 0)
   }
 
-  private[this] def redirectRequest(requestName: String, request: Request, redirectUri: Uri, session: Session, redirectCount: Int): Request =
-    new RequestBuilder(s"$requestName Redirect $redirectCount", request.getMethod, redirectUri, request.getNameResolver)
+  private[this] def redirectRequest(
+      requestName: String,
+      request: Request,
+      redirectUri: Uri,
+      session: Session,
+      redirectCount: Int,
+      namingStrategy: (Uri, String, Int) => String
+  ): Request =
+    new RequestBuilder(namingStrategy(redirectUri, requestName, redirectCount), request.getMethod, redirectUri, request.getNameResolver)
       .setHeaders(request.getHeaders.remove(HttpHeaderNames.COOKIE))
       .setCookies(CookieSupport.getStoredCookies(session, redirectUri).asJava)
       .setBodyBuilder(if (request.getBody != null) request.getBody.newBuilder else null)
@@ -93,12 +100,20 @@ private[cache] trait PermanentRedirectCacheSupport {
       .setDefaultCharset(configuration.core.charset)
       .build
 
-  def applyPermanentRedirect(origTx: HttpTx): HttpTx =
-    if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
-      permanentRedirect(origTx.session, origTx.request.clientRequest, origTx.request.requestConfig.httpProtocol.responsePart.maxRedirects) match {
+  def applyPermanentRedirect(origTx: HttpTx): HttpTx = {
+    val httpProtocol = origTx.request.requestConfig.httpProtocol
+    if (httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
+      permanentRedirect(origTx.session, origTx.request.clientRequest, httpProtocol.responsePart.maxRedirects) match {
         case Some((targetUri, redirectCount)) =>
           val newRedirectCount = origTx.redirectCount + redirectCount
-          val newClientRequest = redirectRequest(origTx.request.requestName, origTx.request.clientRequest, targetUri, origTx.session, newRedirectCount)
+          val newClientRequest = redirectRequest(
+            origTx.request.requestName,
+            origTx.request.clientRequest,
+            targetUri,
+            origTx.session,
+            newRedirectCount,
+            httpProtocol.responsePart.redirectNamingStrategy
+          )
 
           origTx.copy(
             request = origTx.request.copy(clientRequest = newClientRequest),
@@ -110,4 +125,5 @@ private[cache] trait PermanentRedirectCacheSupport {
     } else {
       origTx
     }
+  }
 }
