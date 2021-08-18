@@ -71,25 +71,6 @@ public class RequestBuilder {
     this.nameResolver = nameResolver;
   }
 
-  public RequestBuilder(Request request, Uri uri) {
-    this(request.getMethod(), uri, request.getNameResolver());
-    headers = request.getHeaders();
-    cookies = request.getCookies();
-    bodyBuilder = request.getBody() != null ? request.getBody().newBuilder() : null;
-    requestTimeout = request.getRequestTimeout();
-    virtualHost = request.getVirtualHost();
-    autoOrigin = request.isAutoOrigin();
-    localIpV4Address = request.getLocalIpV4Address();
-    localIpV6Address = request.getLocalIpV6Address();
-    realm = request.getRealm();
-    proxyServer = request.getProxyServer();
-    signatureCalculator = request.getSignatureCalculator();
-    http2Enabled = request.isHttp2Enabled();
-    alpnRequired = request.isAlpnRequired();
-    http2PriorKnowledge = request.isHttp2PriorKnowledge();
-    wsSubprotocol = request.getWsSubprotocol();
-  }
-
   public Uri getUri() {
     return uri;
   }

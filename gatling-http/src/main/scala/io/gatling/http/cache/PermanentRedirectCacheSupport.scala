@@ -73,14 +73,25 @@ private[cache] trait PermanentRedirectCacheSupport {
     permanentRedirectRec(PermanentRedirectCacheKey(request), redirectCount = 0)
   }
 
-  private[this] def redirectRequest(request: Request, toUri: Uri, session: Session): Request = {
-    request.getHeaders.remove(HttpHeaderNames.COOKIE)
-    val cookies = CookieSupport.getStoredCookies(session, toUri)
-    new RequestBuilder(request, toUri)
+  private[this] def redirectRequest(request: Request, toUri: Uri, session: Session): Request =
+    new RequestBuilder(request.getMethod, toUri, request.getNameResolver)
+      .setHeaders(request.getHeaders.remove(HttpHeaderNames.COOKIE))
+      .setCookies(CookieSupport.getStoredCookies(session, toUri).asJava)
+      .setBodyBuilder(if (request.getBody != null) request.getBody.newBuilder else null)
+      .setRequestTimeout(request.getRequestTimeout)
+      .setVirtualHost(request.getVirtualHost)
+      .setAutoOrigin(request.isAutoOrigin)
+      .setLocalIpV4Address(request.getLocalIpV4Address)
+      .setLocalIpV6Address(request.getLocalIpV6Address)
+      .setRealm(request.getRealm)
+      .setProxyServer(request.getProxyServer)
+      .setSignatureCalculator(request.getSignatureCalculator)
+      .setHttp2Enabled(request.isHttp2Enabled)
+      .setAlpnRequired(request.isAlpnRequired)
+      .setHttp2PriorKnowledge(request.isHttp2PriorKnowledge)
+      .setWsSubprotocol(request.getWsSubprotocol)
       .setDefaultCharset(configuration.core.charset)
-      .setCookies(cookies.asJava)
       .build
-  }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
