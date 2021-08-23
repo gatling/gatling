@@ -31,6 +31,9 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.ReferenceCountUtil
 
 private[http] object SslContextsFactory {
+
+  System.setProperty("io.netty.handler.ssl.openssl.sessionCacheClient", "true")
+
   private val DefaultSslSecureRandom = new SecureRandom
   private val Apn = new ApplicationProtocolConfig(
     ApplicationProtocolConfig.Protocol.ALPN,
