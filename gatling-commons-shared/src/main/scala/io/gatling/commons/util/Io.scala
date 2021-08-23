@@ -26,7 +26,7 @@ object Io {
 
   val DefaultBufferSize: Int = 8 * 1024
 
-  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
+  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
   implicit class RichURL(val url: URL) extends AnyVal {
 
     def file: File =

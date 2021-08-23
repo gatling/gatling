@@ -27,7 +27,7 @@ object Collections {
     }
   }
 
-  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.3", "3.4.0")
+  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.3", "3.4.0")
   implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
 
     def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
@@ -40,7 +40,7 @@ object Collections {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
-  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
+  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
   implicit class PimpedIterator[A](val it: Iterator[A]) extends AnyVal {
 
     def lift(i: Int): Option[A] = {

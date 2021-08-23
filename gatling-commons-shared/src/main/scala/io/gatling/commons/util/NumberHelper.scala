@@ -62,13 +62,13 @@ object NumberHelper {
     def toPrintableString: String = Formatter.format(double)
   }
 
-  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
+  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
   class IntStringOpt(val s: String) extends AnyVal {
     def isEmpty: Boolean = s.exists(char => char < '0' || char > '9')
     def get: Int = s.toInt
   }
 
-  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
+  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
   object IntString {
     def unapply(s: String): IntStringOpt = new IntStringOpt(s)
   }
