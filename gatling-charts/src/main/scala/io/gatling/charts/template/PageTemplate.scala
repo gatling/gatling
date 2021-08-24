@@ -80,7 +80,7 @@ ${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></sc
 <div class="container details">
     <div class="head">
         <a class="logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
-        <div class="frontline"><a href="https://gatling.io/gatling-frontline/?report" target="_blank">Get more features with Gatling FrontLine</a></div>
+        <div class="frontline"><a href="https://gatling.io/enterprise/" target="_blank">Get more features with Gatling Enterprise</a></div>
     </div>
     <div class="main">
         <div class="cadre">
