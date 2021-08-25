@@ -594,6 +594,12 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     expression(session).succeeded shouldBe """{"foo":"bar","baz":1}"""
   }
 
+  it should "support case classes" in {
+    val session = newSession(Map("bar" -> Bar(Baz("fux"))))
+    val expression = """${bar.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """{"baz":{"qix":"fux"}}"""
+  }
+
   it should "support key access" in {
     val json = Map("bar" -> Map("baz" -> "qix"))
     val session = newSession(Map("foo" -> json))
