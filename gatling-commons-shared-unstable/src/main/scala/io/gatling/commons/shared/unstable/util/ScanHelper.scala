@@ -85,7 +85,7 @@ object ScanHelper {
         case "jar" =>
           val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
           val rootDir = Paths.get(connection.getJarEntry.getName)
-          val jar = new JarFile(Paths.get(connection.getJarFileURL.toURI).toFile)
+          val jar = connection.getJarFile
           jar.entries.asScala.collect {
             case jarEntry if isResourceInRootDir(Paths.get(jarEntry.getName), rootDir) =>
               JarResource(jar, jarEntry)
