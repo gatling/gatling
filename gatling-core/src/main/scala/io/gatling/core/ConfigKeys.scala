@@ -46,7 +46,6 @@ object ConfigKeys {
       }
     }
     object directory {
-      val Simulations = "gatling.core.directory.simulations"
       val Resources = "gatling.core.directory.resources"
       val Binaries = "gatling.core.directory.binaries"
       val ReportsOnly = "gatling.core.directory.reportsOnly"

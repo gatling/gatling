@@ -24,7 +24,6 @@ private object CommandLineConstants {
   val ReportsOnly = new CommandLineConstant("reports-only", "ro")
   val ResultsFolder = new CommandLineConstant("results-folder", "rf")
   val ResourcesFolder = new CommandLineConstant("resources-folder", "rsf")
-  val SimulationsFolder = new CommandLineConstant("simulations-folder", "sf")
   val BinariesFolder = new CommandLineConstant("binaries-folder", "bf")
   val Simulation = new CommandLineConstant("simulation", "s")
   val RunDescription = new CommandLineConstant("run-description", "rd")

@@ -99,7 +99,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.Percentile1, 0)
     props.put(charting.indicators.Percentile2, 70)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val lowPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
@@ -111,7 +110,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.Percentile1, 99)
     props.put(charting.indicators.Percentile2, 100)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val highPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
@@ -123,7 +121,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.LowerBound, 0)
     props.put(charting.indicators.HigherBound, 100000)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val fileDataReader = new LogFileReader("run_single_node_with_known_stats")
@@ -134,7 +131,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.LowerBound, 2500)
     props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
@@ -145,7 +141,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.LowerBound, 2500)
     props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
@@ -156,7 +151,6 @@ class LogFileReaderSpec extends BaseSpec {
     val props = mutable.Map.empty[String, Any]
     props.put(charting.indicators.LowerBound, 2500)
     props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
