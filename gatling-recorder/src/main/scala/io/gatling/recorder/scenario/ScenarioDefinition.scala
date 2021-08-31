@@ -40,7 +40,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
     val groupedRequests = requests.groupAsLongAs(isRedirection)
 
     // Remove the redirection and keep the last status code
-    groupedRequests.map {
+    groupedRequests.flatMap {
       case TimedScenarioElement(firstSendTime, _, firstReq) :: redirectedReqs if redirectedReqs.nonEmpty =>
         val TimedScenarioElement(_, lastArrivalTime, lastReq) = redirectedReqs.last
         List(
@@ -48,7 +48,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
         )
 
       case reqs => reqs
-    }.flatten
+    }
   }
 
   private def filterInferredResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
