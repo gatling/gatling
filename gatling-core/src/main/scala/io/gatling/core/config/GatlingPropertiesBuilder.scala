@@ -16,7 +16,7 @@
 
 package io.gatling.core.config
 
-import scala.collection.mutable
+import scala.collection.mutable._
 
 import io.gatling.core.ConfigKeys._
 
