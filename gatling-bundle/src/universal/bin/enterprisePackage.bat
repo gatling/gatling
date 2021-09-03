@@ -87,6 +87,8 @@ rem The above line will forward any potential exit codes from Java if jar failed
 
 del /f %MANIFEST_FILE%
 
+echo Created package "%GATLING_HOME%"\target\artifact.jar
+
 goto exit
 
 :badHome
