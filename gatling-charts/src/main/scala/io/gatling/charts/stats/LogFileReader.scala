@@ -98,9 +98,8 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
           val timestamp = array(3).toLong
           if (array(2) == MessageEvent.Start.name) {
             updateRunStart(timestamp)
-          } else {
-            updateRunEnd(timestamp)
           }
+          updateRunEnd(timestamp)
 
         case RawGroupRecord(array) =>
           updateRunStart(array(2).toLong)
