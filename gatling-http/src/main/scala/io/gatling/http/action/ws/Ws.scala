@@ -31,9 +31,9 @@ object Ws {
 
   def apply(requestName: Expression[String], wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
-  def checkTextMessage(name: String): WsFrameCheck.Text = WsFrameCheck.Text(name, Nil, Nil, isSilent = false)
+  def checkTextMessage(name: Expression[String]): WsFrameCheck.Text = WsFrameCheck.Text(name, Nil, Nil, isSilent = false, resolvedName = "")
 
-  def checkBinaryMessage(name: String): WsFrameCheck.Binary = WsFrameCheck.Binary(name, Nil, Nil, isSilent = false)
+  def checkBinaryMessage(name: Expression[String]): WsFrameCheck.Binary = WsFrameCheck.Binary(name, Nil, Nil, isSilent = false, resolvedName = "")
 }
 
 /**

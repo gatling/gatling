@@ -56,7 +56,9 @@ public class WsJavaCompileTest extends Simulation {
                   ws.checkTextMessage("checkName"))
               .await(session -> Duration.ofSeconds(1))
               .on( // function
-                  ws.checkTextMessage("checkName")))
+                  ws.checkTextMessage("checkName"))
+              .await(1)
+              .on(ws.checkTextMessage(session -> "checkName")))
           .pause(1)
           .repeat(2, "i")
           .on(

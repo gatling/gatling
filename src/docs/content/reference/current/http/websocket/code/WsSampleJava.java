@@ -82,7 +82,14 @@ exec(ws("Message")
 //#send
 
 //#create-single-check
-WsFrameCheck.Text wsCheck = ws.checkTextMessage("checkName")
+// with a static name
+ws.checkTextMessage("checkName")
+  .check(regex("hello (.*)").saveAs("name"));
+// with a Gatling EL string name
+ws.checkTextMessage("#{checkName}")
+  .check(regex("hello (.*)").saveAs("name"));
+// with a function name
+ws.checkTextMessage(session -> "checkName")
   .check(regex("hello (.*)").saveAs("name"));
 //#create-single-check
 
@@ -106,6 +113,10 @@ ws.checkTextMessage("checkName")
   .check(jsonPath("$.code").ofInt().is(1));
 //#matching
 
+WsFrameCheck.Text wsCheck = null;
+WsFrameCheck.Text wsCheck1 = wsCheck;
+WsFrameCheck.Text wsCheck2 = wsCheck;
+
 //#check-from-connect
 exec(ws("Connect").connect("/foo").await(30).on(wsCheck));
 //#check-from-connect
@@ -113,9 +124,6 @@ exec(ws("Connect").connect("/foo").await(30).on(wsCheck));
 //#check-from-message
 exec(ws("Send").sendText("hello").await(30).on(wsCheck));
 //#check-from-message
-
-WsFrameCheck.Text wsCheck1 = wsCheck;
-WsFrameCheck.Text wsCheck2 = wsCheck;
 
 //#check-single-sequence
 // expecting 2 messages

@@ -15,8 +15,8 @@
  */
 
 import io.gatling.javaapi.core.CoreDsl.*
-import io.gatling.javaapi.http.HttpDsl.http
-import io.gatling.javaapi.http.HttpDsl.ws
+import io.gatling.javaapi.http.*
+import io.gatling.javaapi.http.HttpDsl.*
 
 class WsSampleKotlin {
 
@@ -78,8 +78,15 @@ exec(ws("Message")
 //#send
 
 //#create-single-check
-val wsCheck = ws.checkTextMessage("checkName")
+// with a static name
+ws.checkTextMessage("checkName")
   .check(regex("hello (.*)").saveAs("name"))
+// with a Gatling EL string name
+ws.checkTextMessage("#{checkName}")
+  .check(regex("hello (.*)").saveAs("name"))
+// with a function name
+ws.checkTextMessage{ session -> "checkName" }
+.check(regex("hello (.*)").saveAs("name"))
 //#create-single-check
 
 //#create-multiple-checks
@@ -102,6 +109,10 @@ ws.checkTextMessage("checkName")
   .check(jsonPath("$.code").ofInt().shouldBe(1))
 //#matching
 
+val wsCheck: WsFrameCheck.Text = TODO()
+val wsCheck1: WsFrameCheck.Text = wsCheck
+val wsCheck2: WsFrameCheck.Text = wsCheck
+
 //#check-from-connect
 exec(ws("Connect").connect("/foo").await(30).on(wsCheck))
 //#check-from-connect
@@ -109,9 +120,6 @@ exec(ws("Connect").connect("/foo").await(30).on(wsCheck))
 //#check-from-message
 exec(ws("Send").sendText("hello").await(30).on(wsCheck))
 //#check-from-message
-
-val wsCheck1 = wsCheck
-val wsCheck2 = wsCheck
 
 //#check-single-sequence
 // expecting 2 messages
@@ -164,7 +172,7 @@ http
   //  when message `"ping"` is received.
   //  Those messages won't be visible in any reports or statistics.
   .wsAutoReplyTextFrame {
-    text -> if (text.equals("ping")) "pong" else null
+    text -> if (text == "ping") "pong" else null
   }
   // enable partial support for Engine.IO v4.
   // Gatling will automatically respond

@@ -16,6 +16,7 @@
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import io.gatling.http.check.ws.WsFrameCheck
 
 class WsSampleScala {
 
@@ -76,7 +77,14 @@ exec(ws("Message")
 //#send
 
 //#create-single-check
-val wsCheck = ws.checkTextMessage("checkName")
+// with a static name
+ws.checkTextMessage("checkName")
+  .check(regex("hello (.*)").saveAs("name"))
+// with a Gatling EL string name
+ws.checkTextMessage("#{checkName}")
+  .check(regex("hello (.*)").saveAs("name"))
+// with a function name
+ws.checkTextMessage(session => "checkName")
   .check(regex("hello (.*)").saveAs("name"))
 //#create-single-check
 
@@ -100,6 +108,10 @@ ws.checkTextMessage("checkName")
   .check(jsonPath("$.code").ofType[Int].is(1))
 //#matching
 
+val wsCheck: WsFrameCheck.Text = ???
+val wsCheck1 = wsCheck
+val wsCheck2 = wsCheck
+
 //#check-from-connect
 exec(ws("Connect").connect("/foo").await(30)(wsCheck))
 //#check-from-connect
@@ -107,9 +119,6 @@ exec(ws("Connect").connect("/foo").await(30)(wsCheck))
 //#check-from-message
 exec(ws("Send").sendText("hello").await(30)(wsCheck))
 //#check-from-message
-
-val wsCheck1 = wsCheck
-val wsCheck2 = wsCheck
 
 //#check-single-sequence
 // expecting 2 messages

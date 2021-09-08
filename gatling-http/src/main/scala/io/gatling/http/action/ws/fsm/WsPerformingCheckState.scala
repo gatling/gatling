@@ -45,7 +45,7 @@ final case class WsPerformingCheckState(
     logger.debug(s"Check timeout")
     // check timeout
     // fail check, send next and goto Idle
-    val errorMessage = s"Check ${currentCheck.name} timeout"
+    val errorMessage = s"Check ${currentCheck.resolvedName} timeout"
     val newSession = logCheckResult(session, clock.nowMillis, KO, None, Some(errorMessage))
     val nextAction = next match {
       case Left(n) =>
@@ -73,7 +73,7 @@ final case class WsPerformingCheckState(
       NextWsState(this)
     } else {
       currentCheck match {
-        case WsFrameCheck.Text(_, matchConditions, checks, _) =>
+        case WsFrameCheck.Text(_, matchConditions, checks, _, _) =>
           tryApplyingChecks(message, timestamp, matchConditions, checks)
 
         case _ =>
@@ -86,7 +86,7 @@ final case class WsPerformingCheckState(
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
     currentCheck match {
-      case WsFrameCheck.Binary(_, matchConditions, checks, _) =>
+      case WsFrameCheck.Binary(_, matchConditions, checks, _, _) =>
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
@@ -113,7 +113,7 @@ final case class WsPerformingCheckState(
     if (currentCheck.isSilent) {
       sessionWithCheckUpdate
     } else {
-      logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, end, status, code, reason)
+      logResponse(sessionWithCheckUpdate, currentCheck.resolvedName, checkSequenceStart, end, status, code, reason)
     }
 
   private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {

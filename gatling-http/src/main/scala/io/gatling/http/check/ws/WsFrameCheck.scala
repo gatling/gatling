@@ -24,16 +24,22 @@ import io.gatling.core.session.{ Expression, Session }
 import com.softwaremill.quicklens._
 
 final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
-  require(checks.nonEmpty, "Can't pass empty check sequence")
+  require(checks.nonEmpty, "Can't pass an empty check sequence")
 }
 
-sealed trait WsFrameCheck {
-  def name: String
+sealed trait WsFrameCheck extends Product with Serializable {
+  def resolvedName: String
   def isSilent: Boolean
 }
 
 object WsFrameCheck {
-  final case class Binary(name: String, matchConditions: List[WsCheck.Binary], checks: List[WsCheck.Binary], isSilent: Boolean) extends WsFrameCheck {
+  final case class Binary(
+      name: Expression[String],
+      matchConditions: List[WsCheck.Binary],
+      checks: List[WsCheck.Binary],
+      isSilent: Boolean,
+      resolvedName: String
+  ) extends WsFrameCheck {
 
     def matching(newMatchConditions: WsCheck.Binary*): Binary = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
@@ -55,7 +61,13 @@ object WsFrameCheck {
       copy(isSilent = true)
   }
 
-  final case class Text(name: String, matchConditions: List[WsCheck.Text], checks: List[WsCheck.Text], isSilent: Boolean) extends WsFrameCheck {
+  final case class Text(
+      name: Expression[String],
+      matchConditions: List[WsCheck.Text],
+      checks: List[WsCheck.Text],
+      isSilent: Boolean,
+      resolvedName: String
+  ) extends WsFrameCheck {
 
     def matching(newMatchConditions: WsCheck.Text*): Text = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
