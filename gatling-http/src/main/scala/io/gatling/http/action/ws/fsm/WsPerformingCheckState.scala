@@ -113,7 +113,9 @@ final case class WsPerformingCheckState(
     if (currentCheck.isSilent) {
       sessionWithCheckUpdate
     } else {
-      logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, end, status, code, reason)
+      currentCheck.name(session) match {
+        case Success(checkName) => logResponse(sessionWithCheckUpdate, checkName, checkSequenceStart, end, status, code, reason)
+      }
     }
 
   private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {
