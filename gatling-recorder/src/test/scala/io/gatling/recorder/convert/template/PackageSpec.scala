@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario.template
+package io.gatling.recorder.convert.template
 
 import io.gatling.BaseSpec
 

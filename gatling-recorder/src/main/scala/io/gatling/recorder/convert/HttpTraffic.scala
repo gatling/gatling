@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario
+package io.gatling.recorder.convert
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
@@ -26,11 +26,11 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
-private[recorder] final case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
+private[recorder] final case class HttpTraffic(elements: List[HttpTrafficElement]) {
   def isEmpty: Boolean = elements.isEmpty
 }
 
-private[recorder] object ScenarioDefinition extends StrictLogging {
+private[recorder] object HttpTraffic extends StrictLogging {
 
   private val ConsecutiveResourcesMaxIntervalInMillis = 1000
 
@@ -51,7 +51,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
     }
   }
 
-  private def filterInferredResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
+  private def filterInferredResources(requests: List[TimedScenarioElement[RequestElement]]): List[TimedScenarioElement[RequestElement]] = {
 
     val groupChainedRequests: List[List[TimedScenarioElement[RequestElement]]] = {
       var globalAcc = List.empty[List[TimedScenarioElement[RequestElement]]]
@@ -86,18 +86,18 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
 
   // FIXME no need for sortedRequests
   private def mergeWithPauses(
-      sortedRequests: Seq[TimedScenarioElement[RequestElement]],
-      tags: Seq[TimedScenarioElement[TagElement]],
+      sortedRequests: List[TimedScenarioElement[RequestElement]],
+      tags: List[TimedScenarioElement[TagElement]],
       thresholdForPauseCreation: Duration
-  ): Seq[ScenarioElement] = {
+  ): List[HttpTrafficElement] = {
 
     if (sortedRequests.size <= 1)
       sortedRequests.map(_.element)
     else {
-      val allElements: Seq[TimedScenarioElement[ScenarioElement]] = (sortedRequests ++ tags).sortBy(_.arrivalTime)
+      val allElements: List[TimedScenarioElement[HttpTrafficElement]] = (sortedRequests ++ tags).sortBy(_.arrivalTime)
       var lastSendDateTime = allElements.last.sendTime
-      val allElementsWithTagsStickingToNextRequest: Seq[TimedScenarioElement[ScenarioElement]] =
-        allElements.reverse.foldLeft(List.empty[TimedScenarioElement[ScenarioElement]]) { (acc, current) =>
+      val allElementsWithTagsStickingToNextRequest: List[TimedScenarioElement[HttpTrafficElement]] =
+        allElements.reverse.foldLeft(List.empty[TimedScenarioElement[HttpTrafficElement]]) { (acc, current) =>
           current match {
             case TimedScenarioElement(_, _, TagElement(text)) =>
               TimedScenarioElement(lastSendDateTime, lastSendDateTime, TagElement(text)) :: acc
@@ -128,9 +128,11 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
     }
   }
 
-  def apply(requests: Seq[TimedScenarioElement[RequestElement]], tags: Seq[TimedScenarioElement[TagElement]])(implicit
+  def apply(
+      requests: List[TimedScenarioElement[RequestElement]],
+      tags: List[TimedScenarioElement[TagElement]],
       config: RecorderConfiguration
-  ): ScenarioDefinition = {
+  ): HttpTraffic = {
     val sortedRequests = requests.sortBy(_.arrivalTime)
 
     val requests1 = if (config.http.followRedirect) filterRedirection(sortedRequests) else sortedRequests

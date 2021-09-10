@@ -23,9 +23,9 @@ import io.gatling.recorder.ui.swing.SwingFrontEnd
 
 private[recorder] object RecorderFrontEnd {
 
-  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontEnd =
-    if (configuration.core.headless) new HeadlessFrontEnd(controller)
-    else new SwingFrontEnd(controller)
+  def newFrontend(controller: RecorderController, configuration: RecorderConfiguration): RecorderFrontEnd =
+    if (configuration.core.headless) new HeadlessFrontEnd(controller, configuration)
+    else new SwingFrontEnd(controller, configuration)
 }
 private[recorder] abstract class RecorderFrontEnd(controller: RecorderController) {
 

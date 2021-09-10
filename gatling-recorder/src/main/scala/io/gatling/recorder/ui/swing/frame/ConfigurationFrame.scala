@@ -45,7 +45,7 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing
-private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit configuration: RecorderConfiguration) extends MainFrame {
+private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuration: RecorderConfiguration) extends MainFrame {
 
   //////////////////////////////////////
   //           COMPONENTS
@@ -249,7 +249,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
         border = titledBorder("Filters")
 
         val labelAndStrategySelection = new BorderPanel {
-          val label = new Label("Java regular expressions that matches the entire URI")
+          val label = new Label("Java regular expressions that match the entire URI")
           label.font_=(label.font.deriveFont(Font.PLAIN))
           val strategy = new RightAlignedFlowPanel {
             contents += new Label("Strategy")

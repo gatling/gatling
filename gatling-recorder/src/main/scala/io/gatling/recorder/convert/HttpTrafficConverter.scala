@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario
+package io.gatling.recorder.convert
 
 import java.io.{ File, IOException }
 import java.nio.file.{ Path, Paths }
@@ -29,77 +29,107 @@ import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.convert.template.SimulationTemplate
 import io.gatling.recorder.har._
-import io.gatling.recorder.scenario.template.SimulationTemplate
 import io.gatling.recorder.util.HttpUtils._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http._
 
-private[recorder] object ScenarioExporter extends StrictLogging {
+private[convert] object DumpedBodies {
 
-  private val EventsGrouping = 100
+  private[convert] def apply(config: RecorderConfiguration): DumpedBodies = {
+    val classNameAsFolderName = config.core.className.toLowerCase(Locale.ROOT)
 
-  private def packageAsFolderPath(separator: String, config: RecorderConfiguration) =
-    config.core.pkg.replace(".", separator)
+    val bodiesFolderPath: Path = {
+      val path = config.core.resourcesFolder + File.separator + config.core.pkg.replace(".", File.separator) + File.separator + classNameAsFolderName
+      Paths.get(path).mkdirs()
+    }
 
-  private def classNameToFolderName(config: RecorderConfiguration): String =
-    config.core.className.toLowerCase(Locale.ROOT)
+    val bodiesClassPathLocation: String = {
+      val folderPath = config.core.pkg.replace(".", "/")
+      (if (folderPath.isEmpty) "" else (folderPath + "/")) + classNameAsFolderName
+    }
 
-  def simulationFilePath(implicit config: RecorderConfiguration): Path = {
-    val path = config.core.simulationsFolder + File.separator + packageAsFolderPath(File.separator, config)
-    getFolder(path) / s"${config.core.className}.scala"
+    new DumpedBodies(bodiesFolderPath, bodiesClassPathLocation)
+  }
+}
+
+private[convert] class DumpedBodies(
+    bodiesFolderPath: Path,
+    bodiesClassPathLocation: String
+) {
+  def forRequest(request: RequestElement, bytes: Array[Byte]): DumpedBody =
+    make(request, bytes, "request")
+
+  def forResponse(request: RequestElement, bytes: Array[Byte]): DumpedBody =
+    make(request, bytes, "response")
+
+  private def make(request: RequestElement, bytes: Array[Byte], suffix: String): DumpedBody = {
+    val fileName = s"${request.id.toString.leftPad(4, "0")}_$suffix.${request.responseFileExtension}"
+
+    new DumpedBody(
+      bodiesClassPathLocation + "/" + fileName,
+      bodiesFolderPath / fileName,
+      bytes
+    )
+  }
+}
+
+private[convert] class DumpedBody(
+    val classPathLocation: String,
+    val filePath: Path,
+    val bytes: Array[Byte]
+)
+
+private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) extends StrictLogging {
+
+  private val simulationFile: Path = {
+    val sourcesFolderPath = Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)).mkdirs()
+    sourcesFolderPath / s"${config.core.className}.scala"
   }
 
-  private def resourcesFolderPath(config: RecorderConfiguration): Path = {
-    val path = config.core.resourcesFolder + File.separator + packageAsFolderPath(File.separator, config) + File.separator + classNameToFolderName(config)
-    getFolder(path)
+  def simulationFileExists: Boolean = simulationFile.exists
+
+  private def dumpBody(body: DumpedBody): Unit = {
+    Using.resource(body.filePath.outputStream) { fw =>
+      try {
+        fw.write(body.bytes)
+      } catch {
+        case e: IOException => logger.error(s"Failed to dump body ${body.filePath}", e)
+      }
+    }
   }
 
-  private def fqcnPath(config: RecorderConfiguration): String = {
-    val folderPath = packageAsFolderPath("/", config)
-    (if (folderPath.isEmpty) "" else (folderPath + "/")) + classNameToFolderName(config) + "/"
-  }
-
-  private def requestBodyFileName(request: RequestElement) =
-    s"${request.id.toString.leftPad(4, "0")}_request.${request.fileExtension}"
-
-  def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration): String =
-    fqcnPath(config) + requestBodyFileName(request)
-
-  private def responseBodyFileName(request: RequestElement) =
-    s"${request.id.toString.leftPad(4, "0")}_response.${request.responseFileExtension}"
-
-  def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration): String =
-    fqcnPath(config) + responseBodyFileName(request)
-
-  def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
+  // RecorderController
+  def convertHarFile(harFile: Path): Validation[Unit] =
     safely(error => s"Error while processing HAR file: $error") {
-      val transactions = HarReader.readFile(harFilePath, config.filters.filters)
+      val transactions = HarReader.readFile(harFile, config.filters.filters)
 
       if (transactions.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
       } else {
         val scenarioElements = transactions.map { case HttpTransaction(request, response) =>
-          val element = RequestElement(request, response)
+          val element = RequestElement(request, response, config)
           TimedScenarioElement(request.timestamp, response.timestamp, element)
         }
 
-        ScenarioExporter.saveScenario(ScenarioDefinition(scenarioElements, tags = Nil)).success
+        convertHttpTraffic(HttpTraffic(scenarioElements, tags = Nil, config)).success
       }
     }
 
-  def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration): Unit = {
+  // RecorderController
+  def convertHttpTraffic(scenarioElements: HttpTraffic): Unit = {
     require(!scenarioElements.isEmpty)
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
 
-    Using.resource(simulationFilePath.outputStream) {
+    Using.resource(simulationFile.outputStream) {
       _.write(output.getBytes(config.core.encoding))
     }
   }
 
-  private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
+  private def renderScenarioAndDumpBodies(scenario: HttpTraffic): String = {
     // Aggregate headers
     val filteredHeaders = Set(HttpHeaderNames.COOKIE, HttpHeaderNames.CONTENT_LENGTH, HttpHeaderNames.HOST) ++
       (if (config.http.automaticReferer) Set(HttpHeaderNames.REFERER) else Set.empty)
@@ -107,6 +137,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     val scenarioElements = scenario.elements
     val mainRequestElements = scenarioElements.collect { case req: RequestElement => req }
     val requestElements = mainRequestElements.flatMap(req => req :: req.nonEmbeddedResources)
+    // FIXME mutability!!!
     requestElements.foreach { requestElement =>
       if (requestElement.headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE, true)) {
         requestElement.headers.remove(HttpHeaderNames.CONNECTION)
@@ -131,29 +162,37 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     // FIXME mutability!!!
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
-    // dump request & response bodies if needed
-    requestElements.foreach(el =>
-      el.body.foreach {
-        case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
-        case _                       =>
-      }
-    )
+    val dumpedBodies = DumpedBodies(config)
 
-    if (config.http.checkResponseBodies) {
-      requestElements.foreach(el =>
-        el.responseBody.foreach {
-          case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
-          case _                        =>
-        }
-      )
-    }
+    val requestBodies: Map[Int, DumpedBody] = {
+      for {
+        request <- requestElements
+        bytes <- request.body.collect { case RequestBodyBytes(bytes) => bytes }.toList
+      } yield request.id -> dumpedBodies.forRequest(request, bytes)
+    }.toMap
+
+    val responseBodies: Map[Int, DumpedBody] =
+      if (config.http.checkResponseBodies) {
+        {
+          for {
+            request <- requestElements
+            bytes <- request.responseBody.collect { case ResponseBodyBytes(bytes) => bytes }.toList
+          } yield request.id -> dumpedBodies.forResponse(request, bytes)
+        }.toMap
+      } else {
+        Map.empty
+      }
+
+    // dump
+    requestBodies.values.foreach(dumpBody)
+    responseBodies.values.foreach(dumpBody)
 
     val headers: Map[Int, Seq[(String, String)]] = {
 
       @tailrec
-      def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
-        case Seq() => headers
-        case element +: others =>
+      def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
+        case Nil => headers
+        case element :: others =>
           val acceptedHeaders = element.headers.entries.asScala
             .map(e => e.getKey -> e.getValue)
             .toList
@@ -191,9 +230,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
     }
 
-    val newScenarioElements = getChains(elements)
-
-    SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
+    SimulationTemplate(requestBodies, responseBodies, config).render(protocolConfigElement, headers, elements)
   }
 
   private def getBaseHeaders(requestElements: Seq[RequestElement]): HttpHeaders = {
@@ -227,21 +264,4 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
     urlsOccurrences.maxBy(_._2)._1
   }
-
-  private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =
-    if (scenarioElements.size > ScenarioExporter.EventsGrouping)
-      Right(scenarioElements.grouped(ScenarioExporter.EventsGrouping).toList)
-    else
-      Left(scenarioElements)
-
-  private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
-    Using.resource((resourcesFolderPath(config) / fileName).outputStream) { fw =>
-      try {
-        fw.write(content)
-      } catch {
-        case e: IOException => logger.error(s"Error, while dumping body $fileName...", e)
-      }
-    }
-  }
-  private def getFolder(folderPath: String): Path = Paths.get(folderPath).mkdirs()
 }

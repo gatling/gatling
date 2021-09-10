@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario.template
+package io.gatling.recorder.convert.template
 
-import scala.concurrent.duration.{ DurationLong, FiniteDuration }
+import io.gatling.BaseSpec
 
-private[scenario] object PauseTemplate {
+class SimulationTemplateSpec extends BaseSpec {
 
-  def render(duration: FiniteDuration) = s"pause(${if (duration > 1.second) duration.toSeconds.toString else duration.toString.replace(' ', '.')})"
+  "renderNonBaseUrls template" should "generate empty string if no variables" in {
+    SimulationTemplate.renderNonBaseUrls(Nil) shouldBe empty
+  }
+
+  it should "list variables" in {
+    val raw = SimulationTemplate.renderNonBaseUrls(Seq(UrlVal("name1", "url1"), UrlVal("name2", "url2")))
+    raw.linesIterator.map(_.trim).toList shouldBe List(
+      s"""val name1 = ${protectWithTripleQuotes("url1")}""",
+      s"""val name2 = ${protectWithTripleQuotes("url2")}"""
+    )
+  }
 }

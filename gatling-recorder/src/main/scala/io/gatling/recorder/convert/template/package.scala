@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario.template
+package io.gatling.recorder.convert
 
-import io.gatling.commons.util.StringHelper.Eol
+package object template {
 
-private[scenario] object ValuesTemplate {
-  def render(values: Seq[Value]): String =
-    values
-      .sortBy(_.name)
-      .map(value => s"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
-      .mkString(Eol)
+  val SimpleQuotes: String = "\""
+  val TripleQuotes: String = SimpleQuotes * 3
+
+  private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
+
+  private def containsCharactersToBeEscaped(string: String) = string.exists(isUnsafeStringChar)
+
+  def protectWithTripleQuotes(string: String): String = {
+    val stringDelimiter = if (containsCharactersToBeEscaped(string)) TripleQuotes else SimpleQuotes
+    s"$stringDelimiter$string$stringDelimiter"
+  }
 }

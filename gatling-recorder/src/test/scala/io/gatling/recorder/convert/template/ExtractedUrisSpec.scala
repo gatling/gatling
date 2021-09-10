@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario.template
+package io.gatling.recorder.convert.template
 
 import io.gatling.BaseSpec
-import io.gatling.recorder.scenario.RequestElement
+import io.gatling.recorder.convert.RequestElement
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
 
@@ -25,10 +25,7 @@ class ExtractedUrisSpec extends BaseSpec {
 
   private def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-  private def extractUris(uris: Seq[String]): ExtractedUris = {
-    val requestElements = uris.map(mockRequestElement)
-    new ExtractedUris(requestElements)
-  }
+  private def extractUris(uris: Seq[String]): ExtractedUris = ExtractedUris(uris.map(mockRequestElement))
 
   "extracting uris" should "extract common root" in {
     val commonRoot = "http://gatling.io/path1"
@@ -36,9 +33,8 @@ class ExtractedUrisSpec extends BaseSpec {
     val url2 = commonRoot + "/file2"
     val extractedUris = extractUris(Seq(url1, url2))
 
-    extractedUris.vals shouldBe List(Value("uri1", commonRoot))
-    extractedUris.renderUri(url1).toString shouldBe """uri1 + "/file1""""
-    extractedUris.renderUri(url2).toString shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(url1) shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(url2) shouldBe """uri1 + "/file2""""
   }
 
   it should "extract common roots from different authorities" in {
@@ -51,29 +47,24 @@ class ExtractedUrisSpec extends BaseSpec {
 
     val extractedUris = extractUris(Seq(gatlingUrl1, gatlingUrl2, nettyUrl1, nettyUrl2))
 
-    extractedUris.vals.toSet shouldBe Set(Value("uri1", gatlingRoot), Value("uri2", nettyRoot))
-
-    extractedUris.renderUri(gatlingUrl1).toString shouldBe """uri1 + "/file1""""
-    extractedUris.renderUri(gatlingUrl2).toString shouldBe """uri1 + "/file2""""
-    extractedUris.renderUri(nettyUrl1).toString shouldBe """uri2 + "/file1""""
-    extractedUris.renderUri(nettyUrl2).toString shouldBe """uri2 + "/file2""""
+    extractedUris.renderUri(gatlingUrl1) shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(gatlingUrl2) shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(nettyUrl1) shouldBe """uri2 + "/file1""""
+    extractedUris.renderUri(nettyUrl2) shouldBe """uri2 + "/file2""""
   }
 
   it should "preserve port and auth" in {
     val gatlingUri = "https://user:pwd@gatling.io:8080/?q=v"
     val extractedUris = extractUris(Seq(gatlingUri))
 
-    extractedUris.vals shouldBe List(Value("uri1", "https://user:pwd@gatling.io:8080"))
-    extractedUris.renderUri(gatlingUri).toString shouldBe """uri1 + "/?q=v""""
+    extractedUris.renderUri(gatlingUri) shouldBe """uri1 + "/?q=v""""
   }
 
   it should "extract only authorities when they are used with different schemes" in {
     val extractedUris = extractUris(Seq("http://gatling.io/path1/file1", "https://gatling.io/path1/file2"))
 
-    extractedUris.vals shouldBe List(Value("uri1", "gatling.io"))
-
-    extractedUris.renderUri("http://gatling.io/path1/file1").toString shouldBe """"http://" + uri1 + "/path1/file1""""
-    extractedUris.renderUri("https://gatling.io/path1/file2").toString shouldBe """"https://" + uri1 + "/path1/file2""""
+    extractedUris.renderUri("http://gatling.io/path1/file1") shouldBe """"http://" + uri1 + "/path1/file1""""
+    extractedUris.renderUri("https://gatling.io/path1/file2") shouldBe """"https://" + uri1 + "/path1/file2""""
   }
 
   it should "extract only authorities when they are used with different ports" in {
@@ -81,9 +72,7 @@ class ExtractedUrisSpec extends BaseSpec {
     val uri2 = "http://gatling.io:8080/path1/file"
     val extractedUris = extractUris(Seq(uri1, uri2))
 
-    extractedUris.vals shouldBe List(Value("uri1", "gatling.io"))
-
-    extractedUris.renderUri(uri1).toString shouldBe """"http://" + uri1 + "/path1/file""""
-    extractedUris.renderUri(uri2).toString shouldBe """"http://" + uri1 + ":8080/path1/file""""
+    extractedUris.renderUri(uri1) shouldBe """"http://" + uri1 + "/path1/file""""
+    extractedUris.renderUri(uri2) shouldBe """"http://" + uri1 + ":8080/path1/file""""
   }
 }

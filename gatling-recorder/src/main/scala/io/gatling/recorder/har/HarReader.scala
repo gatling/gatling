@@ -19,6 +19,7 @@ package io.gatling.recorder.har
 import java.io.{ BufferedInputStream, FileInputStream, InputStream }
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.util.{ Base64, Locale }
 
@@ -36,10 +37,10 @@ final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 
 private[recorder] object HarReader {
 
-  def readFile(path: String, filters: Option[Filters]): Seq[HttpTransaction] =
-    Using.resource(new BufferedInputStream(new FileInputStream(path)))(readStream(_, filters))
+  def readFile(path: Path, filters: Option[Filters]): List[HttpTransaction] =
+    Using.resource(new BufferedInputStream(new FileInputStream(path.toFile)))(readStream(_, filters))
 
-  private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
+  private[har] def readStream(is: InputStream, filters: Option[Filters]): List[HttpTransaction] = {
     val harEntries = HarParser.parseHarEntries(is)
     val filteredHarEntries = harEntries
       .filter(entry => filters.forall(_.accept(entry.request.url) && Filters.BrowserNoiseFilters.accept(entry.request.url)))
@@ -49,12 +50,12 @@ private[recorder] object HarReader {
   private def parseMillisFromIso8601DateTime(time: String): Long =
     ZonedDateTime.parse(time).toInstant.toEpochMilli
 
-  private def buildHttpTransactions(harEntries: Seq[HarEntry]): Seq[HttpTransaction] =
+  private def buildHttpTransactions(harEntries: List[HarEntry]): List[HttpTransaction] =
     harEntries.iterator
       // filter out cancelled requests
       .filter(_.response.status != 0)
       // filter out all non-HTTP protocols (eg: ws://)
-      .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
+      .filter(_.request.url.toLowerCase(Locale.ROOT).startsWith("http"))
       // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
       .filter(entry =>
         entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.exists(header =>
@@ -63,7 +64,7 @@ private[recorder] object HarReader {
       )
       .filter(entry => isValidURL(entry.request.url))
       .map(buildHttpTransaction)
-      .toVector
+      .toList
       // Chrome can mess up with request order
       .sortBy(_.request.timestamp)
 

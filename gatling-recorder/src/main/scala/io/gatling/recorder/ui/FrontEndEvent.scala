@@ -28,7 +28,7 @@ private[recorder] final case class PauseFrontEndEvent(duration: FiniteDuration) 
   override def toString = s"PAUSE $toPrint"
 }
 
-private[recorder] final case class RequestFrontEndEvent(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration)
+private[recorder] final case class RequestFrontEndEvent(request: HttpRequest, response: HttpResponse, configuration: RecorderConfiguration)
     extends FrontEndEvent {
 
   val requestBody = new String(request.body, configuration.core.encoding)

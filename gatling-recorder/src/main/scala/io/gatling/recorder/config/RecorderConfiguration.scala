@@ -48,9 +48,11 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   private val DefaultSimulationsDirectory = resolvePath(Paths.get("user-files/simulations"))
   private val DefaultResourcesDirectory = resolvePath(Paths.get("user-files/resources"))
 
-  var configFile: Option[Path] = None
+  private var configFile: Option[Path] = None
 
-  implicit var configuration: RecorderConfiguration = _
+  private var _configuration: Option[RecorderConfiguration] = None
+  def recorderConfiguration: RecorderConfiguration =
+    _configuration.getOrElse(throw new UnsupportedOperationException("RecorderConfiguration hasn't been loaded yet"))
 
   private[this] val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load(mutable.Map.empty)
 
@@ -78,23 +80,23 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
     try {
-      configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
+      _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig)))
     } catch {
       case NonFatal(e) =>
         logger.warn(s"Loading configuration crashed: ${e.rootMessage}. Probable cause is a format change, resetting.")
         configFile.foreach(_.delete())
-        configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig))
+        _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig)))
     }
   }
 
   def reload(props: mutable.Map[String, _ <: Any]): Unit = {
     val frameConfig = ConfigFactory.parseMap(props.asJava)
-    configuration = buildConfig(configChain(frameConfig, configuration.config))
+    _configuration = Some(buildConfig(configChain(frameConfig, recorderConfiguration.config)))
   }
 
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = configuration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
+    val configToSave = recorderConfiguration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
     configFile.foreach(file => Using.resource(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
   }
 

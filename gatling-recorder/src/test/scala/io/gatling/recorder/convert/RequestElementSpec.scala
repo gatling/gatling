@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario.template
+package io.gatling.recorder.convert
 
 import io.gatling.BaseSpec
+import io.gatling.recorder.convert.RequestElement.extractCharsetFromContentType
 
-class ValuesTemplateSpec extends BaseSpec {
+class RequestElementSpec extends BaseSpec {
 
-  private def str(s: String) = s.replaceAll("""\r\n""", "\n")
-
-  "values template" should "generate empty string if no variables" in {
-    val res = ValuesTemplate.render(Seq.empty)
-    res.toString shouldBe empty
+  "extractCharsetFromContentType" should "extract unwrapped charset from Content-Type" in {
+    extractCharsetFromContentType("text/html; charset=utf-8") shouldBe Some("utf-8")
   }
 
-  it should "list variables" in {
-    val res = str(ValuesTemplate.render(Seq(new Value("n1", "v1"), new Value("n2", "v2"))))
-    val expected = str(s"""    val n1 = ${protectWithTripleQuotes("v1")}
-    val n2 = ${protectWithTripleQuotes("v2")}""")
+  it should "extract wrapped charset from Content-Type" in {
+    extractCharsetFromContentType("text/html; charset=\"utf-8\"") shouldBe Some("utf-8")
+  }
 
-    res shouldBe expected
+  it should "not extract when Content-Type doesn't have a charset attribute" in {
+    extractCharsetFromContentType("text/html") shouldBe None
   }
 }

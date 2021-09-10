@@ -29,7 +29,7 @@ import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }
 private[headless] object HeadlessFrontEnd {
   private val RecorderPidFile = new File(".gatling-recorder-pid")
 }
-private[ui] class HeadlessFrontEnd(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
+private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
 
   import HeadlessFrontEnd._
 

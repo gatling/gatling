@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario
+package io.gatling.recorder.convert
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
@@ -33,7 +33,7 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHe
 import io.netty.util.AsciiString
 import jodd.net.MimeTypes
 
-private[recorder] final case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
+private[recorder] final case class TimedScenarioElement[+T <: HttpTrafficElement](sendTime: Long, arrivalTime: Long, element: T)
 
 private[recorder] sealed trait RequestBody extends Product with Serializable
 private[recorder] final case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
@@ -44,11 +44,9 @@ private[recorder] sealed trait ResponseBody extends Product with Serializable
 @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 private[recorder] final case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
 
-private[recorder] sealed trait ScenarioElement extends Product with Serializable
-
-private[recorder] final case class PauseElement(duration: FiniteDuration) extends ScenarioElement
-private[recorder] final case class TagElement(text: String) extends ScenarioElement
-
+private[recorder] sealed trait HttpTrafficElement extends Product with Serializable
+private[recorder] final case class PauseElement(duration: FiniteDuration) extends HttpTrafficElement
+private[recorder] final case class TagElement(text: String) extends HttpTrafficElement
 private[recorder] object RequestElement {
 
   private val CacheHeaders =
@@ -63,13 +61,13 @@ private[recorder] object RequestElement {
 
   private val HtmlContentType = """(?i)text/html\s*;\s+charset="?([\w\-]+)"?""".r
 
-  private[scenario] def extractCharsetFromContentType(contentType: String): Option[String] =
+  private[convert] def extractCharsetFromContentType(contentType: String): Option[String] =
     contentType match {
       case HtmlContentType(charset) => Some(charset)
       case _                        => None
     }
 
-  def apply(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
+  def apply(request: HttpRequest, response: HttpResponse, configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders = request.headers
 
     val requestBody =
@@ -131,7 +129,7 @@ private[recorder] final case class RequestElement(
     statusCode: Int,
     embeddedResources: List[ConcurrentResource],
     nonEmbeddedResources: List[RequestElement]
-) extends ScenarioElement {
+) extends HttpTrafficElement {
 
   val (baseUrl, pathQuery) = {
     val uriComponents = Uri.create(uri)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.scenario
+package io.gatling.recorder.convert
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -29,25 +29,26 @@ import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders }
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
-class ScenarioSpec extends BaseSpec {
+class HttpTrafficSpec extends BaseSpec {
 
-  private implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
+  private val config: RecorderConfiguration = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
 
-  "Scenario" should "remove HTTP redirection " in {
+  "HttpTraffic" should "remove HTTP redirection " in {
 
     val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
     val r2 = RequestElement("http://gatling.io/rn1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 302, Nil, Nil)
     val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
     val r4 = RequestElement("http://gatling.io/details.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-    val scn = ScenarioDefinition(
+    val scn = HttpTraffic(
       List(
         TimedScenarioElement(1000, 1500, r1),
         TimedScenarioElement(3000, 3500, r2),
         TimedScenarioElement(5000, 5500, r3),
         TimedScenarioElement(7000, 7500, r4)
       ),
-      List.empty
+      List.empty,
+      config
     )
     scn.elements shouldBe List(r1, PauseElement(1500.milliseconds), r2.copy(statusCode = 200), PauseElement(1500.milliseconds), r4)
   }
@@ -90,7 +91,7 @@ class ScenarioSpec extends BaseSpec {
     )
     val r6 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-    val scn = ScenarioDefinition(
+    val scn = HttpTraffic(
       List(
         TimedScenarioElement(1000, 1500, r1),
         TimedScenarioElement(2000, 2001, r2),
@@ -99,7 +100,8 @@ class ScenarioSpec extends BaseSpec {
         TimedScenarioElement(5000, 5001, r5),
         TimedScenarioElement(5005, 5010, r6)
       ),
-      Nil
+      Nil,
+      config
     )
     scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(2997.milliseconds), r5)
   }

@@ -45,7 +45,7 @@ object HarParser {
   private val TheObjectMapper = new ObjectMapper()
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  def parseHarEntries(is: InputStream): Seq[HarEntry] = {
+  def parseHarEntries(is: InputStream): List[HarEntry] = {
     val javaModel = TheObjectMapper.readValue(is, classOf[HarJavaModel.HarHttpArchive])
 
     Option(javaModel.getLog.getEntries)
@@ -122,7 +122,7 @@ object HarParser {
               )
             )
           )
-        }.toSeq
+        }.toList
       }
       .getOrElse(Nil)
   }
