@@ -40,7 +40,7 @@ import akka.actor.{ Props, Timers }
 final case class MessageSent(
     matchId: String,
     sent: Long,
-    replyTimeout: Long,
+    replyTimeoutInMs: Long,
     checks: List[JmsCheck],
     session: Session,
     next: Action,
@@ -83,7 +83,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
     // message was sent; add the timestamps to the map
     case messageSent: MessageSent =>
       sentMessages += messageSent.matchId -> messageSent
-      if (messageSent.replyTimeout > 0) {
+      if (messageSent.replyTimeoutInMs > 0) {
         triggerPeriodicTimeoutScan()
       }
 
@@ -97,15 +97,15 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
     case TimeoutScan =>
       val now = clock.nowMillis
       sentMessages.valuesIterator.foreach { message =>
-        val replyTimeout = message.replyTimeout
-        if (replyTimeout > 0 && (now - message.sent) > replyTimeout) {
+        val replyTimeoutInMs = message.replyTimeoutInMs
+        if (replyTimeoutInMs > 0 && (now - message.sent) > replyTimeoutInMs) {
           timedOutMessages += message
         }
       }
 
-      for (MessageSent(matchId, sent, receivedTimeout, _, session, next, requestName) <- timedOutMessages) {
+      for (MessageSent(matchId, sent, replyTimeoutInMs, _, session, next, requestName) <- timedOutMessages) {
         sentMessages.remove(matchId)
-        executeNext(session.markAsFailed, sent, now, KO, next, requestName, Some(s"Reply timeout after $receivedTimeout ms"))
+        executeNext(session.markAsFailed, sent, now, KO, next, requestName, Some(s"Reply timeout after $replyTimeoutInMs ms"))
       }
       timedOutMessages.clear()
   }

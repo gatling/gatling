@@ -18,6 +18,8 @@ package io.gatling.jms.protocol
 
 import javax.jms.{ ConnectionFactory, DeliveryMode }
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.model.Credentials
 
 /**
@@ -38,16 +40,15 @@ final case class JmsProtocolBuilder(
     deliveryMode: Int,
     messageMatcher: JmsMessageMatcher,
     listenerThreadCount: Int,
-    replyTimeout: Option[Long]
+    replyTimeout: Option[FiniteDuration]
 ) {
-
   def credentials(user: String, password: String): JmsProtocolBuilder = copy(creds = Some(Credentials(user, password)))
   def usePersistentDeliveryMode: JmsProtocolBuilder = copy(deliveryMode = DeliveryMode.PERSISTENT)
   def useNonPersistentDeliveryMode: JmsProtocolBuilder = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
   def matchByMessageId: JmsProtocolBuilder = messageMatcher(MessageIdMessageMatcher)
   def matchByCorrelationId: JmsProtocolBuilder = messageMatcher(CorrelationIdMessageMatcher)
   def messageMatcher(matcher: JmsMessageMatcher): JmsProtocolBuilder = copy(messageMatcher = matcher)
-  def replyTimeout(timeout: Long): JmsProtocolBuilder = copy(replyTimeout = Some(timeout))
+  def replyTimeout(timeout: FiniteDuration): JmsProtocolBuilder = copy(replyTimeout = Some(timeout))
   def listenerThreadCount(threadCount: Int): JmsProtocolBuilder = copy(listenerThreadCount = threadCount)
 
   def build: JmsProtocol = JmsProtocol(

@@ -27,7 +27,7 @@ class JmsTracker(actor: ActorRef) {
   def track(
       matchId: String,
       sent: Long,
-      replyTimeout: Long,
+      replyTimeoutInMs: Long,
       checks: List[JmsCheck],
       session: Session,
       next: Action,
@@ -36,7 +36,7 @@ class JmsTracker(actor: ActorRef) {
     actor ! MessageSent(
       matchId,
       sent,
-      replyTimeout,
+      replyTimeoutInMs,
       checks,
       session,
       next,

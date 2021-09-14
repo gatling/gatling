@@ -52,7 +52,7 @@ class RequestReply(
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
   private val messageMatcher = protocol.messageMatcher
-  private val replyTimeout = protocol.replyTimeout.getOrElse(0L)
+  private val replyTimeoutInMs = protocol.replyTimeout.fold(0L)(_.toMillis)
   private val jmsTrackerDestination = trackerDestination.map(dest => jmsConnection.destination(dest)).getOrElse(jmsReplyDestination)
 
   override protected def aroundSend(requestName: String, session: Session, message: Message): Validation[Around] =
@@ -82,7 +82,7 @@ class RequestReply(
           // [fl]
 
           if (matchId != null) {
-            tracker.track(matchId, clock.nowMillis, replyTimeout, attributes.checks, session, next, requestName)
+            tracker.track(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
           }
         },
         after = () =>
@@ -90,7 +90,7 @@ class RequestReply(
             val updatedMatchId = messageMatcher.requestMatchId(message)
 
             if (updatedMatchId != null) {
-              tracker.track(updatedMatchId, clock.nowMillis, replyTimeout, attributes.checks, session, next, requestName)
+              tracker.track(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
             } else {
               val now = clock.nowMillis
               statsEngine.logResponse(session.scenario, session.groups, requestName, now, now, KO, None, Some("Failed to get a matchId to track"))

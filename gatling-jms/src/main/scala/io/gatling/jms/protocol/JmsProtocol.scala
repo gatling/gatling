@@ -18,6 +18,8 @@ package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.model.Credentials
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -47,7 +49,7 @@ final case class JmsProtocol(
     connectionFactory: ConnectionFactory,
     credentials: Option[Credentials],
     deliveryMode: Int,
-    replyTimeout: Option[Long],
+    replyTimeout: Option[FiniteDuration],
     listenerThreadCount: Int,
     messageMatcher: JmsMessageMatcher
 ) extends Protocol {

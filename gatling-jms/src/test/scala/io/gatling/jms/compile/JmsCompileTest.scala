@@ -47,7 +47,7 @@ class JmsCompileTest extends Simulation {
         .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
     )
     .usePersistentDeliveryMode
-    .replyTimeout(1000)
+    .replyTimeout(1000.millis)
     .messageMatcher(HeaderMatcher)
     .matchByCorrelationId
     .matchByMessageId
