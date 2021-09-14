@@ -33,7 +33,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 
 import javax.net.ssl.SSLException;
 
-// FIXME remove
 public class GatlingHttpClient implements AutoCloseable {
 
   private final SslContext sslContext;
