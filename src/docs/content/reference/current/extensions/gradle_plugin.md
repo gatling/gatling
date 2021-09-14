@@ -82,13 +82,13 @@ The plugin defines the following extension properties in the `gatling` closure:
 
 | Property name | Type | Default value  | Description |
 | --- | --- | --- | --- |
-| `toolVersion`       | String  | `'3.4.0'` | Gatling version |
+| `toolVersion`       | String  | `'3.6.1'` | Gatling version |
 | `logLevel`          | String  | `'WARN'` | The default Gatling console log level if no `logback.xml` present in the configuration folder |
 | `logHttp`           | String  | `'NONE'` | Verbosity of logging HTTP requests performed by Gatling, must be one of: <br/> * `'NONE'` - do not log, <br/> * `'ALL'` - log all requests, <br/> * `'FAILURES'` - only failed requests |
 | `includeMainOutput` | Boolean | `true` | `true` |
 | `includeTestOutput` | Boolean | `true` | Include test source set output to gatlingImplementation |
-| `scalaVersion`      | String  | `'2.12.8'` | Scala version that fits your Gatling tool version |
-| `jvmArgs`           | List    | <pre>[<br>  '-server',<br>  '-Xmx1G',<br>  '-XX:+HeapDumpOnOutOfMemoryError',<br>  '-XX:+UseG1GC',<br>  '-XX:+ParallelRefProcEnabled',<br>  '-XX:MaxInlineLevel=20',<br>  '-XX:MaxTrivialSize=12',<br>  '-XX:-UseBiasedLocking'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
+| `scalaVersion`      | String  | `'2.13.6'` | Scala version that fits your Gatling tool version |
+| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br>  '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12',<br> '-XX:-UseBiasedLocking'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
 | `systemProperties`  | Map     | `['java.net.preferIPv6Addresses': true]` | Additional systems properties passed to JVM together with caller JVM system properties |
 | `simulations`       | Closure | `{ include "**/*Simulation*.scala" }` | Simulations filter. [See Gradle docs](https://gatling.io/docs/current/extensions/gradle_plugin/?highlight=gradle%20plugin#id2) for details. |
 
@@ -96,7 +96,7 @@ How to override Gatling version, JVM arguments and system properties
 
 ```groovy
 gatling {
-  toolVersion = '3.4.0'
+  toolVersion = '3.6.1'
   jvmArgs = ['-server', '-Xms512M', '-Xmx512M']
   systemProperties = ['file.encoding': 'UTF-8']
 }
