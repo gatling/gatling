@@ -50,12 +50,6 @@ If you want conditional paths in your execution flow, use the proper DSL compone
 
 {{< include-code "ScenarioSample.scala#session-improper" scala >}}
 
-`flattenMapIntoAttributes` is a built-in Session Expression as mentioned above.
-
-It exposes the content of a Map into attributes, e.g.:
-
-{{< include-code "ScenarioSample.scala#flattenMapIntoAttributes" scala >}}
-
 ### Pause
 
 #### `pause`

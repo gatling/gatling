@@ -188,16 +188,6 @@ class FeederSample {
   }
 
   {
-    //#non-shared
-    val records = csv("foo.csv").readRecords
-
-    foreach(records, "record") {
-      exec(flattenMapIntoAttributes("${record}"))
-    }
-    //#non-shared
-  }
-
-  {
     //#user-dependent-data
     import java.util.concurrent.ThreadLocalRandom
 

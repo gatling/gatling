@@ -281,14 +281,6 @@ Sometimes, you just might want to reuse or convenient built-in feeders for custo
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.
 {{< /alert >}}
 
-## Non Shared Data
-
-Sometimes, you could want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
-
-Still, it's quite easy to build, thanks to [flattenMapIntoAttributes]({{< ref "../../general/scenario#exec" >}})  e.g.:
-
-{{< include-code "FeederSample.scala#non-shared" scala >}}
-
 ## User Dependent Data
 
 Sometimes, you could want to filter the injected data depending on some information from the Session.

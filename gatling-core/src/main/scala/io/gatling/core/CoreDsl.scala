@@ -52,6 +52,7 @@ trait CoreDsl
 
   def DenyList(patterns: String*): io.gatling.core.filter.DenyList = new io.gatling.core.filter.DenyList(patterns.toList)
 
+  @deprecated("Will be removed in a future release. Please use Gatling EL Map key access.", "3.7.0")
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
 }

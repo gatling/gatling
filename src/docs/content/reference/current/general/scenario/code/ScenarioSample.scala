@@ -59,15 +59,6 @@ class ScenarioSample {
   }
   //#session-improper
 
-  //#flattenMapIntoAttributes
-  // assuming the Session contains an attribute named "theMap" whose content is :
-  // Map("foo" -> "bar", "baz" -> "qix")
-
-  exec(flattenMapIntoAttributes("${theMap}"))
-
-  // the Session contains 2 new attributes "foo" and "baz".
-  //#flattenMapIntoAttributes
-
   //#pace
   forever(
     pace(5.seconds)
