@@ -20,18 +20,34 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
+import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
 
 object WsFrameCheckSequenceBuilder {
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def resolve[T <: WsFrameCheck](builders: List[WsFrameCheckSequenceBuilder[T]], session: Session): Validation[List[WsFrameCheckSequence[T]]] =
+  def resolve[T <: WsFrameCheck](builders: List[WsFrameCheckSequenceBuilder[T]], session: Session): Validation[List[WsFrameCheckSequence[T]]] = {
     builders.foldLeft(List.empty[WsFrameCheckSequence[T]].success) { (acc, builder) =>
       for {
-        accValue <- acc
         timeout <- builder.timeout(session)
-      } yield accValue :+ WsFrameCheckSequence(timeout, builder.checks)
+        accValue <- acc
+      } yield accValue :+ WsFrameCheckSequence(timeout, resolveCheckName(builder.checks, session).asInstanceOf[List[T]])
     }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  private def resolveCheckName[T <: WsFrameCheck](checks: List[WsFrameCheck], session: Session): List[WsFrameCheck] = {
+    checks
+      .map {
+        case check: WsBinaryFrameCheck =>
+          check.checkName(session) match {
+            case Success(value) => check.copy(name = value)
+          }
+        case check: WsTextFrameCheck =>
+          check.checkName(session) match {
+            case Success(value) => check.copy(name = value)
+          }
+      }
+  }
 }
 
 final case class WsFrameCheckSequenceBuilder[+T <: WsFrameCheck](timeout: Expression[FiniteDuration], checks: List[T])
