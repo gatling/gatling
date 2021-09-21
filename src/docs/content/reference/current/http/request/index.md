@@ -450,10 +450,9 @@ You might want to process the request body before it's being sent to the wire.
 
 `processRequestBody(processor: Body => Body)`: takes a `Body => Body`
 
-Gatling ships two built-ins:
+Gatling ships one built-in:
 
 * `gzipBody`: compress the request body with GZIP
-* `streamBody`: turn the body into a stream
 
 ## Response Transformers
 

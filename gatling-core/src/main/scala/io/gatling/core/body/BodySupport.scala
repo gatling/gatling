@@ -26,6 +26,7 @@ import com.mitchellbosecke.pebble.extension.Extension
 trait BodySupport {
 
   def gzipBody: Body => Body = BodyProcessors.gzip
+  @deprecated("Probably no use case for this, will be removed in a future release.", "3.7.0")
   def streamBody: Body => Body = BodyProcessors.stream
 
   def StringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =

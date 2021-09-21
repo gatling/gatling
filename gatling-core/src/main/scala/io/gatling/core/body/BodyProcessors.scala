@@ -39,6 +39,7 @@ object BodyProcessors {
       ByteArrayBody(gzippedBytes)
     }
 
+  @deprecated("Probably no use case for this, will be removed in a future release.", "3.7.0")
   def stream: Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
