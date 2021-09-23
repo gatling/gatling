@@ -87,7 +87,7 @@ private[structure] trait Loops[B] extends Execs[B] {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def asLongAsDuring(
       condition: Expression[Boolean],
-      duration: Expression[Duration],
+      duration: Expression[FiniteDuration],
       counterName: String = UUID.randomUUID.toString,
       exitASAP: Boolean = true
   )(chain: ChainBuilder): B =
@@ -96,7 +96,7 @@ private[structure] trait Loops[B] extends Execs[B] {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def doWhileDuring(
       condition: Expression[Boolean],
-      duration: Expression[Duration],
+      duration: Expression[FiniteDuration],
       counterName: String = UUID.randomUUID.toString,
       exitASAP: Boolean = true
   )(chain: ChainBuilder): B =

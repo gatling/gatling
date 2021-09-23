@@ -22,7 +22,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 
 import com.typesafe.scalalogging.StrictLogging
@@ -73,7 +73,7 @@ final case class WsPerformingCheckState(
       NextWsState(this)
     } else {
       currentCheck match {
-        case WsTextFrameCheck(_, matchConditions, checks, _) =>
+        case WsFrameCheck.Text(_, matchConditions, checks, _) =>
           tryApplyingChecks(message, timestamp, matchConditions, checks)
 
         case _ =>
@@ -86,7 +86,7 @@ final case class WsPerformingCheckState(
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
     currentCheck match {
-      case WsBinaryFrameCheck(_, matchConditions, checks, _) =>
+      case WsFrameCheck.Binary(_, matchConditions, checks, _) =>
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>

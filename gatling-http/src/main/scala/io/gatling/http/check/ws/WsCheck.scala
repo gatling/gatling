@@ -21,19 +21,22 @@ import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.{ Expression, Session }
 
 sealed trait WsCheck
-final class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
-  override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
-    wrapped.check(message, session, preparedCache)
 
-  override def checkIf(condition: Expression[Boolean]): WsTextCheck = new WsTextCheck(wrapped.checkIf(condition))
+object WsCheck {
+  final class Text(wrapped: Check[String]) extends WsCheck with Check[String] {
+    override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+      wrapped.check(message, session, preparedCache)
 
-  override def checkIf(condition: (String, Session) => Validation[Boolean]): WsTextCheck = new WsTextCheck(wrapped.checkIf(condition))
-}
-final class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
-  override def check(message: Array[Byte], session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
-    wrapped.check(message, session, preparedCache)
+    override def checkIf(condition: Expression[Boolean]): Text = new Text(wrapped.checkIf(condition))
 
-  override def checkIf(condition: Expression[Boolean]): WsBinaryCheck = new WsBinaryCheck(wrapped.checkIf(condition))
+    override def checkIf(condition: (String, Session) => Validation[Boolean]): Text = new Text(wrapped.checkIf(condition))
+  }
+  final class Binary(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
+    override def check(message: Array[Byte], session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+      wrapped.check(message, session, preparedCache)
 
-  override def checkIf(condition: (Array[Byte], Session) => Validation[Boolean]): WsBinaryCheck = new WsBinaryCheck(wrapped.checkIf(condition))
+    override def checkIf(condition: Expression[Boolean]): Binary = new Binary(wrapped.checkIf(condition))
+
+    override def checkIf(condition: (Array[Byte], Session) => Validation[Boolean]): Binary = new Binary(wrapped.checkIf(condition))
+  }
 }

@@ -17,13 +17,13 @@
 package io.gatling.core.check.string
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ FindExtractor, _ }
+import io.gatling.core.check._
 import io.gatling.core.session._
 
 trait BodyStringCheckType
 
 object BodyStringCheckBuilder
-    extends DefaultFindCheckBuilder[BodyStringCheckType, String, String](
+    extends CheckBuilder.Find.Default[BodyStringCheckType, String, String](
       extractor = new FindExtractor[String, String]("bodyString", Some(_).success).expressionSuccess,
       displayActualValue = false
     )

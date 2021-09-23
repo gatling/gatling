@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.css
 
-import io.gatling.core.check.{ Extractor, _ }
+import io.gatling.core.check._
 import io.gatling.core.session._
 
 import jodd.lagarto.dom.NodeSelector
@@ -25,7 +25,7 @@ trait CssCheckType
 
 trait CssOfType { self: CssCheckBuilder[String] =>
 
-  def ofType[X: NodeConverter]: MultipleFindCheckBuilder[CssCheckType, NodeSelector, X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
+  def ofType[X: NodeConverter]: CheckBuilder.MultipleFind[CssCheckType, NodeSelector, X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
 }
 
 object CssCheckBuilder {
@@ -38,7 +38,7 @@ class CssCheckBuilder[X: NodeConverter](
     private[css] val expression: Expression[String],
     private[css] val nodeAttribute: Option[String],
     private[css] val selectors: CssSelectors
-) extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[CssCheckType, NodeSelector, X](displayActualValue = true) {
 
   override protected def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
     expression.map(CssExtractors.find(_, nodeAttribute, occurrence, selectors))

@@ -16,13 +16,10 @@
 
 package io.gatling.http.action.sse
 
-import scala.concurrent.duration.FiniteDuration
-
 import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 
 import com.softwaremill.quicklens._
 
@@ -30,19 +27,15 @@ final case class SseSetCheckBuilder(
     requestName: Expression[String],
     sseName: Expression[String],
     checkSequences: List[SseMessageCheckSequenceBuilder]
-) extends HttpActionBuilder {
-
-  def await(timeout: FiniteDuration)(checks: SseMessageCheck*): SseSetCheckBuilder =
-    await(timeout.expressionSuccess)(checks: _*)
-
-  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def await(timeout: Expression[FiniteDuration])(checks: SseMessageCheck*): SseSetCheckBuilder = {
-    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checkSequences)(_ :+ SseMessageCheckSequenceBuilder(timeout, checks.toList))
-  }
+) extends HttpActionBuilder
+    with SseAwaitActionBuilder[SseSetCheckBuilder] {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  override protected def appendCheckSequence(checkSequence: SseMessageCheckSequenceBuilder): SseSetCheckBuilder =
+    this.modify(_.checkSequences)(_ :+ checkSequence)
 }
 
 final case class SseCloseBuilder(requestName: Expression[String], sseName: Expression[String]) extends HttpActionBuilder {

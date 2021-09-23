@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.jsonpath
 
-import io.gatling.core.check.MultipleFindCheckBuilder
+import io.gatling.core.check.CheckBuilder
 import io.gatling.core.session._
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -27,7 +27,7 @@ trait JsonpJsonPathCheckType
 // so we can't make CheckType a parameter
 trait JsonpJsonPathOfType { self: JsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter]: MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, X] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter]: CheckBuilder.MultipleFind[JsonpJsonPathCheckType, JsonNode, X] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
 }
 
 object JsonpJsonPathCheckBuilder {

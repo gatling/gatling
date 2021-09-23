@@ -21,7 +21,7 @@ import io.gatling.core.check._
 import io.gatling.core.session._
 
 object BodyLengthCheckBuilder
-    extends DefaultFindCheckBuilder[BodyBytesCheckType, Int, Int](
+    extends CheckBuilder.Find.Default[BodyBytesCheckType, Int, Int](
       extractor = new FindExtractor[Int, Int]("bodyLength", Some(_).success).expressionSuccess,
       displayActualValue = false
     )

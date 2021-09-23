@@ -27,31 +27,30 @@ import io.gatling.core.pause.PauseType
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 
-private[structure] trait Pauses[B] extends Execs[B] {
-
-  private def durationExpression(duration: String, unit: Option[TimeUnit]): Expression[FiniteDuration] =
+object Pauses {
+  def durationExpression(duration: String, unit: Option[TimeUnit]): Expression[FiniteDuration] =
     unit match {
       case Some(u) => duration.el[Long].map(FiniteDuration(_, u))
       case _       => duration.el[FiniteDuration]
     }
 
-  private def durationExpression(min: FiniteDuration, max: FiniteDuration): Expression[FiniteDuration] =
+  def durationExpression(min: FiniteDuration, max: FiniteDuration): Expression[FiniteDuration] =
     if (min == max)
       min.expressionSuccess
     else {
       val minMillis = min.toMillis
       val maxMillis = max.toMillis
-      _ => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis).success
+      _ => ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis.success
     }
 
-  private def durationExpression(min: String, max: String, unit: Option[TimeUnit]): Expression[FiniteDuration] = {
+  def durationExpression(min: String, max: String, unit: Option[TimeUnit]): Expression[FiniteDuration] = {
     val minExpression = durationExpression(min, unit)
     val maxExpression = durationExpression(max, unit)
 
     durationExpression(minExpression, maxExpression)
   }
 
-  private def durationExpression(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): Expression[FiniteDuration] =
+  def durationExpression(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): Expression[FiniteDuration] =
     (session: Session) =>
       for {
         min <- min(session)
@@ -65,6 +64,11 @@ private[structure] trait Pauses[B] extends Execs[B] {
           ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis
         }
       }
+}
+
+private[structure] trait Pauses[B] extends Execs[B] {
+
+  import Pauses._
 
   /**
    * Method used to define a pause based on a duration defined in the session
@@ -86,9 +90,11 @@ private[structure] trait Pauses[B] extends Execs[B] {
   def pause(min: FiniteDuration, max: FiniteDuration, force: PauseType): B = pause(min, max, Some(force))
   private def pause(min: FiniteDuration, max: FiniteDuration, force: Option[PauseType]): B = pause(durationExpression(min, max), force)
 
-  def pause(min: String, max: String, unit: TimeUnit): B = pause(min, max, unit, None)
-  def pause(min: String, max: String, unit: TimeUnit, force: PauseType): B = pause(min, max, unit, Some(force))
-  private def pause(min: String, max: String, unit: TimeUnit, force: Option[PauseType]): B = pause(durationExpression(min, max, Some(unit)), force)
+  def pause(min: String, max: String): B = pause(min, max, None, None)
+  def pause(min: String, max: String, unit: TimeUnit): B = pause(min, max, Some(unit), None)
+  def pause(min: String, max: String, force: PauseType): B = pause(min, max, None, Some(force))
+  def pause(min: String, max: String, unit: TimeUnit, force: PauseType): B = pause(min, max, Some(unit), Some(force))
+  private def pause(min: String, max: String, unit: Option[TimeUnit], force: Option[PauseType]): B = pause(durationExpression(min, max, unit), force)
 
   def pause(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): B = pause(min, max, None)
   def pause(min: Expression[FiniteDuration], max: Expression[FiniteDuration], force: PauseType): B = pause(min, max, Some(force))
@@ -99,13 +105,18 @@ private[structure] trait Pauses[B] extends Execs[B] {
   private def pause(duration: Expression[FiniteDuration], force: Option[PauseType]): B = exec(new PauseBuilder(duration, force))
 
   def pace(duration: FiniteDuration): B = pace(duration.expressionSuccess)
+  def pace(duration: FiniteDuration, counter: String): B = pace(duration.expressionSuccess, counter)
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, Some(unit)))
-  def pace(min: FiniteDuration, max: FiniteDuration): B = pace(durationExpression(min, max))
-  def pace(min: String, max: String, unit: TimeUnit): B = pace(durationExpression(min, max, Some(unit)))
-  def pace(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): B = pace(durationExpression(min, max))
   def pace(duration: Expression[FiniteDuration]): B = pace(duration, UUID.randomUUID.toString)
   def pace(duration: Expression[FiniteDuration], counter: String): B = exec(new PaceBuilder(duration, counter))
+
+  def pace(min: FiniteDuration, max: FiniteDuration): B = pace(durationExpression(min, max))
+  def pace(min: FiniteDuration, max: FiniteDuration, counter: String): B = pace(durationExpression(min, max), counter)
+  def pace(min: String, max: String, unit: TimeUnit): B = pace(durationExpression(min, max, Some(unit)))
+  def pace(min: String, max: String, unit: TimeUnit, counter: String): B = pace(durationExpression(min, max, Some(unit)), counter)
+  def pace(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): B = pace(durationExpression(min, max))
+  def pace(min: Expression[FiniteDuration], max: Expression[FiniteDuration], counter: String): B = pace(durationExpression(min, max), counter)
 
   def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
 }

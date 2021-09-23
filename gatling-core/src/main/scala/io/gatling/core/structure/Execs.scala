@@ -26,6 +26,6 @@ private[structure] trait Execs[B] {
 
   def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, exitable = true))
   def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
-  def exec(execs: Execs[_]*): B = exec(execs.toIterable)
-  def exec(execs: Iterable[Execs[_]]): B = chain(execs.toList.reverse.flatMap(_.actionBuilders))
+  def exec[T <: Execs[_]](execs: T*): B = exec(execs.toIterable)
+  def exec[T <: Execs[_]](execs: Iterable[T]): B = chain(execs.toList.reverse.flatMap(_.actionBuilders))
 }

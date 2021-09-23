@@ -21,12 +21,14 @@ import java.security.MessageDigest
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.action.Action
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.check.ChecksumCheck
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.ResponseTransformer
-import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.action.{ HttpActionBuilder, HttpRequestAction }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
@@ -70,10 +72,6 @@ final case class HttpAttributes(
 )
 
 object HttpRequestBuilder {
-
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder): HttpRequestActionBuilder =
-    new HttpRequestActionBuilder(requestBuilder)
-
   private val MultipartFormDataValueExpression = HttpHeaderValues.MULTIPART_FORM_DATA.toString.expressionSuccess
   private val ApplicationFormUrlEncodedValueExpression = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString.expressionSuccess
 }
@@ -83,7 +81,9 @@ object HttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes) extends RequestBuilder[HttpRequestBuilder] {
+final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes)
+    extends RequestBuilder[HttpRequestBuilder]
+    with HttpActionBuilder {
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
@@ -158,8 +158,20 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def requestTimeout(timeout: FiniteDuration): HttpRequestBuilder =
     this.modify(_.httpAttributes.requestTimeout).setTo(Some(timeout))
 
+  override def build(ctx: ScenarioContext, next: Action): Action = {
+    import ctx._
+    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val httpRequest = build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled, coreComponents.configuration)
+    new HttpRequestAction(
+      httpRequest,
+      httpComponents.httpTxExecutor,
+      coreComponents,
+      next
+    )
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
+  private[http] def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
 
     val requestChecks = httpAttributes.checks
 

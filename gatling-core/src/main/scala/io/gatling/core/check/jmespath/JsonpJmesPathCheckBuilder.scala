@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.jmespath
 
-import io.gatling.core.check.FindCheckBuilder
+import io.gatling.core.check.CheckBuilder
 import io.gatling.core.check.jsonpath.JsonFilter
 import io.gatling.core.session._
 
@@ -28,7 +28,7 @@ trait JsonpJmesPathCheckType
 // so we can't make CheckType a parameter
 trait JsonpJmesPathOfType { self: JsonpJmesPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter]: FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, X] = new JsonpJmesPathCheckBuilder[X](path, jmesPaths)
+  def ofType[X: JsonFilter]: CheckBuilder.Find[JsonpJmesPathCheckType, JsonNode, X] = new JsonpJmesPathCheckBuilder[X](path, jmesPaths)
 }
 
 object JsonpJmesPathCheckBuilder {

@@ -16,7 +16,10 @@
 
 package io.gatling.commons.util
 
+import java.{ util => ju }
+
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
@@ -80,7 +83,7 @@ object TypeCaster extends LowPriorityTypeCaster {
     try {
       f(value)
     } catch {
-      case NonFatal(_) => throw new IllegalArgumentException(parseErrorMessage(key, value, classOf[Boolean]))
+      case NonFatal(_) => throw new IllegalArgumentException(parseErrorMessage(key, value, clazz))
     }
 
   private def tryParseV[T](key: String, value: String, clazz: Class[_])(f: String => T): Validation[T] =
@@ -251,6 +254,38 @@ object TypeCaster extends LowPriorityTypeCaster {
         case s: String         => tryParseV(key, s, classOf[Long])(_.toLong.seconds)
         case v: FiniteDuration => v.success
         case _                 => cceMessage(key, value, classOf[FiniteDuration]).failure
+      }
+  }
+
+  implicit val SeqTypeCaster: TypeCaster[Seq[Any]] = new TypeCaster[Seq[Any]] {
+    override def cast(key: String, value: Any): Seq[Any] =
+      value match {
+        case scalaSeq: Seq[_]     => scalaSeq
+        case javaList: ju.List[_] => javaList.asScala.toSeq
+        case _                    => throw new ClassCastException(cceMessage(key, value, classOf[Seq[_]]))
+      }
+
+    override def validate(key: String, value: Any): Validation[Seq[Any]] =
+      value match {
+        case scalaSeq: Seq[_]     => scalaSeq.success
+        case javaList: ju.List[_] => javaList.asScala.toSeq.success
+        case _                    => cceMessage(key, value, classOf[Seq[_]]).failure
+      }
+  }
+
+  implicit val MapTypeCaster: TypeCaster[Map[String, Any]] = new TypeCaster[Map[String, Any]] {
+    override def cast(key: String, value: Any): Map[String, Any] =
+      value match {
+        case scalaMap: Map[_, _]   => scalaMap.asInstanceOf[Map[String, Any]]
+        case javaMap: ju.Map[_, _] => javaMap.asScala.asInstanceOf[Map[String, Any]]
+        case _                     => throw new ClassCastException(cceMessage(key, value, classOf[Map[_, _]]))
+      }
+
+    override def validate(key: String, value: Any): Validation[Map[String, Any]] =
+      value match {
+        case scalaMap: Map[_, _]   => scalaMap.asInstanceOf[Map[String, Any]].success
+        case javaMap: ju.Map[_, _] => javaMap.asScala.asInstanceOf[Map[String, Any]].success
+        case _                     => cceMessage(key, value, classOf[Map[_, _]]).failure
       }
   }
 

@@ -18,7 +18,7 @@ package io.gatling.http.action.ws.fsm
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -41,7 +41,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
   override def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
       session: Session,
       next: Action
   ): NextWsState = {
@@ -60,7 +60,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
   override def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
       session: Session,
       next: Action
   ): NextWsState = {

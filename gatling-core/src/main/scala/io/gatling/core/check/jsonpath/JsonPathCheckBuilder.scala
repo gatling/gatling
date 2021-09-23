@@ -25,7 +25,7 @@ abstract class JsonPathCheckBuilderBase[T, X: JsonFilter](
     name: String,
     private[jsonpath] val path: Expression[String],
     private[jsonpath] val jsonPaths: JsonPaths
-) extends DefaultMultipleFindCheckBuilder[T, JsonNode, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[T, JsonNode, X](displayActualValue = true) {
 
   override protected def findExtractor(occurrence: Int): Expression[Extractor[JsonNode, X]] =
     path.map(JsonPathExtractors.find[X](name, _, occurrence, jsonPaths))
@@ -37,7 +37,7 @@ trait JsonPathCheckType
 
 trait JsonPathOfType { self: JsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter]: MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, X] = new JsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter]: CheckBuilder.MultipleFind[JsonPathCheckType, JsonNode, X] = new JsonPathCheckBuilder[X](path, jsonPaths)
 }
 
 object JsonPathCheckBuilder {

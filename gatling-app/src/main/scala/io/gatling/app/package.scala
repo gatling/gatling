@@ -18,12 +18,9 @@ package io.gatling
 
 import scala.collection.mutable
 
-import io.gatling.core.scenario.Simulation
-
 package object app {
 
   type ConfigOverrides = mutable.Map[String, _]
 
-  type SelectedSimulationClass = Option[Class[Simulation]]
-  type SimulationClasses = List[Class[Simulation]]
+  type JavaSimulation = io.gatling.core.javaapi.Simulation
 }

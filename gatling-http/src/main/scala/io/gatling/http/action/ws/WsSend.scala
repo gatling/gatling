@@ -22,13 +22,13 @@ import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
+import io.gatling.http.check.ws.WsFrameCheck
 
 class WsSendTextFrame(
     override val requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Text]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action
@@ -56,7 +56,7 @@ class WsSendBinaryFrame(
     override val requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action

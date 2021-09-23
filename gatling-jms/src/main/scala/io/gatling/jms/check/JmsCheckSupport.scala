@@ -56,16 +56,16 @@ trait JmsCheckSupport {
     checkBuilder.build(materializer)
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
-  implicit def validatorCheckBuilder2JmsCheck[T, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  implicit def validate2JmsCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
   )(implicit materializer: CheckMaterializer[T, JmsCheck, Message, P]): JmsCheck =
-    validatorCheckBuilder.exists
+    validate.exists
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
-  implicit def findCheckBuilder2JmsCheck[T, P, X](
-      findCheckBuilder: FindCheckBuilder[T, P, X]
+  implicit def find2JmsCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
   )(implicit materializer: CheckMaterializer[T, JmsCheck, Message, P]): JmsCheck =
-    findCheckBuilder.find.exists
+    find.find.exists
 
   implicit def jmsBodyBytesCheckMaterializer(implicit
       configuration: GatlingConfiguration

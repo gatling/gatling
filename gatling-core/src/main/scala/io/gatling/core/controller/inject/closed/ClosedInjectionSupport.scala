@@ -20,28 +20,28 @@ import scala.concurrent.duration._
 
 import io.gatling.core.controller.inject.InjectionProfileFactory
 
-final case class ConstantConcurrentNumberBuilder(number: Int) {
+final case class ConstantConcurrentUsersBuilder(number: Int) {
 
-  def during(d: FiniteDuration): ClosedInjectionStep = ConstantConcurrentNumberInjection(number, d)
+  def during(d: FiniteDuration): ClosedInjectionStep = ConstantConcurrentUsersInjection(number, d)
 }
 
-final case class RampConcurrentNumberInjectionFrom(from: Int) {
+final case class RampConcurrentUsersInjectionFrom(from: Int) {
 
-  def to(t: Int): RampConcurrentNumberInjectionTo = RampConcurrentNumberInjectionTo(from, t)
+  def to(t: Int): RampConcurrentUsersInjectionTo = RampConcurrentUsersInjectionTo(from, t)
 }
 
-final case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
+final case class RampConcurrentUsersInjectionTo(from: Int, to: Int) {
 
-  def during(d: FiniteDuration): ClosedInjectionStep = RampConcurrentNumberInjection(from, to, d)
+  def during(d: FiniteDuration): ClosedInjectionStep = RampConcurrentUsersInjection(from, to, d)
+}
+
+final case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {
+  def times(nbOfSteps: Int): IncreasingConcurrentUsersProfileBuilderWithTime = IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps)
 }
 
 final case class IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
   def eachLevelLasting(levelDuration: FiniteDuration): IncreasingConcurrentUsersCompositeStep =
     IncreasingConcurrentUsersCompositeStep(concurrentUsers, nbOfSteps, levelDuration, 0, Duration.Zero)
-}
-
-final case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {
-  def times(nbOfSteps: Int): IncreasingConcurrentUsersProfileBuilderWithTime = IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps)
 }
 
 object ClosedInjectionSupport {
@@ -55,9 +55,9 @@ trait ClosedInjectionSupport {
   implicit def closedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
     ClosedInjectionSupport.ClosedInjectionProfileFactory
 
-  def constantConcurrentUsers(number: Int): ConstantConcurrentNumberBuilder = ConstantConcurrentNumberBuilder(number)
+  def constantConcurrentUsers(number: Int): ConstantConcurrentUsersBuilder = ConstantConcurrentUsersBuilder(number)
 
-  def rampConcurrentUsers(from: Int): RampConcurrentNumberInjectionFrom = RampConcurrentNumberInjectionFrom(from)
+  def rampConcurrentUsers(from: Int): RampConcurrentUsersInjectionFrom = RampConcurrentUsersInjectionFrom(from)
 
   def incrementConcurrentUsers(concurrentUsers: Int): IncreasingConcurrentUsersProfileBuilder = IncreasingConcurrentUsersProfileBuilder(concurrentUsers)
 }

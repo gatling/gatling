@@ -24,7 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.{ Request, WebSocket }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
@@ -87,7 +87,7 @@ class WsFsm(
   def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
       session: Session,
       next: Action
   ): Unit =
@@ -96,7 +96,7 @@ class WsFsm(
   def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
       session: Session,
       next: Action
   ): Unit =

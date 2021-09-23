@@ -40,11 +40,11 @@ import net.sf.saxon.s9api.XdmNode
 
 trait CheckSupport {
 
-  implicit def validatorCheckBuilder2CheckBuilder[T, P, X](validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]): CheckBuilder[T, P] =
+  implicit def validate2Final[T, P, X](validatorCheckBuilder: CheckBuilder.Validate[T, P, X]): CheckBuilder.Final[T, P] =
     validatorCheckBuilder.exists
-  implicit def findCheckBuilder2ValidatorCheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): ValidatorCheckBuilder[T, P, X] =
+  implicit def find2Validate[T, P, X](findCheckBuilder: CheckBuilder.Find[T, P, X]): CheckBuilder.Validate[T, P, X] =
     findCheckBuilder.find
-  implicit def findCheckBuilder2CheckBuilder[T, P, X](findCheckBuilder: FindCheckBuilder[T, P, X]): CheckBuilder[T, P] =
+  implicit def find2Final[T, P, X](findCheckBuilder: CheckBuilder.Find[T, P, X]): CheckBuilder.Final[T, P] =
     findCheckBuilder.find.exists
 
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit maker: UntypedCheckIfMaker[C]): C =
@@ -53,49 +53,49 @@ trait CheckSupport {
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit maker: TypedCheckIfMaker[R, C]): C =
     maker.make(thenCheck, condition)
 
-  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, String, String] with RegexOfType =
+  def regex(pattern: Expression[String])(implicit patterns: Patterns): CheckBuilder.MultipleFind[RegexCheckType, String, String] with RegexOfType =
     RegexCheckBuilder.regex(pattern, patterns)
 
-  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
+  val bodyString: CheckBuilder.Find[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
-  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
+  val bodyBytes: CheckBuilder.Find[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
 
-  val bodyLength: FindCheckBuilder[BodyBytesCheckType, Int, Int] = BodyLengthCheckBuilder
+  val bodyLength: CheckBuilder.Find[BodyBytesCheckType, Int, Int] = BodyLengthCheckBuilder
 
-  val bodyStream: FindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
+  val bodyStream: CheckBuilder.Find[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
 
-  def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
+  def substring(pattern: Expression[String]): CheckBuilder.MultipleFind[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
-  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, XdmNode, String] =
+  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): CheckBuilder.MultipleFind[XPathCheckType, XdmNode, String] =
     xpath(path, Map.empty[String, String])
   def xpath(path: Expression[String], namespaces: Map[String, String])(implicit
       xmlParsers: XmlParsers
-  ): MultipleFindCheckBuilder[XPathCheckType, XdmNode, String] =
+  ): CheckBuilder.MultipleFind[XPathCheckType, XdmNode, String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
-  def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
+  def css(selector: Expression[String])(implicit selectors: CssSelectors): CheckBuilder.MultipleFind[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
   def css(selector: Expression[String], nodeAttribute: String)(implicit
       selectors: CssSelectors
-  ): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
+  ): CheckBuilder.MultipleFind[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
-  def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] =
+  def form(selector: Expression[String])(implicit selectors: CssSelectors): CheckBuilder.MultipleFind[CssCheckType, NodeSelector, Map[String, Any]] =
     css(selector).ofType[Map[String, Any]]
 
-  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
+  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): CheckBuilder.MultipleFind[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
-  def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
+  def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): CheckBuilder.Find[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
     JmesPathCheckBuilder.jmesPath(path, jmesPaths)
 
   def jsonpJsonPath(
       path: Expression[String]
-  )(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
+  )(implicit jsonPaths: JsonPaths): CheckBuilder.MultipleFind[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
 
   def jsonpJmesPath(
       path: Expression[String]
-  )(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
+  )(implicit jmesPaths: JmesPaths): CheckBuilder.Find[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
     JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
 
   def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = {
@@ -103,8 +103,8 @@ trait CheckSupport {
     JmesPathFunctions.register(functions)
   }
 
-  val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
-  val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1
+  val md5: CheckBuilder.Find[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
+  val sha1: CheckBuilder.Find[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1
 
-  val responseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] = ResponseTimeCheckBuilder.ResponseTimeInMillis
+  val responseTimeInMillis: CheckBuilder.Find[ResponseTimeCheckType, ResponseTimings, Int] = ResponseTimeCheckBuilder.ResponseTimeInMillis
 }

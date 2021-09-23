@@ -68,26 +68,26 @@ trait MqttCheckSupport {
     checkBuilder.build(materializer)
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for MQTT.")
-  implicit def validatorCheckBuilder2MqttCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]) //
-  (implicit materializer: CheckMaterializer[A, MqttCheck, ByteBuf, P]): MqttCheck =
-    validatorCheckBuilder.exists
+  implicit def validate2MqttCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, MqttCheck, ByteBuf, P]): MqttCheck =
+    validate.exists
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for MQTT.")
-  implicit def findCheckBuilder2MqttCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) //
-  (implicit materializer: CheckMaterializer[A, MqttCheck, ByteBuf, P]): MqttCheck =
-    findCheckBuilder.find.exists
+  implicit def find2MqttCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, MqttCheck, ByteBuf, P]): MqttCheck =
+    find.find.exists
 
   // correlators
-  implicit def findCheckBuilder2MessageCorrelator[A, P](findCheckBuilder: FindCheckBuilder[A, P, String]) //
-  (implicit
-      textMaterializer: CheckMaterializer[A, Check[String], String, P],
-      bufferMaterializer: CheckMaterializer[A, Check[ByteBuf], ByteBuf, P]
+  implicit def find2MessageCorrelator[T, P](findCheckBuilder: CheckBuilder.Find[T, P, String])(implicit
+      textMaterializer: CheckMaterializer[T, Check[String], String, P],
+      bufferMaterializer: CheckMaterializer[T, Check[ByteBuf], ByteBuf, P]
   ): MessageCorrelator =
-    validatorCheckBuilder2MessageCorrelator(findCheckBuilder.find)
+    validate2MessageCorrelator(findCheckBuilder.find)
 
-  implicit def validatorCheckBuilder2MessageCorrelator[A, P](validatorCheckBuilder: ValidatorCheckBuilder[A, P, String]) //
-  (implicit
-      textMaterializer: CheckMaterializer[A, Check[String], String, P],
-      bufferMaterializer: CheckMaterializer[A, Check[ByteBuf], ByteBuf, P]
+  implicit def validate2MessageCorrelator[T, P](validate: CheckBuilder.Validate[T, P, String])(implicit
+      textMaterializer: CheckMaterializer[T, Check[String], String, P],
+      bufferMaterializer: CheckMaterializer[T, Check[ByteBuf], ByteBuf, P]
   ): MessageCorrelator = ???
 }

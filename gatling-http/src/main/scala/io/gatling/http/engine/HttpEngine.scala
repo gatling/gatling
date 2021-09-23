@@ -121,13 +121,13 @@ class HttpEngine(
         case _ =>
           val expression = "foo".expressionSuccess
 
-          Http(expression)
+          new Http(expression)
             .get(expression)
             .header("bar", expression)
             .queryParam(expression, expression)
             .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
 
-          Http(expression)
+          new Http(expression)
             .post(expression)
             .header("bar", expression)
             .formParam(expression, expression)

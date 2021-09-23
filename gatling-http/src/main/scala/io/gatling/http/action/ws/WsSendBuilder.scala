@@ -16,13 +16,11 @@
 
 package io.gatling.http.action.ws
 
-import scala.concurrent.duration.FiniteDuration
-
 import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
+import io.gatling.http.check.ws.WsFrameCheck
 
 import com.softwaremill.quicklens._
 
@@ -30,17 +28,13 @@ final case class WsSendTextFrameBuilder(
     requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]]
-) extends HttpActionBuilder {
-
-  def await(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
-    await(timeout.expressionSuccess)(checks: _*)
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Text]]
+) extends HttpActionBuilder
+    with WsAwaitActionBuilder[WsSendTextFrameBuilder, WsFrameCheck.Text] {
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder = {
-    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checkSequences)(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
-  }
+  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck.Text]): WsSendTextFrameBuilder =
+    this.modify(_.checkSequences)(_ :+ checkSequence)
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendTextFrame(
@@ -58,16 +52,13 @@ final case class WsSendBinaryFrameBuilder(
     requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]]
-) extends HttpActionBuilder {
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]]
+) extends HttpActionBuilder
+    with WsAwaitActionBuilder[WsSendBinaryFrameBuilder, WsFrameCheck.Binary] {
 
-  def await(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
-    await(timeout.expressionSuccess)(checks: _*)
-
-  def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder = {
-    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
-    this.modify(_.checkSequences)(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
-  }
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck.Binary]): WsSendBinaryFrameBuilder =
+    this.modify(_.checkSequences)(_ :+ checkSequence)
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendBinaryFrame(

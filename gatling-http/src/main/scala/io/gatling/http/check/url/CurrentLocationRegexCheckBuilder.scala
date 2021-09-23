@@ -29,7 +29,8 @@ trait CurrentLocationRegexCheckType
 trait CurrentLocationRegexOfType {
   self: CurrentLocationRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor]: MultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: CheckBuilder.MultipleFind[CurrentLocationRegexCheckType, String, X] =
+    new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
 }
 
 object CurrentLocationRegexCheckBuilder {
@@ -41,7 +42,7 @@ object CurrentLocationRegexCheckBuilder {
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
     private[url] val pattern: Expression[String],
     private[url] val patterns: Patterns
-) extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {
 
   override protected def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
     pattern.map(RegexExtractors.find[X]("currentLocationRegex", _, occurrence, patterns))

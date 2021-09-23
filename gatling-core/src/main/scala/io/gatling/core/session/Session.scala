@@ -16,7 +16,6 @@
 
 package io.gatling.core.session
 
-import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing

@@ -41,7 +41,7 @@ trait HttpDsl
 
   def http(implicit configuration: GatlingConfiguration): HttpProtocolBuilder = HttpProtocolBuilder(configuration)
 
-  def http(requestName: Expression[String]): Http = Http(requestName)
+  def http(requestName: Expression[String]): Http = new Http(requestName)
 
   val sse: Sse.type = Sse
   val ws: Ws.type = Ws

@@ -36,12 +36,12 @@ final case class RampRateBuilder(rate1: Double, rate2: Double) {
   def during(d: FiniteDuration): RampRateOpenInjection = RampRateOpenInjection(rate1, rate2, d)
 }
 
-final case class IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
-  def eachLevelLasting(d: FiniteDuration): IncreasingUsersPerSecCompositeStep = IncreasingUsersPerSecCompositeStep(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
-}
-
 final case class IncreasingUsersPerSecProfileBuilder(usersPerSec: Double) {
   def times(nbOfSteps: Int): IncreasingUsersPerSecProfileBuilderWithTime = IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec, nbOfSteps)
+}
+
+final case class IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
+  def eachLevelLasting(d: FiniteDuration): IncreasingUsersPerSecCompositeStep = IncreasingUsersPerSecCompositeStep(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
 }
 
 object OpenInjectionSupport {

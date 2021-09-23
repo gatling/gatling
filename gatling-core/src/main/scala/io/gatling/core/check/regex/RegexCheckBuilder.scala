@@ -16,14 +16,14 @@
 
 package io.gatling.core.check.regex
 
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extractor, MultipleFindCheckBuilder }
+import io.gatling.core.check.{ CheckBuilder, Extractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 
 trait RegexCheckType
 
 trait RegexOfType { self: RegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor]: MultipleFindCheckBuilder[RegexCheckType, String, X] = new RegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: CheckBuilder.MultipleFind[RegexCheckType, String, X] = new RegexCheckBuilder[X](pattern, patterns)
 }
 
 object RegexCheckBuilder {
@@ -35,7 +35,7 @@ object RegexCheckBuilder {
 class RegexCheckBuilder[X: GroupExtractor](
     private[regex] val pattern: Expression[String],
     private[regex] val patterns: Patterns
-) extends DefaultMultipleFindCheckBuilder[RegexCheckType, String, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[RegexCheckType, String, X](displayActualValue = true) {
 
   override protected def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
     pattern.map(RegexExtractors.find[X]("regex", _, occurrence, patterns))

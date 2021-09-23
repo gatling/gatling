@@ -24,7 +24,7 @@ Global / scalaVersion := "2.13.6"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
-  .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .dependsOn(Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(
     nettyUtil,
     commonsShared,
@@ -32,10 +32,12 @@ lazy val root = Project("gatling-parent", file("."))
     commons,
     jsonpath,
     core,
+    coreJava,
     jdbc,
     redis,
     httpClient,
     http,
+    httpJava,
     jms,
     mqtt,
     charts,
@@ -94,6 +96,10 @@ lazy val core = gatlingModule("gatling-core")
   .settings(libraryDependencies ++= coreDependencies)
   .settings(copyGatlingDefaults(compiler))
 
+lazy val coreJava = gatlingModule("gatling-core-java")
+  .dependsOn(core % "compile->compile;test->test")
+  .settings(libraryDependencies ++= coreJavaDependencies)
+
 lazy val jdbc = gatlingModule("gatling-jdbc")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jdbcDependencies)
@@ -113,6 +119,10 @@ lazy val httpClient = gatlingModule("gatling-http-client")
 lazy val http = gatlingModule("gatling-http")
   .dependsOn(core % "compile->compile;test->test", httpClient % "compile->compile;test->test")
   .settings(libraryDependencies ++= httpDependencies)
+
+lazy val httpJava = gatlingModule("gatling-http-java")
+  .dependsOn(coreJava, http % "compile->compile;test->test")
+  .settings(libraryDependencies ++= httpJavaDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")
   .dependsOn(core % "compile->compile;test->test")
@@ -138,7 +148,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, http, jms, mqtt, jdbc, redis, graphite, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, mqtt, jdbc, redis, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)

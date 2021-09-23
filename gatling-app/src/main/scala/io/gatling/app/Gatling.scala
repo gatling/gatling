@@ -25,6 +25,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.scenario.Simulation
 import io.gatling.netty.util.Transports
 
 import akka.actor.ActorSystem
@@ -40,9 +41,12 @@ object Gatling extends StrictLogging {
   def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
 
   // used by sbt-test-framework
-  private[gatling] def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
+  private[gatling] def fromSbtTestFramework(args: Array[String], selectedSimulationClass: Class[Simulation]): Int =
+    fromArgs(args, Some(SimulationClass.Scala(selectedSimulationClass)))
+
+  private def fromArgs(args: Array[String], forcedSimulationClass: Option[SimulationClass]): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, selectedSimulationClass)
+      case Left(overrides)   => start(overrides, forcedSimulationClass)
       case Right(statusCode) => statusCode.code
     }
 
@@ -55,7 +59,7 @@ object Gatling extends StrictLogging {
         logger.debug("Could not terminate ActorSystem", e)
     }
 
-  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
+  private def start(overrides: ConfigOverrides, forcedSimulationClass: Option[SimulationClass]) =
     try {
       //[fl]
       //
@@ -80,7 +84,7 @@ object Gatling extends StrictLogging {
             try {
               val runner = Runner(system, eventLoopGroup, configuration)
               logger.trace("Runner instantiated")
-              runner.run(selectedSimulationClass)
+              runner.run(forcedSimulationClass)
             } catch {
               case e: Throwable =>
                 logger.error("Run crashed", e)

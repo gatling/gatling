@@ -56,37 +56,37 @@ trait HttpCheckSupport {
     checkBuilder.build(materializer)
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def validatorCheckBuilder2HttpCheck[T, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  implicit def validate2HttpCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
   )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
-    validatorCheckBuilder.exists
+    validate.exists
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def findCheckBuilder2HttpCheck[T, P, X](
-      findCheckBuilder: FindCheckBuilder[T, P, X]
+  implicit def find2HttpCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
   )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
-    findCheckBuilder.find.exists
+    find.find.exists
 
-  val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
+  val currentLocation: CheckBuilder.Find[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
   implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] =
     CurrentLocationCheckMaterializer.Instance
 
   def currentLocationRegex(
       pattern: Expression[String]
-  )(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, String] with CurrentLocationRegexOfType =
+  )(implicit patterns: Patterns): CheckBuilder.MultipleFind[CurrentLocationRegexCheckType, String, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
   implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, String] =
     CurrentLocationRegexCheckMaterializer.Instance
 
-  val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder
+  val status: CheckBuilder.Find[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder
   implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer.Instance
 
-  val header: Expression[CharSequence] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)
+  def header(headerName: Expression[CharSequence]): CheckBuilder.MultipleFind[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(headerName)
   implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer.Instance
 
   def headerRegex(headerName: Expression[CharSequence], pattern: Expression[String])(implicit
       patterns: Patterns
-  ): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
+  ): CheckBuilder.MultipleFind[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
   implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] =
     HttpHeaderRegexCheckMaterializer.Instance

@@ -17,7 +17,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.controller.inject.InjectionProfileFactory
+import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory }
 
 /**
  * This trait defines most of the scenario related DSL
@@ -30,6 +30,10 @@ trait StructureBuilder[B <: StructureBuilder[B]]
     with ConditionalStatements[B]
     with Errors[B]
     with Groups[B]
+
+object ChainBuilder {
+  val Empty: ChainBuilder = new ChainBuilder(Nil)
+}
 
 /**
  * This class defines chain related methods
@@ -57,16 +61,19 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
 
   def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
+    inject(implicitly[InjectionProfileFactory[T]].profile(iss))
+  }
+
+  private[gatling] def inject(injectionProfile: InjectionProfile): PopulationBuilder =
     PopulationBuilder(
       scenarioBuilder = this,
-      injectionProfile = implicitly[InjectionProfileFactory[T]].profile(iss),
+      injectionProfile = injectionProfile,
       scenarioProtocols = Map.empty,
       scenarioThrottleSteps = Nil,
       pauseType = None,
       children = Nil,
       shard = true
     )
-  }
 }
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {

@@ -31,59 +31,59 @@ trait WsCheckSupport {
 
   implicit def checkBuilder2WsTextCheck[T, P](
       checkBuilder: CheckBuilder[T, P]
-  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Text, String, P]): WsCheck.Text =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2WsTextCheck[T, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
-  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
-    validatorCheckBuilder.exists
+  implicit def validate2WsTextCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Text, String, P]): WsCheck.Text =
+    validate.exists
 
-  implicit def findCheckBuilder2WsTextCheck[T, P, X](
-      findCheckBuilder: FindCheckBuilder[T, P, X]
-  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
-    findCheckBuilder.find.exists
+  implicit def find2WsTextCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Text, String, P]): WsCheck.Text =
+    find.find.exists
 
   implicit def checkBuilder2WsBinaryCheck[T, P](
       checkBuilder: CheckBuilder[T, P]
-  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Binary, Array[Byte], P]): WsCheck.Binary =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2WsBinaryCheck[T, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
-  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
-    validatorCheckBuilder.exists
+  implicit def validate2WsBinaryCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Binary, Array[Byte], P]): WsCheck.Binary =
+    validate.exists
 
-  implicit def findCheckBuilder2WsBinaryCheck[T, P, X](
-      findCheckBuilder: FindCheckBuilder[T, P, X]
-  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
-    findCheckBuilder.find.exists
+  implicit def find2WsBinaryCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsCheck.Binary, Array[Byte], P]): WsCheck.Binary =
+    find.find.exists
 
-  implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] =
-    WsTextCheckMaterializer.jsonPath(jsonParsers)
+  implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsCheck.Text, String, JsonNode] =
+    WsCheckMaterializer.Text.jsonPath(jsonParsers)
 
-  implicit def wsJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, WsTextCheck, String, JsonNode] =
-    WsTextCheckMaterializer.jmesPath(jsonParsers)
+  implicit def wsJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, WsCheck.Text, String, JsonNode] =
+    WsCheckMaterializer.Text.jmesPath(jsonParsers)
 
-  implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsTextCheck, String, String] = WsTextCheckMaterializer.Regex
+  implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsCheck.Text, String, String] = WsCheckMaterializer.Text.Regex
 
-  implicit val wsBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, WsTextCheck, String, String] =
-    WsTextCheckMaterializer.BodyString
+  implicit val wsBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, WsCheck.Text, String, String] =
+    WsCheckMaterializer.Text.BodyString
 
-  implicit val wsSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, WsTextCheck, String, String] =
-    WsTextCheckMaterializer.Substring
+  implicit val wsSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, WsCheck.Text, String, String] =
+    WsCheckMaterializer.Text.Substring
 
-  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] =
-    WsBinaryCheckMaterializer.BodyBytes
+  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsCheck.Binary, Array[Byte], Array[Byte]] =
+    WsCheckMaterializer.Binary.BodyBytes
 
-  implicit val wsBodyLengthCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Int] =
-    WsBinaryCheckMaterializer.BodyLength
+  implicit val wsBodyLengthCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsCheck.Binary, Array[Byte], Int] =
+    WsCheckMaterializer.Binary.BodyLength
 
-  implicit val wsTextUntypedCheckIfMaker: UntypedCheckIfMaker[WsTextCheck] = _.checkIf(_)
+  implicit val wsTextUntypedCheckIfMaker: UntypedCheckIfMaker[WsCheck.Text] = _.checkIf(_)
 
-  implicit val wsTextTypedCheckIfMaker: TypedCheckIfMaker[String, WsTextCheck] = _.checkIf(_)
+  implicit val wsTextTypedCheckIfMaker: TypedCheckIfMaker[String, WsCheck.Text] = _.checkIf(_)
 
-  implicit val wsBinaryUntypedCheckIfMaker: UntypedCheckIfMaker[WsBinaryCheck] = _.checkIf(_)
+  implicit val wsBinaryUntypedCheckIfMaker: UntypedCheckIfMaker[WsCheck.Binary] = _.checkIf(_)
 
-  implicit val wsBinaryTypedCheckIfMaker: TypedCheckIfMaker[Array[Byte], WsBinaryCheck] = _.checkIf(_)
+  implicit val wsBinaryTypedCheckIfMaker: TypedCheckIfMaker[Array[Byte], WsCheck.Binary] = _.checkIf(_)
 }

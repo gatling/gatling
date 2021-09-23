@@ -27,73 +27,21 @@ import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protoc
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
 
-abstract class Simulation {
+object Simulation {
+  private[gatling] def params(
+      name: String,
+      _populationBuilders: List[PopulationBuilder],
+      _globalProtocols: Protocols,
+      _assertions: Seq[Assertion],
+      _maxDuration: Option[FiniteDuration],
+      _globalPauseType: PauseType,
+      _globalThrottleSteps: Iterable[ThrottleStep],
+      _before: () => Unit,
+      _after: () => Unit,
+      configuration: GatlingConfiguration
+  ): SimulationParams = {
 
-  private var _populationBuilders: List[PopulationBuilder] = Nil
-  private var _globalProtocols: Protocols = Map.empty
-  private var _assertions = Seq.empty[Assertion]
-  private var _maxDuration: Option[FiniteDuration] = None
-  private var _globalPauseType: PauseType = Constant
-  private var _globalThrottleSteps: Iterable[ThrottleStep] = Nil
-  private var _beforeSteps: List[() => Unit] = Nil
-  private var _afterSteps: List[() => Unit] = Nil
-
-  def before(step: => Unit): Unit =
-    _beforeSteps = _beforeSteps ::: List(() => step)
-
-  def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
-
-  def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
-    require(_populationBuilders.isEmpty, "setUp can only be called once")
-    require(!populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
-    _populationBuilders = populationBuilders
-    new SetUp
-  }
-
-  def after(step: => Unit): Unit =
-    _afterSteps = _afterSteps ::: List(() => step)
-
-  class SetUp {
-
-    def protocols(ps: Protocol*): SetUp = protocols(ps.toIterable)
-
-    def protocols(ps: Iterable[Protocol]): SetUp = {
-      _globalProtocols = _globalProtocols ++ Protocol.indexByType(ps)
-      this
-    }
-
-    def assertions(asserts: Assertion*): SetUp = assertions(asserts.toIterable)
-
-    def assertions(asserts: Iterable[Assertion]): SetUp = {
-      _assertions = _assertions ++ asserts
-      this
-    }
-
-    def maxDuration(duration: FiniteDuration): SetUp = {
-      _maxDuration = Some(duration)
-      this
-    }
-
-    def throttle(throttleSteps: ThrottleStep*): SetUp = throttle(throttleSteps.toIterable)
-
-    def throttle(throttleSteps: Iterable[ThrottleStep]): SetUp = {
-      _globalThrottleSteps = throttleSteps
-      this
-    }
-
-    def disablePauses: SetUp = pauses(Disabled)
-    def constantPauses: SetUp = pauses(Constant)
-    def exponentialPauses: SetUp = pauses(Exponential)
-    def customPauses(custom: Expression[Long]): SetUp = pauses(new Custom(custom))
-    def uniformPauses(plusOrMinus: Double): SetUp = pauses(new UniformPercentage(plusOrMinus))
-    def uniformPauses(plusOrMinus: FiniteDuration): SetUp = pauses(new UniformDuration(plusOrMinus))
-    def pauses(pauseType: PauseType): SetUp = {
-      _globalPauseType = pauseType
-      this
-    }
-  }
-
-  private[gatling] def params(configuration: GatlingConfiguration): SimulationParams = {
+    require(!_populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
 
     val rootPopulationBuilders = _populationBuilders
     require(rootPopulationBuilders.nonEmpty, "No scenario set up")
@@ -140,19 +88,98 @@ abstract class Simulation {
     }
 
     new SimulationParams(
-      getClass.getName,
+      name,
       rootPopulationBuilders,
       childrenPopulationBuilders,
       _globalProtocols,
       _globalPauseType,
       Throttlings(globalThrottling, scenarioThrottlings),
       maxDuration,
-      _assertions
+      _assertions,
+      _before,
+      _after
     )
   }
+}
 
-  private[gatling] def executeBefore(): Unit = _beforeSteps.foreach(_.apply())
-  private[gatling] def executeAfter(): Unit = _afterSteps.foreach(_.apply())
+abstract class Simulation {
+
+  private var _populationBuilders: List[PopulationBuilder] = Nil
+  private var _globalProtocols: Protocols = Map.empty
+  private var _assertions: Seq[Assertion] = Nil
+  private var _maxDuration: Option[FiniteDuration] = None
+  private var _globalPauseType: PauseType = Constant
+  private var _globalThrottleSteps: Iterable[ThrottleStep] = Nil
+  private var _before: () => Unit = () => {}
+  private var _after: () => Unit = () => {}
+
+  def before(step: => Unit): Unit =
+    _before = () => step
+
+  def after(step: => Unit): Unit =
+    _after = () => step
+
+  def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
+
+  def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
+    require(_populationBuilders.isEmpty, "setUp can only be called once")
+    _populationBuilders = populationBuilders
+    new SetUp
+  }
+
+  class SetUp {
+
+    def protocols(ps: Protocol*): SetUp = protocols(ps.toList)
+
+    def protocols(ps: Iterable[Protocol]): SetUp = {
+      _globalProtocols = _globalProtocols ++ Protocol.indexByType(ps)
+      this
+    }
+
+    def assertions(asserts: Assertion*): SetUp = assertions(asserts.toList)
+
+    def assertions(asserts: Iterable[Assertion]): SetUp = {
+      _assertions = _assertions ++ asserts
+      this
+    }
+
+    def maxDuration(duration: FiniteDuration): SetUp = {
+      _maxDuration = Some(duration)
+      this
+    }
+
+    def throttle(throttleSteps: ThrottleStep*): SetUp = throttle(throttleSteps.toList)
+
+    def throttle(throttleSteps: Iterable[ThrottleStep]): SetUp = {
+      _globalThrottleSteps = throttleSteps
+      this
+    }
+
+    def disablePauses: SetUp = pauses(Disabled)
+    def constantPauses: SetUp = pauses(Constant)
+    def exponentialPauses: SetUp = pauses(Exponential)
+    def customPauses(custom: Expression[Long]): SetUp = pauses(new Custom(custom))
+    def uniformPauses(plusOrMinus: Double): SetUp = pauses(new UniformPercentage(plusOrMinus))
+    def uniformPauses(plusOrMinus: FiniteDuration): SetUp = pauses(new UniformDuration(plusOrMinus))
+    def pauses(pauseType: PauseType): SetUp = {
+      _globalPauseType = pauseType
+      this
+    }
+  }
+
+  private[gatling] def params(configuration: GatlingConfiguration): SimulationParams =
+    Simulation.params(
+      getClass.getName,
+      _populationBuilders,
+      _globalProtocols,
+      _assertions,
+      _maxDuration,
+      _globalPauseType,
+      _globalThrottleSteps,
+      _before,
+      _after,
+      configuration
+    )
 }
 
 final class SimulationParams(
@@ -163,7 +190,9 @@ final class SimulationParams(
     val globalPauseType: PauseType,
     val throttlings: Throttlings,
     val maxDuration: Option[FiniteDuration],
-    val assertions: Seq[Assertion]
+    val assertions: Seq[Assertion],
+    val before: () => Unit,
+    val after: () => Unit
 ) {
 
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =

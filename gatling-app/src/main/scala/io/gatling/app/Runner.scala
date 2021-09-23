@@ -44,28 +44,26 @@ private object Runner {
 
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
-  private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult = {
+  private[app] def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {
     if (configuration.http.enableGA) Ga.send(configuration.core.version)
-    run0(selectedSimulationClass)
+    run0(forcedSimulationClass)
   }
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
 
-  private def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
+  private def run0(forcedSimulationClass: Option[SimulationClass]): RunResult = {
     logger.trace("Running")
 
     // ugly way to pass the configuration to the DSL
     io.gatling.core.Predef._configuration = configuration
 
-    val selection = Selection(selectedSimulationClass, configuration)
-    val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()
-    logger.trace("Simulation instantiated")
-    val simulationParams = simulation.params(configuration)
+    val selection = Selection(forcedSimulationClass, configuration)
+    val simulationParams = selection.simulationClass.params(configuration)
     logger.trace("Simulation params built")
 
-    simulation.executeBefore()
-    logger.trace("Before hooks executed")
+    simulationParams.before()
+    logger.trace("Before hook executed")
 
     val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
@@ -81,8 +79,8 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     start(simulationParams, scenarios, coreComponents) match {
       case Failure(t) => throw t
       case _ =>
-        simulation.executeAfter()
-        logger.trace("After hooks executed")
+        simulationParams.after()
+        logger.trace("After hook executed")
         new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }

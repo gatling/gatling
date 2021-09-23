@@ -74,5 +74,4 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)
-
 }

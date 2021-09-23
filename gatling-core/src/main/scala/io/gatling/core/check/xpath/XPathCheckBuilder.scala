@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.xpath
 
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extractor }
+import io.gatling.core.check.{ CheckBuilder, Extractor }
 import io.gatling.core.session._
 
 import net.sf.saxon.s9api.XdmNode
@@ -27,7 +27,7 @@ class XPathCheckBuilder(
     path: Expression[String],
     namespaces: Map[String, String],
     xmlParsers: XmlParsers
-) extends DefaultMultipleFindCheckBuilder[XPathCheckType, XdmNode, String](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[XPathCheckType, XdmNode, String](displayActualValue = true) {
 
   override protected def findExtractor(occurrence: Int): Expression[Extractor[XdmNode, String]] =
     path.map(XPathExtractors.find(_, namespaces, occurrence, xmlParsers))

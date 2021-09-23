@@ -28,7 +28,7 @@ sealed trait ClosedInjectionStep extends Product with Serializable {
   private[inject] def isEmpty: Boolean
 }
 
-final case class ConstantConcurrentNumberInjection private[inject] (number: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
+final case class ConstantConcurrentUsersInjection private[inject] (number: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
 
   require(number >= 0, s"Constant number of concurrent users $number must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
@@ -41,7 +41,7 @@ final case class ConstantConcurrentNumberInjection private[inject] (number: Int,
   override private[inject] def isEmpty: Boolean = number == 0
 }
 
-final case class RampConcurrentNumberInjection private[inject] (from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
+final case class RampConcurrentUsersInjection private[inject] (from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
 
   private val slope = (to - from).toDouble / duration.toSeconds
 
@@ -81,23 +81,23 @@ final case class IncreasingConcurrentUsersCompositeStep private[inject] (
             // (ramp, level)*
             val rampStartRate = stepIdx * concurrentUsers
             val levelRate = (stepIdx + 1) * concurrentUsers
-            RampConcurrentNumberInjection(rampStartRate, levelRate, rampDuration) :: ConstantConcurrentNumberInjection(levelRate, levelDuration) :: Nil
+            RampConcurrentUsersInjection(rampStartRate, levelRate, rampDuration) :: ConstantConcurrentUsersInjection(levelRate, levelDuration) :: Nil
 
           } else {
             // (level, ramp)* + level
             val levelRate = stepIdx * concurrentUsers + startingUsers
-            val level = ConstantConcurrentNumberInjection(levelRate, levelDuration)
+            val level = ConstantConcurrentUsersInjection(levelRate, levelDuration)
             if (stepIdx == nbOfSteps - 1) {
               level :: Nil
             } else {
               val rampEndRate = (stepIdx + 1) * concurrentUsers + startingUsers
-              level :: RampConcurrentNumberInjection(levelRate, rampEndRate, rampDuration) :: Nil
+              level :: RampConcurrentUsersInjection(levelRate, rampEndRate, rampDuration) :: Nil
             }
           }
         } else {
           // only levels
           val levelRate = stepIdx * concurrentUsers + startingUsers
-          ConstantConcurrentNumberInjection(levelRate, levelDuration) :: Nil
+          ConstantConcurrentUsersInjection(levelRate, levelDuration) :: Nil
         }
       }
 

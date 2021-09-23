@@ -28,7 +28,7 @@ trait HttpHeaderRegexCheckType
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor]: MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] =
+  def ofType[X: GroupExtractor]: CheckBuilder.MultipleFind[HttpHeaderRegexCheckType, Response, X] =
     new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
 }
 
@@ -46,7 +46,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
     private[header] val headerName: Expression[CharSequence],
     private[header] val pattern: Expression[String],
     private[header] val patterns: Patterns
-) extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
   private def withHeaderAndPattern[T](f: (CharSequence, String) => T): Expression[T] =
     session =>

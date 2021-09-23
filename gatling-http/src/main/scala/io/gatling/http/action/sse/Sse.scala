@@ -23,8 +23,9 @@ import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 object Sse {
   private val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def apply(requestName: Expression[String], sseName: Expression[String] = DefaultSseName.expressionSuccess): Sse = new Sse(requestName, sseName)
+  def apply(requestName: Expression[String]): Sse = apply(requestName, DefaultSseName.expressionSuccess)
+
+  def apply(requestName: Expression[String], sseName: Expression[String]): Sse = new Sse(requestName, sseName)
 
   def checkMessage(name: String): SseMessageCheck = SseMessageCheck(name, Nil, Nil)
 }

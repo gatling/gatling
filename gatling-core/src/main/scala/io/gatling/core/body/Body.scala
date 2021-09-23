@@ -27,7 +27,10 @@ import io.gatling.netty.util.{ StringBuilderPool, StringWithCachedBytes }
 
 sealed trait Body
 
-final case class StringBody(string: Expression[String], charset: Charset) extends Body with Expression[String] {
+sealed trait BodyWithStringExpression extends Body with Expression[String]
+sealed trait BodyWithBytesExpression extends Body with Expression[Array[Byte]]
+
+final case class StringBody(string: Expression[String], charset: Charset) extends BodyWithStringExpression {
 
   override def apply(session: Session): Validation[String] = string(session)
 }
@@ -37,12 +40,12 @@ object RawFileBody {
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
 }
 
-final case class RawFileBody(resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
+final case class RawFileBody(resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends BodyWithBytesExpression {
   override def apply(session: Session): Validation[Array[Byte]] =
     resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
 }
 
-final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
+final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends BodyWithBytesExpression {
   override def apply(session: Session): Validation[Array[Byte]] =
     bytes(session)
 }
@@ -59,11 +62,11 @@ object ElBody {
       case part               => DynamicElBodyPart(part.map(_.toString), charset)
     }
 
-  def apply(string: String, charset: Charset): ElBody =
+  def apply(string: String, charset: Charset): BodyWithStringExpression =
     ElBody(toParts(string, charset).expressionSuccess)
 }
 
-final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Body with Expression[String] {
+final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends BodyWithStringExpression {
 
   override def apply(session: Session): Validation[String] =
     for {
@@ -103,14 +106,14 @@ final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Bod
 final case class InputStreamBody(is: Expression[InputStream]) extends Body
 
 object PebbleStringBody {
-  def apply(string: String, charset: Charset): StringBody = {
+  def apply(string: String, charset: Charset): BodyWithStringExpression = {
     val template = Pebble.getStringTemplate(string)
     StringBody(session => template.flatMap(Pebble.evaluateTemplate(_, session)), charset)
   }
 }
 
 object PebbleFileBody {
-  def apply(filePath: Expression[String], pebbleFileBodies: PebbleFileBodies, charset: Charset): StringBody = {
+  def apply(filePath: Expression[String], pebbleFileBodies: PebbleFileBodies, charset: Charset): BodyWithStringExpression = {
     val template = pebbleFileBodies.asTemplate(filePath)
     StringBody(session => template(session).flatMap(Pebble.evaluateTemplate(_, session)), charset)
   }

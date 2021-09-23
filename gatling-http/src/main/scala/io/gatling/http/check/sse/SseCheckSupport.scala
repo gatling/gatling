@@ -31,15 +31,15 @@ trait SseCheckSupport {
   implicit def checkBuilder2SseCheck[T, P](checkBuilder: CheckBuilder[T, P])(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2SseCheck[T, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  implicit def validate2SseCheck[T, P, X](
+      validate: CheckBuilder.Validate[T, P, X]
   )(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
-    validatorCheckBuilder.exists
+    validate.exists
 
-  implicit def findCheckBuilder2SseCheck[T, P, X](
-      findCheckBuilder: FindCheckBuilder[T, P, X]
+  implicit def find2SseCheck[T, P, X](
+      find: CheckBuilder.Find[T, P, X]
   )(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
-    findCheckBuilder.find.exists
+    find.find.exists
 
   implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =
     SseCheckMaterializer.jsonPath(jsonParsers)

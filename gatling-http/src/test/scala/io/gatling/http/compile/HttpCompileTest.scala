@@ -172,6 +172,7 @@ class HttpCompileTest extends Simulation {
           header("HEADER").is("BAR"),
           headerRegex("location", ".*&id_token=(.*)&state=.*").find.exists,
           headerRegex("location", ".*&id_token=(.*)&state=.*").is("BAR"),
+          headerRegex("location", ".*&id_token=(.*)&state=.*").ofType[(String, String)],
           currentLocation.is("https://gatling.io"),
           currentLocationRegex("code=(.+)&"),
           currentLocationRegex("foo").find.exists,
@@ -210,6 +211,7 @@ class HttpCompileTest extends Simulation {
           regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
           regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
           regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
+          regex("pattern").ofType[(String, String)],
           substring("foo").exists,
           xpath("//input[@id='text1']/@value"),
           xpath("//input[@id='text1']/@value").find,
@@ -337,6 +339,8 @@ class HttpCompileTest extends Simulation {
       import io.gatling.http.response._
       response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.body.charset))
     })
+    // feeder
+    .feed(sitemap("file"))
 
   setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 

@@ -17,10 +17,9 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.commons.stats.OK
-import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 
 import com.typesafe.scalalogging.StrictLogging
@@ -34,7 +33,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   override def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
       session: Session,
       next: Action
   ): NextWsState = {
@@ -73,7 +72,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   override def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
       session: Session,
       next: Action
   ): NextWsState = {

@@ -16,13 +16,14 @@
 
 package io.gatling.http.request.builder.sse
 
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.action.Action
 import io.gatling.core.session._
-import io.gatling.http.action.sse.SseConnectBuilder
-import io.gatling.http.client.Request
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.core.structure.ScenarioContext
+import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.action.sse.{ SseAwaitActionBuilder, SseConnect, SseMessageCheckSequenceBuilder }
 import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
 
+import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
 
 object SseConnectRequestBuilder {
@@ -31,18 +32,29 @@ object SseConnectRequestBuilder {
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =
-    new SseConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName)
+    new SseConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName, Nil)
       .header(HttpHeaderNames.ACCEPT, SseHeaderValueExpression)
       .header(HttpHeaderNames.CACHE_CONTROL, CacheControlNoCacheValueExpression)
-
-  implicit def toActionBuilder(requestBuilder: SseConnectRequestBuilder): SseConnectBuilder =
-    SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder, Nil)
 }
 
-final class SseConnectRequestBuilder(val commonAttributes: CommonAttributes, val sseName: Expression[String]) extends RequestBuilder[SseConnectRequestBuilder] {
+final case class SseConnectRequestBuilder(
+    commonAttributes: CommonAttributes,
+    sseName: Expression[String],
+    checkSequences: List[SseMessageCheckSequenceBuilder]
+) extends RequestBuilder[SseConnectRequestBuilder]
+    with HttpActionBuilder
+    with SseAwaitActionBuilder[SseConnectRequestBuilder] {
 
-  override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName)
+  override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName, checkSequences)
 
-  def build(httpComponents: HttpComponents, configuration: GatlingConfiguration): Expression[Request] =
-    new SseRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, configuration).build
+  override def build(ctx: ScenarioContext, next: Action): Action = {
+    import ctx._
+    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val request = new SseRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, coreComponents.configuration).build
+    new SseConnect(commonAttributes.requestName, sseName, request, checkSequences, coreComponents, httpComponents, next)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  override protected def appendCheckSequence(checkSequence: SseMessageCheckSequenceBuilder): SseConnectRequestBuilder =
+    this.modify(_.checkSequences)(_ :+ checkSequence)
 }

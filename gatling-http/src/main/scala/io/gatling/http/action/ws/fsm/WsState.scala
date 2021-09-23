@@ -36,7 +36,7 @@ final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = Next
 
 abstract class WsState(fsm: WsFsm) extends StrictLogging {
 
-  protected val stateName = getClass.getSimpleName
+  protected val stateName: String = getClass.getSimpleName
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
     onIllegalState(s"Can't call onPerformInitialConnect in $stateName state", fsm.clock.nowMillis)
@@ -47,7 +47,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   def onSendTextFrame(
       actionName: String,
       message: String,
-      checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
       session: Session,
       next: Action
   ): NextWsState =
@@ -56,7 +56,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],
-      checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
       session: Session,
       next: Action
   ): NextWsState =
@@ -124,7 +124,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean = {
     val autoReply = fsm.httpProtocol.wsPart.autoReplyTextFrames
     if (autoReply.isDefinedAt(message)) {
-      logger.debug(s"Auto Reply to message '${message}' with '${autoReply(message)}'")
+      logger.debug(s"Auto Reply to message '$message' with '${autoReply(message)}'")
       webSocket.sendFrame(new TextWebSocketFrame(autoReply(message)))
       true
     } else {

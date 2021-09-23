@@ -17,7 +17,7 @@
 package io.gatling.http.action.ws
 
 import io.gatling.core.session._
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
+import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.CommonAttributes
 import io.gatling.http.request.builder.ws.WsConnectRequestBuilder
 
@@ -27,12 +27,13 @@ object Ws {
 
   private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def apply(requestName: Expression[String], wsName: Expression[String] = DefaultWebSocketName.expressionSuccess): Ws = new Ws(requestName, wsName)
+  def apply(requestName: Expression[String]): Ws = apply(requestName, DefaultWebSocketName.expressionSuccess)
 
-  def checkTextMessage(name: String): WsTextFrameCheck = WsTextFrameCheck(name, Nil, Nil, isSilent = false)
+  def apply(requestName: Expression[String], wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
-  def checkBinaryMessage(name: String): WsBinaryFrameCheck = WsBinaryFrameCheck(name, Nil, Nil, isSilent = false)
+  def checkTextMessage(name: String): WsFrameCheck.Text = WsFrameCheck.Text(name, Nil, Nil, isSilent = false)
+
+  def checkBinaryMessage(name: String): WsFrameCheck.Binary = WsFrameCheck.Binary(name, Nil, Nil, isSilent = false)
 }
 
 /**
@@ -49,7 +50,7 @@ class Ws(requestName: Expression[String], wsName: Expression[String]) {
    * @param url The socket URL
    */
   def connect(url: Expression[String]): WsConnectRequestBuilder =
-    new WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None)
+    WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None, None, Nil)
 
   /**
    * Sends a text frame on the given WebSocket.

@@ -17,7 +17,7 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.core.action.Action
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 sealed trait SendFrame {
   def actionName: String
@@ -27,7 +27,7 @@ sealed trait SendFrame {
 final case class SendTextFrame(
     actionName: String,
     message: String,
-    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+    checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Text]],
     next: Action
 ) extends SendFrame
 
@@ -35,6 +35,6 @@ final case class SendTextFrame(
 final case class SendBinaryFrame(
     actionName: String,
     message: Array[Byte],
-    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+    checkSequences: List[WsFrameCheckSequence[WsFrameCheck.Binary]],
     next: Action
 ) extends SendFrame

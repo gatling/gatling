@@ -17,7 +17,7 @@
 package io.gatling.http.funspec
 
 import io.gatling.core.Predef._
-import io.gatling.core.check.MultipleFindCheckBuilder
+import io.gatling.core.check.CheckBuilder
 import io.gatling.core.check.css.{ CssCheckType, CssOfType }
 import io.gatling.http.Predef._
 import io.gatling.http.funspec.GatlingHttpFunSpecCompileTest._
@@ -39,5 +39,5 @@ class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
 
 object GatlingHttpFunSpecCompileTest {
 
-  def h1: MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType = css("h1")
+  def h1: CheckBuilder.MultipleFind[CssCheckType, NodeSelector, String] with CssOfType = css("h1")
 }
