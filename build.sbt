@@ -183,7 +183,7 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
   .settings(libraryDependencies ++= testFrameworkDependencies)
 
 lazy val bundle = gatlingModule("gatling-bundle")
-  .dependsOn(core, http)
+  .dependsOn(coreJava, httpJava)
   .enablePlugins(UniversalPlugin)
   .settings(generateConfigFiles(core))
   .settings(generateConfigFiles(recorder))

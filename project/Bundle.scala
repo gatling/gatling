@@ -10,7 +10,7 @@ object Bundle {
     addArtifact(Artifact("gatling-bundle", "zip", "zip", "bundle"), Universal / packageBin).settings
 
   lazy val bundleSettings = bundleArtifacts ++ Seq(
-    Universal / mappings ++= mapSourcesToBundleLocation((Compile / sources).value, (Compile / scalaSource).value)
+    Universal / mappings ++= mapSourcesToBundleLocation((Compile / sources).value, (Compile / javaSource).value)
   )
 
   def mapSourcesToBundleLocation(sources: Seq[File], sourceDirectory: File): Seq[(File, String)] =
