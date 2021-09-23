@@ -61,11 +61,11 @@ Gatling-Version: ${GATLING_VERSION}
 Gatling-Packager: bundle
 EOT
 
-# Create the jar
-echo -n "Creating jar..."
-"$JAR" cfm "${GATLING_HOME}/target/artifact.jar" "${MANIFEST_FILE}" \
+# Create the package
+echo -n "Creating package..."
+"$JAR" cfm "${GATLING_HOME}/target/package.jar" "${MANIFEST_FILE}" \
   -C "${GATLING_HOME}/target/test-classes" . \
   -C "${GATLING_HOME}/user-files/resources" .
-echo "done"
+echo "Package created"
 
 rm "${MANIFEST_FILE}"

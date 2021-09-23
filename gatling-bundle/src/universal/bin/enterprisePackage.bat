@@ -76,8 +76,8 @@ echo JAVA = "%JAVA%"
 echo JAR = "%JAR%"
 rem Run the compiler
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
-rem Create the artifact
-%JAR% cfm "%GATLING_HOME%"\target\artifact.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes . -C "%GATLING_HOME%"\user-files\resources .
+rem Create the package
+%JAR% cfm "%GATLING_HOME%"\target\package.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes . -C "%GATLING_HOME%"\user-files\resources .
 
 if %errorlevel% neq 0 (
  if not defined NO_PAUSE pause
@@ -87,7 +87,7 @@ rem The above line will forward any potential exit codes from Java if jar failed
 
 del /f %MANIFEST_FILE%
 
-echo Created package "%GATLING_HOME%"\target\artifact.jar
+echo Created package "%GATLING_HOME%"\target\package.jar
 
 goto exit
 
