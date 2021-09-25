@@ -81,7 +81,7 @@ bash "${BIN_DIR}/enterprisePackage.sh"
 # Upload the package.jar
 echo "Uploading package.jar..."
 
-UPLOAD_PACKAGE_FILE="${GATLING_HOME}/target/artifact.jar"
+UPLOAD_PACKAGE_FILE="${GATLING_HOME}/target/package.jar"
 GATLING_ENTERPRISE_UPLOAD_PACKAGE_API="${GATLING_ENTERPRISE_CLOUD_DOMAIN}/api/public/artifacts/${GATLING_ENTERPRISE_PACKAGE_ID}/content?filename=package.jar"
 
 HTTP_RESPONSE=$(
