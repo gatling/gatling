@@ -20,7 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{WsFrameCheck, WsFrameCheckSequence  }
 
 object WsFrameCheckSequenceBuilder {
 
@@ -38,11 +38,11 @@ object WsFrameCheckSequenceBuilder {
   private def resolveCheckName[T <: WsFrameCheck](checks: List[WsFrameCheck], session: Session): List[WsFrameCheck] = {
     checks
       .map {
-        case check: WsBinaryFrameCheck =>
+        case check: WsFrameCheck.Text =>
           check.checkName(session) match {
             case Success(value) => check.copy(name = value)
           }
-        case check: WsTextFrameCheck =>
+        case check: WsFrameCheck.Binary =>
           check.checkName(session) match {
             case Success(value) => check.copy(name = value)
           }
