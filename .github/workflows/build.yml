@@ -48,6 +48,7 @@ jobs:
             "all headerCheck" \
             "all scalafmtSbtCheck" \
             "all scalafmtCheckAll" \
+            "all spotlessCheck" \
             "all compile:gatlingScalafixCheck" \
             "all test:gatlingScalafixCheck" \
             "all gatlingScalafixCheck" \
