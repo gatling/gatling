@@ -20,7 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.check.ws.{WsFrameCheck, WsFrameCheckSequence  }
+import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 object WsFrameCheckSequenceBuilder {
 
