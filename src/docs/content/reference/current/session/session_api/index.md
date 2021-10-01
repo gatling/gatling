@@ -27,7 +27,7 @@ In Gatling, entries in this map are called **Session attributes**.
 
 {{< alert tip >}}
 A Gatling scenario is a workflow where every step is an `Action`.
-A `Session` is the message that is passed along a scenario workflow.
+`Session`s are the messages that are passed along a scenario workflow.
 {{< /alert >}}
 
 ### Injecting Data
