@@ -55,21 +55,9 @@ To change the warm up url, just add `.warmUp("newUrl")`.
 
 ### Max connection per host
 
-In order to mimic real web browser, Gatling can run multiple concurrent connections **per virtual user** when fetching resources on the same hosts.
-By default, Gatling caps the number of concurrent connections per remote host per virtual user to 6, but you can change this number with `maxConnectionsPerHost(max: Int)`.
-
-Gatling ships a bunch of built-ins for well-known browsers:
-
-* `maxConnectionsPerHostLikeFirefoxOld`
-* `maxConnectionsPerHostLikeFirefox`
-* `maxConnectionsPerHostLikeOperaOld`
-* `maxConnectionsPerHostLikeOpera`
-* `maxConnectionsPerHostLikeSafariOld`
-* `maxConnectionsPerHostLikeSafari`
-* `maxConnectionsPerHostLikeIE7`
-* `maxConnectionsPerHostLikeIE8`
-* `maxConnectionsPerHostLikeIE10`
-* `maxConnectionsPerHostLikeChrome`
+In order to mimic real web browser, Gatling can run multiple concurrent connections **per virtual user** when fetching resources on the same hosts over HTTP/1.1.
+By default, Gatling caps the number of concurrent connections per remote host per virtual user to 6, which makes sense for modern browsers.
+You can change this number with `maxConnectionsPerHost(max: Int)`.
 
 {{< include-code "HttpProtocolSample.scala#maxConnectionsPerHost" scala >}}
 

@@ -1298,7 +1298,7 @@ content:
                 description: A function to generate the name out of the Uri
 
           - keyword: maxConnectionsPerHost
-            description: Sets the maximum concurrent connections per host per virtual user. Predefined parameters are available through methods such as maxConnectionsPerHostLikeFirefox...
+            description: Sets the maximum concurrent connections per host per virtual user.
             syntax:
               - signature: (max)
                 description: Where <i>max</i> is the number of maximum connections

@@ -66,8 +66,6 @@ class HttpProtocolSample extends Simulation {
     //#maxConnectionsPerHost
     // 10 connections per host.
     val httpProtocolMax10Connections = http.maxConnectionsPerHost(10)
-    // Firefox max connections per host preset.
-    val httpProtocolMaxConnectionsLikeFirefox = http.maxConnectionsPerHostLikeFirefox
     //#maxConnectionsPerHost
   }
 
