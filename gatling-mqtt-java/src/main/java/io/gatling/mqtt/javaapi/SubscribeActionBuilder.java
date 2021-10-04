@@ -161,7 +161,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout in seconds
    * @return the next DSL step
@@ -173,7 +173,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout
    * @return the next DSL step

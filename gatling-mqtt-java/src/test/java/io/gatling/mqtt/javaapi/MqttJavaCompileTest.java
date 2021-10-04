@@ -16,8 +16,8 @@
 
 package io.gatling.mqtt.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.mqtt.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.mqtt.javaapi.MqttDsl.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.core.javaapi.ScenarioBuilder;

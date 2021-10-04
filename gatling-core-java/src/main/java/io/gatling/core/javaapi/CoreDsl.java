@@ -48,9 +48,9 @@ import javax.annotation.Nonnull;
 import scala.collection.immutable.Seq;
 
 /** The entrypoint of the Gatling core DSL */
-public final class Predef {
+public final class CoreDsl {
 
-  private Predef() {}
+  private CoreDsl() {}
 
   ////////// CoreDsl
 
@@ -1648,7 +1648,7 @@ public final class Predef {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitch.Possibilities<ChainBuilder> doSwitch(@Nonnull String actual) {
+  public static DoSwitch.Choices<ChainBuilder> doSwitch(@Nonnull String actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -1659,8 +1659,7 @@ public final class Predef {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitch.Possibilities<ChainBuilder> doSwitch(
-      @Nonnull Function<Session, Object> actual) {
+  public static DoSwitch.Choices<ChainBuilder> doSwitch(@Nonnull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -1672,7 +1671,7 @@ public final class Predef {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitchOrElse.Possibilities<ChainBuilder> doSwitchOrElse(@Nonnull String actual) {
+  public static DoSwitchOrElse.Choices<ChainBuilder> doSwitchOrElse(@Nonnull String actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
 
@@ -1684,107 +1683,52 @@ public final class Predef {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitchOrElse.Possibilities<ChainBuilder> doSwitchOrElse(
+  public static DoSwitchOrElse.Choices<ChainBuilder> doSwitchOrElse(
       @Nonnull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a randomSwitch block, see {@link
-   * RandomSwitch#randomSwitch(Possibility.WithWeight...)}.
+   * Bootstrap a new ChainBuilder with a randomSwitch block.
    *
-   * @param possibilities the possibilities with their respective weights
    * @return the next DSL step
    */
   @Nonnull
-  public static ChainBuilder randomSwitch(@Nonnull Possibility.WithWeight... possibilities) {
-    return ChainBuilder.EMPTY.randomSwitch(possibilities);
-  }
-
-  /**
-   * Bootstrap a new ChainBuilder with a randomSwitch block, see {@link
-   * RandomSwitch#randomSwitch(List)}.
-   *
-   * @param possibilities the possibilities with their respective weights
-   * @return the next DSL step
-   */
-  @Nonnull
-  public static ChainBuilder randomSwitch(@Nonnull List<Possibility.WithWeight> possibilities) {
-    return ChainBuilder.EMPTY.randomSwitch(possibilities);
+  public static RandomSwitch.Choices<ChainBuilder> randomSwitch() {
+    return ChainBuilder.EMPTY.randomSwitch();
   }
 
   /**
    * Bootstrap a new ChainBuilder with a randomSwitchOrElse block, see {@link
-   * RandomSwitchOrElse#randomSwitchOrElse(Possibility.WithWeight...)}.
+   * RandomSwitchOrElse#randomSwitchOrElse}.
    *
-   * @param possibilities the possibilities with their respective weights
    * @return the next DSL step
    */
   @Nonnull
-  public static RandomSwitchOrElse.OrElse<ChainBuilder> randomSwitchOrElse(
-      @Nonnull Possibility.WithWeight... possibilities) {
-    return ChainBuilder.EMPTY.randomSwitchOrElse(possibilities);
-  }
-
-  /**
-   * Bootstrap a new ChainBuilder with a randomSwitchOrElse block, see {@link
-   * RandomSwitchOrElse#randomSwitchOrElse(List)}.
-   *
-   * @param possibilities the possibilities with their respective weights
-   * @return the next DSL step
-   */
-  @Nonnull
-  public static RandomSwitchOrElse.OrElse<ChainBuilder> randomSwitchOrElse(
-      @Nonnull List<Possibility.WithWeight> possibilities) {
-    return ChainBuilder.EMPTY.randomSwitchOrElse(possibilities);
+  public static RandomSwitchOrElse.Choices<ChainBuilder> randomSwitchOrElse() {
+    return ChainBuilder.EMPTY.randomSwitchOrElse();
   }
 
   /**
    * Bootstrap a new ChainBuilder with a uniformRandomSwitch block, see {@link
-   * UniformRandomSwitch#uniformRandomSwitch(ChainBuilder...)}.
+   * UniformRandomSwitch#uniformRandomSwitch)}.
    *
-   * @param possibilities the possibilities
    * @return the next DSL step
    */
   @Nonnull
-  public static ChainBuilder uniformRandomSwitch(@Nonnull ChainBuilder... possibilities) {
-    return ChainBuilder.EMPTY.uniformRandomSwitch(possibilities);
-  }
-
-  /**
-   * Bootstrap a new ChainBuilder with a uniformRandomSwitch block, see {@link
-   * UniformRandomSwitch#uniformRandomSwitch(List)}.
-   *
-   * @param possibilities the possibilities
-   * @return the next DSL step
-   */
-  @Nonnull
-  public static ChainBuilder uniformRandomSwitch(@Nonnull List<ChainBuilder> possibilities) {
-    return ChainBuilder.EMPTY.uniformRandomSwitch(possibilities);
+  public static UniformRandomSwitch.Choices<ChainBuilder> uniformRandomSwitch() {
+    return ChainBuilder.EMPTY.uniformRandomSwitch();
   }
 
   /**
    * Bootstrap a new ChainBuilder with a roundRobinSwitch block, see {@link
-   * RoundRobinSwitch#roundRobinSwitch(ChainBuilder...)}.
+   * RoundRobinSwitch#roundRobinSwitch}.
    *
-   * @param possibilities the possibilities
    * @return the next DSL step
    */
   @Nonnull
-  public static ChainBuilder roundRobinSwitch(@Nonnull ChainBuilder... possibilities) {
-    return ChainBuilder.EMPTY.roundRobinSwitch(possibilities);
-  }
-
-  /**
-   * Bootstrap a new ChainBuilder with a roundRobinSwitch block, see {@link
-   * RoundRobinSwitch#roundRobinSwitch(List)}.
-   *
-   * @param possibilities the possibilities
-   * @return the next DSL step
-   */
-  @Nonnull
-  public static ChainBuilder roundRobinSwitch(@Nonnull List<ChainBuilder> possibilities) {
-    return ChainBuilder.EMPTY.roundRobinSwitch(possibilities);
+  public static RoundRobinSwitch.Choices<ChainBuilder> roundRobinSwitch() {
+    return ChainBuilder.EMPTY.roundRobinSwitch();
   }
 
   ////////// StructureBuilder.Errors
@@ -2748,15 +2692,15 @@ public final class Predef {
   }
 
   /**
-   * Bootstrap a new open workload heavisideUsers injection profile, see {@link
-   * OpenInjectionStep.Heaviside}
+   * Bootstrap a new open workload stress peak injection profile, see {@link
+   * OpenInjectionStep.StressPeak}
    *
    * @param users the total number of users to inject
    * @return the next DSL step
    */
   @Nonnull
-  public static OpenInjectionStep.Heaviside heavisideUsers(int users) {
-    return new OpenInjectionStep.Heaviside(users);
+  public static OpenInjectionStep.StressPeak stressPeakUsers(int users) {
+    return new OpenInjectionStep.StressPeak(users);
   }
 
   /**

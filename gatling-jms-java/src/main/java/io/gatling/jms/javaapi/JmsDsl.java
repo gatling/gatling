@@ -27,8 +27,8 @@ import io.gatling.jms.javaapi.internal.JmsCheckType;
 import java.util.function.Function;
 import javax.jms.Message;
 
-public final class Predef {
-  private Predef() {}
+public final class JmsDsl {
+  private JmsDsl() {}
 
   /** Prefix to bootstrap a new JMS protocol builder DSL */
   public static JmsProtocolBuilder.Base jms() {

@@ -39,24 +39,47 @@ public interface UniformRandomSwitch<
   T make(Function<W, W> f);
 
   /**
-   * Execute one of the "possibilities" in a random fashion, with each having even weights.
+   * Execute one of the "choices" in a random fashion, with each having even weights.
    *
-   * @param possibilities the possibilities with their weight
-   * @return a new {@link StructureBuilder}
+   * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default T uniformRandomSwitch(@Nonnull ChainBuilder... possibilities) {
-    return uniformRandomSwitch(Arrays.asList(possibilities));
+  default Choices<T> uniformRandomSwitch() {
+    return new Choices<>(new ScalaUniformRandomSwitch<>(this));
   }
 
   /**
-   * Execute one of the "possibilities" in a random fashion, with each having even weights.
+   * The DSL component for defining the "choices"
    *
-   * @param possibilities the possibilities with their weight
-   * @return a new {@link StructureBuilder}
+   * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  @Nonnull
-  default T uniformRandomSwitch(@Nonnull List<ChainBuilder> possibilities) {
-    return ScalaUniformRandomSwitch.apply(this, possibilities);
+  final class Choices<T extends StructureBuilder<T, ?>> {
+    private final ScalaUniformRandomSwitch<T, ?> wrapped;
+
+    Choices(ScalaUniformRandomSwitch<T, ?> wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    /**
+     * Define the "choices"
+     *
+     * @param choices the choices
+     * @return a new {@link StructureBuilder}
+     */
+    @Nonnull
+    public T choices(@Nonnull ChainBuilder... choices) {
+      return choices(Arrays.asList(choices));
+    }
+
+    /**
+     * Define the "choices"
+     *
+     * @param choices the choices
+     * @return a new {@link StructureBuilder}
+     */
+    @Nonnull
+    public T choices(@Nonnull List<ChainBuilder> choices) {
+      return wrapped.choices(choices);
+    }
   }
 }

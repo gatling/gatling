@@ -16,8 +16,8 @@
 
 package computerdatabase.advanced;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.http.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.http.javaapi.HttpDsl.*;
 
 import io.gatling.core.javaapi.*;
 import io.gatling.http.javaapi.*;

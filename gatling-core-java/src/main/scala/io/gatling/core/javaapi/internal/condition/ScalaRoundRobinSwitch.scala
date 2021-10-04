@@ -23,11 +23,9 @@ import scala.jdk.CollectionConverters._
 import io.gatling.core.javaapi.{ ChainBuilder, StructureBuilder }
 import io.gatling.core.javaapi.condition.RoundRobinSwitch
 
-object ScalaRoundRobinSwitch {
-
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
-      context: RoundRobinSwitch[T, W],
-      chains: ju.List[ChainBuilder]
-  ): T =
-    context.make(_.roundRobinSwitch(chains.asScala.map(_.wrapped).toSeq: _*))
+final class ScalaRoundRobinSwitch[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+    context: RoundRobinSwitch[T, W]
+) {
+  def choices(choices: ju.List[ChainBuilder]): T =
+    context.make(_.roundRobinSwitch(choices.asScala.map(_.wrapped).toSeq: _*))
 }

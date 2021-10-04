@@ -16,8 +16,8 @@
 
 package io.gatling.jdbc.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.jdbc.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.jdbc.javaapi.JdbcDsl.*;
 
 import io.gatling.core.javaapi.ChainBuilder;
 

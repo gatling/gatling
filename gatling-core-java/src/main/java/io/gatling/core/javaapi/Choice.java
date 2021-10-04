@@ -18,11 +18,19 @@ package io.gatling.core.javaapi;
 
 import javax.annotation.Nonnull;
 
-/** A holder for possibility types */
-public final class Possibility {
-  private Possibility() {}
+/** A holder for choice types */
+public final class Choice {
+  private Choice() {}
 
-  /** A possibility with an expected value */
+  public static WithValue withValue(@Nonnull Object value, @Nonnull ChainBuilder chain) {
+    return new WithValue(value, chain);
+  }
+
+  public static WithWeight withWeight(double weight, @Nonnull ChainBuilder chain) {
+    return new WithWeight(weight, chain);
+  }
+
+  /** A choice with an expected value */
   public static final class WithValue {
     public final Object value;
     public final ChainBuilder chain;
@@ -37,7 +45,7 @@ public final class Possibility {
     }
   }
 
-  /** A possibility with a weight */
+  /** A choice with a weight */
   public static final class WithWeight {
     public final double weight;
     public final ChainBuilder chain;

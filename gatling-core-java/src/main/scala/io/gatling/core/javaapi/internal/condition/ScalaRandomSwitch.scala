@@ -20,14 +20,10 @@ import java.{ util => ju }
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.core.javaapi.{ Possibility, StructureBuilder }
+import io.gatling.core.javaapi.{ Choice, StructureBuilder }
 import io.gatling.core.javaapi.condition.RandomSwitch
 
-object ScalaRandomSwitch {
-
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
-      context: RandomSwitch[T, W],
-      possibilities: ju.List[Possibility.WithWeight]
-  ): T =
-    context.make(_.randomSwitch(possibilities.asScala.map(p => (p.weight, p.chain.wrapped)).toSeq: _*))
+final class ScalaRandomSwitch[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](context: RandomSwitch[T, W]) {
+  def choices(choices: ju.List[Choice.WithWeight]): T =
+    context.make(_.randomSwitch(choices.asScala.map(p => (p.weight, p.chain.wrapped)).toSeq: _*))
 }

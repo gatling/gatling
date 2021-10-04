@@ -16,8 +16,8 @@
 
 package io.gatling.jms.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.jms.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.jms.javaapi.JmsDsl.*;
 
 import io.gatling.core.javaapi.ScenarioBuilder;
 import io.gatling.core.javaapi.Simulation;

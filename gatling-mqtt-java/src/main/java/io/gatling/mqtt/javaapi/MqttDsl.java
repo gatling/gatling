@@ -24,8 +24,8 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 /** The entrypoint of the Gatling MQTT DSL */
-public final class Predef {
-  private Predef() {}
+public final class MqttDsl {
+  private MqttDsl() {}
 
   /**
    * Bootstrap a new MQTT protocol builder

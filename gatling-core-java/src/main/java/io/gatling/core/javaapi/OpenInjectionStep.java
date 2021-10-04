@@ -111,12 +111,12 @@ public class OpenInjectionStep {
    * with a <a hreh="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside</a>
    * distribution on a given period of time. Strictly equivalent to {@link ConstantRate}
    */
-  public static final class Heaviside {
-    private final io.gatling.core.controller.inject.open.OpenInjectionBuilder.Heaviside wrapped;
+  public static final class StressPeak {
+    private final io.gatling.core.controller.inject.open.OpenInjectionBuilder.StressPeak wrapped;
 
-    Heaviside(int users) {
+    StressPeak(int users) {
       this.wrapped =
-          new io.gatling.core.controller.inject.open.OpenInjectionBuilder.Heaviside(users);
+          new io.gatling.core.controller.inject.open.OpenInjectionBuilder.StressPeak(users);
     }
 
     /**

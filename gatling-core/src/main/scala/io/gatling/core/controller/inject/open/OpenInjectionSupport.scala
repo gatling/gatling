@@ -25,7 +25,7 @@ object OpenInjectionBuilder {
     def during(d: FiniteDuration): OpenInjectionStep = RampOpenInjection(users, d)
   }
 
-  final case class Heaviside(users: Int) {
+  final case class StressPeak(users: Int) {
     def during(d: FiniteDuration): OpenInjectionStep = HeavisideOpenInjection(users, d)
   }
   final case class ConstantRate(rate: Double) {
@@ -65,7 +65,9 @@ trait OpenInjectionSupport {
     OpenInjectionSupport.OpenInjectionProfileFactory
 
   def rampUsers(users: Int): OpenInjectionBuilder.Ramp = OpenInjectionBuilder.Ramp(users)
-  def heavisideUsers(users: Int): OpenInjectionBuilder.Heaviside = OpenInjectionBuilder.Heaviside(users)
+  @deprecated("User stressPeakUsers instead", "3.7.0")
+  def heavisideUsers(users: Int): OpenInjectionBuilder.StressPeak = stressPeakUsers(users)
+  def stressPeakUsers(users: Int): OpenInjectionBuilder.StressPeak = OpenInjectionBuilder.StressPeak(users)
   def atOnceUsers(users: Int): OpenInjectionStep = AtOnceOpenInjection(users)
 
   def constantUsersPerSec(rate: Double): OpenInjectionBuilder.ConstantRate = OpenInjectionBuilder.ConstantRate(rate)

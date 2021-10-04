@@ -16,8 +16,8 @@
 
 package io.gatling.redis.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.redis.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.redis.javaapi.RedisDsl.*;
 
 import com.redis.RedisClientPool;
 import io.gatling.core.javaapi.*;

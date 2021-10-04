@@ -17,7 +17,7 @@
 package io.gatling.core.javaapi.condition;
 
 import io.gatling.core.javaapi.ChainBuilder;
-import io.gatling.core.javaapi.Possibility;
+import io.gatling.core.javaapi.Choice;
 import io.gatling.core.javaapi.StructureBuilder;
 import io.gatling.core.javaapi.internal.condition.ScalaRandomSwitchOrElse;
 import java.util.Arrays;
@@ -40,27 +40,49 @@ public interface RandomSwitchOrElse<
   T make(Function<W, W> f);
 
   /**
-   * Execute one of the "possibilities" randomly based on their respective weight. Weights are
-   * expressed in percents so their sum must be <= 100%.
+   * Execute one of the "choices" randomly based on their respective weight. Weights are expressed
+   * in percents so their sum must be <= 100%.
    *
-   * @param possibilities the possibilities with their weight
    * @return the DSL component for defining the "else" block
    */
   @Nonnull
-  default OrElse<T> randomSwitchOrElse(@Nonnull Possibility.WithWeight... possibilities) {
-    return randomSwitchOrElse(Arrays.asList(possibilities));
+  default Choices<T> randomSwitchOrElse() {
+    return new Choices<>(new ScalaRandomSwitchOrElse.Choices<>(this));
   }
 
   /**
-   * Execute one of the "possibilities" randomly based on their respective weight. Weights are
-   * expressed in percents so their sum must be <= 100%.
+   * The DSL component for defining the "choices"
    *
-   * @param possibilities the possibilities with their weight
-   * @return the DSL component for defining the "else" block
+   * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  @Nonnull
-  default OrElse<T> randomSwitchOrElse(@Nonnull List<Possibility.WithWeight> possibilities) {
-    return new OrElse<>(ScalaRandomSwitchOrElse.apply(this, possibilities));
+  final class Choices<T extends StructureBuilder<T, ?>> {
+    private final ScalaRandomSwitchOrElse.Choices<T, ?> wrapped;
+
+    Choices(ScalaRandomSwitchOrElse.Choices<T, ?> wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    /**
+     * Define the "choices"
+     *
+     * @param choices the choices
+     * @return the DSL component for defining the "else" block
+     */
+    @Nonnull
+    public OrElse<T> choices(@Nonnull Choice.WithWeight... choices) {
+      return choices(Arrays.asList(choices));
+    }
+
+    /**
+     * Define the "choices"
+     *
+     * @param choices the choices
+     * @return the DSL component for defining the "else" block
+     */
+    @Nonnull
+    public OrElse<T> choices(@Nonnull List<Choice.WithWeight> choices) {
+      return new OrElse<>(wrapped.choices(choices));
+    }
   }
 
   /**
@@ -77,7 +99,7 @@ public interface RandomSwitchOrElse<
 
     /**
      * Define the chain to be executed when the random number falls into the gap between 100% and
-     * the sum of the weights of the possibilities.
+     * the sum of the weights of the choices.
      *
      * @param orElseChain the "then "chain
      * @return a new {@link StructureBuilder}

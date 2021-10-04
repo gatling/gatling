@@ -23,11 +23,9 @@ import scala.jdk.CollectionConverters._
 import io.gatling.core.javaapi.{ ChainBuilder, StructureBuilder }
 import io.gatling.core.javaapi.condition.UniformRandomSwitch
 
-object ScalaUniformRandomSwitch {
-
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
-      context: UniformRandomSwitch[T, W],
-      chains: ju.List[ChainBuilder]
-  ): T =
-    context.make(_.uniformRandomSwitch(chains.asScala.map(_.wrapped).toSeq: _*))
+final class ScalaUniformRandomSwitch[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+    context: UniformRandomSwitch[T, W]
+) {
+  def choices(choices: ju.List[ChainBuilder]): T =
+    context.make(_.uniformRandomSwitch(choices.asScala.map(_.wrapped).toSeq: _*))
 }

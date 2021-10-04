@@ -16,7 +16,7 @@
 
 package io.gatling.core.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
 
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
@@ -263,50 +263,48 @@ public class CoreJavaCompileTest extends Simulation {
           .orElse(chain2)
           // doSwitch
           .doSwitch("${value}")
-          .possibilities(
-              new Possibility.WithValue("value1", chain1),
-              new Possibility.WithValue("value2", chain2))
+          .choices(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
           .doSwitch("${value}")
-          .possibilities(Collections.singletonList(new Possibility.WithValue("value1", chain1)))
+          .choices(Collections.singletonList(Choice.withValue("value1", chain1)))
           .doSwitch(session -> "value")
-          .possibilities(
-              new Possibility.WithValue("value1", chain1),
-              new Possibility.WithValue("value2", chain2))
+          .choices(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
           .doSwitch(session -> "value")
-          .possibilities(Collections.singletonList(new Possibility.WithValue("value1", chain1)))
+          .choices(Collections.singletonList(Choice.withValue("value1", chain1)))
           // doSwitchOrElse
           .doSwitchOrElse("${value}")
-          .possibilities(
-              new Possibility.WithValue("value1", chain1),
-              new Possibility.WithValue("value2", chain2))
+          .choices(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse("${value}")
-          .possibilities(Collections.singletonList(new Possibility.WithValue("value1", chain1)))
+          .choices(Collections.singletonList(Choice.withValue("value1", chain1)))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
-          .possibilities(
-              new Possibility.WithValue("value1", chain1),
-              new Possibility.WithValue("value2", chain2))
+          .choices(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
-          .possibilities(Collections.singletonList(new Possibility.WithValue("value1", chain1)))
+          .choices(Collections.singletonList(Choice.withValue("value1", chain1)))
           .orElse(chain2)
           // randomSwitch
-          .randomSwitch(
-              new Possibility.WithWeight(50.0, chain1), new Possibility.WithWeight(50.0, chain2))
-          .randomSwitch(Collections.singletonList(new Possibility.WithWeight(50.0, chain1)))
+          .randomSwitch()
+          .choices(Choice.withWeight(50.0, chain1), Choice.withWeight(50.0, chain2))
+          .randomSwitch()
+          .choices(Collections.singletonList(Choice.withWeight(50.0, chain1)))
           // randomSwitchOrElse
-          .randomSwitchOrElse(
-              new Possibility.WithWeight(50.0, chain1), new Possibility.WithWeight(50.0, chain2))
+          .randomSwitchOrElse()
+          .choices(Choice.withWeight(50.0, chain1), Choice.withWeight(50.0, chain2))
           .orElse(chain2)
-          .randomSwitchOrElse(Collections.singletonList(new Possibility.WithWeight(50.0, chain1)))
+          .randomSwitchOrElse()
+          .choices(Collections.singletonList(Choice.withWeight(50.0, chain1)))
           .orElse(chain2)
           // uniformRandomSwitch
-          .uniformRandomSwitch(chain1, chain2)
-          .uniformRandomSwitch(Collections.singletonList(chain1))
+          .uniformRandomSwitch()
+          .choices(chain1, chain2)
+          .uniformRandomSwitch()
+          .choices(Collections.singletonList(chain1))
           // roundRobinSwitch
-          .roundRobinSwitch(chain1, chain2)
-          .roundRobinSwitch(Collections.singletonList(chain1))
+          .roundRobinSwitch()
+          .choices(chain1, chain2)
+          .roundRobinSwitch()
+          .choices(Collections.singletonList(chain1))
           // exitBlockOnFail
           .exitBlockOnFail(chain1)
           // tryMax
@@ -336,8 +334,8 @@ public class CoreJavaCompileTest extends Simulation {
             scenario.injectOpen(
                 rampUsers(5).during(1),
                 rampUsers(5).during(Duration.ofSeconds(1)),
-                heavisideUsers(5).during(1),
-                heavisideUsers(5).during(Duration.ofSeconds(1)),
+                stressPeakUsers(5).during(1),
+                stressPeakUsers(5).during(Duration.ofSeconds(1)),
                 atOnceUsers(1000),
                 constantUsersPerSec(10).during(1),
                 constantUsersPerSec(10).during(Duration.ofSeconds(1)),

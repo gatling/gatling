@@ -20,9 +20,9 @@ import io.gatling.core.javaapi.FeederBuilder;
 import javax.annotation.Nonnull;
 
 /** The entrypoint of the Gatling JDBC DSL */
-public final class Predef {
+public final class JdbcDsl {
 
-  private Predef() {}
+  private JdbcDsl() {}
 
   /**
    * Boostrap a feeder that read a stock of data from a database

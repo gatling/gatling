@@ -16,8 +16,8 @@
 
 package io.gatling.http.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.http.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.http.javaapi.HttpDsl.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.core.javaapi.*;
@@ -48,16 +48,6 @@ public class HttpJavaCompileTest extends Simulation {
           .localAddresses(Collections.singletonList("127.0.0.1"))
           .useAllLocalAddresses()
           .useAllLocalAddressesMatching("pattern")
-          .maxConnectionsPerHostLikeFirefoxOld()
-          .maxConnectionsPerHostLikeFirefox()
-          .maxConnectionsPerHostLikeOperaOld()
-          .maxConnectionsPerHostLikeOpera()
-          .maxConnectionsPerHostLikeSafariOld()
-          .maxConnectionsPerHostLikeSafari()
-          .maxConnectionsPerHostLikeIE7()
-          .maxConnectionsPerHostLikeIE8()
-          .maxConnectionsPerHostLikeIE10()
-          .maxConnectionsPerHostLikeChrome()
           .maxConnectionsPerHost(1)
           .perUserKeyManagerFactory(
               session -> {
@@ -155,13 +145,7 @@ public class HttpJavaCompileTest extends Simulation {
               bodyString().is(StringBody("foo")),
               bodyStream(),
               regex("pattern").findAll(),
-              regex("pattern").capture2().is(Arrays.asList("foo", "bar")),
-              regex("pattern").capture3(),
-              regex("pattern").capture4(),
-              regex("pattern").capture5(),
-              regex("pattern").capture6(),
-              regex("pattern").capture7(),
-              regex("pattern").capture8(),
+              regex("pattern").captureGroups(2).is(Arrays.asList("foo", "bar")),
               regex("pattern").findRandom(),
               regex("pattern").findRandom(2),
               regex("pattern").findRandom(2, true),

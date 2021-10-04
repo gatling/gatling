@@ -16,8 +16,8 @@
 
 package io.gatling.http.javaapi;
 
-import static io.gatling.core.javaapi.Predef.*;
-import static io.gatling.http.javaapi.Predef.*;
+import static io.gatling.core.javaapi.CoreDsl.*;
+import static io.gatling.http.javaapi.HttpDsl.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.core.javaapi.*;

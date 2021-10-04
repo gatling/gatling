@@ -20,20 +20,21 @@ import java.{ util => ju }
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.core.javaapi.{ ChainBuilder, Possibility, StructureBuilder }
+import io.gatling.core.javaapi.{ ChainBuilder, Choice, StructureBuilder }
 import io.gatling.core.javaapi.condition.RandomSwitchOrElse
 
 object ScalaRandomSwitchOrElse {
 
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
-      context: RandomSwitchOrElse[T, W],
-      possibilities: ju.List[Possibility.WithWeight]
-  ): OrElse[T, W] =
-    new OrElse(context, possibilities)
+  final class Choices[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: RandomSwitchOrElse[T, W]
+  ) {
+    def choices(choices: ju.List[Choice.WithWeight]): OrElse[T, W] =
+      new OrElse(context, choices)
+  }
 
   final class OrElse[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: RandomSwitchOrElse[T, W],
-      possibilities: ju.List[Possibility.WithWeight]
+      possibilities: ju.List[Choice.WithWeight]
   ) {
     def orElse(chain: ChainBuilder): T =
       context.make(_.randomSwitchOrElse(possibilities.asScala.map(p => (p.weight, p.chain.wrapped)).toSeq: _*)(chain.wrapped))

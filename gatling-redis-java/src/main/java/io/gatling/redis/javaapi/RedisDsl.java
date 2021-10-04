@@ -20,8 +20,8 @@ import com.redis.RedisClientPool;
 import javax.annotation.Nonnull;
 
 /** The entrypoint of the Redis DSL */
-public final class Predef {
-  private Predef() {}
+public final class RedisDsl {
+  private RedisDsl() {}
 
   /**
    * Bootstrap a Redis feeder

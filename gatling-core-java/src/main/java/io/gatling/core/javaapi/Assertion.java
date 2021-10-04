@@ -411,6 +411,17 @@ public final class Assertion {
     }
 
     /**
+     * Alias for {@link WithPathAndTarget#is(Number)} as `is` is a reserved keyword in Kotlin
+     *
+     * @param value the expected value
+     * @return a complete Assertion
+     */
+    @Nonnull
+    public Assertion shouldBe(T value) {
+      return is(value);
+    }
+
+    /**
      * Specify the metric must be included in a set of values
      *
      * @param values the expected values

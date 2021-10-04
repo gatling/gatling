@@ -399,7 +399,7 @@ content:
                 description: Injects users from starting <i>rate1</i> to target <i>rate2</i>, defined in users per second, during a given <i>duration</i>.
                 example: rampUsersPerSec(10) to(20) during(10 minutes)
 
-          - keyword: heavisideUsers
+          - keyword: stressPeakUsers
             description: Injects a given number of users following a smooth approximation stretched to a duration
             syntax:
               - signature: (nbUsers) during(dur unit)

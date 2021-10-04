@@ -20,7 +20,7 @@ import java.{ lang => jl, util => ju }
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.core.javaapi.{ ChainBuilder, Possibility, StructureBuilder }
+import io.gatling.core.javaapi.{ ChainBuilder, Choice, StructureBuilder }
 import io.gatling.core.javaapi.condition.DoSwitchOrElse
 import io.gatling.core.javaapi.internal.Expressions._
 import io.gatling.core.javaapi.internal.JavaExpression
@@ -38,14 +38,14 @@ object ScalaDoSwitchOrElse {
     new Then(context, javaObjectFunctionToExpression(condition))
 
   final class Then[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](context: DoSwitchOrElse[T, W], value: Expression[Any]) {
-    def possibilities(possibilities: ju.List[Possibility.WithValue]): OrElse[T, W] =
-      new OrElse(context, value, possibilities)
+    def choices(choices: ju.List[Choice.WithValue]): OrElse[T, W] =
+      new OrElse(context, value, choices)
   }
 
   final class OrElse[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoSwitchOrElse[T, W],
       value: Expression[Any],
-      possibilities: ju.List[Possibility.WithValue]
+      possibilities: ju.List[Choice.WithValue]
   ) {
     def orElse(chain: ChainBuilder): T =
       context.make(_.doSwitchOrElse(value)(possibilities.asScala.map(p => (p.value, p.chain.wrapped)).toSeq: _*)(chain.wrapped))

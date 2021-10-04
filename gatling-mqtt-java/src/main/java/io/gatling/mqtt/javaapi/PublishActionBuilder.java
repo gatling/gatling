@@ -242,7 +242,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout in seconds
    * @return the next DSL step
@@ -254,7 +254,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout
    * @return the next DSL step
@@ -266,7 +266,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout in seconds
    * @param expectedTopic the topic where the response message is expected to be published,
@@ -282,7 +282,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout
    * @param expectedTopic the topic where the response message is expected to be published,
@@ -298,7 +298,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout in seconds
    * @param expectedTopic the topic where the response message is expected to be published,
@@ -314,7 +314,7 @@ public final class PublishActionBuilder implements ActionBuilder {
 
   /**
    * Perform checks in the background, meaning state will have to be reconciled with {@link
-   * Predef#waitForMessages()}
+   * MqttDsl#waitForMessages()}
    *
    * @param timeout the check timeout
    * @param expectedTopic the topic where the response message is expected to be published,

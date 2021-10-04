@@ -523,7 +523,7 @@ public interface CheckBuilder {
      *
      * @param name the name of the validation, in case of a failure
      * @param f the custom validation function, must throw to trigger a failure
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final validate(@Nonnull String name, @Nonnull BiFunction<X, Session, X> f);
@@ -532,17 +532,28 @@ public interface CheckBuilder {
      * Validate the extracted value is equal to an expected value
      *
      * @param expected the expected value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final is(X expected);
+
+    /**
+     * Alias for {@link Validate#is(Object)} as `is` is a reserved keyword in Kotlin
+     *
+     * @param expected the expected value
+     * @return a new Final
+     */
+    @Nonnull
+    default Final shouldBe(X expected) {
+      return is(expected);
+    }
 
     /**
      * Validate the extracted value is equal to an expected value, passed as a Gatling Expression
      * Language String
      *
      * @param expected the expected value as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final isEL(String expected);
@@ -551,15 +562,26 @@ public interface CheckBuilder {
      * Validate the extracted value is equal to an expected value, passed as a function
      *
      * @param expected the expected value as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final is(Function<Session, X> expected);
 
     /**
+     * Alias for {@link Validate#is(Function)} as `is` is a reserved keyword in Kotlin
+     *
+     * @param expected the expected value
+     * @return a new Final
+     */
+    @Nonnull
+    default Final shouldBe(Function<Session, X> expected) {
+      return is(expected);
+    }
+
+    /**
      * Validate the extracted value is null
      *
-     * @return a new Validate
+     * @return a new Final
      */
     Final isNull();
 
@@ -567,7 +589,7 @@ public interface CheckBuilder {
      * Validate the extracted value is not an expected value
      *
      * @param expected the unexpected value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final not(@Nonnull X expected);
@@ -577,7 +599,7 @@ public interface CheckBuilder {
      * Language String
      *
      * @param expected the unexpected value as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final notEL(@Nonnull String expected);
@@ -586,7 +608,7 @@ public interface CheckBuilder {
      * Validate the extracted value is not an expected value, passed as a function
      *
      * @param expected the unexpected value as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final not(@Nonnull Function<Session, X> expected);
@@ -594,7 +616,7 @@ public interface CheckBuilder {
     /**
      * Validate the extracted value is not null
      *
-     * @return a new Validate
+     * @return a new Final
      */
     Final notNull();
 
@@ -602,7 +624,7 @@ public interface CheckBuilder {
      * Validate the extracted value belongs to an expected set
      *
      * @param expected the set of possible values
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final in(@Nonnull X... expected);
@@ -611,7 +633,7 @@ public interface CheckBuilder {
      * Validate the extracted value belongs to an expected set
      *
      * @param expected the set of possible values
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final in(@Nonnull List<X> expected);
@@ -621,7 +643,7 @@ public interface CheckBuilder {
      * Language String
      *
      * @param expected the set of possible values, as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final inEL(@Nonnull String expected);
@@ -630,7 +652,7 @@ public interface CheckBuilder {
      * Validate the extracted value belongs to an expected set, passed as a function
      *
      * @param expected the set of possible values, as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final in(@Nonnull Function<Session, List<X>> expected);
@@ -638,7 +660,7 @@ public interface CheckBuilder {
     /**
      * Validate the check was able to extract any value
      *
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final exists();
@@ -646,7 +668,7 @@ public interface CheckBuilder {
     /**
      * Validate the check was not able to extract any value
      *
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final notExists();
@@ -654,7 +676,7 @@ public interface CheckBuilder {
     /**
      * Make the check is successful whenever it was able to extract something or not
      *
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final optional();
@@ -663,7 +685,7 @@ public interface CheckBuilder {
      * Validate the extracted value is less than a given value
      *
      * @param value the value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final lt(@Nonnull X value);
@@ -673,7 +695,7 @@ public interface CheckBuilder {
      * Language String
      *
      * @param value the value, as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final ltEL(@Nonnull String value);
@@ -682,7 +704,7 @@ public interface CheckBuilder {
      * Validate the extracted value is less than a given value, passed as a function
      *
      * @param value the value, as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final lt(@Nonnull Function<Session, X> value);
@@ -691,7 +713,7 @@ public interface CheckBuilder {
      * Validate the extracted value is less than or equal to a given value
      *
      * @param value the value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final lte(@Nonnull X value);
@@ -701,7 +723,7 @@ public interface CheckBuilder {
      * Expression Language String
      *
      * @param value the value, as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final lteEL(@Nonnull String value);
@@ -710,7 +732,7 @@ public interface CheckBuilder {
      * Validate the extracted value is less than or equal to a given value, passed as a function
      *
      * @param value the value, as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final lte(@Nonnull Function<Session, X> value);
@@ -719,7 +741,7 @@ public interface CheckBuilder {
      * Validate the extracted value is greater than a given value
      *
      * @param value the value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gt(@Nonnull X value);
@@ -729,7 +751,7 @@ public interface CheckBuilder {
      * Language String
      *
      * @param value the value, as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gtEL(@Nonnull String value);
@@ -738,7 +760,7 @@ public interface CheckBuilder {
      * Validate the extracted value is greater than a given value, passed as a function
      *
      * @param value the value, as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gt(@Nonnull Function<Session, X> value);
@@ -747,7 +769,7 @@ public interface CheckBuilder {
      * Validate the extracted value is greater than or equal to a given value
      *
      * @param value the value
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gte(@Nonnull X value);
@@ -757,7 +779,7 @@ public interface CheckBuilder {
      * Expression Language String
      *
      * @param value the value, as a Gatling Expression Language String
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gteEL(@Nonnull String value);
@@ -766,7 +788,7 @@ public interface CheckBuilder {
      * Validate the extracted value is greater than or equal to a given value, passed as a function
      *
      * @param value the value, as a function
-     * @return a new Validate
+     * @return a new Final
      */
     @Nonnull
     Final gte(@Nonnull Function<Session, X> value);
@@ -1112,60 +1134,13 @@ public interface CheckBuilder {
   interface CaptureGroupCheckBuilder extends MultipleFind<String> {
 
     /**
-     * Define that the check extracts 2 values from capture groups
+     * Define that the check extracts an expected number of values from capture groups
      *
+     * @param count the number of capture groups in the regular expression pattern
      * @return a new MultipleFind
      */
     @Nonnull
-    MultipleFind<List<String>> capture2();
-
-    /**
-     * Define that the check extracts 3 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture3();
-
-    /**
-     * Define that the check extracts 4 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture4();
-
-    /**
-     * Define that the check extracts 5 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture5();
-
-    /**
-     * Define that the check extracts 6 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture6();
-
-    /**
-     * Define that the check extracts 7 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture7();
-
-    /**
-     * Define that the check extracts 8 values from capture groups
-     *
-     * @return a new MultipleFind
-     */
-    @Nonnull
-    MultipleFind<List<String>> capture8();
+    MultipleFind<List<String>> captureGroups(int count);
 
     /**
      * Default implementation of {@link CaptureGroupCheckBuilder}
@@ -1186,65 +1161,48 @@ public interface CheckBuilder {
 
       @Override
       @Nonnull
-      public MultipleFind<List<String>> capture2() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor2()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture3() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor3()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture4() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor4()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture5() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor5()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture6() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor6()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture7() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor7()),
-            type,
-            Converters::toJavaList);
-      }
-
-      @Override
-      @Nonnull
-      public MultipleFind<List<String>> capture8() {
-        return new MultipleFind.Default<>(
-            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor8()),
-            type,
-            Converters::toJavaList);
+      public MultipleFind<List<String>> captureGroups(int count) {
+        switch (count) {
+          case 2:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor2()),
+                type,
+                Converters::toJavaList);
+          case 3:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor3()),
+                type,
+                Converters::toJavaList);
+          case 4:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor4()),
+                type,
+                Converters::toJavaList);
+          case 5:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor5()),
+                type,
+                Converters::toJavaList);
+          case 6:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor6()),
+                type,
+                Converters::toJavaList);
+          case 7:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor7()),
+                type,
+                Converters::toJavaList);
+          case 8:
+            return new MultipleFind.Default<>(
+                extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor8()),
+                type,
+                Converters::toJavaList);
+          default:
+            throw new IllegalArgumentException(
+                "captureGroups only supports between 2 and 8 capture groups, included, not "
+                    + count);
+        }
       }
     }
   }

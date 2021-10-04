@@ -38,7 +38,7 @@ private[convert] class RequestTemplate(
   private val format = config.core.format
 
   private val isCheck = format match {
-    case Format.Kotlin => "`is`"
+    case Format.Kotlin => "shouldBe"
     case _             => "is"
   }
 

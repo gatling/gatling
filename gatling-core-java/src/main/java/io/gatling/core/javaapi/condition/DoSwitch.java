@@ -16,7 +16,7 @@
 
 package io.gatling.core.javaapi.condition;
 
-import io.gatling.core.javaapi.Possibility;
+import io.gatling.core.javaapi.Choice;
 import io.gatling.core.javaapi.Session;
 import io.gatling.core.javaapi.StructureBuilder;
 import io.gatling.core.javaapi.internal.condition.ScalaDoSwitch;
@@ -40,59 +40,59 @@ public interface DoSwitch<
   T make(Function<W, W> f);
 
   /**
-   * Execute one of the "possibilities" when the actual value is equal to the possibility's one.
+   * Execute one of the "choices" when the actual value is equal to the possibility's one.
    *
    * @param actual the actual value expressed as a Gatling Expression Language String
-   * @return a DSL component for defining the "possibilities"
+   * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Possibilities<T> doSwitch(@Nonnull String actual) {
-    return new Possibilities<>(ScalaDoSwitch.apply(this, actual));
+  default Choices<T> doSwitch(@Nonnull String actual) {
+    return new Choices<>(ScalaDoSwitch.apply(this, actual));
   }
 
   /**
-   * Execute one of the "possibilities" when the actual value is equal to the possibility's one.
+   * Execute one of the "choices" when the actual value is equal to the possibility's one.
    *
    * @param actual the actual value expressed as a function
-   * @return a DSL component for defining the "possibilities"
+   * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Possibilities<T> doSwitch(@Nonnull Function<Session, Object> actual) {
-    return new Possibilities<>(ScalaDoSwitch.apply(this, actual));
+  default Choices<T> doSwitch(@Nonnull Function<Session, Object> actual) {
+    return new Choices<>(ScalaDoSwitch.apply(this, actual));
   }
 
   /**
-   * The DSL component for defining the "possibilities"
+   * The DSL component for defining the "choices"
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Possibilities<T extends StructureBuilder<T, ?>> {
+  final class Choices<T extends StructureBuilder<T, ?>> {
     private final ScalaDoSwitch.Then<T, ?> wrapped;
 
-    Possibilities(ScalaDoSwitch.Then<T, ?> wrapped) {
+    Choices(ScalaDoSwitch.Then<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
     /**
-     * Define the "possibilities"
+     * Define the "choices"
      *
-     * @param possibilities the possibilities
+     * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T possibilities(@Nonnull Possibility.WithValue... possibilities) {
-      return possibilities(Arrays.asList(possibilities));
+    public T choices(@Nonnull Choice.WithValue... choices) {
+      return choices(Arrays.asList(choices));
     }
 
     /**
-     * Define the "possibilities"
+     * Define the "choices"
      *
-     * @param possibilities the possibilities
+     * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T possibilities(@Nonnull List<Possibility.WithValue> possibilities) {
-      return wrapped.possibilities(possibilities);
+    public T choices(@Nonnull List<Choice.WithValue> choices) {
+      return wrapped.choices(choices);
     }
   }
 }

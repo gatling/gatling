@@ -32,8 +32,8 @@ import javax.annotation.Nonnull;
 import scala.Function1;
 
 /** The entrypoint of the Gatling HTTP DSL */
-public final class Predef {
-  private Predef() {}
+public final class HttpDsl {
+  private HttpDsl() {}
 
   ////////// HttpDsl
 
