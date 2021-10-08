@@ -38,7 +38,7 @@ The first thing is to connect a WebSocket:
 
 For example:
 
-{{< include-code "WsSample.scala#connect" scala >}}
+{{< include-code "WsSample.scala#wsConnect" scala >}}
 
 You can specify a subprotocol:
 
