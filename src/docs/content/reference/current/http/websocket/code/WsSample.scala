@@ -25,7 +25,7 @@ class WsSample {
   ws("WS Operation").wsName("myCustomName")
   //#wsName
 
-  //#connect
+  //#wsConnect
   exec(ws("Connect WS").connect("/room/chat?username=steph"))
   //#wsConnect
 
