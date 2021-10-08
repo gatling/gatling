@@ -44,8 +44,8 @@ public interface UniformRandomSwitch<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> uniformRandomSwitch() {
-    return new Choices<>(new ScalaUniformRandomSwitch<>(this));
+  default On<T> uniformRandomSwitch() {
+    return new On<>(new ScalaUniformRandomSwitch<>(this));
   }
 
   /**
@@ -53,10 +53,10 @@ public interface UniformRandomSwitch<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaUniformRandomSwitch<T, ?> wrapped;
 
-    Choices(ScalaUniformRandomSwitch<T, ?> wrapped) {
+    On(ScalaUniformRandomSwitch<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -67,8 +67,8 @@ public interface UniformRandomSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull ChainBuilder... choices) {
-      return choices(Arrays.asList(choices));
+    public T on(@Nonnull ChainBuilder... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -78,7 +78,7 @@ public interface UniformRandomSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull List<ChainBuilder> choices) {
+    public T on(@Nonnull List<ChainBuilder> choices) {
       return wrapped.choices(choices);
     }
   }

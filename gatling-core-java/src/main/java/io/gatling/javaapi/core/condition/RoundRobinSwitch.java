@@ -45,8 +45,8 @@ public interface RoundRobinSwitch<
    * @return a new {@link StructureBuilder}
    */
   @Nonnull
-  default Choices<T> roundRobinSwitch() {
-    return new Choices<>(new ScalaRoundRobinSwitch<>(this));
+  default On<T> roundRobinSwitch() {
+    return new On<>(new ScalaRoundRobinSwitch<>(this));
   }
 
   /**
@@ -54,10 +54,10 @@ public interface RoundRobinSwitch<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaRoundRobinSwitch<T, ?> wrapped;
 
-    Choices(ScalaRoundRobinSwitch<T, ?> wrapped) {
+    On(ScalaRoundRobinSwitch<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -68,8 +68,8 @@ public interface RoundRobinSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull ChainBuilder... choices) {
-      return choices(Arrays.asList(choices));
+    public T on(@Nonnull ChainBuilder... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -79,7 +79,7 @@ public interface RoundRobinSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull List<ChainBuilder> choices) {
+    public T on(@Nonnull List<ChainBuilder> choices) {
       return wrapped.choices(choices);
     }
   }

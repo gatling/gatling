@@ -46,8 +46,8 @@ public interface DoSwitch<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> doSwitch(@Nonnull String actual) {
-    return new Choices<>(ScalaDoSwitch.apply(this, actual));
+  default On<T> doSwitch(@Nonnull String actual) {
+    return new On<>(ScalaDoSwitch.apply(this, actual));
   }
 
   /**
@@ -57,8 +57,8 @@ public interface DoSwitch<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> doSwitch(@Nonnull Function<Session, Object> actual) {
-    return new Choices<>(ScalaDoSwitch.apply(this, actual));
+  default On<T> doSwitch(@Nonnull Function<Session, Object> actual) {
+    return new On<>(ScalaDoSwitch.apply(this, actual));
   }
 
   /**
@@ -66,10 +66,10 @@ public interface DoSwitch<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaDoSwitch.Then<T, ?> wrapped;
 
-    Choices(ScalaDoSwitch.Then<T, ?> wrapped) {
+    On(ScalaDoSwitch.Then<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -80,8 +80,8 @@ public interface DoSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull Choice.WithValue... choices) {
-      return choices(Arrays.asList(choices));
+    public T on(@Nonnull Choice.WithValue... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -91,7 +91,7 @@ public interface DoSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull List<Choice.WithValue> choices) {
+    public T on(@Nonnull List<Choice.WithValue> choices) {
       return wrapped.choices(choices);
     }
   }

@@ -48,7 +48,7 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhile(@Nonnull String condition) {
+  default On<T> doWhile(@Nonnull String condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -61,8 +61,8 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhile(@Nonnull String condition, @Nonnull String counterName) {
-    return new Loop<>(ScalaDoWhile.apply(this, condition, counterName));
+  default On<T> doWhile(@Nonnull String condition, @Nonnull String counterName) {
+    return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
 
   // Function condition
@@ -74,7 +74,7 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhile(@Nonnull Function<Session, Boolean> condition) {
+  default On<T> doWhile(@Nonnull Function<Session, Boolean> condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -87,9 +87,9 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhile(
+  default On<T> doWhile(
       @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
-    return new Loop<>(ScalaDoWhile.apply(this, condition, counterName));
+    return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
 
   /**
@@ -97,10 +97,10 @@ public interface DoWhile<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaDoWhile.Loop<T, ?> wrapped;
 
-    Loop(ScalaDoWhile.Loop<T, ?> wrapped) {
+    On(ScalaDoWhile.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -111,7 +111,7 @@ public interface DoWhile<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

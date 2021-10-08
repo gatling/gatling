@@ -48,8 +48,8 @@ public interface Groups<
    * @return a DSL component for defining the wrapped block
    */
   @Nonnull
-  default Grouping<T> group(@Nonnull String name) {
-    return new Grouping<>(ScalaGroups.apply(this, name));
+  default On<T> group(@Nonnull String name) {
+    return new On<>(ScalaGroups.apply(this, name));
   }
 
   /**
@@ -59,8 +59,8 @@ public interface Groups<
    * @return a DSL component for defining the wrapped block
    */
   @Nonnull
-  default Grouping<T> group(@Nonnull Function<Session, String> name) {
-    return new Grouping<>(ScalaGroups.apply(this, name));
+  default On<T> group(@Nonnull Function<Session, String> name) {
+    return new On<>(ScalaGroups.apply(this, name));
   }
 
   /**
@@ -68,10 +68,10 @@ public interface Groups<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Grouping<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaGroups.Grouping<T, ?> wrapped;
 
-    Grouping(ScalaGroups.Grouping<T, ?> wrapped) {
+    On(ScalaGroups.Grouping<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -82,7 +82,7 @@ public interface Groups<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T grouping(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.grouping(chain);
     }
   }

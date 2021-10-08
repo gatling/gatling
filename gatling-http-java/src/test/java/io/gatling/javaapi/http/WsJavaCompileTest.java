@@ -60,7 +60,7 @@ public class WsJavaCompileTest extends Simulation {
                   ws.checkTextMessage("checkName")))
           .pause(1)
           .repeat(2, "i")
-          .loop(
+          .on(
               exec(ws("Say Hello WS")
                       .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}"))
                   .pause(1))

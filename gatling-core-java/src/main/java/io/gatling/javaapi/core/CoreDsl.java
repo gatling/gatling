@@ -628,7 +628,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(int times) {
+  public static Repeat.On<ChainBuilder> repeat(int times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
 
@@ -640,7 +640,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(int times, @Nonnull String counterName) {
+  public static Repeat.On<ChainBuilder> repeat(int times, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
 
@@ -651,7 +651,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(@Nonnull String times) {
+  public static Repeat.On<ChainBuilder> repeat(@Nonnull String times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
 
@@ -663,8 +663,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(
-      @Nonnull String times, @Nonnull String counterName) {
+  public static Repeat.On<ChainBuilder> repeat(@Nonnull String times, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
 
@@ -675,7 +674,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(@Nonnull Function<Session, Integer> times) {
+  public static Repeat.On<ChainBuilder> repeat(@Nonnull Function<Session, Integer> times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
 
@@ -687,7 +686,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Repeat.Loop<ChainBuilder> repeat(
+  public static Repeat.On<ChainBuilder> repeat(
       @Nonnull Function<Session, Integer> times, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
@@ -700,7 +699,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(@Nonnull List<?> seq, String attributeName) {
+  public static ForEach.On<ChainBuilder> foreach(@Nonnull List<?> seq, String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
 
@@ -714,7 +713,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(
+  public static ForEach.On<ChainBuilder> foreach(
       @Nonnull List<?> seq, String attributeName, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName, counterName);
   }
@@ -727,7 +726,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(@Nonnull String seq, String attributeName) {
+  public static ForEach.On<ChainBuilder> foreach(@Nonnull String seq, String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
 
@@ -741,7 +740,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(
+  public static ForEach.On<ChainBuilder> foreach(
       @Nonnull String seq, String attributeName, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName, counterName);
   }
@@ -755,7 +754,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(
+  public static ForEach.On<ChainBuilder> foreach(
       @Nonnull Function<Session, List<?>> seq, @Nonnull String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
@@ -770,7 +769,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ForEach.Loop<ChainBuilder> foreach(
+  public static ForEach.On<ChainBuilder> foreach(
       @Nonnull Function<Session, List<?>> seq,
       @Nonnull String attributeName,
       @Nonnull String counterName) {
@@ -989,7 +988,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Forever.Loop<ChainBuilder> forever() {
+  public static Forever.On<ChainBuilder> forever() {
     return ChainBuilder.EMPTY.forever();
   }
 
@@ -1000,7 +999,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Forever.Loop<ChainBuilder> forever(@Nonnull String counterName) {
+  public static Forever.On<ChainBuilder> forever(@Nonnull String counterName) {
     return ChainBuilder.EMPTY.forever(counterName);
   }
 
@@ -1011,7 +1010,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(@Nonnull String condition) {
+  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull String condition) {
     return ChainBuilder.EMPTY.asLongAs(condition);
   }
 
@@ -1024,7 +1023,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
+  public static AsLongAs.On<ChainBuilder> asLongAs(
       @Nonnull String condition, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName);
   }
@@ -1038,7 +1037,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(@Nonnull String condition, boolean exitASAP) {
+  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull String condition, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, exitASAP);
   }
 
@@ -1052,7 +1051,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
+  public static AsLongAs.On<ChainBuilder> asLongAs(
       @Nonnull String condition, @Nonnull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName, exitASAP);
   }
@@ -1064,8 +1063,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
-      @Nonnull Function<Session, Boolean> condition) {
+  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.asLongAs(condition);
   }
 
@@ -1078,7 +1076,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
+  public static AsLongAs.On<ChainBuilder> asLongAs(
       @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName);
   }
@@ -1092,7 +1090,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
+  public static AsLongAs.On<ChainBuilder> asLongAs(
       @Nonnull Function<Session, Boolean> condition, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, exitASAP);
   }
@@ -1107,7 +1105,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAs.Loop<ChainBuilder> asLongAs(
+  public static AsLongAs.On<ChainBuilder> asLongAs(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull String counterName,
       boolean exitASAP) {
@@ -1121,7 +1119,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhile.Loop<ChainBuilder> doWhile(@Nonnull String condition) {
+  public static DoWhile.On<ChainBuilder> doWhile(@Nonnull String condition) {
     return ChainBuilder.EMPTY.doWhile(condition);
   }
 
@@ -1133,7 +1131,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhile.Loop<ChainBuilder> doWhile(
+  public static DoWhile.On<ChainBuilder> doWhile(
       @Nonnull String condition, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.doWhile(condition, counterName);
   }
@@ -1145,7 +1143,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhile.Loop<ChainBuilder> doWhile(@Nonnull Function<Session, Boolean> condition) {
+  public static DoWhile.On<ChainBuilder> doWhile(@Nonnull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.doWhile(condition);
   }
 
@@ -1158,7 +1156,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhile.Loop<ChainBuilder> doWhile(
+  public static DoWhile.On<ChainBuilder> doWhile(
       @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.doWhile(condition, counterName);
   }
@@ -1172,7 +1170,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull String condition, @Nonnull String duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
@@ -1187,7 +1185,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
@@ -1202,7 +1200,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
@@ -1218,7 +1216,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull String condition,
       @Nonnull String duration,
       @Nonnull String counterName,
@@ -1235,7 +1233,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
@@ -1251,7 +1249,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName) {
@@ -1268,7 +1266,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       boolean exitASAP) {
@@ -1286,7 +1284,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static AsLongAsDuring.Loop<ChainBuilder> asLongAsDuring(
+  public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName,
@@ -1303,7 +1301,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
@@ -1318,7 +1316,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
@@ -1333,7 +1331,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
@@ -1349,7 +1347,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull String condition,
       @Nonnull String duration,
       @Nonnull String counterName,
@@ -1366,7 +1364,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
@@ -1382,7 +1380,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName) {
@@ -1399,7 +1397,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       boolean exitASAP) {
@@ -1417,7 +1415,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoWhileDuring.Loop<ChainBuilder> doWhileDuring(
+  public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       String counterName,
@@ -1648,7 +1646,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitch.Choices<ChainBuilder> doSwitch(@Nonnull String actual) {
+  public static DoSwitch.On<ChainBuilder> doSwitch(@Nonnull String actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -1659,7 +1657,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitch.Choices<ChainBuilder> doSwitch(@Nonnull Function<Session, Object> actual) {
+  public static DoSwitch.On<ChainBuilder> doSwitch(@Nonnull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -1671,7 +1669,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitchOrElse.Choices<ChainBuilder> doSwitchOrElse(@Nonnull String actual) {
+  public static DoSwitchOrElse.On<ChainBuilder> doSwitchOrElse(@Nonnull String actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
 
@@ -1683,7 +1681,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static DoSwitchOrElse.Choices<ChainBuilder> doSwitchOrElse(
+  public static DoSwitchOrElse.On<ChainBuilder> doSwitchOrElse(
       @Nonnull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
@@ -1694,7 +1692,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static RandomSwitch.Choices<ChainBuilder> randomSwitch() {
+  public static RandomSwitch.On<ChainBuilder> randomSwitch() {
     return ChainBuilder.EMPTY.randomSwitch();
   }
 
@@ -1705,7 +1703,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static RandomSwitchOrElse.Choices<ChainBuilder> randomSwitchOrElse() {
+  public static RandomSwitchOrElse.On<ChainBuilder> randomSwitchOrElse() {
     return ChainBuilder.EMPTY.randomSwitchOrElse();
   }
 
@@ -1716,7 +1714,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static UniformRandomSwitch.Choices<ChainBuilder> uniformRandomSwitch() {
+  public static UniformRandomSwitch.On<ChainBuilder> uniformRandomSwitch() {
     return ChainBuilder.EMPTY.uniformRandomSwitch();
   }
 
@@ -1727,7 +1725,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static RoundRobinSwitch.Choices<ChainBuilder> roundRobinSwitch() {
+  public static RoundRobinSwitch.On<ChainBuilder> roundRobinSwitch() {
     return ChainBuilder.EMPTY.roundRobinSwitch();
   }
 
@@ -1874,7 +1872,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Groups.Grouping<ChainBuilder> group(@Nonnull String name) {
+  public static Groups.On<ChainBuilder> group(@Nonnull String name) {
     return ChainBuilder.EMPTY.group(name);
   }
 
@@ -1885,7 +1883,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static Groups.Grouping<ChainBuilder> group(@Nonnull Function<Session, String> name) {
+  public static Groups.On<ChainBuilder> group(@Nonnull Function<Session, String> name) {
     return ChainBuilder.EMPTY.group(name);
   }
 

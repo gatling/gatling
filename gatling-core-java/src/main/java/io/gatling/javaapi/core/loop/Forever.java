@@ -44,7 +44,7 @@ public interface Forever<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> forever() {
+  default On<T> forever() {
     return forever(UUID.randomUUID().toString());
   }
 
@@ -55,8 +55,8 @@ public interface Forever<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> forever(@Nonnull String counterName) {
-    return new Loop<>(ScalaForever.apply(this, counterName));
+  default On<T> forever(@Nonnull String counterName) {
+    return new On<>(ScalaForever.apply(this, counterName));
   }
 
   /**
@@ -64,10 +64,10 @@ public interface Forever<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaForever.Loop<T, ?> wrapped;
 
-    Loop(ScalaForever.Loop<T, ?> wrapped) {
+    On(ScalaForever.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -78,7 +78,7 @@ public interface Forever<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

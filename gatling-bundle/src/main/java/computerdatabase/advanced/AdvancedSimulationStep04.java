@@ -47,7 +47,7 @@ public class AdvancedSimulationStep04 extends Simulation {
     // repeat is a loop resolved at RUNTIME
     static ChainBuilder browse =
         repeat(4, "i")
-            .loop( // Note how we force the counter name so we can reuse it
+            .on( // Note how we force the counter name so we can reuse it
                 exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
   }
 

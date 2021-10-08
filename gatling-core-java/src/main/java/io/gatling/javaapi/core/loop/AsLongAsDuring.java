@@ -50,7 +50,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(@Nonnull String condition, @Nonnull String duration) {
+  default On<T> asLongAsDuring(@Nonnull String condition, @Nonnull String duration) {
     return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -65,7 +65,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
     return asLongAsDuring(condition, duration, counterName, false);
   }
@@ -82,7 +82,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
     return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
@@ -100,12 +100,12 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull String condition,
       @Nonnull String duration,
       @Nonnull String counterName,
       boolean exitASAP) {
-    return new Loop<>(ScalaAsLongAsDuring.apply(this, condition, duration, counterName, exitASAP));
+    return new On<>(ScalaAsLongAsDuring.apply(this, condition, duration, counterName, exitASAP));
   }
 
   // Function condition
@@ -118,7 +118,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration) {
     return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
@@ -134,7 +134,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName) {
@@ -152,7 +152,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       boolean exitASAP) {
@@ -171,12 +171,12 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> asLongAsDuring(
+  default On<T> asLongAsDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName,
       boolean exitASAP) {
-    return new Loop<>(ScalaAsLongAsDuring.apply(this, condition, duration, counterName, exitASAP));
+    return new On<>(ScalaAsLongAsDuring.apply(this, condition, duration, counterName, exitASAP));
   }
 
   /**
@@ -184,10 +184,10 @@ public interface AsLongAsDuring<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaAsLongAsDuring.Loop<T, ?> wrapped;
 
-    Loop(ScalaAsLongAsDuring.Loop<T, ?> wrapped) {
+    On(ScalaAsLongAsDuring.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -198,7 +198,7 @@ public interface AsLongAsDuring<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

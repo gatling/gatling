@@ -46,8 +46,8 @@ public interface RandomSwitchOrElse<
    * @return the DSL component for defining the "else" block
    */
   @Nonnull
-  default Choices<T> randomSwitchOrElse() {
-    return new Choices<>(new ScalaRandomSwitchOrElse.Choices<>(this));
+  default On<T> randomSwitchOrElse() {
+    return new On<>(new ScalaRandomSwitchOrElse.Choices<>(this));
   }
 
   /**
@@ -55,10 +55,10 @@ public interface RandomSwitchOrElse<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaRandomSwitchOrElse.Choices<T, ?> wrapped;
 
-    Choices(ScalaRandomSwitchOrElse.Choices<T, ?> wrapped) {
+    On(ScalaRandomSwitchOrElse.Choices<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -69,8 +69,8 @@ public interface RandomSwitchOrElse<
      * @return the DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> choices(@Nonnull Choice.WithWeight... choices) {
-      return choices(Arrays.asList(choices));
+    public OrElse<T> on(@Nonnull Choice.WithWeight... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -80,7 +80,7 @@ public interface RandomSwitchOrElse<
      * @return the DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> choices(@Nonnull List<Choice.WithWeight> choices) {
+    public OrElse<T> on(@Nonnull List<Choice.WithWeight> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }

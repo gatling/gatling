@@ -47,7 +47,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(@Nonnull List<?> seq, String attributeName) {
+  default On<T> foreach(@Nonnull List<?> seq, String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -60,7 +60,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(@Nonnull List<?> seq, String attributeName, @Nonnull String counterName) {
+  default On<T> foreach(@Nonnull List<?> seq, String attributeName, @Nonnull String counterName) {
     return foreach(unused -> seq, attributeName, counterName);
   }
 
@@ -73,7 +73,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(@Nonnull String seq, String attributeName) {
+  default On<T> foreach(@Nonnull String seq, String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -87,8 +87,8 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(@Nonnull String seq, String attributeName, @Nonnull String counterName) {
-    return new Loop<>(ScalaForEach.apply(this, seq, attributeName, counterName));
+  default On<T> foreach(@Nonnull String seq, String attributeName, @Nonnull String counterName) {
+    return new On<>(ScalaForEach.apply(this, seq, attributeName, counterName));
   }
 
   /**
@@ -99,7 +99,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(@Nonnull Function<Session, List<?>> seq, @Nonnull String attributeName) {
+  default On<T> foreach(@Nonnull Function<Session, List<?>> seq, @Nonnull String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -112,11 +112,11 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   @Nonnull
-  default Loop<T> foreach(
+  default On<T> foreach(
       @Nonnull Function<Session, List<?>> seq,
       @Nonnull String attributeName,
       @Nonnull String counterName) {
-    return new Loop<>(ScalaForEach.apply(this, seq, attributeName, counterName));
+    return new On<>(ScalaForEach.apply(this, seq, attributeName, counterName));
   }
 
   /**
@@ -124,10 +124,10 @@ public interface ForEach<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaForEach.Loop<T, ?> wrapped;
 
-    Loop(ScalaForEach.Loop<T, ?> wrapped) {
+    On(ScalaForEach.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -138,7 +138,7 @@ public interface ForEach<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

@@ -51,7 +51,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(@Nonnull String condition, @Nonnull String duration) {
+  default On<T> doWhileDuring(@Nonnull String condition, @Nonnull String duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -66,7 +66,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
@@ -83,7 +83,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
@@ -101,12 +101,12 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull String condition,
       @Nonnull String duration,
       @Nonnull String counterName,
       boolean exitASAP) {
-    return new Loop<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
+    return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
 
   // Function condition
@@ -119,7 +119,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
@@ -135,7 +135,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName) {
@@ -153,7 +153,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       boolean exitASAP) {
@@ -172,12 +172,12 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> doWhileDuring(
+  default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName,
       boolean exitASAP) {
-    return new Loop<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
+    return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
 
   /**
@@ -185,10 +185,10 @@ public interface DoWhileDuring<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaDoWhileDuring.Loop<T, ?> wrapped;
 
-    Loop(ScalaDoWhileDuring.Loop<T, ?> wrapped) {
+    On(ScalaDoWhileDuring.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -199,7 +199,7 @@ public interface DoWhileDuring<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

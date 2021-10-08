@@ -46,7 +46,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(int times) {
+  default On<T> repeat(int times) {
     return repeat(unused -> times, UUID.randomUUID().toString());
   }
 
@@ -58,8 +58,8 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(int times, @Nonnull String counterName) {
-    return new Loop<>(ScalaRepeat.apply(this, times, counterName));
+  default On<T> repeat(int times, @Nonnull String counterName) {
+    return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
   // Gatling EL
@@ -71,7 +71,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(@Nonnull String times) {
+  default On<T> repeat(@Nonnull String times) {
     return repeat(times, UUID.randomUUID().toString());
   }
 
@@ -84,8 +84,8 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(@Nonnull String times, @Nonnull String counterName) {
-    return new Loop<>(ScalaRepeat.apply(this, times, counterName));
+  default On<T> repeat(@Nonnull String times, @Nonnull String counterName) {
+    return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
   // Function
@@ -96,7 +96,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(@Nonnull Function<Session, Integer> times) {
+  default On<T> repeat(@Nonnull Function<Session, Integer> times) {
     return repeat(times, UUID.randomUUID().toString());
   }
 
@@ -108,8 +108,8 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> repeat(@Nonnull Function<Session, Integer> times, String counterName) {
-    return new Loop<>(ScalaRepeat.apply(this, times, counterName));
+  default On<T> repeat(@Nonnull Function<Session, Integer> times, String counterName) {
+    return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
   /**
@@ -117,10 +117,10 @@ public interface Repeat<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaRepeat.Loop<T, ?> wrapped;
 
-    Loop(ScalaRepeat.Loop<T, ?> wrapped) {
+    On(ScalaRepeat.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -131,7 +131,7 @@ public interface Repeat<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

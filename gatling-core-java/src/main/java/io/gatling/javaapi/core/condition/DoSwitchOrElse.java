@@ -48,8 +48,8 @@ public interface DoSwitchOrElse<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> doSwitchOrElse(@Nonnull String actual) {
-    return new Choices<>(ScalaDoSwitchOrElse.apply(this, actual));
+  default On<T> doSwitchOrElse(@Nonnull String actual) {
+    return new On<>(ScalaDoSwitchOrElse.apply(this, actual));
   }
 
   /**
@@ -60,8 +60,8 @@ public interface DoSwitchOrElse<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> doSwitchOrElse(@Nonnull Function<Session, Object> actual) {
-    return new Choices<>(ScalaDoSwitchOrElse.apply(this, actual));
+  default On<T> doSwitchOrElse(@Nonnull Function<Session, Object> actual) {
+    return new On<>(ScalaDoSwitchOrElse.apply(this, actual));
   }
 
   /**
@@ -69,10 +69,10 @@ public interface DoSwitchOrElse<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaDoSwitchOrElse.Then<T, ?> wrapped;
 
-    Choices(ScalaDoSwitchOrElse.Then<T, ?> wrapped) {
+    On(ScalaDoSwitchOrElse.Then<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -83,8 +83,8 @@ public interface DoSwitchOrElse<
      * @return a DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> choices(@Nonnull Choice.WithValue... choices) {
-      return choices(Arrays.asList(choices));
+    public OrElse<T> on(@Nonnull Choice.WithValue... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -94,7 +94,7 @@ public interface DoSwitchOrElse<
      * @return a DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> choices(@Nonnull List<Choice.WithValue> choices) {
+    public OrElse<T> on(@Nonnull List<Choice.WithValue> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }

@@ -148,7 +148,7 @@ public interface Errors<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T trying(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.trying(chain);
     }
   }

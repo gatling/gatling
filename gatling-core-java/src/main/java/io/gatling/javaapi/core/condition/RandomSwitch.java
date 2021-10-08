@@ -45,8 +45,8 @@ public interface RandomSwitch<
    * @return a DSL component for defining the "choices"
    */
   @Nonnull
-  default Choices<T> randomSwitch() {
-    return new Choices<>(new ScalaRandomSwitch<>(this));
+  default On<T> randomSwitch() {
+    return new On<>(new ScalaRandomSwitch<>(this));
   }
 
   /**
@@ -54,10 +54,10 @@ public interface RandomSwitch<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Choices<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaRandomSwitch<T, ?> wrapped;
 
-    Choices(ScalaRandomSwitch<T, ?> wrapped) {
+    On(ScalaRandomSwitch<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -68,8 +68,8 @@ public interface RandomSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull Choice.WithWeight... choices) {
-      return choices(Arrays.asList(choices));
+    public T on(@Nonnull Choice.WithWeight... choices) {
+      return on(Arrays.asList(choices));
     }
 
     /**
@@ -79,7 +79,7 @@ public interface RandomSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T choices(@Nonnull List<Choice.WithWeight> choices) {
+    public T on(@Nonnull List<Choice.WithWeight> choices) {
       return wrapped.choices(choices);
     }
   }
