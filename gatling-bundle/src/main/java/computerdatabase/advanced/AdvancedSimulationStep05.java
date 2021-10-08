@@ -16,11 +16,11 @@
 
 package computerdatabase.advanced;
 
-import static io.gatling.core.javaapi.CoreDsl.*;
-import static io.gatling.http.javaapi.HttpDsl.*;
+import static io.gatling.javaapi.core.CoreDsl.*;
+import static io.gatling.javaapi.http.HttpDsl.*;
 
-import io.gatling.core.javaapi.*;
-import io.gatling.http.javaapi.*;
+import io.gatling.javaapi.core.*;
+import io.gatling.javaapi.http.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AdvancedSimulationStep05 extends Simulation {

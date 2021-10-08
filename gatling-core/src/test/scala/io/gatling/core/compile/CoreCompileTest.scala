@@ -198,7 +198,7 @@ class CoreCompileTest extends Simulation {
   private val inject3 = constantUsersPerSec(10).during(1.minute)
   private val inject4 = atOnceUsers(100)
   private val inject5 = rampUsersPerSec(10).to(20).during(10.minutes)
-  private val inject8 = heavisideUsers(1000).during(20.seconds)
+  private val inject8 = stressPeakUsers(1000).during(20.seconds)
 
   private val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100).during(5.seconds))
 

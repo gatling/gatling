@@ -22,5 +22,5 @@ package object app {
 
   type ConfigOverrides = mutable.Map[String, _]
 
-  type JavaSimulation = io.gatling.core.javaapi.Simulation
+  type JavaSimulation = io.gatling.javaapi.core.Simulation
 }

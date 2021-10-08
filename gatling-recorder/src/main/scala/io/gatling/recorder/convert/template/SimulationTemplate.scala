@@ -215,13 +215,13 @@ private[convert] class SimulationTemplate(
         s"""${if (packageName.nonEmpty) s"package $packageName$Eol" else ""}
            |import java.time.Duration
            |
-           |import io.gatling.core.javaapi.*
-           |import io.gatling.http.javaapi.*
-           |import io.gatling.jdbc.javaapi.*
+           |import io.gatling.javaapi.core.*
+           |import io.gatling.javaapi.http.*
+           |import io.gatling.javaapi.jdbc.*
            |
-           |import io.gatling.core.javaapi.CoreDsl.*
-           |import io.gatling.http.javaapi.HttpDsl.*
-           |import io.gatling.jdbc.javaapi.JdbcDsl.*
+           |import io.gatling.javaapi.core.CoreDsl.*
+           |import io.gatling.javaapi.http.HttpDsl.*
+           |import io.gatling.javaapi.jdbc.JdbcDsl.*
            |
            |class $simulationClassName : Simulation() {
            |
@@ -242,13 +242,13 @@ private[convert] class SimulationTemplate(
            |import java.time.*;
            |import java.util.*;
            |
-           |import io.gatling.core.javaapi.*;
-           |import io.gatling.http.javaapi.*;
-           |import io.gatling.jdbc.javaapi.*;
+           |import io.gatling.javaapi.core.*;
+           |import io.gatling.javaapi.http.*;
+           |import io.gatling.javaapi.jdbc.*;
            |
-           |import static io.gatling.core.javaapi.CoreDsl.*;
-           |import static io.gatling.http.javaapi.HttpDsl.*;
-           |import static io.gatling.jdbc.javaapi.JdbcDsl.*;
+           |import static io.gatling.javaapi.core.CoreDsl.*;
+           |import static io.gatling.javaapi.http.HttpDsl.*;
+           |import static io.gatling.javaapi.jdbc.JdbcDsl.*;
            |
            |public class $simulationClassName extends Simulation {
            |
@@ -269,13 +269,13 @@ private[convert] class SimulationTemplate(
            |import java.time.*;
            |import java.util.*;
            |
-           |import io.gatling.core.javaapi.*;
-           |import io.gatling.http.javaapi.*;
-           |import io.gatling.jdbc.javaapi.*;
+           |import io.gatling.javaapi.core.*;
+           |import io.gatling.javaapi.http.*;
+           |import io.gatling.javaapi.jdbc.*;
            |
-           |import static io.gatling.core.javaapi.CoreDsl.*;
-           |import static io.gatling.http.javaapi.HttpDsl.*;
-           |import static io.gatling.jdbc.javaapi.JdbcDsl.*;
+           |import static io.gatling.javaapi.core.CoreDsl.*;
+           |import static io.gatling.javaapi.http.HttpDsl.*;
+           |import static io.gatling.javaapi.jdbc.JdbcDsl.*;
            |
            |public class $simulationClassName extends Simulation {
            |
