@@ -26,7 +26,7 @@ public class AdvancedSimulationStep04 extends Simulation {
 
   private static class Search {
 
-    static FeederBuilder feeder = csv("search.csv").random();
+    static FeederBuilder<String> feeder = csv("search.csv").random();
 
     static ChainBuilder search =
         exec(http("Home").get("/"))
@@ -46,9 +46,8 @@ public class AdvancedSimulationStep04 extends Simulation {
 
     // repeat is a loop resolved at RUNTIME
     static ChainBuilder browse =
-        repeat(4, "i")
-            .on( // Note how we force the counter name so we can reuse it
-                exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
+        // Note how we force the counter name so we can reuse it
+        repeat(4, "i").on(exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
   }
 
   private static class Edit {

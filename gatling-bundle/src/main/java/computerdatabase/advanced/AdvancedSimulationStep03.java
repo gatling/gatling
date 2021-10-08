@@ -31,7 +31,7 @@ public class AdvancedSimulationStep03 extends Simulation {
     // completely different from the live system (caching, JIT...)
     // ==> Feeders!
 
-    static FeederBuilder feeder =
+    static FeederBuilder<String> feeder =
         csv("search.csv")
             .random(); // default is queue, so for this test, we use random to avoid feeder
     // starvation

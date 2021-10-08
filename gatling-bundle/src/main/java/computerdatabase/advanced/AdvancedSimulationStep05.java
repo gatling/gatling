@@ -27,7 +27,7 @@ public class AdvancedSimulationStep05 extends Simulation {
 
   private static class Search {
 
-    static FeederBuilder feeder = csv("search.csv").random();
+    static FeederBuilder<String> feeder = csv("search.csv").random();
 
     static ChainBuilder search =
         exec(http("Home").get("/"))
@@ -47,9 +47,8 @@ public class AdvancedSimulationStep05 extends Simulation {
 
     // repeat is a loop resolved at RUNTIME
     static ChainBuilder browse =
-        repeat(4, "i")
-            .on( // Note how we force the counter name so we can reuse it
-                exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
+        // Note how we force the counter name so we can reuse it
+        repeat(4, "i").on(exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
   }
 
   private static class Edit {
@@ -59,8 +58,9 @@ public class AdvancedSimulationStep05 extends Simulation {
     // number of times
 
     static ChainBuilder edit =
+        // let's try at max 2 times
         tryMax(2)
-            .on( // let's try at max 2 times
+            .on(
                 exec(http("Form").get("/computers/new"))
                     .pause(1)
                     .exec(
@@ -73,17 +73,12 @@ public class AdvancedSimulationStep05 extends Simulation {
                             .check(
                                 status()
                                     .is(
-                                        session ->
-                                            200
-                                                + ThreadLocalRandom.current()
-                                                    .nextInt(
-                                                        2)))) // we do a check on a condition that's
-                // been customized with a lambda. It
-                // will be evaluated every time a user
-                // executes the request
-                )
-            .exitHereIfFailed(); // if the chain didn't finally succeed, have the user exit the
-    // whole scenario
+                                        // we do a check on a condition that's been customized with
+                                        // a lambda. It will be evaluated every time a user executes
+                                        // the request
+                                        session -> 200 + ThreadLocalRandom.current().nextInt(2)))))
+            // if the chain didn't finally succeed, have the user exit the whole scenario
+            .exitHereIfFailed();
   }
 
   HttpProtocolBuilder httpProtocol =
