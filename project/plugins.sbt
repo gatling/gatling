@@ -1,5 +1,5 @@
 addSbtPlugin("io.gatling"         % "gatling-build-plugin"  % "4.1.0")
-addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"   % "1.8.1")
+addSbtPlugin("com.github.sbt"   % "sbt-native-packager"   % "1.9.0")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"               % "0.4.3")
 addSbtPlugin("net.aichler"        % "sbt-jupiter-interface" % "0.9.1")
 addSbtPlugin("com.typesafe.sbt"   % "sbt-site"              % "1.4.1")
