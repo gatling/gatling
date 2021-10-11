@@ -19,20 +19,20 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 In `project/plugins.sbt`, add:
 
-```sbt
+```scala
 addSbtPlugin("io.gatling" % "gatling-sbt" % "MANUALLY_REPLACE_WITH_LATEST_VERSION")
 ```
 
 You'll also need those two dependencies:
 
-```sbt
+```scala
 "io.gatling.highcharts" % "gatling-charts-highcharts" % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 "io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 ```
 
 And then, in your `.scala` build
 
-```sbt
+```scala
 import io.gatling.sbt.GatlingPlugin
 
 lazy val project = Project(...)
@@ -41,7 +41,7 @@ lazy val project = Project(...)
 ```
 
 or in your `.sbt` file, for SBT 0.13.6 and later::
-```sbt
+```scala
 enablePlugins(GatlingPlugin)
 
 libraryDependencies ++= /* Gatling dependencies */
@@ -94,7 +94,7 @@ For the `GatlingIt` configuration :
 
 If you override the default settings, you need to reset them on the project, eg:
 
-```sbt
+```scala
 scalaSource in Gatling := sourceDirectory.value / "gatling" / "scala"
 lazy val root = (project in file(".")).settings(inConfig(Gatling)(Defaults.testSettings): _*)
 ```
@@ -116,7 +116,7 @@ However, should you need to tweak them, you can use `overrideDefaultJavaOptions`
 
 E.g., if you want to tweak Xms/Xmx to give more memory to Gatling
 
-```sbt
+```scala
 javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
 ```
 
