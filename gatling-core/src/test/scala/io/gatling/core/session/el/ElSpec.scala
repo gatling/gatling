@@ -664,6 +664,12 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     currentDateExpression(emptySession) shouldBe a[Success[_]]
   }
 
+  "htmlUnescape" should "escape HTML entities" in {
+    val expression = """${foo.htmlUnescape()}""".el[String]
+    val session = newSession(Map("foo" -> "foo &eacute; bar"))
+    expression(session).succeeded shouldBe "foo é bar"
+  }
+
   "Escaping" should "turn $${ into ${" in {
     val session = newSession(Map("foo" -> "FOO"))
     val expression = "$${foo}".el[String]

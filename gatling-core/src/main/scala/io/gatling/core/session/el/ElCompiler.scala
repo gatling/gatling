@@ -34,9 +34,8 @@ import io.gatling.commons.util.TypeHelper
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
+import io.gatling.core.util.Html
 import io.gatling.netty.util.StringBuilderPool
-
-import jodd.bean.BeanUtil
 
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
@@ -48,6 +47,7 @@ object ElMessages {
   def indexAccessNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support index access".failure
   def outOfRangeAccess(name: String, value: Any, index: Int): Failure = s"Product $value named $name has no element with index $index".failure
   def tupleAccessNotSupported(name: String, value: Any): Failure = s"$value named $name do not support tuple access".failure
+  def htmlUnescapeNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .htmlUnescape function".failure
 }
 
 sealed trait ElPart[+T] extends (Session => Validation[T]) with Product with Serializable
@@ -107,6 +107,14 @@ final case class JsonStringify(part: ElPart[Any], name: String) extends ElPart[S
     part(session) match {
       case Success(value)   => Json.stringify(value, isRootObject = false).success
       case failure: Failure => if (TypeHelper.isNullValueFailure(failure)) Validation.NullStringSuccess else failure
+    }
+}
+
+final case class HtmlUnescape(part: ElPart[Any], name: String) extends ElPart[String] {
+  def apply(session: Session): Validation[String] =
+    part(session).flatMap {
+      case s: String => Success(Html.unescape(s))
+      case other     => ElMessages.htmlUnescapeNotSupported(other, name)
     }
 }
 
@@ -204,8 +212,8 @@ class ElParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ElCompiler {
 
-  private val NameRegex = """[^\.${}\(\)]+""".r
-  private val DateFormatRegex = """[^${}\(\)]+""".r
+  private val NameRegex = """[^.${}()]+""".r
+  private val DateFormatRegex = """[^${}()]+""".r
   private val NumberRegex = "[0-9]+".r
   private val DynamicPartStart = "${".toCharArray
 
@@ -255,6 +263,7 @@ private[el] case object AccessSize extends AccessFunction { val token: String = 
 private[el] case object AccessExists extends AccessFunction { val token: String = functionToken("exists") }
 private[el] case object AccessIsUndefined extends AccessFunction { val token: String = functionToken("isUndefined") }
 private[el] case object AccessJsonStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
+private[el] case object AccessHtmlUnescape extends AccessFunction { val token: String = functionToken("htmlUnescape") }
 private[el] final case class AccessTuple(index: String, token: String) extends AccessToken
 
 class ElCompiler private extends RegexParsers {
@@ -347,6 +356,7 @@ class ElCompiler private extends RegexParsers {
               case AccessExists          => ExistsPart(currentPart, currentPartName)
               case AccessIsUndefined     => IsUndefinedPart(currentPart, currentPartName)
               case AccessJsonStringify   => JsonStringify(currentPart, currentPartName)
+              case AccessHtmlUnescape    => HtmlUnescape(currentPart, currentPartName)
               case AccessTuple(index, _) => TupleAccessPart(currentPart, currentPartName, index.toInt)
             }
 
@@ -370,6 +380,7 @@ class ElCompiler private extends RegexParsers {
       functionAccess(AccessExists) |
       functionAccess(AccessIsUndefined) |
       functionAccess(AccessJsonStringify) |
+      functionAccess(AccessHtmlUnescape) |
       keyAccess |
       (elExpr ^^ (_ => throw new Exception("nested attribute definition is not allowed")))
 }

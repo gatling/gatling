@@ -41,6 +41,7 @@ Moreover, Gatling EL provide the following built-in functions:
 "${foo.jsonStringify()}"    // properly formats into a JSON value (wrap Strings with double quotes, deal with null)
 "${currentTimeMillis()}"    // System.currentTimeMillis
 "${currentDate(<pattern>)}" // new Date() formatted with a java.text.SimpleDateFormat pattern
+"${foo.htmlUnescape()}"     // expects `foo` to point to an HTML String attribute and returns its unescaped value (entities decoded)
 ```
 
 You can also combine different Gatling EL builtin functions. For example if `foo` is a List of Lists `${foo(0)(0)}` will return first element of the first list in `foo`. `${foo.list.random()}` will return random element from an indexed collection associated with key `list` in a map `foo`.
