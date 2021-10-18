@@ -146,7 +146,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     if (SslProvider.isAlpnSupported(if (useOpenSsl) SslProvider.OPENSSL_REFCNT else SslProvider.JDK)) {
       this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
     } else {
-      throw new UnsupportedOperationException("You can't use HTTP/2 if OpenSSL is not available and Java version < 11")
+      throw new UnsupportedOperationException("You can't use HTTP/2 if OpenSSL is not available and Java doesn't support it either")
     }
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]): HttpProtocolBuilder =
