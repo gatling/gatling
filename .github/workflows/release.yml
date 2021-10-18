@@ -23,7 +23,7 @@ jobs:
       - name: Setup Scala
         uses: olafurpg/setup-scala@v10
         with:
-          java-version: "adopt@1.8"
+          java-version: "zulu@1.8"
 
       - name: Prepare environment
         env:
