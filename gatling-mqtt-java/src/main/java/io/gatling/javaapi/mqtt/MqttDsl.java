@@ -27,16 +27,9 @@ import javax.annotation.Nonnull;
 public final class MqttDsl {
   private MqttDsl() {}
 
-  /**
-   * Bootstrap a new MQTT protocol builder
-   *
-   * @return a new builder instance
-   */
-  @Nonnull
-  public static MqttProtocolBuilder mqtt() {
-    return new MqttProtocolBuilder(
-        io.gatling.mqtt.Predef.mqtt(io.gatling.core.Predef.configuration()));
-  }
+  /** Bootstrap a new MQTT protocol builder */
+  public static MqttProtocolBuilder mqtt =
+      new MqttProtocolBuilder(io.gatling.mqtt.Predef.mqtt(io.gatling.core.Predef.configuration()));
 
   /**
    * Bootstrap a builder for last will messages

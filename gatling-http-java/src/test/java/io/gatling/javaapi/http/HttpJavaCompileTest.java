@@ -33,9 +33,8 @@ import javax.net.ssl.KeyManagerFactory;
 
 public class HttpJavaCompileTest extends Simulation {
 
-  HttpProtocolBuilder http =
-      http()
-          .baseUrl("url")
+  HttpProtocolBuilder httpProtocol =
+      http.baseUrl("url")
           .baseUrls("url1", "urls2")
           .baseUrls(Collections.singletonList("url"))
           .warmUp("url")
@@ -382,6 +381,6 @@ public class HttpJavaCompileTest extends Simulation {
             // feeder
             .feed(sitemap("file"));
 
-    setUp(scn.injectOpen(atOnceUsers(1)).protocols(http)).protocols(http);
+    setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol)).protocols(httpProtocol);
   }
 }

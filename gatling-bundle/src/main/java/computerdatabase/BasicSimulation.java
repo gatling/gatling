@@ -26,7 +26,7 @@ import java.time.Duration;
 public class BasicSimulation extends Simulation {
 
   HttpProtocolBuilder httpProtocol =
-      http()
+      http
           // Here is the root for all relative URLs
           .baseUrl("http://computer-database.gatling.io")
           // Here are the common headers

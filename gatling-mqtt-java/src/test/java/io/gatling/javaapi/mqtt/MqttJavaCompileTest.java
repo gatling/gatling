@@ -29,8 +29,7 @@ import javax.net.ssl.KeyManagerFactory;
 public class MqttJavaCompileTest extends Simulation {
 
   private MqttProtocolBuilder mqttProtocol =
-      mqtt()
-          .broker("localhost", 1883)
+      mqtt.broker("localhost", 1883)
           .useTls(false)
           .perUserKeyManagerFactory(
               session -> {

@@ -37,16 +37,11 @@ public final class HttpDsl {
 
   ////////// HttpDsl
 
-  /**
-   * Bootstrap a HTTP protocol configuration
-   *
-   * @return a new HttpProtocolBuilder
-   */
-  @Nonnull
-  public static HttpProtocolBuilder http() {
-    return new HttpProtocolBuilder(
-        io.gatling.http.protocol.HttpProtocolBuilder.apply(io.gatling.core.Predef.configuration()));
-  }
+  /** Bootstrap a HTTP protocol configuration */
+  public static final HttpProtocolBuilder http =
+      new HttpProtocolBuilder(
+          io.gatling.http.protocol.HttpProtocolBuilder.apply(
+              io.gatling.core.Predef.configuration()));
 
   /**
    * Bootstrap a HTTP request configuration

@@ -26,9 +26,8 @@ import java.util.Collections;
 
 public class WsJavaCompileTest extends Simulation {
 
-  private HttpProtocolBuilder httpProtocol =
-      http()
-          .wsBaseUrl("ws://localhost:9000")
+  private final HttpProtocolBuilder httpProtocol =
+      http.wsBaseUrl("ws://localhost:9000")
           .wsBaseUrls("url1", "url2")
           .wsBaseUrls(Collections.singletonList("url"))
           .wsReconnect()
@@ -36,7 +35,7 @@ public class WsJavaCompileTest extends Simulation {
           .wsAutoReplyTextFrame(txt -> txt.equals("foo") ? "bar" : null)
           .wsAutoReplySocketIo4();
 
-  private ChainBuilder chain =
+  private final ChainBuilder chain =
       exec(ws("Connect WS")
               .connect("/room/chat?username=${id}")
               .subprotocol("FOO")

@@ -49,14 +49,12 @@ public class JmsJavaCompileTest extends Simulation {
 
   // create JmsProtocol from standard ConnectionFactory
   private final JmsProtocolBuilder jmsProtocol =
-      jms()
-          .connectionFactory(
-              new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"));
+      jms.connectionFactory(
+          new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"));
 
   // create JmsProtocol from JNDI based ConnectionFactory
   private JmsProtocolBuilder jmsProtocolWithJndiConnectionFactory =
-      jms()
-          .connectionFactory(
+      jms.connectionFactory(
               jmsJndiConnectionFactory
                   .connectionFactoryName("ConnectionFactory")
                   .url("tcp://localhost:10002")

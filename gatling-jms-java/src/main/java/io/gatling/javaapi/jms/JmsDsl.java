@@ -31,9 +31,7 @@ public final class JmsDsl {
   private JmsDsl() {}
 
   /** Prefix to bootstrap a new JMS protocol builder DSL */
-  public static JmsProtocolBuilder.Base jms() {
-    return JmsProtocolBuilder.Base.INSTANCE;
-  }
+  public static final JmsProtocolBuilder.Base jms = JmsProtocolBuilder.Base.INSTANCE;
 
   /** Bootstrap a JmsJndiConnectionFactoryBuilder DSL */
   public static JmsJndiConnectionFactoryBuilder.Base jmsJndiConnectionFactory =
