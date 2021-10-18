@@ -67,7 +67,7 @@ object Dependencies {
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.12"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.9.2"
   private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.69"
-  private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.7.4"
+  private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.7.5"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.5"
   private val jsr305                         = "com.google.code.findbugs"             % "jsr305"                          % "3.0.2"
