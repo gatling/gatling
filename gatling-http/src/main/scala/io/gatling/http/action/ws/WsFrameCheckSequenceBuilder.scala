@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.ws
 
+import scala.annotation.tailrec
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation._
@@ -30,23 +31,37 @@ object WsFrameCheckSequenceBuilder {
       for {
         timeout <- builder.timeout(session)
         accValue <- acc
-      } yield accValue :+ WsFrameCheckSequence(timeout, resolveCheckName(builder.checks, session).asInstanceOf[List[T]])
+        checks <- resolveChecks(builder.checks, session)
+      } yield accValue :+ WsFrameCheckSequence(timeout, checks)
     }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  private def resolveCheckName[T <: WsFrameCheck](checks: List[WsFrameCheck], session: Session): List[WsFrameCheck] = {
-    checks
-      .map {
-        case check: WsFrameCheck.Text =>
-          check.checkName(session) match {
-            case Success(value) => check.copy(name = value)
-          }
-        case check: WsFrameCheck.Binary =>
-          check.checkName(session) match {
-            case Success(value) => check.copy(name = value)
-          }
+  private def resolveChecks[T <: WsFrameCheck](checks: List[T], session: Session): Validation[List[T]] = {
+
+    @tailrec
+    def resolveCheckName[C <: WsFrameCheck](entries: Iterator[C], session: Session, acc: List[C]): Validation[List[C]] = {
+      if (entries.isEmpty)
+        acc.reverse.success
+      else {
+        val checkItem = entries.next()
+
+        checkItem match {
+          case check: WsFrameCheck.Text =>
+            check.checkName(session) match {
+              case Success(value)   => resolveCheckName(entries, session, check.copy(name = value).asInstanceOf[C] :: acc)
+              case failure: Failure => failure
+            }
+          case check: WsFrameCheck.Binary =>
+            check.checkName(session) match {
+              case Success(value)   => resolveCheckName(entries, session, check.copy(name = value).asInstanceOf[C] :: acc)
+              case failure: Failure => failure
+            }
+        }
       }
+    }
+
+    resolveCheckName(checks.iterator, session, Nil)
   }
 }
 

@@ -162,6 +162,17 @@ public final class Ws {
     }
 
     /**
+     * Bootstrap a check on inbound TEXT frames
+     *
+     * @param name the name of the check, expressed as a function
+     * @return the next DSL step
+     */
+    @Nonnull
+    public WsFrameCheck.Text checkTextMessage(@Nonnull Function<Session, String> name) {
+      return new WsFrameCheck.Text(io.gatling.http.Predef.ws().checkTextMessage(javaFunctionToExpression(name)));
+    }
+
+    /**
      * Bootstrap a check on inbound BINARY frames
      *
      * @param name the name of the check, expressed as a Gatling Expression Language String
@@ -170,6 +181,17 @@ public final class Ws {
     @Nonnull
     public WsFrameCheck.Binary checkBinaryMessage(@Nonnull String name) {
       return new WsFrameCheck.Binary(io.gatling.http.Predef.ws().checkBinaryMessage(toStringExpression(name)));
+    }
+
+    /**
+     * Bootstrap a check on inbound BINARY frames
+     *
+     * @param name the name of the check, expressed as a function
+     * @return the next DSL step
+     */
+    @Nonnull
+    public WsFrameCheck.Binary checkBinaryMessage(@Nonnull Function<Session, String > name) {
+      return new WsFrameCheck.Binary(io.gatling.http.Predef.ws().checkBinaryMessage(javaFunctionToExpression(name)));
     }
   }
 }

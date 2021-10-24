@@ -47,6 +47,7 @@ package object session {
 
   implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
     def map[U](f: T => U): Expression[U] = expression(_).map(f)
+
     def safe: Expression[T] = session => safely()(expression(session))
   }
 
@@ -78,15 +79,22 @@ package object session {
     resolveRec(_, iterable.iterator, Nil)
   }
 
+  def itemToEl(item: Any): Session => Validation[Any] = {
+    item match {
+      case s: String => s.el[Any]
+      case v         => v.expressionSuccess
+    }
+  }
+
+  def itemToElString(item: String): Session => Validation[String] = {
+    item match {
+      case s: String => s.el[String]
+      case v         => v.expressionSuccess
+    }
+  }
+
   def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
     val el = seq.map { case (key, value) =>
-      def itemToEl(item: Any) = {
-        item match {
-          case s: String => s.el[Any]
-          case v         => v.expressionSuccess
-        }
-      }
-
       itemToEl(key) -> itemToEl(value)
     }
 
