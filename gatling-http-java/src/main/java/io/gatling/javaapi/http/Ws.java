@@ -158,7 +158,8 @@ public final class Ws {
      */
     @Nonnull
     public WsFrameCheck.Text checkTextMessage(@Nonnull String name) {
-      return new WsFrameCheck.Text(io.gatling.http.Predef.ws().checkTextMessage(toStringExpression(name)));
+      return new WsFrameCheck.Text(
+          io.gatling.http.Predef.ws().checkTextMessage(toStringExpression(name)));
     }
 
     /**
@@ -169,7 +170,8 @@ public final class Ws {
      */
     @Nonnull
     public WsFrameCheck.Text checkTextMessage(@Nonnull Function<Session, String> name) {
-      return new WsFrameCheck.Text(io.gatling.http.Predef.ws().checkTextMessage(javaFunctionToExpression(name)));
+      return new WsFrameCheck.Text(
+          io.gatling.http.Predef.ws().checkTextMessage(javaFunctionToExpression(name)));
     }
 
     /**
@@ -180,7 +182,8 @@ public final class Ws {
      */
     @Nonnull
     public WsFrameCheck.Binary checkBinaryMessage(@Nonnull String name) {
-      return new WsFrameCheck.Binary(io.gatling.http.Predef.ws().checkBinaryMessage(toStringExpression(name)));
+      return new WsFrameCheck.Binary(
+          io.gatling.http.Predef.ws().checkBinaryMessage(toStringExpression(name)));
     }
 
     /**
@@ -190,8 +193,9 @@ public final class Ws {
      * @return the next DSL step
      */
     @Nonnull
-    public WsFrameCheck.Binary checkBinaryMessage(@Nonnull Function<Session, String > name) {
-      return new WsFrameCheck.Binary(io.gatling.http.Predef.ws().checkBinaryMessage(javaFunctionToExpression(name)));
+    public WsFrameCheck.Binary checkBinaryMessage(@Nonnull Function<Session, String> name) {
+      return new WsFrameCheck.Binary(
+          io.gatling.http.Predef.ws().checkBinaryMessage(javaFunctionToExpression(name)));
     }
   }
 }

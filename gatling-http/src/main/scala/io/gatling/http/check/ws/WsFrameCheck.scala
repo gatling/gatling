@@ -18,6 +18,8 @@ package io.gatling.http.check.ws
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.core.session.Expression
+
 import com.softwaremill.quicklens._
 
 final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
@@ -30,7 +32,8 @@ sealed trait WsFrameCheck {
 }
 
 object WsFrameCheck {
-  final case class Binary(name: String, matchConditions: List[WsCheck.Binary], checks: List[WsCheck.Binary], isSilent: Boolean) extends WsFrameCheck {
+  final case class Binary(checkName: Expression[String], matchConditions: List[WsCheck.Binary], checks: List[WsCheck.Binary], isSilent: Boolean, name: String)
+      extends WsFrameCheck {
 
     def matching(newMatchConditions: WsCheck.Binary*): Binary = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
@@ -46,7 +49,8 @@ object WsFrameCheck {
       copy(isSilent = true)
   }
 
-  final case class Text(name: String, matchConditions: List[WsCheck.Text], checks: List[WsCheck.Text], isSilent: Boolean) extends WsFrameCheck {
+  final case class Text(checkName: Expression[String], matchConditions: List[WsCheck.Text], checks: List[WsCheck.Text], isSilent: Boolean, name: String)
+      extends WsFrameCheck {
 
     def matching(newMatchConditions: WsCheck.Text*): Text = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
