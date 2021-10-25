@@ -24,16 +24,12 @@ Global / scalaVersion := "2.13.6"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
-  .dependsOn(
-    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
-      _ % "compile->compile;test->test"
-    ): _*
-  )
   .aggregate(
     nettyUtil,
     commonsShared,
     commonsSharedUnstable,
     commons,
+    docSamples,
     jsonpath,
     core,
     coreJava,
@@ -58,20 +54,25 @@ lazy val root = Project("gatling-parent", file("."))
   )
   .settings(basicSettings)
   .settings(skipPublishing)
-  .settings(libraryDependencies ++= docDependencies)
-  .settings(Test / unmanagedSourceDirectories := (sourceDirectory.value / "docs" ** "code").get)
-  .settings(scalafmtConfig := Def.task {
-    val file = scalafmtConfig.value
-    IO.append(
-      file,
-      """
-        |project.excludeFilters = ["src/docs"]
-        |""".stripMargin
-    )
-    file
-  }.value)
 
 // Modules
+lazy val docSamples = (project in file("src/docs"))
+  .settings(
+    basicSettings,
+    skipPublishing,
+    Test / unmanagedSourceDirectories ++= (baseDirectory.value ** "code").get,
+    libraryDependencies ++= docDependencies,
+    // Avoid formatting but avoid errors when calling this tasks with "all"
+    scalafmtSbtCheck := Def.task(true).value,
+    scalafmtCheckAll := Def.task(()).value,
+    spotlessCheck := Def.task(()).value,
+    gatlingScalafixCheck := Def.task(()).value
+  )
+  .dependsOn(
+    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
+      _ % "compile->compile;test->test"
+    ): _*
+  )
 
 def gatlingModule(id: String) =
   Project(id, file(id))
