@@ -8,10 +8,7 @@ object BuildSettings {
   lazy val basicSettings = Seq(
     Test / parallelExecution := false,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
-    licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    spotlessJava := JavaConfig(
-      googleJavaFormat = GoogleJavaFormatConfig()
-    )
+    licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
     // not set in private build
     // [fl]
     //
