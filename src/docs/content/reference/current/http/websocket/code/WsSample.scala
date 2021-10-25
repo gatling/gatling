@@ -91,6 +91,10 @@ class WsSample {
   exec(ws("Send").sendText("hello").await(30.seconds)(myCheck))
   //#check-from-message
 
+  //#check-name-with-el
+  ws.checkTextMessage("${checkName}")
+  //#check-name-with-el
+
   val myCheck1 = myCheck
   val myCheck2 = myCheck
 
