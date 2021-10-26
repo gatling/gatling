@@ -117,9 +117,31 @@ time                count max mean min percentiles50 percentiles75 percentiles95
 
 #### Install
 
-Graphite can be installed through [Synthesize](https://github.com/obfuscurity/synthesize) on Ubuntu 14.04
+Graphite can be installed through [Synthesize](https://Gatling can provide live metrics via the Graphite protocol which can be persisted and visualised.
 
-#### Configuration
+The sections below describe how to configure Gatling with InfluxDB and Graphite, and use Grafana as a graphing library. We also present a lo-fi solution which prints parsed Graphite data to standard out.
+
+{{< alert warning >}} As explained in one of our blog posts, Graphite and InfluxDB can't store distributions but only numbers. As a result, only one-second-resolution non-aggregated response time stats are correct.
+
+All aggregations will result in computing averages on percentiles and will inherently be broken.
+
+This is not a limitation of Gatling, but a limitation of those time series databases. {{< /alert >}}
+
+Gatling
+In the gatling.conf add "graphite" to the data writers and specify the host of the Carbon or InfluxDB server.
+
+gatling {
+  data {
+    writers = [console, file, graphite]
+
+    graphite {
+      host = "192.0.2.235"  # InfluxDB or Carbon server
+      port = 2003           # The port to which the Carbon server listens to (2003 is default for plaintext, 2004 is default for pickle)
+      # writePeriod = 1     # Default write interval of one second
+    }
+  }
+}
+InfluxDB
 
 In `$GRAPHITE_HOME/conf/storage-schemas.conf`:
 
@@ -232,3 +254,107 @@ To run the script:
 ```console
 nc -l 2003 | awk -f a.awk
 ```
+
+## Graphite-Telegraf-InfluxDB 2.0
+
+Gatling can provide live metrics via the Graphite protocol which can be persisted and visualised.
+
+The sections below describe how to configure Gatling with InfluxDB and Telegraf. InfluxDB 2.0 include the possiblity of create some dashboard to visualise your data directly from InfluxDB. 
+
+In the goal to be more explicit, we will explain everything with a docker compose, with it, you can easier start all your environment with real time data.
+
+{{< alert warning >}} As explained in one of our blog posts, Graphite and InfluxDB can't store distributions but only numbers. As a result, only one-second-resolution non-aggregated response time stats are correct.
+
+All aggregations will result in computing averages on percentiles and will inherently be broken.
+
+This is not a limitation of Gatling, but a limitation of those time series databases. {{< /alert >}}
+
+### Gatling
+In the gatling.conf add "graphite" to the data writers and specify the host of the Carbon or InfluxDB server.
+
+gatling {
+  data {
+    writers = [console, file, graphite]
+
+    graphite {
+      host = "localhost"    # Telegraf IP
+      port = 2003           # The port to which the Carbon server listens to (2003 is default for plaintext, 2004 is default for pickle)
+      # writePeriod = 1     # Default write interval of one second
+    }
+  }
+}
+
+### Influx DB 2.0 and Telegraf
+
+Creating the `docker-compose.yml` file with the defition of these two apps.
+
+```
+version: "3.8"
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    env_file: configuration.env
+    ports:
+      - '8086:8086'
+  telegraf:
+    image: telegraf
+    container_name: telegraf
+    links:
+      - influxdb
+    volumes:
+      - ./docker/telegraf/mytelegraf.conf:/etc/telegraf/telegraf.conf
+    env_file: configuration.env
+    ports:
+      - '2003:2003'
+volumes:
+  grafana_data: {}
+  influxdb_data: {}
+```
+
+Then you will need to create two files, one for the configuration of your docker and the other one for the Telegraf configuration:
+
+- `configuration.env`
+```
+####################
+# InfluxDB options
+####################
+
+DOCKER_INFLUXDB_INIT_USERNAME=username
+DOCKER_INFLUXDB_INIT_PASSWORD=password
+DOCKER_INFLUXDB_INIT_ORG=github.com
+DOCKER_INFLUXDB_INIT_BUCKET=gatling
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=myadmintoken
+DOCKER_INFLUXDB_INIT_MODE=setup
+
+
+####################
+# Telegraf options
+####################
+
+DOCKER_INFLUXDB_INIT_ORG=github.com
+DOCKER_INFLUXDB_INIT_BUCKET=gatling
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=myadmintoken
+```
+
+- `telegraf.conf`
+
+```
+[[inputs.socket_listener]]
+  service_address = "tcp://:2003"
+
+data_format = "graphite"
+  templates = [
+    "gatling.*.*.*.* measurement.simulation.request.status.field",
+    "gatling.*.users.*.* measurement.simulation.measurement.request.field"
+ ]
+
+[[outputs.influxdb_v2]]	
+  urls = ["http://influxdb:8086"]
+  token = "$DOCKER_INFLUXDB_INIT_ADMIN_TOKEN"
+  organization = "$DOCKER_INFLUXDB_INIT_ORG"
+  bucket = "$DOCKER_INFLUXDB_INIT_BUCKET"
+  insecure_skip_verify = true
+```
+
+Now, you can start your environment by running `docker-compose up -d`, create your own dashboard by connecting to the url http://influxdb:8086/ and start your scenario! Data will come!
