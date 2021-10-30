@@ -20,17 +20,18 @@ import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.oauth.ConsumerKey;
 import io.gatling.http.client.oauth.OAuthSignatureCalculatorInstance;
 import io.gatling.http.client.oauth.RequestToken;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class OAuthSignatureCalculator implements SignatureCalculator {
+public class OAuthSignatureCalculator implements Consumer<Request> {
 
   private static final ThreadLocal<OAuthSignatureCalculatorInstance> INSTANCES =
       ThreadLocal.withInitial(
@@ -51,7 +52,7 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
   }
 
   @Override
-  public void sign(Request request) throws Exception {
+  public void accept(Request request) {
 
     RequestBody body = request.getBody();
     List<Param> formParams =
@@ -59,12 +60,17 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
             ? ((FormUrlEncodedRequestBody) body).getContent()
             : Collections.emptyList();
 
-    String authorization =
-        INSTANCES
-            .get()
-            .computeAuthorizationHeader(
-                consumerAuth, requestToken, request.getMethod(), request.getUri(), formParams);
+    try {
+      String authorization =
+          INSTANCES
+              .get()
+              .computeAuthorizationHeader(
+                  consumerAuth, requestToken, request.getMethod(), request.getUri(), formParams);
 
-    request.getHeaders().set(AUTHORIZATION, authorization);
+      request.getHeaders().set(AUTHORIZATION, authorization);
+
+    } catch (InvalidKeyException e) {
+      throw new IllegalArgumentException("Failed to compute OAuth signature", e);
+    }
   }
 }

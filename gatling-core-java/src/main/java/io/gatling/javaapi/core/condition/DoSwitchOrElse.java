@@ -83,7 +83,7 @@ public interface DoSwitchOrElse<
      * @return a DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> on(@Nonnull Choice.WithValue... choices) {
+    public OrElse<T> on(@Nonnull Choice.WithKey... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -94,7 +94,7 @@ public interface DoSwitchOrElse<
      * @return a DSL component for defining the "else" block
      */
     @Nonnull
-    public OrElse<T> on(@Nonnull List<Choice.WithValue> choices) {
+    public OrElse<T> on(@Nonnull List<Choice.WithKey> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }

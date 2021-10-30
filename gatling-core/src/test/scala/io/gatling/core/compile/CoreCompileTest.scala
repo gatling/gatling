@@ -46,7 +46,6 @@ class CoreCompileTest extends Simulation {
   feed(csv("foo.csv").unzip.batch.random)
   feed(csv("foo.csv").batch(500))
   feed(csv("foo.csv").batch(500).random)
-  feed(csv("foo.csv.zip"), 5)
   feed(jsonFile("foo.json"))
   feed(jsonFile("foo.json").unzip)
   feed(jsonFile("foo.json").unzip.random)

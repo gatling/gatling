@@ -102,7 +102,7 @@ Explanations:
 6. We use the previously saved hyperlink to get a specific page.
 
 {{< alert tip >}}
-For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/session/feeder" >}}).
+For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/core/session/feeder" >}}).
 
 For more details regarding *HTTP Checks*, please check out [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
 {{< /alert >}}
@@ -129,7 +129,7 @@ Explanations:
 2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
 {{< alert tip >}}
-For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/general/scenario#loops" >}}).
+For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
 {{< /alert >}}
 
 ## Step 05: Check and failure management
@@ -160,7 +160,7 @@ Explanations:
 2. If all tries failed, the user exits the whole scenario due to `exitHereIfFailed`.
 
 {{< alert tip >}}
-For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/general/scenario#conditional-statements" >}}).
+For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/core/scenario#conditional-statements" >}}).
 {{< /alert >}}
 
 That's all Folks!

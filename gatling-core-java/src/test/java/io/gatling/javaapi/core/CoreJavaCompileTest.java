@@ -263,25 +263,25 @@ public class CoreJavaCompileTest extends Simulation {
           .orElse(chain2)
           // doSwitch
           .doSwitch("${value}")
-          .on(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
+          .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .doSwitch("${value}")
-          .on(Collections.singletonList(Choice.withValue("value1", chain1)))
+          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
           .doSwitch(session -> "value")
-          .on(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
+          .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .doSwitch(session -> "value")
-          .on(Collections.singletonList(Choice.withValue("value1", chain1)))
+          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
           // doSwitchOrElse
           .doSwitchOrElse("${value}")
-          .on(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
+          .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse("${value}")
-          .on(Collections.singletonList(Choice.withValue("value1", chain1)))
+          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
-          .on(Choice.withValue("value1", chain1), Choice.withValue("value2", chain2))
+          .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
-          .on(Collections.singletonList(Choice.withValue("value1", chain1)))
+          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
           .orElse(chain2)
           // randomSwitch
           .randomSwitch()
@@ -328,7 +328,7 @@ public class CoreJavaCompileTest extends Simulation {
           // exitHereIfFailed
           .exitHereIfFailed();
 
-  CoreJavaCompileTest() {
+  {
     registerPebbleExtensions((com.mitchellbosecke.pebble.extension.Extension) null);
     setUp(
             scenario.injectOpen(

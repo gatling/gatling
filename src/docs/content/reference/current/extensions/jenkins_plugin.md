@@ -4,7 +4,7 @@ description: "Jenkins plugin for Gatling Enterprise"
 lead: "Jenkins CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 9060
+weight: 007004
 ---
 
 Thanks to this plugin, you can track a Gatling simulation launched by the Maven plugin in Jenkins.

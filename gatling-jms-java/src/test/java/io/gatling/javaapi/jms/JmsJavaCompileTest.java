@@ -168,7 +168,7 @@ public class JmsJavaCompileTest extends Simulation {
                   .property("header", session -> "value")
                   .jmsType("foo"));
 
-  public JmsJavaCompileTest() {
+  {
     setUp(scn.injectOpen(atOnceUsers(1))).protocols(jmsProtocol);
   }
 }

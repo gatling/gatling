@@ -42,7 +42,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use MQTT 3.1
+   * Use MQTT 3.1
    *
    * @return a new MqttProtocolBuilder instance
    */
@@ -52,7 +52,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use MQTT 3.1.1 (default)
+   * Use MQTT 3.1.1 (default)
    *
    * @return a new MqttProtocolBuilder instance
    */
@@ -74,7 +74,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use TLS
+   * Use TLS
    *
    * @param useTls true to enable TLS
    * @return a new MqttProtocolBuilder instance
@@ -121,7 +121,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to clean the MQTT session when closing the MQTT connection
+   * Clean the MQTT session when closing the MQTT connection
    *
    * @param cleanSession true to clean the session
    * @return a new MqttProtocolBuilder instance
@@ -176,7 +176,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use an at-most-once QoS
+   * Use an at-most-once QoS
    *
    * @return a new MqttProtocolBuilder instance
    */
@@ -186,7 +186,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use an at-least-once QoS
+   * Use an at-least-once QoS
    *
    * @return a new MqttProtocolBuilder instance
    */
@@ -196,7 +196,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use an exactly-once QoS
+   * Use an exactly-once QoS
    *
    * @return a new MqttProtocolBuilder instance
    */
@@ -273,7 +273,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to send a LastWill message when closing the connetion
+   * Send a LastWill message when closing the connetion
    *
    * @param lw the last will message
    * @return a new MqttProtocolBuilder instance

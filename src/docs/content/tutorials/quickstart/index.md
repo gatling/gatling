@@ -155,7 +155,7 @@ Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `pause(5 s
 13. Attaching the HTTP configuration declared above.
 
 {{< alert tip >}}
-For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/general/simulation_structure" >}}).
+For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/core/simulation" >}}).
 {{< /alert >}}
 
 ### Running Gatling

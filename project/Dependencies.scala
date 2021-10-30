@@ -92,6 +92,11 @@ object Dependencies {
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.44.v20210927"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % Test
 
+  // Docs dependencies
+  private val commonsIo                      = "commons-io"                           % "commons-io"                      % "2.6"
+  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                   % "3.12.0"
+  private val commonsCodec                   = "commons-codec"                        % "commons-codec"                   % "1.15"
+
   // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
@@ -106,6 +111,9 @@ object Dependencies {
   private val parserDeps = Seq(jackson, saxon, lagarto, jmespath)
 
   // Dependencies by module
+
+  val docSamplesDependencies =
+    Seq(commonsIo, commonsLang, commonsCodec)
 
   val nettyUtilDependencies =
     Seq(nettyBuffer, nettyEpoll, junit, junitEngine, jupiterInterface)

@@ -46,7 +46,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
      * @return a new DSL instance
      */
     @Nonnull
-    JmsProtocolBuilder connectionFactory(@Nonnull ConnectionFactory cf) {
+    public JmsProtocolBuilder connectionFactory(@Nonnull ConnectionFactory cf) {
       return new JmsProtocolBuilder(
           io.gatling.jms.protocol.JmsProtocolBuilderBase.connectionFactory(cf));
     }
@@ -58,7 +58,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
      * @return a new DSL instance
      */
     @Nonnull
-    JmsProtocolBuilder connectionFactory(@Nonnull JmsJndiConnectionFactoryBuilder cfb) {
+    public JmsProtocolBuilder connectionFactory(@Nonnull JmsJndiConnectionFactoryBuilder cfb) {
       return new JmsProtocolBuilder(
           io.gatling.jms.protocol.JmsProtocolBuilderBase.connectionFactory(cfb.build()));
     }
@@ -88,7 +88,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use the persistent delivery mode
+   * Use the persistent delivery mode
    *
    * @return a new instance
    */
@@ -98,7 +98,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to use the non-persistent delivery mode
+   * Use the non-persistent delivery mode
    *
    * @return a new instance
    */
@@ -108,7 +108,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to match outbound and inbound messages based on messageId
+   * Match outbound and inbound messages based on messageId
    *
    * @return a new instance
    */
@@ -118,7 +118,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to match outbound and inbound messages based on correlationId
+   * Match outbound and inbound messages based on correlationId
    *
    * @return a new instance
    */

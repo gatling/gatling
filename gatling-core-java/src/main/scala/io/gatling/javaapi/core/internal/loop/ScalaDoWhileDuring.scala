@@ -20,6 +20,7 @@ import java.{ lang => jl }
 import java.time.Duration
 
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.DurationConverters._
 
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el._
@@ -41,12 +42,30 @@ object ScalaDoWhileDuring {
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoWhileDuring[T, W],
+      condition: String,
+      duration: Duration,
+      counterName: String,
+      exitASAP: Boolean
+  ): Loop[T, W] =
+    new Loop(context, condition.el, toStaticValueExpression(duration.toScala), counterName, exitASAP)
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: DoWhileDuring[T, W],
       condition: JavaExpression[jl.Boolean],
       duration: JavaExpression[Duration],
       counterName: String,
       exitASAP: Boolean
   ): Loop[T, W] =
     new Loop(context, javaBooleanFunctionToExpression(condition), javaDurationFunctionToExpression(duration), counterName, exitASAP)
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: DoWhileDuring[T, W],
+      condition: JavaExpression[jl.Boolean],
+      duration: Duration,
+      counterName: String,
+      exitASAP: Boolean
+  ): Loop[T, W] =
+    new Loop(context, javaBooleanFunctionToExpression(condition), toStaticValueExpression(duration.toScala), counterName, exitASAP)
 
   final class Loop[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoWhileDuring[T, W],

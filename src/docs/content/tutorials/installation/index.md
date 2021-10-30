@@ -29,8 +29,7 @@ those are not documented and released only for internal use or [Gatling Enterpri
 ## Using the Bundle
 
 You can use Gatling as a standalone bundle.
-Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations
-and you'll be able to launch Gatling from the command line.
+Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
 
 Check out our [Open Source page](https://gatling.io/open-source/) for the download link.
 
@@ -44,7 +43,7 @@ Windows users : we recommend that you do not place Gatling in the *Programs* fol
 In order to run Gatling, you need to have a JDK installed.
 Gatling requires at least **JDK8**. Then, we recommend that you use an up-to-date version.
 
-For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/general/operations" >}}) section.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/core/operations" >}}) section.
 
 {{< alert warning >}}
 Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
@@ -53,6 +52,16 @@ so you might end up running a different version than the one `java -version` tel
 If you get strange errors such as `Unsupported major.minor version 51.0` and you were expecting to run a JDK8,
 you might want to explicitly set `JAVA_HOME`.
 {{< /alert >}}
+
+The bundle structure is as following:
+
+* `bin`: launch scripts for Gatling and the Recorder.
+* `conf`: configuration files for Gatling, Akka and Logback.
+* `lib`: Gatling and dependencies binaries
+* `user-files`:
+    * `simulations`: where to place your Simulations code. You must respect the package folder hierarchy.
+    * `resources`: non source code files such as feeder files and templates for request bodies.
+* `results`: where test results are generated.
 
 ## Using a Build Tool
 
@@ -153,7 +162,10 @@ You'll have to add the following section in your `pom.xml`:
 
 ### Launching Gatling and the Recorder from the IDE
 
-The [gatling-highcharts-maven-archetype]({{< ref "../../reference/current/extensions/maven_archetype" >}}) generates some helper classes that you can use to launch Gatling and the Recorder manually from your IDE.
-You can perfectly copy [those 3 classes](https://github.com/gatling/gatling-highcharts-maven-archetype/tree/main/src/main/scala) (`Engine`, `Recorder` and `IDEPathHelper`) in your own project.
+All maven, gradle and sbt demo projects contain some helper classes you can use to trigger some Gatling tasks.
 
-Please check the [launchers documentation section]({{< ref "../../reference/current/extensions/maven_archetype#launchers" >}}).
+You can right-click on the `Engine` class in your IDE and launch the Gatling load test engine.
+Simulation reports will be written in your `target` directory.
+
+You can right-click on the `Recorder` class in your IDE and launch the Recorder.
+Simulations will be generated in you `src/test/sources` directory.

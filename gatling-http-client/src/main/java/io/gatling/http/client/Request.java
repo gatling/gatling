@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.Cookie;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Request {
 
@@ -42,7 +43,7 @@ public class Request {
   private final InetAddress localIpV6Address;
   private final Realm realm;
   private final ProxyServer proxyServer;
-  private final SignatureCalculator signatureCalculator;
+  private final Consumer<Request> signatureCalculator;
   private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
   private final boolean alpnRequired;
@@ -63,7 +64,7 @@ public class Request {
       InetAddress localIpV6Address,
       Realm realm,
       ProxyServer proxyServer,
-      SignatureCalculator signatureCalculator,
+      Consumer<Request> signatureCalculator,
       InetAddressNameResolver nameResolver,
       boolean http2Enabled,
       boolean alpnRequired,
@@ -166,7 +167,7 @@ public class Request {
     return proxyServer;
   }
 
-  public SignatureCalculator getSignatureCalculator() {
+  public Consumer<Request> getSignatureCalculator() {
     return signatureCalculator;
   }
 

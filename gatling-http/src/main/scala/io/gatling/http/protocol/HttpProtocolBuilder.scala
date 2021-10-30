@@ -17,7 +17,6 @@
 package io.gatling.http.protocol
 
 import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
-import java.util.regex.Pattern
 import javax.net.ssl.KeyManagerFactory
 
 import scala.jdk.CollectionConverters._
@@ -29,7 +28,7 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.Request
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming
@@ -68,7 +67,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   }
   def useAllLocalAddresses: HttpProtocolBuilder = useAllLocalAddressesMatching()
   def useAllLocalAddressesMatching(patterns: String*): HttpProtocolBuilder = {
-    val compiledPatterns = patterns.map(Pattern.compile)
+    val compiledPatterns = patterns.map(_.r.pattern)
 
     def filter(addresses: List[InetAddress]): List[InetAddress] =
       addresses.filter { address =>
@@ -132,9 +131,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   private def authRealm(realm: Expression[Realm]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.realm).setTo(Some(realm))
   def silentResources: HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentResources).setTo(true)
-  def silentUri(regex: String): HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentUri).setTo(Some(regex.r.pattern))
+  def silentUri(pattern: String): HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentUri).setTo(Some(pattern.r.pattern))
   def disableUrlEncoding: HttpProtocolBuilder = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
-  def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
+  def sign(calculator: (Request, Session) => Validation[_]): HttpProtocolBuilder =
+    this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signWithOAuth1(
       consumerKey: Expression[String],
       clientSharedSecret: Expression[String],
@@ -177,7 +177,6 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def inferHtmlResources(allow: AllowList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, DenyList.Empty)))
   def inferHtmlResources(allow: AllowList, deny: DenyList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, deny)))
   def inferHtmlResources(deny: DenyList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(deny, AllowList.Empty)))
-  def inferHtmlResources(deny: DenyList, allow: AllowList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(deny, allow)))
   private def inferHtmlResources(filters: Option[Filters]): HttpProtocolBuilder =
     this
       .modify(_.protocol.responsePart.inferHtmlResources)

@@ -39,6 +39,7 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class RequestBuilder {
 
@@ -58,7 +59,7 @@ public class RequestBuilder {
   private InetAddress localIpV6Address;
   private Realm realm;
   private ProxyServer proxyServer;
-  private SignatureCalculator signatureCalculator;
+  private Consumer<Request> signatureCalculator;
   private boolean http2Enabled;
   private boolean alpnRequired;
   private boolean http2PriorKnowledge;
@@ -132,7 +133,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setSignatureCalculator(SignatureCalculator signatureCalculator) {
+  public RequestBuilder setSignatureCalculator(Consumer<Request> signatureCalculator) {
     this.signatureCalculator = signatureCalculator;
     return this;
   }

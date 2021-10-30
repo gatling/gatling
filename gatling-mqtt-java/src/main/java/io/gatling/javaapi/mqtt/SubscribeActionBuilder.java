@@ -40,7 +40,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
   }
 
   /**
-   * Instruct to use an at-most-once QoS
+   * Use an at-most-once QoS
    *
    * @return a new ActionBuilder instance
    */
@@ -50,7 +50,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
   }
 
   /**
-   * Instruct to use an at-least-once QoS
+   * Use an at-least-once QoS
    *
    * @return a new ActionBuilder instance
    */
@@ -60,7 +60,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
   }
 
   /**
-   * Instruct to use an exactly-once QoS
+   * Use an exactly-once QoS
    *
    * @return a new ActionBuilder instance
    */
@@ -78,7 +78,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Instruct to use an at-most-once QoS
+     * Use an at-most-once QoS
      *
      * @return a new ActionBuilder instance
      */
@@ -88,7 +88,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Instruct to use an at-least-once QoS
+     * Use an at-least-once QoS
      *
      * @return a new ActionBuilder instance
      */
@@ -98,7 +98,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Instruct to use an exactly-once QoS
+     * Use an exactly-once QoS
      *
      * @return a new ActionBuilder instance
      */

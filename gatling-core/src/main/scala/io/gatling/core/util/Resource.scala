@@ -28,11 +28,13 @@ import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Io._
 import io.gatling.commons.validation._
 
+import com.typesafe.scalalogging.LazyLogging
+
 object Resource {
 
   private final case class Location(customDirectory: Option[Path], path: String)
 
-  private object ClasspathResource {
+  private object ClasspathResource extends LazyLogging {
 
     private def urlToFile(url: URL): File =
       try {
@@ -42,11 +44,19 @@ object Resource {
       }
 
     def unapply(location: Location): Option[Validation[Resource]] = {
-      val cleanPath = location.path
-        .replace('\\', '/')
+      val nixPath = location.path.replace('\\', '/')
+      val cleanPath = nixPath
         .replace("src/test/resources/", "")
         .replace("src/main/resources/", "")
         .replace("src/gatling/resources/", "")
+
+      if (cleanPath != nixPath) {
+        logger.warn(s"""Your resource's path ${location.path} is incorrect.
+                       |It should not be relative to your project root on the filesystem.
+                       |Instead, it should be relative to your classpath root.
+                       |We've clean it up into $cleanPath for you but please fix it.
+                       |""".stripMargin)
+      }
 
       Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
         url.getProtocol match {

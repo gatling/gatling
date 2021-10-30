@@ -23,7 +23,7 @@ import io.gatling.core.session.el.El
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
-import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.Request
 import io.gatling.http.client.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
@@ -63,7 +63,7 @@ final case class CommonAttributes(
     realm: Option[Expression[Realm]],
     virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
-    signatureCalculator: Option[Expression[SignatureCalculator]],
+    signatureCalculator: Option[(Request, Session) => Validation[_]],
     ignoreProtocolHeaders: Boolean
 )
 
@@ -98,14 +98,14 @@ object RequestBuilder {
       clientSharedSecret: Expression[String],
       token: Expression[String],
       tokenSecret: Expression[String]
-  ): Expression[SignatureCalculator] =
-    session =>
+  ): (Request, Session) => Validation[_] =
+    (request, session) =>
       for {
         ck <- consumerKey(session)
         css <- clientSharedSecret(session)
         tk <- token(session)
         tks <- tokenSecret(session)
-      } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks))
+      } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks)).accept(request)
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
@@ -177,7 +177,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy.proxyServer)))
 
-  def sign(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
+  def sign(calculator: (Request, Session) => Validation[_]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
 
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))

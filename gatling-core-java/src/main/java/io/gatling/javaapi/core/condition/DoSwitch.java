@@ -80,7 +80,7 @@ public interface DoSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T on(@Nonnull Choice.WithValue... choices) {
+    public T on(@Nonnull Choice.WithKey... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -91,7 +91,7 @@ public interface DoSwitch<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T on(@Nonnull List<Choice.WithValue> choices) {
+    public T on(@Nonnull List<Choice.WithKey> choices) {
       return wrapped.choices(choices);
     }
   }

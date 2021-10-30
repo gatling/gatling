@@ -22,25 +22,25 @@ import javax.annotation.Nonnull;
 public final class Choice {
   private Choice() {}
 
-  public static WithValue withValue(@Nonnull Object value, @Nonnull ChainBuilder chain) {
-    return new WithValue(value, chain);
+  public static WithKey withKey(@Nonnull Object key, @Nonnull ChainBuilder chain) {
+    return new WithKey(key, chain);
   }
 
   public static WithWeight withWeight(double weight, @Nonnull ChainBuilder chain) {
     return new WithWeight(weight, chain);
   }
 
-  /** A choice with an expected value */
-  public static final class WithValue {
-    public final Object value;
+  /** A choice with an expected key */
+  public static final class WithKey {
+    public final Object key;
     public final ChainBuilder chain;
 
     /**
-     * @param value the expected value
-     * @param chain the chain that will be triggered if the switch matches the expected value
+     * @param key the expected key
+     * @param chain the chain that will be triggered if the switch matches the expected key
      */
-    public WithValue(@Nonnull Object value, @Nonnull ChainBuilder chain) {
-      this.value = value;
+    public WithKey(@Nonnull Object key, @Nonnull ChainBuilder chain) {
+      this.key = key;
       this.chain = chain;
     }
   }

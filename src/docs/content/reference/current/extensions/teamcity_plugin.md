@@ -4,7 +4,7 @@ description: "TeamCity plugin for Gatling Enterprise"
 lead: "TeamCity CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 9080
+weight: 007006
 ---
 
 [Gatling Enterprise](/enterprise/) has a dedicated TeamCity plugin.

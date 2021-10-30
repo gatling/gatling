@@ -19,6 +19,5 @@ package io.gatling.http
 object Predef extends HttpDsl {
 
   type Request = io.gatling.http.client.Request
-  type SignatureCalculator = io.gatling.http.client.SignatureCalculator
   type Response = io.gatling.http.response.Response
 }

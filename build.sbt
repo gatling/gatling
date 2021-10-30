@@ -73,6 +73,7 @@ lazy val docSamples = (project in file("src/docs"))
       _ % "compile->compile;test->test"
     ): _*
   )
+  .settings(libraryDependencies ++= docSamplesDependencies)
 
 def gatlingModule(id: String) =
   Project(id, file(id))

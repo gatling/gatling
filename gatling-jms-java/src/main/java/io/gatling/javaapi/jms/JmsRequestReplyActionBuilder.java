@@ -333,8 +333,7 @@ public class JmsRequestReplyActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Instruct to not set the ReplyTo destination, see {@link
-     * javax.jms.Message#setJMSReplyTo(Destination)}
+     * Don't set the ReplyTo destination, see {@link javax.jms.Message#setJMSReplyTo(Destination)}
      *
      * @return the next DSL step
      */

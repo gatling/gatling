@@ -132,7 +132,7 @@ public class MqttJavaCompileTest extends Simulation {
                   .check(jsonPath("$.error").notExists()))
           .exec(waitForMessages().timeout(Duration.ofMillis(100)));
 
-  public MqttJavaCompileTest() {
+  {
     setUp(scn.injectOpen(atOnceUsers(1))).protocols(mqttProtocol);
   }
 }

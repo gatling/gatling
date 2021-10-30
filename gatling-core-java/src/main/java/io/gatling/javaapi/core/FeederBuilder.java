@@ -21,10 +21,10 @@ import io.gatling.core.feeder.SeparatedValuesParser;
 import io.gatling.javaapi.core.internal.Converters;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import scala.*;
 
 /**
  * Builder of feeders, ie sources of data that are shared amongst all virtual users. Typically
@@ -84,7 +84,7 @@ public interface FeederBuilder<T> {
    * @return a new FeederBuilder
    */
   @Nonnull
-  FeederBuilder<Object> convert(@Nonnull Function2<String, T, Object> f);
+  FeederBuilder<Object> convert(@Nonnull BiFunction<String, T, Object> f);
 
   /**
    * Read all the records of the underlying source.
@@ -108,7 +108,8 @@ public interface FeederBuilder<T> {
    *
    * @return the wrapped Scala instance
    */
-  Function0<scala.collection.Iterator<scala.collection.immutable.Map<String, Object>>> asScala();
+  scala.Function0<scala.collection.Iterator<scala.collection.immutable.Map<String, Object>>>
+      asScala();
 
   /**
    * A {@link FeederBuilder} that is backed by a file.
@@ -199,11 +200,11 @@ public interface FeederBuilder<T> {
      * Force loading small chunks of data from the underlying source one by one Slower runtime but
      * faster boot time and lower memory consumption.
      *
-     * @param bufferSize the chunk buffer size
+     * @param lines the number of buffered lines
      * @return a new Batchable
      */
     @Nonnull
-    Batchable<T> batch(int bufferSize);
+    Batchable<T> batch(int lines);
   }
 
   final class Impl<T> implements Batchable<T> {
@@ -311,18 +312,18 @@ public interface FeederBuilder<T> {
 
     @Override
     @Nonnull
-    public FeederBuilder<Object> convert(@Nonnull Function2<String, T, Object> f) {
+    public FeederBuilder<Object> convert(@Nonnull BiFunction<String, T, Object> f) {
       return new Impl<>(
           wrapped.convert(
-              new PartialFunction<Tuple2<String, T>, Object>() {
+              new scala.PartialFunction<scala.Tuple2<String, T>, Object>() {
 
                 @Override
-                public boolean isDefinedAt(Tuple2<String, T> x) {
-                  return f.apply(x._1, x._2) != null;
+                public boolean isDefinedAt(scala.Tuple2<String, T> x) {
+                  return true;
                 }
 
                 @Override
-                public Object apply(Tuple2<String, T> v1) {
+                public Object apply(scala.Tuple2<String, T> v1) {
                   return f.apply(v1._1, v1._2);
                 }
               }));
@@ -362,12 +363,13 @@ public interface FeederBuilder<T> {
 
     @Override
     @Nonnull
-    public Batchable<T> batch(int bufferSize) {
-      return make(wrapped -> wrapped.batch(bufferSize));
+    public Batchable<T> batch(int lines) {
+      return make(wrapped -> wrapped.batch(lines));
     }
 
     @Override
-    public Function0<scala.collection.Iterator<scala.collection.immutable.Map<String, Object>>>
+    public scala.Function0<
+            scala.collection.Iterator<scala.collection.immutable.Map<String, Object>>>
         asScala() {
       return wrapped;
     }

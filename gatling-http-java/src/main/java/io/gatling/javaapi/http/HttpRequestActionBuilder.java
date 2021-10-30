@@ -180,8 +180,7 @@ public final class HttpRequestActionBuilder
   }
 
   /**
-   * Instruct to have this request ignore the common checks defined on the HTTP protocol
-   * configuration
+   * Have this request ignore the common checks defined on the HTTP protocol configuration
    *
    * @return a new HttpRequestActionBuilder instance
    */
@@ -212,7 +211,7 @@ public final class HttpRequestActionBuilder
   }
 
   /**
-   * Instruct to disable automatic redirect following
+   * Disable automatic redirect following
    *
    * @return a new HttpRequestActionBuilder instance
    */
@@ -443,6 +442,20 @@ public final class HttpRequestActionBuilder
         wrapped ->
             wrapped.multivaluedFormParam(
                 toStringExpression(key), toStaticValueExpression(toScalaSeq(values))));
+  }
+
+  /**
+   * Set an HTML form multivalued parameter
+   *
+   * @param key the parameter key, expressed as a Gatling Expression Language String
+   * @param values the parameter values, as a Gatling EL string
+   * @return a new HttpRequestActionBuilder instance
+   */
+  @Nonnull
+  public HttpRequestActionBuilder multivaluedFormParam(
+      @Nonnull String key, @Nonnull String values) {
+    return make(
+        wrapped -> wrapped.multivaluedFormParam(toStringExpression(key), toSeqExpression(values)));
   }
 
   /**

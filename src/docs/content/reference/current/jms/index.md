@@ -4,6 +4,7 @@ description: "JMS protocol DSL"
 lead: "JMS protocol DSL"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
+weight: 005000
 ---
 
 JMS support was initially contributed by [Jason Koch](https://github.com/jasonk000).
@@ -12,32 +13,31 @@ JMS support was initially contributed by [Jason Koch](https://github.com/jasonk0
 
 Gatling JMS DSL is not imported by default.
 
-One has to manually add the following imports:
+You have to manually add the following imports:
 
-{{< include-code "JmsSample.scala#imprts" scala >}}
+{{< include-code "imprts" java scala >}}
 
 ## JMS Protocol {#protocol}
 
 Use the `jms` object in order to create a JMS protocol.
 
-* `connectionFactory`: mandatory, an instance of `ConnectionFactory`. Use `jmsJndiConnectionFactory`_ to obtain one via JNDI lookup or create it by yourself.
-* `credentials`: optional, to create a JMS connection
-* `useNonPersistentDeliveryMode` / `usePersistentDeliveryMode`: optional, default to non persistent
-* `matchByMessageId` / `matchByCorrelationId` / `messageMatcher`: specify how request and response messages should be matched, default to `matchByMessageId`. Use `matchByCorrelationId` for ActiveMQ.
-* `replyTimeout`: optional reply timeout, in milliseconds, default is none
-* `listenerThreadCount`: optional listener thread count, some JMS implementation (like IBM MQ) need more than on MessageListener to achieve full readout performance
+#### `connectionFactory`
 
-## JMS JNDI Connection Factory
+The first mandatory step is to configure the `ConnectionFactory`.
 
-Use `jmsJndiConnectionFactory` object to obtain an instance of JMS `ConnectionFactory` via JNDI lookup.
+You can either configure one to be retrieved with a JNDI lookup:
 
-* `connectionFactoryName`: mandatory
-* `url`: mandatory
-* `contextFactory`: mandatory
-* `credentials`: optional, for performing JNDI lookup
-* `property`: optional, custom JNDI property
+{{< include-code "jndi" java scala >}}
 
-## JMS Request API
+or directly instantiate one with your JMS broker's Java client library, eg:
+
+{{< include-code "prog" java scala >}}
+
+#### Other Options
+
+{{< include-code "options" java scala >}}
+
+## JMS Request
 
 Use the `jms("requestName")` method in order to create a JMS request.
 
@@ -49,49 +49,50 @@ Currently, `requestReply` and `send` (fire and forget) requests are supported.
 
 Define the target destination with `queue("queueName")` or alternatively with `destination(JmsDestination)`.
 
-Optionally define reply destination with `replyQueue("responseQueue")` or `replyDestination(JmsDestination)`, otherwise a dynamic queue will be used.
+Optionally, you can define a reply destination with `replyQueue("responseQueue")` or `replyDestination(JmsDestination)`. Otherwise, Gatling will use a dynamic queue.
+
 If you do so, you have the possibility of not setting the `JMSReplyTo` header with `noJmsReplyTo`.
 
-Additionally for reply destination, JMS selector can be defined with `selector(Expression[String])`
+Additionally, for the reply destination, you can define a JMS selector with `selector`
 
 If you have the need to measure the time when a message arrive at a message queue different from the `replyDestination(JmsDestination)`,
-you can additional define a `trackerDestination(JmsDestination)`.
-
-### Message Matching
-
-Request/Reply messages are matched using JMS pattern (request JMSMessageID should be return in response as JMSCorrelationID).
-
-If different logic is required, it can be specified using `messageMatcher(JmsMessageMatcher)`.
+you can additionally define a `trackerDestination(JmsDestination)`.
 
 ### Message
 
-* `textMessage(Expression[String])`
-* `bytesMessage(Expression[Array[Byte]])`
-* `mapMessage(Expression[Map[String, Any]])`
-* `objectMessage(Expression[java.io.Serializable])`
+* `textMessage`
+* `bytesMessage`
+* `mapMessage`
+* `objectMessage` for `java.io.Serializable` payloads
 
-### Properties
+See below for a few examples:
 
-One can send additional properties with `property(Expression[String], Expression[Any])`.
+{{< include-code "message" java scala >}}
 
-### JMS Type {#type}
+### Extra Options
 
-Jms type can be specified with `jmsType(Expression[String])`.
+* `jmsType`
+* `property`
 
-## JMS Check API
+{{< include-code "extra" java scala >}}
 
-JMS checks are very basic for now.
+## JMS Check
 
-There is `simpleCheck` that accepts just `javax.jms.Message => Boolean` functions.
+Gatling JMS's support only current supports the following checks:
+* [`bodyBytes`]({{< ref "../core/check#bodybytes" >}})
+* [`bodyLength`]({{< ref "../core/check#bodylength" >}})
+* [`bodyString`]({{< ref "../core/check#bodystring" >}})
+* [`substring`]({{< ref "../core/check#substring" >}})
+* [`jsonPath`]({{< ref "../core/check#jsonpath" >}})
+* [`jmesPath`]({{< ref "../core/check#jmespath" >}})
+* [`xpath`]({{< ref "../core/check#xpath" >}})
 
-There is also `xpath` check for `javax.jms.TextMessage` that carries XML content.
+In addition, there's `simpleCheck`:
 
-And there is `bodyString`, `jsonPath`, `substring` checks for `java.jms.TextMessage` that carries JSON content and `java.jms.BytesMessage` that carries json content in UTF-8 encoding. And You may use `checkIf` for conditional checks.
-
-Additionally you can define your custom check that implements `Check[javax.jms.Message]`
+{{< include-code "simple" java scala >}}
 
 ## Example
 
-Short example, assuming FFMQ on localhost, using a `reqreply` query, to the queue named "jmstestq":
+Short example, assuming ActiveMQ on localhost, using a `reqReply` query, to the queue named "jmstestq":
 
-{{< include-code "JmsSample.scala#example-simulation" scala >}}
+{{< include-code "example-simulation" scala >}}

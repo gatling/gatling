@@ -30,7 +30,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.{ HttpClientConfig, Param, Request, SignatureCalculator }
+import io.gatling.http.client.{ HttpClientConfig, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.resolver.InetAddressNameResolver
@@ -56,9 +56,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
-    httpRequestDef(_.sign(new SignatureCalculator {
-      override def sign(request: Request): Unit = request.getHeaders.add("X-Token", "foo")
-    }.expressionSuccess))
+    httpRequestDef(_.sign { (request, session) => request.getHeaders.add("X-Token", "foo") })
       .build(sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)

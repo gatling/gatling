@@ -48,9 +48,9 @@ object Converters {
 
   def toScalaSet[T](set: ju.Set[T]): Set[T] = set.asScala.toSet
 
-  def toJavaSet(set: scala.collection.Set[_]): ju.Set[Object] = set.asJava.asInstanceOf[ju.Set[Object]]
+  def toJavaSet[T](set: scala.collection.Set[T]): ju.Set[T] = set.asJava
 
-  def toJavaMap(map: scala.collection.Map[String, Object]): ju.Map[String, Object] = map.asJava
+  def toJavaMap[T](map: scala.collection.Map[String, T]): ju.Map[String, T] = map.asJava
 
   def toScalaMap[K, V](map: ju.Map[K, V]): Map[K, V] = map.asScala.toMap
 

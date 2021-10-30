@@ -20,19 +20,23 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.HttpChecks.*;
 
-import io.gatling.http.client.SignatureCalculator;
+import io.gatling.http.client.Request;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.response.Response;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Filter;
 import io.gatling.javaapi.core.ProtocolBuilder;
 import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.http.internal.HttpProtocolBuilders;
 import io.gatling.javaapi.http.internal.ScalaHttpProtocolBuilderConditions;
+import io.gatling.javaapi.http.internal.SignatureCalculators;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -115,9 +119,9 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
 
   // enginePart
   /**
-   * Instruct to share a global connection pool and a global {@link javax.net.ssl.SSLContext}
-   * amongst virtual users instead of each having its own. Makes sense if you don't want to generate
-   * mob browser traffic but server to server traffic.
+   * Share a global connection pool and a global {@link javax.net.ssl.SSLContext} amongst virtual
+   * users instead of each having its own. Makes sense if you don't want to generate mob browser
+   * traffic but server to server traffic.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -184,8 +188,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to bind from all detected local addresses. Assigned once per virtual user based on a
-   * round-robin strategy.
+   * Bind from all detected local addresses. Assigned once per virtual user based on a round-robin
+   * strategy.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -195,8 +199,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to bind from all detected local addresses matching at least one of the configured
-   * patterns. Assigned once per virtual user based on a round-robin strategy.
+   * Bind from all detected local addresses matching at least one of the configured patterns.
+   * Assigned once per virtual user based on a round-robin strategy.
    *
    * @param patterns some <a
    *     href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
@@ -235,7 +239,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   // requestPart
 
   /**
-   * Instruct to disable the automatic Referer header generation, based on previous requests.
+   * Disable the automatic Referer header generation, based on previous requests.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -245,7 +249,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to disable the automatic Origin header generation, based the request url.
+   * Disable the automatic Origin header generation, based the request url.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -255,7 +259,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to disable HTTP caching.
+   * Disable HTTP caching.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -671,15 +675,16 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
    * Expression</a> pattern
    *
+   * @param pattern the regex pattern
    * @return a new HttpProtocolBuilder instance
    */
   @Nonnull
-  public HttpProtocolBuilder silentUri(@Nonnull String regex) {
-    return new HttpProtocolBuilder(wrapped.silentUri(regex));
+  public HttpProtocolBuilder silentUri(@Nonnull String pattern) {
+    return new HttpProtocolBuilder(wrapped.silentUri(pattern));
   }
 
   /**
-   * Instruct to disable the automatic url encoding that tries to detect unescaped reserved chars
+   * Disable the automatic url encoding that tries to detect unescaped reserved chars
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -689,25 +694,26 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to apply a {@link SignatureCalculator} on the requests before writing them on the wire
+   * Provide a function to sign the requests before writing them on the wire
    *
-   * @param calculator the SignatureCalculator
+   * @param calculator the signing function
    * @return a new HttpProtocolBuilder instance
    */
   @Nonnull
-  public HttpProtocolBuilder sign(@Nonnull SignatureCalculator calculator) {
-    return new HttpProtocolBuilder(wrapped.sign(toStaticValueExpression(calculator)));
+  public HttpProtocolBuilder sign(@Nonnull Consumer<Request> calculator) {
+    return sign((request, session) -> calculator.accept(request));
   }
 
   /**
-   * Instruct to apply a {@link SignatureCalculator} on the requests before writing them on the wire
+   * Provide a function to sign the requests before writing them on the wire. This version provides
+   * access to the session.
    *
-   * @param calculator the SignatureCalculator as a function
+   * @param calculator the signing function
    * @return a new HttpProtocolBuilder instance
    */
   @Nonnull
-  public HttpProtocolBuilder sign(@Nonnull Function<Session, SignatureCalculator> calculator) {
-    return new HttpProtocolBuilder(wrapped.sign(javaFunctionToExpression(calculator)));
+  public HttpProtocolBuilder sign(@Nonnull BiConsumer<Request, Session> calculator) {
+    return new HttpProtocolBuilder(wrapped.sign(SignatureCalculators.toScala(calculator)));
   }
 
   /**
@@ -758,7 +764,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to enable HTTP/2
+   * Enable HTTP/2
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -782,7 +788,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
 
   // responsePart
   /**
-   * Instruct to disable automatically following redirects
+   * Disable automatically following redirects
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -801,7 +807,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to apply 302 strictly and not switch to GET and re-send the request body
+   * Apply 302 strictly and not switch to GET and re-send the request body
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -956,7 +962,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically infer resources from HTML payloads
+   * Automatically infer resources from HTML payloads
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -965,7 +971,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically infer resources from HTML payloads
+   * Automatically infer resources from HTML payloads
    *
    * @param allow the allow list to filter the resources
    * @return a new HttpProtocolBuilder instance
@@ -975,7 +981,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically infer resources from HTML payloads
+   * Automatically infer resources from HTML payloads
    *
    * @param allow the allow list to filter the resources
    * @param deny the deny list to filter out the resources
@@ -986,7 +992,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically infer resources from HTML payloads
+   * Automatically infer resources from HTML payloads
    *
    * @param deny the deny list to filter out the resources
    * @return a new HttpProtocolBuilder instance
@@ -996,18 +1002,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically infer resources from HTML payloads
-   *
-   * @param deny the deny list to filter out the resources
-   * @param allow the allow list to filter the resources
-   * @return a new HttpProtocolBuilder instance
-   */
-  public HttpProtocolBuilder inferHtmlResources(Filter.DenyList deny, Filter.AllowList allow) {
-    return new HttpProtocolBuilder(wrapped.inferHtmlResources(deny.asScala(), allow.asScala()));
-  }
-
-  /**
-   * Instruct to name the inferred resources' requests based on the tail of the url
+   * Name the inferred resources' requests based on the tail of the url
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1016,7 +1011,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to name the inferred resources' requests based on the absolute url
+   * Name the inferred resources' requests based on the absolute url
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1025,7 +1020,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to name the inferred resources' requests based on the relative url
+   * Name the inferred resources' requests based on the relative url
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1034,7 +1029,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to name the inferred resources' requests based on the path
+   * Name the inferred resources' requests based on the path
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1043,7 +1038,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to name the inferred resources' requests based on the last element of the path
+   * Name the inferred resources' requests based on the last element of the path
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1052,7 +1047,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to name the inferred resources' requests based on the provided function
+   * Name the inferred resources' requests based on the provided function
    *
    * @param f the naming function, aware of the full uri
    * @return a new HttpProtocolBuilder instance
@@ -1095,7 +1090,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically reconnect disconnected WebSockets
+   * Automatically reconnect disconnected WebSockets
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1114,7 +1109,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically reply to a TEXT frame with another TEXT frame.
+   * Automatically reply to a TEXT frame with another TEXT frame.
    *
    * @param f the function
    * @return a new HttpProtocolBuilder instance
@@ -1136,8 +1131,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to automatically reply to a SocketIo4 ping TEXT frame with the corresponding pong TEXT
-   * frame.
+   * Automatically reply to a SocketIo4 ping TEXT frame with the corresponding pong TEXT frame.
    *
    * @return a new HttpProtocolBuilder instance
    */
@@ -1147,7 +1141,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
 
   // proxyPart
   /**
-   * Instruct to ignore any configured proxy for some hosts
+   * Ignore any configured proxy for some hosts
    *
    * @param hosts the hosts that must be connected directly without the proxy
    * @return a new HttpProtocolBuilder instance
@@ -1168,8 +1162,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
 
   // dnsPart
   /**
-   * Instruct to enable Gatling non-blocking DNS resolution instead of using Java's blocking
-   * implementation
+   * Enable Gatling non-blocking DNS resolution instead of using Java's blocking implementation
    *
    * @param dnsServers the DNS servers
    * @return a new HttpProtocolBuilder instance
@@ -1179,8 +1172,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to enable Gatling non-blocking DNS resolution instead of using Java's blocking
-   * implementation
+   * Enable Gatling non-blocking DNS resolution instead of using Java's blocking implementation
    *
    * @param dnsServers the DNS servers
    * @return a new HttpProtocolBuilder instance
@@ -1190,8 +1182,19 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct to force each virtual user to have its own DNS cache and perform its own DNS
-   * resolutions instead of using a global shared resolver
+   * Define some aliases to bypass DNS name resolution
+   *
+   * @param aliases the aliases
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder hostNameAliases(Map<String, List<String>> aliases) {
+    return new HttpProtocolBuilder(
+        wrapped.hostNameAliases(HttpProtocolBuilders.toScalaAliases(aliases)));
+  }
+
+  /**
+   * Force each virtual user to have its own DNS cache and perform its own DNS resolutions instead
+   * of using a global shared resolver
    *
    * @return a new HttpProtocolBuilder instance
    */
