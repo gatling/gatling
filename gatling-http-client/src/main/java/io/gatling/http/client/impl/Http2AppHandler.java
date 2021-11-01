@@ -84,6 +84,11 @@ public class Http2AppHandler extends ChannelDuplexHandler {
   }
 
   @Override
+  public boolean isSharable() {
+    return false;
+  }
+
+  @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
     writeReached = true;
     HttpTx tx = (HttpTx) msg;
