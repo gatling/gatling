@@ -79,7 +79,7 @@ public class AdvancedSimulationStep02 extends Simulation {
       scenario("Users").exec(Search.search, Browse.browse); // regular users can't edit
   ScenarioBuilder admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit);
 
-  public AdvancedSimulationStep02() {
+  {
     // Let's have 10 regular users and 2 admins, and ramp them on 10 sec so we don't hammer the
     // server
     setUp(users.injectOpen(rampUsers(10).during(10)), admins.injectOpen(rampUsers(2).during(10)))

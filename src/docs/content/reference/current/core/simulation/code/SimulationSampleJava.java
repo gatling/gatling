@@ -29,8 +29,6 @@ import static io.gatling.javaapi.jdbc.JdbcDsl.*;
 //#imports
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
 
 class SimulationSampleJava extends Simulation {
 

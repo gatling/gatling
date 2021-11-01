@@ -70,7 +70,7 @@ public class BasicSimulation extends Simulation {
                   .formParam("discontinued", "")
                   .formParam("company", "37"));
 
-  public BasicSimulation() {
+  {
     setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
   }
 }
