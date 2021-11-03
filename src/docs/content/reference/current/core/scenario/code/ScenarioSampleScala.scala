@@ -15,27 +15,32 @@
  */
 
 import scala.concurrent.duration._
-
 import io.gatling.core.Predef._
-import io.gatling.core.session.Session
 import io.gatling.http.Predef._
 
 class ScenarioSampleScala {
 
 //#bootstrapping
-scenario("My Scenario")
+val scn = scenario("Scenario")
 //#bootstrapping
 
-//#exec-example
-scenario("My Scenario")
-  .exec(http("Get Homepage").get("http://github.com/gatling/gatling"))
-//#exec-example
+//#exec
+// attached to a scenario
+scenario("Scenario")
+  .exec(http("Home").get("https://gatling.io"))
+
+// directly created and stored in a reference
+val chain = exec(http("Home").get("https://gatling.io"))
+
+// attached to another
+exec(http("Home").get("https://gatling.io"))
+  .exec(http("Enterprise").get("https://gatling.io/enterprise"))
+//#exec
 
 //#session-lambda
 exec { session =>
   // displays the content of the session in the console (debugging only)
   println(session)
-
   // return the original session
   session
 }
@@ -47,184 +52,299 @@ exec { session =>
 }
 //#session-lambda
 
+//#pause-fixed
+// with a number of seconds
+pause(10)
+// with a scala.concurrent.duration.FiniteDuration
+pause(100.millis)
+// with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
+pause("${pause}")
+pause(session => 100.millis)
+//#pause-fixed
+
+//#pause-uniform
+// with a number of seconds
+pause(10, 20)
+// with a java.time.Duration
+pause(100.millis, 200.millis);
+// with a Gatling EL strings
+pause("${min}", "${max}")
+pause(session => 100.millis, session => 200.millis)
+//#pause-uniform
+
 //#pace
 forever(
   pace(5)
     .exec(
-      pause(1, 4) // Will be run every 5 seconds, irrespective of what pause time is used
+      // will be run every 5 seconds, irrespective of what pause time is used
+      pause(1, 4)
     )
 )
 //#pace
 
-  val times = 4
-  val counterName, sequenceName, elementName = "foo"
-  val myChain = exec(Session.Identity(_))
-  val condition, exitASAP = true
-  val duration = 5
+//#pace-fixed
+// with a number of seconds
+pace(10)
+// with a scala.concurrent.duration.FiniteDuration
+pace(100.millis)
+// with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
+pace("${pace}")
+pace(session => 100.millis)
+//#pace-fixed
 
-//#repeat-example
-repeat(times, counterName) {
-  myChain
+//#pace-uniform
+// with a number of seconds
+pace(10, 20)
+// with a java.time.Duration
+pace(100.millis, 200.millis)
+// with a Gatling EL strings
+pace("${min}", "${max}")
+pace(session => 100.millis, session => 200.millis)
+//#pace-uniform
+
+//#rendezVous
+rendezVous(100)
+//#rendezVous
+
+//#repeat
+// with an Int times
+repeat(5) {
+  exec(http("name").get("/"))
 }
-//#repeat-example
-
-//#repeat-variants
-repeat(20) { myChain } // will loop on myChain 20 times
-repeat("${myKey}") { myChain } // will loop on myChain (Int value of the Session attribute myKey) times
-repeat(session => session("foo").as[Int] /* or anything that returns an Int*/ ) { myChain }
-//#repeat-variants
+// with a Gatling EL string resolving an Int
+repeat("${times}") {
+  exec(http("name").get("/"))
+}
+// with a function times
+repeat(session => 5) {
+  exec(http("name").get("/"))
+}
+// with a counter name
+repeat(5, "counter") {
+  exec { session =>
+    System.out.println(session("counter").as[Int])
+    session
+  }
+}
+//#repeat
 
 //#foreach
-foreach(sequenceName, elementName, counterName) {
-  myChain
+// with a static Seq
+foreach(Seq("elt1", "elt2"), "elt") {
+  exec(http("name").get("/"))
+}
+// with a Gatling EL string
+foreach("${elts}", "elt") {
+  exec(http("name").get("/"))
+}
+// with a function
+foreach(session => Seq("elt1", "elt2"), "elt") {
+  exec(http("name").get("/"))
+}
+// with a counter name
+foreach(Seq("elt1", "elt2"), "elt", "counter") {
+  exec { session =>
+    System.out.println(session("elt2").as[String])
+    session
+  }
 }
 //#foreach
 
 //#during
-during(duration, counterName, exitASAP) {
-  myChain
+// with a duration in seconds
+during(5) {
+  exec(http("name").get("/"))
+}
+// with a java.time.Duration
+during(10.minutes) {
+  exec(http("name").get("/"))
+}
+// with a Gatling EL string resolving a duration
+during("${times}") {
+  exec(http("name").get("/"))
+}
+// with a function times
+during(session => 10.minutes) {
+  exec(http("name").get("/"))
+}
+// with a counter name
+during(5, "counter") {
+  exec(http("name").get("/"))
+}
+// with exitASAP
+during(5, "counter", false) {
+  exec(http("name").get("/"))
 }
 //#during
 
 //#asLongAs
-asLongAs(condition, counterName, exitASAP) {
-  myChain
+// with a Gatling EL string resolving a boolean
+asLongAs("${condition}") {
+  exec(http("name").get("/"))
+}
+// with a function
+asLongAs(session => session("condition").as[Boolean]) {
+  exec(http("name").get("/"))
+}
+// with a counter name and exitASAP
+asLongAs("${condition}", "counter", false) {
+  exec(http("name").get("/"))
 }
 //#asLongAs
 
 //#doWhile
-doWhile(condition, counterName) {
-  myChain
+// with a Gatling EL string resolving to a boolean
+doWhile("${condition}") {
+  exec(http("name").get("/"))
+}
+// with a function
+doWhile(session => session("condition").as[Boolean]) {
+  exec(http("name").get("/"))
+}
+// with a counter name
+doWhile("${condition}", "counter") {
+  exec(http("name").get("/"))
 }
 //#doWhile
 
 //#asLongAsDuring
-asLongAsDuring(condition, duration, counterName) {
-  myChain
+// with a Gatling EL string resolving to a boolean and an int duration
+asLongAsDuring("${condition}", 5) {
+  exec(http("name").get("/"))
+}
+// with a counter name and exitASAP
+asLongAsDuring("${condition}", session => 10.minutes, "counter", false) {
+  exec(http("name").get("/"))
 }
 //#asLongAsDuring
 
 //#doWhileDuring
-doWhileDuring(condition, duration, counterName) {
-  myChain
+// with a Gatling EL string resolving to a boolean and an int duration
+doWhileDuring("${condition}", 5) {
+  exec(http("name").get("/"))
+}
+// with a counter name and exitASAP
+doWhileDuring("${condition}", session => 10.minutes, "counter", false) {
+  exec(http("name").get("/"))
 }
 //#doWhileDuring
 
 //#forever
-forever(counterName) {
-  myChain
+forever {
+  exec(http("name").get("/"))
+}
+// with a counter name
+forever("counter") {
+  exec(http("name").get("/"))
 }
 //#forever
 
 //#doIf
-doIf("${myBoolean}") {
-  // executed if the session value stored in "myBoolean" is true
-  exec(http("...").get("..."))
+// with a Gatling EL string resolving to a boolean
+doIf("${condition}") {
+  exec(http("name").get("/"))
+}
+
+// with a function
+doIf(session => session("condition").as[Boolean]) {
+  exec(http("name").get("/"))
 }
 //#doIf
-
-//#doIf-session
-doIf(session => session("myKey").as[String].startsWith("admin")) {
-  // executed if the session value stored in "myKey" starts with "admin"
-  exec(http("if true").get("..."))
-}
-//#doIf-session
 
 //#doIfEquals
-doIfEquals("${actualValue}", "expectedValue") {
-  // executed if the session value stored in "actualValue" is equal to "expectedValue"
-  exec(http("...").get("..."))
+doIfEquals("${actual}", "expectedValue") {
+  // executed if the session value stored in "actual" is equal to "expectedValue"
+  exec(http("name").get("/"))
 }
 //#doIfEquals
 
 //#doIfOrElse
-doIfOrElse(session => session("myKey").as[String].startsWith("admin")) {
-  // executed if the session value stored in "myKey" starts with "admin"
-  exec(http("if true").get("..."))
+doIfOrElse("${condition}") {
+  exec(http("name").get("/"))
 } {
-  // executed if the session value stored in "myKey" does not start with "admin"
-  exec(http("if false").get("..."))
+  exec(http("else").get("..."))
 }
 //#doIfOrElse
 
 //#doIfEqualsOrElse
-doIfEqualsOrElse(session => session("actualValue").as[String], "expectedValue") {
+doIfEqualsOrElse("${actual}", "expectedValue") {
   // executed if the session value stored in "actualValue" equals to "expectedValue"
-  exec(http("if true").get("..."))
+  exec(http("name").get("/"))
 } {
-  // executed if the session value stored in "actualValue" is not equal to "expectedValue"
-  exec(http("if false").get("..."))
+  // executed if the session value stored in "actual" is not equal to "expectedValue"
+  exec(http("else").get("..."))
 }
 //#doIfEqualsOrElse
-
-  val chain1, chain2, myFallbackChain = myChain
-  val key1, key2 = "foo"
-  val percentage1, percentage2 = .50
 
 //#doSwitch
 doSwitch("${myKey}")( // beware: use parentheses, not curly braces!
-  key1 -> chain1,
-  key2 -> chain2
+  "foo" -> exec(http("name1").get("/foo")),
+  "bar" -> exec(http("name2").get("/bar"))
 )
 //#doSwitch
 
 //#doSwitchOrElse
 doSwitchOrElse("${myKey}")( // beware: use parentheses, not curly braces!
-  key1 -> chain1,
-  key2 -> chain2
+  "foo" -> exec(http("name1").get("/foo")),
+  "bar" -> exec(http("name2").get("/bar"))
 )(
-    myFallbackChain
+  exec(http("name3").get("/baz"))
 )
 //#doSwitchOrElse
 
 //#randomSwitch
 randomSwitch( // beware: use parentheses, not curly braces!
-  percentage1 -> chain1,
-  percentage2 -> chain2
+  60.0 -> exec(http("name1").get("/foo")),
+  40.0 -> exec(http("name2").get("/bar"))
 )
 //#randomSwitch
 
 //#randomSwitchOrElse
 randomSwitchOrElse( // beware: use parentheses, not curly braces!
-  percentage1 -> chain1,
-  percentage2 -> chain2
+  60.0 -> exec(http("name1").get("/foo")),
+  20.0 -> exec(http("name2").get("/bar"))
 )(
-    myFallbackChain
+  exec(http("name3").get("/baz"))
 )
 //#randomSwitchOrElse
 
 //#uniformRandomSwitch
 uniformRandomSwitch( // beware: use parentheses, not curly braces!
-  chain1,
-  chain2
+  exec(http("name1").get("/foo")),
+  exec(http("name2").get("/bar"))
 )
 //#uniformRandomSwitch
 
 //#roundRobinSwitch
 roundRobinSwitch( // beware: use parentheses, not curly braces!
-  chain1,
-  chain2
+  exec(http("name1").get("/foo")),
+  exec(http("name2").get("/bar"))
 )
 //#roundRobinSwitch
 
 //#tryMax
-tryMax(times, counterName) {
-  myChain
+tryMax(5) {
+  exec(http("name").get("/"))
+}
+
+// with a counter name
+tryMax(5, "counter") {
+  exec(http("name").get("/"))
 }
 //#tryMax
 
 //#exitBlockOnFail
 exitBlockOnFail {
-  myChain
+  exec(http("name").get("/"))
 }
 //#exitBlockOnFail
 
-//#exitHereIf
+//#exitHere
 exitHere
-//#exitHereIf
+//#exitHere
 
 //#exitHereIf
-exitHereIf("${myBoolean}")
+exitHereIf("${condition}")
 exitHereIf(session => true)
 //#exitHereIf
 
@@ -232,22 +352,9 @@ exitHereIf(session => true)
 exitHereIfFailed
 //#exitHereIfFailed
 
-  val groupName = "foo"
 //#group
-group(groupName) {
-  myChain
+group("foo") {
+  exec(http("name").get("/"))
 }
 //#group
-
-  val scn = scenario("foo")
-  val httpProtocol = http
-
-//#protocol
-scn.inject(atOnceUsers(5)).protocols(httpProtocol)
-//#protocol
-
-//#throttling
-scn.inject(rampUsers(500).during(10.minutes))
-  .throttle(reachRps(100).in(10), holdFor(10.minutes))
-//#throttling
 }

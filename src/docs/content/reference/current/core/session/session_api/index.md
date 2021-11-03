@@ -1,7 +1,7 @@
 ---
 title: "Session API"
 description: "Concepts of the Gatling Session API"
-lead: ""
+lead: "Programmatically handle virtual users' data"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 003051
@@ -39,8 +39,8 @@ The first step is to inject state into the virtual users.
 There's 3 ways of doing that:
 
 * using [Feeders]({{< ref "../feeder" >}})
-* extracting data from responses and saving them, e.g. with [HTTP Check's saveAs]({{< ref "../../../http/check#saving" >}})
-* manually with the Session API
+* extracting data from responses and saving them, e.g. with [Check's saveAs]({{< ref "../../../core/check#saving" >}})
+* programmatically with the Session API
 
 ### Fetching Data
 
@@ -48,12 +48,11 @@ Once you have injected data into your virtual users, you'll naturally want to re
 
 There are 2 ways of implementing this:
 
-* using Gatling's [Expression Language]({{< ref "../expression_el" >}})
-* manually with the Session API
+* using Gatling's [Expression Language]({{< ref "../el" >}})
+* programmatically with the Session API
 
 {{< alert tip >}}
 If Gatling complains that an attribute could not be found, check that:
-
 * you don't have a typo in a feeder file header
 * you don't have a typo in a Gatling EL expression
 * your feed action is properly called (e.g. could be properly chained with other action because a dot is missing)
@@ -64,13 +63,13 @@ If Gatling complains that an attribute could not be found, check that:
 
 ### Setting Attributes
 
+{{< include-code "set" java scala >}}
+
 {{< alert warning >}}
 `Session` instances are immutable, meaning that methods such as `set` return a new instance and leave the original instance unmodified!
 {{< /alert >}}
 
 {{< include-code "sessions-are-immutable" java scala >}}
-
-{{< include-code "set" java scala >}}
 
 ### Getting Attributes
 

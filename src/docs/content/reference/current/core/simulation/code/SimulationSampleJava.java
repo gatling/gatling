@@ -26,6 +26,9 @@ import static io.gatling.javaapi.http.HttpDsl.*;
 // can be omitted if you don't use jdbcFeeder
 import io.gatling.javaapi.jdbc.*;
 import static io.gatling.javaapi.jdbc.JdbcDsl.*;
+
+// used for specifying durations with a unit, eg Duration.ofMinutes(5)
+import java.time.Duration;
 //#imports
 
 import java.time.Duration;
@@ -56,16 +59,18 @@ setUp(
 //#setUp-multiple
 
 //#protocols
-// httpProtocol configured globally
+// HttpProtocol configured globally
 setUp(
   scn1.injectOpen(atOnceUsers(1)),
   scn2.injectOpen(atOnceUsers(1))
 ).protocols(httpProtocol);
 
-// different HttpProtocol configured on each population
+// different HttpProtocols configured on each population
 setUp(
-  scn1.injectOpen(atOnceUsers(1)).protocols(httpProtocol1),
-  scn2.injectOpen(atOnceUsers(1)).protocols(httpProtocol2)
+  scn1.injectOpen(atOnceUsers(1))
+    .protocols(httpProtocol1),
+  scn2.injectOpen(atOnceUsers(1))
+    .protocols(httpProtocol2)
 );
 //#protocols
 
@@ -75,6 +80,7 @@ setUp(scn.injectOpen(atOnceUsers(1)))
 //#assertions
 
 //#pauses
+// pause configuration configured globally
 setUp(scn.injectOpen(atOnceUsers(1)))
   // disable the pauses for the simulation
   .disablePauses()
@@ -91,21 +97,38 @@ setUp(scn.injectOpen(atOnceUsers(1)))
   // the pause duration is computed by the provided function (milliseconds).
   // In this case the filled duration is bypassed.
   .customPauses(session -> 5L);
+
+// different pause configurations configured on each population
+setUp(
+  scn1.injectOpen(atOnceUsers(1))
+    .disablePauses(),
+  scn2.injectOpen(atOnceUsers(1))
+    .exponentialPauses()
+);
 //#pauses
 
 //#throttling
-setUp(scn.injectOpen(constantUsersPerSec(100).during(30)))
+// throttling profile configured globally
+setUp(scn.injectOpen(constantUsersPerSec(100).during(Duration.ofMinutes(30))))
   .throttle(
     reachRps(100).in(10),
     holdFor(Duration.ofMinutes(1)),
     jumpToRps(50),
     holdFor(Duration.ofHours(2))
   );
+
+// different throttling profiles configured globally
+setUp(
+  scn1.injectOpen(atOnceUsers(1))
+    .throttle(reachRps(100).in(10)),
+  scn2.injectOpen(atOnceUsers(1))
+    .throttle(reachRps(20).in(10))
+);
 //#throttling
 
 //#max-duration
-setUp(scn.injectOpen(rampUsers(1000).during(20)))
-  .maxDuration(10);
+setUp(scn.injectOpen(rampUsers(1000).during(Duration.ofMinutes(20))))
+  .maxDuration(Duration.ofMinutes(10));
 //#max-duration
   }
 

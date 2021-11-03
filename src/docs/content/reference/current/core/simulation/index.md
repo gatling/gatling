@@ -47,7 +47,7 @@ For more information regarding scenarios, see the dedicated section [here]({{< r
 
 For more information regarding injection profiles, see the dedicated section [here]({{< ref "../injection" >}}).
 
-## `protocols`
+## Protocols Configuration
 
 Protocols configurations can be attached
 * either on the setUp, in which case they are applied on all the populations
@@ -57,7 +57,7 @@ Protocols configurations can be attached
 
 For more information regarding protocols configurations, see the HttpProtocol section [here]({{< ref "../../http/protocol" >}}).
 
-## `assertions`
+## Acceptance Criteria
 
 Assertions are configured on the setUp.
 
@@ -70,10 +70,6 @@ For more information regarding assertions, see the dedicated section [here]({{< 
 The pauses can be configured on `Simulation` with a bunch of methods:
 
 {{< include-code "pauses" java scala >}}
-
-{{< alert tip >}}
-Pause definition can also be configured at scenario level.
-{{< /alert >}}
 
 ## Limiting Throughput
 
@@ -106,7 +102,7 @@ This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this t
 
 The building block for the throttling are:
 
-* `reachRps(target) in (duration)`: target a throughput with a ramp over a given duration.
+* `reachRps(target).in(duration)`: target a throughput with a ramp over a given duration.
 * `jumpToRps(target)`: jump immediately to a given targeted throughput.
 * `holdFor(duration)`: hold the current throughput for a given duration.
 

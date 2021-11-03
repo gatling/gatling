@@ -1,13 +1,13 @@
 ---
 title: "Feeders"
 description: "Use a feeder to inject dynamic data to your Gatling simulations"
-lead: "Use a feeder to inject dynamic data to your Gatling simulations"
+lead: "Inject data into your virtual users from an external source, eg a CSV file"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003053
+weight: 003054
 ---
 
-Feeder is a type alias for `Iterator[Map[String, T]]`, meaning that the component created by the feed method will poll `Map[String, T]` records and inject its content.
+Feeder is a type alias for `Iterator<Map<String, T>>`, meaning that the component created by the feed method will poll `Map<String, T>` records and inject its content.
 
 It's very simple to build a custom one. For example, here's how one could build a random email generator:
 

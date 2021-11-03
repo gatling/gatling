@@ -13,7 +13,7 @@ By default, Gatling only provides live feedback in the console output, and gener
 
 ## Gatling Enterprise
 
-[Gatling Enterprise](/enterprise/), formerly known as Gatling FrontLine, is a management interface for Gatling, that includes advanced metrics and advanced features for integration and automation.
+[Gatling Enterprise](https://gatling.io/enterprise/), formerly known as Gatling FrontLine, is a management interface for Gatling, that includes advanced metrics and advanced features for integration and automation.
 
 Amongst other features like clustering support, MQTT support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
 Gatling Enterprise offers entreprise-grade realtime monitoring and metrics persistence.

@@ -106,7 +106,8 @@ class MqttSample extends Simulation {
     .feed(csv("topics-and-payloads.csv"))
     .exec(mqtt("Connecting").connect)
     .exec(mqtt("Subscribing").subscribe("${myTopic}"))
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myTextPayload}"))
+    .exec(mqtt("Publishing").publish("${myTopic}")
+      .message(StringBody("${myTextPayload}"))
       .expect(100.milliseconds).check(jsonPath("$.error").notExists))
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (60)))

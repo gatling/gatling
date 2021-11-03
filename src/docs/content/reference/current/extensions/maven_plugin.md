@@ -13,7 +13,7 @@ Using this plugin, Gatling can be launched when building your project, for examp
 
 Check out available versions on [Maven Central](https://search.maven.org/search?q=g:io.gatling%20AND%20a:gatling-maven-plugin&core=gav).
 
-Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](/enterprise/) customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
 ## Setup
 

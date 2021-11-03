@@ -1,12 +1,11 @@
 //#imprts
-import io.gatling.javaapi.core.ScenarioBuilder;
-import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.mqtt.*;
 
 import static io.gatling.javaapi.mqtt.MqttDsl.*;
 //#imprts
-import static io.gatling.javaapi.core.CoreDsl.*;
 import java.time.Duration;
+import io.gatling.javaapi.core.*;
+import static io.gatling.javaapi.core.CoreDsl.*;
 
 class MqttSampleJava {
 //#protocol
@@ -112,7 +111,8 @@ public class MqttSample extends Simulation {
     .feed(csv("topics-and-payloads.csv"))
     .exec(mqtt("Connecting").connect())
     .exec(mqtt("Subscribing").subscribe("${myTopic}"))
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myTextPayload}"))
+    .exec(mqtt("Publishing").publish("${myTopic}")
+      .message(StringBody("${myTextPayload}"))
       .expect(Duration.ofMillis(100)).check(jsonPath("$.error").notExists()));
 
   {

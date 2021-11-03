@@ -13,7 +13,7 @@ In this case, you might want to use several Gatling instances hosted using multi
 
 ## Scaling out easily with Gatling Enterprise
 
-The clustering mode is a built-in feature of [Gatling Enterprise](/enterprise/), our enterprise version. It will run your tests on multiple load injectors, aggregate your results live and close the instances after the tests.
+The clustering mode is a built-in feature of [Gatling Enterprise](https://gatling.io/enterprise/), our enterprise version. It will run your tests on multiple load injectors, aggregate your results live and close the instances after the tests.
 
 These injectors can be deployed on an on-premises instances, or on the cloud: Amazon Web Services, Google Cloud Platform, Microsoft Azure, Digital Ocean, ...
 

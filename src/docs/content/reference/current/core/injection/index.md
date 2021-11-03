@@ -29,9 +29,13 @@ Typical systems that behave this way are:
 On the contrary, open systems have no control over the number of concurrent users: users keep on arriving even though applications have trouble serving them.
 Most websites behave this way.
 
-If you're using a closed workload model in your load tests while your system actually is an open one, your test is broken and you're testing some different imaginary behavior.
+{{< alert warning >}}
+Don't reason in terms of  concurrent users if your system can't push excess traffic into a queue.
+
+If you're using a closed workload model in your load tests while your system actually is an open one, your test is broken, and you're testing some different imaginary behavior.
 In such case, when the system under test starts to have some trouble, response times will increase, journey time will become longer, so number of concurrent users will increase
 and injector will slow down to match the imaginary cap you've set.
+{{< /alert >}}
 
 You can read more about open and closed models [here](https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf) and on [our blog](https://gatling.io/2018/10/04/gatling-3-closed-workload-model-support/).
 
@@ -58,20 +62,12 @@ The building blocks for profile injection the way you want are:
 
 {{< include-code "closed-injection" java scala >}}
 
-1. `constantConcurrentUsers(nbUsers) during(duration)`: Inject so that number of concurrent users in the system is constant
-2. `rampConcurrentUsers(fromNbUsers) to(toNbUsers) during(duration)`: Inject so that number of concurrent users in the system ramps linearly from a number to another
+1. `constantConcurrentUsers(nbUsers).during(duration)`: Inject so that number of concurrent users in the system is constant
+2. `rampConcurrentUsers(fromNbUsers).to(toNbUsers).during(duration)`: Inject so that number of concurrent users in the system ramps linearly from a number to another
 
 {{< alert warning >}}
-You have to understand that Gatling's default behavior is to mimic human users with browsers so, each virtual user has its own connections.
-If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every second.
-As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
-This behavior makes perfect sense when the load you're modeling is internet traffic. You then might consider scaling out, for example with Gatling Enterprise, our Enterprise product.
-
-If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to fine-tune Gatling's behavior and [share the connection pool amongst virtual users]({{< ref "../../http/protocol#connection-sharing" >}}).
-{{< /alert >}}
-
-{{< alert warning >}}
-Setting a smaller number of concurrent users won't force existing users to abort. The only way for users to terminate is to complete their scenario.
+Ramping down the number of concurrent users won't force the existing users to interrupt.
+The only way for virtual users to terminate is to complete their scenario.
 {{< /alert >}}
 
 ### Meta DSL

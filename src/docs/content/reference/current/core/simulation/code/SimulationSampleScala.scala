@@ -24,7 +24,7 @@ import io.gatling.http.Predef._
 // can be omitted if you don't use jdbcFeeder
 import io.gatling.jdbc.Predef._
 
-// used for specifying duration unit, eg "5 second"
+// used for specifying durations with a unit, eg "5 minutes"
 import scala.concurrent.duration._
 //#imports
 
@@ -53,16 +53,18 @@ setUp(
 //#setUp-multiple
 
 //#protocols
-// httpProtocol configured globally
+// HttpProtocol configured globally
 setUp(
   scn1.inject(atOnceUsers(1)),
   scn2.inject(atOnceUsers(1))
 ).protocols(httpProtocol)
 
-// different HttpProtocol configured on each population
+// different HttpProtocols configured on each population
 setUp(
-  scn1.inject(atOnceUsers(1)).protocols(httpProtocol1),
-  scn2.inject(atOnceUsers(1)).protocols(httpProtocol2)
+  scn1.inject(atOnceUsers(1))
+    .protocols(httpProtocol1),
+  scn2.inject(atOnceUsers(1))
+    .protocols(httpProtocol2)
 )
 //#protocols
 
@@ -72,6 +74,7 @@ setUp(scn.inject(atOnceUsers(1)))
 //#assertions
 
 //#pauses
+// pause configuration configured globally
 setUp(scn.inject(atOnceUsers(1)))
   // disable the pauses for the simulation
   .disablePauses
@@ -88,9 +91,18 @@ setUp(scn.inject(atOnceUsers(1)))
   // the pause duration is computed by the provided function (milliseconds).
   // In this case the filled duration is bypassed.
   .customPauses(session => 5L)
+
+// different pause configurations configured on each population
+setUp(
+  scn1.inject(atOnceUsers(1))
+    .disablePauses,
+  scn2.inject(atOnceUsers(1))
+    .exponentialPauses
+)
 //#pauses
 
 //#throttling
+// throttling profile configured globally
 setUp(scn.inject(constantUsersPerSec(100).during(30.minutes)))
   .throttle(
     reachRps(100).in(10),
@@ -98,6 +110,14 @@ setUp(scn.inject(constantUsersPerSec(100).during(30.minutes)))
     jumpToRps(50),
     holdFor(2.hours)
   )
+
+// different throttling profiles configured globally
+setUp(
+  scn1.inject(atOnceUsers(1))
+    .throttle(reachRps(100).in(10)),
+  scn2.inject(atOnceUsers(1))
+    .throttle(reachRps(20).in(10))
+)
 //#throttling
 
 //#max-duration

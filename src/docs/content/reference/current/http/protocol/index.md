@@ -255,9 +255,9 @@ By default, Gatling will generate redirected request names such as "<ORIGINAL_RE
 You can define your own custom strategy.
 
 The function takes 3 parameters
-* *uri* the target Location, of type `io.gatling.http.client.uri.Uri`
-* *originalRequestName*
-* *redirectCount*
+* `uri` the target Location, of type `io.gatling.http.client.uri.Uri`
+* `originalRequestName`
+* `redirectCount`
 
 {{< include-code "redirectNamingStrategy" java scala >}}
 

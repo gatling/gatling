@@ -1,7 +1,7 @@
 ---
 title: "HTTP Checks"
 description: "Use HTTP checks to validate your requests and capture elements"
-lead: "HTTP checks can be used to validate your request and extract elements which can be reused later"
+lead: "Checks specific to HTTP requests"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 005030
@@ -37,7 +37,7 @@ Useful when following redirects in order to check if the landing page is indeed 
 A version of [currentLocation]({{< ref "#currentlocation" >}}) that applies a Java Regular Expression to capture some information out of it, like in the generic [regex]({{< ref "../../core/check#regex" >}}).
 
 It takes one single parameter:
-* *pattern*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "currentLocationRegex" java scala >}}
 
@@ -46,7 +46,7 @@ It takes one single parameter:
 #### `header`
 
 It takes one single parameter:
-* *headerName*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `headerName`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "header" java scala >}}
 
@@ -55,7 +55,7 @@ It takes one single parameter:
 A version of [header]({{< ref "#header" >}}) that applies a Java Regular Expression to capture some information out of it, like in the generic [regex]({{< ref "../../core/check#regex" >}}).
 
 It takes two parameters:
-* *headerName*  can be a plain `String`, a Gatling Expression Language `String` or a function.
-* *pattern*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `headerName`  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "headerRegex" java scala >}}

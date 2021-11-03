@@ -75,7 +75,7 @@ Return an InputStream of the full response body bytes, typically to transform th
 This check looks for the indices of the occurrences of a given substring inside the response body text.
 
 It takes one single parameter:
-* *pattern*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< alert tip >}}
 Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
@@ -88,7 +88,7 @@ Typically used for checking the presence of a substring, as it's more CPU effici
 This check applies a [Java regular pattern](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) on the response body text.
 
 It takes one single parameter:
-* *pattern*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "regex" java scala >}}
 
@@ -107,8 +107,8 @@ If your pattern contains more than one capture group, you must specify it with a
 This check applies an [XPath](https://en.wikipedia.org/wiki/XPath) on XML response body.
 
 It takes two parameters:
-* *expression*  can be a plain `String`, a Gatling Expression Language `String` or a function.
-* *namespaces* is an optional List of couples of (prefix, uri). It's mandatory as soon as your document contains namespaces.
+* `expression`  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `namespaces` is an optional List of couples of (prefix, uri). It's mandatory as soon as your document contains namespaces.
 
 {{< include-code "xpath" java scala >}}
 
@@ -128,7 +128,7 @@ You might want to consider using our [JMESPath support]({{< ref "#jmesPath" >}})
 {{< /alert >}}
 
 It takes one single parameter:
-* *expression*  can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `expression`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "jsonPath" java scala >}}
 
@@ -199,8 +199,8 @@ Same as [`jmesPath`]({{< ref "#jmesPath" >}}) but for [JSONP](http://en.wikipedi
 This checks lets you apply [CSS Selectors](https://www.w3.org/TR/CSS21/selector.html%23id-selectors) on HTML response body text.
 
 It takes two parameters:
-* *selector* can be a plain `String`, a Gatling Expression Language `String` or a function.
-* *attribute* is an optional static `String` if you want to target an attribute of the selected DOM nodes.
+* `selector` can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `attribute` is an optional static `String` if you want to target an attribute of the selected DOM nodes.
 
 {{< include-code "css" java scala >}}
 
@@ -215,7 +215,7 @@ Map values can be multivalued depending on if the input is multivalued or not
 (input with `multiple` attribute set, or multiple occurrences of the same input name, except for radio).
 
 It takes one single parameter:
-* *selector* can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `selector` can be a plain `String`, a Gatling Expression Language `String` or a function.
 
 {{< include-code "form" java scala >}}
 
@@ -281,14 +281,14 @@ Transforming is an **optional** step that lets you transform the result of the e
 This optional step lets you provide a default value in case the previous step failed to capture anything.
 
 It takes one single parameter:
-* *defaultValue* can be a plain `String`, a Gatling Expression Language `String` or a function that must return the same type as the expected value
+* `defaultValue` can be a plain `String`, a Gatling Expression Language `String` or a function that must return the same type as the expected value
 
 #### `transform`
 
 This step lets you pass a function that will only be triggered if the previous step was able to capture something.
 
 It takes one single parameter:
-* *function* is of type `X` to another possibly different type `X2`
+* `function` is of type `X` to another possibly different type `X2`
 
 {{< include-code "transform" java scala >}}
 
@@ -297,7 +297,7 @@ It takes one single parameter:
 This step is a variant of [`transform`]({{< ref "#transform" >}}) that lets you access the `Session` is order to compute the returned result.
 
 It takes one single parameter:
-* *function* is of type `(X, Session)` to another possibly different type `X2`
+* `function` is of type `(X, Session)` to another possibly different type `X2`
 
 {{< include-code "transformWithSession" java scala >}}
 
@@ -328,7 +328,7 @@ If you don't explicitly define the validation step, Gatling will perform an impl
 Validate that the value is equal to the expected one.
 
 It takes one single parameter:
-* *expected* can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
+* `expected` can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
 
 {{< include-code "is" scala java >}}
 
@@ -343,7 +343,7 @@ Validate that the extracted value is null, typically a JSON value.
 Validate that the extracted value is different from the expected one.
 
 It takes one single parameter:
-* *unexpected* can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
+* `unexpected` can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
 
 {{< include-code "not" java scala >}}
 
@@ -380,8 +380,8 @@ Never fail. Used for capturing an optional value.
 You can supply your own validator.
 
 It takes two parameters:
-* *name* is the String that would be used to describe this part in case of a failure in the final error message.
-* *validator* is the validation logic function.
+* `name` is the String that would be used to describe this part in case of a failure in the final error message.
+* `validator` is the validation logic function.
 
 {{< include-code "validator" java scala >}}
 
@@ -392,7 +392,7 @@ It takes two parameters:
 Naming is an **optional** step for customizing the name of the check in the error message in case of a check failure.
 
 It takes one single parameter:
-* *name* can only be a static String.
+* `name` can only be a static String.
 
 {{< include-code "name" java scala >}}
 
@@ -403,7 +403,7 @@ It takes one single parameter:
 Saving is an **optional** step for storing the result of the previous step (extraction or transformation) into the virtual user's Session, so that it can be reused later.
 
 It takes one single parameter:
-* *key* can only be a static String.
+* `key` can only be a static String.
 
 {{< include-code "saveAs" java scala >}}
 

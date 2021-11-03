@@ -13,7 +13,7 @@ This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testin
 
 Check out available versions on [Maven Central](https://search.maven.org/artifact/io.gatling/gatling-sbt).
 
-Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](/enterprise/) customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
 ## Setup
 

@@ -1,7 +1,7 @@
 ---
 title: "HTTP Helpers"
 description: "Learn how to deal with cookies and cache"
-lead: "Add and retrieve manually a cookie with Gatling"
+lead: "Helpers for handling cookies and caches"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 005050
@@ -23,10 +23,10 @@ Cookie can also take more optional parameters:
 
 {{< include-code "cookie" java scala >}}
 
-* *domain* is optional, defaulting to base url domain
-* *path* is optional, defaulting to "/"
-* *maxAge* is and optional number of seconds, defaulting to `Long.MinValue`
-* *secure* is optional, defaulting to false
+* `domain` is optional, defaulting to base url domain
+* `path` is optional, defaulting to "/"
+* `maxAge` is and optional number of seconds, defaulting to `Long.MinValue`
+* `secure` is optional, defaulting to false
 
 ### Getting a Cookie Value {#getting-cookie-value}
 
@@ -38,10 +38,10 @@ CookieKey can also take more optional parameters:
 
 {{< include-code "cookieKey" java scala >}}
 
-* *domain* is optional, defaulting to base url domain
-* *path* is optional, defaulting to "/"
-* *secure* is optional, defaulting to false, means you only want secured cookies
-* *saveAs* is optional, defaulting to `name` param
+* `domain` is optional, defaulting to base url domain
+* `path` is optional, defaulting to "/"
+* `secure` is optional, defaulting to false, means you only want secured cookies
+* `saveAs` is optional, defaulting to `name` param
 
 ### Flushing Session Cookies
 

@@ -1,13 +1,13 @@
 ---
 title: "MQTT"
 description: "MQTT protocol DSL"
-lead: "MQTT protocol DSL"
+lead: "DSL for MQTT"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 006000
 ---
 
-MQTT support is only available in [Gatling Enterprise](/enterprise/).
+MQTT support is only available in [Gatling Enterprise](https://gatling.io/enterprise/).
 
 Jar published in Gatling OSS only contains noop stubs.
 

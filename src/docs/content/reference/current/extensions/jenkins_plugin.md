@@ -23,7 +23,7 @@ You can install the plugin manually by following the official Jenkins documentat
 
 ## Jenkins plugin usage
 
-Documentation of Gatling Jenkins plugin is available on [jenkins.io website](https://plugins.jenkins.io/gatling).
+Documentation of Gatling Jenkins plugin is available on the [jenkins.io website](https://plugins.jenkins.io/gatling).
 
 ## How it works
 
@@ -37,4 +37,4 @@ However, note that the Jenkins plugin relies on the report folder's naming conve
 
 ## Using Jenkins with Gatling Enterprise
 
-[Gatling Enterprise](/enterprise/) has a dedicated Jenkins plugin. This plugin can launch a Gatling Enterprise simulation and display live metrics. Please refer to Gatling Enterprise documentation for the installation of this plugin.
+[Gatling Enterprise](https://gatling.io/enterprise/) has a dedicated Jenkins plugin. This plugin can launch a Gatling Enterprise simulation and display live metrics. Please refer to Gatling Enterprise documentation for the installation of this plugin.

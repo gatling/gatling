@@ -8,7 +8,7 @@ weight: 005020
 ---
 
 {{< alert tip >}}
-Note that most method can take static value, [Gatling Expression Language (EL)]({{< ref "../../core/session/expression_el" >}}) strings and functions for parameters.
+Note that most method can take static value, [Gatling Expression Language (EL)]({{< ref "../../core/session/el" >}}) strings and functions for parameters.
 {{</ alert >}}
 
 ## Request Name
@@ -137,7 +137,7 @@ You can add a full body to an HTTP request with the dedicated method `body`, whe
 `StringBody` lets you pass a text payload defined in your code.
 The charset used writing the bytes on the wire is the one defined in the `charset` attribute of the `Content-Type` request header if defined, otherwise the one defined in `gatling.conf`.
 
-This solution is typically used with Strings in the [Gatling Expression Language]({{< ref "../../core/session/expression_el" >}}) format.
+This solution is typically used with Strings in the [Gatling Expression Language]({{< ref "../../core/session/el" >}}) format.
 
 It takes one single parameter:
 * `string` the text content, can be a plain `String`, a Gatling Expression Language `String` or a function.
@@ -160,7 +160,7 @@ It takes one single parameter:
 
 #### `ElFileBody` 
 
-`ElFileBody` lets you pass some text content resolved from a template file in the [Gatling Expression Language]({{< ref "../../core/session/expression_el" >}}) format.
+`ElFileBody` lets you pass some text content resolved from a template file in the [Gatling Expression Language]({{< ref "../../core/session/el" >}}) format.
 
 It takes one single parameter:
 * `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String` or a function.

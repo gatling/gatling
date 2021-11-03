@@ -11,7 +11,9 @@ weight: 003010
 
 {{< alert warning >}}
 Gatling DSL components are **immutable Builders**. They have to be chained one with another and the whole chain is only built once on startup.
+
 These builders don't do anything by themselves, they don't trigger any side effect such as executing an HTTP request, they are just definitions.
+
 As a result, creating such DSL components at runtime, typically in functions, has absolutely no effect.
 If you want conditional paths in your execution flow, use the proper DSL components (`doIf`, `randomSwitch`, etc)
 {{< /alert >}}
@@ -126,3 +128,9 @@ By default, reports are automatically generated at the end of a simulation.
 They consist of HTML files. Therefore, they are portable and can be viewed on any device with a web browser.
 
 For more information, check the [Reports reference section]({{< ref "../../stats/reports" >}}).
+
+## Durations
+
+{{< alert tip >}}
+In Gatling, the default unit for duration parameters is seconds.
+{{</ alert >}}

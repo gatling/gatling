@@ -51,6 +51,15 @@ object ScalaDoWhileDuring {
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoWhileDuring[T, W],
+      condition: String,
+      duration: JavaExpression[Duration],
+      counterName: String,
+      exitASAP: Boolean
+  ): Loop[T, W] =
+    new Loop(context, condition.el, javaDurationFunctionToExpression(duration), counterName, exitASAP)
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: DoWhileDuring[T, W],
       condition: JavaExpression[jl.Boolean],
       duration: JavaExpression[Duration],
       counterName: String,

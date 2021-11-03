@@ -1,7 +1,7 @@
 ---
 title: "Scenario"
-description: "Learn all about the DSL specific to scenarios"
-lead: "Learn how to execute requests, pause, loops, conditions, throttling and protocols"
+description: "Learn about the DSL specific to scenarios"
+lead: "Learn how to execute requests, pauses, loops and conditions"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 003040
@@ -17,7 +17,12 @@ This is the reference of the different components available to write scenarios w
 
 You can use any character in the name of the scenario **except** tabulations: **\t**.
 
-## Structure elements
+## Structure Elements
+
+All the components in this section can be either:
+* attached to a scenario
+* directly created, so it can be passed as parameter, stored in a constant, etc
+* attached to another component in this section
 
 ### Exec
 
@@ -27,9 +32,9 @@ Any action that will be executed will be called with `exec`.
 
 For example, when using the Gatling HTTP module you would write the following line:
 
-{{< include-code "exec-example" java scala >}}
+{{< include-code "exec" java scala >}}
 
-`exec` can also be passed an [Expression]({{< ref "../session/expression_el#expression" >}}) function.
+`exec` can also be passed an [Function]({{< ref "../session/function" >}}).
 
 This can be used for manually debugging or editing the [Session]({{< ref "../session/session_api#session" >}}), e.g.:
 
@@ -42,45 +47,53 @@ This can be used for manually debugging or editing the [Session]({{< ref "../ses
 When a user sees a page he/she often reads what is shown and then chooses to click on another link.
 To reproduce this behavior, the pause method is used.
 
-There are several ways of using it:
+There are several ways of using it
 
-* Fixed pause duration:
-  * `pause(duration: Duration)`
-  * `pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS)`
-  * `pause(duration: Expression[Duration])`
-* Uniform random pause duration:
-  * `pause(min: Duration, max: Duration)`
-  * `pause(min: String, max: String, unit: TimeUnit)`
-  * `pause(min: Expression[Duration], max: Expression[Duration])`
+Fixed pause takes a single parameter:
+* `duration`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+
+{{< include-code "pause-fixed" java scala >}}
+
+Uniform random pause takes 2 parameters:
+* `min`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+* `max`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+
+{{< include-code "pause-uniform" java scala >}}
 
 {{< alert tip >}}
-All those methods also have an optional force parameter that overrides the pause type defined in the set up.
+All those methods also have an optional force parameter that overrides the pause type defined in the setUp.
 Possible values are the [same ones than for global definition]({{< ref "../simulation#global-pause-configuration" >}}).
 {{< /alert >}}
 
 #### `pace`
 
-If you want to control how frequently an action is executed, to target *iterations per hour* type volumes.
-Gatling support a dedicated type of pause: `pace`, which adjusts its wait time depending on how long the chained action took.
+You could want to control how frequently an action is executed, to target *iterations per time* type volumes.
+Gatling support a dedicated type of pause: `pace`, which adjusts its wait time depending upon the elapsed time since the virtual user last reached this action.
 E.g.:
 
 {{< include-code "pace" java scala >}}
 
-There are several ways of using it:
+There are several ways of using it
 
-* Fixed pace duration:
-  * `pace(duration: Duration)`
-  * `pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS)`
-  * `pace(duration: Expression[Duration])`
-* Uniform random pace duration:
-  * `pace(min: Duration, max: Duration)`
-  * `pace(min: String, max: String, unit: TimeUnit)`
-  * `pace(min: Expression[Duration], max: Expression[Duration])`
+Fixed pace takes a single parameter:
+* `duration`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+
+{{< include-code "pace-fixed" java scala >}}
+
+Uniform random pace takes 2 parameters:
+* `min`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+* `max`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+
+{{< include-code "pace-uniform" java scala >}}
 
 #### `rendezVous`
 
 In some cases, you may want to run some requests, then pause users until all other users have reached a *rendez-vous point*.
-For this purpose Gatling has the `rendezVous(users: Int)` method which takes the number of users to wait.
+
+It takes a single parameter:
+* `users`: the number of users to wait before lifting the waiting point, an int
+
+{{< include-code "rendezVous" java scala >}}
 
 ### Loop statements
 
@@ -93,92 +106,81 @@ Otherwise, you might break Gatling underlying component's internal logic.
 
 Repeat the loop a specified amount of times.
 
-{{< include-code "repeat-example" java scala >}}
+It takes 2 parameters:
+* `times`: the number of times to repeat the loop content, can be an int, a Gatling EL String or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
 
-*times* can be an Int, an EL string pointing to an Int Session attribute, or an `Expression[Int]`.
-
-*counterName* is optional and can be used to force the name of the loop counter.
-Current value can be retrieved on the Session as an attribute with a *counterName* name.
-
-{{< include-code "repeat-variants" java scala >}}
-
-{{< alert warning >}}
-Don't forget that the counter starts at 0!
-{{< /alert >}}
+{{< include-code "repeat" java scala >}}
 
 #### `foreach`
 
 Repeat the loop for each element in the specified sequence.
 
+It takes 3 parameters:
+* `seq`: the list of elements to iterate over, can be a List, a Gatling EL String or a function
+* `elementName`: the key to the current element in the `Session`
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+
 {{< include-code "foreach" java scala >}}
-
-*sequenceName* can be a sequence, an EL string pointing to a `Seq[Any]` Session attribute, or an `Expression[Seq[Any]]`
-
-*elementName* is the name of the Session attribute that will hold the current element.
-
-*counterName* is optional.
 
 #### `during`
 
 Iterate over the loop during the specified amount of time.
 
-{{< include-code "during" scala >}}
+It takes 3 parameters:
+* `duration`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+* `exitASAP` (optional, default true): if true, the condition will be evaluated for each element inside the loop, possibly causing to exit the loop before reaching the end of the iteration.
 
-*duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
-
-*counterName* is optional.
-
-*exitASAP* is optional and defaults to true. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
+{{< include-code "during" java scala >}}
 
 #### `asLongAs`
 
 Iterate over the loop as long as the condition is satisfied.
 
+It takes 3 parameters:
+* `condition`: can be a boolean, a Gatling EL String resolving a boolean or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+* `exitASAP` (optional, default true): if true, the condition will be evaluated for each element inside the loop, possibly causing to exit the loop before reaching the end of the iteration.
+
 {{< include-code "asLongAs" java scala >}}
-
-*condition* is a session function that returns a boolean.
-
-*counterName* is optional.
-
-*exitASAP* is optional and defaults to false. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
 
 #### `doWhile`
 
 Similar to `asLongAs` but the condition is evaluated after the loop.
 
+It takes 2 parameters:
+* `condition` can be a boolean, a Gatling EL String resolving a boolean or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+
 {{< include-code "doWhile" java scala >}}
-
-*condition* is a session function that returns a boolean.
-
-*counterName* is optional.
 
 #### `asLongAsDuring`
 
 Iterate over the loop as long as the condition is satisfied and the duration hasn't been reached.
 
+It takes 4 parameters:
+* `condition` can be a boolean, a Gatling EL String resolving a boolean or a function
+* `duration` can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+* `exitASAP` (optional, default true). If true, the condition will be evaluated for each element inside the loop, possibly causing to exit the loop before reaching the end of the iteration.
+
 {{< include-code "asLongAsDuring" java scala >}}
-
-*condition* is a session function that returns a boolean.
-
-*duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
-
-*counterName* is optional.
 
 #### `doWhileDuring`
 
 Similar to `asLongAsDuring` but the condition is evaluated after the loop.
 
+It takes 3 parameters:
+* `condition` can be a boolean, a Gatling EL String resolving a boolean or a function
+* `duration` can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+
 {{< include-code "doWhileDuring" java scala >}}
-
-*condition* is a session function that returns a boolean.
-
-*duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
-
-*counterName* is optional.
 
 #### `forever`
 
-Iterate over the loop forever.
+Iterate over the loop content forever.
 
 {{< include-code "forever" java scala >}}
 
@@ -186,20 +188,24 @@ Iterate over the loop forever.
 
 ### Conditional statements
 
+Gatling's DSL has conditional execution support.
+
 #### `doIf`
 
-Gatling's DSL has conditional execution support.
-If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the `doIf` method.
+Used to execute a specific chain of actions only when some condition is satisfied.
+
+It takes one single parameter:
+* `condition` can be a boolean, a Gatling EL String resolving a boolean or a function
 
 {{< include-code "doIf" java scala >}}
 
-If you want to test complex conditions, you'll have to pass an `Expression[Boolean]`:
-
-{{< include-code "doIf-session" java scala >}}
-
 #### `doIfEquals`
 
-Îf your test condition is simply to compare two values, you can simply use `doIfEquals`:
+If your test condition is simply to compare two values, you can simply use `doIfEquals`:
+
+It takes 2 parameters:
+* `actual` can be a static value, a Gatling EL String or a function
+* `expected` can be a static value, a Gatling EL String or a function
 
 {{< include-code "doIfEquals" java scala >}}
 
@@ -207,15 +213,18 @@ If you want to test complex conditions, you'll have to pass an `Expression[Boole
 
 Similar to `doIf`, but with a fallback if the condition evaluates to false.
 
-{{< include-code "doIfOrElse" java scala >}}
+It takes one single parameter:
+* `condition` can be a boolean, a Gatling EL String resolving a boolean or a function
 
-{{< alert warning >}}
-`doIfOrElse` only takes an `Expression[Boolean]`, not the key/value signature.
-{{< /alert >}}
+{{< include-code "doIfOrElse" java scala >}}
 
 #### `doIfEqualsOrElse`
 
 Similar to `doIfEquals` but with a fallback if the condition evaluates to false.
+
+It takes 2 parameters:
+* `actual` can be a static value, a Gatling EL String or a function
+* `expected` can be a static value, a Gatling EL String or a function
 
 {{< include-code "doIfEqualsOrElse" java scala >}}
 
@@ -226,10 +235,6 @@ Switch is selected through the matching of a key with the evaluation of the pass
 If no switch is selected, the switch is bypassed.
 
 {{< include-code "doSwitch" java scala >}}
-
-{{< alert warning >}}
-When using any kind of switch component, make sure to use parentheses, not curly braces!
-{{< /alert >}}
 
 #### `doSwitchOrElse`
 
@@ -274,69 +279,48 @@ Similar to `randomSwitch`, but dispatch uses a round-robin strategy.
 
 #### `tryMax`
 
+Any error (a technical exception such as a timeout, or a failed check) in the wrapped chain would cause the virtual user to interrupt and start over from the beginning, up to a maximum number of times.
+
+It takes 2 parameters:
+* `times`: the maximum number of attempts, an int
+* `counterName` (optional): the key to store the loop counter in the `Session`, starting at 0
+
 {{< include-code "tryMax" java scala >}}
-
-*myChain* is expected to succeed as a whole.
-If an error happens (a technical exception such as a timeout, or a failed check), the user will bypass the rest of the chain and start over from the beginning.
-
-*times* is the maximum number of attempts.
-
-*counterName* is optional.
 
 #### `exitBlockOnFail`
 
-{{< include-code "exitBlockOnFail" java scala >}}
+Similar to tryMax, but without retrying on failure.
 
-Quite similar to tryMax, but without looping on failure.
+{{< include-code "exitBlockOnFail" java scala >}}
 
 #### `exitHere`
 
-{{< include-code "exitHere" java scala >}}
-
 Make the user exit the scenario from this point.
+
+{{< include-code "exitHere" java scala >}}
 
 #### `exitHereIf`
 
-{{< include-code "exitHereIf" java scala >}}
-
 Make the user exit the scenario from this point if the condition holds.
-Condition parameter is an `Expression[Boolean]`.
+
+In takes one single parameter:
+* `condition`: can be a boolean, a Gatling EL String resolving a boolean or a function
+
+{{< include-code "exitHereIf" java scala >}}
 
 #### `exitHereIfFailed`
 
-{{< include-code "exitHereIfFailed" java scala >}}
-
 Make the user exit the scenario from this point if it previously had an error.
 
-### Groups definition
+{{< include-code "exitHereIfFailed" java scala >}}
 
-{{< include-code "group" java scala >}}
+### Groups
 
 Create group of requests to model process or requests in a same page.
 Groups can be nested.
 
+{{< include-code "group" java scala >}}
+
 {{< alert warning >}}
 Beware that group names mustn't contain commas.
 {{< /alert >}}
-
-## Protocol definition
-
-You can configure protocols at scenario level with `protocols` method:
-
-{{< include-code "protocol" java scala >}}
-
-See the dedicated section for http protocol definition [here]({{< ref "../../http/protocol" >}}).
-
-## Pause definition
-
-You can configure pause definition at scenario level, see [here]({{< ref "../simulation#global-pause-configuration" >}}) for more information.
-
-## Throttling
-
-You can also configure throttling at scenario level with `throttle` method.
-
-This way, you can configure different throttling profiles for different scenarios running in the same simulation.
-
-{{< include-code "throttling" java scala >}}
-
-For further information see the dedicated section [here]({{< ref "../simulation#throttling" >}}).
