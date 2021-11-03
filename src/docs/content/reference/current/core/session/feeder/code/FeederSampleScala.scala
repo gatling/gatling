@@ -35,7 +35,7 @@ feed(feeder)
 csv("foo").queue()
 // randomly pick an entry in the sequence
 csv("foo").random()
-// shuffle entries, then behave like queuecsv("foo")
+// shuffle entries, then behave like queue
 csv("foo").shuffle()
 // go back to the top of the sequence once the end is reached
 csv("foo").circular()
@@ -166,11 +166,11 @@ redisFeeder(redisPool, "foo").SRANDMEMBER
   }
 
   {
-//#convert
-csv("myFile.csv").convert {
+//#transform
+csv("myFile.csv").transform {
   case ("attributeThatShouldBeAnInt", string) => string.toInt
 }
-//#convert
+//#transform
   }
 
   {

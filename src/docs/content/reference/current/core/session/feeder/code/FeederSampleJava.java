@@ -47,7 +47,7 @@ feed(feeder);
 csv("foo").queue();
 // randomly pick an entry in the sequence
 csv("foo").random();
-// shuffle entries, then behave like queuecsv("foo")
+// shuffle entries, then behave like queue
 csv("foo").shuffle();
 // go back to the top of the sequence once the end is reached
 csv("foo").circular();
@@ -165,11 +165,11 @@ redisFeeder(redisPool, "foo").SRANDMEMBER();
   }
 
   {
-//#convert
-csv("myFile.csv").convert((key, value) ->
+//#transform
+csv("myFile.csv").transform((key, value) ->
   key.equals("attributeThatShouldBeAnInt") ? Integer.valueOf(value) : value
 );
-//#convert
+//#transform
   }
 
   {

@@ -231,19 +231,19 @@ You can then override the desired Redis command:
 
 ## Converting Values
 
-Sometimes, you might want to convert the raw data you got from your feeder.
+Sometimes, you might want to transform the raw data you got from your feeder.
 
-For example, a csv feeder would give you only Strings, but you might want to convert one of the attribute into an Int.
+For example, a csv feeder would give you only Strings, but you might want to transform one of the attribute into an Int.
 
-`convert(conversion: PartialFunction[(String, T), Any])` takes:
+`transform` takes:
 
-* a PartialFunction, meaning that you only define it for the scope you want to convert, non matching attributes will be left unchanged
+* a PartialFunction, meaning that you only define it for the scope you want to transform, non-matching attributes will be left unchanged
 * whose input is a (String, T) couple where the first element is the attribute name, and the second one the attribute value
 * and whose output is Any, whatever you want
 
 For example:
 
-{{< include-code "convert" java scala >}}
+{{< include-code "transform" java scala >}}
 
 ## Extracting All Records
 

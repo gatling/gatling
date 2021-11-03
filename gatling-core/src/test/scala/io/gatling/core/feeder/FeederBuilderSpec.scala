@@ -78,27 +78,27 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     circularFeeder.next() shouldBe Map("1" -> "Test")
   }
 
-  "RecordSeqFeederBuilder" should "be able to have a record converted" in {
+  "RecordSeqFeederBuilder" should "be able to have a record transformed" in {
     val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))
 
-    val convertedValue: Option[Any] = queuedFeeder
-      .convert { case ("1", attr) =>
+    val transformedValue: Option[Any] = queuedFeeder
+      .transform { case ("1", attr) =>
         attr.concat("s are boring !")
       }
       .apply()
       .next()
       .get("1")
 
-    convertedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
+    transformedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
 
-    val cantConvert: Option[Any] = queuedFeeder
-      .convert { case ("Can't find because don't exist", shouldKeepAsIs) =>
+    val cantTransform: Option[Any] = queuedFeeder
+      .transform { case ("Can't find because don't exist", shouldKeepAsIs) =>
         shouldKeepAsIs.concat("s are boring !")
       }
       .apply()
       .next()
       .get("1")
 
-    cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
+    cantTransform.fold(fail("Could not find key"))(_ shouldBe "Test")
   }
 }

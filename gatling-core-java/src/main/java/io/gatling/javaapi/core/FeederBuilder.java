@@ -84,7 +84,7 @@ public interface FeederBuilder<T> {
    * @return a new FeederBuilder
    */
   @Nonnull
-  FeederBuilder<Object> convert(@Nonnull BiFunction<String, T, Object> f);
+  FeederBuilder<Object> transform(@Nonnull BiFunction<String, T, Object> f);
 
   /**
    * Read all the records of the underlying source.
@@ -312,9 +312,9 @@ public interface FeederBuilder<T> {
 
     @Override
     @Nonnull
-    public FeederBuilder<Object> convert(@Nonnull BiFunction<String, T, Object> f) {
+    public FeederBuilder<Object> transform(@Nonnull BiFunction<String, T, Object> f) {
       return new Impl<>(
-          wrapped.convert(
+          wrapped.transform(
               new scala.PartialFunction<scala.Tuple2<String, T>, Object>() {
 
                 @Override

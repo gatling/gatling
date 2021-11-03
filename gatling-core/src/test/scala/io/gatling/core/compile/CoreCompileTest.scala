@@ -54,7 +54,7 @@ class CoreCompileTest extends Simulation {
 
   private val records: Seq[Map[String, Any]] = csv("foo.csv").readRecords
 
-  private val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
+  private val richTestData = testData.transform { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
 
   private val testData3 = Array(Map("foo" -> "bar")).circular
 
