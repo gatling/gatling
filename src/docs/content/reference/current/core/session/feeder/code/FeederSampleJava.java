@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.sitemap;
-import static io.gatling.javaapi.jdbc.JdbcDsl.jdbcFeeder;
-import static io.gatling.javaapi.redis.RedisDsl.redisFeeder;
+import static io.gatling.javaapi.http.HttpDsl.*;
+import static io.gatling.javaapi.jdbc.JdbcDsl.*;
+import static io.gatling.javaapi.redis.RedisDsl.*;
 
 class FeederSampleJava {
 
@@ -122,6 +122,8 @@ jsonUrl("http://me.com/foo.json");
   {
 //#jdbc-feeder
 // beware: you need to import the jdbc module
+// import static io.gatling.javaapi.jdbc.JdbcDsl.*;
+
 jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users");
 //#jdbc-feeder
   }
@@ -129,6 +131,7 @@ jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users");
   {
 //#sitemap-feeder
 // beware: you need to import the http module
+// import static io.gatling.javaapi.http.HttpDsl.*;
 
 sitemap("/path/to/sitemap/file");
 //#sitemap-feeder

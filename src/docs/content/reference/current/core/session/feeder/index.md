@@ -142,7 +142,7 @@ Note that the root element has of course to be an array.
 
 Gatling also provide a builtin that reads from a JDBC connection.
 
-{{< include-code "jdbc-feeder" scala >}}
+{{< include-code "jdbc-feeder" java scala >}}
 
 Just like File parser built-ins, this return a `RecordSeqFeederBuilder` instance.
 
@@ -190,23 +190,26 @@ The following Sitemap file:
 will be turned into:
 
 ```scala
+// record #1
 Map(
   "loc" -> "http://www.example.com/",
   "lastmod" -> "2005-01-01",
   "changefreq" -> "monthly",
   "priority" -> "0.8"
-) // record #1
-        
+)
+
+// record #2
 Map(
   "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
   "changefreq" -> "weekly"
-)  // record #2
+)
 
+// record #3
 Map(
   "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
   "lastmod" -> "2004-12-23",
   "changefreq" -> "weekly"
-)  // record #3
+) 
 ```
 
 ## Redis Feeder {#redis}
@@ -236,10 +239,8 @@ Sometimes, you might want to transform the raw data you got from your feeder.
 For example, a csv feeder would give you only Strings, but you might want to transform one of the attribute into an Int.
 
 `transform` takes:
-
-* a PartialFunction, meaning that you only define it for the scope you want to transform, non-matching attributes will be left unchanged
-* whose input is a (String, T) couple where the first element is the attribute name, and the second one the attribute value
-* and whose output is Any, whatever you want
+* in Java and Kotlin, a `BiFunction<String, T, Object>`
+* in Scala a `PartialFunction[(String, T), Any]` that is defined only for records you want to transform, leaving the other ones as is
 
 For example:
 
@@ -248,8 +249,6 @@ For example:
 ## Extracting All Records
 
 Sometimes, you just might want to reuse or convenient built-in feeders for custom needs and get your hands on the actual records.
-
-`readRecords` returns a `Seq[Map[String, Any]]`.
 
 {{< include-code "records" java scala >}}
 

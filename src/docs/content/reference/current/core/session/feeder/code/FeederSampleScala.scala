@@ -121,7 +121,7 @@ jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users")
 // beware: you need to import the http module
 import io.gatling.http.Predef._
 
-val feeder = sitemap("/path/to/sitemap/file")
+sitemap("/path/to/sitemap/file")
 //#sitemap-feeder
   }
 
