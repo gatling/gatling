@@ -40,6 +40,7 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
 
   contents = table
   model.addColumn(headerTitle)
+  table.peer.getTableHeader.setOpaque(false)
   table.model = model
   table.rowHeight = 30
   preferredSize = new Dimension(300, 200)
