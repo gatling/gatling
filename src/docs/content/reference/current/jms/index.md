@@ -15,7 +15,7 @@ Gatling JMS DSL is not imported by default.
 
 You have to manually add the following imports:
 
-{{< include-code "imprts" java scala >}}
+{{< include-code "imprts" java kt scala >}}
 
 ## JMS Protocol {#protocol}
 
@@ -27,15 +27,15 @@ The first mandatory step is to configure the `ConnectionFactory`.
 
 You can either configure one to be retrieved with a JNDI lookup:
 
-{{< include-code "jndi" java scala >}}
+{{< include-code "jndi" java kt scala >}}
 
 or directly instantiate one with your JMS broker's Java client library, eg:
 
-{{< include-code "prog" java scala >}}
+{{< include-code "prog" java kt scala >}}
 
 #### Other Options
 
-{{< include-code "options" java scala >}}
+{{< include-code "options" java kt scala >}}
 
 ## JMS Request
 
@@ -67,14 +67,14 @@ you can additionally define a `trackerDestination(JmsDestination)`.
 
 See below for a few examples:
 
-{{< include-code "message" java scala >}}
+{{< include-code "message" java kt scala >}}
 
 ### Extra Options
 
 * `jmsType`
 * `property`
 
-{{< include-code "extra" java scala >}}
+{{< include-code "extra" java kt scala >}}
 
 ## JMS Check
 
@@ -89,7 +89,7 @@ Gatling JMS's support only current supports the following checks:
 
 In addition, there's `simpleCheck`:
 
-{{< include-code "simple" java scala >}}
+{{< include-code "simple" java kt scala >}}
 
 ## Example
 

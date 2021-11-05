@@ -11,11 +11,11 @@ Feeder is a type alias for `Iterator<Map<String, T>>`, meaning that the componen
 
 It's very simple to build a custom one. For example, here's how one could build a random email generator:
 
-{{< include-code "random-mail-generator" java scala >}}
+{{< include-code "random-mail-generator" java kt scala >}}
 
 The structure DSL provides a `feed` method.
 
-{{< include-code "feed" java scala >}}
+{{< include-code "feed" java kt scala >}}
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
@@ -25,7 +25,7 @@ Every time a virtual user reaches this step, it will pop a record out of the Fee
 
 Gatling provides multiple strategies for the built-in feeders:
 
-{{< include-code "strategies" java scala >}}
+{{< include-code "strategies" java kt scala >}}
 
 {{< alert warning >}}
 When using the default `queue` or `shuffle` strategies, make sure that your dataset contains enough records.
@@ -36,7 +36,7 @@ If your feeder runs out of record, Gatling will self shut down.
 
 Gatling provides some converters to use in-memory datastructures as Feeders.
 
-{{< include-code "feeder-in-memory" java scala >}}
+{{< include-code "feeder-in-memory" java kt scala >}}
 
 ## File Based Feeders
 
@@ -63,7 +63,7 @@ Our parser honors the [RFC4180](https://tools.ietf.org/html/rfc4180) specificati
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 
-{{< include-code "sep-values-feeders" java scala >}}
+{{< include-code "sep-values-feeders" java kt scala >}}
 
 ## Loading Mode
 
@@ -83,7 +83,7 @@ When in `batch` mode, `random` and `shuffle` can't of course operate on the full
 The default size of this buffer is 2,000 and can be changed.
 {{< /alert >}}
 
-{{< include-code "batch" java scala >}}
+{{< include-code "batch" java kt scala >}}
 
 Default behavior is an adaptive policy based on (unzipped, sharded) file size, see `gatling.core.feederAdaptiveLoadModeThreshold` in config file.
 Gatling will use `eager` below threshold and `batch` above.
@@ -92,7 +92,7 @@ Gatling will use `eager` below threshold and `batch` above.
 
 If your files are very large, you can provide them zipped and ask gatling to `unzip` them on the fly:
 
-{{< include-code "unzip" java scala >}}
+{{< include-code "unzip" java kt scala >}}
 
 Supported formats are gzip and zip (but archive most contain only one single file).
 
@@ -106,13 +106,13 @@ For example, if you have a file with 30,000 records deployed on 3 nodes, each wi
 `shard` is only effective when running with Gatling Enterprise, otherwise it's just a noop.
 {{< /alert >}}
 
-{{< include-code "shard" java scala >}}
+{{< include-code "shard" java kt scala >}}
 
 ## JSON Feeders
 
 Some might want to use data in JSON format instead of CSV:
 
-{{< include-code "json-feeders" java scala >}}
+{{< include-code "json-feeders" java kt scala >}}
 
 For example, the following JSON:
 
@@ -142,7 +142,7 @@ Note that the root element has of course to be an array.
 
 Gatling also provide a builtin that reads from a JDBC connection.
 
-{{< include-code "jdbc-feeder" java scala >}}
+{{< include-code "jdbc-feeder" java kt scala >}}
 
 Just like File parser built-ins, this return a `RecordSeqFeederBuilder` instance.
 
@@ -160,7 +160,7 @@ Do not forget to add the required JDBC driver jar in the classpath (`lib` folder
 
 Gatling supports a feeder that reads data from a [Sitemap](http://www.sitemaps.org/protocol.html) file.
 
-{{< include-code "sitemap-feeder" java scala >}}
+{{< include-code "sitemap-feeder" java kt scala >}}
 
 The following Sitemap file:
 
@@ -224,13 +224,13 @@ Gatling can read data from Redis using one of the following Redis commands.
 
 By default RedisFeeder uses LPOP command:
 
-{{< include-code "redis-LPOP" java scala >}}
+{{< include-code "redis-LPOP" java kt scala >}}
 
 You can then override the desired Redis command:
 
-{{< include-code "redis-SPOP" java scala >}}
+{{< include-code "redis-SPOP" java kt scala >}}
 
-{{< include-code "redis-SRANDMEMBER" java scala >}}
+{{< include-code "redis-SRANDMEMBER" java kt scala >}}
 
 ## Converting Values
 
@@ -244,13 +244,13 @@ For example, a csv feeder would give you only Strings, but you might want to tra
 
 For example:
 
-{{< include-code "transform" java scala >}}
+{{< include-code "transform" java kt scala >}}
 
 ## Extracting All Records
 
 Sometimes, you just might want to reuse or convenient built-in feeders for custom needs and get your hands on the actual records.
 
-{{< include-code "records" java scala >}}
+{{< include-code "records" java kt scala >}}
 
 {{< alert warning >}}
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.

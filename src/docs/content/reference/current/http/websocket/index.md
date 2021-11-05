@@ -20,7 +20,7 @@ When doing so, each flow branch has its own state, so a user might have to recon
 
 If you want to deal with several WebSockets per virtual users, you have to give them a name and pass this name on each ws operation:
 
-{{< include-code "wsName" java scala >}}
+{{< include-code "wsName" java kt scala >}}
 
 If you set an explicit name for the WebSocket, you'll have to make it explicit for every other WebSocket actions you'll define later in the scenario.
 
@@ -30,21 +30,21 @@ Of course, this step is not required if you deal with one single WebSocket per v
 
 The first thing is to connect a WebSocket:
 
-{{< include-code "wsConnect" java scala >}}
+{{< include-code "wsConnect" java kt scala >}}
 
 You can specify a subprotocol:
 
-{{< include-code "subprotocol" java scala >}}
+{{< include-code "subprotocol" java kt scala >}}
 
 You can define a chain of actions to be performed after (re-)connecting with `onConnected`:
 
-{{< include-code "onConnected" java scala >}}
+{{< include-code "onConnected" java kt scala >}}
 
 ## `close`
 
 Once you're done with a WebSocket, you can close it:
 
-{{< include-code "close" java scala >}}
+{{< include-code "close" java kt scala >}}
 
 ## Send a Message
 
@@ -55,7 +55,7 @@ You may send text or binary messages:
 
 For example:
 
-{{< include-code "send" java scala >}}
+{{< include-code "send" java kt scala >}}
 
 Note that:
 
@@ -72,37 +72,37 @@ Gatling currently only supports blocking checks that will wait until receiving e
 
 You can set a check right after connecting:
 
-{{< include-code "check-from-connect" java scala >}}
+{{< include-code "check-from-connect" java kt scala >}}
 
 Or you can set a check right after sending a message to the server:
 
-{{< include-code "check-from-message" java scala >}}
+{{< include-code "check-from-message" java kt scala >}}
 
 You can set multiple checks sequentially. Each one will expect one single frame.
 
 You can configure multiple checks in a single sequence:
 
-{{< include-code "check-single-sequence" java scala >}}
+{{< include-code "check-single-sequence" java kt scala >}}
 
 You can also configure multiple check sequences with different timeouts:
 
-{{< include-code "check-multiple-sequence" java scala >}}
+{{< include-code "check-multiple-sequence" java kt scala >}}
 
 ### Create a check
 
 You can create checks for text and binary frames with `checkTextMessage` and `checkBinaryMessage`.
 You can use almost all the same check criteria as for HTTP requests.
 
-{{< include-code "create-single-check" java scala >}}
+{{< include-code "create-single-check" java kt scala >}}
 
 You can have multiple criteria for a given message:
 
-{{< include-code "create-multiple-checks" java scala >}}
+{{< include-code "create-multiple-checks" java kt scala >}}
 
 checks can be marked as `silent`.
 Silent checks won't be reported whatever their outcome.
 
-{{< include-code "silent-check" java scala >}}
+{{< include-code "silent-check" java kt scala >}}
 
 ### Matching messages
 
@@ -110,13 +110,13 @@ You can define `matching` criteria to filter messages you want to check.
 Matching criterion is a standard check, except it doesn't take `saveAs`.
 Non-matching messages will be ignored.
 
-{{< include-code "matching" java scala >}}
+{{< include-code "matching" java kt scala >}}
 
 ## Configuration
 
 WebSocket support introduces new HttpProtocol parameters:
 
-{{< include-code "protocol" java scala >}}
+{{< include-code "protocol" java kt scala >}}
 
 ## Debugging
 
@@ -130,4 +130,4 @@ You can inspect WebSocket traffic if you add the following logger to your logbac
 
 Here's an example that runs against [Play 2.2](https://www.playframework.com/download#older-versions)'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
-{{< include-code "chatroom-example" java scala >}}
+{{< include-code "chatroom-example" java kt scala >}}

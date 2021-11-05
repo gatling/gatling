@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.*;
+import java.util.Locale
+import io.gatling.javaapi.core.*
+import io.gatling.javaapi.core.CoreDsl.*
+import io.gatling.javaapi.http.HttpDsl.*
 
-class ExpressionSampleJava {
+class FunctionSampleJava {
+  init {
+//#function
+// inline usage with a Java lamdba
+exec(http("name")
+  .get { session -> "/foo/${session.getString("param").toLowerCase(Locale.getDefault())}" })
 
-  {
-//#inline-expression
-exec(http("Inline")
-  .get(session -> "/inline/" + session.getString("param").toLowerCase()));
-//#inline-expression
+// passing a reference to a function
+val f =
+  { session: Session -> "/foo/${session.getString("param").toLowerCase(Locale.getDefault())}" }
+exec(http("name").get(f))
+//#function
   }
 }

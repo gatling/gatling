@@ -13,7 +13,7 @@ The Assertions API is used to verify that global statistics like response time o
 
 Assertions are registered for a simulation using the method `assertions` on the `setUp`. For example:
 
-{{< include-code "setUp" java scala >}}
+{{< include-code "setUp" java kt scala >}}
 
 This method takes as many assertions as you like.
 
@@ -36,11 +36,11 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 For example, to perform an assertion on the request `MyRequest`, use:
 
-{{< include-code "details" java scala >}}
+{{< include-code "details" java kt scala >}}
 
 and to perform an assertion on the request `MyRequest` in the group `MyGroup`, use:
 
-{{< include-code "details-group" java scala >}}
+{{< include-code "details-group" java kt scala >}}
 
 For WebSockets it takes the name of the check and not the name of the request. `ws.checkTextMessage("use this name")`
 
@@ -97,7 +97,7 @@ Conditions can be chained to apply several conditions on the same metric.
 
 To help you understand how to use assertions, here is a list of examples:
 
-{{< include-code "examples" java scala >}}
+{{< include-code "examples" java kt scala >}}
 
 ## Reports
 

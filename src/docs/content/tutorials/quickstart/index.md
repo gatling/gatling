@@ -115,7 +115,7 @@ The Simulation will be generated in the folder `user-files/simulations/computerd
 
 Here is the produced output:
 
-{{< include-code "quickstart-recorder-output" java scala >}}
+{{< include-code "quickstart-recorder-output" java kt scala >}}
 
 What does it mean?
 

@@ -27,11 +27,11 @@ We are going to extract those chains and store them into *objects*.
 Objects are native Scala singletons.
 You can create those in dedicated files, or directly in the same file as the Simulation.
 
-{{< include-code "isolate-processes" java scala >}}
+{{< include-code "isolate-processes" java kt scala >}}
 
 We can now rewrite our scenario using these reusable business processes:
 
-{{< include-code "processes" java scala >}}
+{{< include-code "processes" java kt scala >}}
 
 ## Step 02: Configure virtual users
 
@@ -45,11 +45,11 @@ Let's define two populations of users:
 
 Translating into a scenario this gives:
 
-{{< include-code "populations" java scala >}}
+{{< include-code "populations" java kt scala >}}
 
 To increase the number of simulated users, all you have to do is to change the configuration of the simulation as follows:
 
-{{< include-code "setup-users" java scala >}}
+{{< include-code "setup-users" java kt scala >}}
 
 Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server ;-)
 
@@ -61,7 +61,7 @@ The value of the ramp indicates the duration over which the users will be linear
 
 In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server:
 
-{{< include-code "setup-users-and-admins" java scala >}}
+{{< include-code "setup-users-and-admins" java kt scala >}}
 
 ## Step 03: Use dynamic data with Feeders and Checks
 
@@ -86,7 +86,7 @@ eee,ASUS Eee PC 1005PE
 
 Let's then declare a feeder and use it to feed our users with the above data:
 
-{{< include-code "feeder" java scala >}}
+{{< include-code "feeder" java kt scala >}}
 
 Explanations:
 
@@ -112,12 +112,12 @@ We have four times the same request with a different query param value. Can we c
 First we will extract the repeated `exec` block to a function.
 Indeed, `Simulation`'s are plain Scala classes so we can use all the power of the language if needed:
 
-{{< include-code "loop-simple" java scala >}}
+{{< include-code "loop-simple" java kt scala >}}
 
 We can now call this function and pass the desired page number.
 But we still have repetition, it's time to introduce another builtin structure:
 
-{{< include-code "loop-for" java scala >}}
+{{< include-code "loop-for" java kt scala >}}
 
 Explanations:
 
@@ -137,7 +137,7 @@ By default Gatling checks if the http response status is *20x* or *304*.
 
 To demonstrate failure management we will introduce a `check` on a condition that fails randomly:
 
-{{< include-code "check" java scala >}}
+{{< include-code "check" java kt scala >}}
 
 Explanations:
 
@@ -148,7 +148,7 @@ Explanations:
 
 To handle this random failure we use the `tryMax` and `exitHereIfFailed` constructs as follow:
 
-{{< include-code "tryMax-exitHereIfFailed" java scala >}}
+{{< include-code "tryMax-exitHereIfFailed" java kt scala >}}
 
 Explanations:
 

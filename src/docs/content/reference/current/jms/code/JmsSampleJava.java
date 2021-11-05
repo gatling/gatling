@@ -66,8 +66,7 @@ jms
   .matchByCorrelationId()
   .matchByMessageId()
   // use a custom matching strategy
-  // see io.gatling.javaapi.jms.JmsMessageMatcher
-  .messageMatcher(null)
+  .messageMatcher((io.gatling.javaapi.jms.JmsMessageMatcher) null)
 
   // optional, default to none
   // reply timeout

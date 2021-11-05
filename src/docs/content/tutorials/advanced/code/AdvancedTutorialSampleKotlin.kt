@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import io.gatling.javaapi.core.*
+import io.gatling.javaapi.core.CoreDsl.*
+import io.gatling.javaapi.http.HttpDsl.*
 
-import scala.concurrent.duration._
+class AdvancedTutorialSampleKotlin {
 
-class AdvancedTutorialSampleScala extends Simulation {
-
-  val httpProtocol = http
+  object Step1 : Simulation() {
 
 //#isolate-processes
 object Search {
@@ -32,25 +31,24 @@ object Search {
       .get("/"))
       .pause(7)
       .exec(http("Search")
-        .get("/computers?f=macbook"))
+      .get("/computers?f=macbook"))
       .pause(2)
       .exec(http("Select")
-        .get("/computers/6"))
+      .get("/computers/6"))
       .pause(3)
 }
 
 object Browse {
 
-  val browse = ???
+  val browse: ChainBuilder = TODO()
 }
 
 object Edit {
 
-  val edit = ???
+  val edit: ChainBuilder = TODO()
 }
 //#isolate-processes
 
-  object Chains {
 //#processes
 val scn = scenario("Scenario Name")
   .exec(Search.search, Browse.browse, Edit.edit)
@@ -62,40 +60,43 @@ val users = scenario("Users")
 val admins = scenario("Admins")
   .exec(Search.search, Browse.browse, Edit.edit)
 //#populations
+
+    val httpProtocol = http
+//#setup-users
+init {
+  setUp(users.injectOpen(atOnceUsers(10)).protocols(httpProtocol))
+}
+//#setup-users
+
+//#setup-users-and-admins
+init {
+  setUp(
+    users.injectOpen(rampUsers(10).during(10)),
+    admins.injectOpen(rampUsers(2).during(10))
+  ).protocols(httpProtocol)
+}
+//#setup-users-and-admins
   }
-
-  import Chains._
-
-//#setup-users
-setUp(users.inject(atOnceUsers(10)).protocols(httpProtocol))
-//#setup-users
-
-//#setup-users-and-admins
-setUp(
-  users.inject(rampUsers(10).during(10)),
-  admins.inject(rampUsers(2).during(10))
-).protocols(httpProtocol)
-//#setup-users-and-admins
 }
 
 //#feeder
 object Search {
-  val feeder = csv("search.csv").random // 1, 2
+  val feeder = csv("search.csv").random() // 1, 2
 
   val search = exec(http("Home")
     .get("/"))
     .pause(1)
     .feed(feeder) // 3
     .exec(http("Search")
-      .get("/computers?f=${searchCriterion}") // 4
+      .get("/computers?f=\${searchCriterion}") // 4
       .check(
-        css("a:contains('${searchComputerName}')", "href") // 5
+        css("a:contains('\${searchComputerName}')", "href") // 5
           .saveAs("computerURL")
       )
     )
     .pause(1)
     .exec(http("Select")
-      .get("${computerURL}")) // 6
+      .get("\${computerURL}")) // 6
     .pause(1)
 }
 //#feeder
@@ -103,9 +104,9 @@ object Search {
 object BrowseLoopSimple {
 //#loop-simple
 object Browse {
-  def gotoPage(page: Int) =
-    exec(http("Page " + page)
-      .get("/computers?p=" + page))
+  fun gotoPage(page: Int) =
+    exec(http("Page $page")
+      .get("/computers?p=$page"))
       .pause(1)
 
   val browse =
@@ -124,10 +125,10 @@ object BrowseLoopFor {
 //#loop-for
 object Browse {
   val browse =
-    repeat(5, "n") { // 1
-      exec(http("Page ${n}").get("/computers?p=${n}")) // 2
+    repeat(5, "n").on( // 1
+      exec(http("Page \${n}").get("/computers?p=\${n}")) // 2
         .pause(1)
-    }
+    )
 }
 //#loop-for
 }
@@ -139,15 +140,15 @@ val edit =
     .pause(1)
     .exec(http("Post")
       .post("/computers")
-      .check(status.is(session =>
-        200 + java.util.concurrent.ThreadLocalRandom.current.nextInt(2) // 2
-      ))
+      .check(status().shouldBe { session ->
+        200 + java.util.concurrent.ThreadLocalRandom.current().nextInt(2)
+      })
     )
 //#check
 
 //#tryMax-exitHereIfFailed
-val tryMaxEdit = tryMax(2) { // 1
+val tryMaxEdit = tryMax(2).on( // 1
   exec(edit)
-}.exitHereIfFailed // 2
+).exitHereIfFailed() // 2
 //#tryMax-exitHereIfFailed
 }

@@ -55,7 +55,7 @@ MqttProtocolBuilder mqttProtocol = mqtt
   // interval for timeout checker (default: 1 second)
   .timeoutCheckInterval(1)
   // check for pairing messages sent and messages received
-  .correlateBy(null);
+  .correlateBy((CheckBuilder) null);
 //#protocol
 
   {

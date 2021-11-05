@@ -14,13 +14,27 @@
  * limitations under the License.
  */
 
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import io.gatling.javaapi.core.CoreDsl.*
+import io.gatling.javaapi.http.HttpDsl.*
 
-class ExpressionSampleScala {
+class PollingSampleKotlin {
+  init {
+//#pollerName
+poll().pollerName("myCustomName")
+//#pollerName
 
-//#inline-expression
-exec(http("Inline")
-  .get(session => s"/inline/${session("param").as[String].toLowerCase}"))
-//#inline-expression
+//#pollerStart
+exec(
+  poll()
+    .every(10)
+    .exec(http("name").get("url"))
+)
+//#pollerStart
+
+//#pollerStop
+exec(
+  poll().stop()
+)
+//#pollerStop
+  }
 }

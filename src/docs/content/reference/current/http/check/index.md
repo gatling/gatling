@@ -17,7 +17,7 @@ The HTTP Check implementation provides the following built-ins:
 
 Targets the HTTP response status code.
 
-{{< include-code "status" java scala >}}
+{{< include-code "status" java kt scala >}}
 
 {{< alert tip >}}
 If you don't define an explicit status check on HTTP requests or HTTP protocol, Gatling will perform an implicit check that will verify that the response status code is 2XX or 304.
@@ -30,7 +30,7 @@ If you don't define an explicit status check on HTTP requests or HTTP protocol, 
 Targets the current page absolute URL.
 Useful when following redirects in order to check if the landing page is indeed the expected one.
 
-{{< include-code "currentLocation" java scala >}}
+{{< include-code "currentLocation" java kt scala >}}
 
 #### `currentLocationRegex`
 
@@ -39,7 +39,7 @@ A version of [currentLocation]({{< ref "#currentlocation" >}}) that applies a Ja
 It takes one single parameter:
 * `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "currentLocationRegex" java scala >}}
+{{< include-code "currentLocationRegex" java kt scala >}}
 
 ### HTTP header
 
@@ -48,7 +48,7 @@ It takes one single parameter:
 It takes one single parameter:
 * `headerName`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "header" java scala >}}
+{{< include-code "header" java kt scala >}}
 
 #### `headerRegex`
 
@@ -58,4 +58,4 @@ It takes two parameters:
 * `headerName`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 * `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "headerRegex" java scala >}}
+{{< include-code "headerRegex" java kt scala >}}

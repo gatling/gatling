@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import java.util.Locale
 import io.gatling.core.Predef._
 import io.gatling.core.session._
 import io.gatling.http.Predef._
@@ -23,11 +24,11 @@ class FunctionSampleScala {
 //#function
 // inline usage with an anonymous function
 exec(http("name")
-  .get(session => s"/foo/${session("param").as[String].toLowerCase}"))
+  .get(session => s"/foo/${session("param").as[String].toLowerCase(Locale.getDefault)}"))
 
 // passing a reference to a function
 val f: Expression[String] =
-    session => "/foo/" + session("param").as[String].toLowerCase
+  session => s"/foo/${session("param").as[String].toLowerCase(Locale.getDefault)}"
 exec(http("name").get(f));
 //#function
 }

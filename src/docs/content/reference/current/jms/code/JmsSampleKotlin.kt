@@ -13,120 +13,109 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import io.gatling.core.Predef._
-//#imprts
-import javax.jms._
-import io.gatling.jms.Predef._
-//#imprts
 
-class ProtocolSamples {
+import io.gatling.javaapi.core.CoreDsl.*
+import io.gatling.javaapi.core.Session
+import io.gatling.javaapi.core.Simulation
+import io.gatling.javaapi.jms.JmsDsl.*
+import io.gatling.javaapi.jms.*
+import org.apache.activemq.ActiveMQConnectionFactory
+import javax.jms.*
 
-  {
+class JmsSampleKotlin {
+
+init {
 //#jndi
 val jndiBasedConnectionFactory = jmsJndiConnectionFactory
   .connectionFactoryName("ConnectionFactory")
-  .url("tcp://localhost:61616")
-  // optional, for performing JNDI lookup
-  .credentials("user", "secret")
-  // optional, custom JNDI property
-  .property("foo", "bar")
-  .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
+  .url("url")
+  .credentials("username", "password")
+  .contextFactory("ContextFactoryClassName")
 
-val jmsProtocol = jms
+val jmsProtocol: JmsProtocolBuilder = jms
   .connectionFactory(jndiBasedConnectionFactory)
 //#jndi
-  }
-
-  {
+}
+init {
 //#prog
-val connectionFactory =
-  new org.apache.activemq.ActiveMQConnectionFactory("url")
+val connectionFactory: ConnectionFactory = ActiveMQConnectionFactory("url")
 
 val jmsProtocol = jms
   .connectionFactory(connectionFactory)
 //#prog
+
 //#options
 jms
   .connectionFactory(connectionFactory)
-  .credentials("username", "password")
-  // optional, default to non persistent
-  .useNonPersistentDeliveryMode
-  .useNonPersistentDeliveryMode
-
-  // optional, default to 1
+  .credentials("username", "password") // optional, default to non persistent
+  .useNonPersistentDeliveryMode()
+  .useNonPersistentDeliveryMode() // optional, default to 1
   // listener thread count
   // some JMS implementation (like IBM MQ) need more than one MessageListener
   // to achieve full readout performance
-  .listenerThreadCount(5)
-
-  // optional, default to `matchByMessageId`
-  // specify how request and response messages should be matched
+  .listenerThreadCount(5) // optional, default to `matchByMessageId`
+  // specify how request and response messages should be matched when using `requestReply`
   // Use `matchByCorrelationId` for ActiveMQ.
-  .matchByCorrelationId
-  .matchByMessageId
-  // use a custom matching strategy
-  .messageMatcher(null.asInstanceOf[io.gatling.jms.protocol.JmsMessageMatcher])
-
-  // optional, default to none
+  .matchByCorrelationId()
+  .matchByMessageId() // use a custom matching strategy
+  // see io.gatling.javaapi.jms.JmsMessageMatcher
+  .messageMatcher(null as io.gatling.javaapi.jms.JmsMessageMatcher) // optional, default to none
   // reply timeout
   .replyTimeout(1000)
 //#options
-  }
+}
 
-  {
+init {
 //#message
 // with a static text message
-jms("name").send.queue("queueName")
+jms("name").send().queue("queueName")
   .textMessage("message")
 // with a Gatling EL string text message
-jms("name").send.queue("queueName")
-  .textMessage("${message}")
+jms("name").send().queue("queueName")
+  .textMessage("\${message}")
 // with a function text message
-jms("name").send.queue("queueName")
-  .textMessage(session => session("message").as[String])
+jms("name").send().queue("queueName")
+  .textMessage { session -> session.getString("message") }
 // with a ElFileBody template text message
-jms("name").send.queue("queueName")
+jms("name").send().queue("queueName")
   .textMessage(ElFileBody("templatePath"))
 
 // with a static bytes message
-jms("name").send.queue("queueName")
-  .bytesMessage(Array[Byte](0, 1, 2))
+jms("name").send().queue("queueName")
+  .bytesMessage(byteArrayOf(0, 1, 2))
 // with a RawFileBody bytes message
-jms("name").send.queue("queueName")
+jms("name").send().queue("queueName")
   .bytesMessage(RawFileBody("templatePath"))
 //#message
 
 //#extra
-jms("name").send.queue("queueName")
+jms("name").send().queue("queueName")
   .textMessage("message")
   .jmsType("type")
   .property("foo", "bar")
 //#extra
-  }
+}
 
 //#simple
-def checkBodyTextCorrect(m: Message) = {
+fun checkBodyTextCorrect(m: Message?): Boolean {
   // this assumes that the service just does an "uppercase" transform on the text
-  m match {
-    case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"
-    case _               => false
+  return if (m is TextMessage) {
+      m.text == "HELLO FROM GATLING JMS DSL"
+  } else {
+    false
   }
 }
 
-val request =
-  jms("name").requestReply.queue("queueName")
-    .textMessage("message")
-    .check(simpleCheck(checkBodyTextCorrect))
+val request = jms("name").requestReply().queue("queueName")
+.textMessage("message")
+.check(JmsDsl.simpleCheck { m: Message? -> checkBodyTextCorrect(m) })
 //#simple
-}
 
 //#example-simulation
-class TestJmsDsl extends Simulation {
-
+class TestJmsDsl : Simulation() {
   // create a ConnectionFactory for ActiveMQ
   // search the documentation of your JMS broker
-  val connectionFactory =
-    new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616")
+  val connectionFactory: ConnectionFactory = ActiveMQConnectionFactory("tcp://localhost:61616")
 
   // alternatively, you can create a ConnectionFactory from a JNDI lookup
   val jndiBasedConnectionFactory = jmsJndiConnectionFactory
@@ -134,21 +123,25 @@ class TestJmsDsl extends Simulation {
     .url("tcp://localhost:61616")
     .credentials("user", "secret")
     .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
-
-  val jmsConfig = jms
+  val jmsProtocol = jms
     .connectionFactory(connectionFactory)
-    .usePersistentDeliveryMode
-
-  val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").requestReply
+    .usePersistentDeliveryMode()
+  val scn = scenario("JMS DSL test").repeat(1).on(
+    exec(jms("req reply testing").requestReply()
       .queue("jmstestq")
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
       .jmsType("test_jms_type")
       .check(xpath("//foo")))
-  }
+  )
 
-  setUp(scn.inject(rampUsersPerSec(10).to(1000).during(60)))
-    .protocols(jmsConfig)
+  init {
+    setUp(scn.injectOpen(rampUsersPerSec(10.0).to(1000.0).during(60)))
+      .protocols(jmsProtocol)
+  }
 }
 //#example-simulation
+}
+
+
+

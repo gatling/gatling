@@ -19,7 +19,7 @@ you have to give them a name and pass this name on each polling operation:
 
 For example:
 
-{{< include-code "pollerName" java scala >}}
+{{< include-code "pollerName" java kt scala >}}
 
 Of course, this step is not required if you deal with one single poller per virtual user.
 
@@ -33,7 +33,7 @@ The `period` parameter is from response received to next request sent.
 
 For example:
 
-{{< include-code "pollerStart" java scala >}}
+{{< include-code "pollerStart" java kt scala >}}
 
 ### Stop polling
 
@@ -43,7 +43,7 @@ When you don't need to poll a request anymore, you can stop the poller:
 
 For example:
 
-{{< include-code "pollerStop" java scala >}}
+{{< include-code "pollerStop" java kt scala >}}
 
 {{< alert tip >}}
 When stopping a poller, the poller flow state (e.g. the session) is merged with the main flow state.

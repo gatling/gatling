@@ -18,7 +18,7 @@ As a result, creating such DSL components at runtime, typically in functions, ha
 If you want conditional paths in your execution flow, use the proper DSL components (`doIf`, `randomSwitch`, etc)
 {{< /alert >}}
 
-{{< include-code "session-incorrect" java scala >}}
+{{< include-code "session-incorrect" java kt scala >}}
 
 ## Virtual User
 
@@ -56,7 +56,7 @@ This allows fast writing of scenarios and easy maintenance of existing scenarios
 
 Here is a simple example of a scenario:
 
-{{< include-code "simple-scenario" java scala >}}
+{{< include-code "simple-scenario" java kt scala >}}
 
 As we can easily guess, this scenario:
 
@@ -81,7 +81,7 @@ A simulation is a description of the load test. It describes how, possibly sever
 
 Here is an example of simulation definition:
 
-{{< include-code "example-definition" java scala >}}
+{{< include-code "example-definition" java kt scala >}}
 
 For more information, check the [Simulation Setup reference section]({{< ref "../../core/simulation" >}}).
 

@@ -45,7 +45,7 @@ Open and closed workload models are antinomical and you can't mix them in the sa
 
 ### Open Model
 
-{{< include-code "open-injection" java scala >}}
+{{< include-code "open-injection" java kt scala >}}
 
 The building blocks for profile injection the way you want are:
 
@@ -60,7 +60,7 @@ The building blocks for profile injection the way you want are:
 
 ### Closed Model
 
-{{< include-code "closed-injection" java scala >}}
+{{< include-code "closed-injection" java kt scala >}}
 
 1. `constantConcurrentUsers(nbUsers).during(duration)`: Inject so that number of concurrent users in the system is constant
 2. `rampConcurrentUsers(fromNbUsers).to(toNbUsers).during(duration)`: Inject so that number of concurrent users in the system ramps linearly from a number to another
@@ -78,11 +78,11 @@ But there is now an alternative using the meta DSL.
 
 #### `incrementUsersPerSec`
 
-{{< include-code "incrementUsersPerSec" java scala >}}
+{{< include-code "incrementUsersPerSec" java kt scala >}}
 
 #### `incrementConcurrentUsers`
 
-{{< include-code "incrementConcurrentUsers" java scala >}}
+{{< include-code "incrementConcurrentUsers" java kt scala >}}
 
 `incrementUsersPerSec` is for open workload and `incrementConcurrentUsers` is for closed workload (users/sec vs concurrent users)
 
@@ -94,13 +94,13 @@ If you don't specify the number of starting users the test will start at 0 concu
 
 You can configure multiple scenarios in the same `setUp` block to started at the same time and executed concurrently.
 
-{{< include-code "multiple" java scala >}}
+{{< include-code "multiple" java kt scala >}}
 
 ### Sequential Scenarios
 
 It's also possible with `andThen` to chain scenarios so that children scenarios starts once all the users in the parent scenario terminate.
 
-{{< include-code "andThen" java scala >}}
+{{< include-code "andThen" java kt scala >}}
 
 ### Disabling Gatling Enterprise Load Sharding
 
@@ -111,6 +111,6 @@ Indeed, only one node would run this user, leaving the other nodes without an in
 
 You can use `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
 
-{{< include-code "noShard" java scala >}}
+{{< include-code "noShard" java kt scala >}}
 
 

@@ -17,11 +17,11 @@ However, some use cases require a more fine grain control.
 
 One might want to manually add or compute a cookie:
 
-{{< include-code "addCookie" java scala >}}
+{{< include-code "addCookie" java kt scala >}}
 
 Cookie can also take more optional parameters:
 
-{{< include-code "cookie" java scala >}}
+{{< include-code "cookie" java kt scala >}}
 
 * `domain` is optional, defaulting to base url domain
 * `path` is optional, defaulting to "/"
@@ -32,11 +32,11 @@ Cookie can also take more optional parameters:
 
 Get the cookie value and put it in the session
 
-{{< include-code "getCookie" java scala >}}
+{{< include-code "getCookie" java kt scala >}}
 
 CookieKey can also take more optional parameters:
 
-{{< include-code "cookieKey" java scala >}}
+{{< include-code "cookieKey" java kt scala >}}
 
 * `domain` is optional, defaulting to base url domain
 * `path` is optional, defaulting to "/"
@@ -47,13 +47,13 @@ CookieKey can also take more optional parameters:
 
 Simulate closing a browser, so session cookies are dropped but not permanent cookies.
 
-{{< include-code "flushSessionCookies" java scala >}}
+{{< include-code "flushSessionCookies" java kt scala >}}
 
 ### Flushing All Cookies
 
 Flush the whole CookieJar.
 
-{{< include-code "flushCookieJar" java scala >}}
+{{< include-code "flushCookieJar" java kt scala >}}
 
 ## Dealing with Caching
 
@@ -61,4 +61,4 @@ Flush the whole CookieJar.
 
 Flush the virtual user's whole HTTP cache.
 
-{{< include-code "flushHttpCache" java scala >}}
+{{< include-code "flushHttpCache" java kt scala >}}

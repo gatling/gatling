@@ -16,6 +16,7 @@
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
+import java.util.Locale;
 import io.gatling.javaapi.core.*;
 import java.util.function.Function;
 
@@ -24,11 +25,11 @@ class FunctionSampleJava {
 //#function
 // inline usage with a Java lamdba
 exec(http("name")
-  .get(session -> "/foo/" + session.getString("param").toLowerCase()));
+  .get(session -> "/foo/" + session.getString("param").toLowerCase(Locale.getDefault())));
 
 // passing a reference to a function
 Function<Session, String> f =
-    session -> "/foo/" + session.getString("param").toLowerCase();
+    session -> "/foo/" + session.getString("param").toLowerCase(Locale.getDefault());
 exec(http("name").get(f));
 //#function
   }
