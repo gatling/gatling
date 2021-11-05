@@ -337,13 +337,13 @@ http("").get("")
 //#in
 .check(
   // with a static values varargs
-  jmesPath("foo").`in`("value1", "value2"),
+  jmesPath("foo").within("value1", "value2"),
   // with a static values List
-  jmesPath("foo").`in`(listOf("value1", "value2")),
+  jmesPath("foo").within(listOf("value1", "value2")),
   // with a Gatling EL String that points to a List in Session (BEWARE DIFFERENT METHOD)
-  jmesPath("foo").inEL("#{expectedValues}"),
+  jmesPath("foo").withinEL("#{expectedValues}"),
   // with a function
-  jmesPath("foo").`in` { session -> listOf("value1", "value2") }
+  jmesPath("foo").within { session -> listOf("value1", "value2") }
 )
 //#in
 
@@ -392,7 +392,7 @@ http("").get("")
   status().shouldBe(200),
 
   // check the HTTP is in [200, 210]
-  status().`in`(200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210),
+  status().within(200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210),
 
   // check the response body contains 5 https links
   regex("https://(.*)").count().shouldBe(5),

@@ -103,7 +103,7 @@ setUp(
 // throttling profile configured globally
 setUp(scn.injectOpen(constantUsersPerSec(100.0).during(Duration.ofMinutes(30))))
   .throttle(
-    reachRps(100).`in`(10),
+    reachRps(100).during(10),
     holdFor(Duration.ofMinutes(1)),
     jumpToRps(50),
     holdFor(Duration.ofHours(2))
@@ -112,9 +112,9 @@ setUp(scn.injectOpen(constantUsersPerSec(100.0).during(Duration.ofMinutes(30))))
 // different throttling profiles configured globally
 setUp(
   scn1.injectOpen(atOnceUsers(1))
-    .throttle(reachRps(100).`in`(10)),
+    .throttle(reachRps(100).during(10)),
   scn2.injectOpen(atOnceUsers(1))
-    .throttle(reachRps(20).`in`(10))
+    .throttle(reachRps(20).during(10))
 )
 //#throttling
 

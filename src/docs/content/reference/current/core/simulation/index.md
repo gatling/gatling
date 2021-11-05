@@ -106,6 +106,11 @@ The building block for the throttling are:
 * `jumpToRps(target)`: jump immediately to a given targeted throughput.
 * `holdFor(duration)`: hold the current throughput for a given duration.
 
+{{< alert tip >}}
+`in` is a reserved keyword in Kotlin.
+You can either protect it with backticks ``in`` or use the `during` alias instead.
+{{< /alert >}}
+
 ## Maximum Duration
 
 Finally, with `maxDuration` you can force your run to terminate based on a duration limit, even though some virtual users are still running.

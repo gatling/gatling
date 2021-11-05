@@ -93,6 +93,14 @@ Conditions can be chained to apply several conditions on the same metric.
 * `is(value)`: check that the value of the metric is equal to the given value.
 * `in(sequence)`: check that the value of metric is in a sequence.
 
+{{< alert tip >}}
+`is` is a reserved keyword in Kotlin.
+You can either protect it with backticks ``is`` or use the `shouldBe` alias instead.
+
+`in` is a reserved keyword in Kotlin.
+You can either protect it with backticks ``in`` or use the `within` alias instead.
+{{< /alert >}}
+
 ## Putting It All Together
 
 To help you understand how to use assertions, here is a list of examples:

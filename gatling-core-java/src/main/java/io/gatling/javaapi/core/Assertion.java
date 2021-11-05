@@ -433,6 +433,17 @@ public final class Assertion {
     }
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param values the expected values
+     * @return a complete Assertion
+     */
+    @Nonnull
+    public Assertion within(T... values) {
+      return in(values);
+    }
+
+    /**
      * Specify the metric must be included in a set of values
      *
      * @param values the expected values
@@ -447,6 +458,17 @@ public final class Assertion {
                           .map(value -> (Object) value.doubleValue())
                           .collect(Collectors.toList()))
                   .toList()));
+    }
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param values the expected values
+     * @return a complete Assertion
+     */
+    @Nonnull
+    public Assertion within(Set<T> values) {
+      return in(values);
     }
   }
 }

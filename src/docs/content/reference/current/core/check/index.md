@@ -332,6 +332,11 @@ It takes one single parameter:
 
 {{< include-code "is" scala java >}}
 
+{{< alert tip >}}
+`is` is a reserved keyword in Kotlin.
+You can either protect it with backticks ``is`` or use the `shouldBe` alias instead.
+{{< /alert >}}
+
 #### `isNull`
 
 Validate that the extracted value is null, typically a JSON value.
@@ -370,6 +375,11 @@ Validate that the check didn't match and failed to extract anything.
 Validate that the extracted value belongs to a given sequence or vararg.
 
 {{< include-code "in" java kt scala >}}
+
+{{< alert tip >}}
+`in` is a reserved keyword in Kotlin.
+You can either protect it with backticks ``in`` or use the `within` alias instead.
+{{< /alert >}}
 
 #### `optional`
 

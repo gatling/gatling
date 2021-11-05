@@ -634,6 +634,17 @@ public interface CheckBuilder {
     Final in(@Nonnull X... expected);
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull X... expected) {
+      return in(expected);
+    }
+
+    /**
      * Validate the extracted value belongs to an expected set
      *
      * @param expected the set of possible values
@@ -641,6 +652,17 @@ public interface CheckBuilder {
      */
     @Nonnull
     Final in(@Nonnull List<X> expected);
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull List<X> expected) {
+      return in(expected);
+    }
 
     /**
      * Validate the extracted value belongs to an expected set, passed as a Gatling Expression
@@ -653,6 +675,17 @@ public interface CheckBuilder {
     Final inEL(@Nonnull String expected);
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values, as a Gatling Expression Language String
+     * @return a new Final
+     */
+    @Nonnull
+    default Final withinEL(@Nonnull String expected) {
+      return inEL(expected);
+    }
+
+    /**
      * Validate the extracted value belongs to an expected set, passed as a function
      *
      * @param expected the set of possible values, as a function
@@ -660,6 +693,17 @@ public interface CheckBuilder {
      */
     @Nonnull
     Final in(@Nonnull Function<Session, List<X>> expected);
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values, as a function
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull Function<Session, List<X>> expected) {
+      return in(expected);
+    }
 
     /**
      * Validate the check was able to extract any value
