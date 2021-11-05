@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
+import io.gatling.http.response.ByteArrayResponseBody
+import io.gatling.http.response.Response
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.core.Session
 import io.gatling.javaapi.http.HttpDsl.*
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
+import java.time.Duration
 import java.util.*
+import java.util.function.Function
 
 class HttpRequestSampleKotlin {
 
@@ -185,5 +191,241 @@ http("name").post("/")
 http("name").post("/")
   .body(StringBody { session: Session -> """{ "foo": "${session.getString("dynamicValueKey")}" }""" })
 //#StringBody
+}
+
+//#template
+internal object Templates {
+  val template = Function { session: Session ->
+    val foo = session.getString("foo")
+    val bar = session.getString("bar")
+    """{ "foo": "$foo", "bar": "$bar" }"""
+  }
+}
+//#template
+
+init {
+//#template-usage
+  http("name").post("/")
+    .body(StringBody(HttpRequestSampleJava.Templates.template))
+//#template-usage
+
+//#RawFileBody
+// with a static path
+  http("name").post("/")
+    .body(RawFileBody("rawPayload.json"))
+
+// with a Gatling EL String path
+  http("name").post("/")
+    .body(RawFileBody("#{payloadPath}"))
+
+// with a function path
+  http("name").post("/")
+    .body(RawFileBody { session: Session -> session.getString("payloadPath") })
+//#RawFileBody
+
+//#ElFileBody
+  http("name").post("/")
+    .body(ElFileBody("rawPayload.json"))
+
+// with a Gatling EL String path
+  http("name").post("/")
+    .body(ElFileBody("#{payloadPath}"))
+
+// with a function path
+  http("name").post("/")
+    .body(ElFileBody { session: Session -> session.getString("payloadPath") })
+//#ElFileBody
+
+//#PebbleStringBody
+  http("name").post("/")
+    .body(PebbleStringBody("{ \"foo\": \"{% if someCondition %}{{someValue}}{% endif %}\" }"))
+//#PebbleStringBody
+
+//#PebbleFileBody
+// with a static value path
+  http("name").post("/")
+    .body(PebbleFileBody("pebbleTemplate.json"))
+
+// with a Gatling EL string path
+  http("name").post("/")
+    .body(PebbleFileBody("#{templatePath}"))
+
+// with a function path
+  http("name").post("/")
+    .body(PebbleFileBody { session: Session -> session.getString("templatePath") })
+//#PebbleFileBody
+
+//#ByteArrayBody
+// with a static value
+http("name").post("/")
+  .body(ByteArrayBody(byteArrayOf(0, 1, 5, 4)))
+
+// with a static value
+http("name").post("/")
+  .body(ByteArrayBody("#{bytes}"))
+
+// with a function
+http("name").post("/")
+  .body(ByteArrayBody { session: Session -> Base64.getDecoder().decode(session.getString("data")) }
+  )
+//#ByteArrayBody
+
+//#InputStreamBody
+http("name").post("/")
+  .body(InputStreamBody { session: Session? -> ByteArrayInputStream(byteArrayOf(0, 1, 5, 4)) })
+//#InputStreamBody
+
+//#formParam
+// with static values
+http("name").post("/")
+  .formParam("milestone", "1")
+  .formParam("state", "open")
+
+// with Gatling EL strings
+http("name").post("/")
+  .formParam("milestone", "#{milestoneValue}")
+  .formParam("state", "#{stateValue}")
+
+// with functions
+http("name").post("/")
+  .formParam("milestone") { session: Session -> session.getString("milestoneValue") }
+  .formParam("state") { session: Session -> session.getString("stateValue") }
+//#formParam
+
+//#multivaluedFormParam
+http("name").post("/") // with static values
+  .multivaluedFormParam("param", Arrays.asList<Any>("value1", "value2"))
+
+http("name").post("/") // with a Gatling EL string pointing to a List
+  .multivaluedFormParam("param", "#{values}")
+
+http("name").post("/") // with a function
+  .multivaluedFormParam("param") { session: Session? -> Arrays.asList<Any>("value1", "value2") }
+//#multivaluedFormParam
+
+//#formParam-multiple
+  http("name").get("/")
+    .formParamSeq(listOf(
+      AbstractMap.SimpleEntry<String, String>("key1", "value1"),
+      AbstractMap.SimpleEntry<String, String>("key2", "value2")
+    ))
+
+  val params = mapOf(
+    "key1" to "value1",
+    "key2" to "value2"
+  )
+
+  http("name").get("/")
+    .formParamMap(params)
+//#formParam-multiple
+
+//#formFull
+http("name").post("/")
+  .form("#{previouslyCapturedForm}") // override an input
+  .formParam("fieldToOverride", "newValue")
+//#formFull
+
+//#formUpload
+// with a static filepath value
+http("name").post("/")
+  .formParam("key", "value")
+  .formUpload("file1", "file1.dat") // you can set multiple files
+  .formUpload("file2", "file2.dat")
+
+// with a Gatling EL string filepath
+http("name").post("/")
+  .formUpload("file1", "#{file1Path}")
+
+// with a function filepath
+http("name").post("/")
+  .formUpload("file1") { session: Session -> session.getString("file1Path") }
+//#formUpload
+
+//#bodyPart
+// set a single part
+http("name").post("/")
+  .bodyPart(
+    StringBodyPart("partName", "value")
+  )
+
+// set a multiple parts
+http("name").post("/")
+  .bodyParts(
+    StringBodyPart("partName1", "value"),
+    StringBodyPart("partName2", "value")
+  )
+//#bodyPart
+
+//#bodyPart-options
+http("name").post("/")
+  .bodyPart(
+    StringBodyPart("partName", "value")
+      .contentType("contentType")
+      .charset("utf-8") // part of the Content-Disposition header
+      .fileName("fileName") // defaults to "form-data"
+      .dispositionType("dispositionType")
+      .contentId("contentId")
+      .transferEncoding("transferEncoding")
+      .header("name", "value")
+  )
+//#bodyPart-options
+
+//#processRequestBody
+http("name").post("/")
+  .body(RawFileBody("file"))
+  .processRequestBody(gzipBody)
+//#processRequestBody
+
+//#resources
+http("name").post("/")
+  .resources(
+    http("api.js")["/assets/api.js"],
+    http("ga.js")["/ga.js"]
+  )
+//#resources
+
+//#requestTimeout
+http("name").get("/")
+  .requestTimeout(Duration.ofMinutes(3))
+//#requestTimeout
+
+//#silent
+http("name").get("/")
+  .silent()
+//#silent
+
+//#silent
+http("name").get("/") //#notSilent
+  .resources(
+    http("resource")["/assets/images/img1.png"]
+      .notSilent()
+  )
+//#notSilent
+
+//#resp-processors-imports
+//import io.gatling.http.response.*;
+//
+//import java.nio.charset.StandardCharsets.UTF_8
+//import java.util.Base64
+//#resp-processors-imports
+http("name").post("/") //#response-processors
+  // ignore when response status code is not 200
+  .transformResponse { response: Response, session: Session? ->
+    if (response.status().code() == 200) {
+      return@transformResponse Response(
+        response.request(),
+        response.startTimestamp(),
+        response.endTimestamp(),
+        response.status(),
+        response.headers(),
+        ByteArrayResponseBody(Base64.getDecoder().decode(response.body().string()), StandardCharsets.UTF_8),
+        response.checksums(),
+        response.isHttp2
+      )
+    } else {
+      return@transformResponse response
+    }
+  }
+//#response-processors
 }
 }

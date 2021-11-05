@@ -14,7 +14,7 @@ Print all the values within a session with this function literal.
 
 Print a session value
 
-{{< include-code "ComputerDatabaseSample.scala#print-session-value" scala >}}
+{{< include-code "print-session-value" java kt scala >}}
 
 ## Logback
 

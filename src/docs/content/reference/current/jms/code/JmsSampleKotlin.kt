@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+//#imprts
+import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
-import io.gatling.javaapi.core.Session
-import io.gatling.javaapi.core.Simulation
-import io.gatling.javaapi.jms.JmsDsl.*
 import io.gatling.javaapi.jms.*
-import org.apache.activemq.ActiveMQConnectionFactory
+import io.gatling.javaapi.jms.JmsDsl.*
 import javax.jms.*
+//#imprts
+import org.apache.activemq.ActiveMQConnectionFactory
 
 class JmsSampleKotlin {
 
@@ -142,6 +143,3 @@ class TestJmsDsl : Simulation() {
 }
 //#example-simulation
 }
-
-
-
