@@ -85,8 +85,8 @@ val wsCheck = ws.checkTextMessage("checkName")
 //#create-multiple-checks
 ws.checkTextMessage("checkName")
   .check(
-    jsonPath("$.code").ofInt().`is`(1).saveAs("code"),
-    jsonPath("$.message").`is`("OK")
+    jsonPath("$.code").ofInt().shouldBe(1).saveAs("code"),
+    jsonPath("$.message").shouldBe("OK")
   )
 //#create-multiple-checks
 
@@ -98,8 +98,8 @@ ws.checkTextMessage("checkName")
 
 //#matching
 ws.checkTextMessage("checkName")
-  .matching(jsonPath("$.uuid").`is`("#{correlation}"))
-  .check(jsonPath("$.code").ofInt().`is`(1))
+  .matching(jsonPath("$.uuid").shouldBe("#{correlation}"))
+  .check(jsonPath("$.code").ofInt().shouldBe(1))
 //#matching
 
 //#check-from-connect

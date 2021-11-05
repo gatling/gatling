@@ -40,7 +40,7 @@ http("").get("")
 //#currentLocationRegex
 //#header
 .check(
-  header("Content-Encoding").`is`("gzip")
+  header("Content-Encoding").shouldBe("gzip")
 )
 //#header
 //#headerRegex

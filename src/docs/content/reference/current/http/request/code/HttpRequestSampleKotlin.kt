@@ -164,7 +164,7 @@ http("name").get("/")
 
 //#check
 http("name").get("/")
-  .check(status().`is`(200))
+  .check(status().shouldBe(200))
 //#check
 
 //#ignoreProtocolChecks
