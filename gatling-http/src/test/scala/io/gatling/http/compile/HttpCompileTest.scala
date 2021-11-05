@@ -262,15 +262,15 @@ class HttpCompileTest extends Simulation {
         )
     )
     // body
-    .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).asJson)
+    .exec(http("Request").post("/things").body(StringBody("FOO#{BAR}BAZ")).asJson)
     .exec(http("Request").post("/things").body(ElFileBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(RawFileBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(PebbleStringBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(PebbleFileBody("create_thing.txt")))
-    .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")))
+    .exec(http("Request").post("/things").body(ByteArrayBody("#{bytes}")))
     // processRequestBody
-    .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).processRequestBody(identity))
-    .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")).processRequestBody(gzipBody))
+    .exec(http("Request").post("/things").body(StringBody("FOO#{BAR}BAZ")).processRequestBody(identity))
+    .exec(http("Request").post("/things").body(ByteArrayBody("#{bytes}")).processRequestBody(gzipBody))
     // bodyParts
     .exec(
       http("Request")
@@ -346,7 +346,7 @@ class HttpCompileTest extends Simulation {
   private val requestWithUntypedCheckIf =
     http("untypedCheckIf")
       .get("/")
-      .checkIf("${bool}") {
+      .checkIf("#{bool}") {
         jsonPath("$..foo")
       }
 

@@ -15,9 +15,9 @@ This is a very convenient feature to pass dynamic parameters.
 Only Gatling DSL methods will interpolate Gatling EL Strings.
 You can't use Gatling EL in your own methods or functions.
 
-For example `queryParam("latitude", session -> "${latitude}")` wouldn't work because the parameter is not a String, but a function that returns a String.
+For example `queryParam("latitude", session -> "#{latitude}")` wouldn't work because the parameter is not a String, but a function that returns a String.
 
-Also, `queryParam("latitude", Integer.parseInt("${latitude}"))` wouldn't work either because `Integer.parseInt` would be called on the `"${latitude}"` String before trying to pass the result to the `queryParam` method.
+Also, `queryParam("latitude", Integer.parseInt("#{latitude}"))` wouldn't work either because `Integer.parseInt` would be called on the `"#{latitude}"` String before trying to pass the result to the `queryParam` method.
 
 The solution here would be to pass a function:
 
@@ -26,19 +26,19 @@ The solution here would be to pass a function:
 
 ## Syntax
 
-Gatling EL uses a `${attributeName}` syntax to define placeholders to be replaced with the value of the matching *attributeName* attribute's value stored in the virtual user's Session, eg: `request("page").get("/foo?param=${bar}")`.
+Gatling EL uses a `#{attributeName}` syntax to define placeholders to be replaced with the value of the matching *attributeName* attribute's value stored in the virtual user's Session, eg: `request("page").get("/foo?param=#{bar}")`.
 
 ```java
 // direct attribute access
-"${foo}"
+"#{foo}"
 
 // access by index
 // supports arrays, Java List, Scala Seq and Product
-"${foo(n)}"
+"#{foo(n)}"
   
 // access by key
 // supports Java Map, Java POJO, Java records, Scala Map and Scala case class
-"${foo.bar}"
+"#{foo.bar}"
 ```
 
 {{< alert warning >}}
@@ -54,47 +54,47 @@ Gatling EL provide the following built-in functions:
 ```java
 // collection size
 // supports arrays, Java List, Scala Seq and Product
-"${foo.size()}"
+"#{foo.size()}"
 
 // collection size
 // supports arrays, Java Collection, Java Map, Scala Iterable and Product
   
 // collection random element
 // supports arrays, Java Collection, Java List, Scala Seq and Product
-"${foo.random()}"
+"#{foo.random()}"
   
 // true if the session contains a `foo` attribute
-"${foo.exists()}"
+"#{foo.exists()}"
   
 // true if the session doesn't contains a `foo` attribute
-"${foo.isUndefined()}"
+"#{foo.isUndefined()}"
   
 // properly formats into a JSON value (wrap Strings with double quotes, deal with null)
-"${foo.jsonStringify()}"
+"#{foo.jsonStringify()}"
   
 // System.currentTimeMillis
-"${currentTimeMillis()}"
+"#{currentTimeMillis()}"
   
 // new java.util.Date() formatted with a java.text.SimpleDateFormat pattern
-"${currentDate(<pattern>)}"
+"#{currentDate(<pattern>)}"
   
 // unescape an HTML String (entities decoded)
-"${foo.htmlUnescape()}"
+"#{foo.htmlUnescape()}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:
 
 ```java
 // return first element of the first list in `foo`
-"`${foo(0)(0)}"
+"`#{foo(0)(0)}"
 
 // return a random element from the List associated with key `list` in the Map `foo`
-"${foo.list.random()}"
+"#{foo.list.random()}"
 ```
 
 ## Escaping
 
-To prevent `"${"` from being interpreted by the EL compiler, add a `$` before it. `"$${foo}"` will be turned into `"${foo}"`.
+To prevent `"#{"` from being interpreted by the EL compiler, add a `\\` before it. `"\\#{foo}"` will be turned into `"#{foo}"`.
 
 If you want a `$` before the placeholder, add another `$`.
 Assuming the session attribute `foo` holds `"FOO"`, `"$$${foo}"` will be turned into `"$FOO"`.

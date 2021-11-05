@@ -93,22 +93,22 @@ class CoreCompileTest extends Simulation {
     )(exec(noop))
     .pause(pause2)
     // Loop
-    .doWhile("${condition}") {
+    .doWhile("#{condition}") {
       exec(noop)
     }
-    .doWhile("${condition}", "counterName") {
+    .doWhile("#{condition}", "counterName") {
       exec(noop)
     }
-    .asLongAsDuring("${condition}", 10.seconds) {
+    .asLongAsDuring("#{condition}", 10.seconds) {
       exec(noop)
     }
-    .asLongAsDuring("${condition}", 10.seconds, "counterName") {
+    .asLongAsDuring("#{condition}", 10.seconds, "counterName") {
       exec(noop)
     }
-    .doWhileDuring("${condition}", 10.seconds) {
+    .doWhileDuring("#{condition}", 10.seconds) {
       exec(noop)
     }
-    .doWhileDuring("${condition}", 10.seconds, "counterName") {
+    .doWhileDuring("#{condition}", 10.seconds, "counterName") {
       exec(noop)
     }
     .repeat(iterations, "counter") {
@@ -170,21 +170,21 @@ class CoreCompileTest extends Simulation {
     .exec(noop)
     .pace(5)
     .pace(5.seconds)
-    .pace("${foo}")
+    .pace("#{foo}")
     .pace(5, 10)
-    .pace("${foo}", "${bar}")
-    .doSwitch("${foo}")(
+    .pace("#{foo}", "#{bar}")
+    .doSwitch("#{foo}")(
       "a" -> exec(noop),
       "b" -> exec(noop)
     )
-    .doSwitchOrElse("${foo}")(
+    .doSwitchOrElse("#{foo}")(
       "a" -> exec(noop),
       "b" -> exec(noop) //
     )(exec(noop))
     .exec(noop)
     .exec(session => session.set("tryMax", 3))
     // tryMax and exit
-    .tryMax("${tryMax}") {
+    .tryMax("#{tryMax}") {
       exec(noop)
     }
     .exitHereIfFailed

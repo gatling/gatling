@@ -85,7 +85,7 @@ http("").get("")
   // (identical to substring("expected").find().exists())
   substring("expected"),
   // with a Gatling EL
-  substring("${expectedKey}"),
+  substring("#{expectedKey}"),
   // with a function
   substring(session -> "expectedValue"),
   substring("Error:").notExists(),
@@ -101,7 +101,7 @@ http("").get("")
   // with a static value without capture groups
   regex("<td class=\"number\">"),
   // with a Gatling EL without capture groups
-  regex("<td class=\"number\">ACC${account_id}</td>"),
+  regex("<td class=\"number\">ACC#{account_id}</td>"),
   // with a static value with one single capture group
   regex("/private/bank/account/(ACC[0-9]*)/operations.html")
 )
@@ -128,7 +128,7 @@ http("").get("")
   // with a static value
   jsonPath("$..foo.bar[2].baz"),
   // with a Gatling EL String
-  jsonPath("$..foo.bar[${index}].baz"),
+  jsonPath("$..foo.bar[#{index}].baz"),
   // with a function
   jsonPath(session -> "$..foo.bar[" + session.getInt("session") + "].baz")
 )
@@ -161,7 +161,7 @@ http("").get("")
   // with a static value
   jmesPath("foo.bar[2].baz"),
   // with a Gatling EL String
-  jmesPath("foo.bar[${index}].baz"),
+  jmesPath("foo.bar[#{index}].baz"),
   // with a function
   jmesPath(session -> "foo.bar[" + session.getInt("session") + "].baz")
 )
@@ -194,7 +194,7 @@ http("").get("")
   // with a static value
   css("#foo"),
   // with a Gatling EL String
-  css("#${id}"),
+  css("##{id}"),
   // with a function
   css(session -> "#" + session.getString("id")),
   // with an attribute
@@ -303,7 +303,7 @@ http("").get("")
   // with a static value
   jmesPath("foo").is("expected"),
   // with a Gatling EL String (BEWARE DIFFERENT METHOD)
-  jmesPath("foo").isEL("${expected}"),
+  jmesPath("foo").isEL("#{expected}"),
   // with a function
   jmesPath("foo").is(session -> session.getString("expected"))
 )
@@ -321,7 +321,7 @@ http("").get("")
   // with a static value
   jmesPath("foo").not("unexpected"),
   // with a Gatling EL String (BEWARE DIFFERENT METHOD)
-  jmesPath("foo").notEL("${unexpected}"),
+  jmesPath("foo").notEL("#{unexpected}"),
   // with a function
   jmesPath("foo").not(session -> session.getString("unexpected"))
 )
@@ -352,7 +352,7 @@ http("").get("")
   // with a static values List
   jmesPath("foo").in(Arrays.asList("value1", "value2")),
   // with a Gatling EL String that points to a List in Session (BEWARE DIFFERENT METHOD)
-  jmesPath("foo").inEL("${expectedValues}"),
+  jmesPath("foo").inEL("#{expectedValues}"),
   // with a function
   jmesPath("foo").in(session -> Arrays.asList("value1", "value2"))
 )
@@ -389,7 +389,7 @@ http("").get("")
 
 //#checkIf
 // with a Gatling EL String condition that resolves a Boolean
-.checkIf("${bool}").then(
+.checkIf("#{bool}").then(
   jmesPath("foo")
 )
 // with a function

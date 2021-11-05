@@ -47,7 +47,7 @@ exec(ws("Close WS").close)
 //#send
 // send text with a Gatling EL string
 exec(ws("Message")
-  .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
+  .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}"""))
 // send text with a function
 exec(ws("Message")
   .sendText(session => s"""{"text": "Hello, I'm ${session("id").as[String]} and this is message ${session("i").as[String]}!"}"""))
@@ -63,7 +63,7 @@ exec(ws("Message")
 
 // send bytes with a Gatling EL string referencing a byte array in the Session
 exec(ws("Message")
-  .sendBytes("${bytes}"))
+  .sendBytes("#{bytes}"))
 // send bytes with a function
 exec(ws("Message")
   .sendBytes(session => Array[Byte](0, 5, 3, 1)))
@@ -72,7 +72,7 @@ exec(ws("Message")
   .sendBytes(RawFileBody("filePath")))
   // send bytes with RawFileBody
 exec(ws("Message")
-  .sendBytes(ByteArrayBody("${bytes}")))
+  .sendBytes(ByteArrayBody("#{bytes}")))
 //#send
 
 //#create-single-check
@@ -96,7 +96,7 @@ ws.checkTextMessage("checkName")
 
 //#matching
 ws.checkTextMessage("checkName")
-  .matching(jsonPath("$.uuid").is("${correlation}"))
+  .matching(jsonPath("$.uuid").is("#{correlation}"))
   .check(jsonPath("$.code").ofType[Int].is(1))
 //#matching
 
@@ -135,7 +135,7 @@ exec(ws("Send").sendText("hello")
 exec(ws("Send").sendText("hello")
   .await(1)(
     ws.checkTextMessage("checkName")
-      .matching(jsonPath("$.uuid").is("${correlation}"))
+      .matching(jsonPath("$.uuid").is("#{correlation}"))
       .check(jsonPath("$.code").ofType[Int].is(1))
   ))
 //#check-matching
@@ -184,16 +184,18 @@ val scn = scenario("WebSocket")
   .exec(http("Home").get("/"))
   .pause(1)
   .exec(session => session.set("id", "Steph" + session.userId))
-  .exec(http("Login").get("/room?username=${id}"))
+  .exec(http("Login").get("/room?username=#{id}"))
   .pause(1)
-  .exec(ws("Connect WS").connect("/room/chat?username=${id}"))
+  .exec(ws("Connect WS").connect("/room/chat?username=#{id}"))
   .pause(1)
   .repeat(2, "i") {
-    exec(ws("Say Hello WS")
-      .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-      .await(30)(
-        ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
-      )).pause(1)
+    exec(
+      ws("Say Hello WS")
+        .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
+        .await(30)(
+          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+        )
+    ).pause(1)
   }
   .exec(ws("Close WS").close)
 //#chatroom-example

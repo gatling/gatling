@@ -123,7 +123,7 @@ http
 // with a static value
 http.virtualHost("virtualHost");
 // with a Gatling EL string
-http.virtualHost("${virtualHost}");
+http.virtualHost("#{virtualHost}");
 // with a function
 http.virtualHost(session -> session.getString("virtualHost"));
 //#virtualHost
@@ -169,7 +169,7 @@ http
   // with a static header value
   .header("foo", "bar")
   // with a Gatling EL string header value
-  .header("foo", "${headerValue}")
+  .header("foo", "#{headerValue}")
   // with a function value
   .header("foo", session -> session.getString("headerValue"))
   .headers(Collections.singletonMap("foo", "bar"));
@@ -224,14 +224,14 @@ http.signWithOAuth1(
 // with static values
 http.basicAuth("username", "password");
 // with Gatling El strings
-http.basicAuth("${username}", "${password}");
+http.basicAuth("#{username}", "#{password}");
 // with functions
 http.basicAuth(session -> session.getString("username"), session -> session.getString("password"));
 
 // with static values
 http.digestAuth("username", "password");
 // with Gatling El strings
-http.digestAuth("${username}", "${password}");
+http.digestAuth("#{username}", "#{password}");
 // with functions
 http.digestAuth(session -> session.getString("username"), session -> session.getString("password"));
 //#authorization

@@ -78,7 +78,7 @@ request
   // (identical to substring("expected").find.exists)
   substring("expected"),
   // with a Gatling EL
-  substring("${expectedKey}"),
+  substring("#{expectedKey}"),
   // with a function
   substring(session => "expectedValue"),
   substring("Error:").notExists,
@@ -94,7 +94,7 @@ request
   // with a static value without capture groups
   regex("""<td class="number">"""),
   // with a Gatling EL without capture groups
-  regex("""<td class="number">ACC${account_id}</td>"""),
+  regex("""<td class="number">ACC#{account_id}</td>"""),
   // with a static value with one single capture group
   regex("/private/bank/account/(ACC[0-9]*)/operations.html")
 )
@@ -121,7 +121,7 @@ request
   // with a static value
   jsonPath("$..foo.bar[2].baz"),
   // with a Gatling EL String
-  jsonPath("$..foo.bar[${index}].baz"),
+  jsonPath("$..foo.bar[#{index}].baz"),
   // with a function
   jsonPath(session => s"$$..foo.bar[${session("session").as[Int]}].baz")
 )
@@ -154,7 +154,7 @@ request
   // with a static value
   jmesPath("foo.bar[2].baz"),
   // with a Gatling EL String
-  jmesPath("foo.bar[${index}].baz"),
+  jmesPath("foo.bar[#{index}].baz"),
   // with a function
   jmesPath(session => s"foo.bar[${session("session").as[Int]}].baz")
 )
@@ -187,7 +187,7 @@ request
   // with a static value
   css("#foo"),
   // with a Gatling EL String
-  css("#${id}"),
+  css("##{id}"),
   // with a function
   css(session => s"#${session("id").as[String]}"),
   // with an attribute
@@ -296,7 +296,7 @@ request
   // with a static value
   jmesPath("foo").is("expected"),
   // with a Gatling EL String
-  jmesPath("foo").is("${expected}"),
+  jmesPath("foo").is("#{expected}"),
   // with a function
   jmesPath("foo").is(session => session("expected").as[String])
 )
@@ -314,7 +314,7 @@ request
   // with a static value
   jmesPath("foo").not("unexpected"),
   // with a Gatling EL String
-  jmesPath("foo").not("${unexpected}"),
+  jmesPath("foo").not("#{unexpected}"),
   // with a function
   jmesPath("foo").not(session => session("unexpected").as[String])
 )
@@ -348,7 +348,7 @@ request
   // with a static values Seq
   jmesPath("foo").in(Seq("value1", "value2")),
   // with a Gatling EL String that points to a Seq in Session
-  jmesPath("foo").in("${expectedValues}"),
+  jmesPath("foo").in("#{expectedValues}"),
   // with a function
   jmesPath("foo").in(session => Seq("value1", "value2"))
 )
@@ -385,7 +385,7 @@ request
 
 //#checkIf
 // with a Gatling EL String condition that resolves a Boolean
-.checkIf("${bool}") {
+.checkIf("#{bool}") {
   jsonPath("$..foo")
 }
 // with a function

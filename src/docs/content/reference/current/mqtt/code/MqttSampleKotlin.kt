@@ -14,16 +14,16 @@ class MqttSampleKotlin {
     .broker("hostname", 1883) // if TLS should be enabled (default: false)
     .useTls(true) // Used to specify KeyManagerFactory for each individual virtual user. Input is the 0-based incremental id of the virtual user.
     .perUserKeyManagerFactory { userId -> null as KeyManagerFactory? } // clientIdentifier sent in the connect payload (of not set, Gatling will generate a random one)
-    .clientId("\${id}") // if session should be cleaned during connect (default: true)
+    .clientId("#{id}") // if session should be cleaned during connect (default: true)
     .cleanSession(true) // optional credentials for connecting
-    .credentials("\${userName}", "\${password}") // connections keep alive timeout
+    .credentials("#{userName}", "#{password}") // connections keep alive timeout
     .keepAlive(30) // use at-most-once QoS (default: true)
     .qosAtMostOnce() // use at-least-once QoS (default: false)
     .qosAtLeastOnce() // use exactly-once QoS (default: false)
     .qosExactlyOnce() // enable retain (default: false)
     .retain(false) // send last will, possibly with specific QoS and retain
     .lastWill(
-      LastWill("\${willTopic}", StringBody("\${willMessage}"))
+      LastWill("#{willTopic}", StringBody("#{willMessage}"))
         .qosAtLeastOnce()
         .retain(true)
     ) // max number of reconnects after connection crash (default: 3)
@@ -43,32 +43,32 @@ mqtt("Connecting").connect()
 
 //#subscribe
 mqtt("Subscribing")
-  .subscribe("\${myTopic}") // optional, override default QoS
+  .subscribe("#{myTopic}") // optional, override default QoS
   .qosAtMostOnce()
 //#subscribe
 
 //#publish
 mqtt("Publishing")
-  .publish("\${myTopic}")
-  .message(StringBody("\${myTextPayload}"))
+  .publish("#{myTopic}")
+  .message(StringBody("#{myTextPayload}"))
 //#publish
 
 //#check
 // subscribe and expect to receive a message within 100ms, without blocking flow
-mqtt("Subscribing").subscribe("\${myTopic2}")
+mqtt("Subscribing").subscribe("#{myTopic2}")
   .expect(Duration.ofMillis(100))
 
 // publish and wait (block) until it receives a message withing 100ms
-mqtt("Publishing").publish("\${myTopic}").message(StringBody("\${myPayload}"))
+mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
   .wait(Duration.ofMillis(100))
 
 // optionally, define in which topic the expected message will be received
-mqtt("Publishing").publish("\${myTopic}").message(StringBody("\${myPayload}"))
-  .wait(Duration.ofMillis(100), "repub/\${myTopic}")
+mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
+  .wait(Duration.ofMillis(100), "repub/#{myTopic}")
 
 // optionally define check criteria to be applied on the matching received message
 mqtt("Publishing")
-  .publish("\${myTopic}").message(StringBody("\${myPayload}"))
+  .publish("#{myTopic}").message(StringBody("#{myPayload}"))
   .wait(Duration.ofMillis(100)).check(jsonPath("$.error").notExists())
 //#check
 
@@ -85,9 +85,9 @@ class MqttSample : Simulation() {
   val scn = scenario("MQTT Test")
     .feed(csv("topics-and-payloads.csv"))
     .exec(mqtt("Connecting").connect())
-    .exec(mqtt("Subscribing").subscribe("\${myTopic}"))
-    .exec(mqtt("Publishing").publish("\${myTopic}")
-      .message(StringBody("\${myTextPayload}"))
+    .exec(mqtt("Subscribing").subscribe("#{myTopic}"))
+    .exec(mqtt("Publishing").publish("#{myTopic}")
+      .message(StringBody("#{myTextPayload}"))
       .expect(Duration.ofMillis(100)).check(jsonPath("$.error").notExists()))
 
   init {

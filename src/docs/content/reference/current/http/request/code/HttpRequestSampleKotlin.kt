@@ -26,7 +26,7 @@ init {
 // with a static vale
 http("requestName").get("https://gatling.io")
 // with a static vale
-http("\${requestName}").get("https://gatling.io")
+http("#{requestName}").get("https://gatling.io")
 // with a static vale
 http { session: Session -> session.getString("requestName") }.get("https://gatling.io")
 //#requestName
@@ -49,7 +49,7 @@ init {
 // with an absolute static url
 http("name").get("https://gatling.io")
 // with an absolute static url
-http("name").get("\${url}")
+http("name").get("#{url}")
 // with an absolute static url
 http("name").get { session -> session.getString("url") }
 
@@ -74,8 +74,8 @@ http("Issues").get("https://github.com/gatling/gatling/issues")
 
 // with Gatling EL strings
 http("Issues").get("https://github.com/gatling/gatling/issues")
-  .queryParam("milestone", "\${milestoneValue}")
-  .queryParam("state", "\${stateValue}")
+  .queryParam("milestone", "#{milestoneValue}")
+  .queryParam("state", "#{stateValue}")
 
 // with functions
 http("Issues").get("https://github.com/gatling/gatling/issues")
@@ -89,7 +89,7 @@ http("name").get("/") // with static values
   .multivaluedQueryParam("param", listOf("value1", "value2"))
 
 http("name").get("/") // with a Gatling EL string pointing to a List
-  .multivaluedQueryParam("param", "\${values}")
+  .multivaluedQueryParam("param", "#{values}")
 
 http("name").get("/") // with a function
   .multivaluedQueryParam("param") { session -> listOf("value1", "value2") }
@@ -175,15 +175,15 @@ http("name").get("/")
 //#StringBody
 // with a static payload
 http("name").post("/")
-  .body(StringBody("{ \"foo\": \"staticValue\" }"))
+  .body(StringBody("""{ "foo": "staticValue" }"""))
 
 // with a Gatling EL string payload
 http("name").post("/")
-  .body(StringBody("{ \"foo\": \"\${dynamicValue}\" }"))
+  .body(StringBody("""{ "foo": "#{dynamicValue}" }"""))
 
 // with a function payload
 http("name").post("/")
-  .body(StringBody { session: Session -> "{ \"foo\": \"" + session.getString("dynamicValueKey") + "\" }" })
+  .body(StringBody { session: Session -> """{ "foo": "${session.getString("dynamicValueKey")}" }""" })
 //#StringBody
 }
 }

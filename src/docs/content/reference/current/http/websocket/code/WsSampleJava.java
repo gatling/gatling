@@ -19,7 +19,8 @@ import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.WsFrameCheck;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.*;
+import static io.gatling.javaapi.http.HttpDsl.http;
+import static io.gatling.javaapi.http.HttpDsl.ws;
 
 class WsSampleJava {
 
@@ -52,7 +53,7 @@ exec(ws("Close WS").close());
 //#send
 // send text with a Gatling EL string
 exec(ws("Message")
-  .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}"));
+  .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}"));
 // send text with a function
 exec(ws("Message")
   .sendText(session -> "{\"text\": \"Hello, I'm " + session.getString("id") + " and this is message " + session.getString("i") + "!\"}"));
@@ -68,7 +69,7 @@ exec(ws("Message")
 
 // send bytes with a Gatling EL string referencing a byte array in the Session
 exec(ws("Message")
-  .sendBytes("${bytes}"));
+  .sendBytes("#{bytes}"));
 // send bytes with a function
 exec(ws("Message")
   .sendBytes(session -> new byte[] { 0, 5, 3, 1 }));
@@ -77,7 +78,7 @@ exec(ws("Message")
   .sendBytes(RawFileBody("filePath")));
 // send bytes with RawFileBody
 exec(ws("Message")
-  .sendBytes(ByteArrayBody("${bytes}")));
+  .sendBytes(ByteArrayBody("#{bytes}")));
 //#send
 
 //#create-single-check
@@ -101,7 +102,7 @@ ws.checkTextMessage("checkName")
 
 //#matching
 ws.checkTextMessage("checkName")
-  .matching(jsonPath("$.uuid").is("${correlation}"))
+  .matching(jsonPath("$.uuid").is("#{correlation}"))
   .check(jsonPath("$.code").ofInt().is(1));
 //#matching
 
@@ -140,7 +141,7 @@ exec(ws("Send").sendText("hello")
 exec(ws("Send").sendText("hello")
   .await(1).on(
 ws.checkTextMessage("checkName")
-  .matching(jsonPath("$.uuid").is("${correlation}"))
+  .matching(jsonPath("$.uuid").is("#{correlation}"))
   .check(jsonPath("$.code").ofInt().is(1))
 ));
 //#check-matching
@@ -189,16 +190,18 @@ ScenarioBuilder scn = scenario("WebSocket")
   .exec(http("Home").get("/"))
   .pause(1)
   .exec(session -> session.set("id", "Gatling" + session.userId()))
-.exec(http("Login").get("/room?username=${id}"))
+.exec(http("Login").get("/room?username=#{id}"))
 .pause(1)
-.exec(ws("Connect WS").connect("/room/chat?username=${id}"))
+.exec(ws("Connect WS").connect("/room/chat?username=#{id}"))
 .pause(1)
 .repeat(2, "i").on(
-exec(ws("Say Hello WS")
-  .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}")
-  .await(30).on(
-  ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
-)).pause(1)
+    exec(
+      ws("Say Hello WS")
+        .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
+        .await(30).on(
+          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+        )
+    ).pause(1)
   )
 .exec(ws("Close WS").close());
 //#chatroom-example

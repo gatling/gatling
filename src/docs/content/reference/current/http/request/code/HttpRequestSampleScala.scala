@@ -29,7 +29,7 @@ class HttpRequestSampleScala {
 // with a static vale
 http("requestName").get("https://gatling.io")
 // with a static vale
-http("${requestName}").get("https://gatling.io")
+http("#{requestName}").get("https://gatling.io")
 // with a static vale
 http(session => session("requestName").as[String]).get("https://gatling.io")
 //#requestName
@@ -53,7 +53,7 @@ scenario("ScenarioName")
 // with an absolute static url
 http("name").get("https://gatling.io")
 // with an absolute static url
-http("name").get("${url}")
+http("name").get("#{url}")
 // with an absolute static url
 http("name").get(session => session("url").as[String])
 
@@ -81,8 +81,8 @@ http("Issues")
 // with Gatling EL strings
 http("Issues")
   .get("https://github.com/gatling/gatling/issues")
-  .queryParam("milestone", "${milestoneValue}")
-  .queryParam("state", "${stateValue}")
+  .queryParam("milestone", "#{milestoneValue}")
+  .queryParam("state", "#{stateValue}")
 
 // with functions
 http("Issues")
@@ -98,7 +98,7 @@ http("name").get("/")
 
 http("name").get("/")
   // with a Gatling EL string pointing to a Seq
-  .multivaluedQueryParam("param", "${values}")
+  .multivaluedQueryParam("param", "#{values}")
 
 http("name").get("/")
   // with a function
@@ -183,7 +183,7 @@ http("name").post("/")
 
 // with a Gatling EL string payload
 http("name").post("/")
-  .body(StringBody("""{ "foo": "${dynamicValue}" }"""))
+  .body(StringBody("""{ "foo": "#{dynamicValue}" }"""))
 
 // with a function payload
 http("name").post("/")
@@ -212,7 +212,7 @@ http("name").post("/")
 
 // with a Gatling EL String path
 http("name").post("/")
-  .body(RawFileBody("${payloadPath}"))
+  .body(RawFileBody("#{payloadPath}"))
 
 // with a function path
 http("name").post("/")
@@ -225,7 +225,7 @@ http("name").post("/")
 
 // with a Gatling EL String path
 http("name").post("/")
-  .body(ElFileBody("${payloadPath}"))
+  .body(ElFileBody("#{payloadPath}"))
 
 // with a function path
 http("name").post("/")
@@ -244,7 +244,7 @@ http("name").post("/")
 
 // with a Gatling EL string path
 http("name").post("/")
-  .body(PebbleFileBody("${templatePath}"))
+  .body(PebbleFileBody("#{templatePath}"))
 
 // with a function path
 http("name").post("/")
@@ -258,7 +258,7 @@ http("name").post("/")
 
 // with a static value
 http("name").post("/")
-  .body(ByteArrayBody("${bytes}"))
+  .body(ByteArrayBody("#{bytes}"))
 
 // with a function
 http("name").post("/")
@@ -280,8 +280,8 @@ http("name").post("/")
 
 // with Gatling EL strings
 http("name").post("/")
-  .formParam("milestone", "${milestoneValue}")
-  .formParam("state", "${stateValue}")
+  .formParam("milestone", "#{milestoneValue}")
+  .formParam("state", "#{stateValue}")
 
 // with functions
 http("name").post("/")
@@ -296,7 +296,7 @@ http("name").post("/")
 
 http("name").post("/")
   // with a Gatling EL string pointing to a Seq
-  .multivaluedFormParam("param", "${values}")
+  .multivaluedFormParam("param", "#{values}")
 
 http("name").post("/")
   // with a function
@@ -313,7 +313,7 @@ http("name").post("/")
 
 //#formFull
 http("name").post("/")
-  .form("${previouslyCapturedForm}")
+  .form("#{previouslyCapturedForm}")
   // override an input
   .formParam("fieldToOverride", "newValue")
 //#formFull
@@ -328,7 +328,7 @@ http("name").post("/")
 
 // with a Gatling EL string filepath
 http("name").post("/")
-  .formUpload("file1", "${file1Path}")
+  .formUpload("file1", "#{file1Path}")
 
 // with a function filepath
 http("name").post("/")

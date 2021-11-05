@@ -21,11 +21,11 @@ MqttProtocolBuilder mqttProtocol = mqtt
   // Used to specify KeyManagerFactory for each individual virtual user. Input is the 0-based incremental id of the virtual user.
   .perUserKeyManagerFactory(userId -> (javax.net.ssl.KeyManagerFactory) null)
   // clientIdentifier sent in the connect payload (of not set, Gatling will generate a random one)
-  .clientId("${id}")
+  .clientId("#{id}")
   // if session should be cleaned during connect (default: true)
   .cleanSession(true)
   // optional credentials for connecting
-  .credentials("${userName}", "${password}")
+  .credentials("#{userName}", "#{password}")
   // connections keep alive timeout
   .keepAlive(30)
   // use at-most-once QoS (default: true)
@@ -38,7 +38,7 @@ MqttProtocolBuilder mqttProtocol = mqtt
   .retain(false)
   // send last will, possibly with specific QoS and retain
   .lastWill(
-    LastWill("${willTopic}", StringBody("${willMessage}"))
+    LastWill("#{willTopic}", StringBody("#{willMessage}"))
     .qosAtLeastOnce()
     .retain(true)
   )
@@ -65,33 +65,33 @@ mqtt("Connecting").connect();
 
 //#subscribe
 mqtt("Subscribing")
-  .subscribe("${myTopic}")
+  .subscribe("#{myTopic}")
   // optional, override default QoS
   .qosAtMostOnce();
 //#subscribe
 
 //#publish
 mqtt("Publishing")
-  .publish("${myTopic}")
-  .message(StringBody("${myTextPayload}"));
+  .publish("#{myTopic}")
+  .message(StringBody("#{myTextPayload}"));
 //#publish
 
 //#check
 // subscribe and expect to receive a message within 100ms, without blocking flow
-mqtt("Subscribing").subscribe("${myTopic2}")
+mqtt("Subscribing").subscribe("#{myTopic2}")
   .expect(Duration.ofMillis(100));
 
 // publish and wait (block) until it receives a message withing 100ms
-mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
+mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
   .wait(Duration.ofMillis(100));
 
 // optionally, define in which topic the expected message will be received
-mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-  .wait(Duration.ofMillis(100), "repub/${myTopic}");
+mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
+  .wait(Duration.ofMillis(100), "repub/#{myTopic}");
 
 // optionally define check criteria to be applied on the matching received message
 mqtt("Publishing")
-  .publish("${myTopic}").message(StringBody("${myPayload}"))
+  .publish("#{myTopic}").message(StringBody("#{myPayload}"))
   .wait(Duration.ofMillis(100)).check(jsonPath("$.error").notExists());
 //#check
 
@@ -110,9 +110,9 @@ public class MqttSample extends Simulation {
   ScenarioBuilder scn = scenario("MQTT Test")
     .feed(csv("topics-and-payloads.csv"))
     .exec(mqtt("Connecting").connect())
-    .exec(mqtt("Subscribing").subscribe("${myTopic}"))
-    .exec(mqtt("Publishing").publish("${myTopic}")
-      .message(StringBody("${myTextPayload}"))
+    .exec(mqtt("Subscribing").subscribe("#{myTopic}"))
+    .exec(mqtt("Publishing").publish("#{myTopic}")
+      .message(StringBody("#{myTextPayload}"))
       .expect(Duration.ofMillis(100)).check(jsonPath("$.error").notExists()));
 
   {

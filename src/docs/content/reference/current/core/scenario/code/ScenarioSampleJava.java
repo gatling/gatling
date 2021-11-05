@@ -62,7 +62,7 @@ pause(10);
 // with a java.time.Duration
 pause(Duration.ofMillis(100));
 // with a Gatling EL string resolving to a number of seconds or a java.time.Duration
-pause("${pause}");
+pause("#{pause}");
 pause(session -> Duration.ofMillis(100));
 //#pause-fixed
 
@@ -72,7 +72,7 @@ pause(10, 20);
 // with a java.time.Duration
 pause(Duration.ofMillis(100), Duration.ofMillis(200));
 // with a Gatling EL strings
-pause("${min}", "${max}");
+pause("#{min}", "#{max}");
 pause(session -> Duration.ofMillis(100), session -> Duration.ofMillis(200));
 //#pause-uniform
 
@@ -92,7 +92,7 @@ pace(10);
 // with a java.time.Duration
 pace(Duration.ofMillis(100));
 // with a Gatling EL string resolving to a number of seconds or a java.time.Duration
-pace("${pace}");
+pace("#{pace}");
 pace(session -> Duration.ofMillis(100));
 //#pace-fixed
 
@@ -102,7 +102,7 @@ pace(10, 20);
 // with a java.time.Duration
 pace(Duration.ofMillis(100), Duration.ofMillis(200));
 // with a Gatling EL strings
-pace("${min}", "${max}");
+pace("#{min}", "#{max}");
 pace(session -> Duration.ofMillis(100), session -> Duration.ofMillis(200));
 //#pace-uniform
 
@@ -116,7 +116,7 @@ repeat(5).on(
   exec(http("name").get("/"))
 );
 // with a Gatling EL string resolving an Int
-repeat("${times}").on(
+repeat("#{times}").on(
   exec(http("name").get("/"))
 );
 // with a function times
@@ -138,7 +138,7 @@ foreach(Arrays.asList("elt1", "elt2"), "elt").on(
   exec(http("name").get("/"))
 );
 // with a Gatling EL string
-foreach("${elts}", "elt").on(
+foreach("#{elts}", "elt").on(
   exec(http("name").get("/"))
 );
 // with a function
@@ -164,7 +164,7 @@ during(Duration.ofMinutes(10)).on(
   exec(http("name").get("/"))
 );
 // with a Gatling EL string resolving a duration
-during("${times}").on(
+during("#{times}").on(
   exec(http("name").get("/"))
 );
 // with a function times
@@ -183,7 +183,7 @@ during(5, "counter", false).on(
 
 //#asLongAs
 // with a Gatling EL string resolving to a boolean
-asLongAs("${condition}").on(
+asLongAs("#{condition}").on(
   exec(http("name").get("/"))
 );
 // with a function
@@ -191,14 +191,14 @@ asLongAs(session -> session.getBoolean("condition")).on(
   exec(http("name").get("/"))
 );
 // with a counter name and exitASAP
-asLongAs("${condition}", "counter", false).on(
+asLongAs("#{condition}", "counter", false).on(
   exec(http("name").get("/"))
 );
 //#asLongAs
 
 //#doWhile
 // with a Gatling EL string resolving to a boolean
-doWhile("${condition}").on(
+doWhile("#{condition}").on(
   exec(http("name").get("/"))
 );
 // with a function
@@ -206,29 +206,29 @@ doWhile(session -> session.getBoolean("condition")).on(
   exec(http("name").get("/"))
 );
 // with a counter name
-doWhile("${condition}", "counter").on(
+doWhile("#{condition}", "counter").on(
   exec(http("name").get("/"))
 );
 //#doWhile
 
 //#asLongAsDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-asLongAsDuring("${condition}", 5).on(
+asLongAsDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 );
 // with a counter name and exitASAP
-asLongAsDuring("${condition}", session -> Duration.ofMinutes(10), "counter", false).on(
+asLongAsDuring("#{condition}", session -> Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 );
 //#asLongAsDuring
 
 //#doWhileDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-doWhileDuring("${condition}", 5).on(
+doWhileDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 );
 // with a counter name and exitASAP
-doWhileDuring("${condition}", session -> Duration.ofMinutes(10), "counter", false).on(
+doWhileDuring("#{condition}", session -> Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 );
 //#doWhileDuring
@@ -245,7 +245,7 @@ forever("counter").on(
 
 //#doIf
 // with a Gatling EL string resolving to a boolean
-doIf("${condition}").then(
+doIf("#{condition}").then(
   exec(http("name").get("/"))
 );
 
@@ -256,14 +256,14 @@ doIf(session -> session.getBoolean("condition")).then(
 //#doIf
 
 //#doIfEquals
-doIfEquals("${actual}", "expectedValue").then(
+doIfEquals("#{actual}", "expectedValue").then(
   // executed if the session value stored in "actual" is equal to "expectedValue"
   exec(http("name").get("/"))
 );
 //#doIfEquals
 
 //#doIfOrElse
-doIfOrElse("${condition}").then(
+doIfOrElse("#{condition}").then(
   exec(http("name").get("/"))
 ).orElse(
   exec(http("else").get("/"))
@@ -271,7 +271,7 @@ doIfOrElse("${condition}").then(
 //#doIfOrElse
 
 //#doIfEqualsOrElse
-doIfEqualsOrElse("${actual}", "expectedValue").then(
+doIfEqualsOrElse("#{actual}", "expectedValue").then(
   // executed if the session value stored in "actual" equals to "expectedValue"
   exec(http("name").get("/"))
 ).orElse(
@@ -281,14 +281,14 @@ doIfEqualsOrElse("${actual}", "expectedValue").then(
 //#doIfEqualsOrElse
 
 //#doSwitch
-doSwitch("${myKey}").on(
+doSwitch("#{myKey}").on(
   Choice.withKey("foo", exec(http("name1").get("/foo"))),
   Choice.withKey("bar", exec(http("name2").get("/bar")))
 );
 //#doSwitch
 
 //#doSwitchOrElse
-doSwitchOrElse("${myKey}").on(
+doSwitchOrElse("#{myKey}").on(
   Choice.withKey("foo", exec(http("name1").get("/foo"))),
   Choice.withKey("bar", exec(http("name2").get("/bar")))
 ).orElse(
@@ -348,7 +348,7 @@ exitHere();
 //#exitHere
 
 //#exitHereIf
-exitHereIf("${myBoolean}");
+exitHereIf("#{myBoolean}");
 exitHereIf(session -> true);
 //#exitHereIf
 

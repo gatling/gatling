@@ -58,7 +58,7 @@ pause(10)
 // with a scala.concurrent.duration.FiniteDuration
 pause(100.millis)
 // with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
-pause("${pause}")
+pause("#{pause}")
 pause(session => 100.millis)
 //#pause-fixed
 
@@ -68,7 +68,7 @@ pause(10, 20)
 // with a java.time.Duration
 pause(100.millis, 200.millis);
 // with a Gatling EL strings
-pause("${min}", "${max}")
+pause("#{min}", "#{max}")
 pause(session => 100.millis, session => 200.millis)
 //#pause-uniform
 
@@ -88,7 +88,7 @@ pace(10)
 // with a scala.concurrent.duration.FiniteDuration
 pace(100.millis)
 // with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
-pace("${pace}")
+pace("#{pace}")
 pace(session => 100.millis)
 //#pace-fixed
 
@@ -98,7 +98,7 @@ pace(10, 20)
 // with a java.time.Duration
 pace(100.millis, 200.millis)
 // with a Gatling EL strings
-pace("${min}", "${max}")
+pace("#{min}", "#{max}")
 pace(session => 100.millis, session => 200.millis)
 //#pace-uniform
 
@@ -112,7 +112,7 @@ repeat(5) {
   exec(http("name").get("/"))
 }
 // with a Gatling EL string resolving an Int
-repeat("${times}") {
+repeat("#{times}") {
   exec(http("name").get("/"))
 }
 // with a function times
@@ -134,7 +134,7 @@ foreach(Seq("elt1", "elt2"), "elt") {
   exec(http("name").get("/"))
 }
 // with a Gatling EL string
-foreach("${elts}", "elt") {
+foreach("#{elts}", "elt") {
   exec(http("name").get("/"))
 }
 // with a function
@@ -160,7 +160,7 @@ during(10.minutes) {
   exec(http("name").get("/"))
 }
 // with a Gatling EL string resolving a duration
-during("${times}") {
+during("#{times}") {
   exec(http("name").get("/"))
 }
 // with a function times
@@ -179,7 +179,7 @@ during(5, "counter", false) {
 
 //#asLongAs
 // with a Gatling EL string resolving a boolean
-asLongAs("${condition}") {
+asLongAs("#{condition}") {
   exec(http("name").get("/"))
 }
 // with a function
@@ -187,14 +187,14 @@ asLongAs(session => session("condition").as[Boolean]) {
   exec(http("name").get("/"))
 }
 // with a counter name and exitASAP
-asLongAs("${condition}", "counter", false) {
+asLongAs("#{condition}", "counter", false) {
   exec(http("name").get("/"))
 }
 //#asLongAs
 
 //#doWhile
 // with a Gatling EL string resolving to a boolean
-doWhile("${condition}") {
+doWhile("#{condition}") {
   exec(http("name").get("/"))
 }
 // with a function
@@ -202,29 +202,29 @@ doWhile(session => session("condition").as[Boolean]) {
   exec(http("name").get("/"))
 }
 // with a counter name
-doWhile("${condition}", "counter") {
+doWhile("#{condition}", "counter") {
   exec(http("name").get("/"))
 }
 //#doWhile
 
 //#asLongAsDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-asLongAsDuring("${condition}", 5) {
+asLongAsDuring("#{condition}", 5) {
   exec(http("name").get("/"))
 }
 // with a counter name and exitASAP
-asLongAsDuring("${condition}", session => 10.minutes, "counter", false) {
+asLongAsDuring("#{condition}", session => 10.minutes, "counter", false) {
   exec(http("name").get("/"))
 }
 //#asLongAsDuring
 
 //#doWhileDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-doWhileDuring("${condition}", 5) {
+doWhileDuring("#{condition}", 5) {
   exec(http("name").get("/"))
 }
 // with a counter name and exitASAP
-doWhileDuring("${condition}", session => 10.minutes, "counter", false) {
+doWhileDuring("#{condition}", session => 10.minutes, "counter", false) {
   exec(http("name").get("/"))
 }
 //#doWhileDuring
@@ -241,7 +241,7 @@ forever("counter") {
 
 //#doIf
 // with a Gatling EL string resolving to a boolean
-doIf("${condition}") {
+doIf("#{condition}") {
   exec(http("name").get("/"))
 }
 
@@ -252,14 +252,14 @@ doIf(session => session("condition").as[Boolean]) {
 //#doIf
 
 //#doIfEquals
-doIfEquals("${actual}", "expectedValue") {
+doIfEquals("#{actual}", "expectedValue") {
   // executed if the session value stored in "actual" is equal to "expectedValue"
   exec(http("name").get("/"))
 }
 //#doIfEquals
 
 //#doIfOrElse
-doIfOrElse("${condition}") {
+doIfOrElse("#{condition}") {
   exec(http("name").get("/"))
 } {
   exec(http("else").get("..."))
@@ -267,7 +267,7 @@ doIfOrElse("${condition}") {
 //#doIfOrElse
 
 //#doIfEqualsOrElse
-doIfEqualsOrElse("${actual}", "expectedValue") {
+doIfEqualsOrElse("#{actual}", "expectedValue") {
   // executed if the session value stored in "actualValue" equals to "expectedValue"
   exec(http("name").get("/"))
 } {
@@ -277,14 +277,14 @@ doIfEqualsOrElse("${actual}", "expectedValue") {
 //#doIfEqualsOrElse
 
 //#doSwitch
-doSwitch("${myKey}")( // beware: use parentheses, not curly braces!
+doSwitch("#{myKey}")( // beware: use parentheses, not curly braces!
   "foo" -> exec(http("name1").get("/foo")),
   "bar" -> exec(http("name2").get("/bar"))
 )
 //#doSwitch
 
 //#doSwitchOrElse
-doSwitchOrElse("${myKey}")( // beware: use parentheses, not curly braces!
+doSwitchOrElse("#{myKey}")( // beware: use parentheses, not curly braces!
   "foo" -> exec(http("name1").get("/foo")),
   "bar" -> exec(http("name2").get("/bar"))
 )(
@@ -344,7 +344,7 @@ exitHere
 //#exitHere
 
 //#exitHereIf
-exitHereIf("${condition}")
+exitHereIf("#{condition}")
 exitHereIf(session => true)
 //#exitHereIf
 

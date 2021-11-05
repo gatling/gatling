@@ -33,7 +33,7 @@ Cookie("name", "value")
   .withSecure(true);
 
 // with Gatling EL strings
-Cookie("${name}", "${value}")
+Cookie("#{name}", "#{value}")
   .withDomain("domain")
   .withPath("path")
   .withMaxAge(10)
@@ -63,8 +63,8 @@ CookieKey("name")
   .saveAs("key");
 
 // with Gatling EL strings
-CookieKey("${name}")
-  .withDomain("${domain}")
+CookieKey("#{name}")
+  .withDomain("#{domain}")
   .withPath("path")
   .withSecure(true)
   .saveAs("key");

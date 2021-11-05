@@ -80,7 +80,7 @@ jms("name").send.queue("queueName")
   .textMessage("message")
 // with a Gatling EL string text message
 jms("name").send.queue("queueName")
-  .textMessage("${message}")
+  .textMessage("#{message}")
 // with a function text message
 jms("name").send.queue("queueName")
   .textMessage(session => session("message").as[String])

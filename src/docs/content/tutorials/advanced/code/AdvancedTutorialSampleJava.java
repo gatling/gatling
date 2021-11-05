@@ -95,15 +95,15 @@ public static final class Search {
     .pause(1)
     .feed(feeder) // 3
     .exec(http("Search")
-      .get("/computers?f=${searchCriterion}") // 4
+      .get("/computers?f=#{searchCriterion}") // 4
       .check(
-        css("a:contains('${searchComputerName}')", "href")
+        css("a:contains('#{searchComputerName}')", "href")
           .saveAs("computerURL") // 5
       )
     )
     .pause(1)
     .exec(http("Select")
-      .get("${computerURL}")) // 6
+      .get("#{computerURL}")) // 6
     .pause(1);
 }
 //#feeder
@@ -137,7 +137,7 @@ public static final class Browse {
 public static final class Browse {
   public static final ChainBuilder browse =
     repeat(5, "n").on( // 1
-      exec(http("Page ${n}").get("/computers?p=${n}")) // 2
+      exec(http("Page #{n}").get("/computers?p=#{n}")) // 2
         .pause(1)
     );
 }

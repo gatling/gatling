@@ -217,9 +217,9 @@ public class HttpJavaCompileTest extends Simulation {
               headerRegex("name", session -> "pattern"),
               headerRegex(HttpHeaderNames.CONTENT_TYPE, session -> "pattern"),
               headerRegex(session -> HttpHeaderNames.CONTENT_TYPE, session -> "pattern"))
-          .checkIf("${bool}")
+          .checkIf("#{bool}")
           .then(jsonPath("$..foo"))
-          .checkIf("${bool}")
+          .checkIf("#{bool}")
           .then(jsonPath("$..foo"), jsonPath("$..foo"))
           .checkIf((response, session) -> true)
           .then(jsonPath("$..foo"));
@@ -280,7 +280,7 @@ public class HttpJavaCompileTest extends Simulation {
                   .notSilent()
                   .disableFollowRedirect()
                   .transformResponse((response, session) -> response)
-                  .body(StringBody("static ${dynamic} static"))
+                  .body(StringBody("static #{dynamic} static"))
                   .resources(http("name").get("url"), http("name").get("url"))
                   .asMultipartForm()
                   .asFormUrlEncoded()
@@ -305,7 +305,7 @@ public class HttpJavaCompileTest extends Simulation {
                               new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
                   .formParamMap(Collections.singletonMap("key", "value"))
                   .formParamMap(session -> Collections.singletonMap("key", "value"))
-                  .form("${key}")
+                  .form("#{key}")
                   .form(session -> Collections.singletonMap("key", "value"))
                   .formUpload("name", "filePath")
                   .formUpload(session -> "name", "filePath")
@@ -339,9 +339,9 @@ public class HttpJavaCompileTest extends Simulation {
               http("name")
                   .get("url")
                   .check(status().is(200))
-                  .checkIf("${bool}")
+                  .checkIf("#{bool}")
                   .then(jsonPath("$..foo"))
-                  .checkIf("${bool}")
+                  .checkIf("#{bool}")
                   .then(jsonPath("$..foo"), jsonPath("$..foo"))
                   .checkIf((response, session) -> true)
                   .then(jsonPath("$..foo")))
@@ -349,12 +349,12 @@ public class HttpJavaCompileTest extends Simulation {
           .exec(
               http("Request")
                   .post("/things")
-                  .body(StringBody("FOO${BAR}BAZ"))
+                  .body(StringBody("FOO#{BAR}BAZ"))
                   .processRequestBody(Function.identity()))
           .exec(
               http("Request")
                   .post("/things")
-                  .body(ByteArrayBody("${bytes}"))
+                  .body(ByteArrayBody("#{bytes}"))
                   .processRequestBody(gzipBody))
           // proxy
           .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))

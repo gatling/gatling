@@ -109,7 +109,7 @@ http
 // with a static value
 http.virtualHost("virtualHost")
 // with a Gatling EL string
-http.virtualHost("${virtualHost}")
+http.virtualHost("#{virtualHost}")
 // with a function
 http.virtualHost(session => session("virtualHost").as[String])
 //#virtualHost
@@ -155,7 +155,7 @@ http
   // with a static header value
   .header("foo", "bar")
   // with a Gatling EL string header value
-  .header("foo", "${headerValue}")
+  .header("foo", "#{headerValue}")
   // with a function value
   .header("foo", session => session("headerValue").as[String])
   .headers(Map("foo" -> "bar", "baz" -> "qix"))

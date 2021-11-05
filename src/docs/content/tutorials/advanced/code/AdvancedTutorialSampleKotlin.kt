@@ -88,15 +88,15 @@ object Search {
     .pause(1)
     .feed(feeder) // 3
     .exec(http("Search")
-      .get("/computers?f=\${searchCriterion}") // 4
+      .get("/computers?f=#{searchCriterion}") // 4
       .check(
-        css("a:contains('\${searchComputerName}')", "href") // 5
+        css("a:contains('#{searchComputerName}')", "href") // 5
           .saveAs("computerURL")
       )
     )
     .pause(1)
     .exec(http("Select")
-      .get("\${computerURL}")) // 6
+      .get("#{computerURL}")) // 6
     .pause(1)
 }
 //#feeder
@@ -126,7 +126,7 @@ object BrowseLoopFor {
 object Browse {
   val browse =
     repeat(5, "n").on( // 1
-      exec(http("Page \${n}").get("/computers?p=\${n}")) // 2
+      exec(http("Page #{n}").get("/computers?p=#{n}")) // 2
         .pause(1)
     )
 }
