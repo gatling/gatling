@@ -16,15 +16,19 @@
 
 package io.gatling.http.client.impl;
 
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
-@ChannelHandler.Sharable
-public class NoopHandler implements ChannelHandler {
+public class NoopHandler extends ChannelHandlerAdapter {
 
   public static final NoopHandler INSTANCE = new NoopHandler();
 
   private NoopHandler() {}
+
+  @Override
+  public boolean isSharable() {
+    return true;
+  }
 
   @Override
   public void handlerAdded(ChannelHandlerContext ctx) {}

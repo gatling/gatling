@@ -46,6 +46,11 @@ public class WebSocketHandler extends ChannelDuplexHandler {
     this.config = config;
   }
 
+  @Override
+  public boolean isSharable() {
+    return false;
+  }
+
   private void setActive(HttpTx tx) {
     this.tx = tx;
     wsListener = (WebSocketListener) tx.listener;

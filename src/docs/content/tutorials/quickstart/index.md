@@ -11,12 +11,16 @@ weight: 020
 
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
 
+{{< alert tip >}}
+Feel free to join our [Google Group](https://groups.google.com/g/gatling) and ask for help **once you've read this documentation**.
+{{< /alert >}}
+
 ### Installing
 
 Please check the [installation section]({{< ref "installation" >}}) to pick a setup that matches your needs.
 Non developers are recommended to start with the bundle setup.
 
-### A Word on Encoding
+### Encoding
 
 Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
 
@@ -24,27 +28,13 @@ Gatling's **default encoding is UTF-8**. If you want to use a different one, you
 * **configure the proper encoding in the `gatling.conf` file.** It will be used for compiling your simulations, building your requests and your responses.
 * make sure your text editor encoding is properly configured to match.
 
-### A Word on Scala
-
-Gatling simulation scripts are written in [Scala](http://www.scala-lang.org/), **but don't panic!**
-You can use all the basic functions of Gatling without knowing much about Scala.
-In most situations the DSL will cover most of your needs and you'll be able to build your scenarios.
-
-If you are interested in knowing more about Scala, then we recommend that you have a look at [Twitter's Scala School](http://twitter.github.io/scala_school).
-
-{{< alert tip >}}
-Feel also free to join our [Google Group](https://groups.google.com/forum/#!forum/gatling) and ask for help **once you've read this documentation**.
-{{< /alert >}}
-
 ## Test Case
 
 This page will guide you through most of Gatling HTTP features. You'll learn about *simulations*, *scenarios*, *feeders*, *recorder*, *loops*, etc.
 
-### Application under Test
+### Sample Application
 
 In this tutorial, we will use an application named *Computer-Database* deployed at the URL: [http://computer-database.gatling.io](http://computer-database.gatling.io).
-
-This application is a simple CRUD application for managing computer models, and was a sample for the [Play Framework](http://www.playframework.com/) before version 2.3.
 
 ### Scenario
 
@@ -87,8 +77,8 @@ Set it up with the following options:
 * *BasicSimulation* name
 * *Follow Redirects?* checked
 * *Automatic Referers?* checked
-* *Black list first* filter strategy selected
-* `.*\.css`, `.*\.js` and `.*\.ico` in the black list filters
+* *No static resources* clicked
+* Select the desired `format`. The tutorials will assume "Java 8"
 
 {{< img src="recorder.png" alt="recorder.png" >}}
 
@@ -125,7 +115,7 @@ The Simulation will be generated in the folder `user-files/simulations/computerd
 
 Here is the produced output:
 
-{{< include-code "QuickStartSample.scala#quickstart-recorder-output" scala >}}
+{{< include-code "quickstart-recorder-output" java kt scala >}}
 
 What does it mean?
 
@@ -133,21 +123,15 @@ What does it mean?
 2. The required imports.
 3. The class declaration. Note that it extends `Simulation`.
 4. The common configuration to all HTTP requests.
-
-{{< alert tip >}}
-`val` is the keyword for defining a constant value.
-Types are not defined and are inferred by the Scala compiler.
-{{< /alert >}}
-
 5. The baseUrl that will be prepended to all relative urls.
 6. Common HTTP headers that will be sent with all the requests.
 7. The scenario definition.
-8. A HTTP request, named *request_1*. This name will be displayed in the final reports.
+8. An HTTP request, named *request_1*. This name will be displayed in the final reports.
 9. The url this request targets with the *GET* method.
 10. Some pause/think time.
 
 {{< alert tip >}}
-Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `pause(5 seconds)`.
+Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `java.time.Duration.ofSeconds(5)` in Java or `pause(5.seconds)` in Scala.
 {{< /alert >}}
 
 11. Where one sets up the scenarios that will be launched in this Simulation.
@@ -155,7 +139,7 @@ Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `pause(5 s
 13. Attaching the HTTP configuration declared above.
 
 {{< alert tip >}}
-For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/general/simulation_structure" >}}).
+For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/core/simulation" >}}).
 {{< /alert >}}
 
 ### Running Gatling

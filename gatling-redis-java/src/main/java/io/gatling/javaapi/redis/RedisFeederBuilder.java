@@ -32,7 +32,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
   }
 
   /**
-   * Instruct to use a LPOP command (default)
+   * Use a LPOP command (default)
    *
    * @return a new RedisFeederBuilder instance
    */
@@ -42,7 +42,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
   }
 
   /**
-   * Instruct to use a SPOP command (default)
+   * Use a SPOP command (default)
    *
    * @return a new RedisFeederBuilder instance
    */
@@ -52,7 +52,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
   }
 
   /**
-   * Instruct to use a SRANDMEMBER command (default)
+   * Use a SRANDMEMBER command (default)
    *
    * @return a new RedisFeederBuilder instance
    */

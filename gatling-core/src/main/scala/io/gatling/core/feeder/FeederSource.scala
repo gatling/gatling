@@ -112,7 +112,7 @@ final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quo
         case Batch(bufferSize) =>
           BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, bufferSize, charset)
         case Adaptive if res.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
-          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
+          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferLines, charset)
         case _ =>
           val records = Using.resource(FileChannel.open(res.file.toPath)) { channel =>
             SeparatedValuesParser.stream(separator, quoteChar, charset)(channel).toVector

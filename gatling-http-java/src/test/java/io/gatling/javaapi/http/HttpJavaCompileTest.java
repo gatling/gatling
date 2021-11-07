@@ -96,7 +96,7 @@ public class HttpJavaCompileTest extends Simulation {
           .silentUri("regex")
           .disableUrlEncoding()
           .sign(request -> {})
-          .sign(session -> request -> {})
+          .sign((request, session) -> {})
           .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret")
           .signWithOAuth1(
               session -> "consumerKey",
@@ -116,7 +116,6 @@ public class HttpJavaCompileTest extends Simulation {
           .inferHtmlResources(AllowList("allow"))
           .inferHtmlResources(DenyList("deny"))
           .inferHtmlResources(AllowList("allow"), DenyList("deny"))
-          .inferHtmlResources(DenyList("deny"), AllowList("allow"))
           .nameInferredHtmlResourcesAfterUrlTail()
           .nameInferredHtmlResourcesAfterAbsoluteUrl()
           .nameInferredHtmlResourcesAfterRelativeUrl()
@@ -170,7 +169,7 @@ public class HttpJavaCompileTest extends Simulation {
               jsonPath("$..foo").ofList(),
               jsonPath("$..foo").ofMap(),
               jsonPath("$..foo").ofObject(),
-              jsonPath(session -> "$..foo"),
+              jsonPath(session -> "$..foo").withDefault(session -> "foo"),
               jsonPath("$..foo"),
               jsonpJsonPath("$..foo"),
               jsonpJsonPath("$..foo").ofBoolean(),
@@ -218,169 +217,168 @@ public class HttpJavaCompileTest extends Simulation {
               headerRegex("name", session -> "pattern"),
               headerRegex(HttpHeaderNames.CONTENT_TYPE, session -> "pattern"),
               headerRegex(session -> HttpHeaderNames.CONTENT_TYPE, session -> "pattern"))
-          .checkIf("${bool}")
+          .checkIf("#{bool}")
           .then(jsonPath("$..foo"))
-          .checkIf("${bool}")
+          .checkIf("#{bool}")
           .then(jsonPath("$..foo"), jsonPath("$..foo"))
           .checkIf((response, session) -> true)
           .then(jsonPath("$..foo"));
 
-  public HttpJavaCompileTest() {
-    ScenarioBuilder scn =
-        scenario("scenario")
-            .exec(
-                http("name")
-                    .get("url")
-                    .queryParam("key", "value")
-                    .queryParam(session -> "key", "value")
-                    .queryParam("key", session -> "value")
-                    .queryParam(session -> "key", session -> "value")
-                    .queryParam("key", 1)
-                    .queryParam(session -> "key", 1)
-                    .queryParam("key", session -> 1)
-                    .queryParam(session -> "key", session -> 1)
-                    .multivaluedQueryParam("key", Collections.singletonList(1))
-                    .multivaluedQueryParam(session -> "key", Collections.singletonList(1))
-                    .multivaluedQueryParam("key", session -> Collections.singletonList(1))
-                    .multivaluedQueryParam(
-                        session -> "key", session -> Collections.singletonList(1))
-                    .queryParamSeq(
-                        Collections.singletonList(
-                            new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                    .queryParamSeq(
-                        session ->
-                            Collections.singletonList(
-                                new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                    .queryParamMap(Collections.singletonMap("key", "value"))
-                    .queryParamMap(session -> Collections.singletonMap("key", "value"))
-                    .header("key", "value")
-                    .header("key", session -> "value")
-                    .headers(Collections.singletonMap("key", "value"))
-                    .ignoreProtocolHeaders()
-                    .asJson()
-                    .asXml()
-                    .basicAuth("username", "password")
-                    .basicAuth("username", session -> "password")
-                    .basicAuth(session -> "username", "password")
-                    .basicAuth(session -> "username", session -> "password")
-                    .digestAuth("username", "password")
-                    .digestAuth("username", session -> "password")
-                    .digestAuth(session -> "username", "password")
-                    .digestAuth(session -> "username", session -> "password")
-                    .virtualHost("virtualHost")
-                    .virtualHost(session -> "virtualHost")
-                    .disableUrlEncoding()
-                    .sign(request -> {})
-                    .sign(session -> request -> {})
-                    .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret")
-                    .signWithOAuth1(
-                        session -> "consumerKey",
-                        session -> "clientSharedSecret",
-                        session -> "token",
-                        session -> "tokenSecret")
-                    .ignoreProtocolChecks()
-                    .silent()
-                    .notSilent()
-                    .disableFollowRedirect()
-                    .transformResponse((response, session) -> response)
-                    .body(StringBody("static ${dynamic} static"))
-                    .resources(http("name").get("url"), http("name").get("url"))
-                    .asMultipartForm()
-                    .asFormUrlEncoded()
-                    .formParam("key", "value")
-                    .formParam(session -> "key", "value")
-                    .formParam("key", session -> "value")
-                    .formParam(session -> "key", session -> "value")
-                    .formParam("key", 1)
-                    .formParam(session -> "key", 1)
-                    .formParam("key", session -> 1)
-                    .formParam(session -> "key", session -> 1)
-                    .multivaluedFormParam("key", Collections.singletonList(1))
-                    .multivaluedFormParam(session -> "key", Collections.singletonList(1))
-                    .multivaluedFormParam("key", session -> Collections.singletonList(1))
-                    .multivaluedFormParam(session -> "key", session -> Collections.singletonList(1))
-                    .formParamSeq(
-                        Collections.singletonList(
-                            new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                    .formParamSeq(
-                        session ->
-                            Collections.singletonList(
-                                new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                    .formParamMap(Collections.singletonMap("key", "value"))
-                    .formParamMap(session -> Collections.singletonMap("key", "value"))
-                    .form("${key}")
-                    .form(session -> Collections.singletonMap("key", "value"))
-                    .formUpload("name", "filePath")
-                    .formUpload(session -> "name", "filePath")
-                    .formUpload("name", session -> "filePath")
-                    .bodyPart(RawFileBodyPart("name", "path"))
-                    .bodyPart(ElFileBodyPart("name", "path"))
-                    .bodyPart(ElFileBodyPart("name", "path").contentType("foo"))
-                    .bodyPart(PebbleFileBodyPart("name", "path"))
-                    .bodyPart(PebbleStringBodyPart("name", "somePebbleString"))
-                    .bodyParts(RawFileBodyPart("name1", "path1"), RawFileBodyPart("name2", "path2"))
-                    .formUpload(session -> "name", session -> "filePath")
-                    .requestTimeout(1)
-                    .requestTimeout(Duration.ofSeconds(1)))
-            .exec(http("name").get(session -> "url"))
-            .exec(http("name").put("url"))
-            .exec(http("name").put(session -> "url"))
-            .exec(http("name").post("url"))
-            .exec(http("name").post(session -> "url"))
-            .exec(http("name").patch("url"))
-            .exec(http("name").patch(session -> "url"))
-            .exec(http("name").head("url"))
-            .exec(http("name").head(session -> "url"))
-            .exec(http("name").delete("url"))
-            .exec(http("name").delete(session -> "url"))
-            .exec(http("name").options("url"))
-            .exec(http("name").options(session -> "url"))
-            .exec(http("name").httpRequest("JSON", "url"))
-            .exec(http("name").httpRequest("JSON", session -> "url"))
-            // check
-            .exec(
-                http("name")
-                    .get("url")
-                    .check(status().is(200))
-                    .checkIf("${bool}")
-                    .then(jsonPath("$..foo"))
-                    .checkIf("${bool}")
-                    .then(jsonPath("$..foo"), jsonPath("$..foo"))
-                    .checkIf((response, session) -> true)
-                    .then(jsonPath("$..foo")))
-            // processRequestBody
-            .exec(
-                http("Request")
-                    .post("/things")
-                    .body(StringBody("FOO${BAR}BAZ"))
-                    .processRequestBody(Function.identity()))
-            .exec(
-                http("Request")
-                    .post("/things")
-                    .body(ByteArrayBody("${bytes}"))
-                    .processRequestBody(gzipBody))
-            // proxy
-            .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
-            .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4()))
-            .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5()))
-            // polling
-            .exec(poll().every(10).exec(http("poll").get("/foo")))
-            .exec(poll().pollerName("poll").every(10).exec(http("poll").get("/foo")))
-            .exec(poll().pollerName("poll").stop())
-            .exec(poll().stop())
-            // addCookie
-            .exec(addCookie(Cookie("foo", "bar").withDomain("foo.com")))
-            // getCookieValue
-            .exec(getCookieValue(CookieKey("foo").withDomain("foo.com").saveAs("newName")))
-            // flushSessionCookies
-            .exec(flushSessionCookies())
-            // flushCookieJar
-            .exec(flushCookieJar())
-            // flushHttpCache
-            .exec(flushHttpCache())
-            // feeder
-            .feed(sitemap("file"));
+  ScenarioBuilder scn =
+      scenario("scenario")
+          .exec(
+              http("name")
+                  .get("url")
+                  .queryParam("key", "value")
+                  .queryParam(session -> "key", "value")
+                  .queryParam("key", session -> "value")
+                  .queryParam(session -> "key", session -> "value")
+                  .queryParam("key", 1)
+                  .queryParam(session -> "key", 1)
+                  .queryParam("key", session -> 1)
+                  .queryParam(session -> "key", session -> 1)
+                  .multivaluedQueryParam("key", Collections.singletonList(1))
+                  .multivaluedQueryParam(session -> "key", Collections.singletonList(1))
+                  .multivaluedQueryParam("key", session -> Collections.singletonList(1))
+                  .multivaluedQueryParam(session -> "key", session -> Collections.singletonList(1))
+                  .queryParamSeq(
+                      Collections.singletonList(
+                          new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .queryParamSeq(
+                      session ->
+                          Collections.singletonList(
+                              new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .queryParamMap(Collections.singletonMap("key", "value"))
+                  .queryParamMap(session -> Collections.singletonMap("key", "value"))
+                  .header("key", "value")
+                  .header("key", session -> "value")
+                  .headers(Collections.singletonMap("key", "value"))
+                  .ignoreProtocolHeaders()
+                  .asJson()
+                  .asXml()
+                  .basicAuth("username", "password")
+                  .basicAuth("username", session -> "password")
+                  .basicAuth(session -> "username", "password")
+                  .basicAuth(session -> "username", session -> "password")
+                  .digestAuth("username", "password")
+                  .digestAuth("username", session -> "password")
+                  .digestAuth(session -> "username", "password")
+                  .digestAuth(session -> "username", session -> "password")
+                  .virtualHost("virtualHost")
+                  .virtualHost(session -> "virtualHost")
+                  .disableUrlEncoding()
+                  .sign(request -> {})
+                  .sign((request, session) -> {})
+                  .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret")
+                  .signWithOAuth1(
+                      session -> "consumerKey",
+                      session -> "clientSharedSecret",
+                      session -> "token",
+                      session -> "tokenSecret")
+                  .ignoreProtocolChecks()
+                  .silent()
+                  .notSilent()
+                  .disableFollowRedirect()
+                  .transformResponse((response, session) -> response)
+                  .body(StringBody("static #{dynamic} static"))
+                  .resources(http("name").get("url"), http("name").get("url"))
+                  .asMultipartForm()
+                  .asFormUrlEncoded()
+                  .formParam("key", "value")
+                  .formParam(session -> "key", "value")
+                  .formParam("key", session -> "value")
+                  .formParam(session -> "key", session -> "value")
+                  .formParam("key", 1)
+                  .formParam(session -> "key", 1)
+                  .formParam("key", session -> 1)
+                  .formParam(session -> "key", session -> 1)
+                  .multivaluedFormParam("key", Collections.singletonList(1))
+                  .multivaluedFormParam(session -> "key", Collections.singletonList(1))
+                  .multivaluedFormParam("key", session -> Collections.singletonList(1))
+                  .multivaluedFormParam(session -> "key", session -> Collections.singletonList(1))
+                  .formParamSeq(
+                      Collections.singletonList(
+                          new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .formParamSeq(
+                      session ->
+                          Collections.singletonList(
+                              new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .formParamMap(Collections.singletonMap("key", "value"))
+                  .formParamMap(session -> Collections.singletonMap("key", "value"))
+                  .form("#{key}")
+                  .form(session -> Collections.singletonMap("key", "value"))
+                  .formUpload("name", "filePath")
+                  .formUpload(session -> "name", "filePath")
+                  .formUpload("name", session -> "filePath")
+                  .bodyPart(RawFileBodyPart("name", "path"))
+                  .bodyPart(ElFileBodyPart("name", "path"))
+                  .bodyPart(ElFileBodyPart("name", "path").contentType("foo"))
+                  .bodyPart(PebbleFileBodyPart("name", "path"))
+                  .bodyPart(PebbleStringBodyPart("name", "somePebbleString"))
+                  .bodyParts(RawFileBodyPart("name1", "path1"), RawFileBodyPart("name2", "path2"))
+                  .formUpload(session -> "name", session -> "filePath")
+                  .requestTimeout(1)
+                  .requestTimeout(Duration.ofSeconds(1)))
+          .exec(http("name").get(session -> "url"))
+          .exec(http("name").put("url"))
+          .exec(http("name").put(session -> "url"))
+          .exec(http("name").post("url"))
+          .exec(http("name").post(session -> "url"))
+          .exec(http("name").patch("url"))
+          .exec(http("name").patch(session -> "url"))
+          .exec(http("name").head("url"))
+          .exec(http("name").head(session -> "url"))
+          .exec(http("name").delete("url"))
+          .exec(http("name").delete(session -> "url"))
+          .exec(http("name").options("url"))
+          .exec(http("name").options(session -> "url"))
+          .exec(http("name").httpRequest("JSON", "url"))
+          .exec(http("name").httpRequest("JSON", session -> "url"))
+          // check
+          .exec(
+              http("name")
+                  .get("url")
+                  .check(status().is(200))
+                  .checkIf("#{bool}")
+                  .then(jsonPath("$..foo"))
+                  .checkIf("#{bool}")
+                  .then(jsonPath("$..foo"), jsonPath("$..foo"))
+                  .checkIf((response, session) -> true)
+                  .then(jsonPath("$..foo")))
+          // processRequestBody
+          .exec(
+              http("Request")
+                  .post("/things")
+                  .body(StringBody("FOO#{BAR}BAZ"))
+                  .processRequestBody(Function.identity()))
+          .exec(
+              http("Request")
+                  .post("/things")
+                  .body(ByteArrayBody("#{bytes}"))
+                  .processRequestBody(gzipBody))
+          // proxy
+          .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
+          .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4()))
+          .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5()))
+          // polling
+          .exec(poll().every(10).exec(http("poll").get("/foo")))
+          .exec(poll().pollerName("poll").every(10).exec(http("poll").get("/foo")))
+          .exec(poll().pollerName("poll").stop())
+          .exec(poll().stop())
+          // addCookie
+          .exec(addCookie(Cookie("foo", "bar").withDomain("foo.com")))
+          // getCookieValue
+          .exec(getCookieValue(CookieKey("foo").withDomain("foo.com").saveAs("newName")))
+          // flushSessionCookies
+          .exec(flushSessionCookies())
+          // flushCookieJar
+          .exec(flushCookieJar())
+          // flushHttpCache
+          .exec(flushHttpCache())
+          // feeder
+          .feed(sitemap("file"));
 
+  {
     setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol)).protocols(httpProtocol);
   }
 }

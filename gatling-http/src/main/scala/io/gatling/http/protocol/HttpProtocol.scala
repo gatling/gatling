@@ -21,6 +21,7 @@ import java.net.InetAddress
 import java.util.regex.Pattern
 import javax.net.ssl.KeyManagerFactory
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
@@ -29,7 +30,7 @@ import io.gatling.core.session._
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.Request
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
@@ -167,7 +168,7 @@ final case class HttpProtocolRequestPart(
     disableUrlEncoding: Boolean,
     silentUri: Option[Pattern],
     silentResources: Boolean,
-    signatureCalculator: Option[Expression[SignatureCalculator]]
+    signatureCalculator: Option[(Request, Session) => Validation[_]]
 )
 
 final case class HttpProtocolResponsePart(

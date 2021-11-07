@@ -48,7 +48,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(long duration) {
+  default On<T> during(long duration) {
     return during(Duration.ofSeconds(duration));
   }
 
@@ -61,7 +61,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(long duration, boolean exitASAP) {
+  default On<T> during(long duration, boolean exitASAP) {
     return during(Duration.ofSeconds(duration), exitASAP);
   }
 
@@ -74,7 +74,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(long duration, String counterName) {
+  default On<T> during(long duration, String counterName) {
     return during(Duration.ofSeconds(duration), counterName);
   }
 
@@ -88,7 +88,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(long duration, String counterName, boolean exitASAP) {
+  default On<T> during(long duration, String counterName, boolean exitASAP) {
     return during(Duration.ofSeconds(duration), counterName, exitASAP);
   }
 
@@ -101,7 +101,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull Duration duration) {
+  default On<T> during(@Nonnull Duration duration) {
     return during(unused -> duration);
   }
 
@@ -114,7 +114,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull Duration duration, boolean exitASAP) {
+  default On<T> during(@Nonnull Duration duration, boolean exitASAP) {
     return during(unused -> duration, exitASAP);
   }
 
@@ -127,7 +127,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull Duration duration, @Nonnull String counterName) {
+  default On<T> during(@Nonnull Duration duration, @Nonnull String counterName) {
     return during(unused -> duration, counterName, true);
   }
 
@@ -141,9 +141,8 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(
-      @Nonnull Duration duration, @Nonnull String counterName, boolean exitASAP) {
-    return new Loop<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
+  default On<T> during(@Nonnull Duration duration, @Nonnull String counterName, boolean exitASAP) {
+    return new On<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
   }
 
   /////////////// Gatling EL duration
@@ -156,7 +155,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull String duration) {
+  default On<T> during(@Nonnull String duration) {
     return during(duration, UUID.randomUUID().toString());
   }
 
@@ -170,7 +169,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull String duration, boolean exitASAP) {
+  default On<T> during(@Nonnull String duration, boolean exitASAP) {
     return during(duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -184,7 +183,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull String duration, @Nonnull String counterName) {
+  default On<T> during(@Nonnull String duration, @Nonnull String counterName) {
     return during(duration, counterName, true);
   }
 
@@ -198,8 +197,8 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull String duration, @Nonnull String counterName, boolean exitASAP) {
-    return new Loop<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
+  default On<T> during(@Nonnull String duration, @Nonnull String counterName, boolean exitASAP) {
+    return new On<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
   }
 
   /////////////// Function duration
@@ -211,7 +210,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull Function<Session, Duration> duration) {
+  default On<T> during(@Nonnull Function<Session, Duration> duration) {
     return during(duration, UUID.randomUUID().toString());
   }
 
@@ -224,7 +223,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(@Nonnull Function<Session, Duration> duration, boolean exitASAP) {
+  default On<T> during(@Nonnull Function<Session, Duration> duration, boolean exitASAP) {
     return during(duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -237,8 +236,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(
-      @Nonnull Function<Session, Duration> duration, @Nonnull String counterName) {
+  default On<T> during(@Nonnull Function<Session, Duration> duration, @Nonnull String counterName) {
     return during(duration, counterName, true);
   }
 
@@ -252,11 +250,11 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   @Nonnull
-  default Loop<T> during(
+  default On<T> during(
       @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName,
       boolean exitASAP) {
-    return new Loop<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
+    return new On<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
   }
 
   /**
@@ -264,10 +262,10 @@ public interface During<
    *
    * @param <T> the type of {@link StructureBuilder} to attach to and to return
    */
-  final class Loop<T extends StructureBuilder<T, ?>> {
+  final class On<T extends StructureBuilder<T, ?>> {
     private final ScalaDuring.Loop<T, ?> wrapped;
 
-    Loop(ScalaDuring.Loop<T, ?> wrapped) {
+    On(ScalaDuring.Loop<T, ?> wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -278,7 +276,7 @@ public interface During<
      * @return a new {@link StructureBuilder}
      */
     @Nonnull
-    public T loop(@Nonnull ChainBuilder chain) {
+    public T on(@Nonnull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

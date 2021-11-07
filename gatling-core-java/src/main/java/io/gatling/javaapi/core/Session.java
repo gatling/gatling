@@ -259,14 +259,14 @@ public final class Session {
    */
   @Nonnull
   @SuppressWarnings("unchecked")
-  public List<Object> getList(@Nonnull String key) {
+  public <T> List<T> getList(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof List<?>) {
-        return (List<Object>) value;
+        return (List<T>) value;
       } else if (value instanceof Seq<?>) {
-        return toJavaList((Seq<Object>) value);
+        return toJavaList((Seq<T>) value);
       } else {
         throw new ClassCastException(value + " is not an List: " + value.getClass());
       }
@@ -284,14 +284,14 @@ public final class Session {
    */
   @Nonnull
   @SuppressWarnings("unchecked")
-  public Set<Object> getSet(@Nonnull String key) {
+  public <T> Set<T> getSet(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof Set<?>) {
-        return (Set<Object>) value;
+        return (Set<T>) value;
       } else if (value instanceof scala.collection.Set<?>) {
-        return toJavaSet((scala.collection.Set<?>) value);
+        return toJavaSet((scala.collection.Set<T>) value);
       } else {
         throw new ClassCastException(value + " is not an Set: " + value.getClass());
       }
@@ -309,14 +309,14 @@ public final class Session {
    */
   @Nonnull
   @SuppressWarnings("unchecked")
-  public Map<String, Object> getMap(@Nonnull String key) {
+  public <T> Map<String, T> getMap(@Nonnull String key) {
     Option<Object> valueOption = wrapped.attributes().get(key);
     if (valueOption.isDefined()) {
       Object value = valueOption.get();
       if (value instanceof Map<?, ?>) {
-        return (Map<String, Object>) value;
+        return (Map<String, T>) value;
       } else if (value instanceof scala.collection.Map<?, ?>) {
-        return toJavaMap((scala.collection.Map<String, Object>) value);
+        return toJavaMap((scala.collection.Map<String, T>) value);
       } else {
         throw new ClassCastException(value + " is not an Map: " + value.getClass());
       }
@@ -357,6 +357,16 @@ public final class Session {
   @Nonnull
   public Session remove(@Nonnull String key) {
     return new Session(wrapped.remove(key));
+  }
+
+  /**
+   * Remove all attributes but Gatling's internal ones
+   *
+   * @return the new instance with a reset user state
+   */
+  @Nonnull
+  public Session reset() {
+    return new Session(wrapped.reset());
   }
 
   /**
@@ -401,6 +411,15 @@ public final class Session {
   @Nonnull
   public Session markAsFailed() {
     return new Session(wrapped.markAsFailed());
+  }
+
+  /**
+   * Provide the unique (for this injector) id of the virtual user
+   *
+   * @return the virtual user's id
+   */
+  public long userId() {
+    return wrapped.userId();
   }
 
   public io.gatling.core.session.Session asScala() {

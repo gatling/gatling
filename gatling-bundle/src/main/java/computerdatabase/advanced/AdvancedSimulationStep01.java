@@ -82,7 +82,7 @@ public class AdvancedSimulationStep01 extends Simulation {
   // Now, we can write the scenario as a composition
   ScenarioBuilder scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit);
 
-  public AdvancedSimulationStep01() {
+  {
     setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
   }
 }

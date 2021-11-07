@@ -177,7 +177,7 @@ final case class BodyPartAttributes(
     customHeaders: List[(Expression[String], Expression[String])]
 ) {
 
-  lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)
+  lazy val customHeadersExpression: Expression[Seq[(String, String)]] = expressionSeq2SeqExpression(customHeaders)
 }
 
 final case class BodyPart(

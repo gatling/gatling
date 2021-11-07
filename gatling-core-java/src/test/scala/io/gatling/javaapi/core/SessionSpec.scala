@@ -90,7 +90,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val scalaSession = emptySession.set("key", Seq("value"))
     val javaSession = new Session(scalaSession)
 
-    val fetched = javaSession.getList("key")
+    val fetched = javaSession.getList[String]("key")
     fetched.size() shouldBe 1
     fetched.get(0) shouldBe "value"
   }
@@ -99,7 +99,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val scalaSession = emptySession
     val javaSession = new Session(scalaSession).set("key", Collections.singletonList("value"))
 
-    val fetched = javaSession.getList("key")
+    val fetched = javaSession.getList[String]("key")
     fetched.size() shouldBe 1
     fetched.get(0) shouldBe "value"
   }
@@ -108,7 +108,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val scalaSession = emptySession.set("key", Set("value"))
     val javaSession = new Session(scalaSession)
 
-    val fetched = javaSession.getSet("key")
+    val fetched = javaSession.getSet[String]("key")
     fetched.size() shouldBe 1
     fetched.iterator().next() shouldBe "value"
   }
@@ -117,7 +117,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val scalaSession = emptySession
     val javaSession = new Session(scalaSession).set("key", Collections.singleton("value"))
 
-    val fetched = javaSession.getSet("key")
+    val fetched = javaSession.getSet[String]("key")
     fetched.size() shouldBe 1
     fetched.iterator().next() shouldBe "value"
   }
@@ -126,7 +126,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val scalaSession = emptySession.set("key", Map("key2" -> "value"))
     val javaSession = new Session(scalaSession)
 
-    val fetched = javaSession.getMap("key")
+    val fetched = javaSession.getMap[String]("key")
     fetched.size() shouldBe 1
     fetched.get("key2") shouldBe "value"
   }
@@ -137,7 +137,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     map.put("key2", "value")
     val javaSession = new Session(scalaSession).set("key", map)
 
-    val fetched = javaSession.getMap("key")
+    val fetched = javaSession.getMap[String]("key")
     fetched.size() shouldBe 1
     fetched.get("key2") shouldBe "value"
   }

@@ -258,7 +258,7 @@ private[convert] class SimulationTemplate(
            |
            |${renderScenario(extractedUris, scenarioElements).indent(2)}
            |
-           |  public $simulationClassName() {
+           |  {
            |	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
            |  }
            |}
@@ -279,7 +279,7 @@ private[convert] class SimulationTemplate(
            |
            |public class $simulationClassName extends Simulation {
            |
-           |  public $simulationClassName() {
+           |  {
            |${protocolTemplate.render(protocol).indent(4)}
            |${renderHeaders(headers).indent(4)}
            |${renderNonBaseUrls(nonBaseUrls, format).indent(4)}

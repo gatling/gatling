@@ -22,6 +22,8 @@ import static io.gatling.javaapi.core.internal.CoreCheckBuilders.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.gatling.core.check.css.CssCheckType;
+import io.gatling.core.check.css.NodeConverter;
 import io.gatling.core.check.jmespath.JmesPathCheckType;
 import io.gatling.core.check.jmespath.JsonpJmesPathCheckType;
 import io.gatling.core.check.jsonpath.JsonFilter;
@@ -36,6 +38,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import jodd.lagarto.dom.Node;
+import jodd.lagarto.dom.NodeSelector;
 import net.jodah.typetools.TypeResolver;
 
 /**
@@ -135,8 +139,8 @@ public interface CheckBuilder {
 
       @Override
       @Nonnull
-      public Validate<JavaX> withDefault(@Nonnull Function<Session, JavaX> value) {
-        return find().withDefault(value);
+      public Validate<JavaX> withDefault(@Nonnull Function<Session, JavaX> defaultValue) {
+        return find().withDefault(defaultValue);
       }
 
       @Override
@@ -512,11 +516,11 @@ public interface CheckBuilder {
      * Provide a default Gatling Expression Language value if the check wasn't able to extract
      * anything
      *
-     * @param value the default value as a function
+     * @param defaultValue the default value as a function
      * @return a new Validate
      */
     @Nonnull
-    Validate<X> withDefault(@Nonnull Function<Session, X> value);
+    Validate<X> withDefault(@Nonnull Function<Session, X> defaultValue);
 
     /**
      * Provide a custom validation strategy
@@ -630,6 +634,17 @@ public interface CheckBuilder {
     Final in(@Nonnull X... expected);
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull X... expected) {
+      return in(expected);
+    }
+
+    /**
      * Validate the extracted value belongs to an expected set
      *
      * @param expected the set of possible values
@@ -637,6 +652,17 @@ public interface CheckBuilder {
      */
     @Nonnull
     Final in(@Nonnull List<X> expected);
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull List<X> expected) {
+      return in(expected);
+    }
 
     /**
      * Validate the extracted value belongs to an expected set, passed as a Gatling Expression
@@ -649,6 +675,17 @@ public interface CheckBuilder {
     Final inEL(@Nonnull String expected);
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values, as a Gatling Expression Language String
+     * @return a new Final
+     */
+    @Nonnull
+    default Final withinEL(@Nonnull String expected) {
+      return inEL(expected);
+    }
+
+    /**
      * Validate the extracted value belongs to an expected set, passed as a function
      *
      * @param expected the set of possible values, as a function
@@ -656,6 +693,17 @@ public interface CheckBuilder {
      */
     @Nonnull
     Final in(@Nonnull Function<Session, List<X>> expected);
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param expected the set of possible values, as a function
+     * @return a new Final
+     */
+    @Nonnull
+    default Final within(@Nonnull Function<Session, List<X>> expected) {
+      return in(expected);
+    }
 
     /**
      * Validate the check was able to extract any value
@@ -862,9 +910,9 @@ public interface CheckBuilder {
 
       @Override
       @Nonnull
-      public Validate<X> withDefault(@Nonnull Function<Session, X> value) {
+      public Validate<X> withDefault(@Nonnull Function<Session, X> defaultValue) {
         return new Validate.Default<>(
-            wrapped.withDefault(javaFunctionToExpression(value)), type, xClass);
+            wrapped.withDefault(javaFunctionToExpression(defaultValue)), type, xClass);
       }
 
       @Override
@@ -1234,6 +1282,14 @@ public interface CheckBuilder {
   interface JsonOfTypeFind extends Find<String> {
 
     /**
+     * Define that the extracted value is a String
+     *
+     * @return a new Find
+     */
+    @Nonnull
+    Find<String> ofString();
+
+    /**
      * Define that the extracted value is a Boolean
      *
      * @return a new Find
@@ -1307,6 +1363,15 @@ public interface CheckBuilder {
 
       @Override
       @Nonnull
+      public Find<String> ofString() {
+        return new Find.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
+            type,
+            Function.identity());
+      }
+
+      @Override
+      @Nonnull
       public Find<Boolean> ofBoolean() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
@@ -1374,9 +1439,17 @@ public interface CheckBuilder {
   interface JsonOfTypeMultipleFind extends MultipleFind<String> {
 
     /**
+     * Define that the extracted value is a String
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<String> ofString();
+
+    /**
      * Define that the extracted value is a Boolean
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Boolean> ofBoolean();
@@ -1384,7 +1457,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is an Integer
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Integer> ofInt();
@@ -1392,7 +1465,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is a Long
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Long> ofLong();
@@ -1400,7 +1473,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is a Double
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Double> ofDouble();
@@ -1408,7 +1481,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is a List (a JSON array)
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<List<Object>> ofList();
@@ -1416,7 +1489,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is a Map (a JSON object)
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Map<String, Object>> ofMap();
@@ -1424,7 +1497,7 @@ public interface CheckBuilder {
     /**
      * Define that the extracted value is an untyped object
      *
-     * @return a new Find
+     * @return a new MultipleFind
      */
     @Nonnull
     MultipleFind<Object> ofObject();
@@ -1445,6 +1518,15 @@ public interface CheckBuilder {
       @Nonnull
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, X> ofType(
           io.gatling.core.check.jsonpath.JsonFilter<X> filter);
+
+      @Override
+      @Nonnull
+      public MultipleFind<String> ofString() {
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
+            type,
+            Function.identity());
+      }
 
       @Override
       @Nonnull
@@ -1621,6 +1703,85 @@ public interface CheckBuilder {
           (io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<String>) wrapped;
       return new io.gatling.core.check.jsonpath.JsonpJsonPathCheckBuilder<>(
           actual.path(), actual.jsonPaths(), filter);
+    }
+  }
+
+  /** A special {@link MultipleFind<String>} that works on Css selectors */
+  interface CssOfTypeMultipleFind extends MultipleFind<String> {
+
+    /**
+     * Define that the extracted value is a String
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<String> ofString();
+
+    /**
+     * Define that the extracted value is a Lagarto DOM Node
+     *
+     * @return a new MultipleFind
+     */
+    @Nonnull
+    MultipleFind<Node> ofNode();
+
+    /**
+     * Default implementation of {@link JsonOfTypeMultipleFind}
+     *
+     * @param <T> the check type
+     */
+    abstract class Default<T> extends MultipleFind.Default<T, NodeSelector, String, String>
+        implements CssOfTypeMultipleFind {
+      public Default(
+          io.gatling.core.check.CheckBuilder.MultipleFind<T, NodeSelector, String> wrapped,
+          CheckType type) {
+        super(wrapped, type, Function.identity());
+      }
+
+      @Nonnull
+      protected abstract <X>
+          io.gatling.core.check.CheckBuilder.MultipleFind<T, NodeSelector, X> ofType(
+              io.gatling.core.check.css.NodeConverter<X> nodeConverter);
+
+      @Override
+      @Nonnull
+      public MultipleFind<String> ofString() {
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.css.NodeConverter.stringNodeConverter()),
+            type,
+            Function.identity());
+      }
+
+      @Override
+      @Nonnull
+      public MultipleFind<Node> ofNode() {
+        return new MultipleFind.Default<>(
+            ofType(io.gatling.core.check.css.NodeConverter.nodeNodeConverter()),
+            type,
+            Function.identity());
+      }
+    }
+  }
+
+  /** An implementation of {@link CssOfTypeMultipleFind} for css selectors applied on Strings */
+  final class Css extends CssOfTypeMultipleFind.Default<io.gatling.core.check.css.CssCheckType> {
+
+    public Css(
+        io.gatling.core.check.CheckBuilder.MultipleFind<
+                io.gatling.core.check.css.CssCheckType, NodeSelector, String>
+            wrapped) {
+      super(wrapped, CoreCheckType.Css);
+    }
+
+    @Nonnull
+    @Override
+    protected <X>
+        io.gatling.core.check.CheckBuilder.MultipleFind<CssCheckType, NodeSelector, X> ofType(
+            NodeConverter<X> nodeConverter) {
+      io.gatling.core.check.css.CssCheckBuilder<String> actual =
+          (io.gatling.core.check.css.CssCheckBuilder<String>) wrapped;
+      return new io.gatling.core.check.css.CssCheckBuilder<>(
+          actual.expression(), actual.nodeAttribute(), actual.selectors(), nodeConverter);
     }
   }
 }

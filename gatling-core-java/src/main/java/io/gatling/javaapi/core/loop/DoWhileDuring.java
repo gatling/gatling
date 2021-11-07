@@ -60,6 +60,45 @@ public interface DoWhileDuring<
    * isn't reached. The condition is evaluated at the end of the loop.
    *
    * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration in seconds
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull String condition, long duration) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration));
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull String condition, Duration duration) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration function
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull String condition, Function<Session, Duration> duration) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
    * @param duration the maximum duration, expressed as a Gatling Expression Language String that
    *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
    * @param counterName the name of the loop counter, as stored in the {@link Session}
@@ -68,6 +107,53 @@ public interface DoWhileDuring<
   @Nonnull
   default On<T> doWhileDuring(
       @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
+    return doWhileDuring(condition, duration, counterName, false);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration in seconds
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition, long duration, @Nonnull String counterName) {
+    return doWhileDuring(condition, duration, counterName, false);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition, @Nonnull Duration duration, @Nonnull String counterName) {
+    return doWhileDuring(condition, duration, counterName, false);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration function
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition,
+      @Nonnull Function<Session, Duration> duration,
+      @Nonnull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -93,6 +179,52 @@ public interface DoWhileDuring<
    * isn't reached. The condition is evaluated at the end of the loop.
    *
    * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration in seconds
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull String condition, long duration, boolean exitASAP) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull String condition, Duration duration, boolean exitASAP) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition, Function<Session, Duration> duration, boolean exitASAP) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
    * @param duration the maximum duration, expressed as a Gatling Expression Language String that
    *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
    * @param counterName the name of the loop counter, as stored in the {@link Session}
@@ -104,6 +236,63 @@ public interface DoWhileDuring<
   default On<T> doWhileDuring(
       @Nonnull String condition,
       @Nonnull String duration,
+      @Nonnull String counterName,
+      boolean exitASAP) {
+    return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration in seconds
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition, long duration, @Nonnull String counterName, boolean exitASAP) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration), counterName, exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition,
+      @Nonnull Duration duration,
+      @Nonnull String counterName,
+      boolean exitASAP) {
+    return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @param duration the maximum duration function
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull String condition,
+      @Nonnull Function<Session, Duration> duration,
       @Nonnull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
@@ -130,6 +319,33 @@ public interface DoWhileDuring<
    * isn't reached. The condition is evaluated at the end of the loop.
    *
    * @param condition the condition, expressed as a function
+   * @param duration the maximum duration in seconds
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(@Nonnull Function<Session, Boolean> condition, long duration) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration));
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
    * @param duration the maximum duration, expressed as a function
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
@@ -138,6 +354,38 @@ public interface DoWhileDuring<
   default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
+      @Nonnull String counterName) {
+    return doWhileDuring(condition, duration, counterName, false);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration in seconds
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition, long duration, @Nonnull String counterName) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration), counterName);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition,
+      @Nonnull Duration duration,
       @Nonnull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
@@ -165,6 +413,38 @@ public interface DoWhileDuring<
    * isn't reached. The condition is evaluated at the end of the loop.
    *
    * @param condition the condition, expressed as a function
+   * @param duration the maximum duration in seconds
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration in seconds
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration, boolean exitASAP) {
+    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
    * @param duration the maximum duration, expressed as a function
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
@@ -175,6 +455,46 @@ public interface DoWhileDuring<
   default On<T> doWhileDuring(
       @Nonnull Function<Session, Boolean> condition,
       @Nonnull Function<Session, Duration> duration,
+      @Nonnull String counterName,
+      boolean exitASAP) {
+    return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration in seconds
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition,
+      long duration,
+      @Nonnull String counterName,
+      boolean exitASAP) {
+    return doWhileDuring(condition, Duration.ofSeconds(duration), counterName, exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached. The condition is evaluated at the end of the loop.
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  @Nonnull
+  default On<T> doWhileDuring(
+      @Nonnull Function<Session, Boolean> condition,
+      @Nonnull Duration duration,
       @Nonnull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));

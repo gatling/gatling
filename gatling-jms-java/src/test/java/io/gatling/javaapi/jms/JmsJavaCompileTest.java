@@ -128,7 +128,7 @@ public class JmsJavaCompileTest extends Simulation {
                   .check(bodyBytes().transform(bytes -> bytes.length).lte(50))
                   .check(bodyString())
                   .check(bodyString().is("hello"), substring("he").count().is(1))
-                  .checkIf("${bool}")
+                  .checkIf("#{bool}")
                   .then(jsonPath("$..foo"))
                   .checkIf((message, session) -> true)
                   .then(jsonPath("$").is("hello")))
@@ -139,7 +139,7 @@ public class JmsJavaCompileTest extends Simulation {
                   .queue("queue")
                   .textMessage("hello")
                   .property("header", "value")
-                  .property("header", "${value}")
+                  .property("header", "#{value}")
                   .property("header", session -> "value")
                   .jmsType("foo"))
 
@@ -164,11 +164,11 @@ public class JmsJavaCompileTest extends Simulation {
                   .queue("queue")
                   .textMessage("hello")
                   .property("header", "value")
-                  .property("header", "${value}")
+                  .property("header", "#{value}")
                   .property("header", session -> "value")
                   .jmsType("foo"));
 
-  public JmsJavaCompileTest() {
+  {
     setUp(scn.injectOpen(atOnceUsers(1))).protocols(jmsProtocol);
   }
 }

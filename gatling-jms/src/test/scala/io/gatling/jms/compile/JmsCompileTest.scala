@@ -121,11 +121,11 @@ class JmsCompileTest extends Simulation {
         .check(
           bodyString.is("hello"),
           substring("he").count.is(1),
-          checkIf("${bool}") {
+          checkIf("#{bool}") {
             jsonPath("$..foo")
           }
         )
-        .checkIf("${bool}") {
+        .checkIf("#{bool}") {
           jsonPath("$..foo")
         }
         .checkIf(_ => true) {
@@ -138,7 +138,7 @@ class JmsCompileTest extends Simulation {
         .queue("queue")
         .textMessage("hello")
         .property("header", "value")
-        .property("header", "${value}")
+        .property("header", "#{value}")
         .property("header", _ => "value")
         .jmsType("foo")
     )
@@ -186,7 +186,7 @@ class JmsCompileTest extends Simulation {
         .queue("queue")
         .textMessage("hello")
         .property("header", "value")
-        .property("header", "${value}")
+        .property("header", "#{value}")
         .property("header", _ => "value")
         .jmsType("foo")
     )

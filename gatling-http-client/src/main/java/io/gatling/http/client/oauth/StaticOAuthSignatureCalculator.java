@@ -18,14 +18,16 @@ package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
-class StaticOAuthSignatureCalculator implements SignatureCalculator {
+class StaticOAuthSignatureCalculator implements Consumer<Request> {
 
   private final ConsumerKey consumerKey;
   private final RequestToken requestToken;
@@ -41,25 +43,29 @@ class StaticOAuthSignatureCalculator implements SignatureCalculator {
   }
 
   @Override
-  public void sign(Request request) throws Exception {
-
+  public void accept(Request request) {
     RequestBody body = request.getBody();
     List<Param> formParams =
         body instanceof FormUrlEncodedRequestBody
             ? ((FormUrlEncodedRequestBody) body).getContent()
             : Collections.emptyList();
 
-    String authorization =
-        new OAuthSignatureCalculatorInstance()
-            .computeAuthorizationHeader(
-                consumerKey,
-                requestToken,
-                request.getMethod(),
-                request.getUri(),
-                formParams,
-                timestamp,
-                nonce);
+    try {
+      String authorization =
+          new OAuthSignatureCalculatorInstance()
+              .computeAuthorizationHeader(
+                  consumerKey,
+                  requestToken,
+                  request.getMethod(),
+                  request.getUri(),
+                  formParams,
+                  timestamp,
+                  nonce);
 
-    request.getHeaders().set(HttpHeaderNames.AUTHORIZATION, authorization);
+      request.getHeaders().set(HttpHeaderNames.AUTHORIZATION, authorization);
+
+    } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+      throw new IllegalArgumentException("Failed to compute OAuth signature", e);
+    }
   }
 }

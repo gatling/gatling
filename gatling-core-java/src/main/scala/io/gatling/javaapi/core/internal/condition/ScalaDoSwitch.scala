@@ -23,6 +23,7 @@ import scala.jdk.CollectionConverters._
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el._
 import io.gatling.javaapi.core.{ Choice, StructureBuilder }
+import io.gatling.javaapi.core.Choice.WithKey
 import io.gatling.javaapi.core.condition.DoSwitch
 import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
@@ -38,7 +39,7 @@ object ScalaDoSwitch {
     new Then(context, javaObjectFunctionToExpression(condition))
 
   final class Then[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](context: DoSwitch[T, W], value: Expression[Any]) {
-    def choices(choices: ju.List[Choice.WithValue]): T =
-      context.make(_.doSwitch(value)(choices.asScala.map(p => (p.value, p.chain.wrapped)).toSeq: _*))
+    def choices(choices: ju.List[WithKey]): T =
+      context.make(_.doSwitch(value)(choices.asScala.map(p => (p.key, p.chain.wrapped)).toSeq: _*))
   }
 }

@@ -21,7 +21,6 @@ import static io.netty.handler.codec.http.HttpMethod.*;
 
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.http.client.proxy.HttpProxyServer;
@@ -31,6 +30,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class WritableRequestBuilder {
 
@@ -112,11 +112,11 @@ public class WritableRequestBuilder {
             ? buildRequestWithoutBody(url, request.getMethod(), headers)
             : buildRequestWithBody(url, request.getMethod(), headers, requestBody, alloc);
 
-    SignatureCalculator signatureCalculator = request.getSignatureCalculator();
+    Consumer<Request> signatureCalculator = request.getSignatureCalculator();
     if (signatureCalculator != null) {
       // only apply now that WritableRequest has patched Content-Length and Transfer-Encoding
       // headers
-      signatureCalculator.sign(request);
+      signatureCalculator.accept(request);
     }
     return writableRequest;
   }

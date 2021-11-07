@@ -62,31 +62,31 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "One monovalued Expression" should "return expected result when the variable is the whole string" in {
     val session = newSession(Map("bar" -> "BAR"))
-    val expression = "${bar}".el[String]
+    val expression = "#{bar}".el[String]
     expression(session).succeeded shouldBe "BAR"
   }
 
   it should "return expected result when the variable is at the end of the string" in {
     val session = newSession(Map("bar" -> "BAR"))
-    val expression = "foo${bar}".el[String]
+    val expression = "foo#{bar}".el[String]
     expression(session).succeeded shouldBe "fooBAR"
   }
 
   it should "return expected result when the variable is at the beginning of the string" in {
     val session = newSession(Map("bar" -> "BAR"))
-    val expression = "${bar}baz".el[String]
+    val expression = "#{bar}baz".el[String]
     expression(session).succeeded shouldBe "BARbaz"
   }
 
   it should "return expected result when the variable is in the middle of the string" in {
     val session = newSession(Map("bar" -> "BAR"))
-    val expression = "foo${bar}baz".el[String]
+    val expression = "foo#{bar}baz".el[String]
     expression(session).succeeded shouldBe "fooBARbaz"
   }
 
   it should "handle gracefully when an attribute is missing" in {
     val session = newSession(Map("foo" -> "FOO"))
-    val expression = "foo${bar}".el[String]
+    val expression = "foo#{bar}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
@@ -98,14 +98,14 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   it should "properly handle JsonPath expression template" in {
     val session = newSession(Map("foo" -> "FOO"))
-    val expression = "$.${foo}.bar".el[String]
+    val expression = "$.#{foo}.bar".el[String]
     expression(session).succeeded shouldBe "$.FOO.bar"
   }
 
   it should "properly handle multiline JSON template" in {
     val session = newSession(Map("foo" -> "FOO"))
     val expression = """{
-        "foo": ${foo},
+        "foo": #{foo},
         "bar": 1
       }""".el[String]
     expression(session).succeeded shouldBe """{
@@ -116,31 +116,31 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
     val session = newSession(Map("foo" -> "FOO", "bar" -> "BAR"))
-    val expression = "${foo} ${bar}".el[String]
+    val expression = "#{foo} #{bar}".el[String]
     expression(session).succeeded shouldBe "FOO BAR"
   }
 
   it should "return expected result when used with a static index" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
-    val expression = "foo${bar(1)}".el[String]
+    val expression = "foo#{bar(1)}".el[String]
     expression(session).succeeded shouldBe "fooBAR2"
   }
 
   "'index' function in Expression" should "return n-th element of a list in monovalued expression" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
-    val expression = "${bar(0)}".el[String]
+    val expression = "#{bar(0)}".el[String]
     expression(session).succeeded shouldBe "BAR1"
   }
 
   it should "return expected result when used with resolved index" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
-    val expression = "{foo${bar(baz)}}".el[String]
+    val expression = "{foo#{bar(baz)}}".el[String]
     expression(session).succeeded shouldBe "{fooBAR2}"
   }
 
   it should "return n-th element of an Array" in {
     val session = newSession(Map("arr" -> Array(1, 2)))
-    val expression = "${arr(0)}".el[Int]
+    val expression = "#{arr(0)}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
@@ -149,13 +149,13 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     lst.add(1)
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(0)}".el[Int]
+    val expression = "#{lst(0)}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "handle gracefully when index in an Array is out of range" in {
     val session = newSession(Map("arr" -> Array(1, 2)))
-    val expression = "${arr(2)}".el[Int]
+    val expression = "#{arr(2)}".el[Int]
     expression(session).failed shouldBe ElMessages.undefinedSeqIndex("arr", 2).message
   }
 
@@ -164,67 +164,67 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     lst.add(1)
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(2)}".el[Int]
+    val expression = "#{lst(2)}".el[Int]
     expression(session).failed shouldBe ElMessages.undefinedSeqIndex("lst", 2).message
   }
 
   it should "handle gracefully when used with static index and missing attribute" in {
     val session = newSession(Map.empty)
-    val expression = "foo${bar(1)}".el[String]
+    val expression = "foo#{bar(1)}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
   it should "handle gracefully when used with static index and empty attribute" in {
     val session = newSession(Map("bar" -> Nil))
-    val expression = "foo${bar(1)}".el[String]
+    val expression = "foo#{bar(1)}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSeqIndex("bar", 1).message
   }
 
   it should "handle gracefully when used with static index and missing index" in {
     val session = newSession(Map("bar" -> List("BAR1")))
-    val expression = "foo${bar(1)}".el[String]
+    val expression = "foo#{bar(1)}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSeqIndex("bar", 1).message
   }
 
   it should "handle gracefully when used with missing resolved index attribute" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
-    val expression = "{foo${bar(baz)}}".el[String]
+    val expression = "{foo#{bar(baz)}}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("baz").message
   }
 
   it should "handle gracefully value of unsupported type" in {
     val session = newSession(Map("i" -> 1))
-    val expression = "${i(0)}".el[Int]
+    val expression = "#{i(0)}".el[Int]
     expression(session).failed shouldBe ElMessages.indexAccessNotSupported(1, "i").message
   }
 
   it should "support tuples" in {
     val session = newSession(Map("tuple" -> ("foo", "bar")))
-    val expression = "${tuple(0)}".el[String]
+    val expression = "#{tuple(0)}".el[String]
     expression(session).succeeded shouldBe "foo"
   }
 
   "'size' function in Expression" should "return correct size for non empty seq" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
-    val expression = "${bar.size()}".el[Int]
+    val expression = "#{bar.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "return correct size for empty seq" in {
     val session = newSession(Map("bar" -> List()))
-    val expression = "${bar.size()}".el[Int]
+    val expression = "#{bar.size()}".el[Int]
     expression(session).succeeded shouldBe 0
   }
 
   it should "return 0 size for missing attribute" in {
     val session = newSession(Map.empty)
-    val expression = "${bar.size()}".el[Int]
+    val expression = "#{bar.size()}".el[Int]
     expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
   it should "return correct size for a non empty Array" in {
     val session = newSession(Map("arr" -> Array(1, 2)))
-    val expression = "${arr.size()}".el[Int]
+    val expression = "#{arr.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
@@ -233,13 +233,13 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     lst.add(1)
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst.size()}".el[Int]
+    val expression = "#{lst.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "return correct size for a non empty map" in {
     val session = newSession(Map("map" -> Map("key1" -> "val1", "key2" -> "val2")))
-    val expression = "${map.size()}".el[Int]
+    val expression = "#{map.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
@@ -248,7 +248,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     set.add(1)
     set.add(2)
     val session = newSession(Map("set" -> set))
-    val expression = "${set.size()}".el[Int]
+    val expression = "#{set.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
@@ -257,20 +257,20 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     map.put(1, 1)
     map.put(2, 2)
     val session = newSession(Map("map" -> map))
-    val expression = "${map.size()}".el[Int]
+    val expression = "#{map.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "handle gracefully unsupported type" in {
     val session = newSession(Map("i" -> 10))
-    val expression = "${i.size()}".el[Int]
+    val expression = "#{i.size()}".el[Int]
     expression(session).failed shouldBe ElMessages.sizeNotSupported(10, "i").message
   }
 
   "'random' function in Expression" should "return one of elements of List" in {
     val elements = List("BAR1", "BAR2")
     val session = newSession(Map("bar" -> elements))
-    val expression = "${bar.random()}".el[String]
+    val expression = "#{bar.random()}".el[String]
     expression(session).succeeded should (be("BAR1") or be("BAR2"))
   }
 
@@ -279,38 +279,38 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     list.add(1)
     list.add(2)
     val session = newSession(Map("lst" -> list))
-    val expression = "${lst.random()}".el[Int]
+    val expression = "#{lst.random()}".el[Int]
     expression(session).succeeded should (be(1) or be(2))
   }
 
   it should "return one of elements of Array" in {
     val session = newSession(Map("arr" -> Array(1, 2)))
-    val expression = "${arr.random()}".el[Int]
+    val expression = "#{arr.random()}".el[Int]
     expression(session).succeeded should (be(1) or be(2))
   }
 
   it should "handle unsupported type" in {
     val session = newSession(Map("i" -> 10))
-    val expression = "${i.random()}".el[Int]
+    val expression = "#{i.random()}".el[Int]
     expression(session).failed shouldBe el.ElMessages.randomNotSupported(10, "i").message
   }
 
   "'exists' function in Expression" should "validate that a value is in the session" in {
     val session = newSession(Map("key1" -> "val1"))
-    val expression = "${key1.exists()}".el[Boolean]
+    val expression = "#{key1.exists()}".el[Boolean]
     expression(session).succeeded shouldBe true
   }
 
   it should "validate that a value is not in the session" in {
     val session = newSession(Map.empty)
-    val expression = "${key1.exists()}".el[Boolean]
+    val expression = "#{key1.exists()}".el[Boolean]
     expression(session).succeeded shouldBe false
   }
 
   "access map in Expression" should "return value by key" in {
     val map = Map("key1" -> "val1", "key2" -> "val2")
     val session = newSession(Map("map" -> map))
-    val expression = "${map.key1}".el[String]
+    val expression = "#{map.key1}".el[String]
     expression(session).succeeded shouldBe "val1"
   }
 
@@ -319,26 +319,26 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     map.put("key1", 1)
     map.put("key2", 2)
     val session = newSession(Map("map" -> map))
-    val expression = "${map.key1}".el[Int]
+    val expression = "#{map.key1}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "handle missing map correctly" in {
     val session = newSession(Map.empty)
-    val expression = "${map.key1}".el[String]
+    val expression = "#{map.key1}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("map").message
   }
 
   it should "handle nested map access" in {
     val session = newSession(Map("map" -> Map("key" -> Map("subKey" -> "val"))))
-    val expression = "${map.key.subKey}".el[String]
+    val expression = "#{map.key.subKey}".el[String]
     expression(session).succeeded shouldBe "val"
   }
 
   it should "handle missing value correctly" in {
     val map = Map("key" -> "val")
     val session = newSession(Map("map" -> map))
-    val expression = "${map.nonexisting}".el[String]
+    val expression = "#{map.nonexisting}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedMapKey("map", "nonexisting").message
   }
 
@@ -346,32 +346,32 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val map = new ju.HashMap[String, Int]
     map.put("key1", 1)
     val session = newSession(Map("map" -> map))
-    val expression = "${map.nonexisting}".el[Int]
+    val expression = "#{map.nonexisting}".el[Int]
     expression(session).failed shouldBe ElMessages.undefinedMapKey("map", "nonexisting").message
   }
 
   it should "handle wrong type correctly" in {
     val session = newSession(Map("i" -> 1))
-    val expression = "${i.key}".el[Int]
+    val expression = "#{i.key}".el[Int]
     expression(session).failed shouldBe ElMessages.accessByKeyNotSupported(1, "i").message
   }
 
   it should "support case classes String attribute" in {
     val session = newSession(Map("foo" -> Foo("hello")))
-    val expression = "${foo.bar}".el[String]
+    val expression = "#{foo.bar}".el[String]
     expression(session).succeeded shouldBe "hello"
   }
 
   it should "extract case classes attributes with primitive types" in {
     val session = emptySession.set("foo", Primitives(boolean = true, 1, 1, 1, 1L, 1.1.toFloat, 1.1, 'a'))
-    "${foo.boolean}".el[Boolean].apply(session).succeeded shouldBe true
-    "${foo.byte}".el[Byte].apply(session).succeeded shouldBe 1
-    "${foo.short}".el[Short].apply(session).succeeded shouldBe 1
-    "${foo.int}".el[Int].apply(session).succeeded shouldBe 1
-    "${foo.long}".el[Long].apply(session).succeeded shouldBe 1L
-    "${foo.float}".el[Float].apply(session).succeeded shouldBe 1.1.toFloat
-    "${foo.double}".el[Double].apply(session).succeeded shouldBe 1.1
-    "${foo.char}".el[Char].apply(session).succeeded shouldBe 'a'
+    "#{foo.boolean}".el[Boolean].apply(session).succeeded shouldBe true
+    "#{foo.byte}".el[Byte].apply(session).succeeded shouldBe 1
+    "#{foo.short}".el[Short].apply(session).succeeded shouldBe 1
+    "#{foo.int}".el[Int].apply(session).succeeded shouldBe 1
+    "#{foo.long}".el[Long].apply(session).succeeded shouldBe 1L
+    "#{foo.float}".el[Float].apply(session).succeeded shouldBe 1.1.toFloat
+    "#{foo.double}".el[Double].apply(session).succeeded shouldBe 1.1
+    "#{foo.char}".el[Char].apply(session).succeeded shouldBe 'a'
   }
 
   it should "support POJO String attributes" in {
@@ -379,7 +379,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     pojo.setMyString("hello")
 
     val session = newSession(Map("foo" -> pojo))
-    val expression = "${foo.myString}".el[String]
+    val expression = "#{foo.myString}".el[String]
     expression(session).succeeded shouldBe "hello"
   }
 
@@ -388,7 +388,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     pojo.setMyBoolean(true)
 
     val session = newSession(Map("foo" -> pojo))
-    val expression = "${foo.myBoolean}".el[Boolean]
+    val expression = "#{foo.myBoolean}".el[Boolean]
     expression(session).succeeded shouldBe true
   }
 
@@ -396,233 +396,233 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val pojo = new MyPojo
 
     val session = newSession(Map("foo" -> pojo))
-    val expression = "${foo.myString}".el[String]
+    val expression = "#{foo.myString}".el[String]
     expression(session).failed shouldBe "Value is null"
   }
 
   it should "handle wrong key" in {
     val session = newSession(Map("foo" -> Foo("hello")))
-    val expression = "${foo.qix}".el[String]
+    val expression = "#{foo.qix}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedMapKey("foo", "qix").message
   }
 
   it should "handle deeply nested case classes" in {
     val session = newSession(Map("bar" -> Bar(Baz("fux"))))
-    val expression = "${bar.baz.qix}".el[String]
+    val expression = "#{bar.baz.qix}".el[String]
     expression(session).succeeded shouldBe "fux"
   }
 
   "multiple level access" should "return an element of a sub-list" in {
     val lst = List(List(1, 2), List(3, 4))
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(0)(0)}".el[Int]
+    val expression = "#{lst(0)(0)}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "return key of a map in a list" in {
     val lst = List(Map("key" -> "val"))
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(0).key}".el[String]
+    val expression = "#{lst(0).key}".el[String]
     expression(session).succeeded shouldBe "val"
   }
 
   it should "return an element of a list from a map" in {
     val map = Map("lst" -> List(1, 2))
     val session = newSession(Map("map" -> map))
-    val expression = "${map.lst(0)}".el[Int]
+    val expression = "#{map.lst(0)}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "return a value from a sub-map" in {
     val map = Map("subMap" -> Map("key" -> "val"))
     val session = newSession(Map("map" -> map))
-    val expression = "${map.subMap.key}".el[String]
+    val expression = "#{map.subMap.key}".el[String]
     expression(session).succeeded shouldBe "val"
   }
 
   it should "return a value from a random list" in {
     val lst = List(List(1, 2), List(3, 4))
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst.random()(0)}".el[Int]
+    val expression = "#{lst.random()(0)}".el[Int]
     expression(session).succeeded should (be(1) or be(3))
   }
 
   it should "return size of a sub-list" in {
     val lst = List(List(1, 2), List(3, 4, 5))
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(1).size()}".el[Int]
+    val expression = "#{lst(1).size()}".el[Int]
     expression(session).succeeded shouldBe 3
   }
 
   it should "name of a value is correct" in {
     val lst = List(Map("key" -> "value"))
     val session = newSession(Map("lst" -> lst))
-    val expression = "${lst(0).key.nonexisting}".el[Int]
+    val expression = "#{lst(0).key.nonexisting}".el[Int]
     expression(session).failed shouldBe ElMessages.accessByKeyNotSupported("value", "lst(0).key").message
   }
 
   "tuples access" should "return size of Tuple2" in {
     val session = newSession(Map("tuple" -> Tuple2(1, 1)))
-    val expression = "${tuple.size()}".el[Int]
+    val expression = "#{tuple.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "return size of Tuple3" in {
     val session = newSession(Map("tuple" -> Tuple3(1, 1, 1)))
-    val expression = "${tuple.size()}".el[Int]
+    val expression = "#{tuple.size()}".el[Int]
     expression(session).succeeded shouldBe 3
   }
 
   it should "return first element of a Tuple" in {
     val session = newSession(Map("tuple" -> Tuple3(1, 2, 3)))
-    val expression = "${tuple._1}".el[Int]
+    val expression = "#{tuple._1}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "return last element of a Tuple" in {
     val session = newSession(Map("tuple" -> Tuple3(1, 2, 3)))
-    val expression = "${tuple._3}".el[Int]
+    val expression = "#{tuple._3}".el[Int]
     expression(session).succeeded shouldBe 3
   }
 
   it should "return a random element of a Tuple" in {
     val session = newSession(Map("tuple" -> Tuple3(1, 2, 3)))
-    val expression = "${tuple.random()}".el[Int]
+    val expression = "#{tuple.random()}".el[Int]
     expression(session).succeeded should (be(1) or be(2) or be(3))
   }
 
   it should "return element with zero index in a Tuple" in {
     val tuple = Tuple3(1, 2, 3)
     val session = newSession(Map("tuple" -> tuple))
-    val expression = "${tuple._0}".el[Int]
+    val expression = "#{tuple._0}".el[Int]
     expression(session).failed shouldBe ElMessages.outOfRangeAccess("tuple", tuple, 0).message
   }
 
   it should "return element of range" in {
     val tuple = Tuple3(1, 2, 3)
     val session = newSession(Map("tuple" -> tuple))
-    val expression = "${tuple._4}".el[Int]
+    val expression = "#{tuple._4}".el[Int]
     expression(session).failed shouldBe ElMessages.outOfRangeAccess("tuple", tuple, 4).message
   }
 
   it should "handle correctly if object do not support tuple access" in {
     val int = 5
     val session = newSession(Map("i" -> int))
-    val expression = "${i._3}".el[Int]
+    val expression = "#{i._3}".el[Int]
     expression(session).failed shouldBe ElMessages.tupleAccessNotSupported("i", int).message
   }
 
   "pairs access" should "return size of a Pair" in {
     val session = newSession(Map("pair" -> (1 -> 2)))
-    val expression = "${pair.size()}".el[Int]
+    val expression = "#{pair.size()}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "return first element of a pair" in {
     val session = newSession(Map("pair" -> (1 -> 2)))
-    val expression = "${pair._1}".el[Int]
+    val expression = "#{pair._1}".el[Int]
     expression(session).succeeded shouldBe 1
   }
 
   it should "return second element of a pair" in {
     val session = newSession(Map("pair" -> (1 -> 2)))
-    val expression = "${pair._2}".el[Int]
+    val expression = "#{pair._2}".el[Int]
     expression(session).succeeded shouldBe 2
   }
 
   it should "return random element of a pair" in {
     val session = newSession(Map("pair" -> (1 -> 2)))
-    val expression = "${pair.random()}".el[Int]
+    val expression = "#{pair.random()}".el[Int]
     expression(session).succeeded should (be(1) or be(2))
   }
 
   it should "return zero element of a pair" in {
     val pair = 1 -> 2
     val session = newSession(Map("pair" -> pair))
-    val expression = "${pair._0}".el[Int]
+    val expression = "#{pair._0}".el[Int]
     expression(session).failed shouldBe ElMessages.outOfRangeAccess("pair", pair, 0).message
   }
 
   it should "return out of range element of a pair" in {
     val pair = 1 -> 2
     val session = newSession(Map("pair" -> pair))
-    val expression = "${pair._3}".el[Int]
+    val expression = "#{pair._3}".el[Int]
     expression(session).failed shouldBe ElMessages.outOfRangeAccess("pair", pair, 3).message
   }
 
   "Malformed Expression" should "be handled correctly when an attribute name is missing" in {
-    a[ElParserException] should be thrownBy "foo${}bar".el[String]
+    a[ElParserException] should be thrownBy "foo#{}bar".el[String]
   }
 
   it should "be handled when ${ is not closed" in {
-    a[ElParserException] should be thrownBy "${foo".el[String]
+    a[ElParserException] should be thrownBy "#{foo".el[String]
   }
 
   "'isUndefined' function in Expression" should "validate that a value is not in the session" in {
     val session = newSession(Map.empty)
-    val expression = "${key1.isUndefined()}".el[Boolean]
+    val expression = "#{key1.isUndefined()}".el[Boolean]
     expression(session).succeeded shouldBe true
   }
 
   it should "validate that a value is in the session" in {
     val session = newSession(Map("key1" -> "value1"))
-    val expression = "${key1.isUndefined()}".el[Boolean]
+    val expression = "#{key1.isUndefined()}".el[Boolean]
     expression(session).succeeded shouldBe false
   }
 
   it should "be handled correctly when there is a nested attribute definition with string before nested attribute" in {
-    a[ElParserException] should be thrownBy "${foo${bar}}".el[String]
+    a[ElParserException] should be thrownBy "#{foo${bar}}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition with string after nested attribute" in {
-    a[ElParserException] should be thrownBy "${${bar}foo}".el[String]
+    a[ElParserException] should be thrownBy "#{#{bar}foo}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition with string before and after nested attribute" in {
-    a[ElParserException] should be thrownBy "${foo${bar}foo}".el[String]
+    a[ElParserException] should be thrownBy "#{foo#{bar}foo}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition" in {
-    a[ElParserException] should be thrownBy "${${bar}}".el[String]
+    a[ElParserException] should be thrownBy "#{#{bar}}".el[String]
   }
 
   it should "be handled correctly when there are several nested attributes" in {
-    a[ElParserException] should be thrownBy "${${bar}${bar}}".el[String]
+    a[ElParserException] should be thrownBy "#{#{bar}${bar}}".el[String]
   }
 
   "jsonStringify" should "support String value" in {
     val session = newSession(Map("value" -> "VALUE"))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    val expression = """"name": #{value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": "VALUE""""
   }
 
   it should "support number value" in {
     val session = newSession(Map("value" -> 5.0))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    val expression = """"name": #{value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": 5.0"""
   }
 
   it should "support null value" in {
     val session = newSession(Map("value" -> null))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    val expression = """"name": #{value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": null"""
   }
 
   it should "support arrays" in {
     val session = newSession(Map("value" -> Array("a", 1)))
-    val expression = """${value.jsonStringify()}""".el[String]
+    val expression = "#{value.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """["a",1]"""
   }
 
   it should "support maps/objects" in {
     val session = newSession(Map("value" -> Map("foo" -> "bar", "baz" -> 1)))
-    val expression = """${value.jsonStringify()}""".el[String]
+    val expression = "#{value.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"foo":"bar","baz":1}"""
   }
 
   it should "support case classes" in {
     val session = newSession(Map("bar" -> Bar(Baz("fux"))))
-    val expression = """${bar.jsonStringify()}""".el[String]
+    val expression = "#{bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":{"qix":"fux"}}"""
   }
 
@@ -630,63 +630,49 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val pojo = new MyPojo
     pojo.setMyString("hello")
     val session = newSession(Map("pojo" -> pojo))
-    val expression = """${pojo.jsonStringify()}""".el[String]
+    val expression = "#{pojo.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"myString":"hello","myBoolean":false}"""
   }
 
   it should "support key access" in {
     val json = Map("bar" -> Map("baz" -> "qix"))
     val session = newSession(Map("foo" -> json))
-    val expression = "${foo.bar.jsonStringify()}".el[String]
+    val expression = "#{foo.bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":"qix"}"""
   }
 
   it should "return the original failure when failing" in {
     val session = newSession(Map("foo" -> "bar"))
-    val failedKeyAccessExpression = "${foo.bar}".el[String]
-    val failedJsonStringifyExpression = "${foo.bar.jsonStringify()}".el[String]
+    val failedKeyAccessExpression = "#{foo.bar}".el[String]
+    val failedJsonStringifyExpression = "#{foo.bar.jsonStringify()}".el[String]
     failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
   }
 
   "currentTimeMillis" should "generate a long" in {
     val session = newSession(Map("foo" -> "bar"))
-    val currentTimeMillisExpression = "${currentTimeMillis()}".el[Long]
+    val currentTimeMillisExpression = "#{currentTimeMillis()}".el[Long]
     currentTimeMillisExpression(session).succeeded shouldBe a[Long]
   }
 
   "currentDate" should "generate a String" in {
-    val currentDateExpression = """${currentDate(yyyy-MM-dd HH:mm:ss)}""".el[String]
+    val currentDateExpression = "#{currentDate(yyyy-MM-dd HH:mm:ss)}".el[String]
     currentDateExpression(emptySession).succeeded.length shouldBe 19
   }
 
   it should "support patterns with a dot" in {
-    val currentDateExpression = """${currentDate("YYYY-MM-dd'T'HH:mm:ss.SSSMs'Z'")}""".el[String]
+    val currentDateExpression = """#{currentDate("YYYY-MM-dd'T'HH:mm:ss.SSSMs'Z'")}""".el[String]
     currentDateExpression(emptySession) shouldBe a[Success[_]]
   }
 
   "htmlUnescape" should "escape HTML entities" in {
-    val expression = """${foo.htmlUnescape()}""".el[String]
+    val expression = "#{foo.htmlUnescape()}".el[String]
     val session = newSession(Map("foo" -> "foo &eacute; bar"))
     expression(session).succeeded shouldBe "foo é bar"
   }
 
-  "Escaping" should "turn $${ into ${" in {
+  "Escaping" should "turn \\#{ into #{" in {
     val session = newSession(Map("foo" -> "FOO"))
-    val expression = "$${foo}".el[String]
-    expression(session).succeeded shouldBe "${foo}"
-  }
-
-  it should "keep one $ in $$${" in {
-    val session = newSession(Map("foo" -> "FOO"))
-    val expression = "$$${foo}".el[String]
-    expression(session).succeeded shouldBe "$FOO"
-  }
-
-  it should "handle multiple escape sequences correctly" in {
-    val session = newSession(Map("foo" -> "FOO"))
-
-    "$${foo$${foo}".el[String].apply(session).succeeded shouldBe "${foo${foo}"
-    "bar$$$$${foo}$${foo}".el[String].apply(session).succeeded shouldBe "bar$$FOO${foo}"
-    "$$$${foo}$${foo}$${foo}$$${foo}".el[String].apply(session).succeeded shouldBe "$${foo}${foo}${foo}$FOO"
+    val expression = "\\#{foo}".el[String]
+    expression(session).succeeded shouldBe "#{foo}"
   }
 }

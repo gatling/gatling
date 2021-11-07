@@ -9,43 +9,34 @@ weight: 005090
 
 SSE support is an extension to the HTTP DSL, whose entry point is the `sse(requestName: Expression[String])` method.
 
-## Common operations
+## `sseName`
 
 If you want to deal with several SSE streams per virtual users, you have to give them a name and pass this name on each SSE operation:
-
-`sseName(name: String)`
-
 For example:
 
-{{< include-code "SseSample.scala#sseName" scala >}}
+{{< include-code "sseName" java kt scala >}}
 
 Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
-### Connect
+## `connect`
 
 The first thing is to get a server sent event:
 
-`connect(url: Expression[String])`
-
 For example:
 
-{{< include-code "SseSample.scala#sseConnect" scala >}}
+{{< include-code "sseConnect" java kt scala >}}
 
 {{< alert tip >}}
 Gatling automatically sets `Accept` header to `text/event-stream` and `Cache-Control` to `no-cache`.
 {{< /alert >}}
 
-### Close
+## `close`
 
-When you're done with a SSE stream, you can close it:
+Once you're done with a SSE stream, you can close it.
 
-`close`
+{{< include-code "sseClose" java kt scala >}}
 
-For example:
-
-{{< include-code "SseSample.scala#sseClose" scala >}}
-
-## Server Messages: Checks
+## Checks
 
 You deal with incoming messages with checks.
 
@@ -57,52 +48,44 @@ Gatling currently only supports blocking checks that will wait until receiving e
 
 You can set a check right after connecting:
 
-{{< include-code "SseSample.scala#check-from-connect" scala >}}
+{{< include-code "check-from-connect" java kt scala >}}
 
 Or you can set a check from main flow:
 
-{{< include-code "SseSample.scala#check-from-flow" scala >}}
+{{< include-code "check-from-flow" java kt scala >}}
 
 You can set multiple checks sequentially. Each one will expect one single frame.
 
 You can configure multiple checks in a single sequence:
 
-{{< include-code "SseSample.scala#check-single-sequence" scala >}}
+{{< include-code "check-single-sequence" java kt scala >}}
 
 You can also configure multiple check sequences with different timeouts:
 
-{{< include-code "SseSample.scala#check-multiple-sequence" scala >}}
+{{< include-code "check-multiple-sequence" java kt scala >}}
 
 ### Create a check
 
 You can create checks for server events with `checkMessage`.
 You can use almost all the same check criteria as for HTTP requests.
 
-{{< include-code "SseSample.scala#create-single-check" scala >}}
+{{< include-code "create-single-check" java kt scala >}}
 
 You can have multiple criteria for a given message:
 
-{{< include-code "SseSample.scala#create-multiple-checks" scala >}}
+{{< include-code "create-multiple-checks" java kt scala >}}
 
 ### Matching messages
 
 You can define `matching` criteria to filter messages you want to check.
 Matching criterion is a standard check, except it doesn't take `saveAs`.
-Non matching messages will be ignored.
+Non-matching messages will be ignored.
 
-{{< include-code "SseSample.scala#check-matching" scala >}}
-
-## Configuration
-
-Server sent event support uses the same parameter as the HttpProtocol:
-
-`baseUrl(url: String)`: serves as root that will be prepended to all relative server sent event urls
-
-`baseUrls(urls: String*)`: serves as round-robin roots that will be prepended to all relative server sent event urls
+{{< include-code "check-matching" java kt scala >}}
 
 ## Debugging
 
-In your logback configuration, lower logging level to `DEBUG` on logger `io.gatling.http.action.sse.fsm`:
+You can inspect streams if you add the following logger to your logback configuration:
 
 ```xml
 <logger name="io.gatling.http.action.sse.fsm" level="DEBUG" />
@@ -112,4 +95,4 @@ In your logback configuration, lower logging level to `DEBUG` on logger `io.gatl
 
 Here's an example that runs against a stock market sample:
 
-{{< include-code "SseSample.scala#stock-market-sample" scala >}}
+{{< include-code "stock-market-sample" java kt scala >}}

@@ -18,7 +18,7 @@ object Dependencies {
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.44.Final"
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.45.Final"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.6.0"
   private val brotli4jMacOs                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
@@ -41,7 +41,7 @@ object Dependencies {
   private val lagarto                        = "org.jodd"                             % "jodd-lagarto"                    % "6.0.5"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
-  private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.40"
+  private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.41"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.5.7")
     .exclude("org.jline", "jline")
     .exclude("org.scala-sbt.jline3", "jline-terminal")
@@ -92,6 +92,11 @@ object Dependencies {
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.44.v20210927"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % Test
 
+  // Docs dependencies
+  private val commonsIo                      = "commons-io"                           % "commons-io"                      % "2.11.0"
+  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                   % "3.12.0"
+  private val commonsCodec                   = "commons-codec"                        % "commons-codec"                   % "1.15"
+
   // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
@@ -106,6 +111,9 @@ object Dependencies {
   private val parserDeps = Seq(jackson, saxon, lagarto, jmespath)
 
   // Dependencies by module
+
+  val docSamplesDependencies =
+    Seq(commonsIo, commonsLang, commonsCodec)
 
   val nettyUtilDependencies =
     Seq(nettyBuffer, nettyEpoll, junit, junitEngine, jupiterInterface)

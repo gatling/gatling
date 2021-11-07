@@ -35,6 +35,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
   def feed(feederBuilder: FeederBuilder): B =
     feed(feederBuilder, Feeds.OneExpression)
 
+  @deprecated("Feeding multiple records at once and translating names will be dropped in the next release", "3.7.0")
   // we need this overload because Int => Expression[Int] and Int => Expression[FiniteDuration] suddenly conflict?!
   def feed(feederBuilder: FeederBuilder, number: Int): B =
     feed(feederBuilder, number.expressionSuccess)
@@ -45,6 +46,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
    * @param feederBuilder a factory of a source of records
    * @param number the number of records to be injected
    */
+  @deprecated("This feature will be dropped in the next release", "3.7.0")
   def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
     exec(new FeedBuilder(feederBuilder, number))
 

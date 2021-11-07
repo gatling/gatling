@@ -25,7 +25,9 @@ trait FeederBuilderBase[T] extends FeederBuilder {
   def random: FeederBuilderBase[T]
   def shuffle: FeederBuilderBase[T]
   def circular: FeederBuilderBase[T]
-  def convert(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any]
+  def transform(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any]
+  @deprecated("Please use transform instead.", "3.7.0")
+  def convert(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any] = transform(f)
   def readRecords: Seq[Record[Any]]
   def shard: FeederBuilderBase[T]
 }
@@ -35,7 +37,7 @@ trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
   override def random: FileBasedFeederBuilder[T]
   override def shuffle: FileBasedFeederBuilder[T]
   override def circular: FileBasedFeederBuilder[T]
-  override def convert(f: PartialFunction[(String, T), Any]): FileBasedFeederBuilder[Any]
+  override def transform(f: PartialFunction[(String, T), Any]): FileBasedFeederBuilder[Any]
   override def shard: FileBasedFeederBuilder[T]
   def unzip: FileBasedFeederBuilder[T]
 }
@@ -45,12 +47,12 @@ trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
   override def random: BatchableFeederBuilder[T]
   override def shuffle: BatchableFeederBuilder[T]
   override def circular: BatchableFeederBuilder[T]
-  override def convert(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any]
+  override def transform(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any]
   override def shard: BatchableFeederBuilder[T]
   override def unzip: BatchableFeederBuilder[T]
   def eager: BatchableFeederBuilder[T]
-  def batch: BatchableFeederBuilder[T] = batch(Batch.DefaultBufferSize)
-  def batch(bufferSize: Int): BatchableFeederBuilder[T]
+  def batch: BatchableFeederBuilder[T] = batch(Batch.DefaultBufferLines)
+  def batch(lines: Int): BatchableFeederBuilder[T]
 }
 
 object SourceFeederBuilder {
@@ -69,7 +71,7 @@ final case class SourceFeederBuilder[T](
   def shuffle: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Shuffle)
   def circular: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Circular)
 
-  override def convert(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any] = {
+  override def transform(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any] = {
     val conversion: Record[T] => Record[Any] =
       _.map {
         case pair if f.isDefinedAt(pair) => pair._1 -> f(pair)
@@ -93,7 +95,7 @@ final case class SourceFeederBuilder[T](
 private[feeder] trait FeederLoadingMode
 private[feeder] case object Eager extends FeederLoadingMode
 private[feeder] object Batch {
-  val DefaultBufferSize: Int = 2000
+  val DefaultBufferLines: Int = 2000
 }
 private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMode
 private[feeder] case object Adaptive extends FeederLoadingMode

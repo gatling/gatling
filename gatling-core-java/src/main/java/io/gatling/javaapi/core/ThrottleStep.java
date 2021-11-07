@@ -58,6 +58,17 @@ public final class ThrottleStep {
     }
 
     /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param duration the duration in seconds
+     * @return a new ThrottleStep
+     */
+    @Nonnull
+    public ThrottleStep during(int duration) {
+      return in(duration);
+    }
+
+    /**
      * Define the duration of a throttling ramp
      *
      * @param duration the duration
@@ -67,6 +78,17 @@ public final class ThrottleStep {
     public ThrottleStep in(@Nonnull Duration duration) {
       return new ThrottleStep(
           new io.gatling.core.controller.throttle.Reach(target, toScalaDuration(duration)));
+    }
+
+    /**
+     * Alias for `in` that's a reserved keyword in Kotlin
+     *
+     * @param duration the duration
+     * @return a new ThrottleStep
+     */
+    @Nonnull
+    public ThrottleStep during(@Nonnull Duration duration) {
+      return in(duration);
     }
   }
 }

@@ -26,7 +26,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches, LocalAddressSupport }
-import io.gatling.http.client.{ Request, SignatureCalculator, RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.uri.{ Uri, UriEncoder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
@@ -74,7 +74,7 @@ abstract class RequestExpressionBuilder(
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
-  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] =
+  private val signatureCalculatorExpression: Option[(Request, Session) => Validation[_]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
   private val baseUrl: Session => Option[String] = protocolBaseUrl
@@ -216,7 +216,15 @@ abstract class RequestExpressionBuilder(
   private val configureSignatureCalculator: RequestBuilderConfigure =
     signatureCalculatorExpression match {
       case Some(signatureCalculator) =>
-        session => requestBuilder => signatureCalculator(session).map(requestBuilder.setSignatureCalculator)
+        session =>
+          requestBuilder =>
+            requestBuilder.setSignatureCalculator { request =>
+              signatureCalculator(request, session) match {
+                case Failure(message) => throw new IllegalArgumentException(s"Failed to compute signature: $message")
+                case _                =>
+              }
+            }.success
+
       case _ => ConfigureIdentity
     }
 

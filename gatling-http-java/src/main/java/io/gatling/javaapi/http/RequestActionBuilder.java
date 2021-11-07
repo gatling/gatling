@@ -19,11 +19,14 @@ package io.gatling.javaapi.http;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import io.gatling.http.client.SignatureCalculator;
+import io.gatling.http.client.Request;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.http.internal.SignatureCalculators;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
@@ -321,7 +324,7 @@ public abstract class RequestActionBuilder<
   }
 
   /**
-   * Instruct to ignore common headers set in the Http protocol configuration
+   * Ignore common headers set in the Http protocol configuration
    *
    * @return a new DSL instance
    */
@@ -355,7 +358,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T basicAuth(@Nonnull String username, @Nonnull String password) {
@@ -368,7 +371,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T basicAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
@@ -382,7 +385,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a function
    * @param password the password, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T basicAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
@@ -396,7 +399,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a function
    * @param password the password, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T basicAuth(
@@ -412,7 +415,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T digestAuth(@Nonnull String username, @Nonnull String password) {
@@ -425,7 +428,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T digestAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
@@ -439,7 +442,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a function
    * @param password the password, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T digestAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
@@ -453,7 +456,7 @@ public abstract class RequestActionBuilder<
    *
    * @param username the username, expressed as a function
    * @param password the password, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T digestAuth(
@@ -468,7 +471,7 @@ public abstract class RequestActionBuilder<
    * Define a virtual host
    *
    * @param virtualHost the virtual host, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T virtualHost(@Nonnull String virtualHost) {
@@ -479,7 +482,7 @@ public abstract class RequestActionBuilder<
    * Define a virtual host
    *
    * @param virtualHost the virtual host, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T virtualHost(@Nonnull Function<Session, String> virtualHost) {
@@ -487,9 +490,9 @@ public abstract class RequestActionBuilder<
   }
 
   /**
-   * Instruct to disable the automatic url encoding that tries to detect unescaped reserved chars
+   * Disable the automatic url encoding that tries to detect unescaped reserved chars
    *
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T disableUrlEncoding() {
@@ -500,7 +503,7 @@ public abstract class RequestActionBuilder<
    * Define a Proxy to be used for this request
    *
    * @param proxy the proxy
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T proxy(@Nonnull Proxy proxy) {
@@ -508,25 +511,26 @@ public abstract class RequestActionBuilder<
   }
 
   /**
-   * Instruct to apply a {@link SignatureCalculator} on the request before writing it on the wire
+   * Provide a function to sign the requests before writing them on the wire
    *
-   * @param calculator the SignatureCalculator
-   * @return a new HttpProtocolBuilder instance
+   * @param calculator the signing function
+   * @return a new DSL instance
    */
   @Nonnull
-  public T sign(@Nonnull SignatureCalculator calculator) {
-    return make(wrapped -> wrapped.sign(toStaticValueExpression(calculator)));
+  public T sign(@Nonnull Consumer<Request> calculator) {
+    return sign((request, session) -> calculator.accept(request));
   }
 
   /**
-   * Instruct to apply a {@link SignatureCalculator} on the request before writing it on the wire
+   * Provide a function to sign the requests before writing them on the wire. This version provides
+   * access to the session.
    *
-   * @param calculator the SignatureCalculator as a function
-   * @return a new HttpProtocolBuilder instance
+   * @param calculator the signing function
+   * @return a new DSL instance
    */
   @Nonnull
-  public T sign(@Nonnull Function<Session, SignatureCalculator> calculator) {
-    return make(wrapped -> wrapped.sign(javaFunctionToExpression(calculator)));
+  public T sign(@Nonnull BiConsumer<Request, Session> calculator) {
+    return make(wrapped -> wrapped.sign(SignatureCalculators.toScala(calculator)));
   }
 
   /**
@@ -537,7 +541,7 @@ public abstract class RequestActionBuilder<
    *     String
    * @param token the token, expressed as a Gatling Expression Language String
    * @param tokenSecret the tokenSecret, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T signWithOAuth1(
@@ -561,7 +565,7 @@ public abstract class RequestActionBuilder<
    * @param clientSharedSecret the clientSharedSecret, expressed as a function
    * @param token the token, expressed as a function
    * @param tokenSecret the tokenSecret, expressed as a function
-   * @return a new HttpProtocolBuilder instance
+   * @return a new DSL instance
    */
   @Nonnull
   public T signWithOAuth1(

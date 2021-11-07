@@ -195,7 +195,7 @@ class OAuthSignatureCalculatorTest {
     // header: OAuth
     // realm="",oauth_version="1.0",oauth_consumer_key="dpf43f3p2l4k3l03",oauth_token="nnch734d00sl2jdk",oauth_timestamp="1191242096",oauth_nonce="kllo9940pd9333jh",oauth_signature_method="HMAC-SHA1",oauth_signature="wPkvxykrw%2BBTdCcGqKr%2B3I%2BPsiM%3D"
 
-    calc.sign(req);
+    calc.accept(req);
     String authHeader = req.getHeaders().get(AUTHORIZATION);
     Matcher m = Pattern.compile("oauth_signature=\"(.+?)\"").matcher(authHeader);
     assertTrue(m.find());
@@ -234,7 +234,7 @@ class OAuthSignatureCalculatorTest {
     // Authorization header: OAuth
     // realm="",oauth_version="1.0",oauth_consumer_key="dpf43f3p2l4k3l03",oauth_token="nnch734d00sl2jdk",oauth_timestamp="1191242096",oauth_nonce="kllo9940pd9333jh",oauth_signature_method="HMAC-SHA1",oauth_signature="tR3%2BTy81lMeYAr%2FFid0kMTYa%2FWM%3D"
 
-    calc.sign(req);
+    calc.accept(req);
 
     String authHeader = req.getHeaders().get(AUTHORIZATION);
     Matcher m = Pattern.compile("oauth_signature=\"(.+?)\"").matcher(authHeader);
@@ -276,7 +276,7 @@ class OAuthSignatureCalculatorTest {
     // Authorization header: OAuth
     // realm="",oauth_version="1.0",oauth_consumer_key="dpf43f3p2l4k3l03",oauth_token="nnch734d00sl2jdk",oauth_timestamp="1191242096",oauth_nonce="kllo9940pd9333jh",oauth_signature_method="HMAC-SHA1",oauth_signature="tR3%2BTy81lMeYAr%2FFid0kMTYa%2FWM%3D"
 
-    calc.sign(req);
+    calc.accept(req);
     String authHeader = req.getHeaders().get(AUTHORIZATION);
     Matcher m = Pattern.compile("oauth_signature=\"(.+?)\"").matcher(authHeader);
     assertTrue(m.find());
@@ -413,6 +413,6 @@ class OAuthSignatureCalculatorTest {
                 null)
             .build();
 
-    calc.sign(request);
+    calc.accept(request);
   }
 }

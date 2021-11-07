@@ -45,6 +45,11 @@ class DigestAuthHandler extends ChannelInboundHandlerAdapter {
   }
 
   @Override
+  public boolean isSharable() {
+    return false;
+  }
+
+  @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
     if (digestHeader == null) {

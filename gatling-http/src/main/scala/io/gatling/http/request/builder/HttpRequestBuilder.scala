@@ -140,10 +140,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def formParam(key: Expression[String], value: Expression[Any]): HttpRequestBuilder = formParam(SimpleParam(key, value))
   def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestBuilder = formParam(MultivaluedParam(key, values))
 
-  def formParamSeq(seq: Seq[(String, Any)]): HttpRequestBuilder = formParamSeq(seq2SeqExpression(seq))
+  def formParamSeq(seq: Seq[(String, Any)]): HttpRequestBuilder = formParamSeq(tupleSeq2SeqExpression(seq))
   def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestBuilder = formParam(ParamSeq(seq))
 
-  def formParamMap(map: Map[String, Any]): HttpRequestBuilder = formParamSeq(map2SeqExpression(map))
+  def formParamMap(map: Map[String, Any]): HttpRequestBuilder = formParamSeq(tupleSeq2SeqExpression(map.toSeq))
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestBuilder = formParam(ParamMap(map))
 
   private def formParam(formParam: HttpParam): HttpRequestBuilder =

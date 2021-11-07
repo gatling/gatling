@@ -27,11 +27,11 @@ We are going to extract those chains and store them into *objects*.
 Objects are native Scala singletons.
 You can create those in dedicated files, or directly in the same file as the Simulation.
 
-{{< include-code "AdvancedTutorialSample.scala#isolate-processes" scala >}}
+{{< include-code "isolate-processes" java kt scala >}}
 
 We can now rewrite our scenario using these reusable business processes:
 
-{{< include-code "AdvancedTutorialSample.scala#processes" scala >}}
+{{< include-code "processes" java kt scala >}}
 
 ## Step 02: Configure virtual users
 
@@ -45,14 +45,11 @@ Let's define two populations of users:
 
 Translating into a scenario this gives:
 
-```scala
-val users = scenario("Users").exec(Search.search, Browse.browse)
-val admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit)
-```
+{{< include-code "populations" java kt scala >}}
 
 To increase the number of simulated users, all you have to do is to change the configuration of the simulation as follows:
 
-{{< include-code "AdvancedTutorialSample.scala#setup-users" scala >}}
+{{< include-code "setup-users" java kt scala >}}
 
 Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server ;-)
 
@@ -64,7 +61,7 @@ The value of the ramp indicates the duration over which the users will be linear
 
 In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server:
 
-{{< include-code "AdvancedTutorialSample.scala#setup-users-and-admins" scala >}}
+{{< include-code "setup-users-and-admins" java kt scala >}}
 
 ## Step 03: Use dynamic data with Feeders and Checks
 
@@ -89,7 +86,7 @@ eee,ASUS Eee PC 1005PE
 
 Let's then declare a feeder and use it to feed our users with the above data:
 
-{{< include-code "AdvancedTutorialSample.scala#feeder" scala >}}
+{{< include-code "feeder" java kt scala >}}
 
 Explanations:
 
@@ -102,7 +99,7 @@ Explanations:
 6. We use the previously saved hyperlink to get a specific page.
 
 {{< alert tip >}}
-For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/session/feeder" >}}).
+For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/core/session/feeder" >}}).
 
 For more details regarding *HTTP Checks*, please check out [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
 {{< /alert >}}
@@ -115,12 +112,12 @@ We have four times the same request with a different query param value. Can we c
 First we will extract the repeated `exec` block to a function.
 Indeed, `Simulation`'s are plain Scala classes so we can use all the power of the language if needed:
 
-{{< include-code "AdvancedTutorialSample.scala#loop-simple" scala >}}
+{{< include-code "loop-simple" java kt scala >}}
 
 We can now call this function and pass the desired page number.
 But we still have repetition, it's time to introduce another builtin structure:
 
-{{< include-code "AdvancedTutorialSample.scala#loop-for" scala >}}
+{{< include-code "loop-for" java kt scala >}}
 
 Explanations:
 
@@ -129,7 +126,7 @@ Explanations:
 2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
 {{< alert tip >}}
-For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/general/scenario#loops" >}}).
+For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
 {{< /alert >}}
 
 ## Step 05: Check and failure management
@@ -140,7 +137,7 @@ By default Gatling checks if the http response status is *20x* or *304*.
 
 To demonstrate failure management we will introduce a `check` on a condition that fails randomly:
 
-{{< include-code "AdvancedTutorialSample.scala#check" scala >}}
+{{< include-code "check" java kt scala >}}
 
 Explanations:
 
@@ -151,7 +148,7 @@ Explanations:
 
 To handle this random failure we use the `tryMax` and `exitHereIfFailed` constructs as follow:
 
-{{< include-code "AdvancedTutorialSample.scala#tryMax-exitHereIfFailed" scala >}}
+{{< include-code "tryMax-exitHereIfFailed" java kt scala >}}
 
 Explanations:
 
@@ -160,7 +157,7 @@ Explanations:
 2. If all tries failed, the user exits the whole scenario due to `exitHereIfFailed`.
 
 {{< alert tip >}}
-For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/general/scenario#conditional-statements" >}}).
+For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/core/scenario#conditional-statements" >}}).
 {{< /alert >}}
 
 That's all Folks!

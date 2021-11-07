@@ -18,19 +18,22 @@ package io.gatling.http.client.impl;
 
 import static io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateServerExtensionHandshaker.MAX_WINDOW_SIZE;
 
-import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.compression.ZlibCodecFactory;
 import io.netty.handler.codec.http.websocketx.extensions.WebSocketClientExtensionHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.DeflateFrameClientExtensionHandshaker;
 import io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateClientExtensionHandshaker;
 
-@ChannelHandler.Sharable
 // fork of WebSocketClientCompressionHandler that enables allowClientNoContext
 public class AllowClientNoContextWebSocketClientCompressionHandler
     extends WebSocketClientExtensionHandler {
 
   public static final AllowClientNoContextWebSocketClientCompressionHandler INSTANCE =
       new AllowClientNoContextWebSocketClientCompressionHandler();
+
+  @Override
+  public boolean isSharable() {
+    return true;
+  }
 
   private AllowClientNoContextWebSocketClientCompressionHandler() {
     super(

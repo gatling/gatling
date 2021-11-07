@@ -4,7 +4,7 @@ description: "SBT plugin to run Gatling test"
 lead: "The SBT plugin allows you to run Gatling test from the command line, without the bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 9030
+weight: 007003
 ---
 
 This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testing framework.
@@ -13,7 +13,7 @@ This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testin
 
 Check out available versions on [Maven Central](https://search.maven.org/artifact/io.gatling/gatling-sbt).
 
-Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](/enterprise/) customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
 ## Setup
 
@@ -48,9 +48,7 @@ libraryDependencies ++= /* Gatling dependencies */
 ```
 ## Demo sample
 
-You can find a [sample project demoing the gatling-sbt-plugin](https://github.com/gatling/gatling-sbt-plugin-demo) in Gatling's Github organization.
-
-You can also use the [Giter8 template]({{< ref "giter8_template" >}}) to bootstrap your project.
+You can find a [sample project demoing the gatling-sbt-plugin](https://github.com/gatling/gatling-sbt-plugin-demo) in Gatling's GitHub organization.
 
 ## Usage
 

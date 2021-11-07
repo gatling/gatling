@@ -161,7 +161,7 @@ public class OpenInjectionStep {
      * @return a new OpenInjectionStep
      */
     @Nonnull
-    public OpenInjectionStep during(int durationSeconds) {
+    public ConstantRateOpenInjectionStep during(int durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -172,8 +172,23 @@ public class OpenInjectionStep {
      * @return a new OpenInjectionStep
      */
     @Nonnull
-    public OpenInjectionStep during(@Nonnull Duration duration) {
-      return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
+    public ConstantRateOpenInjectionStep during(@Nonnull Duration duration) {
+      return new ConstantRateOpenInjectionStep(wrapped.during(toScalaDuration(duration)));
+    }
+
+    /** A special {@link OpenInjectionStep} that supports "randomized". */
+    public static final class ConstantRateOpenInjectionStep extends OpenInjectionStep {
+
+      private ConstantRateOpenInjectionStep(
+          @Nonnull io.gatling.core.controller.inject.open.ConstantRateOpenInjection wrapped) {
+        super(wrapped);
+      }
+
+      public OpenInjectionStep randomized() {
+        return new OpenInjectionStep(
+            ((io.gatling.core.controller.inject.open.ConstantRateOpenInjection) asScala())
+                .randomized());
+      }
     }
   }
 
@@ -219,7 +234,7 @@ public class OpenInjectionStep {
        * @return a new OpenInjectionStep
        */
       @Nonnull
-      public OpenInjectionStep during(int durationSeconds) {
+      public RampRateOpenInjectionStep during(int durationSeconds) {
         return during(Duration.ofSeconds(durationSeconds));
       }
 
@@ -230,9 +245,24 @@ public class OpenInjectionStep {
        * @return a new OpenInjectionStep
        */
       @Nonnull
-      public OpenInjectionStep during(@Nonnull Duration duration) {
-        return new OpenInjectionStep(
+      public RampRateOpenInjectionStep during(@Nonnull Duration duration) {
+        return new RampRateOpenInjectionStep(
             OpenInjectionSteps.newRampRateTo(from, to).during(toScalaDuration(duration)));
+      }
+    }
+
+    /** A special {@link OpenInjectionStep} that supports "randomized". */
+    public static final class RampRateOpenInjectionStep extends OpenInjectionStep {
+
+      private RampRateOpenInjectionStep(
+          @Nonnull io.gatling.core.controller.inject.open.RampRateOpenInjection wrapped) {
+        super(wrapped);
+      }
+
+      public OpenInjectionStep randomized() {
+        return new OpenInjectionStep(
+            ((io.gatling.core.controller.inject.open.RampRateOpenInjection) asScala())
+                .randomized());
       }
     }
   }

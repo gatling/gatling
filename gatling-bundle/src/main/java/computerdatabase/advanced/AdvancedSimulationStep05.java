@@ -93,7 +93,7 @@ public class AdvancedSimulationStep05 extends Simulation {
   ScenarioBuilder users = scenario("Users").exec(Search.search, Browse.browse);
   ScenarioBuilder admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit);
 
-  public AdvancedSimulationStep05() {
+  {
     setUp(users.injectOpen(rampUsers(10).during(10)), admins.injectOpen(rampUsers(2).during(10)))
         .protocols(httpProtocol);
   }

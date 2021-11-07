@@ -11,28 +11,31 @@ weight: 010
 
 ### Java Version
 
-Gatling supports 64bits OpenJDK 8 and OpenJDK 11 with HotSpot.
-Other JVMs such as JDK 12+, client JVMs, 32bits systems or OpenJ9 are not supported.
+Gatling supports 64bits OpenJDK LTS (Long Term Support) versions: 8, 11 and 17.
+Other JVMs such as JDK 12, client JVMs, 32bits systems or OpenJ9 are not supported.
 
-### Scala Version
+### Supported Languages
 
-Gatling 3.5 requires Scala 2.13.
-Gatling 3.0 to 3.4 requires Scala 2.12.
+Gatling 3.7 supports writing tests in Java, Kotlin and Scala.
+Older Gatling versions only support Scala.
 
 ### Gatling Version
 
 Make sure to use the latest version as documented on [our website](https://gatling.io/open-source/).
 
 In particular, don't use milestones (M versions) you could find on maven central,
-those are not documented and released only for internal use or [Gatling Enterprise](/enterprise/) customers.
+those are not documented and released only for internal use or [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
 ## Using the Bundle
 
 You can use Gatling as a standalone bundle.
-Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations
-and you'll be able to launch Gatling from the command line.
+Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
 
 Check out our [Open Source page](https://gatling.io/open-source/) for the download link.
+
+{{< alert warning >}}
+This package only support Java and Scala, not Kotlin. For using Kotlin, you'll need a [maven]({{< ref "#maven" >}}) or [gradle]({{< ref "#gradle" >}}) project.
+{{</ alert >}}
 
 Unzip the downloaded bundle to a folder of your choice.
 Use the scripts located in the `bin` directory for launching Gatling and the Recorder.
@@ -44,7 +47,7 @@ Windows users : we recommend that you do not place Gatling in the *Programs* fol
 In order to run Gatling, you need to have a JDK installed.
 Gatling requires at least **JDK8**. Then, we recommend that you use an up-to-date version.
 
-For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/general/operations" >}}) section.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/core/operations" >}}) section.
 
 {{< alert warning >}}
 Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
@@ -54,106 +57,70 @@ If you get strange errors such as `Unsupported major.minor version 51.0` and you
 you might want to explicitly set `JAVA_HOME`.
 {{< /alert >}}
 
+The bundle structure is as following:
+
+* `bin`: launch scripts for Gatling and the Recorder.
+* `conf`: configuration files for Gatling, Akka and Logback.
+* `lib`: Gatling and dependencies binaries
+* `user-files`:
+    * `simulations`: where to place your Simulations code. You must respect the package folder hierarchy.
+    * `resources`: non source code files such as feeder files and templates for request bodies.
+* `results`: where test results are generated.
+
 ## Using a Build Tool
 
 ### Maven
+
+Maven can be used for Gatling projects with Java, Kotlin and Scala.
 
 Gatling provides an official maven plugin named `gatling-maven-plugin`. This plugin lets you compile your Scala code and launch Gatling simulations.
 
 Check the [maven plugin documentation]({{< ref "../../reference/current/extensions/maven_plugin" >}}) for more information.
 
-### Sbt
-
-Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
-
-Check the [sbt plugin documentation]({{< ref "../../reference/current/extensions/sbt_plugin" >}}) for more information.
-
 ### Gradle
+
+Gradle can be used for Gatling projects with Java, Kotlin and Scala.
 
 Gatling provides an official gradle plugin named `io.gatling.gradle`. This plugin lets you launch your Gatling simulations.
 
 Check the [gradle plugin documentation]({{< ref "../../reference/current/extensions/gradle_plugin" >}}) for more information.
 
+### Sbt
+
+Maven can be used for Gatling projects with Scala only.
+
+Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
+
+Check the [sbt plugin documentation]({{< ref "../../reference/current/extensions/sbt_plugin" >}}) for more information.
+
 ## Using an IDE
 
-You can edit your Simulation classes with any text editor, maybe with some syntactic coloration for Scala.
+You can edit your Simulation classes with any text editor, maybe with some syntactic coloration for your chosen language.
 But if you are a developer, you'll most likely want to use your favorite IDE with Gatling.
-
-Gatling officially supports IntelliJ IDEA and eclipse.
 
 ### IntelliJ IDEA
 
-You'll need to install the Scala plugin, which is available in the Community Edition.
-You'll then be able to directly import regular maven or sbt projects with Scala sources out of the box.
+IntelliJ IDEA Community Edition comes with Java, Kotlin, maven and gradle support enabled by default.
 
-You'll most likely have to increase the stack size for the scala compiler so you don't suffer from StackOverflowErrors.
+If you want to use Scala and possibly sbt, you'll have to install the Scala plugin, which is available in the Community Edition.
+You'll most likely have to increase the stack size for the scala compiler, so you don't suffer from StackOverflowErrors.
 We recommend setting `Xss` to `100M`.
 
 {{< img src="intellij-scalac-xss.png" alt="intellij-scalac-xss.png" >}}
 
-### Eclipse
+### VS Code
 
-You'll have to install [ScalaIDE](http://scala-ide.org/index.html), preferably the latest version, even a milestone.
-
-Sadly, as of today, ScalaIDE is only available for Eclipse 4.7 (Oxygen) and is not compatible with more modern versions.
-
-Note that Eclipse 4.7 doesn't support Java 9+, so if you have multiple Java installations on your machine, you might have to force the JVM used in `eclipse.ini`, eg:
-
-```
--vm
-/Library/Java/JavaVirtualMachines/jdk1.8.0_222.jdk/Contents/Home/bin/java
-```
-
-Moreover, if you're using maven, you'll need to install [m2eclipse-scala](https://github.com/sonatype/m2eclipse-scala) to integrate ScalaIDE and m2e (the eclipse plugin for maven).
-
-#### With sbt
-
-If you're using sbt, you can use [sbteclipse](https://github.com/sbt/sbteclipse) to generate the eclipse project config.
-
-#### With maven
-
-If you're using maven, you can use the [scala-maven-plugin](https://github.com/davidB/scala-maven-plugin) for compiling Scala code.
-
-You'll have to add the following section in your `pom.xml`:
-
-```xml
-<build>
-  <sourceDirectory>src/main/scala</sourceDirectory>
-  <testSourceDirectory>src/test/scala</testSourceDirectory>
-  <plugins>
-    <plugin>
-      <groupId>net.alchim31.maven</groupId>
-      <artifactId>scala-maven-plugin</artifactId>
-      <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
-      <configuration>
-         <jvmArgs>
-          <jvmArg>-Xss100M</jvmArg>
-        </jvmArgs>
-        <args>
-          <arg>-target:jvm-1.8</arg>
-          <arg>-deprecation</arg>
-          <arg>-feature</arg>
-          <arg>-unchecked</arg>
-          <arg>-language:implicitConversions</arg>
-          <arg>-language:postfixOps</arg>
-        </args>
-      </configuration>
-      <executions>
-        <execution>
-          <goals>
-            <goal>compile</goal>
-            <goal>testCompile</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin>
-  </plugins>
-</build>
-```
+We recommend that you have a look at the official documentation for setting up VS Code:
+* [with Java](https://code.visualstudio.com/docs/java/java-build)
+* [with Kotlin](https://kotlinlang.org/docs/jvm-get-started.html)
+* [with Scala](https://scalameta.org/metals/)
 
 ### Launching Gatling and the Recorder from the IDE
 
-The [gatling-highcharts-maven-archetype]({{< ref "../../reference/current/extensions/maven_archetype" >}}) generates some helper classes that you can use to launch Gatling and the Recorder manually from your IDE.
-You can perfectly copy [those 3 classes](https://github.com/gatling/gatling-highcharts-maven-archetype/tree/main/src/main/scala) (`Engine`, `Recorder` and `IDEPathHelper`) in your own project.
+All maven, gradle and sbt demo projects contain some helper classes you can use to trigger some Gatling tasks.
 
-Please check the [launchers documentation section]({{< ref "../../reference/current/extensions/maven_archetype#launchers" >}}).
+You can right-click on the `Engine` class in your IDE and launch the Gatling load test engine.
+Simulation reports will be written in your `target` directory.
+
+You can right-click on the `Recorder` class in your IDE and launch the Recorder.
+Simulations will be generated in you `src/test/sources` directory.

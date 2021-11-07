@@ -20,6 +20,7 @@ import java.{ util => ju }
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
@@ -37,8 +38,10 @@ import io.gatling.core.session._
 import io.gatling.core.util.Html
 import io.gatling.netty.util.StringBuilderPool
 
+import com.typesafe.scalalogging.StrictLogging
+
 object ElMessages {
-  def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
+  def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '#name' is undefined for index $index".failure
   def undefinedSessionAttribute(name: String): Failure = s"No attribute named '$name' is defined".failure
   def undefinedMapKey(map: String, key: String): Failure = s"Map named '$map' does not contain key '$key'".failure
   def sizeNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .size function".failure
@@ -210,19 +213,31 @@ final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[St
 
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
-object ElCompiler {
+object ElCompiler extends StrictLogging {
 
-  private val NameRegex = """[^.${}()]+""".r
-  private val DateFormatRegex = """[^${}()]+""".r
+  private val NameRegex = """[^.#{}()]+""".r
+  private val DateFormatRegex = """[^#{}()]+""".r
   private val NumberRegex = "[0-9]+".r
-  private val DynamicPartStart = "${".toCharArray
+  private val DynamicPartStart = "#{".toCharArray
 
   private val ElCompilers = new ThreadLocal[ElCompiler] {
     override def initialValue = new ElCompiler
   }
 
+  private val warmingNotAlreadyLogged = new AtomicBoolean(true)
+  private def convertLegacyPattern(raw: String): String =
+    if (!raw.contains("#{") && raw.contains("${")) {
+      if (warmingNotAlreadyLogged.getAndSet(false)) {
+        logger.warn("You're still using the deprecated ${} pattern for Gatling EL. Please use to the #{} pattern instead.")
+      }
+      raw.replace("$${", "\\#{").replace("${", "#{")
+    } else {
+      raw
+    }
+
   @throws[ElParserException]
-  def parse(string: String): List[ElPart[Any]] = ElCompilers.get.parseEl(string)
+  def parse(string: String): List[ElPart[Any]] =
+    ElCompilers.get.parseEl(convertLegacyPattern(string))
 
   def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {
@@ -299,16 +314,11 @@ class ElCompiler private extends RegexParsers {
       source.indexOf(DynamicPartStart, offset) match {
         case -1 => success(end)
         case n =>
-          val extra$Count = (n - 1).to(offset, step = -1).takeWhile(source.charAt(_) == '$').size
-          val halfCount = extra$Count / 2
-          val throughEscaped$ = success(n - halfCount)
-          if (extra$Count % 2 == 0) {
-            throughEscaped$.copy(next = throughEscaped$.next.drop(halfCount))
-          } else { // should escape
-            throughEscaped$.copy(
-              result = throughEscaped$.result + "{",
-              next = throughEscaped$.next.drop(halfCount + 2)
-            )
+          println(s"n=$n offset=$offset test=${n - 1 >= offset} char=${source.charAt(n - 1)}")
+          if (n - 1 >= offset && source.charAt(n - 1) == '\\') {
+            Success("#{", in.drop(n - offset + 2))
+          } else {
+            success(n)
           }
       }
     }
@@ -325,7 +335,7 @@ class ElCompiler private extends RegexParsers {
       _ => "Not a static part"
     )
 
-  private def elExpr: Parser[ElPart[Any]] = "${" ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
+  private def elExpr: Parser[ElPart[Any]] = "#{" ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
 
   private def currentTimeMillis: Parser[ElPart[Any]] = "currentTimeMillis()" ^^ (_ => CurrentTimeMillisPart)
 

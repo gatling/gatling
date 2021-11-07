@@ -4,7 +4,7 @@ description: "Maven plugin to run Gatling test"
 lead: "The Maven plugin allows you to run Gatling test from the command line, without the bundle"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 9010
+weight: 007001
 ---
 
 Using this plugin, Gatling can be launched when building your project, for example with your favorite Continuous Integration (CI) solution.
@@ -13,7 +13,7 @@ Using this plugin, Gatling can be launched when building your project, for examp
 
 Check out available versions on [Maven Central](https://search.maven.org/search?q=g:io.gatling%20AND%20a:gatling-maven-plugin&core=gav).
 
-Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](/enterprise/) customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
 ## Setup
 
@@ -39,8 +39,6 @@ In your `pom.xml`, add:
 ## Demo sample
 
 You can find a [sample project demoing the gatling-maven-plugin](https://github.com/gatling/gatling-maven-plugin-demo) in Gatling's Github organization.
-
-You can also use the [gatling-highcharts-maven-archetype]({{< ref "maven_archetype" >}}) to bootstrap your project.
 
 ## Usage
 
