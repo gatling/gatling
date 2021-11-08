@@ -71,29 +71,24 @@ The pauses can be configured on `Simulation` with a bunch of methods:
 
 {{< include-code "pauses" java kt scala >}}
 
-## Limiting Throughput
+## Shaping Throughput
 
-If you want to reason in terms of requests per second and not in terms of concurrent users,
-consider using constantUsersPerSec(...) to set the arrival rate of users, and therefore requests,
-without need for throttling as well as it will be redundant in most cases.
+Some users might want to reason in terms of throughput/requests per second instead of virtual users.
 
-If this is not sufficient for some reason, then Gatling supports throttling with the `throttle` method.
+If your virtual users perform only one request each, you should use an [open workload model]({{< ref "../injection/#open-model" >}}) for this, such as `constantUsersPerSec`.
 
-Throttling is implemented per protocol with support for regular HTTP and JMS.
+Otherwise, in our opinion, you're going to run into trouble because you won't have any means of controlling which request gets executed.
 
-{{< alert tip >}}
-You still have to inject users at the scenario level.
-Throttling tries to ensure a targeted throughput with the given scenario and its injection profile (number of users and duration).
-It's a bottleneck, ie an upper limit.
-If you don't provide enough users, you won't reach the throttle.
-If your injection lasts less than the throttle, your simulation will simply stop when all the users are done.
-If your injection lasts longer than the throttle, the simulation will stop at the end of the throttle.
+Still, you can try and use the `throttle` method, that can be defined either globally or [per scenario]({{< ref "../scenario#throttling" >}}).
 
-Throttling can also be configured [per scenario]({{< ref "../scenario#throttling" >}}).
-{{< /alert >}}
+What `throttle` do is that it sets an upper limit on your throughput that would normally be generated with the scenarios and the injection profiles you've defined so that you can shape it the way you want. **It's only capable of reducing the normal throughput, not increase it.**
+
+Throttling is currently only supported for HTTP requests and JMS.
 
 {{< alert tip >}}
-Enabling `throttle` disables `pause`s so that it can take over throughput definition.
+* Gatling will automatically interrupt your test at the end of the throttle, just like it does with [`maxDuration`]({{< ref "#maximum-duration" >}}).
+* Beware that all excess traffic gets pushed into an unbounded queue, possibly resulting in an OutOfMemoryError if your normal throughput is way higher than the normal one.
+* Enabling `throttle` disables `pause`s so that it can take over throughput definition.
 {{< /alert >}}
 
 {{< include-code "throttling" java kt scala >}}
