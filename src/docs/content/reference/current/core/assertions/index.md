@@ -9,7 +9,7 @@ weight: 003070
 
 ## Concepts
 
-The Assertions API is used to verify that global statistics like response time or number of failed requests matches expectations for a whole simulation.
+The Assertions API is used to verify that global statistics, like response time or number of failed requests, match expectations for a whole simulation.
 
 Assertions are registered for a simulation using the method `assertions` on the `setUp`. For example:
 
@@ -28,7 +28,7 @@ All the assertions are evaluated after running the simulation. If at least one a
 
 ## Scope
 
-An assertion can test a statistic calculated from all requests or only a part.
+An assertion can test a statistic calculated from all requests or only part of them.
 
 * `global`: use statistics calculated from all requests.
 * `forAll`: use statistics calculated for each individual request.
@@ -95,10 +95,10 @@ Conditions can be chained to apply several conditions on the same metric.
 
 {{< alert tip >}}
 `is` is a reserved keyword in Kotlin.
-You can either protect it with backticks ``is`` or use the `shouldBe` alias instead.
+You can either protect it with backticks `` `is` `` or use the `shouldBe` alias instead.
 
 `in` is a reserved keyword in Kotlin.
-You can either protect it with backticks ``in`` or use the `within` alias instead.
+You can either protect it with backticks `` `in` `` or use the `within` alias instead.
 {{< /alert >}}
 
 ## Putting It All Together

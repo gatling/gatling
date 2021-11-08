@@ -47,7 +47,7 @@ Open and closed workload models are antinomical and you can't mix them in the sa
 
 {{< include-code "open-injection" java kt scala >}}
 
-The building blocks for profile injection the way you want are:
+The building blocks for open model profile injection are:
 
 1. `nothingFor(duration)`: Pause for a given duration.
 2. `atOnceUsers(nbUsers)`: Injects a given number of users at once.
@@ -61,6 +61,8 @@ The building blocks for profile injection the way you want are:
 ### Closed Model
 
 {{< include-code "closed-injection" java kt scala >}}
+
+The building blocks for closed model profile injection are:
 
 1. `constantConcurrentUsers(nbUsers).during(duration)`: Inject so that number of concurrent users in the system is constant
 2. `rampConcurrentUsers(fromNbUsers).to(toNbUsers).during(duration)`: Inject so that number of concurrent users in the system ramps linearly from a number to another
@@ -84,7 +86,7 @@ But there is now an alternative using the meta DSL.
 
 {{< include-code "incrementConcurrentUsers" java kt scala >}}
 
-`incrementUsersPerSec` is for open workload and `incrementConcurrentUsers` is for closed workload (users/sec vs concurrent users)
+`incrementUsersPerSec` is for open workload and `incrementConcurrentUsers` is for closed workload (users/sec vs concurrent users).
 
 `separatedByRampsLasting` and `startingFrom` are both optional.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
@@ -92,19 +94,19 @@ If you don't specify the number of starting users the test will start at 0 concu
 
 ### Concurrent Scenarios
 
-You can configure multiple scenarios in the same `setUp` block to started at the same time and executed concurrently.
+You can configure multiple scenarios in the same `setUp` block to start at the same time and execute concurrently.
 
 {{< include-code "multiple" java kt scala >}}
 
 ### Sequential Scenarios
 
-It's also possible with `andThen` to chain scenarios so that children scenarios starts once all the users in the parent scenario terminate.
+It's also possible with `andThen` to chain scenarios, so that children scenarios start once all the users in the parent scenario terminate.
 
 {{< include-code "andThen" java kt scala >}}
 
 ### Disabling Gatling Enterprise Load Sharding
 
-By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple node.
+By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple nodes.
 
 This might not be the desirable behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
 Indeed, only one node would run this user, leaving the other nodes without an initialized token.

@@ -88,13 +88,13 @@ setUp(scn.injectOpen(atOnceUsers(1)))
   // in the `pause(duration)` element.
   .constantPauses()
   // the duration of each pause is on average that specified
-  // in the `pause(duration)` element and follow a uniform distribution.
+  // in the `pause(duration)` element and follows a uniform distribution.
   .uniformPauses(0.5)
   .uniformPauses(Duration.ofSeconds(2))
   // the duration of each pause is on average that specified
-  // in the `pause(duration)` element and follow an exponential distribution.
+  // in the `pause(duration)` element and follows an exponential distribution.
   .exponentialPauses()
-  // the pause duration is computed by the provided function (milliseconds).
+  // the pause duration is computed by the provided function (in milliseconds).
   // In this case the filled duration is bypassed.
   .customPauses(session -> 5L);
 

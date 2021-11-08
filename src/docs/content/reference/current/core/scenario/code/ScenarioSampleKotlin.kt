@@ -61,6 +61,7 @@ pause(10)
 pause(Duration.ofMillis(100))
 // with a Gatling EL string resolving to a number of seconds or a java.time.Duration
 pause("#{pause}")
+// with a function that returns a java.time.Duration
 pause { session -> Duration.ofMillis(100) }
 //#pause-fixed
 
@@ -71,6 +72,7 @@ pause(10, 20)
 pause(Duration.ofMillis(100), Duration.ofMillis(200))
 // with a Gatling EL strings
 pause("#{min}", "#{max}")
+// with a function that returns a java.time.Duration
 pause({ session -> Duration.ofMillis(100) }) { session -> Duration.ofMillis(200) }
 //#pause-uniform
 
@@ -91,6 +93,7 @@ pace(10)
 pace(Duration.ofMillis(100))
 // with a Gatling EL string resolving to a number of seconds or a java.time.Duration
 pace("#{pace}")
+// with a function that returns a java.time.Duration
 pace { session -> Duration.ofMillis(100) }
 //#pace-fixed
 
@@ -101,6 +104,7 @@ pace(10, 20)
 pace(Duration.ofMillis(100), Duration.ofMillis(200))
 // with a Gatling EL strings
 pace("#{min}", "#{max}")
+// with a function that returns a java.time.Duration
 pace({ session -> Duration.ofMillis(100) }) { session -> Duration.ofMillis(200) }
 //#pace-uniform
 

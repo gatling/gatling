@@ -397,7 +397,7 @@ http("").get("")
   // check the HTTP status is 200
   status().shouldBe(200),
 
-  // check the HTTP is in [200, 210]
+  // check the HTTP status is in [200, 210]
   status().within(200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210),
 
   // check the response body contains 5 https links

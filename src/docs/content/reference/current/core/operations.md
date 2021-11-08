@@ -22,9 +22,9 @@ If you really need to prefer IPv6, please edit the launch scripts.
 
 {{< alert tip >}}
 Those instructions below are excerpts from the great Riak documentation.
-Please refer to [Open Files Limit](https://github.com/basho/basho_docs/blob/master/content/riak/kv/2.2.3/using/performance/open-files-limit.md/)
+Please refer to the [Open Files Limit](https://github.com/basho/basho_docs/blob/master/content/riak/kv/2.2.3/using/performance/open-files-limit.md/)
 and [Kernel and Network Tuning](https://github.com/basho/basho_docs/blob/master/content/riak/kv/2.2.3/using/performance.md#kernel-and-network-tuning)
-sections for more details or for instructions for OS X.
+sections for more details or for instructions for macOS.
 {{< /alert >}}
 
 Gatling can consume a very large number of open file handles during normal operation.
@@ -70,7 +70,7 @@ echo 300000 | sudo tee /proc/sys/fs/file-max
 
 ### Kernel and Network Tuning
 
-Consider tuning kernel and network and add this kind of following settings in /etc/sysctl.conf
+Consider tuning kernel and network and add settings such as the following in `/etc/sysctl.conf`.
 
 ```ini
 net.ipv4.tcp_max_syn_backlog = 40000

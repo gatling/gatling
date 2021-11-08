@@ -21,7 +21,7 @@ You can use any character in the name of the scenario **except** tabulations: **
 
 All the components in this section can be either:
 * attached to a scenario
-* directly created, so it can be passed as parameter, stored in a constant, etc
+* directly created, so they can be passed as parameters, stored in constants, etc
 * attached to another component in this section
 
 ### Exec
@@ -34,9 +34,9 @@ For example, when using the Gatling HTTP module you would write the following li
 
 {{< include-code "exec" java kt scala >}}
 
-`exec` can also be passed an [Function]({{< ref "../session/function" >}}).
+`exec` can also be passed a [Function]({{< ref "../session/function" >}}).
 
-This can be used for manually debugging or editing the [Session]({{< ref "../session/session_api#session" >}}), e.g.:
+This can be used for manual debugging or to edit the [Session]({{< ref "../session/session_api#session" >}}), e.g.:
 
 {{< include-code "session-lambda" java kt scala >}}
 
@@ -44,10 +44,10 @@ This can be used for manually debugging or editing the [Session]({{< ref "../ses
 
 #### `pause`
 
-When a user sees a page he/she often reads what is shown and then chooses to click on another link.
+When a user sees a page he/she often reads what is shown before choosing to click on another link.
 To reproduce this behavior, the pause method is used.
 
-There are several ways of using it
+There are several ways to use it.
 
 Fixed pause takes a single parameter:
 * `duration`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
@@ -68,12 +68,12 @@ Possible values are the [same ones than for global definition]({{< ref "../simul
 #### `pace`
 
 You could want to control how frequently an action is executed, to target *iterations per time* type volumes.
-Gatling support a dedicated type of pause: `pace`, which adjusts its wait time depending upon the elapsed time since the virtual user last reached this action.
+Gatling supports a dedicated type of pause: `pace`, which adjusts its wait time depending on the elapsed time since the virtual user last reached this action.
 E.g.:
 
 {{< include-code "pace" java kt scala >}}
 
-There are several ways of using it
+There are several ways to use it.
 
 Fixed pace takes a single parameter:
 * `duration`: can be an Int for a duration in seconds, a duration, a Gatling EL String or a function
@@ -98,8 +98,8 @@ It takes a single parameter:
 ### Loop statements
 
 {{< alert warning >}}
-When using the `counterName` parameter to force loop index attribute name, be careful to only use it in a read-only way.
-Otherwise, you might break Gatling underlying component's internal logic.
+When using the `counterName` parameter to force the loop index attribute name, be careful to use it in a read-only way.
+Otherwise, you might break the Gatling underlying component's internal logic.
 {{< /alert >}}
 
 #### `repeat`
@@ -316,7 +316,7 @@ Make the user exit the scenario from this point if it previously had an error.
 
 ### Groups
 
-Create group of requests to model process or requests in a same page.
+Create a group of requests to model processes or requests in the same page.
 Groups can be nested.
 
 {{< include-code "group" java kt scala >}}

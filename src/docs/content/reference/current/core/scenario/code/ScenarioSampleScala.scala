@@ -59,16 +59,18 @@ pause(10)
 pause(100.millis)
 // with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
 pause("#{pause}")
+// with a function that returns a scala.concurrent.duration.FiniteDuration
 pause(session => 100.millis)
 //#pause-fixed
 
 //#pause-uniform
 // with a number of seconds
 pause(10, 20)
-// with a java.time.Duration
+// with a scala.concurrent.duration.FiniteDuration
 pause(100.millis, 200.millis);
 // with a Gatling EL strings
 pause("#{min}", "#{max}")
+// with a function that returns a scala.concurrent.duration.FiniteDuration
 pause(session => 100.millis, session => 200.millis)
 //#pause-uniform
 
@@ -89,6 +91,7 @@ pace(10)
 pace(100.millis)
 // with a Gatling EL string resolving to a number of seconds or a scala.concurrent.duration.FiniteDuration
 pace("#{pace}")
+// with a function that returns a scala.concurrent.duration.FiniteDuration
 pace(session => 100.millis)
 //#pace-fixed
 
@@ -99,6 +102,7 @@ pace(10, 20)
 pace(100.millis, 200.millis)
 // with a Gatling EL strings
 pace("#{min}", "#{max}")
+// with a function that returns a scala.concurrent.duration.FiniteDuration
 pace(session => 100.millis, session => 200.millis)
 //#pace-uniform
 

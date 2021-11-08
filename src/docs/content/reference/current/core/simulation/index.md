@@ -1,7 +1,7 @@
 ---
 title: "Simulation"
 description: "Learn about the structure of the Gatling simulation"
-lead: "Learn about the main parts of a Gatling simulation: DSL import, scenario definition, simulation definitions, hooks"
+lead: "Learn about the main parts of a Gatling simulation: DSL imports, scenario definitions, simulation definitions, hooks"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 003020
@@ -10,8 +10,8 @@ weight: 003020
 `Simulation` is the parent class your tests must extend so Gatling can launch them.
 
 {{< alert warning >}}
-We recommend your Simulation's name don't start with `Test`.
-Some tools such as maven surefire aggressively consider classes with such naming pattern are for them to handle and will try to launch them.
+We recommend that your Simulation's name does not start with `Test`.
+Some tools such as maven surefire aggressively consider that all classes with such naming patterns are for them to handle and they will try to launch them.
 {{< /alert >}}
 
 ## DSL imports
@@ -26,7 +26,7 @@ Just copy-paste those imports wherever you want to use Gatling DSL.
 {{< /alert >}}
 
 {{< alert warning >}}
-Beware that any class that doesn't belong to those packages is considered private, not an API, and hence subject to change any time without notice.
+Beware that any class that doesn't belong to those packages is considered private, not an API, and hence subject to change at any time without notice.
 {{< /alert >}}
 
 ## setUp
@@ -39,7 +39,7 @@ The only mandatory piece in your Simulations is that they must call the `setUp` 
 
 which correspond to injecting one single user into the `scn` scenario.
 
-It's possible to have multiple populations, ie scenarios with an injection profile, in the same simulation:
+It's possible to have multiple populations, ie scenarios with an associated injection profile, in the same simulation:
 
 {{< include-code "setUp-multiple" java kt scala >}}
 
@@ -95,7 +95,7 @@ Throttling is currently only supported for HTTP requests and JMS.
 
 This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
 
-The building block for the throttling are:
+The building blocks for throttling are:
 
 * `reachRps(target).in(duration)`: target a throughput with a ramp over a given duration.
 * `jumpToRps(target)`: jump immediately to a given targeted throughput.
@@ -103,12 +103,12 @@ The building block for the throttling are:
 
 {{< alert tip >}}
 `in` is a reserved keyword in Kotlin.
-You can either protect it with backticks ``in`` or use the `during` alias instead.
+You can either protect it with backticks `` `in` `` or use the `during` alias instead.
 {{< /alert >}}
 
 ## Maximum Duration
 
-Finally, with `maxDuration` you can force your run to terminate based on a duration limit, even though some virtual users are still running.
+Finally, with `maxDuration` you can force your run to terminate based on a duration limit, even if some virtual users are still running.
 
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
@@ -121,7 +121,7 @@ Gatling provides two hooks:
 * `before` for executing some arbitrary code before the simulation actually runs
 * `after` for executing some arbitrary code after the simulation actually runs
 
-The lifecycle is as below:
+The lifecycle is as follows:
 
 1. Gatling starts
 2. Simulation constructor is called and all the code in the class body not delayed in `before` and `after` hooks is executed

@@ -16,7 +16,7 @@ Some protocols might implement specific checks, for example `status` for HTTP. T
 Checks are used for 2 things:
 
 * verifying that the response to a request matches some expectations
-* capturing some elements in there
+* capturing some elements in the response
 
 Checks are typically attached to the parent object with the `check` method.
 For example, on an HTTP request:
@@ -42,7 +42,7 @@ The following check types are generic and usually implemented on most official G
 
 #### `responseTimeInMillis`
 
-Returns the response time of this request in milliseconds = the time between starting to send the request and to finish receiving the response.
+Returns the response time of this request in milliseconds = the time between starting to send the request and finishing to receive the response.
 
 {{< include-code "responseTimeInMillis" java kt scala >}}
 
@@ -85,7 +85,7 @@ Typically used for checking the presence of a substring, as it's more CPU effici
 
 #### `regex`
 
-This check applies a [Java regular pattern](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) on the response body text.
+This check applies a [Java regular expression pattern](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) on the response body text.
 
 It takes one single parameter:
 * `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
@@ -104,7 +104,7 @@ If your pattern contains more than one capture group, you must specify it with a
 
 #### `xpath`
 
-This check applies an [XPath](https://en.wikipedia.org/wiki/XPath) on XML response body.
+This check applies an [XPath](https://en.wikipedia.org/wiki/XPath) query on an XML response body.
 
 It takes two parameters:
 * `expression`  can be a plain `String`, a Gatling Expression Language `String` or a function.
@@ -120,7 +120,7 @@ If you're looking for path based engine for parsing HTML documents, please have 
 
 #### `jsonPath`
 
-[JsonPath](http://goessner.net/articles/JsonPath) is a XPath-like syntax for JSON.
+[JsonPath](http://goessner.net/articles/JsonPath) is an XPath-like syntax for JSON.
 
 {{< alert tip >}}
 It lacks a proper specification, so behavior can differ depending on the implementation. Typically, some weird expressions supported in lax implementations in online evaluators might not work in Gatling.
@@ -252,13 +252,13 @@ It comes in 2 flavors:
 
 #### `findAll`
 
-Returns all the occurrences. Only available on checks that can return multiple values.
+Return all the occurrences. Only available on checks that can return multiple values.
 
 {{< include-code "findAll" java kt scala >}}
 
 #### `findRandom`
 
-Returns a random occurrence. Only available on checks that can return multiple values.
+Return a random occurrence. Only available on checks that can return multiple values.
 
 It comes in 2 flavors:
 * parameterless, identical to `findRandom(1)`
@@ -305,7 +305,7 @@ It takes one single parameter:
 
 #### `transformOption`
 
-On contrary to [`transform`]({{< ref "#transform" >}}), this step is always invoked, even when the previous step failed to capture anything. 
+In contrary to [`transform`]({{< ref "#transform" >}}), this step is always invoked, even when the previous step failed to capture anything. 
 
 {{< include-code "transformOption" java kt scala >}}
 
@@ -336,7 +336,7 @@ It takes one single parameter:
 
 {{< alert tip >}}
 `is` is a reserved keyword in Kotlin.
-You can either protect it with backticks ``is`` or use the `shouldBe` alias instead.
+You can either protect it with backticks `` `is` `` or use the `shouldBe` alias instead.
 {{< /alert >}}
 
 #### `isNull`
@@ -362,7 +362,7 @@ Validate that the extracted value is not null, typically a JSON value.
 
 #### `exists`
 
-Validate that the extracted value exists:
+Validate that the extracted value exists.
 
 {{< include-code "exists" java kt scala >}}
 
@@ -380,7 +380,7 @@ Validate that the extracted value belongs to a given sequence or vararg.
 
 {{< alert tip >}}
 `in` is a reserved keyword in Kotlin.
-You can either protect it with backticks ``in`` or use the `within` alias instead.
+You can either protect it with backticks `` `in` `` or use the `within` alias instead.
 {{< /alert >}}
 
 #### `optional`
@@ -427,7 +427,7 @@ It takes one single parameter:
 Use `checkIf` instead of `check`.
 {{< /alert >}}
 
-Only perform some checks when some condition holds.
+Only perform the checks when some condition holds.
 
 {{< include-code "checkIf" java kt scala >}}
 
