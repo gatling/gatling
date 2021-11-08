@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
@@ -61,7 +61,7 @@ private[recorder] object RequestElement {
 
   private val HtmlContentType = """(?i)text/html\s*;\s+charset="?([\w\-]+)"?""".r
 
-  private[convert] def extractCharsetFromContentType(contentType: String): Option[String] =
+  private[render] def extractCharsetFromContentType(contentType: String): Option[String] =
     contentType match {
       case HtmlContentType(charset) => Some(charset)
       case _                        => None

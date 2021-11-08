@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import java.util.Locale
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.convert.{ DumpedBody, RequestBodyParams, RequestElement }
+import io.gatling.recorder.render.{ DumpedBody, RequestBodyParams, RequestElement }
 
-private[convert] object RequestTemplate {
+private[render] object RequestTemplate {
   def sanitizeRequestPostfix(postfix: String): String = postfix.replaceAll("[^-._=:/?&A-Za-z0-9]", "_")
 
   private val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
   private val MaxLiteralSize = 65534
 }
 
-private[convert] class RequestTemplate(
+private[render] class RequestTemplate(
     requestBodies: Map[Int, DumpedBody],
     responseBodies: Map[Int, DumpedBody],
     config: RecorderConfiguration

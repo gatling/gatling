@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import scala.collection.mutable
 
@@ -23,7 +23,7 @@ import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
 import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
-import io.gatling.recorder.convert.{ RequestBodyParams, RequestElement }
+import io.gatling.recorder.render.{ RequestBodyParams, RequestElement }
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
 

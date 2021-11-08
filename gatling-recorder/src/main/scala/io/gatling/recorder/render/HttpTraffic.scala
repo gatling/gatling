@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 

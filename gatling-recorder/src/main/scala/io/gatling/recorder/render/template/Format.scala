@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import io.gatling.recorder.util.Labelled
 

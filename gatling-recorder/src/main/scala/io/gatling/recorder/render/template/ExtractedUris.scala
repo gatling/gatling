@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import io.gatling.commons.util.StringHelper._
 import io.gatling.http.client.uri.Uri
-import io.gatling.recorder.convert.{ HttpTrafficElement, RequestElement }
+import io.gatling.recorder.render.{ HttpTrafficElement, RequestElement }
 
-private[convert] final case class UrlVal(valName: String, url: String)
+private[render] final case class UrlVal(valName: String, url: String)
 
-private[convert] final case class SchemeHost(scheme: String, host: String)
+private[render] final case class SchemeHost(scheme: String, host: String)
 
 object ExtractedUris {
 
@@ -119,7 +119,7 @@ object ExtractedUris {
   }
 }
 
-private[convert] final class ExtractedUris(urlVals: List[UrlVal], renders: Map[String, String]) {
+private[render] final class ExtractedUris(urlVals: List[UrlVal], renders: Map[String, String]) {
   def renderUri(uri: String): String = renders.getOrElse(uri, uri)
 
   def nonBaseUrls(baseUrl: String): Seq[UrlVal] =

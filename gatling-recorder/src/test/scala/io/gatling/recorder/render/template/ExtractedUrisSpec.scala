@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import io.gatling.BaseSpec
-import io.gatling.recorder.convert.RequestElement
+import io.gatling.recorder.render.RequestElement
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
 

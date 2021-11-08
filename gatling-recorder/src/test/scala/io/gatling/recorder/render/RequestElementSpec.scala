@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render
 
 import io.gatling.BaseSpec
+import io.gatling.recorder.render.RequestElement.extractCharsetFromContentType
 
-class PackageSpec extends BaseSpec {
+class RequestElementSpec extends BaseSpec {
 
-  "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
-    val string = "foo\"bar"
-    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
+  "extractCharsetFromContentType" should "extract unwrapped charset from Content-Type" in {
+    extractCharsetFromContentType("text/html; charset=utf-8") shouldBe Some("utf-8")
   }
 
-  it should "wrap a String containing backslashes with triple quotes" in {
-    val string = "foo\\bar"
-    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
+  it should "extract wrapped charset from Content-Type" in {
+    extractCharsetFromContentType("text/html; charset=\"utf-8\"") shouldBe Some("utf-8")
   }
 
-  it should "otherwise wrap a String with simple quotes" in {
-    val string = "foobar"
-    string.protect(Format.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
+  it should "not extract when Content-Type doesn't have a charset attribute" in {
+    extractCharsetFromContentType("text/html") shouldBe None
   }
 }

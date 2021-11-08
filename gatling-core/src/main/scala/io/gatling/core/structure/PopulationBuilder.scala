@@ -56,10 +56,10 @@ final case class PopulationBuilder(
     shard: Boolean
 ) extends LazyLogging {
 
-  def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toIterable)
+  def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toList)
   def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
 
-  def andThen(children: PopulationBuilder*): PopulationBuilder = andThen(children.toIterable)
+  def andThen(children: PopulationBuilder*): PopulationBuilder = andThen(children.toList)
   def andThen(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children)(_ ++ children)
 
   def disablePauses: PopulationBuilder = pauses(Disabled)
@@ -70,7 +70,7 @@ final case class PopulationBuilder(
   def uniformPauses(plusOrMinus: FiniteDuration): PopulationBuilder = pauses(new UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
-  def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)
+  def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toList)
   def throttle(throttleSteps: Iterable[ThrottleStep]): PopulationBuilder = {
     require(throttleSteps.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
     copy(scenarioThrottleSteps = throttleSteps)

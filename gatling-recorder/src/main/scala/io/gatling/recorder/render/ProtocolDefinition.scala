@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaders }
 
-private[convert] object ProtocolDefinition {
+private[render] object ProtocolDefinition {
 
   // use HttpHeaders because keys are case insensitive
   val BaseHeadersAndProtocolMethods: HttpHeaders = new DefaultHttpHeaders(false)
@@ -35,4 +35,4 @@ private[convert] object ProtocolDefinition {
     .add(HttpHeaderNames.UPGRADE_INSECURE_REQUESTS, "upgradeInsecureRequestsHeader")
 }
 
-private[convert] final case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)
+private[render] final case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)

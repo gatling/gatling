@@ -29,9 +29,9 @@ import io.gatling.core.filter.Filters
 import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderMode._
-import io.gatling.recorder.convert._
 import io.gatling.recorder.http.Mitm
 import io.gatling.recorder.model._
+import io.gatling.recorder.render._
 import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
@@ -60,7 +60,7 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
       if (proceed) {
         selectedMode match {
           case Har =>
-            converter.convertHarFile(harFile) match {
+            converter.renderHarFile(harFile) match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
               case _               => frontEnd.handleHarExportSuccess()
             }
@@ -80,7 +80,7 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
       else {
         val config = RecorderConfiguration.recorderConfiguration
         val traffic = HttpTraffic(requests.asScala.toList, tags.asScala.toList, config)
-        converter.convertHttpTraffic(traffic)
+        converter.renderHttpTraffic(traffic)
       }
 
     } finally {

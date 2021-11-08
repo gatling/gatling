@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.convert.ProtocolDefinition
-import io.gatling.recorder.convert.ProtocolDefinition.BaseHeadersAndProtocolMethods
+import io.gatling.recorder.render.ProtocolDefinition
+import io.gatling.recorder.render.ProtocolDefinition.BaseHeadersAndProtocolMethods
 import io.gatling.recorder.util.HttpUtils
 
 import io.netty.handler.codec.http.HttpHeaderNames
 
-private[convert] class ProtocolTemplate(config: RecorderConfiguration) {
+private[render] class ProtocolTemplate(config: RecorderConfiguration) {
 
   private val format = config.core.format
 

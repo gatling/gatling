@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render
 
 import java.io.{ File, IOException }
 import java.nio.file.{ Path, Paths }
@@ -29,16 +29,16 @@ import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.convert.template.SimulationTemplate
 import io.gatling.recorder.har._
+import io.gatling.recorder.render.template.SimulationTemplate
 import io.gatling.recorder.util.HttpUtils._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http._
 
-private[convert] object DumpedBodies {
+private[render] object DumpedBodies {
 
-  private[convert] def apply(config: RecorderConfiguration): DumpedBodies = {
+  private[render] def apply(config: RecorderConfiguration): DumpedBodies = {
     val classNameAsFolderName = config.core.className.toLowerCase(Locale.ROOT)
 
     val bodiesFolderPath: Path = {
@@ -55,7 +55,7 @@ private[convert] object DumpedBodies {
   }
 }
 
-private[convert] class DumpedBodies(
+private[render] class DumpedBodies(
     bodiesFolderPath: Path,
     bodiesClassPathLocation: String
 ) {
@@ -76,7 +76,7 @@ private[convert] class DumpedBodies(
   }
 }
 
-private[convert] class DumpedBody(
+private[render] class DumpedBody(
     val classPathLocation: String,
     val filePath: Path,
     val bytes: Array[Byte]
@@ -102,7 +102,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
   }
 
   // RecorderController
-  def convertHarFile(harFile: Path): Validation[Unit] =
+  def renderHarFile(harFile: Path): Validation[Unit] =
     safely(error => s"Error while processing HAR file: $error") {
       val transactions = HarReader.readFile(harFile, config.filters.filters)
 
@@ -114,12 +114,12 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
           TimedScenarioElement(request.timestamp, response.timestamp, element)
         }
 
-        convertHttpTraffic(HttpTraffic(scenarioElements, tags = Nil, config)).success
+        renderHttpTraffic(HttpTraffic(scenarioElements, tags = Nil, config)).success
       }
     }
 
   // RecorderController
-  def convertHttpTraffic(scenarioElements: HttpTraffic): Unit = {
+  def renderHttpTraffic(scenarioElements: HttpTraffic): Unit = {
     require(!scenarioElements.isEmpty)
 
     val output = renderScenarioAndDumpBodies(scenarioElements)

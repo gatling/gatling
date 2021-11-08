@@ -21,7 +21,7 @@ import java.{ util => ju }
 import scala.collection.mutable
 
 import io.gatling.recorder.config.ConfigKeys._
-import io.gatling.recorder.convert.template.Format
+import io.gatling.recorder.render.template.Format
 
 class RecorderPropertiesBuilder {
 

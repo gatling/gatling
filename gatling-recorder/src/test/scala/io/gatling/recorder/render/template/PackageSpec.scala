@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import io.gatling.BaseSpec
 
-class SimulationTemplateSpec extends BaseSpec {
+class PackageSpec extends BaseSpec {
 
-  "renderNonBaseUrls template" should "generate empty string if no variables" in {
-    SimulationTemplate.renderNonBaseUrls(Nil, Format.Scala) shouldBe empty
+  "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
+    val string = "foo\"bar"
+    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
   }
 
-  it should "list variables" in {
-    val raw = SimulationTemplate.renderNonBaseUrls(Seq(UrlVal("name1", "url1"), UrlVal("name2", "url2")), Format.Scala)
-    raw.linesIterator.map(_.trim).filter(_.nonEmpty).toList shouldBe List(
-      s"""private val name1 = ${"url1".protect(Format.Scala)}""",
-      s"""private val name2 = ${"url2".protect(Format.Scala)}"""
-    )
+  it should "wrap a String containing backslashes with triple quotes" in {
+    val string = "foo\\bar"
+    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
+  }
+
+  it should "otherwise wrap a String with simple quotes" in {
+    val string = "foobar"
+    string.protect(Format.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
   }
 }

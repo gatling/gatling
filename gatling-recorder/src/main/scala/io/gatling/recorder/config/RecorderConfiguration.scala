@@ -33,8 +33,8 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ AllowList, DenyList, Filters }
-import io.gatling.recorder.convert.template.Format
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
+import io.gatling.recorder.render.template.Format
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging

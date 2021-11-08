@@ -31,10 +31,10 @@ import scala.util.Try
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
-import io.gatling.recorder.convert.template.Format
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
+import io.gatling.recorder.render.template.Format
 import io.gatling.recorder.ui.RecorderFrontEnd
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component._

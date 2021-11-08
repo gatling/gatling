@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render
 
 import java.{ lang => jl }
 

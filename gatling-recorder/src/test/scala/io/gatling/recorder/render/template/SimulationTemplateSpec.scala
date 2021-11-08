@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert
+package io.gatling.recorder.render.template
 
 import io.gatling.BaseSpec
-import io.gatling.recorder.convert.RequestElement.extractCharsetFromContentType
 
-class RequestElementSpec extends BaseSpec {
+class SimulationTemplateSpec extends BaseSpec {
 
-  "extractCharsetFromContentType" should "extract unwrapped charset from Content-Type" in {
-    extractCharsetFromContentType("text/html; charset=utf-8") shouldBe Some("utf-8")
+  "renderNonBaseUrls template" should "generate empty string if no variables" in {
+    SimulationTemplate.renderNonBaseUrls(Nil, Format.Scala) shouldBe empty
   }
 
-  it should "extract wrapped charset from Content-Type" in {
-    extractCharsetFromContentType("text/html; charset=\"utf-8\"") shouldBe Some("utf-8")
-  }
-
-  it should "not extract when Content-Type doesn't have a charset attribute" in {
-    extractCharsetFromContentType("text/html") shouldBe None
+  it should "list variables" in {
+    val raw = SimulationTemplate.renderNonBaseUrls(Seq(UrlVal("name1", "url1"), UrlVal("name2", "url2")), Format.Scala)
+    raw.linesIterator.map(_.trim).filter(_.nonEmpty).toList shouldBe List(
+      s"""private val name1 = ${"url1".protect(Format.Scala)}""",
+      s"""private val name2 = ${"url2".protect(Format.Scala)}"""
+    )
   }
 }

@@ -105,7 +105,7 @@ final case class Session(
   import Session._
 
   def apply(name: String): SessionAttribute = SessionAttribute(this, name)
-  def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
+  def setAll(newAttributes: (String, Any)*): Session = copy(attributes = attributes ++ newAttributes)
   def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
   def set(key: String, value: Any): Session = copy(attributes = attributes + (key -> value))
   def remove(key: String): Session = if (contains(key)) copy(attributes = attributes - key) else this

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder.convert.template
+package io.gatling.recorder.render.template
 
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.convert._
+import io.gatling.recorder.render._
 
-private[convert] object SimulationTemplate {
+private[render] object SimulationTemplate {
   def apply(requestBodies: Map[Int, DumpedBody], responseBodies: Map[Int, DumpedBody], configuration: RecorderConfiguration): SimulationTemplate =
     new SimulationTemplate(
       configuration.core.pkg,
@@ -54,7 +54,7 @@ private[convert] object SimulationTemplate {
   private val MaxElementPerChain = 100
 }
 
-private[convert] class SimulationTemplate(
+private[render] class SimulationTemplate(
     packageName: String,
     simulationClassName: String,
     format: Format,
