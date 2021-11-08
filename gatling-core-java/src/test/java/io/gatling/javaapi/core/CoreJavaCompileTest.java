@@ -20,7 +20,7 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -59,7 +59,7 @@ public class CoreJavaCompileTest extends Simulation {
           // execs
           .exec(session -> session)
           .exec(chain1, chain2)
-          .exec(Collections.singletonList(chain1))
+          .exec(Arrays.asList(chain1))
           // groups
           .group("group")
           .on(chain1)
@@ -98,7 +98,7 @@ public class CoreJavaCompileTest extends Simulation {
                           })
                       .iterator())
           .feed(arrayFeeder(new Map[] {new HashMap<>(), new HashMap<>()}).circular())
-          .feed(listFeeder(Collections.singletonList(new HashMap<>())).circular())
+          .feed(listFeeder(Arrays.asList(new HashMap<>())).circular())
           // pauses
           .pause(1)
           .pause(Duration.ofMillis(100))
@@ -145,13 +145,13 @@ public class CoreJavaCompileTest extends Simulation {
           .repeat(session -> 1, "counterName")
           .on(chain1)
           // foreach
-          .foreach(Collections.singletonList(1), "attributeName")
+          .foreach(Arrays.asList(1), "attributeName")
           .on(chain1)
-          .foreach(Collections.singletonList(1), "attributeName", "counterName")
+          .foreach(Arrays.asList(1), "attributeName", "counterName")
           .on(chain1)
-          .foreach(session -> Collections.singletonList(1), "attributeName")
+          .foreach(session -> Arrays.asList(1), "attributeName")
           .on(chain1)
-          .foreach(session -> Collections.singletonList(1), "attributeName", "counterName")
+          .foreach(session -> Arrays.asList(1), "attributeName", "counterName")
           .on(chain1)
           // forever
           .forever()
@@ -265,46 +265,46 @@ public class CoreJavaCompileTest extends Simulation {
           .doSwitch("#{value}")
           .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .doSwitch("#{value}")
-          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
+          .on(Arrays.asList(Choice.withKey("value1", chain1)))
           .doSwitch(session -> "value")
           .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .doSwitch(session -> "value")
-          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
+          .on(Arrays.asList(Choice.withKey("value1", chain1)))
           // doSwitchOrElse
           .doSwitchOrElse("#{value}")
           .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse("#{value}")
-          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
+          .on(Arrays.asList(Choice.withKey("value1", chain1)))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
           .on(Choice.withKey("value1", chain1), Choice.withKey("value2", chain2))
           .orElse(chain2)
           .doSwitchOrElse(session -> "value")
-          .on(Collections.singletonList(Choice.withKey("value1", chain1)))
+          .on(Arrays.asList(Choice.withKey("value1", chain1)))
           .orElse(chain2)
           // randomSwitch
           .randomSwitch()
           .on(Choice.withWeight(50.0, chain1), Choice.withWeight(50.0, chain2))
           .randomSwitch()
-          .on(Collections.singletonList(Choice.withWeight(50.0, chain1)))
+          .on(Arrays.asList(Choice.withWeight(50.0, chain1)))
           // randomSwitchOrElse
           .randomSwitchOrElse()
           .on(Choice.withWeight(50.0, chain1), Choice.withWeight(50.0, chain2))
           .orElse(chain2)
           .randomSwitchOrElse()
-          .on(Collections.singletonList(Choice.withWeight(50.0, chain1)))
+          .on(Arrays.asList(Choice.withWeight(50.0, chain1)))
           .orElse(chain2)
           // uniformRandomSwitch
           .uniformRandomSwitch()
           .on(chain1, chain2)
           .uniformRandomSwitch()
-          .on(Collections.singletonList(chain1))
+          .on(Arrays.asList(chain1))
           // roundRobinSwitch
           .roundRobinSwitch()
           .on(chain1, chain2)
           .roundRobinSwitch()
-          .on(Collections.singletonList(chain1))
+          .on(Arrays.asList(chain1))
           // exitBlockOnFail
           .exitBlockOnFail(chain1)
           // tryMax
