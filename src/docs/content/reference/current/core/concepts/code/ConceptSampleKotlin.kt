@@ -37,6 +37,7 @@ scenario("Standard User")
 val stdUser = scenario("Standard User") // etc..
 val admUser = scenario("Admin User") // etc..
 val advUser = scenario("Advanced User") // etc..
+
 setUp(
   stdUser.injectOpen(atOnceUsers(2000)),
   admUser.injectOpen(nothingFor(60), rampUsers(5).during(400)),

@@ -95,4 +95,4 @@ In addition, there's `simpleCheck`:
 
 Short example, assuming ActiveMQ on localhost, using a `reqReply` query, to the queue named "jmstestq":
 
-{{< include-code "example-simulation" scala >}}
+{{< include-code "example-simulation" java kt scala >}}

@@ -102,7 +102,6 @@ exec(waitForMessages().timeout(Duration.ofMillis(100)));
 
 //#sample
 public class MqttSample extends Simulation {
-
   MqttProtocolBuilder mqttProtocol = mqtt
     .broker("localhost", 1883)
     .correlateBy(jsonPath("$.correlationId"));

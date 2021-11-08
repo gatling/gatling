@@ -16,7 +16,6 @@
 
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
-import org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -63,7 +62,7 @@ http("").get("")
 .check(bodyStream().transform { inputStream ->
   // decode the Base64 stream into a String
   Base64.getDecoder().wrap(inputStream).use { base64Is ->
-    IOUtils.toString(base64Is, StandardCharsets.UTF_8.name())
+    org.apache.commons.io.IOUtils.toString(base64Is, StandardCharsets.UTF_8.name())
   }
 })
 //#bodyStream
@@ -97,7 +96,7 @@ http("").get("")
 //#regex
 
 //#regex-ofType
-// In Java, use captureGroups(numberOfCaptureGroups) to capture List<String>
+// In Kotlin, use captureGroups(numberOfCaptureGroups) to capture List<String>
 .check(
   regex("foo(.*)bar(.*)baz").captureGroups(2)
 )
@@ -251,6 +250,13 @@ http("").get("")
   jsonPath("$.foo").count()
 )
 //#count
+
+//#withDefault
+.check(
+  jsonPath("$.foo")
+    .withDefault("defaultValue")
+)
+//#withDefault
 
 //#transform
 .check(

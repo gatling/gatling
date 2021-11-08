@@ -263,6 +263,13 @@ http("").get("")
 )
 //#count
 
+//#withDefault
+.check(
+  jsonPath("$.foo")
+    .withDefault("defaultValue")
+)
+//#withDefault
+
 //#transform
 .check(
   jsonPath("$.foo")

@@ -148,7 +148,7 @@ For example, considering the following JSON payload:
 ```
 
 ... this is how you would extract an integer value:
-{{< include-code "jsonPath-Int" scala java >}}
+{{< include-code "jsonPath-Int" java kt scala >}}
 
 #### `jsonpJsonPath`
 
@@ -184,7 +184,7 @@ For example, considering the following JSON payload:
 ```
 
 ... this is how you would extract an integer value:
-{{< include-code "jmesPath-Int" scala java >}}
+{{< include-code "jmesPath-Int" java kt scala >}}
 
 {{< alert tip >}}
 You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to register custom functions.
@@ -283,6 +283,8 @@ This optional step lets you provide a default value in case the previous step fa
 It takes one single parameter:
 * `defaultValue` can be a plain `String`, a Gatling Expression Language `String` or a function that must return the same type as the expected value
 
+{{< include-code "withDefault" java kt scala >}}
+
 #### `transform`
 
 This step lets you pass a function that will only be triggered if the previous step was able to capture something.
@@ -330,7 +332,7 @@ Validate that the value is equal to the expected one.
 It takes one single parameter:
 * `expected` can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
 
-{{< include-code "is" scala java >}}
+{{< include-code "is" java kt scala >}}
 
 {{< alert tip >}}
 `is` is a reserved keyword in Kotlin.

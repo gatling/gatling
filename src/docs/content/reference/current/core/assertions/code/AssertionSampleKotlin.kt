@@ -25,8 +25,8 @@ init {
 //#setUp
 setUp(population)
   .assertions(
-          global().responseTime().max().lt(50),
-          global().successfulRequests().percent().gt(95.0)
+    global().responseTime().max().lt(50),
+    global().successfulRequests().percent().gt(95.0)
   )
 //#setUp
 

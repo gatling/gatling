@@ -53,11 +53,11 @@ setUp(
 //#closed-injection
 
 //#incrementConcurrentUsers
-// generate a closed workload injection profile
-// with levels of 10, 15, 20, 25 and 30 concurrent users
-// each level lasting 10 seconds
-// separated by linear ramps lasting 10 seconds
 setUp(
+  // generate a closed workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 concurrent users
+  // each level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
   scn.injectClosed(
     incrementConcurrentUsers(5)
       .times(5)
@@ -69,11 +69,11 @@ setUp(
 //#incrementConcurrentUsers
 
 //#incrementUsersPerSec
-// generate an open workload injection profile
-// with levels of 10, 15, 20, 25 and 30 arriving users per second
-// each level lasting 10 seconds
-// separated by linear ramps lasting 10 seconds
 setUp(
+  // generate an open workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 arriving users per second
+  // each level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
   scn.injectOpen(
     incrementUsersPerSec(5.0)
       .times(5)

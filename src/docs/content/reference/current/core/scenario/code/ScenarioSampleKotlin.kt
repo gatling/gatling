@@ -32,11 +32,7 @@ scenario("Scenario")
   .exec(http("Home").get("https://gatling.io"))
 
 // directly created and stored in a reference
-
-// directly created and stored in a reference
 val chain = exec(http("Home").get("https://gatling.io"))
-
-// attached to another
 
 // attached to another
 exec(http("Home").get("https://gatling.io"))
@@ -47,10 +43,12 @@ exec(http("Home").get("https://gatling.io"))
 exec { session ->
   // displays the content of the session in the console (debugging only)
   println(session)
+  // return the original session
   session
 }
 
-exec { session ->  // return a new session instance
+exec { session ->
+  // return a new session instance
   // with a new "foo" attribute whose value is "bar"
   session.set("foo", "bar")
 }
@@ -79,7 +77,8 @@ pause({ session -> Duration.ofMillis(100) }) { session -> Duration.ofMillis(200)
 //#pace
 forever().on(
   pace(5)
-    .exec( // will be run every 5 seconds, irrespective of what pause time is used
+    .exec(
+      // will be run every 5 seconds, irrespective of what pause time is used
       pause(1, 4)
     )
 )
@@ -255,7 +254,8 @@ doIf { session -> session.getBoolean("condition") }.then(
 //#doIf
 
 //#doIfEquals
-doIfEquals("#{actual}", "expectedValue").then( // executed if the session value stored in "actual" is equal to "expectedValue"
+doIfEquals("#{actual}", "expectedValue").then(
+  // executed if the session value stored in "actual" is equal to "expectedValue"
   exec(http("name").get("/"))
 )
 //#doIfEquals
@@ -326,8 +326,6 @@ roundRobinSwitch().on(
 tryMax(5).on(
   exec(http("name").get("/"))
 )
-
-// with a counter name
 
 // with a counter name
 tryMax(5, "counter").on(

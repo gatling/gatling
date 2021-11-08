@@ -25,50 +25,58 @@ class InjectionSampleScala extends Simulation {
   private val scn = scenario("scenario")
 
 //#open-injection
-scn.inject(
-  nothingFor(4), // 1
-  atOnceUsers(10), // 2
-  rampUsers(10).during(5), // 3
-  constantUsersPerSec(20).during(15), // 4
-  constantUsersPerSec(20).during(15).randomized, // 5
-  rampUsersPerSec(10).to(20).during(10.minutes), // 6
-  rampUsersPerSec(10).to(20).during(10.minutes).randomized, // 7
-  stressPeakUsers(1000).during(20) // 8
-).protocols(httpProtocol)
+setUp(
+  scn.inject(
+    nothingFor(4), // 1
+    atOnceUsers(10), // 2
+    rampUsers(10).during(5), // 3
+    constantUsersPerSec(20).during(15), // 4
+    constantUsersPerSec(20).during(15).randomized, // 5
+    rampUsersPerSec(10).to(20).during(10.minutes), // 6
+    rampUsersPerSec(10).to(20).during(10.minutes).randomized, // 7
+    stressPeakUsers(1000).during(20) // 8
+  ).protocols(httpProtocol)
+)
 //#open-injection
 
 //#closed-injection
-scn.inject(
-  constantConcurrentUsers(10).during(10), // 1
-  rampConcurrentUsers(10).to(20).during(10) // 2
+setUp(
+  scn.inject(
+    constantConcurrentUsers(10).during(10), // 1
+    rampConcurrentUsers(10).to(20).during(10) // 2
+  )
 )
 //#closed-injection
 
 //#incrementConcurrentUsers
-// generate a closed workload injection profile
-// with levels of 10, 15, 20, 25 and 30 concurrent users
-// each  level lasting 10 seconds
-// separated by linear ramps lasting 10 seconds
-scn.inject(
-  incrementConcurrentUsers(5)
-    .times(5)
-    .eachLevelLasting(10)
-    .separatedByRampsLasting(10)
-    .startingFrom(10) // Int
+setUp(
+  // generate a closed workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 concurrent users
+  // each  level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
+  scn.inject(
+    incrementConcurrentUsers(5)
+      .times(5)
+      .eachLevelLasting(10)
+      .separatedByRampsLasting(10)
+      .startingFrom(10) // Int
+  )
 )
 //#incrementConcurrentUsers
 
 //#incrementUsersPerSec
-// generate an open workload injection profile
-// with levels of 10, 15, 20, 25 and 30 arriving users per second
-// each level lasting 10 seconds
-// separated by linear ramps lasting 10 seconds
-scn.inject(
-  incrementUsersPerSec(5.0)
-    .times(5)
-    .eachLevelLasting(10)
-    .separatedByRampsLasting(10)
-    .startingFrom(10) // Double
+setUp(
+  // generate an open workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 arriving users per second
+  // each level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
+  scn.inject(
+    incrementUsersPerSec(5.0)
+      .times(5)
+      .eachLevelLasting(10)
+      .separatedByRampsLasting(10)
+      .startingFrom(10) // Double
+  )
 )
 //#incrementUsersPerSec
 
@@ -91,22 +99,26 @@ private val grandChild = scenario("grandChild")
 private val injectionProfile = constantConcurrentUsers(5).during(5)
 
 //#andThen
-parent.inject(injectionProfile)
-  // child1 and child2 will start at the same time when last parent user will terminate
-  .andThen(
-    child1.inject(injectionProfile)
-      // grandChild will start when last child1 user will terminate
-      .andThen(grandChild.inject(injectionProfile)),
-    child2.inject(injectionProfile)
-  )
+setUp(
+  parent.inject(injectionProfile)
+    // child1 and child2 will start at the same time when last parent user will terminate
+    .andThen(
+      child1.inject(injectionProfile)
+        // grandChild will start when last child1 user will terminate
+        .andThen(grandChild.inject(injectionProfile)),
+      child2.inject(injectionProfile)
+    )
+)
 //#andThen
 
 //#noShard
-// parent load won't be sharded
-parent.inject(atOnceUsers(1)).noShard
-  .andThen(
-    // child load will be sharded
-    child1.inject(injectionProfile)
-  )
+setUp(
+  // parent load won't be sharded
+  parent.inject(atOnceUsers(1)).noShard
+    .andThen(
+      // child load will be sharded
+      child1.inject(injectionProfile)
+    )
+)
 //#noShard
 }

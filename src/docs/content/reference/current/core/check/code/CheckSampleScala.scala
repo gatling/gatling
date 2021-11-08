@@ -256,6 +256,13 @@ request
 )
 //#count
 
+//#withDefault
+.check(
+  jsonPath("$.foo")
+    .withDefault("defaultValue")
+)
+//#withDefault
+
 //#transform
 .check(
   jsonPath("$.foo")
@@ -322,22 +329,19 @@ request
 
 //#notNull
 .check(
-  jmesPath("foo")
-    .notNull
+  jmesPath("foo").notNull
 )
 //#notNull
 
 //#exists
 .check(
-  jmesPath("foo")
-    .exists
+  jmesPath("foo").exists
 )
 //#exists
 
 //#notExists
 .check(
-  jmesPath("foo")
-    .notExists
+  jmesPath("foo").notExists
 )
 //#notExists
 

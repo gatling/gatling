@@ -88,11 +88,7 @@ val myPojo: MyPojo = session.get("key")
 val failed: Boolean = session.isFailed()
 // reset the state to success
 // so that interrupt mechanisms such as exitHereIfFailed don't trigger
-// reset the state to success
-// so that interrupt mechanisms such as exitHereIfFailed don't trigger
 val newSession1: Session = session.markAsSucceeded()
-// force the state to failure
-// so that interrupt mechanisms such as exitHereIfFailed do trigger
 // force the state to failure
 // so that interrupt mechanisms such as exitHereIfFailed do trigger
 val newSession2: Session = session.markAsFailed()

@@ -29,9 +29,12 @@ class JmsSampleJava {
 //#jndi
 JmsJndiConnectionFactoryBuilder jndiBasedConnectionFactory = jmsJndiConnectionFactory
   .connectionFactoryName("ConnectionFactory")
-  .url("url")
+  .url("tcp://localhost:61616")
+  // optional, for performing JNDI lookup
   .credentials("username", "password")
-  .contextFactory("ContextFactoryClassName");
+  // optional, custom JNDI property
+  .property("foo", "bar")
+  .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 
 JmsProtocolBuilder jmsProtocol = jms
   .connectionFactory(jndiBasedConnectionFactory);
@@ -69,7 +72,6 @@ jms
   .messageMatcher((io.gatling.javaapi.jms.JmsMessageMatcher) null)
 
   // optional, default to none
-  // reply timeout
   .replyTimeout(1000);
 //#options
 }
@@ -127,31 +129,30 @@ JmsRequestReplyActionBuilder request =
 
 //#example-simulation
 public class TestJmsDsl extends Simulation {
+  // create a ConnectionFactory for ActiveMQ
+  // search the documentation of your JMS broker
+  ConnectionFactory connectionFactory =
+    new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616");
 
-    // create a ConnectionFactory for ActiveMQ
-    // search the documentation of your JMS broker
-    ConnectionFactory connectionFactory =
-      new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616");
+  // alternatively, you can create a ConnectionFactory from a JNDI lookup
+  JmsJndiConnectionFactoryBuilder jndiBasedConnectionFactory = jmsJndiConnectionFactory
+    .connectionFactoryName("ConnectionFactory")
+    .url("tcp://localhost:61616")
+    .credentials("user", "secret")
+    .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 
-    // alternatively, you can create a ConnectionFactory from a JNDI lookup
-    JmsJndiConnectionFactoryBuilder jndiBasedConnectionFactory = jmsJndiConnectionFactory
-      .connectionFactoryName("ConnectionFactory")
-      .url("tcp://localhost:61616")
-      .credentials("user", "secret")
-      .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+  JmsProtocolBuilder jmsProtocol = jms
+    .connectionFactory(connectionFactory)
+    .usePersistentDeliveryMode();
 
-    JmsProtocolBuilder jmsProtocol = jms
-      .connectionFactory(connectionFactory)
-      .usePersistentDeliveryMode();
-
-    ScenarioBuilder scn = scenario("JMS DSL test").repeat(1).on(
-      exec(jms("req reply testing").requestReply()
-        .queue("jmstestq")
-        .textMessage("hello from gatling jms dsl")
-        .property("test_header", "test_value")
-        .jmsType("test_jms_type")
-        .check(xpath("//foo")))
-    );
+  ScenarioBuilder scn = scenario("JMS DSL test").repeat(1).on(
+    exec(jms("req reply testing").requestReply()
+      .queue("jmstestq")
+      .textMessage("hello from gatling jms dsl")
+      .property("test_header", "test_value")
+      .jmsType("test_jms_type")
+      .check(xpath("//foo")))
+  );
 
   {
     setUp(scn.injectOpen(rampUsersPerSec(10).to(1000).during(60)))

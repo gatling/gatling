@@ -97,7 +97,6 @@ exec(waitForMessages.timeout(100.milliseconds))
 
 //#sample
 class MqttSample extends Simulation {
-
   val mqttProtocol = mqtt
     .broker("localhost", 1883)
     .correlateBy(jsonPath("$.correlationId"))

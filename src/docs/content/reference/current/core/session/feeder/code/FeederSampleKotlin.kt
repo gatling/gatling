@@ -40,12 +40,9 @@ feed(feeder)
 // default behavior: use an Iterator on the underlying sequence
 csv("foo").queue()
 // randomly pick an entry in the sequence
-// randomly pick an entry in the sequence
 csv("foo").random()
 // shuffle entries, then behave like queue
-// shuffle entries, then behave like queue
 csv("foo").shuffle()
-// go back to the top of the sequence once the end is reached
 // go back to the top of the sequence once the end is reached
 csv("foo").circular()
 //#strategies

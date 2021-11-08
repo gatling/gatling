@@ -1,38 +1,62 @@
-//#imprts
-
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
+
+//#imprts
+import io.gatling.javaapi.mqtt.*
+
 import io.gatling.javaapi.mqtt.MqttDsl.*
+//#imprts
 import java.time.Duration
 import javax.net.ssl.KeyManagerFactory
 
 class MqttSampleKotlin {
   //#protocol
-  val mqttProtocol = mqtt // enable protocol version 3.1 (default: false)
-    .mqttVersion_3_1() // enable protocol version 3.1.1 (default: true)
-    .mqttVersion_3_1_1() // broker address (default: localhost:1883)
-    .broker("hostname", 1883) // if TLS should be enabled (default: false)
-    .useTls(true) // Used to specify KeyManagerFactory for each individual virtual user. Input is the 0-based incremental id of the virtual user.
-    .perUserKeyManagerFactory { userId -> null as KeyManagerFactory? } // clientIdentifier sent in the connect payload (of not set, Gatling will generate a random one)
-    .clientId("#{id}") // if session should be cleaned during connect (default: true)
-    .cleanSession(true) // optional credentials for connecting
-    .credentials("#{userName}", "#{password}") // connections keep alive timeout
-    .keepAlive(30) // use at-most-once QoS (default: true)
-    .qosAtMostOnce() // use at-least-once QoS (default: false)
-    .qosAtLeastOnce() // use exactly-once QoS (default: false)
-    .qosExactlyOnce() // enable retain (default: false)
-    .retain(false) // send last will, possibly with specific QoS and retain
+  val mqttProtocol = mqtt
+    // enable protocol version 3.1 (default: false)
+    .mqttVersion_3_1()
+    // enable protocol version 3.1.1 (default: true)
+    .mqttVersion_3_1_1()
+    // broker address (default: localhost:1883)
+    .broker("hostname", 1883)
+    // if TLS should be enabled (default: false)
+    .useTls(true)
+    // Used to specify KeyManagerFactory for each individual virtual user. Input is the 0-based incremental id of the virtual user.
+    .perUserKeyManagerFactory { userId -> null as KeyManagerFactory? }
+    // clientIdentifier sent in the connect payload (of not set, Gatling will generate a random one)
+    .clientId("#{id}")
+    // if session should be cleaned during connect (default: true)
+    .cleanSession(true)
+    // optional credentials for connecting
+    .credentials("#{userName}", "#{password}")
+    // connections keep alive timeout
+    .keepAlive(30)
+    // use at-most-once QoS (default: true)
+    .qosAtMostOnce()
+    // use at-least-once QoS (default: false)
+    .qosAtLeastOnce()
+    // use exactly-once QoS (default: false)
+    .qosExactlyOnce()
+    // enable retain (default: false)
+    .retain(false)
+    // send last will, possibly with specific QoS and retain
     .lastWill(
       LastWill("#{willTopic}", StringBody("#{willMessage}"))
         .qosAtLeastOnce()
         .retain(true)
-    ) // max number of reconnects after connection crash (default: 3)
-    .reconnectAttemptsMax(1) // reconnect delay after connection crash in millis (default: 100)
-    .reconnectDelay(1) // reconnect delay exponential backoff (default: 1.5)
-    .reconnectBackoffMultiplier(1.5f) //  resend delay after send failure in millis (default: 5000)
-    .resendDelay(1000) // resend delay exponential backoff (default: 1.0)
-    .resendBackoffMultiplier(2.0f) // interval for timeout checker (default: 1 second)
-    .timeoutCheckInterval(1) // check for pairing messages sent and messages received
+    )
+    // max number of reconnects after connection crash (default: 3)
+    .reconnectAttemptsMax(1)
+    // reconnect delay after connection crash in millis (default: 100)
+    .reconnectDelay(1)
+    // reconnect delay exponential backoff (default: 1.5)
+    .reconnectBackoffMultiplier(1.5f)
+    //  resend delay after send failure in millis (default: 5000)
+    .resendDelay(1000)
+    // resend delay exponential backoff (default: 1.0)
+    .resendBackoffMultiplier(2.0f)
+    // interval for timeout checker (default: 1 second)
+    .timeoutCheckInterval(1)
+    // check for pairing messages sent and messages received
     .correlateBy(null as CheckBuilder)
 //#protocol
 
@@ -82,6 +106,7 @@ class MqttSample : Simulation() {
   val mqttProtocol = mqtt
     .broker("localhost", 1883)
     .correlateBy(jsonPath("$.correlationId"))
+
   val scn = scenario("MQTT Test")
     .feed(csv("topics-and-payloads.csv"))
     .exec(mqtt("Connecting").connect())

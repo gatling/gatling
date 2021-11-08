@@ -27,7 +27,7 @@ val jndiBasedConnectionFactory = jmsJndiConnectionFactory
   .connectionFactoryName("ConnectionFactory")
   .url("tcp://localhost:61616")
   // optional, for performing JNDI lookup
-  .credentials("user", "secret")
+  .credentials("username", "password")
   // optional, custom JNDI property
   .property("foo", "bar")
   .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
@@ -68,7 +68,6 @@ jms
   .messageMatcher(null.asInstanceOf[io.gatling.jms.protocol.JmsMessageMatcher])
 
   // optional, default to none
-  // reply timeout
   .replyTimeout(1000)
 //#options
   }
@@ -122,7 +121,6 @@ val request =
 
 //#example-simulation
 class TestJmsDsl extends Simulation {
-
   // create a ConnectionFactory for ActiveMQ
   // search the documentation of your JMS broker
   val connectionFactory =
@@ -135,7 +133,7 @@ class TestJmsDsl extends Simulation {
     .credentials("user", "secret")
     .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
 
-  val jmsConfig = jms
+  val jmsProtocol = jms
     .connectionFactory(connectionFactory)
     .usePersistentDeliveryMode
 
@@ -149,6 +147,6 @@ class TestJmsDsl extends Simulation {
   }
 
   setUp(scn.inject(rampUsersPerSec(10).to(1000).during(60)))
-    .protocols(jmsConfig)
+    .protocols(jmsProtocol)
 }
 //#example-simulation

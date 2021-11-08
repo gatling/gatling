@@ -126,11 +126,11 @@ setUp(scn.injectOpen(rampUsers(1000).during(Duration.ofMinutes(20))))
 
 //#hooks
 override fun before() {
-println("Simulation is about to start!")
+  println("Simulation is about to start!")
 }
 
 override fun after() {
-println("Simulation is finished!")
+  println("Simulation is finished!")
 }
 //#hooks
 }

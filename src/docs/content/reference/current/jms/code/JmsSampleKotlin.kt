@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-//#imprts
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
+//#imprts
+import javax.jms.*
 import io.gatling.javaapi.jms.*
 import io.gatling.javaapi.jms.JmsDsl.*
-import javax.jms.*
 //#imprts
-import org.apache.activemq.ActiveMQConnectionFactory
 
 class JmsSampleKotlin {
 
@@ -29,17 +28,21 @@ init {
 //#jndi
 val jndiBasedConnectionFactory = jmsJndiConnectionFactory
   .connectionFactoryName("ConnectionFactory")
-  .url("url")
+  .url("tcp://localhost:61616")
+  // optional, for performing JNDI lookup
   .credentials("username", "password")
-  .contextFactory("ContextFactoryClassName")
+  // optional, custom JNDI property
+  .property("foo", "bar")
+  .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
 
-val jmsProtocol: JmsProtocolBuilder = jms
+val jmsProtocol = jms
   .connectionFactory(jndiBasedConnectionFactory)
 //#jndi
 }
 init {
 //#prog
-val connectionFactory: ConnectionFactory = ActiveMQConnectionFactory("url")
+val connectionFactory: ConnectionFactory =
+  org.apache.activemq.ActiveMQConnectionFactory("url")
 
 val jmsProtocol = jms
   .connectionFactory(connectionFactory)
@@ -48,20 +51,26 @@ val jmsProtocol = jms
 //#options
 jms
   .connectionFactory(connectionFactory)
-  .credentials("username", "password") // optional, default to non persistent
+  .credentials("username", "password")
+  // optional, default to non persistent
   .useNonPersistentDeliveryMode()
-  .useNonPersistentDeliveryMode() // optional, default to 1
+  .useNonPersistentDeliveryMode()
+
+  // optional, default to 1
   // listener thread count
   // some JMS implementation (like IBM MQ) need more than one MessageListener
   // to achieve full readout performance
-  .listenerThreadCount(5) // optional, default to `matchByMessageId`
+  .listenerThreadCount(5)
+
+  // optional, default to `matchByMessageId`
   // specify how request and response messages should be matched when using `requestReply`
   // Use `matchByCorrelationId` for ActiveMQ.
   .matchByCorrelationId()
   .matchByMessageId() // use a custom matching strategy
   // see io.gatling.javaapi.jms.JmsMessageMatcher
-  .messageMatcher(null as io.gatling.javaapi.jms.JmsMessageMatcher) // optional, default to none
-  // reply timeout
+  .messageMatcher(null as io.gatling.javaapi.jms.JmsMessageMatcher)
+
+  // optional, default to none
   .replyTimeout(1000)
 //#options
 }
@@ -116,7 +125,8 @@ val request = jms("name").requestReply().queue("queueName")
 class TestJmsDsl : Simulation() {
   // create a ConnectionFactory for ActiveMQ
   // search the documentation of your JMS broker
-  val connectionFactory: ConnectionFactory = ActiveMQConnectionFactory("tcp://localhost:61616")
+  val connectionFactory: ConnectionFactory =
+    org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616")
 
   // alternatively, you can create a ConnectionFactory from a JNDI lookup
   val jndiBasedConnectionFactory = jmsJndiConnectionFactory
@@ -124,9 +134,11 @@ class TestJmsDsl : Simulation() {
     .url("tcp://localhost:61616")
     .credentials("user", "secret")
     .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
+
   val jmsProtocol = jms
     .connectionFactory(connectionFactory)
     .usePersistentDeliveryMode()
+
   val scn = scenario("JMS DSL test").repeat(1).on(
     exec(jms("req reply testing").requestReply()
       .queue("jmstestq")
