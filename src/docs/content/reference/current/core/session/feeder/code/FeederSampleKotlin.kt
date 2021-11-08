@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import com.redis.RedisClientPool
 import io.gatling.javaapi.core.CoreDsl.*
-import io.gatling.javaapi.http.HttpDsl.sitemap
-import io.gatling.javaapi.jdbc.JdbcDsl.jdbcFeeder
-import io.gatling.javaapi.redis.RedisDsl.redisFeeder
+import io.gatling.javaapi.http.HttpDsl.*
+import io.gatling.javaapi.jdbc.JdbcDsl.*
+import io.gatling.javaapi.redis.RedisDsl.*
 import org.apache.commons.lang3.RandomStringUtils
 import scala.Option
 
@@ -118,8 +117,17 @@ sitemap("/path/to/sitemap/file")
 
 //#redis-LPOP
 // beware: you need to import the redis module
-val redisPool = RedisClientPool("localhost", 6379, 8, 0, Option.apply(null), 0, -1, 3000, Option.apply(null))
-
+    val redisPool = com.redis.RedisClientPool(
+      "localhost",
+      6379,
+      8,
+      0,
+      Option.apply(null),
+      0,
+      -1,
+      3000,
+      scala.Option.apply(null),
+      com.redis.RedisClient.`SINGLE$`.`MODULE$`)
 // use a list, so there's one single value per record, which is here named "foo"
 redisFeeder(redisPool, "foo")
 // identical to above, LPOP is the default
