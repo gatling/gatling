@@ -239,7 +239,7 @@ private[render] class SimulationTemplate(
 
       case Format.Java11 | Format.Java17 =>
         s"""${if (packageName.nonEmpty) s"package $packageName;$Eol" else ""}
-           |import java.time.*;
+           |import java.time.Duration;
            |import java.util.*;
            |
            |import io.gatling.javaapi.core.*;
@@ -266,7 +266,7 @@ private[render] class SimulationTemplate(
 
       case Format.Java8 =>
         s"""${if (packageName.nonEmpty) s"package $packageName;$Eol" else ""}
-           |import java.time.*;
+           |import java.time.Duration;
            |import java.util.*;
            |
            |import io.gatling.javaapi.core.*;
