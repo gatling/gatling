@@ -90,12 +90,12 @@ object Search {
       .get("/computers?f=#{searchCriterion}") // 4
       .check(
         css("a:contains('#{searchComputerName}')", "href") // 5
-          .saveAs("computerURL")
+          .saveAs("computerUrl")
       )
     )
     .pause(1)
     .exec(http("Select")
-      .get("#{computerURL}")) // 6
+      .get("#{computerUrl}")) // 6
     .pause(1)
 }
 //#feeder

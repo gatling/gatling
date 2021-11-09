@@ -1,7 +1,7 @@
 ---
 title: "Installation"
 description: "Install and Gatling"
-lead: "Learn about the Java and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle "
+lead: "Learn about the Java, Kotlin and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle "
 date: 2021-04-20T18:58:06+02:00
 lastmod: 2021-04-20T18:58:06+02:00
 weight: 010
@@ -29,7 +29,7 @@ those are not documented and released only for internal use or [Gatling Enterpri
 ## Using the Bundle
 
 You can use Gatling as a standalone bundle.
-Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
+Then, you'll just need a text editor, possibly with Java, Kotlin or Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
 
 Check out our [Open Source page](https://gatling.io/open-source/) for the download link.
 
@@ -51,13 +51,11 @@ For all details regarding the installation and the tuning of the operating syste
 
 {{< alert warning >}}
 Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
-OS, like OSX, have their own tricky way of discovering which version of Java to run,
-so you might end up running a different version than the one `java -version` tells you.
-If you get strange errors such as `Unsupported major.minor version 51.0` and you were expecting to run a JDK8,
-you might want to explicitly set `JAVA_HOME`.
+Depending on your setup, you might end up running a different version than the one displayed with `java -version`.
+If you get strange errors such as `Unsupported major.minor version 51.0` and you were expecting to run a JDK8 or newer, you might want to explicitly set the `JAVA_HOME` env variable.
 {{< /alert >}}
 
-The bundle structure is as following:
+The bundle structure is as follows:
 
 * `bin`: launch scripts for Gatling and the Recorder.
 * `conf`: configuration files for Gatling, Akka and Logback.

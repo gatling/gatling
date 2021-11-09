@@ -37,9 +37,9 @@ public class AdvancedSimulationStep05 extends Simulation {
                 http("Search")
                     .get("/computers?f=${searchCriterion}")
                     .check(
-                        css("a:contains('${searchComputerName}')", "href").saveAs("computerURL")))
+                        css("a:contains('${searchComputerName}')", "href").saveAs("computerUrl")))
             .pause(1)
-            .exec(http("Select").get("${computerURL}").check(status().is(200)))
+            .exec(http("Select").get("${computerUrl}").check(status().is(200)))
             .pause(1);
   }
 

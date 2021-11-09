@@ -5,3 +5,4 @@ public/
 go.sum
 package.json
 package-lock.json
+.hugo_build.lock

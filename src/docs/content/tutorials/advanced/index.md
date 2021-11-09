@@ -8,7 +8,7 @@ weight: 030
 ---
 
 In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.
-We will apply a series of refactorings to introduce more advanced concepts and DSL constructs.
+We will apply a series of refactorings to introduce more advanced concepts and [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) constructs.
 
 ## Step 01: Isolate processes
 
@@ -23,8 +23,7 @@ In our scenario we have three separated processes:
   * Browse: browse the list of models
   * Edit: edit a given model
 
-We are going to extract those chains and store them into *objects*.
-Objects are native Scala singletons.
+We are going to extract those chains and store them into constants (static final fields in Java, object attributes in Scala and Kotlin).
 You can create those in dedicated files, or directly in the same file as the Simulation.
 
 {{< include-code "isolate-processes" java kt scala >}}
@@ -51,7 +50,7 @@ To increase the number of simulated users, all you have to do is to change the c
 
 {{< include-code "setup-users" java kt scala >}}
 
-Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server ;-)
+Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server! ;-)
 
 If you want to simulate 3000 users, you might not want them to start at the same time.
 Indeed, real users are more likely to connect to your web application gradually.
@@ -68,7 +67,7 @@ In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 
 We have set our simulation to run a bunch of users, but they all search for the same model.
 Wouldn't it be nice if every user could search a different model name?
 
-We need dynamic data so that all users don't play exactly the same scenario and we end up with a behavior completely different from the live system (due to caching, JIT etc.).
+We need dynamic data so that all users don't play exactly the same scenario, and so that we don't end up with a behavior completely different from the live system (due to caching, JIT etc.).
 This is where Feeders will be useful.
 
 Feeders are data sources containing all the values you want to use in your scenarios.
@@ -90,18 +89,18 @@ Let's then declare a feeder and use it to feed our users with the above data:
 
 Explanations:
 
-1. First we create a feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
-2. As the default feeder strategy is *queue*, we will use the *random* strategy for this test to avoid feeder starvation.
-3. Every time a user reaches the feed step, it picks a random record from the feeder.
-   This user has two new session attributes named *searchCriterion*, *searchComputerName*.
-4. We use session data through Gatling's EL to parametrize the search.
-5. We use a CSS selector with an EL to capture a part of the HTML response, here a hyperlink, and save it in the user session with the name *computerURL*.
+1. First we create a Feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
+2. As the default Feeder strategy is *queue*, we will use the *random* strategy for this test to avoid feeder starvation.
+3. Every time a user reaches the feed step, it picks a random record from the Feeder.
+   This user has two new Session attributes named *searchCriterion*, *searchComputerName*.
+4. We use Session data through [Gatling Expression Language]({{< ref "../../reference/current/core/session/el" >}}) to parameterize the search.
+5. We use a [CSS selector check]({{< ref "../../reference/current/core/check#css" >}}) (also parameterized with Gatling Expression Language to capture a part of the HTML response, here a hyperlink, and save it in the user Session under the name *computerUrl*.
 6. We use the previously saved hyperlink to get a specific page.
 
 {{< alert tip >}}
-For more details regarding *Feeders*, please check out [Feeder reference page]({{< ref "../../reference/current/core/session/feeder" >}}).
+For more details regarding *Feeders*, please check out the [Feeder reference page]({{< ref "../../reference/current/core/session/feeder" >}}).
 
-For more details regarding *HTTP Checks*, please check out [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
+For more details regarding *HTTP Checks*, please check out the [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
 {{< /alert >}}
 
 ## Step 04: Looping
@@ -110,12 +109,12 @@ In the *browse* process we have a lot of repetition when iterating through the p
 We have four times the same request with a different query param value. Can we change this to not violate the DRY principle?
 
 First we will extract the repeated `exec` block to a function.
-Indeed, `Simulation`'s are plain Scala classes so we can use all the power of the language if needed:
+Indeed, `Simulation`'s are plain classes, so we can use all the power of the language if needed:
 
 {{< include-code "loop-simple" java kt scala >}}
 
 We can now call this function and pass the desired page number.
-But we still have repetition, it's time to introduce another builtin structure:
+But we still have repetitions, it's time to introduce another builtin structure:
 
 {{< include-code "loop-for" java kt scala >}}
 
@@ -123,10 +122,10 @@ Explanations:
 
 1. The `repeat` builtin is a loop resolved at **runtime**.
    It takes the number of repetitions and, optionally, the name of the counter that's stored in the user's Session.
-2. As we force the counter name we can use it in Gatling EL and access the nth page.
+2. As we set the counter name we can use it in Gatling EL and access the nth page.
 
 {{< alert tip >}}
-For more details regarding loops, please check out [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
+For more details regarding loops, please check out the [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
 {{< /alert >}}
 
 ## Step 05: Check and failure management
@@ -154,10 +153,10 @@ Explanations:
 
 1. `tryMax` tries a given block up to n times.
    Here we try a maximum of two times.
-2. If all tries failed, the user exits the whole scenario due to `exitHereIfFailed`.
+2. If all tries fail, the user exits the whole scenario due to `exitHereIfFailed`.
 
 {{< alert tip >}}
-For more details regarding conditional blocks, please check out [Conditional Statements reference page]({{< ref "../../reference/current/core/scenario#conditional-statements" >}}).
+For more details regarding conditional blocks, please check out the [Conditional Statements reference page]({{< ref "../../reference/current/core/scenario#conditional-statements" >}}).
 {{< /alert >}}
 
 That's all Folks!

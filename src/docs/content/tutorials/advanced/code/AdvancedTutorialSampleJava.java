@@ -45,12 +45,12 @@ public static final class Search {
 
 public static final class Browse {
 
-  public static final ChainBuilder browse = null;
+  public static final ChainBuilder browse = null; // TODO
 }
 
 public static final class Edit {
 
-  public static final ChainBuilder edit = null;
+  public static final ChainBuilder edit = null; // TODO
 }
 //#isolate-processes
 
@@ -98,12 +98,12 @@ public static final class Search {
       .get("/computers?f=#{searchCriterion}") // 4
       .check(
         css("a:contains('#{searchComputerName}')", "href")
-          .saveAs("computerURL") // 5
+          .saveAs("computerUrl") // 5
       )
     )
     .pause(1)
     .exec(http("Select")
-      .get("#{computerURL}")) // 6
+      .get("#{computerUrl}")) // 6
     .pause(1);
 }
 //#feeder

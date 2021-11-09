@@ -9,7 +9,7 @@ weight: 020
 
 ## Introduction
 
-In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
+In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL (Domain Specific Language).
 
 {{< alert tip >}}
 Feel free to join our [Google Group](https://groups.google.com/g/gatling) and ask for help **once you've read this documentation**.
@@ -19,6 +19,7 @@ Feel free to join our [Google Group](https://groups.google.com/g/gatling) and as
 
 Please check the [installation section]({{< ref "installation" >}}) to pick a setup that matches your needs.
 Non developers are recommended to start with the bundle setup.
+In this tutorial, we will show the commands to use with the bundle setup.
 
 ### Encoding
 
@@ -73,16 +74,19 @@ Once launched, the following GUI lets you configure how requests and responses w
 
 Set it up with the following options:
 
+* *Recorder Mode* set to *HTTP Proxy*
 * *computerdatabase* package
 * *BasicSimulation* name
 * *Follow Redirects?* checked
+* *Infer HTML resources?* checked
 * *Automatic Referers?* checked
+* *Remove cache headers?* checked
 * *No static resources* clicked
 * Select the desired `format`. The tutorials will assume "Java 8"
 
 {{< img src="recorder.png" alt="recorder.png" >}}
 
-After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
+After configuring the recorder, all you have to do is to click on `Start!` and configure your browser to use Gatling Recorder's proxy.
 
 {{< alert tip >}}
 For more information regarding Recorder and browser configuration, please check out [Recorder reference page]({{< ref "../../reference/current/http/recorder" >}}).
@@ -98,7 +102,7 @@ Now simply browse the application:
 4. Select 'Macbook pro'.
 5. Enter 'Browse' tag.
 6. Go back to home page.
-7. Iterates several times through the model pages by clicking on *Next* button.
+7. Iterate several times through the model pages by clicking on the *Next* button.
 8. Enter 'Edit' tag.
 9. Click on *Add new computer*.
 10. Fill the form.
@@ -135,11 +139,11 @@ Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `java.time
 {{< /alert >}}
 
 11. Where one sets up the scenarios that will be launched in this Simulation.
-12. Declaring to inject into scenario named *scn* one single user.
+12. Declaring that we will inject one single user into the scenario named *scn*.
 13. Attaching the HTTP configuration declared above.
 
 {{< alert tip >}}
-For more details regarding Simulation structure, please check out [Simulation reference page]({{< ref "../../reference/current/core/simulation" >}}).
+For more details regarding Simulation structure, please check out the [Simulation reference page]({{< ref "../../reference/current/core/simulation" >}}).
 {{< /alert >}}
 
 ### Running Gatling

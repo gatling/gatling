@@ -48,12 +48,12 @@ public class AdvancedSimulationStep03 extends Simulation {
                     .check(
                         css("a:contains('${searchComputerName}')", "href")
                             .saveAs(
-                                "computerURL"))) // use a CSS selector with an EL, save the result
+                                "computerUrl"))) // use a CSS selector with an EL, save the result
             // of the capture group
             .pause(1)
             .exec(
                 http("Select")
-                    .get("${computerURL}") // use the link previously saved
+                    .get("${computerUrl}") // use the link previously saved
                     .check(status().is(200)))
             .pause(1);
   }
