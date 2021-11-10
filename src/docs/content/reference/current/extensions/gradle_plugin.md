@@ -36,8 +36,12 @@ You can find sample projects demoing the `io.gatling.gradle` plugin in Gatling's
 
 ### Gradle version
 
-The latest version of this plugin is tested against Gradle versions ranging from 4.0.1 to 7.1.1.
-Any version outside of this range is not guaranteed to work.
+{{< alert warning >}}
+This plugin requires at least Gradle 5.
+{{< /alert >}}
+
+The latest version of this plugin is tested against Gradle versions ranging from 5.0.0 to 7.1.1.
+Any version outside this range is not guaranteed to work.
 
 ### Scala version
 
