@@ -16,7 +16,7 @@
 
 package io.gatling.mqtt.protocol
 
-import java.net.InetSocketAddress
+import java.net.{ InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration.FiniteDuration
@@ -37,7 +37,7 @@ final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
     this.modify(_.mqttProtocol.version).setTo(MqttVersion.MQTT_3_1_1)
 
   def broker(hostname: String, port: Int): MqttProtocolBuilder =
-    this.modify(_.mqttProtocol.brokerAddress).setTo(new InetSocketAddress(hostname, port))
+    this.modify(_.mqttProtocol.brokerAddress).setTo(new InetSocketAddress(InetAddress.getByName(hostname), port))
 
   def useTls(useTls: Boolean): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.useTls).setTo(useTls)
