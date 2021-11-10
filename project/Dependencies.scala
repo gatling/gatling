@@ -16,7 +16,8 @@ object Dependencies {
   private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
-  private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
+  private val nettyEpollLinuxX86             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
+  private val nettyEpollLinuxArm             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-aarch_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.45.Final"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.6.0"
@@ -116,7 +117,7 @@ object Dependencies {
     Seq(commonsIo, commonsLang, commonsCodec)
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpoll, junit, junitEngine, jupiterInterface)
+    Seq(nettyBuffer, nettyEpollLinuxX86, nettyEpollLinuxArm, junit, junitEngine, jupiterInterface)
 
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
@@ -157,7 +158,8 @@ object Dependencies {
     nettyHandler,
     nettyProxy,
     nettyDns,
-    nettyEpoll,
+    nettyEpollLinuxX86,
+    nettyEpollLinuxArm,
     nettyHttp2,
     nettyBoringSsl,
     brotli4j,
@@ -178,7 +180,7 @@ object Dependencies {
 
   val jdbcDependencies = h2 +: testDeps
 
-  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyEpoll)
+  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
 
   val chartsDependencies = tdigest +: testDeps
 
