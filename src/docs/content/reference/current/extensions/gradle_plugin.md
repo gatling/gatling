@@ -13,7 +13,7 @@ This Gradle plugin integrates Gatling with Gradle, allowing to use Gatling as a 
 
 ## Versions
 
-Check out available versions on [Gradle Plugins Portal](https://plugins.gradle.org/).
+Check out available versions on [Gradle Plugins Portal](https://plugins.gradle.org/plugin/io.gatling.gradle).
 
 ## Setup
 
@@ -25,9 +25,12 @@ In `build.gradle`, add:
  }
 ```
 
-## Demo sample
+## Demo samples
 
-You can find a [sample project demoing the io.gatling.gradle plugin](https://github.com/gatling/gatling-gradle-plugin-demo) in Gatling's Github organization.
+You can find sample projects demoing the `io.gatling.gradle` plugin in Gatling's GitHub organization:
+* [for Java](https://github.com/gatling/gatling-gradle-plugin-demo-java)
+* [for Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
+* [for Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala)
 
 ## Compatibility
 

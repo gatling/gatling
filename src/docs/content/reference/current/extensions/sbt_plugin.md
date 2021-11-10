@@ -48,7 +48,8 @@ libraryDependencies ++= /* Gatling dependencies */
 ```
 ## Demo sample
 
-You can find a [sample project demoing the gatling-sbt-plugin](https://github.com/gatling/gatling-sbt-plugin-demo) in Gatling's GitHub organization.
+You can find a sample project demoing the `gatling-sbt-plugin` in Gatling's GitHub organization:
+* [for Scala](https://github.com/gatling/gatling-sbt-plugin-demo)
 
 ## Usage
 
