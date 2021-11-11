@@ -23,7 +23,7 @@ import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 
 import akka.actor.ActorRef
-import io.netty.channel.ChannelDuplexHandler
+import io.netty.channel.ChannelHandler
 
 trait StatsEngine extends FrontLineStatsEngineExtensions {
 
@@ -89,7 +89,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
 // WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
 trait FrontLineStatsEngineExtensions {
-  final def statsChannelHandler: ChannelDuplexHandler = null
+  final def statsChannelHandler(remoteAddress: String): ChannelHandler = null
 
   final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
 

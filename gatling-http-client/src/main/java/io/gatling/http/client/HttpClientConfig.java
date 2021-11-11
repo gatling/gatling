@@ -18,10 +18,8 @@ package io.gatling.http.client;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslContext;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
 
 public class HttpClientConfig {
 
@@ -44,8 +42,6 @@ public class HttpClientConfig {
   private long channelPoolIdleTimeout = 30_000;
 
   private long channelPoolIdleCleanerPeriod = 1_000;
-
-  private Consumer<Channel> additionalChannelInitializer;
 
   private boolean tcpNoDelay;
 
@@ -125,16 +121,6 @@ public class HttpClientConfig {
 
   public long getChannelPoolIdleCleanerPeriod() {
     return channelPoolIdleCleanerPeriod;
-  }
-
-  public HttpClientConfig setAdditionalChannelInitializer(
-      Consumer<Channel> additionalChannelInitializer) {
-    this.additionalChannelInitializer = additionalChannelInitializer;
-    return this;
-  }
-
-  public Consumer<Channel> getAdditionalChannelInitializer() {
-    return additionalChannelInitializer;
   }
 
   public boolean isTcpNoDelay() {

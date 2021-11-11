@@ -75,11 +75,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var bodyLength = 0
   private var chunks: List[ByteBuf] = Nil
-  // [fl]
-  //
-  //
-  //
-  // [fl]
 
   override def onSend(): Unit =
     if (!init) {
@@ -93,6 +88,29 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
     }
 
   // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   //
   //
   //

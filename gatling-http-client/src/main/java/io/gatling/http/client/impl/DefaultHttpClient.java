@@ -114,10 +114,6 @@ public class DefaultHttpClient implements HttpClient {
           .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
           .addLast(
               APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
-
-      if (config.getAdditionalChannelInitializer() != null) {
-        config.getAdditionalChannelInitializer().accept(channel);
-      }
     }
 
     private void addWsHandlers(Channel channel) {
@@ -128,10 +124,6 @@ public class DefaultHttpClient implements HttpClient {
           .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
           .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
           .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
-
-      if (config.getAdditionalChannelInitializer() != null) {
-        config.getAdditionalChannelInitializer().accept(channel);
-      }
     }
 
     private EventLoopResources(EventLoop eventLoop) {
@@ -173,10 +165,6 @@ public class DefaultHttpClient implements HttpClient {
                           .pipeline()
                           .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
                           .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
-
-                      if (config.getAdditionalChannelInitializer() != null) {
-                        config.getAdditionalChannelInitializer().accept(channel);
-                      }
                     }
                   });
 
@@ -824,6 +812,10 @@ public class DefaultHttpClient implements HttpClient {
           f -> {
             if (f.isSuccess()) {
               // [fl]
+              //
+              //
+              //
+              //
               //
               // [fl]
               channelPromise.setSuccess(whenChannel.channel());

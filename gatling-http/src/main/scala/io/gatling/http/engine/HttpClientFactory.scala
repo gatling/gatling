@@ -26,7 +26,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[gatling] final class HttpClientFactory(
     sslContextsFactory: SslContextsFactory,
-    // [fl]
     configuration: GatlingConfiguration
 ) extends StrictLogging {
 
@@ -54,14 +53,6 @@ private[gatling] final class HttpClientFactory(
       .setEnableSni(sslConfig.enableSni)
       .setUseNativeTransport(nettyConfig.useNativeTransport)
       .setThreadPoolName("gatling-http")
-    //[fl]
-    //
-    //
-    //
-    //
-    //
-    //
-    //[fl]
   }
 
   def newClient: HttpClient = new DefaultHttpClient(newClientConfig())
