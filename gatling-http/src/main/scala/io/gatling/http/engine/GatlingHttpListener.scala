@@ -205,7 +205,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
 
   override def onThrowable(throwable: Throwable): Unit =
     if (!done) {
-      done = true;
+      done = true
       requestEndTimestamp = clock.nowMillis
       logRequestCrash(tx, throwable)
       try {
