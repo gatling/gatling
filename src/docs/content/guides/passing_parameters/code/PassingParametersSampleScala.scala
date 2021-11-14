@@ -16,17 +16,14 @@
 
 import io.gatling.core.Predef._
 
-class PassingParametersSample extends Simulation {
+class PassingParametersSampleScala extends Simulation {
 
-  //#string-property
-  val foo = System.getProperty("foo")
-  //#string-property
+val scn = scenario("foo")
 
-  val scn = scenario("foo")
+//#injection-from-props
+val nbUsers = Integer.getInteger("users", 1)
+val myRamp = java.lang.Long.getLong("ramp", 0)
 
-  //#injection-from-props
-  val nbUsers = Integer.getInteger("users", 1)
-  val myRamp = java.lang.Long.getLong("ramp", 0L)
-  setUp(scn.inject(rampUsers(nbUsers).during(myRamp.seconds)))
-  //#injection-from-props
+setUp(scn.inject(rampUsers(nbUsers).during(myRamp)))
+//#injection-from-props
 }
