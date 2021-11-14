@@ -232,7 +232,7 @@ You can then override the desired Redis command:
 
 {{< include-code "redis-SRANDMEMBER" java kt scala >}}
 
-## Converting Values
+## Transforming Recordsy {#transform}
 
 Sometimes, you might want to transform the raw data you got from your feeder.
 
@@ -246,7 +246,7 @@ For example:
 
 {{< include-code "transform" java kt scala >}}
 
-## Extracting All Records
+## Loading All Records in Memory {#readRecords}
 
 Sometimes, you just might want to reuse or convenient built-in feeders for custom needs and get your hands on the actual records.
 
