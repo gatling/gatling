@@ -88,8 +88,8 @@ For the `Gatling` configuration :
 
 For the `GatlingIt` configuration :
 
-* By default, Gatling simulations must be in `src/it/scala`, configurable using the `scalaSource in GatlingIt` setting.
-* By default, Gatling reports are written to `target/gatling-it`, configurable using the `target in GatlingIt` setting.
+* By default, Gatling simulations must be in `src/it/scala`, configurable using the `scalaSource in the GatlingIt` setting.
+* By default, Gatling reports are written to `target/gatling-it`, configurable using the `target in the GatlingIt` setting.
 
 If you override the default settings, you need to reset them on the project, eg:
 
