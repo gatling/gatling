@@ -4,7 +4,7 @@ description: "Generating heavy load from multiple injectors"
 lead: "Generating heavy load from multiple injectors"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 030
+weight: 0033
 ---
 
 Sometimes, generating some very heavy load from a single machine might lead to saturating the OS or the network interface controller.
@@ -29,7 +29,3 @@ Gatling open-source doesn't have a cluster mode, but you can achieve similar res
 * rename them so they don't clash
 * place them into a folder in the results folder of a Gatling instance
 * generate the reports with Gatling with the `-ro name-of-the-simulation-folder` (reports only), Gatling will pick all the files that match `.*\.log`
-
-Example script using the above commands: (the script will run the same simulation parallel on given hosts, gather logs and generate a single report)
-
-{{< include-code "GatlingScalingOut.sh" shell >}}
