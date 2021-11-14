@@ -55,7 +55,7 @@ You can find a sample project demoing the `gatling-sbt-plugin` in Gatling's GitH
 
 As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks.
 However, since the SBT Plugin introduces many customizations that we don't want to interfere with unit tests, those commands are integrated into custom configurations,
-meaning you'll need to prefix them with `gatling` or `gatling-it`, eg. `gatling:test` or `gatling-it:test`.
+meaning you'll need to prefix them with `Gatling/` or `GatlingIt/`, eg. `Gatling/test` or `GatlingIt/test`.
 
 {{< alert tip >}}
 This behavior differs from what was previously possible, eg. calling `test` without prefixing started Gatling simulations.
@@ -76,7 +76,7 @@ Also, since they're tied to separate SBT configurations, your SBT settings can t
 You can expect a relatively short simulation to run easily with the default JVM settings, but simulations with much higher load can very well require an increase of the max heap memory allowed for example).
 
 {{< alert tip >}}
-When using the `GatlingIt` configuration, you must use the `gatling-it` prefix, e.g. `gatling:test` becomes `gatling-it:test`, etc...
+When using the `GatlingIt` configuration, you must use the `GatlingIt/` prefix, e.g. `Gatling/test` becomes `GatlingIt/test`, etc...
 {{< /alert >}}
 
 ## Default settings
@@ -102,11 +102,11 @@ lazy val root = (project in file(".")).settings(inConfig(Gatling)(Defaults.testS
 
 Gatling's SBT plugin also offers four additional tasks:
 
-* `gatling:startRecorder`: starts the Recorder, configured to save recorded simulations to the location specified by `scalaSource in Gatling` (by default, `src/test/scala`).
-* `gatling:generateReport`: generates reports for a specified report folder.
-* `gatling:lastReport`: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
-* `gatling:copyConfigFiles`: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
-* `gatling:copyLogbackXml`: copies Gatling's default logback.xml.
+* `Gatling/startRecorder`: starts the Recorder, configured to save recorded simulations to the location specified by `scalaSource in Gatling` (by default, `src/test/scala`).
+* `Gatling/generateReport`: generates reports for a specified report folder.
+* `Gatling/lastReport`: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
+* `Gatling/copyConfigFiles`: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
+* `Gatling/copyLogbackXml`: copies Gatling's default logback.xml.
 
 ## Overriding JVM options
 
