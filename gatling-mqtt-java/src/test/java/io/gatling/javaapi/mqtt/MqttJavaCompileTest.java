@@ -77,11 +77,11 @@ public class MqttJavaCompileTest extends Simulation {
                   .qosAtMostOnce()
                   .qosAtLeastOnce()
                   .qosExactlyOnce())
-          .exec(mqtt("Subscribing").subscribe("#{myTopic2}").wait(Duration.ofMillis(100)))
+          .exec(mqtt("Subscribing").subscribe("#{myTopic2}").await(Duration.ofMillis(100)))
           .exec(
               mqtt("Subscribing")
                   .subscribe("#{myTopic2}")
-                  .wait(1)
+                  .await(1)
                   .check(jsonPath("$.error").notExists()))
           .exec(mqtt("Subscribing").subscribe("#{myTopic2}").expect(Duration.ofMillis(100)))
           .exec(
@@ -107,12 +107,12 @@ public class MqttJavaCompileTest extends Simulation {
               mqtt("Publishing")
                   .publish("#{myTopic}")
                   .message(StringBody("#{myPayload}"))
-                  .wait(Duration.ofMillis(100)))
+                  .await(Duration.ofMillis(100)))
           .exec(
               mqtt("Publishing")
                   .publish("#{myTopic}")
                   .message(StringBody("#{myPayload}"))
-                  .wait(Duration.ofMillis(100))
+                  .await(Duration.ofMillis(100))
                   .check(jsonPath("$.error").notExists()))
           .exec(
               mqtt("Publishing")

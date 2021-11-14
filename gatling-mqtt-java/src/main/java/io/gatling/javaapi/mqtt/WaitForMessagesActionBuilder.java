@@ -41,7 +41,7 @@ public final class WaitForMessagesActionBuilder implements ActionBuilder {
    * @return a new WaitForMessagesActionBuilder instance
    */
   @Nonnull
-  public WaitForMessagesActionBuilder timeout(int timeout) {
+  public WaitForMessagesActionBuilder timeout(long timeout) {
     return timeout(Duration.ofSeconds(timeout));
   }
 

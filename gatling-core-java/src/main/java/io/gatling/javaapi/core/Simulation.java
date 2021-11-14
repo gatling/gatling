@@ -143,7 +143,7 @@ public abstract class Simulation {
      * @return the same mutated setup instance
      */
     @Nonnull
-    public SetUp maxDuration(int duration) {
+    public SetUp maxDuration(long duration) {
       return maxDuration(Duration.ofSeconds(duration));
     }
 

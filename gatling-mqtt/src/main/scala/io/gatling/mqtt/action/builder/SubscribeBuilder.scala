@@ -44,8 +44,12 @@ case class SubscribeBuilder(
   def qosExactlyOnce: SubscribeBuilder = qos(MqttQoS.EXACTLY_ONCE)
   private def qos(newQos: MqttQoS): SubscribeBuilder = copy(qosOverride = Some(newQos))
 
-  def wait(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
+  def await(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, None, blocking = true))) with CheckableSubscribeBuilder
+
+  @deprecated("Use await instead", "3.7.0")
+  def wait(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
+    await(timeout)
 
   def expect(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(Nil, timeout, topic = None, blocking = false))) with CheckableSubscribeBuilder

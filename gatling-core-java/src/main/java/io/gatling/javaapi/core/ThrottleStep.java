@@ -53,7 +53,7 @@ public final class ThrottleStep {
      * @return a new ThrottleStep
      */
     @Nonnull
-    public ThrottleStep in(int duration) {
+    public ThrottleStep in(long duration) {
       return in(Duration.ofSeconds(duration));
     }
 
@@ -64,7 +64,7 @@ public final class ThrottleStep {
      * @return a new ThrottleStep
      */
     @Nonnull
-    public ThrottleStep during(int duration) {
+    public ThrottleStep during(long duration) {
       return in(duration);
     }
 

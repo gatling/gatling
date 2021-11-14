@@ -64,12 +64,12 @@ class MqttCompileTest extends Simulation {
     .exec(
       mqtt("Subscribing")
         .subscribe("#{myTopic2}")
-        .wait(100.milliseconds)
+        .await(100.milliseconds)
     )
     .exec(
       mqtt("Subscribing")
         .subscribe("#{myTopic2}")
-        .wait(100.milliseconds)
+        .await(100.milliseconds)
         .check(jsonPath("$.error").notExists)
     )
     .exec(
@@ -100,13 +100,13 @@ class MqttCompileTest extends Simulation {
       mqtt("Publishing")
         .publish("#{myTopic}")
         .message(StringBody("#{myPayload}"))
-        .wait(100.milliseconds)
+        .await(100.milliseconds)
     )
     .exec(
       mqtt("Publishing")
         .publish("#{myTopic}")
         .message(StringBody("#{myPayload}"))
-        .wait(100.milliseconds, "#{responseTopic}")
+        .await(100.milliseconds, "#{responseTopic}")
         .check(jsonPath("$.error").notExists)
     )
     .exec(

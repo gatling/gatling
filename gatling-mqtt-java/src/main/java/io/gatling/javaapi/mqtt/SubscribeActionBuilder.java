@@ -144,8 +144,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @return a new ActionBuilder instance
    */
   @Nonnull
-  public Checkable wait(int timeout) {
-    return wait(Duration.ofSeconds(timeout));
+  public Checkable await(long timeout) {
+    return await(Duration.ofSeconds(timeout));
   }
 
   /**
@@ -155,8 +155,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @return a new ActionBuilder instance
    */
   @Nonnull
-  public Checkable wait(@Nonnull Duration timeout) {
-    return new Checkable(wrapped.wait(toScalaDuration(timeout)));
+  public Checkable await(@Nonnull Duration timeout) {
+    return new Checkable(wrapped.await(toScalaDuration(timeout)));
   }
 
   /**
@@ -167,7 +167,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable expect(int timeout) {
+  public Checkable expect(long timeout) {
     return expect(Duration.ofSeconds(timeout));
   }
 

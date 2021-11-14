@@ -167,8 +167,8 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable wait(int timeout) {
-    return wait(Duration.ofSeconds(timeout));
+  public Checkable await(long timeout) {
+    return await(Duration.ofSeconds(timeout));
   }
 
   /**
@@ -178,8 +178,8 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable wait(@Nonnull Duration timeout) {
-    return new Checkable(wrapped.wait(toScalaDuration(timeout)));
+  public Checkable await(@Nonnull Duration timeout) {
+    return new Checkable(wrapped.await(toScalaDuration(timeout)));
   }
 
   /**
@@ -191,7 +191,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable wait(int timeout, @Nonnull String expectedTopic) {
+  public Checkable await(long timeout, @Nonnull String expectedTopic) {
     return new Checkable(
         wrapped.wait(
             toScalaDuration(Duration.ofSeconds(timeout)), toStringExpression(expectedTopic)));
@@ -206,7 +206,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable wait(Duration timeout, @Nonnull String expectedTopic) {
+  public Checkable await(Duration timeout, @Nonnull String expectedTopic) {
     return new Checkable(wrapped.wait(toScalaDuration(timeout), toStringExpression(expectedTopic)));
   }
 
@@ -219,7 +219,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable wait(@Nonnull int timeout, @Nonnull Function<Session, String> expectedTopic) {
+  public Checkable wait(long timeout, @Nonnull Function<Session, String> expectedTopic) {
     return new Checkable(
         wrapped.wait(
             toScalaDuration(Duration.ofSeconds(timeout)), javaFunctionToExpression(expectedTopic)));
@@ -248,7 +248,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable expect(int timeout) {
+  public Checkable expect(long timeout) {
     return expect(Duration.ofSeconds(timeout));
   }
 
@@ -274,7 +274,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable expect(int timeout, @Nonnull String expectedTopic) {
+  public Checkable expect(long timeout, @Nonnull String expectedTopic) {
     return new Checkable(
         wrapped.expect(
             toScalaDuration(Duration.ofSeconds(timeout)), toStringExpression(expectedTopic)));
@@ -306,7 +306,7 @@ public final class PublishActionBuilder implements ActionBuilder {
    * @return the next DSL step
    */
   @Nonnull
-  public Checkable expect(int timeout, @Nonnull Function<Session, String> expectedTopic) {
+  public Checkable expect(long timeout, @Nonnull Function<Session, String> expectedTopic) {
     return new Checkable(
         wrapped.expect(
             toScalaDuration(Duration.ofSeconds(timeout)), javaFunctionToExpression(expectedTopic)));

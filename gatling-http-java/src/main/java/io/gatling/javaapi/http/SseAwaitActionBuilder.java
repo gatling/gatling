@@ -45,7 +45,7 @@ public interface SseAwaitActionBuilder<
    * @return the next DSL step
    */
   @Nonnull
-  default On<T> await(int timeout) {
+  default On<T> await(long timeout) {
     return await(Duration.ofSeconds(timeout));
   }
 

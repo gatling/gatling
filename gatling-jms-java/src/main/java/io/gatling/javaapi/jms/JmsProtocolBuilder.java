@@ -145,7 +145,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @return a new instance
    */
   @Nonnull
-  public JmsProtocolBuilder replyTimeout(int timeout) {
+  public JmsProtocolBuilder replyTimeout(long timeout) {
     return replyTimeout(Duration.ofSeconds(timeout));
   }
 

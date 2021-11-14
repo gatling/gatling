@@ -3373,7 +3373,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static OpenInjectionStep nothingFor(int durationSeconds) {
+  public static OpenInjectionStep nothingFor(long durationSeconds) {
     return nothingFor(Duration.ofSeconds(durationSeconds));
   }
 
@@ -3458,7 +3458,7 @@ public final class CoreDsl {
    * @return the next DSL step
    */
   @Nonnull
-  public static ThrottleStep holdFor(int duration) {
+  public static ThrottleStep holdFor(long duration) {
     return holdFor(Duration.ofSeconds(duration));
   }
 

@@ -90,7 +90,7 @@ public class OpenInjectionStep {
      * @return a new OpenInjectionStep
      */
     @Nonnull
-    public OpenInjectionStep during(int durationSeconds) {
+    public OpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -126,7 +126,7 @@ public class OpenInjectionStep {
      * @return a new OpenInjectionStep
      */
     @Nonnull
-    public OpenInjectionStep during(int durationSeconds) {
+    public OpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -161,7 +161,7 @@ public class OpenInjectionStep {
      * @return a new OpenInjectionStep
      */
     @Nonnull
-    public ConstantRateOpenInjectionStep during(int durationSeconds) {
+    public ConstantRateOpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -234,7 +234,7 @@ public class OpenInjectionStep {
        * @return a new OpenInjectionStep
        */
       @Nonnull
-      public RampRateOpenInjectionStep during(int durationSeconds) {
+      public RampRateOpenInjectionStep during(long durationSeconds) {
         return during(Duration.ofSeconds(durationSeconds));
       }
 
@@ -303,7 +303,7 @@ public class OpenInjectionStep {
        * @return the next DSL step
        */
       @Nonnull
-      public Composite eachLevelLasting(int durationSeconds) {
+      public Composite eachLevelLasting(long durationSeconds) {
         return eachLevelLasting(Duration.ofSeconds(durationSeconds));
       }
 
@@ -349,7 +349,7 @@ public class OpenInjectionStep {
        * @return a usable {@link OpenInjectionStep}
        */
       @Nonnull
-      public Composite separatedByRampsLasting(int durationSeconds) {
+      public Composite separatedByRampsLasting(long durationSeconds) {
         return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
       }
 

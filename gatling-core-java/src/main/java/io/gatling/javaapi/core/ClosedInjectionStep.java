@@ -66,7 +66,7 @@ public class ClosedInjectionStep {
      * @return a new ClosedInjectionStep
      */
     @Nonnull
-    public ClosedInjectionStep during(int durationSeconds) {
+    public ClosedInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -127,7 +127,7 @@ public class ClosedInjectionStep {
      * @return a complete ClosedInjectionStep
      */
     @Nonnull
-    public ClosedInjectionStep during(int durationSeconds) {
+    public ClosedInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -188,7 +188,7 @@ public class ClosedInjectionStep {
      * @return the next DSL step
      */
     @Nonnull
-    public Composite eachLevelLasting(int durationSeconds) {
+    public Composite eachLevelLasting(long durationSeconds) {
       return eachLevelLasting(Duration.ofSeconds(durationSeconds));
     }
 
@@ -242,7 +242,7 @@ public class ClosedInjectionStep {
      * @return a usable {@link ClosedInjectionStep}
      */
     @Nonnull
-    public Composite separatedByRampsLasting(int durationSeconds) {
+    public Composite separatedByRampsLasting(long durationSeconds) {
       return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
     }
 

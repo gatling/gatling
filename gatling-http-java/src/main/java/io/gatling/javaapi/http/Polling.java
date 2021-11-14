@@ -56,7 +56,7 @@ public final class Polling {
    * @return the next DSL step
    */
   @Nonnull
-  public Every every(int period) {
+  public Every every(long period) {
     return new Every(wrapped.every(toScalaDuration(Duration.ofSeconds(period))));
   }
 

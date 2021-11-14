@@ -77,18 +77,18 @@ mqtt("Publishing")
 mqtt("Subscribing").subscribe("#{myTopic2}")
   .expect(100.milliseconds)
 
-// publish and wait (block) until it receives a message withing 100ms
+// publish and await (block) until it receives a message withing 100ms
 mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
-  .wait(100.milliseconds)
+  .await(100.milliseconds)
 
 // optionally, define in which topic the expected message will be received
 mqtt("Publishing").publish("#{myTopic}").message(StringBody("#{myPayload}"))
-  .wait(100.milliseconds, "repub/#{myTopic}")
+  .await(100.milliseconds, "repub/#{myTopic}")
 
 // optionally define check criteria to be applied on the matching received message
 mqtt("Publishing")
   .publish("#{myTopic}").message(StringBody("#{myPayload}"))
-  .wait(100.milliseconds).check(jsonPath("$.error").notExists)
+  .await(100.milliseconds).check(jsonPath("$.error").notExists)
 //#check
 
 //#waitForMessages

@@ -138,7 +138,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @return a new MqttProtocolBuilder instance
    */
   @Nonnull
-  public MqttProtocolBuilder connectTimeout(int timeout) {
+  public MqttProtocolBuilder connectTimeout(long timeout) {
     return connectTimeout(Duration.ofSeconds(timeout));
   }
 
@@ -160,7 +160,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @return a new MqttProtocolBuilder instance
    */
   @Nonnull
-  public MqttProtocolBuilder keepAlive(int timeout) {
+  public MqttProtocolBuilder keepAlive(long timeout) {
     return keepAlive(Duration.ofSeconds(timeout));
   }
 
@@ -301,7 +301,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @return a new MqttProtocolBuilder instance
    */
   @Nonnull
-  public MqttProtocolBuilder reconnectDelay(int delay) {
+  public MqttProtocolBuilder reconnectDelay(long delay) {
     return reconnectDelay(Duration.ofSeconds(delay));
   }
 
@@ -334,7 +334,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @return a new MqttProtocolBuilder instance
    */
   @Nonnull
-  public MqttProtocolBuilder resendDelay(int delay) {
+  public MqttProtocolBuilder resendDelay(long delay) {
     return resendDelay(Duration.ofSeconds(delay));
   }
 
@@ -380,7 +380,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @return a new MqttProtocolBuilder instance
    */
   @Nonnull
-  public MqttProtocolBuilder timeoutCheckInterval(int interval) {
+  public MqttProtocolBuilder timeoutCheckInterval(long interval) {
     return timeoutCheckInterval(Duration.ofSeconds(interval));
   }
 
