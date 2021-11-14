@@ -4,11 +4,10 @@ description: "Debugging of Gatling"
 lead: "Debug Gatling by printing session values or with logback"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003120
-draft: true
+weight: 0030
 ---
 
-## Print Session Values
+## Printing Session Values
 
 Print all the values within a session with this function literal.
 
