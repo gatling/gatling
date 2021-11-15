@@ -32,9 +32,9 @@ class HttpProtocolSampleJava extends Simulation {
 
   {
 //#bootstrapping
-HttpProtocolBuilder httpProtocol = http.baseUrl("http://my.website.tld");
+HttpProtocolBuilder httpProtocol = http.baseUrl("https://gatling.io");
 
-ScenarioBuilder scn = scenario("myScenario"); // etc...
+ScenarioBuilder scn = scenario("Scenario"); // etc...
 
 setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
 //#bootstrapping
@@ -42,18 +42,16 @@ setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
 
   {
 //#baseUrl
-HttpProtocolBuilder httpProtocol = http.baseUrl("http://my.website.tld");
+HttpProtocolBuilder httpProtocol = http.baseUrl("https://gatling.io");
 
-ScenarioBuilder scn = scenario("My Scenario")
-  // will make a request to "http://my.website.tld/my_path"
+ScenarioBuilder scn = scenario("Scenario")
+  // will make a request to "https://gatling.io/docs/"
   .exec(
-    http("My Request")
-      .get("/my_path")
+    http("Relative").get("/doc/")
   )
-  // will make a request to "http://other.website.tld"
+  // will make a request to "https://github.com/gatling/gatling"
   .exec(
-    http("My Other Request")
-      .get("http://other.website.tld")
+    http("Absolute").get("https://github.com/gatling/gatling")
   );
 
 setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
@@ -63,9 +61,8 @@ setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));
   static {
 //#baseUrls
 http.baseUrls(
-  "http://my1.website.tld",
-  "http://my2.website.tld",
-  "http://my3.website.tld"
+  "https://gatling.io",
+  "https://github.com"
 );
 //#baseUrls
 
@@ -192,7 +189,6 @@ http
 //#headers-built-ins
 
 //#sign
-// see io.gatling.http.client.SignatureCalculator
 http.sign(request -> {
   // import org.apache.commons.codec.digest.DigestUtils
   String md5 = DigestUtils.md5Hex(request.getBody().getBytes());
@@ -241,7 +237,9 @@ http.disableFollowRedirect();
 //#disableFollowRedirect
 
 //#redirectNamingStrategy
-http.redirectNamingStrategy((uri, originalRequestName, redirectCount) -> "redirectedRequestName");
+http.redirectNamingStrategy(
+  (uri, originalRequestName, redirectCount) -> "redirectedRequestName"
+);
 //#redirectNamingStrategy
 
 //#transformResponse
@@ -295,7 +293,7 @@ http.proxy(
 //#noProxyFor
 http
   .proxy(Proxy("myProxyHost", 8080))
-  .noProxyFor("www.github.com", "www.akka.io");
+  .noProxyFor("www.github.com", "gatling.io");
 //#noProxyFor
   }
 }

@@ -110,24 +110,28 @@ exec(ws("Connect").connect("/foo").await(30).on(wsCheck))
 exec(ws("Send").sendText("hello").await(30).on(wsCheck))
 //#check-from-message
 
+val wsCheck1 = wsCheck
+val wsCheck2 = wsCheck
+
 //#check-single-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // whole sequence must complete withing 30 seconds
 exec(ws("Send").sendText("hello")
-  .await(30).on(wsCheck, wsCheck))
+  .await(30).on(wsCheck1, wsCheck2))
 //#check-single-sequence
 
 //#check-multiple-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // both sequences must complete withing 15 seconds
 // 2nd sequence will start after 1st one completes
 exec(ws("Send").sendText("hello")
-  .await(15).on(wsCheck)
-  .await(15).on(wsCheck))
+  .await(15).on(wsCheck1)
+  .await(15).on(wsCheck2)
+)
 //#check-multiple-sequence
 
 //#check-matching
@@ -140,21 +144,29 @@ exec(ws("Send").sendText("hello")
 //#check-matching
 
 //#protocol
-http // similar to standard `baseUrl` for HTTP,
+http
+  // similar to standard `baseUrl` for HTTP,
   // serves as root that will be prepended to all relative WebSocket urls
-  .wsBaseUrl("url") // similar to standard `baseUrls` for HTTP,
+  .wsBaseUrl("url")
+  // similar to standard `baseUrls` for HTTP,
   // serves as round-robin roots that will be prepended
   // to all relative WebSocket urls
-  .wsBaseUrls("url1", "url2") // automatically reconnect a WebSocket that would have been
+  .wsBaseUrls("url1", "url2")
+  // automatically reconnect a WebSocket that would have been
   // closed by someone else than the client.
-  .wsReconnect() // set a limit on the number of times a WebSocket will be
+  .wsReconnect()
+  // set a limit on the number of times a WebSocket will be
   // automatically reconnected
-  .wsMaxReconnects(5) //  configure auto reply for specific WebSocket text messages.
+  .wsMaxReconnects(5)
+  //  configure auto reply for specific WebSocket text messages.
   //  Example: `wsAutoReplyTextFrame({ case "ping" => "pong" })`
   //  will automatically reply with message `"pong"`
   //  when message `"ping"` is received.
   //  Those messages won't be visible in any reports or statistics.
-  .wsAutoReplyTextFrame { text -> if (text.equals("ping")) "pong" else null } // enable partial support for Engine.IO v4.
+  .wsAutoReplyTextFrame {
+    text -> if (text.equals("ping")) "pong" else null
+  }
+  // enable partial support for Engine.IO v4.
   // Gatling will automatically respond
   // to server ping messages (`2`) with pong (`3`).
   // Cannot be used together with `wsAutoReplyTextFrame`.

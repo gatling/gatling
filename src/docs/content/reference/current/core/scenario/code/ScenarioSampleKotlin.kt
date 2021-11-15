@@ -273,9 +273,11 @@ doIfOrElse("#{condition}").then(
 //#doIfOrElse
 
 //#doIfEqualsOrElse
-doIfEqualsOrElse("#{actual}", "expectedValue").then( // executed if the session value stored in "actual" equals to "expectedValue"
+doIfEqualsOrElse("#{actual}", "expectedValue").then(
+  // executed if the session value stored in "actual" equals to "expectedValue"
   exec(http("name").get("/"))
-).orElse( // executed if the session value stored in "actual" is not equal to "expectedValue"
+).orElse(
+  // executed if the session value stored in "actual" is not equal to "expectedValue"
   exec(http("else").get("/"))
 )
 //#doIfEqualsOrElse

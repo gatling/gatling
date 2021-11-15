@@ -34,7 +34,7 @@ http("requestName").get("https://gatling.io")
 // with a static vale
 http("#{requestName}").get("https://gatling.io")
 // with a static vale
-http { session: Session -> session.getString("requestName") }.get("https://gatling.io")
+http { session -> session.getString("requestName") }.get("https://gatling.io")
 //#requestName
 
 //#inline
@@ -69,7 +69,8 @@ http("name").httpRequest("PURGE", "http://myNginx.com")
 //#methods
 
 //#full-query-in-url
-http("Issues").get("https://github.com/gatling/gatling/issues?milestone=1&state=open")
+http("Issues")
+  .get("https://github.com/gatling/gatling/issues?milestone=1&state=open")
 //#full-query-in-url
 
 //#queryParam
@@ -91,13 +92,16 @@ http("Issues").get("https://github.com/gatling/gatling/issues")
 
 
 //#multivaluedQueryParam
-http("name").get("/") // with static values
+http("name").get("/")
+  // with static values
   .multivaluedQueryParam("param", listOf("value1", "value2"))
 
-http("name").get("/") // with a Gatling EL string pointing to a List
+http("name").get("/")
+  // with a Gatling EL string pointing to a List
   .multivaluedQueryParam("param", "#{values}")
 
-http("name").get("/") // with a function
+http("name").get("/")
+  // with a function
   .multivaluedQueryParam("param") { session -> listOf("value1", "value2") }
 //#multivaluedQueryParam
 
@@ -189,7 +193,7 @@ http("name").post("/")
 
 // with a function payload
 http("name").post("/")
-  .body(StringBody { session: Session -> """{ "foo": "${session.getString("dynamicValueKey")}" }""" })
+  .body(StringBody { session -> """{ "foo": "${session.getString("dynamicValueKey")}" }""" })
 //#StringBody
 }
 
@@ -211,48 +215,48 @@ init {
 
 //#RawFileBody
 // with a static path
-  http("name").post("/")
-    .body(RawFileBody("rawPayload.json"))
+http("name").post("/")
+  .body(RawFileBody("rawPayload.json"))
 
 // with a Gatling EL String path
-  http("name").post("/")
-    .body(RawFileBody("#{payloadPath}"))
+http("name").post("/")
+  .body(RawFileBody("#{payloadPath}"))
 
 // with a function path
-  http("name").post("/")
-    .body(RawFileBody { session: Session -> session.getString("payloadPath") })
+http("name").post("/")
+  .body(RawFileBody { session -> session.getString("payloadPath") })
 //#RawFileBody
 
 //#ElFileBody
-  http("name").post("/")
-    .body(ElFileBody("rawPayload.json"))
+http("name").post("/")
+  .body(ElFileBody("rawPayload.json"))
 
 // with a Gatling EL String path
-  http("name").post("/")
-    .body(ElFileBody("#{payloadPath}"))
+http("name").post("/")
+  .body(ElFileBody("#{payloadPath}"))
 
 // with a function path
-  http("name").post("/")
-    .body(ElFileBody { session: Session -> session.getString("payloadPath") })
+http("name").post("/")
+  .body(ElFileBody { session -> session.getString("payloadPath") })
 //#ElFileBody
 
 //#PebbleStringBody
-  http("name").post("/")
-    .body(PebbleStringBody("{ \"foo\": \"{% if someCondition %}{{someValue}}{% endif %}\" }"))
+http("name").post("/")
+  .body(PebbleStringBody("{ \"foo\": \"{% if someCondition %}{{someValue}}{% endif %}\" }"))
 //#PebbleStringBody
 
 //#PebbleFileBody
 // with a static value path
-  http("name").post("/")
-    .body(PebbleFileBody("pebbleTemplate.json"))
+http("name").post("/")
+  .body(PebbleFileBody("pebbleTemplate.json"))
 
 // with a Gatling EL string path
-  http("name").post("/")
-    .body(PebbleFileBody("#{templatePath}"))
+http("name").post("/")
+  .body(PebbleFileBody("#{templatePath}"))
 
 // with a function path
-  http("name").post("/")
-    .body(PebbleFileBody { session: Session -> session.getString("templatePath") })
+http("name").post("/")
+  .body(PebbleFileBody { session -> session.getString("templatePath") })
 //#PebbleFileBody
 
 //#ByteArrayBody
@@ -266,13 +270,13 @@ http("name").post("/")
 
 // with a function
 http("name").post("/")
-  .body(ByteArrayBody { session: Session -> Base64.getDecoder().decode(session.getString("data")) }
+  .body(ByteArrayBody { session -> Base64.getDecoder().decode(session.getString("data")) }
   )
 //#ByteArrayBody
 
 //#InputStreamBody
 http("name").post("/")
-  .body(InputStreamBody { session: Session? -> ByteArrayInputStream(byteArrayOf(0, 1, 5, 4)) })
+  .body(InputStreamBody { session -> ByteArrayInputStream(byteArrayOf(0, 1, 5, 4)) })
 //#InputStreamBody
 
 //#formParam
@@ -288,8 +292,8 @@ http("name").post("/")
 
 // with functions
 http("name").post("/")
-  .formParam("milestone") { session: Session -> session.getString("milestoneValue") }
-  .formParam("state") { session: Session -> session.getString("stateValue") }
+  .formParam("milestone") { session -> session.getString("milestoneValue") }
+  .formParam("state") { session -> session.getString("stateValue") }
 //#formParam
 
 //#multivaluedFormParam
@@ -300,7 +304,7 @@ http("name").post("/") // with a Gatling EL string pointing to a List
   .multivaluedFormParam("param", "#{values}")
 
 http("name").post("/") // with a function
-  .multivaluedFormParam("param") { session: Session? -> Arrays.asList<Any>("value1", "value2") }
+  .multivaluedFormParam("param") { session -> listOf("value1", "value2") }
 //#multivaluedFormParam
 
 //#formParam-multiple
@@ -310,13 +314,8 @@ http("name").post("/") // with a function
       AbstractMap.SimpleEntry<String, String>("key2", "value2")
     ))
 
-  val params = mapOf(
-    "key1" to "value1",
-    "key2" to "value2"
-  )
-
   http("name").get("/")
-    .formParamMap(params)
+    .formParamMap(mapOf("key1" to "value1", "key2" to "value2"))
 //#formParam-multiple
 
 //#formFull
@@ -329,7 +328,8 @@ http("name").post("/")
 // with a static filepath value
 http("name").post("/")
   .formParam("key", "value")
-  .formUpload("file1", "file1.dat") // you can set multiple files
+  .formUpload("file1", "file1.dat")
+  // you can set multiple files
   .formUpload("file2", "file2.dat")
 
 // with a Gatling EL string filepath
@@ -338,7 +338,7 @@ http("name").post("/")
 
 // with a function filepath
 http("name").post("/")
-  .formUpload("file1") { session: Session -> session.getString("file1Path") }
+  .formUpload("file1") { session -> session.getString("file1Path") }
 //#formUpload
 
 //#bodyPart
@@ -361,8 +361,10 @@ http("name").post("/")
   .bodyPart(
     StringBodyPart("partName", "value")
       .contentType("contentType")
-      .charset("utf-8") // part of the Content-Disposition header
-      .fileName("fileName") // defaults to "form-data"
+      .charset("utf-8")
+      // part of the Content-Disposition header
+      .fileName("fileName")
+      // defaults to "form-data"
       .dispositionType("dispositionType")
       .contentId("contentId")
       .transferEncoding("transferEncoding")
@@ -397,7 +399,7 @@ http("name").get("/")
 //#silent
 http("name").get("/") //#notSilent
   .resources(
-    http("resource")["/assets/images/img1.png"]
+    http("resource").get("/assets/images/img1.png")
       .notSilent()
   )
 //#notSilent
@@ -408,24 +410,25 @@ http("name").get("/") //#notSilent
 //import java.nio.charset.StandardCharsets.UTF_8
 //import java.util.Base64
 //#resp-processors-imports
-http("name").post("/") //#response-processors
-  // ignore when response status code is not 200
-  .transformResponse { response: Response, session: Session? ->
-    if (response.status().code() == 200) {
-      return@transformResponse Response(
-        response.request(),
-        response.startTimestamp(),
-        response.endTimestamp(),
-        response.status(),
-        response.headers(),
-        ByteArrayResponseBody(Base64.getDecoder().decode(response.body().string()), StandardCharsets.UTF_8),
-        response.checksums(),
-        response.isHttp2
-      )
-    } else {
-      return@transformResponse response
-    }
+http("name").post("/")
+//#response-processors
+// ignore when response status code is not 200
+.transformResponse { response, session ->
+  if (response.status().code() == 200) {
+    return@transformResponse Response(
+      response.request(),
+      response.startTimestamp(),
+      response.endTimestamp(),
+      response.status(),
+      response.headers(),
+      ByteArrayResponseBody(Base64.getDecoder().decode(response.body().string()), StandardCharsets.UTF_8),
+      response.checksums(),
+      response.isHttp2
+    )
+  } else {
+    return@transformResponse response
   }
+}
 //#response-processors
 }
 }

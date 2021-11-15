@@ -114,17 +114,20 @@ sitemap("/path/to/sitemap/file")
 
 //#redis-LPOP
 // beware: you need to import the redis module
-    val redisPool = com.redis.RedisClientPool(
-      "localhost",
-      6379,
-      8,
-      0,
-      Option.apply(null),
-      0,
-      -1,
-      3000,
-      scala.Option.apply(null),
-      com.redis.RedisClient.`SINGLE$`.`MODULE$`)
+val redisPool =
+  com.redis.RedisClientPool(
+    "localhost",
+    6379,
+    8,
+    0,
+    Option.apply(null),
+    0,
+    -1,
+    3000,
+    scala.Option.apply(null),
+    com.redis.RedisClient.`SINGLE$`.`MODULE$`
+  )
+
 // use a list, so there's one single value per record, which is here named "foo"
 redisFeeder(redisPool, "foo")
 // identical to above, LPOP is the default

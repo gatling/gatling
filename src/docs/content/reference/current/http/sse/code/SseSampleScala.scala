@@ -32,7 +32,7 @@ exec(sse("Close").close)
 //#sseClose
 
 //#create-single-check
-val myCheck = sse.checkMessage("checkName")
+val sseCheck = sse.checkMessage("checkName")
   .check(regex("event: snapshot(.*)"))
 //#create-single-check
 
@@ -46,35 +46,35 @@ sse.checkMessage("checkName")
 
 //#check-from-connect
 exec(sse("Connect").connect("/stocks/prices")
-  .await(5)(myCheck))
+  .await(5)(sseCheck))
 //#check-from-connect
 
 //#check-from-flow
 exec(sse("SetCheck").setCheck
-  .await(30)(myCheck))
+  .await(30)(sseCheck))
 //#check-from-flow
 
-private val myCheck1 = myCheck
-private val myCheck2 = myCheck
+private val sseCheck1 = sseCheck
+private val sseCheck2 = sseCheck
 
 //#check-single-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against sseCheck1
+// 2nd message will be validated against sseCheck2
 // whole sequence must complete withing 30 seconds
 exec(sse("SetCheck").setCheck
-  .await(30)(myCheck1, myCheck2))
+  .await(30)(sseCheck1, sseCheck2))
 //#check-single-sequence
 
 //#check-multiple-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against sseCheck1
+// 2nd message will be validated against sseCheck2
 // both sequences must complete withing 15 seconds
 // 2nd sequence will start after 1st one completes
 exec(sse("SetCheck").setCheck
-  .await(15)(myCheck1)
-  .await(15)(myCheck2))
+  .await(15)(sseCheck1)
+  .await(15)(sseCheck2))
 //#check-multiple-sequence
 
 //#check-matching

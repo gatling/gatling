@@ -73,20 +73,17 @@ http("Issues")
 
 //#queryParam
 // with static values
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", "1")
   .queryParam("state", "open")
 
 // with Gatling EL strings
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", "#{milestoneValue}")
   .queryParam("state", "#{stateValue}")
 
 // with functions
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", session => session("milestoneValue").as[String])
   .queryParam("state", session => session("stateValue").as[String])
 //#queryParam
@@ -393,8 +390,7 @@ http("name").get("/")
 http("name").get("/")
   //#notSilent
   .resources(
-    http("resource")
-      .get("/assets/images/img1.png")
+    http("resource").get("/assets/images/img1.png")
       .notSilent
   )
 //#notSilent

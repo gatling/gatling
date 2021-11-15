@@ -119,8 +119,8 @@ WsFrameCheck.Text wsCheck2 = wsCheck;
 
 //#check-single-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // whole sequence must complete withing 30 seconds
 exec(ws("Send").sendText("hello")
   .await(30).on(wsCheck1, wsCheck2));
@@ -128,13 +128,14 @@ exec(ws("Send").sendText("hello")
 
 //#check-multiple-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // both sequences must complete withing 15 seconds
 // 2nd sequence will start after 1st one completes
 exec(ws("Send").sendText("hello")
   .await(15).on(wsCheck1)
-.await(15).on(wsCheck2));
+  .await(15).on(wsCheck2)
+);
 //#check-multiple-sequence
 
 //#check-matching
@@ -190,11 +191,11 @@ ScenarioBuilder scn = scenario("WebSocket")
   .exec(http("Home").get("/"))
   .pause(1)
   .exec(session -> session.set("id", "Gatling" + session.userId()))
-.exec(http("Login").get("/room?username=#{id}"))
-.pause(1)
-.exec(ws("Connect WS").connect("/room/chat?username=#{id}"))
-.pause(1)
-.repeat(2, "i").on(
+  .exec(http("Login").get("/room?username=#{id}"))
+  .pause(1)
+  .exec(ws("Connect WS").connect("/room/chat?username=#{id}"))
+  .pause(1)
+  .repeat(2, "i").on(
     exec(
       ws("Say Hello WS")
         .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")

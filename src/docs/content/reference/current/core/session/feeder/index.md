@@ -73,7 +73,7 @@ CSV files feeders provide several options for how data should be loaded in memor
 This mode works best with reasonably small files that can be parsed quickly without delaying simulation start time and easily sit in memory.
 This behavior was the default prior to Gatling 3.1 and you can still force it.
 
-{{< include-code "eager" scala >}}
+{{< include-code "eager" java kt scala >}}
 
 `batch` works better with large files whose parsing would delay simulation start time and eat a lot of heap space.
 Data is then read by chunks.

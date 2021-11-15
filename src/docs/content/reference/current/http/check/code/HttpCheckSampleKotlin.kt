@@ -30,9 +30,11 @@ http("").get("")
 )
 //#currentLocation
 //#currentLocationRegex
-.check( // single capture group
+.check(
+  // single capture group
   currentLocationRegex("https://(.*)/.*")
-    .saveAs("domain"),  // multiple capture groups with "captureGroups"
+    .saveAs("domain"),
+  // multiple capture groups with "captureGroups"
   currentLocationRegex("http://foo.com/bar?(.*)=(.*)")
     .captureGroups(2)
     .saveAs("queryParamKeyAndValue")

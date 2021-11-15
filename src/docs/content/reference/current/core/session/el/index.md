@@ -86,7 +86,7 @@ You can combine different Gatling EL builtin functions, eg:
 
 ```java
 // return first element of the first list in `foo`
-"`#{foo(0)(0)}"
+"#{foo(0)(0)}"
 
 // return a random element from the List associated with key `list` in the Map `foo`
 "#{foo.list.random()}"

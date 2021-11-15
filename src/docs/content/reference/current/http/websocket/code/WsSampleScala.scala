@@ -24,15 +24,15 @@ ws("WS Operation").wsName("myCustomName")
 //#wsName
 
 //#wsConnect
-exec(ws("Connect WS").connect("/room/chat?username=steph"))
+exec(ws("Connect WS").connect("/room/chat?username=gatling"))
 //#wsConnect
 
 //#subprotocol
-exec(ws("Connect WS").connect("/room/chat?username=steph").subprotocol("custom"))
+exec(ws("Connect WS").connect("/room/chat?username=gatling").subprotocol("custom"))
 //#subprotocol
 
 //#onConnected
-exec(ws("Connect WS").connect("/room/chat?username=steph")
+exec(ws("Connect WS").connect("/room/chat?username=gatling")
   .onConnected(
     exec(ws("Perform auth")
       .sendText("Some auth token"))
@@ -76,7 +76,7 @@ exec(ws("Message")
 //#send
 
 //#create-single-check
-val myCheck = ws.checkTextMessage("checkName")
+val wsCheck = ws.checkTextMessage("checkName")
   .check(regex("hello (.*)").saveAs("name"))
 //#create-single-check
 
@@ -101,34 +101,35 @@ ws.checkTextMessage("checkName")
 //#matching
 
 //#check-from-connect
-exec(ws("Connect").connect("/foo").await(30)(myCheck))
+exec(ws("Connect").connect("/foo").await(30)(wsCheck))
 //#check-from-connect
 
 //#check-from-message
-exec(ws("Send").sendText("hello").await(30)(myCheck))
+exec(ws("Send").sendText("hello").await(30)(wsCheck))
 //#check-from-message
 
-val myCheck1 = myCheck
-val myCheck2 = myCheck
+val wsCheck1 = wsCheck
+val wsCheck2 = wsCheck
 
 //#check-single-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // whole sequence must complete withing 30 seconds
 exec(ws("Send").sendText("hello")
-  .await(30)(myCheck1, myCheck2))
+  .await(30)(wsCheck1, wsCheck2))
 //#check-single-sequence
 
 //#check-multiple-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against wsCheck1
+// 2nd message will be validated against wsCheck2
 // both sequences must complete withing 15 seconds
 // 2nd sequence will start after 1st one completes
 exec(ws("Send").sendText("hello")
-  .await(15)(myCheck1)
-  .await(15)(myCheck2))
+  .await(15)(wsCheck1)
+  .await(15)(wsCheck2)
+)
 //#check-multiple-sequence
 
 //#check-matching

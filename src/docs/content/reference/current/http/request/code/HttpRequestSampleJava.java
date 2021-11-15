@@ -76,20 +76,17 @@ http("Issues")
 
 //#queryParam
 // with static values
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", "1")
   .queryParam("state", "open");
 
 // with Gatling EL strings
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", "#{milestoneValue}")
   .queryParam("state", "#{stateValue}");
 
 // with functions
-http("Issues")
-  .get("https://github.com/gatling/gatling/issues")
+http("Issues").get("https://github.com/gatling/gatling/issues")
   .queryParam("milestone", session -> session.getString("milestoneValue"))
   .queryParam("state", session -> session.getString("stateValue"));
 //#queryParam

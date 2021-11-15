@@ -65,8 +65,8 @@ exec(sse("SetCheck").setCheck()
 
 //#check-single-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against sseCheck1
+// 2nd message will be validated against sseCheck2
 // whole sequence must complete withing 30 seconds
 exec(sse("SetCheck").setCheck()
   .await(30).on(sseCheck1, sseCheck2));
@@ -74,8 +74,8 @@ exec(sse("SetCheck").setCheck()
 
 //#check-multiple-sequence
 // expecting 2 messages
-// 1st message will be validated against myCheck1
-// 2nd message will be validated against myCheck2
+// 1st message will be validated against sseCheck1
+// 2nd message will be validated against sseCheck2
 // both sequences must complete withing 15 seconds
 // 2nd sequence will start after 1st one completes
 exec(sse("SetCheck").setCheck()

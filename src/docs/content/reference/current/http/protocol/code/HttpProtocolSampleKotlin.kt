@@ -25,9 +25,9 @@ class HttpProtocolSampleKotlin: Simulation() {
 
 init {
 //#bootstrapping
-val httpProtocol = http.baseUrl("http://my.website.tld")
+val httpProtocol = http.baseUrl("https://gatling.io")
 
-val scn = scenario("myScenario") // etc...
+val scn = scenario("Scenario") // etc...
 
 setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol))
 //#bootstrapping
@@ -35,14 +35,16 @@ setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol))
 
 init {
 //#baseUrl
-val httpProtocol = http.baseUrl("http://my.website.tld")
+val httpProtocol = http.baseUrl("https://gatling.io")
 
-val scn = scenario("My Scenario") // will make a request to "http://my.website.tld/my_path"
+val scn = scenario("Scenario")
+  // will make a request to "https://gatling.io/docs"
   .exec(
-    http("My Request").get("/my_path")
-  ) // will make a request to "http://other.website.tld"
+    http("Relative").get("/docs/")
+  )
+  // will make a request to "https://github.com/gatling/gatling"
   .exec(
-    http("My Other Request").get("http://other.website.tld")
+    http("Absolute").get("https://github.com/gatling/gatling")
   )
 
 setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol))
@@ -51,19 +53,15 @@ setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol))
 
 init {
 //#baseUrls
-
-//#baseUrls
 http.baseUrls(
-  "http://my1.website.tld",
-  "http://my2.website.tld",
-  "http://my3.website.tld"
+  "https://gatling.io",
+  "https://github.com"
 )
 //#baseUrls
 
 //#warmUp
 // change the warm up URL to https://www.google.com
 http.warmUp("https://www.google.com")
-// disable warm up
 // disable warm up
 http.disableWarmUp()
 //#warmUp
@@ -81,13 +79,14 @@ http.enableHttp2()
 //#enableHttp2
 
 //#http2PriorKnowledge
-val priorKnowledge: MutableMap<String, Boolean> = HashMap()
-priorKnowledge["www.google.com"] = true
-priorKnowledge["gatling.io"] = false
-
 http
   .enableHttp2()
-  .http2PriorKnowledge(priorKnowledge)
+  .http2PriorKnowledge(
+    mapOf(
+      "www.google.com" to true,
+      "gatling.io" to false
+    )
+  )
 //#http2PriorKnowledge
 
 //#dns-async
@@ -115,9 +114,7 @@ http
 // with a static value
 http.virtualHost("virtualHost")
 // with a Gatling EL string
-// with a Gatling EL string
 http.virtualHost("#{virtualHost}")
-// with a function
 // with a function
 http.virtualHost { session -> session.getString("virtualHost") }
 //#virtualHost
@@ -155,14 +152,16 @@ http.disableUrlEncoding()
 // make all requests whose url matches the provided Java Regex pattern silent
 http.silentUri("https://myCDN/.*")
 // make all resource requests silent
-// make all resource requests silent
 http.silentResources()
 //#silentUri
 
 //#headers
-http // with a static header value
-  .header("foo", "bar") // with a Gatling EL string header value
-  .header("foo", "#{headerValue}") // with a function value
+http
+  // with a static header value
+  .header("foo", "bar")
+  // with a Gatling EL string header value
+  .header("foo", "#{headerValue}")
+  // with a function value
   .header("foo") { session -> session.getString("headerValue") }
   .headers(mapOf("foo" to "bar"))
 //#headers
@@ -184,7 +183,6 @@ http
 //#headers-built-ins
 
 //#sign
-// see io.gatling.http.client.SignatureCalculator
 http.sign { request ->
   // import org.apache.commons.codec.digest.DigestUtils
   val md5 = DigestUtils.md5Hex(request.body.bytes)
@@ -232,7 +230,9 @@ http.disableFollowRedirect()
 //#disableFollowRedirect
 
 //#redirectNamingStrategy
-http.redirectNamingStrategy { uri, originalRequestName, redirectCount -> "redirectedRequestName" }
+http.redirectNamingStrategy {
+  uri, originalRequestName, redirectCount -> "redirectedRequestName"
+}
 //#redirectNamingStrategy
 
 //#transformResponse
@@ -286,7 +286,7 @@ http.proxy(
 //#noProxyFor
 http
   .proxy(Proxy("myProxyHost", 8080))
-  .noProxyFor("www.github.com", "www.akka.io")
+  .noProxyFor("www.github.com", "gatling.io")
 //#noProxyFor
   }
 }

@@ -32,6 +32,8 @@ exec(
 //#pollerStart
 
 //#pollerStop
-exec(poll.stop)
+exec(
+  poll.stop
+)
 //#pollerStop
 }

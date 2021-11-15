@@ -32,11 +32,9 @@ class SimulationSampleScala extends Simulation {
 
   val httpProtocol, httpProtocol1, httpProtocol2 = http
 
-//#scenario-definition
-val scn = scenario("ScenarioName") // etc...
-//#scenario-definition
-
 //#setUp
+val scn = scenario("scn") // etc...
+
 setUp(
   scn.inject(atOnceUsers(1))
 )

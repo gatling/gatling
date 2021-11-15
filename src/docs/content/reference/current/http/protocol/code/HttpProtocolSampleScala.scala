@@ -22,9 +22,9 @@ class HttpProtocolSampleScala extends Simulation {
 
   {
 //#bootstrapping
-val httpProtocol = http.baseUrl("http://my.website.tld")
+val httpProtocol = http.baseUrl("https://gatling.io")
 
-val scn = scenario("myScenario") // etc...
+val scn = scenario("Scenario") // etc...
 
 setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
 //#bootstrapping
@@ -32,18 +32,16 @@ setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
 
   {
 //#baseUrl
-val httpProtocol = http.baseUrl("http://my.website.tld")
+val httpProtocol = http.baseUrl("https://gatling.io")
 
-val scn = scenario("My Scenario")
-  // will make a request to "http://my.website.tld/my_path"
+val scn = scenario("Scenario")
+  // will make a request to "https://gatling.io/docs/"
   .exec(
-    http("My Request")
-      .get("/my_path")
+    http("Relative").get("/docs/")
   )
-  // will make a request to "http://other.website.tld"
+  // will make a request to "https://github.com/gatling/gatling"
   .exec(
-    http("My Other Request")
-      .get("http://other.website.tld")
+    http("Absolute").get("https://github.com")
   )
 
 setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
@@ -52,9 +50,8 @@ setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
 
 //#baseUrls
 http.baseUrls(
-  "http://my1.website.tld",
-  "http://my2.website.tld",
-  "http://my3.website.tld"
+  "https://gatling.io",
+  "https://github.com"
 )
 //#baseUrls
 
@@ -66,7 +63,6 @@ http.disableWarmUp
 //#warmUp
 
 //#maxConnectionsPerHost
-// 10 connections per host.
 http.maxConnectionsPerHost(10)
 //#maxConnectionsPerHost
 
@@ -81,7 +77,12 @@ http.enableHttp2
 //#http2PriorKnowledge
 http
   .enableHttp2
-  .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
+  .http2PriorKnowledge(
+    Map(
+      "www.google.com" -> true,
+      "gatling.io" -> false
+    )
+  )
 //#http2PriorKnowledge
 
 //#dns-async
@@ -196,9 +197,19 @@ http.signWithOAuth1(
 //#sign-oauth1
 
 //#authorization
-// parameters can also be Gatling EL strings or functions
+// with static values
 http.basicAuth("username", "password")
+// with Gatling El strings
+http.basicAuth("#{username}", "#{password}")
+// with functions
+http.basicAuth(session => session("username").as[String], session => session("password").as[String])
+
+// with static values
 http.digestAuth("username", "password")
+// with Gatling El strings
+http.digestAuth("#{username}", "#{password}")
+// with functions
+http.digestAuth(session => session("username").as[String], session => session("password").as[String])
 //#authorization
 
 //#disableFollowRedirect
@@ -206,7 +217,9 @@ http.disableFollowRedirect
 //#disableFollowRedirect
 
 //#redirectNamingStrategy
-http.redirectNamingStrategy((uri, originalRequestName, redirectCount) => "redirectedRequestName")
+http.redirectNamingStrategy(
+  (uri, originalRequestName, redirectCount) => "redirectedRequestName"
+)
 //#redirectNamingStrategy
 
 //#transformResponse
@@ -260,7 +273,7 @@ http.proxy(
 //#noProxyFor
 http
   .proxy(Proxy("myProxyHost", 8080))
-  .noProxyFor("www.github.com", "www.akka.io")
+  .noProxyFor("www.github.com", "gatling.io")
 //#noProxyFor
 
 }
