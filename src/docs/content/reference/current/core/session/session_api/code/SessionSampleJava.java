@@ -92,6 +92,17 @@ MyPojo myPojo = session.get("key");
   }
 
   {
+//#properties
+// the unique id of this virtual user
+long userId = session.userId();
+// the name of the scenario this virtual user executes
+String scenario = session.scenario();
+// the groups this virtual user is currently in
+List<String> groups = session.groups();
+//#properties
+  }
+
+  {
 //#state
 // return true if the virtual user has experienced a failure before this point
 boolean failed = session.isFailed();

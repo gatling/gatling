@@ -75,6 +75,10 @@ If Gatling complains that an attribute could not be found, check that:
 
 {{< include-code "get" java kt scala >}}
 
+### Virtual User Properties
+
+{{< include-code "properties" java kt scala >}}
+
 ### Handling Session State
 
 {{< include-code "state" java kt scala >}}

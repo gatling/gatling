@@ -83,6 +83,17 @@ val myPojo: MyPojo = session.get("key")
   }
 
   init {
+//#properties
+// the unique id of this virtual user
+val userId = session.userId()
+// the name of the scenario this virtual user executes
+val scenario = session.scenario()
+// the groups this virtual user is currently in
+val groups = session.groups()
+//#properties
+  }
+
+  init {
 //#state
 // return true if the virtual user has experienced a failure before this point
 val failed: Boolean = session.isFailed()
