@@ -21,8 +21,8 @@ class ComputerDatabaseSampleKotlin {
   val computerDbScn = scenario("Computer Scenario")
 //#print-session-value
 .exec { session ->
-    println(session.getString("addComputer"))
-    session
-  }
+  println(session.getString("addComputer"))
+  session
+}
 //#print-session-value
 }
