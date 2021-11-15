@@ -20,7 +20,7 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.handler.stream.ChunkedStream;
+import io.netty.handler.stream.FixedChunkedStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -52,7 +52,7 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
 
   @Override
   public WritableContent build(ByteBufAllocator alloc) {
-    ChunkedStream chunkedStream = new ChunkedStream(content);
+    FixedChunkedStream chunkedStream = new FixedChunkedStream(content);
     return new WritableContent(chunkedStream, -1);
   }
 
