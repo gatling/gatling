@@ -18,6 +18,7 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
+import io.gatling.javaapi.core.internal.Sessions;
 import java.util.*;
 import javax.annotation.Nonnull;
 import scala.Option;
@@ -411,6 +412,24 @@ public final class Session {
   @Nonnull
   public Session markAsFailed() {
     return new Session(wrapped.markAsFailed());
+  }
+
+  /**
+   * Provide the name of the scenario of the virtual user
+   *
+   * @return the virtual user's scenario name
+   */
+  public String scenario() {
+    return wrapped.scenario();
+  }
+
+  /**
+   * Provide the name of the scenario of the virtual user
+   *
+   * @return the virtual user's scenario name
+   */
+  public List<String> groups() {
+    return Sessions.groups(this);
   }
 
   /**
