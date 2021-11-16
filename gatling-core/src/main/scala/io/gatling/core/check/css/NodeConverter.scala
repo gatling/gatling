@@ -20,7 +20,7 @@ import scala.annotation.implicitNotFound
 
 import jodd.lagarto.dom.Node
 
-trait LowPriorityNodeConverterImplicits {
+sealed trait LowPriorityNodeConverterImplicits {
 
   implicit val stringNodeConverter: NodeConverter[String] = (node, nodeAttribute) =>
     nodeAttribute match {

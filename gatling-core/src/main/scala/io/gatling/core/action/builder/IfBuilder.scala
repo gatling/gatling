@@ -26,7 +26,7 @@ import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
  * @param thenNext chain that will be executed if condition evaluates to true
  * @param elseNext chain that will be executed if condition evaluates to false
  */
-class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
+private[core] final class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
   def build(ctx: ScenarioContext, next: Action): Action = {
     val safeCondition = condition.safe

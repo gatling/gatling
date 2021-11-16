@@ -28,7 +28,7 @@ import io.gatling.core.stats.writer.UserEndMessage
 
 import io.netty.channel.EventLoopGroup
 
-class OpenWorkload(
+private[inject] class OpenWorkload(
     stream: UserStream,
     override val duration: FiniteDuration,
     override val isEmpty: Boolean,

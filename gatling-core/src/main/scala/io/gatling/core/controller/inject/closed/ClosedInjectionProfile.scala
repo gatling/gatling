@@ -27,12 +27,12 @@ import io.gatling.core.stats.StatsEngine
 
 import io.netty.channel.EventLoopGroup
 
-final class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
+private[core] final class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
 
   // doesn't make sense for ClosedInjectionProfile
   override def totalUserCount: Option[Long] = None
 
-  override def workload(
+  override private[inject] def workload(
       scenario: Scenario,
       userIdGen: AtomicLong,
       startTime: Long,

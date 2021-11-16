@@ -16,11 +16,19 @@
 
 package io.gatling.core.action.builder
 
+import io.gatling.commons.stats.KO
+import io.gatling.commons.validation.SuccessWrapper
 import io.gatling.core.action.{ Action, ExitHere }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 
-class ExitHereBuilder(condition: Expression[Boolean]) extends ActionBuilder {
+private[core] object ExitHereBuilder {
+  private[core] val ExitHereOnFailedCondition: Expression[Boolean] = session => (session.status == KO).success
+
+  def apply(): ActionBuilder = new ExitHereBuilder(ExitHereOnFailedCondition)
+}
+
+private[core] final class ExitHereBuilder(condition: Expression[Boolean]) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new ExitHere(condition, ctx.coreComponents.exit, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

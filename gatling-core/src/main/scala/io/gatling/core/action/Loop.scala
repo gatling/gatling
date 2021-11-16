@@ -22,7 +22,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
-class Loop(
+private final class Loop(
     continueCondition: Expression[Boolean],
     counterName: String,
     exitASAP: Boolean,

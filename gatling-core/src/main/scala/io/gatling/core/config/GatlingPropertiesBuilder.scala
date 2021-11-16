@@ -20,7 +20,7 @@ import scala.collection.mutable
 
 import io.gatling.core.ConfigKeys._
 
-class GatlingPropertiesBuilder {
+final class GatlingPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
 

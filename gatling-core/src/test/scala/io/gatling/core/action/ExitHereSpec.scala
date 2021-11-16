@@ -20,6 +20,7 @@ import io.gatling.BaseSpec
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.core.EmptySession
+import io.gatling.core.action.builder.ExitHereBuilder
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -33,7 +34,7 @@ class ExitHereSpec extends BaseSpec with EmptySession {
     val next = mock[Action]
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
-    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHereBuilder.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     exitHereIfFailed ! emptySession
     verify(next) ! emptySession
@@ -45,7 +46,7 @@ class ExitHereSpec extends BaseSpec with EmptySession {
     val next = mock[Action]
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
-    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHereBuilder.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     val sessionWithTryMax = emptySession.enterTryMax("loop", next).markAsFailed
 
@@ -61,7 +62,7 @@ class ExitHereSpec extends BaseSpec with EmptySession {
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
     when(clock.nowMillis).thenReturn(1)
-    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHereBuilder.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     val sessionWithGroup = emptySession.enterGroup("group", 0).markAsFailed
 

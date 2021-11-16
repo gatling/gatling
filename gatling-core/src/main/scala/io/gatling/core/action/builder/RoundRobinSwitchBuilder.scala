@@ -25,7 +25,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
-class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder with NameGen {
+private[core] final class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder with NameGen {
 
   require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
 

@@ -88,7 +88,7 @@ object Matcher {
     }
   }
 
-  class Not[A](expected: A, equality: Equality[A]) extends Matcher[A] {
+  final class Not[A](expected: A, equality: Equality[A]) extends Matcher[A] {
     def name = s"not($expected)"
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
@@ -102,7 +102,7 @@ object Matcher {
     }
   }
 
-  class NotNull[A] extends Matcher[A] {
+  final class NotNull[A] extends Matcher[A] {
     def name = "notNull"
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
@@ -116,7 +116,7 @@ object Matcher {
     }
   }
 
-  class In[A](expected: Seq[A]) extends Matcher[A] {
+  final class In[A](expected: Seq[A]) extends Matcher[A] {
     def name: String = expected.mkString("in(", ",", ")")
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
@@ -130,7 +130,7 @@ object Matcher {
     }
   }
 
-  class Compare[A](val comparisonName: String, message: String, compare: (A, A) => Boolean, expected: A) extends Matcher[A] {
+  final class Compare[A](val comparisonName: String, message: String, compare: (A, A) => Boolean, expected: A) extends Matcher[A] {
     def name = s"$comparisonName($expected)"
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {

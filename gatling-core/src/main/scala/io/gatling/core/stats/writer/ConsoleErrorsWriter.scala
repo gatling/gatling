@@ -24,7 +24,7 @@ import io.gatling.commons.util.StringHelper._
 /**
  * Object for writing errors statistics to the console.
  */
-object ConsoleErrorsWriter {
+private[gatling] object ConsoleErrorsWriter {
   private val ErrorCountLen = 14
   private val ErrorMsgLen = ConsoleSummary.OutputLength - ErrorCountLen
   private val TextLen = ErrorMsgLen - 4

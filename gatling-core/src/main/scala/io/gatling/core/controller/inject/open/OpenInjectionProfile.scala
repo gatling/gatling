@@ -33,11 +33,11 @@ import io.netty.channel.EventLoopGroup
  *
  * @param steps the number of users that will behave as this scenario says
  */
-final class OpenInjectionProfile(val steps: Iterable[OpenInjectionStep]) extends InjectionProfile {
+private[core] final class OpenInjectionProfile(val steps: Iterable[OpenInjectionStep]) extends InjectionProfile {
 
   override def totalUserCount: Option[Long] = Some(steps.sumBy(_.users))
 
-  override def workload(
+  override private[inject] def workload(
       scenario: Scenario,
       userIdGen: AtomicLong,
       startTime: Long,

@@ -27,7 +27,7 @@ import io.gatling.commons.util.Io._
 import io.gatling.core.json.{ Json, JsonParsers }
 import io.gatling.core.util.Resource
 
-class JsonFeederFileParser(jsonParsers: JsonParsers) {
+private[gatling] final class JsonFeederFileParser(jsonParsers: JsonParsers) {
 
   def parse(resource: Resource, charset: Charset): IndexedSeq[Record[Any]] =
     Using.resource(resource.inputStream) { is =>

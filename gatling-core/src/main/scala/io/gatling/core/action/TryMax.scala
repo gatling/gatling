@@ -25,7 +25,7 @@ import io.gatling.core.session.{ Expression, Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class TryMax(
+private final class TryMax(
     times: Expression[Int],
     counterName: String,
     statsEngine: StatsEngine,

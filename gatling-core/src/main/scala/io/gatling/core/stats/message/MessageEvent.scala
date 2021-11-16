@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.message
 
-object MessageEvent {
+private[gatling] object MessageEvent {
   def apply(name: String): MessageEvent = name match {
     case Start.name => Start
     case End.name   => End
@@ -27,4 +27,4 @@ object MessageEvent {
   case object End extends MessageEvent("END")
 }
 
-sealed abstract class MessageEvent(val name: String)
+private[gatling] sealed abstract class MessageEvent(val name: String)

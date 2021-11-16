@@ -22,7 +22,7 @@ import scala.annotation.{ implicitNotFound, tailrec }
 
 import com.typesafe.scalalogging.StrictLogging
 
-trait LowPriorityGroupExtractorImplicits extends StrictLogging {
+sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
   implicit val stringGroupExtractor: GroupExtractor[String] = matcher => {
 

@@ -23,30 +23,30 @@ import io.gatling.core.scenario.Scenarios
 
 import akka.actor.{ ActorRef, FSM }
 
-private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
+private trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 
-private[controller] sealed trait ControllerState
-private[controller] object ControllerState {
+private sealed trait ControllerState
+private object ControllerState {
   case object WaitingToStart extends ControllerState
   case object Started extends ControllerState
   case object WaitingForResourcesToStop extends ControllerState
   case object Stopped extends ControllerState
 }
 
-private[controller] sealed trait ControllerData
-private[controller] object ControllerData {
+private sealed trait ControllerData
+private object ControllerData {
   case object NoData extends ControllerData
   final case class InitData(launcher: ActorRef, scenarios: Scenarios)
   final case class StartedData(initData: InitData) extends ControllerData
   final case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 }
 
-sealed trait ControllerCommand
-object ControllerCommand {
-  final case class Start(scenarios: Scenarios) extends ControllerCommand
-  final case object InjectorStopped extends ControllerCommand
-  final case class Crash(exception: Exception) extends ControllerCommand
-  final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
-  final case object Kill extends ControllerCommand
-  final case object StatsEngineStopped extends ControllerCommand
+private[gatling] sealed trait ControllerCommand
+private[gatling] object ControllerCommand {
+  private[gatling] final case class Start(scenarios: Scenarios) extends ControllerCommand
+  private[gatling] final case object InjectorStopped extends ControllerCommand
+  private[gatling] final case class Crash(exception: Exception) extends ControllerCommand
+  private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
+  private[gatling] final case object Kill extends ControllerCommand
+  private[gatling] final case object StatsEngineStopped extends ControllerCommand
 }

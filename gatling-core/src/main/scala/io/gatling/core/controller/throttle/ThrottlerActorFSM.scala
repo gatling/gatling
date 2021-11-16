@@ -23,13 +23,13 @@ import io.gatling.core.akka.BaseActor
 
 import akka.actor.FSM
 
-private[throttle] object ThrottlerActorState {
+private object ThrottlerActorState {
   private[throttle] case object WaitingToStart extends ThrottlerActorState
   private[throttle] case object Started extends ThrottlerActorState
 }
-private[throttle] sealed trait ThrottlerActorState
+private sealed trait ThrottlerActorState
 
-private[throttle] object ThrottlerActorData {
+private object ThrottlerActorData {
   private[throttle] case object NoData extends ThrottlerActorData
 
   // mutable state is very ugly and error prone, but we're trying to limit allocations...
@@ -54,6 +54,6 @@ private[throttle] object ThrottlerActorData {
     }
   }
 }
-private[throttle] sealed trait ThrottlerActorData
+private sealed trait ThrottlerActorData
 
-private[throttle] class ThrottlerActorFSM extends BaseActor with FSM[ThrottlerActorState, ThrottlerActorData]
+private abstract class ThrottlerActorFSM extends BaseActor with FSM[ThrottlerActorState, ThrottlerActorData]

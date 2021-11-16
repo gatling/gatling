@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 
 import org.simpleflatmapper.lightningcsv.CsvParser
 
-object SeparatedValuesParser {
+private[gatling] object SeparatedValuesParser {
 
   val DefaultQuoteChar: Char = '"'
 

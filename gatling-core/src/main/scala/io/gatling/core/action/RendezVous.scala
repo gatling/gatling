@@ -26,7 +26,7 @@ import io.gatling.core.util.NameGen
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
 
-object RendezVous extends NameGen {
+private object RendezVous extends NameGen {
   def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {
     val props = Props(new RendezVousActor(users: Int, next))
     val actor = actorSystem.actorOf(props, genName("rendezVous"))
@@ -34,13 +34,13 @@ object RendezVous extends NameGen {
   }
 }
 
-class RendezVous private (actor: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class RendezVous private (actor: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ActorDelegatingAction(actor.path.name, actor)
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
  */
-class RendezVousActor(users: Int, val next: Action) extends BaseActor {
+private final class RendezVousActor(users: Int, val next: Action) extends BaseActor {
 
   private val buffer = mutable.Queue.empty[Session]
 

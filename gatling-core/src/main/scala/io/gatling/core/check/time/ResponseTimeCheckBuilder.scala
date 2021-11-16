@@ -21,7 +21,7 @@ import io.gatling.core.check.{ CheckBuilder, FindExtractor }
 import io.gatling.core.session._
 import io.gatling.core.stats.message.ResponseTimings
 
-trait ResponseTimeCheckType
+sealed trait ResponseTimeCheckType
 
 object ResponseTimeCheckBuilder {
 

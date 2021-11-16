@@ -21,7 +21,7 @@ import io.gatling.core.check._
 
 import jodd.lagarto.dom.NodeSelector
 
-object CssExtractors {
+private object CssExtractors {
 
   def find[X: NodeConverter](
       query: String,

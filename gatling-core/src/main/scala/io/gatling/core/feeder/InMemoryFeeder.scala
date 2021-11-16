@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.commons.util.CircularIterator
 
-object InMemoryFeeder {
+private[gatling] object InMemoryFeeder {
 
   def apply[T](records: IndexedSeq[Record[T]], conversion: Option[Record[T] => Record[Any]], strategy: FeederStrategy): Feeder[Any] = {
     val convertedRecords = conversion match {

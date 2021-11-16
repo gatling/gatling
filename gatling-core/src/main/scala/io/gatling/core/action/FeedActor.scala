@@ -28,11 +28,11 @@ import io.gatling.core.session.Session
 
 import akka.actor.{ ActorRef, Props }
 
-object FeedActor {
+private[core] object FeedActor {
   def props[T](feeder: Feeder[T], controller: ActorRef): Props = Props(new FeedActor(feeder, controller))
 }
 
-class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
+private final class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
 
   private def pollNewAttributes(numberOfRecords: Int): Validation[Record[T]] =
     try {

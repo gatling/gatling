@@ -29,7 +29,7 @@ import io.gatling.core.util.Shard
 
 import io.netty.channel.EventLoopGroup
 
-class ClosedWorkload(
+private[inject] final class ClosedWorkload(
     steps: Iterable[ClosedInjectionStep],
     override val duration: FiniteDuration,
     override val isEmpty: Boolean,

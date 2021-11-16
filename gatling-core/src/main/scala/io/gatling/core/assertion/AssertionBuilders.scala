@@ -19,7 +19,7 @@ package io.gatling.core.assertion
 import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
-class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
+final class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
 
   def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, ResponseTime, configuration)
   def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, AllRequests)
@@ -28,7 +28,7 @@ class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration
   def requestsPerSec: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, MeanRequestsPerSecondTarget)
 }
 
-class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
+final class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
 
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
@@ -44,13 +44,13 @@ class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, co
   def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Percentiles(value))
 }
 
-class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
+final class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
 
   def count: AssertionWithPathAndTarget[Long] = new AssertionWithPathAndTarget[Long](path, CountTarget(metric))
   def percent: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, PercentTarget(metric))
 }
 
-class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target) {
+final class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target) {
 
   def next(condition: Condition): Assertion =
     Assertion(path, target, condition)

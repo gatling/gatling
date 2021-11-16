@@ -29,7 +29,7 @@ import net.sf.saxon.om.TreeModel
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmNode, XdmValue }
 import org.xml.sax.InputSource
 
-private class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: Long) {
+private final class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: Long) {
 
   private val selectorCache: LoadingCache[String, ThreadLocal[XPathSelector]] =
     Cache.newConcurrentLoadingCache(

@@ -29,7 +29,7 @@ import io.gatling.core.stats.StatsEngine
  * @param session       the new Session to be sent to exitAction
  * @param groupsToClose the groups to be closed as we bypass the regular GroupEnd from the regular flow
  */
-final class BlockExit(val exitAction: Action, val session: Session, val groupsToClose: List[GroupBlock]) {
+private final class BlockExit(val exitAction: Action, val session: Session, val groupsToClose: List[GroupBlock]) {
 
   def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
     groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session.scenario, _, nowMillis))
@@ -37,7 +37,7 @@ final class BlockExit(val exitAction: Action, val session: Session, val groupsTo
   }
 }
 
-object BlockExit {
+private object BlockExit {
 
   /**
    * Recursively loop on a block List until a stop point and build the Interruption to execute.

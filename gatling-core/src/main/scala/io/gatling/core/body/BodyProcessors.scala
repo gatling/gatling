@@ -18,7 +18,7 @@ package io.gatling.core.body
 
 import io.gatling.commons.util.{ FastByteArrayInputStream, GzipHelper }
 
-object BodyProcessors {
+private object BodyProcessors {
 
   def gzip: Body => ByteArrayBody =
     (body: Body) => {

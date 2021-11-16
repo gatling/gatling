@@ -33,9 +33,9 @@ abstract class JsonPathCheckBuilderBase[T, X: JsonFilter](
   override protected def countExtractor: Expression[Extractor[JsonNode, Int]] = path.map(JsonPathExtractors.count(name, _, jsonPaths))
 }
 
-trait JsonPathCheckType
+sealed trait JsonPathCheckType
 
-trait JsonPathOfType { self: JsonPathCheckBuilder[String] =>
+sealed trait JsonPathOfType { self: JsonPathCheckBuilder[String] =>
 
   def ofType[X: JsonFilter]: CheckBuilder.MultipleFind[JsonPathCheckType, JsonNode, X] = new JsonPathCheckBuilder[X](path, jsonPaths)
 }

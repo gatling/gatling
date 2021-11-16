@@ -16,22 +16,25 @@
 
 package io.gatling.core.stats.writer
 
-sealed abstract class RecordHeader(val value: String)
-object RunRecordHeader extends RecordHeader("RUN")
-object RequestRecordHeader extends RecordHeader("REQUEST")
-object UserRecordHeader extends RecordHeader("USER")
-object GroupRecordHeader extends RecordHeader("GROUP")
-object ErrorRecordHeader extends RecordHeader("ERROR")
-object AssertionRecordHeader extends RecordHeader("ASSERTION")
+private object RecordHeader {
+  private[writer] object Run extends RecordHeader("RUN")
+  private[writer] object Request extends RecordHeader("REQUEST")
+  private[writer] object User extends RecordHeader("USER")
+  private[writer] object Group extends RecordHeader("GROUP")
+  private[writer] object Error extends RecordHeader("ERROR")
+  private[writer] object Assertion extends RecordHeader("ASSERTION")
+}
+
+private sealed abstract class RecordHeader(val value: String)
 
 sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
   def unapply(array: Array[String]): Option[Array[String]] =
     if (array.length >= recordLength && array(0) == header.value) Some(array) else None
 }
 
-object RawRunRecord extends RawRecord(RunRecordHeader, 6)
-object RawRequestRecord extends RawRecord(RequestRecordHeader, 7)
-object RawUserRecord extends RawRecord(UserRecordHeader, 4)
-object RawGroupRecord extends RawRecord(GroupRecordHeader, 6)
-object RawErrorRecord extends RawRecord(ErrorRecordHeader, 3)
-object RawAssertionRecord extends RawRecord(AssertionRecordHeader, 2)
+object RawRunRecord extends RawRecord(RecordHeader.Run, 6)
+object RawRequestRecord extends RawRecord(RecordHeader.Request, 7)
+object RawUserRecord extends RawRecord(RecordHeader.User, 4)
+object RawGroupRecord extends RawRecord(RecordHeader.Group, 6)
+object RawErrorRecord extends RawRecord(RecordHeader.Error, 3)
+object RawAssertionRecord extends RawRecord(RecordHeader.Assertion, 2)

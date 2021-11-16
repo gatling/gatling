@@ -23,12 +23,12 @@ import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.{ Config, ConfigList, ConfigMemorySize, ConfigMergeable, ConfigObject, ConfigOrigin, ConfigResolveOptions, ConfigValue }
 
-object RenamedAwareConfig {
+private object RenamedAwareConfig {
   def apply(wrapped: Config, renamed: Seq[Renamed]): RenamedAwareConfig =
     new RenamedAwareConfig(wrapped, renamed.map(r => r.replacement -> r).toMap)
 }
 
-class RenamedAwareConfig(wrapped: Config, renamedByReplacement: Map[String, Renamed]) extends Config {
+private final class RenamedAwareConfig(wrapped: Config, renamedByReplacement: Map[String, Renamed]) extends Config {
 
   private def revolvedPath(path: String): String =
     renamedByReplacement.get(path) match {

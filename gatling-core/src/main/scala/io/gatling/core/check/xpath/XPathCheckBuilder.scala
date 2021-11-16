@@ -21,9 +21,9 @@ import io.gatling.core.session._
 
 import net.sf.saxon.s9api.XdmNode
 
-trait XPathCheckType
+sealed trait XPathCheckType
 
-class XPathCheckBuilder(
+final class XPathCheckBuilder(
     path: Expression[String],
     namespaces: Map[String, String],
     xmlParsers: XmlParsers

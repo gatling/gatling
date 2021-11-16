@@ -22,7 +22,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.{ CheckBuilder, FindExtractor }
 import io.gatling.core.session._
 
-trait BodyStreamCheckType
+sealed trait BodyStreamCheckType
 
 object BodyStreamCheckBuilder
     extends CheckBuilder.Find.Default[BodyStreamCheckType, () => InputStream, InputStream](

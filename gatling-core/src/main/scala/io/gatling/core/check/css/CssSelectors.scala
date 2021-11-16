@@ -26,7 +26,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.NodeSelector
 
-class CssSelectors(cacheMaxCapacity: Long) {
+final class CssSelectors(cacheMaxCapacity: Long) {
 
   private val domBuilder = Lagarto.newLagartoDomBuilder
   private val selectorCache: LoadingCache[String, ju.List[ju.List[CssSelector]]] =

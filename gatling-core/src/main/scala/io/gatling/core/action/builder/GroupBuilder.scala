@@ -19,7 +19,7 @@ package io.gatling.core.action.builder
 import io.gatling.core.action.{ GroupEnd, GroupStart }
 import io.gatling.core.session.Expression
 
-object GroupBuilder {
+private[core] object GroupBuilder {
 
   def start(groupName: Expression[String]): ActionBuilder =
     (ctx, next) => new GroupStart(groupName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

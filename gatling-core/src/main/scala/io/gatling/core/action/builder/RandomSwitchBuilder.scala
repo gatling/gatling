@@ -24,7 +24,10 @@ import io.gatling.core.util.{ NameGen, RandomDistribution }
 
 import com.typesafe.scalalogging.StrictLogging
 
-class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging with NameGen {
+private[core] final class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder])
+    extends ActionBuilder
+    with StrictLogging
+    with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val possibleActions = possibilities.map { case (weight, actionBuilder) => weight -> actionBuilder.build(ctx, next) }

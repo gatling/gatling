@@ -30,14 +30,14 @@ import io.gatling.core.stats.writer.UserEndMessage
 import akka.actor.{ ActorRef, ActorSystem, Props }
 import io.netty.channel.EventLoopGroup
 
-sealed trait InjectorCommand
-object InjectorCommand {
+private[controller] sealed trait InjectorCommand
+private[controller] object InjectorCommand {
   final case class Start(controller: ActorRef, scenarios: Scenarios) extends InjectorCommand
   final case class EmptyWorkloadComplete(scenario: String) extends InjectorCommand
   final case object Tick extends InjectorCommand
 }
 
-object Injector {
+private[gatling] object Injector {
 
   private val InjectorActorName = "gatling-injector"
   val TickPeriod: FiniteDuration = 1.second
@@ -46,7 +46,7 @@ object Injector {
     system.actorOf(Props(new Injector(eventLoopGroup, statsEngine, clock)), InjectorActorName)
 }
 
-private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
+private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
 
   import Injector._
   import InjectorCommand._

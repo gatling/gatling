@@ -34,7 +34,7 @@ import io.gatling.core.util.NameGen
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
  *                can be set explicitly if needed
  */
-class Pace(intervalExpr: Expression[FiniteDuration], counter: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class Pace(intervalExpr: Expression[FiniteDuration], counter: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ExitableAction
     with NameGen {
 

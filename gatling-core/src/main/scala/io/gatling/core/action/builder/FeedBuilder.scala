@@ -28,11 +28,11 @@ import io.gatling.core.util.NameGen
 
 import akka.actor.ActorRef
 
-object FeedBuilder {
+private[core] object FeedBuilder {
   private val Instances = new ju.IdentityHashMap[FeederBuilder, ActorRef].asScala
 }
 
-class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
+private[core] final class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
 
   private def newFeedActor(ctx: ScenarioContext): ActorRef = {
     val props = FeedActor.props(feederBuilder(), ctx.coreComponents.controller)

@@ -54,7 +54,6 @@ object OpenInjectionProfileSpec {
       statsEngine = null,
       clock = new FakeClock
     ) {
-
       override protected def injectUser(delay: FiniteDuration): Unit =
         count += 1
     }

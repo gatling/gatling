@@ -22,7 +22,7 @@ import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
-class Exit(injector: ActorRef, clock: Clock) extends Action {
+private[gatling] final class Exit(injector: ActorRef, clock: Clock) extends Action {
 
   override val name = "gatling-exit"
 

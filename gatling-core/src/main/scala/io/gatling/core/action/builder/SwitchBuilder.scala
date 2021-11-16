@@ -21,7 +21,9 @@ import io.gatling.core.session._
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
-class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with NameGen {
+private[core] final class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder])
+    extends ActionBuilder
+    with NameGen {
 
   require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 

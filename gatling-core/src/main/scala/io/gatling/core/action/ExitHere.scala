@@ -16,18 +16,12 @@
 
 package io.gatling.core.action
 
-import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
-import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-object ExitHere {
-  private[core] val ExitHereOnFailedCondition: Expression[Boolean] = session => (session.status == KO).success
-}
-
-class ExitHere(condition: Expression[Boolean], exit: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class ExitHere(condition: Expression[Boolean], exit: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ChainableAction
     with NameGen {
 

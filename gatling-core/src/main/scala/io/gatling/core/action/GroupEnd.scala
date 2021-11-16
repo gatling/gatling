@@ -21,7 +21,7 @@ import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends ChainableAction with NameGen {
+private final class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends ChainableAction with NameGen {
 
   val name: String = genName("groupEnd")
 

@@ -29,11 +29,11 @@ import io.gatling.core.util._
 
 import com.typesafe.scalalogging.LazyLogging
 
-sealed trait FeederSource[T] {
+private[gatling] sealed trait FeederSource[T] {
   def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any]
 }
 
-final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
+private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
 
   require(records.nonEmpty, "Feeder must not be empty")
 
@@ -46,7 +46,7 @@ private object TwoBytesMagicValueInputStream {
   val GzipMagicValue: (Int, Int) = (31, 139)
 }
 
-private class TwoBytesMagicValueInputStream(is: InputStream) extends InputStream {
+private final class TwoBytesMagicValueInputStream(is: InputStream) extends InputStream {
   val magicValue: (Int, Int) = (is.read(), is.read())
   private var pos: Int = 0
 
@@ -62,7 +62,7 @@ private class TwoBytesMagicValueInputStream(is: InputStream) extends InputStream
     }
 }
 
-object SeparatedValuesFeederSource {
+private[gatling] object SeparatedValuesFeederSource {
 
   private def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
@@ -95,7 +95,7 @@ object SeparatedValuesFeederSource {
   }
 }
 
-final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
+private[gatling] final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
 
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
 

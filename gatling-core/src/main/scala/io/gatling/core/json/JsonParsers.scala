@@ -30,7 +30,7 @@ object JsonParsers {
   private val JsonSupportedEncodings = Set(UTF_8, UTF_16, Charset.forName("UTF-32"))
 }
 
-class JsonParsers {
+final class JsonParsers {
 
   import JsonParsers._
 

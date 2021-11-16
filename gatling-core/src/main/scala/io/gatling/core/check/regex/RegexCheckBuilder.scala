@@ -19,9 +19,9 @@ package io.gatling.core.check.regex
 import io.gatling.core.check.{ CheckBuilder, Extractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 
-trait RegexCheckType
+sealed trait RegexCheckType
 
-trait RegexOfType { self: RegexCheckBuilder[String] =>
+sealed trait RegexOfType { self: RegexCheckBuilder[String] =>
 
   def ofType[X: GroupExtractor]: CheckBuilder.MultipleFind[RegexCheckType, String, X] = new RegexCheckBuilder[X](pattern, patterns)
 }

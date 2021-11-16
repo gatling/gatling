@@ -30,7 +30,7 @@ import io.gatling.core.stats.writer.UserEndMessage
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.{ EventLoop, EventLoopGroup }
 
-abstract class Workload(
+private abstract class Workload(
     scenario: Scenario,
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,

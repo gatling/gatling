@@ -22,11 +22,11 @@ import io.gatling.core.session._
 
 import com.fasterxml.jackson.databind.JsonNode
 
-trait JsonpJmesPathCheckType
+sealed trait JsonpJmesPathCheckType
 
 // we have to duplicate JmesPathCheckBuilder because traits can't take parameters (for now)
 // so we can't make CheckType a parameter
-trait JsonpJmesPathOfType { self: JsonpJmesPathCheckBuilder[String] =>
+sealed trait JsonpJmesPathOfType { self: JsonpJmesPathCheckBuilder[String] =>
 
   def ofType[X: JsonFilter]: CheckBuilder.Find[JsonpJmesPathCheckType, JsonNode, X] = new JsonpJmesPathCheckBuilder[X](path, jmesPaths)
 }

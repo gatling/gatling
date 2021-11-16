@@ -24,7 +24,7 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-class Patterns(cacheMaxCapacity: Long) {
+final class Patterns(cacheMaxCapacity: Long) {
 
   private val patternCache: LoadingCache[String, Pattern] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pattern.compile)

@@ -23,17 +23,19 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
-sealed abstract class LoopType(val name: String, val timeBased: Boolean, val evaluateConditionAfterLoop: Boolean)
-case object RepeatLoopType extends LoopType("repeat", false, false)
-case object ForeachLoopType extends LoopType("foreach", false, false)
-case object DuringLoopType extends LoopType("during", true, false)
-case object ForeverLoopType extends LoopType("forever", false, false)
-case object AsLongAsLoopType extends LoopType("asLongAs", false, false)
-case object DoWhileType extends LoopType("doWhile", false, true)
-case object AsLongAsDuringLoopType extends LoopType("asLongAsDuring", true, false)
-case object DoWhileDuringType extends LoopType("doWhileDuring", true, true)
+private[core] sealed abstract class LoopType(val name: String, val timeBased: Boolean, val evaluateConditionAfterLoop: Boolean)
+private[core] case object RepeatLoopType extends LoopType("repeat", false, false)
+private[core] case object ForeachLoopType extends LoopType("foreach", false, false)
+private[core] case object DuringLoopType extends LoopType("during", true, false)
+private[core] case object ForeverLoopType extends LoopType("forever", false, false)
+private[core] case object AsLongAsLoopType extends LoopType("asLongAs", false, false)
+private[core] case object DoWhileType extends LoopType("doWhile", false, true)
+private[core] case object AsLongAsDuringLoopType extends LoopType("asLongAsDuring", true, false)
+private[core] case object DoWhileDuringType extends LoopType("doWhileDuring", true, true)
 
-abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder with NameGen {
+private[core] sealed abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType)
+    extends ActionBuilder
+    with NameGen {
 
   def continueCondition(ctx: ScenarioContext): Expression[Boolean]
 
@@ -59,7 +61,7 @@ abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP
   }
 }
 
-final class SimpleBooleanConditionLoopBuilder(
+private[core] final class SimpleBooleanConditionLoopBuilder(
     condition: Expression[Boolean],
     loopNext: ChainBuilder,
     counterName: String,
@@ -69,7 +71,7 @@ final class SimpleBooleanConditionLoopBuilder(
   override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = condition
 }
 
-final class ClockBasedConditionLoopBuilder(
+private[core] final class ClockBasedConditionLoopBuilder(
     clockBasedCondition: Clock => Expression[Boolean],
     loopNext: ChainBuilder,
     counterName: String,

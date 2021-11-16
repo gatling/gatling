@@ -26,7 +26,7 @@ import akka.actor.FSM.NullFunction
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
+private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
   startWith(Uninitialized, NoData)
 

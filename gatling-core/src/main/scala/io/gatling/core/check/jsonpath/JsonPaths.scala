@@ -22,7 +22,7 @@ import io.gatling.jsonpath.JsonPath
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class JsonPaths(cacheMaxCapacity: Long) {
+final class JsonPaths(cacheMaxCapacity: Long) {
 
   private val jsonPathCache = {
     def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {

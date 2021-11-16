@@ -28,7 +28,7 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-object ConsoleSummary {
+private[gatling] object ConsoleSummary {
 
   private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
   private val Iso8601DateTimeFormat = new SimpleDateFormat(Iso8601Format)
@@ -155,4 +155,4 @@ object ConsoleSummary {
   }
 }
 
-final class ConsoleSummary(val text: String, val complete: Boolean)
+private[gatling] final class ConsoleSummary(val text: String, val complete: Boolean)

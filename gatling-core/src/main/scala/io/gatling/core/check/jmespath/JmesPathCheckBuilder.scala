@@ -31,9 +31,9 @@ abstract class JmesPathCheckBuilderBase[T, X: JsonFilter](
 class JmesPathExtractor[X: JsonFilter](name: String, path: String, jmesPaths: JmesPaths)
     extends FindCriterionExtractor[JsonNode, String, X](name, path, 0, jmesPaths.extract(_, path))
 
-trait JmesPathCheckType
+sealed trait JmesPathCheckType
 
-trait JmesPathOfType { self: JmesPathCheckBuilder[String] =>
+sealed trait JmesPathOfType { self: JmesPathCheckBuilder[String] =>
 
   def ofType[X: JsonFilter]: CheckBuilder.Find[JmesPathCheckType, JsonNode, X] = new JmesPathCheckBuilder[X](path, jmesPaths)
 }

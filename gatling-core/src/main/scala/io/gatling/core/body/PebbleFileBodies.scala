@@ -26,7 +26,7 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 
-class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
+final class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
 
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pebble.getResourceTemplate)

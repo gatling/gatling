@@ -24,7 +24,7 @@ import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 
-class UserCounters(val totalUserCount: Option[Long]) {
+private[gatling] final class UserCounters(val totalUserCount: Option[Long]) {
 
   private var _activeCount: Long = 0
   private var _doneCount: Long = 0
@@ -40,13 +40,13 @@ class UserCounters(val totalUserCount: Option[Long]) {
   def waitingCount: Long = totalUserCount.map(c => math.max(c - _activeCount - _doneCount, 0)).getOrElse(0L)
 }
 
-object RequestCounters {
+private object RequestCounters {
   def empty: RequestCounters = new RequestCounters(0, 0)
 }
 
-class RequestCounters(var successfulCount: Int, var failedCount: Int)
+private[gatling] final class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
-class ConsoleData(val startUpTime: Long) extends DataWriterData {
+private[gatling] final class ConsoleData(val startUpTime: Long) extends DataWriterData {
   var complete: Boolean = false
   val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
   val globalRequestCounters: RequestCounters = RequestCounters.empty
@@ -54,7 +54,7 @@ class ConsoleData(val startUpTime: Long) extends DataWriterData {
   val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 }
 
-class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
+private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 
   private val flushTimerName = "flushTimer"
 

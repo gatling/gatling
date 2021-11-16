@@ -37,7 +37,7 @@ private[gatling] object JmesPathFunctions {
   }
 }
 
-private[gatling] class JmesPaths(cacheMaxCapacity: Long) {
+final class JmesPaths(cacheMaxCapacity: Long) {
 
   private val runtime = new JacksonRuntime(
     new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build

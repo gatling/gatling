@@ -27,7 +27,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 
 final case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
-class RawFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
+final class RawFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
 
   private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
     val resourceToBytes: Resource => Option[Array[Byte]] = resource =>

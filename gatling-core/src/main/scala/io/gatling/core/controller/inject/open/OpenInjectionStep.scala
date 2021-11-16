@@ -24,7 +24,7 @@ import scala.math.abs
 
 import io.gatling.core.util.Shard
 
-sealed trait OpenInjectionStep extends Product with Serializable {
+private[inject] sealed trait OpenInjectionStep extends Product with Serializable {
 
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation

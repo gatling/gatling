@@ -21,9 +21,9 @@ import io.gatling.core.session._
 
 import jodd.lagarto.dom.NodeSelector
 
-trait CssCheckType
+sealed trait CssCheckType
 
-trait CssOfType { self: CssCheckBuilder[String] =>
+sealed trait CssOfType { self: CssCheckBuilder[String] =>
 
   def ofType[X: NodeConverter]: CheckBuilder.MultipleFind[CssCheckType, NodeSelector, X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
 }

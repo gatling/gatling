@@ -25,7 +25,7 @@ import io.gatling.core.json.{ Json, JsonJava }
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
-trait LowPriorityJsonFilterImplicits {
+sealed trait LowPriorityJsonFilterImplicits {
 
   private def newJsonFilter[T](f: PartialFunction[JsonNode, T]): JsonFilter[T] =
     new JsonFilter[T] {

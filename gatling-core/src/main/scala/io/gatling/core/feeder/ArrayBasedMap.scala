@@ -19,15 +19,12 @@ package io.gatling.core.feeder
 import scala.collection.AbstractIterator
 import scala.collection.immutable.{ AbstractMap, HashMap, Map }
 
-private[feeder] object ArrayBasedMap {
+private object ArrayBasedMap {
   def apply[K, V](keys: Array[K], values: Array[V]): ArrayBasedMap[K, V] =
     new ArrayBasedMap(keys, values, math.min(keys.length, values.length))
 }
 
-private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int)
-    extends AbstractMap[K, V]
-    with Map[K, V]
-    with Serializable {
+private final class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int) extends AbstractMap[K, V] with Map[K, V] with Serializable {
 
   override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = HashMap.empty[K, V1] ++ this + (key -> value)
 

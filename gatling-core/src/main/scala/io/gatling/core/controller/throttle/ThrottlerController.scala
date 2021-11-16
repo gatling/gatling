@@ -20,16 +20,16 @@ import scala.concurrent.duration._
 
 import akka.actor.ActorRef
 
-sealed trait ThrottlerControllerCommand
+private sealed trait ThrottlerControllerCommand
 
-object ThrottlerControllerCommand {
-  case object Start extends ThrottlerControllerCommand
-  final case class OverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
-  case object OverrideStop extends ThrottlerControllerCommand
-  case object Tick extends ThrottlerControllerCommand
+private object ThrottlerControllerCommand {
+  private[throttle] case object Start extends ThrottlerControllerCommand
+  private[throttle] final case class OverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
+  private[throttle] case object OverrideStop extends ThrottlerControllerCommand
+  private[throttle] case object Tick extends ThrottlerControllerCommand
 }
 
-private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
+private final class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
 
   import ThrottlerControllerCommand._
   import ThrottlerControllerData._

@@ -18,7 +18,7 @@ package io.gatling.core.controller.inject.open
 
 import scala.math.{ abs, log, sqrt }
 
-private[inject] object Erf {
+private object Erf {
 
   private val invP1 = Vector(
     0.160304955844066229311e2,

@@ -19,7 +19,7 @@ package io.gatling.core.action.builder
 import io.gatling.core.action.{ Action, RendezVous }
 import io.gatling.core.structure.ScenarioContext
 
-class RendezVousBuilder(users: Int) extends ActionBuilder {
+private[core] final class RendezVousBuilder(users: Int) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     RendezVous(users, ctx.coreComponents.actorSystem, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

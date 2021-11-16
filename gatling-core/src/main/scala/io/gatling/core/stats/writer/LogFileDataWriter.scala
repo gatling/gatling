@@ -160,7 +160,7 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
   protected def serialize0(m: T): Unit
 }
 
-class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[RunMessage](writer, RunRecordHeader.value) {
+class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[RunMessage](writer, RecordHeader.Run.value) {
 
   override protected def serialize0(runMessage: RunMessage): Unit = {
     import runMessage._
@@ -180,7 +180,7 @@ class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriter
   }
 }
 
-class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserStartMessage](writer, UserRecordHeader.value) {
+class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserStartMessage](writer, RecordHeader.User.value) {
 
   override protected def serialize0(user: UserStartMessage): Unit = {
     import user._
@@ -192,7 +192,7 @@ class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends Data
   }
 }
 
-class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserEndMessage](writer, UserRecordHeader.value) {
+class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserEndMessage](writer, RecordHeader.User.value) {
 
   override protected def serialize0(user: UserEndMessage): Unit = {
     import user._
@@ -204,7 +204,7 @@ class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWr
   }
 }
 
-class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ResponseMessage](writer, RequestRecordHeader.value) {
+class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ResponseMessage](writer, RecordHeader.Request.value) {
 
   import DataWriterMessageSerializer._
 
@@ -227,7 +227,7 @@ class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataW
   }
 }
 
-class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[GroupMessage](writer, GroupRecordHeader.value) {
+class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[GroupMessage](writer, RecordHeader.Group.value) {
 
   override protected def serialize0(group: GroupMessage): Unit = {
     import group._
@@ -243,7 +243,7 @@ class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
   }
 }
 
-class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[Assertion](writer, AssertionRecordHeader.value) {
+class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[Assertion](writer, RecordHeader.Assertion.value) {
 
   import io.gatling.commons.stats.assertion.AssertionPicklers._
 
@@ -258,7 +258,7 @@ class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterM
   }
 }
 
-class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ErrorMessage](writer, ErrorRecordHeader.value) {
+class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ErrorMessage](writer, RecordHeader.Error.value) {
 
   override protected def serialize0(error: ErrorMessage): Unit = {
     import error._

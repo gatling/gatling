@@ -33,7 +33,7 @@ trait InjectionProfile {
 
   def totalUserCount: Option[Long]
 
-  def workload(
+  private[inject] def workload(
       scenario: Scenario,
       userIdGen: AtomicLong,
       startTime: Long,

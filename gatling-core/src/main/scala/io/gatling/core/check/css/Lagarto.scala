@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ LagartoParser, LagartoParserConfig }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig }
 
-object Lagarto extends StrictLogging {
+private[gatling] object Lagarto extends StrictLogging {
 
   private val ParserConfig =
     new LagartoParserConfig()

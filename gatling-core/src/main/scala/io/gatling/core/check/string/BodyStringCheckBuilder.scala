@@ -20,7 +20,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.session._
 
-trait BodyStringCheckType
+sealed trait BodyStringCheckType
 
 object BodyStringCheckBuilder
     extends CheckBuilder.Find.Default[BodyStringCheckType, String, String](

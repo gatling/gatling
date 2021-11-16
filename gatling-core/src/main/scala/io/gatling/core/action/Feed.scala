@@ -22,7 +22,8 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorRef
 
-class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction {
+private final class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ExitableAction {
 
   override val name: String = feedActor.path.name
 

@@ -21,7 +21,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
-class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean) extends ActionBuilder with NameGen {
+private[core] final class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean) extends ActionBuilder with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val name = genName("hook")
