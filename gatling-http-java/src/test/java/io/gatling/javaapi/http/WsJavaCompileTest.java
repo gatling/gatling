@@ -37,13 +37,13 @@ public class WsJavaCompileTest extends Simulation {
 
   private final ChainBuilder chain =
       exec(ws("Connect WS")
-              .connect("/room/chat?username=${id}")
+              .connect("/room/chat?username=#{id}")
               .subprotocol("FOO")
               .onConnected(exec(ws("Perform auth").sendText("Some auth token")).pause(1))
               .await(1)
               .on(
                   ws.checkTextMessage("checkName")
-                      .matching(jsonPath("$.uuid").is("${correlation}"))
+                      .matching(jsonPath("$.uuid").is("#{correlation}"))
                       .check(
                           jsonPath("$.code").ofInt().is(1),
                           jmesPath("code").ofInt().is(1),
@@ -51,7 +51,7 @@ public class WsJavaCompileTest extends Simulation {
               .await(1)
               .on( // simple int
                   ws.checkTextMessage("checkName"))
-              .await("${someLongOrFiniteDurationAttribute}")
+              .await("#{someLongOrFiniteDurationAttribute}")
               .on( // EL string
                   ws.checkTextMessage("checkName"))
               .await(session -> Duration.ofSeconds(1))
@@ -61,12 +61,12 @@ public class WsJavaCompileTest extends Simulation {
           .repeat(2, "i")
           .on(
               exec(ws("Say Hello WS")
-                      .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}"))
+                      .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}"))
                   .pause(1))
           .exec(
               ws("Message1")
                   .wsName("foo")
-                  .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
                   .await(Duration.ofSeconds(30))
                   .on(
                       ws.checkTextMessage("checkName1")
@@ -75,7 +75,7 @@ public class WsJavaCompileTest extends Simulation {
                   .on( // simple int
                       ws.checkTextMessage("checkName2")
                           .check(jsonPath("$.message").findAll().saveAs("message2")))
-                  .await("${someLongOrFiniteDurationAttribute}")
+                  .await("#{someLongOrFiniteDurationAttribute}")
                   .on( // EL string
                       ws.checkTextMessage("checkName2")
                           .check(jsonPath("$.message").findAll().saveAs("message2")))
@@ -85,7 +85,7 @@ public class WsJavaCompileTest extends Simulation {
                           .check(jsonPath("$.message").findAll().saveAs("message2"))))
           .exec(
               ws("Message2")
-                  .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
                   .await(30)
                   .on(
                       ws.checkTextMessage("checkName1")
@@ -96,7 +96,7 @@ public class WsJavaCompileTest extends Simulation {
                           .check(regex("somePattern2").saveAs("message2"))))
           .exec(
               ws("Message3")
-                  .sendText("{\"text\": \"Hello, I'm ${id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
                   .await(30)
                   .on(
                       // match first message
@@ -121,5 +121,5 @@ public class WsJavaCompileTest extends Simulation {
           .exec(ws("SendTextMessageWithPebbleFileBody").sendText(PebbleFileBody("pathToSomeFile")))
           .exec(ws("SendBytesMessageWithRawFileBody").sendBytes(RawFileBody("pathToSomeFile")))
           .exec(
-              ws("SendBytesMessageWithByteArrayBody").sendBytes(ByteArrayBody("${someByteArray}")));
+              ws("SendBytesMessageWithByteArrayBody").sendBytes(ByteArrayBody("#{someByteArray}")));
 }

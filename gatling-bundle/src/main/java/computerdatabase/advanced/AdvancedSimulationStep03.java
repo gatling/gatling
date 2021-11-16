@@ -43,17 +43,17 @@ public class AdvancedSimulationStep03 extends Simulation {
             // injected into the user's session
             .exec(
                 http("Search")
-                    .get("/computers?f=${searchCriterion}") // use session data thanks to Gatling's
+                    .get("/computers?f=#{searchCriterion}") // use session data thanks to Gatling's
                     // EL
                     .check(
-                        css("a:contains('${searchComputerName}')", "href")
+                        css("a:contains('#{searchComputerName}')", "href")
                             .saveAs(
                                 "computerUrl"))) // use a CSS selector with an EL, save the result
             // of the capture group
             .pause(1)
             .exec(
                 http("Select")
-                    .get("${computerUrl}") // use the link previously saved
+                    .get("#{computerUrl}") // use the link previously saved
                     .check(status().is(200)))
             .pause(1);
   }

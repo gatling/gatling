@@ -34,11 +34,11 @@ public class AdvancedSimulationStep04 extends Simulation {
             .feed(feeder)
             .exec(
                 http("Search")
-                    .get("/computers?f=${searchCriterion}")
+                    .get("/computers?f=#{searchCriterion}")
                     .check(
-                        css("a:contains('${searchComputerName}')", "href").saveAs("computerUrl")))
+                        css("a:contains('#{searchComputerName}')", "href").saveAs("computerUrl")))
             .pause(1)
-            .exec(http("Select").get("${computerUrl}").check(status().is(200)))
+            .exec(http("Select").get("#{computerUrl}").check(status().is(200)))
             .pause(1);
   }
 
@@ -47,7 +47,7 @@ public class AdvancedSimulationStep04 extends Simulation {
     // repeat is a loop resolved at RUNTIME
     static ChainBuilder browse =
         // Note how we force the counter name so we can reuse it
-        repeat(4, "i").on(exec(http("Page ${i}").get("/computers?p=${i}")).pause(1));
+        repeat(4, "i").on(exec(http("Page #{i}").get("/computers?p=#{i}")).pause(1));
   }
 
   private static class Edit {

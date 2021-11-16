@@ -35,15 +35,15 @@ class WsCompileTest extends Simulation {
     .exec(http("Home").get("/"))
     .pause(1)
     .exec(session => session.set("id", s"Steph ${session.userId}"))
-    .exec(http("Login").get("/room?username=${id}"))
+    .exec(http("Login").get("/room?username=#{id}"))
     .pause(1)
     .exec(
       ws("Connect WS")
-        .connect("/room/chat?username=${id}")
+        .connect("/room/chat?username=#{id}")
         .subprotocol("FOO")
         .await(1.second)(
           ws.checkTextMessage("checkText")
-            .matching(jsonPath("$.uuid").is("${correlation}"))
+            .matching(jsonPath("$.uuid").is("#{correlation}"))
             .check(
               jsonPath("$.code").ofType[Int].is(1),
               jmesPath("code").ofType[Int].is(1),
@@ -55,7 +55,7 @@ class WsCompileTest extends Simulation {
         .await(1) { // simple int
           ws.checkTextMessage("checkName")
         }
-        .await("${someLongOrFiniteDurationAttribute}") { // EL string
+        .await("#{someLongOrFiniteDurationAttribute}") { // EL string
           ws.checkTextMessage("checkName")
         }
         .await(_ => 1.second) { // expression
@@ -72,20 +72,20 @@ class WsCompileTest extends Simulation {
     .repeat(2, "i") {
       exec(
         ws("Say Hello WS")
-          .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+          .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
       ).pause(1)
     }
     .exec(
       ws("Message1")
         .wsName("foo")
-        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
         .await(30.seconds)(
           ws.checkTextMessage("checkName1").check(jsonPath("$.message").findAll.saveAs("message1"))
         )
         .await(30)( // simple int
           ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
         )
-        .await("${someLongOrFiniteDurationAttribute}") { // EL string
+        .await("#{someLongOrFiniteDurationAttribute}") { // EL string
           ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
         }
         .await(_ => 30.seconds)( // expression
@@ -94,13 +94,13 @@ class WsCompileTest extends Simulation {
     )
     .exec(
       ws("Message2")
-        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
         .await(30.seconds)(
           ws.checkTextMessage("checkName1")
             .check(
               regex("somePattern1").saveAs("message1"),
               regex("somePattern2").saveAs("message2"),
-              checkIf("${cond}") {
+              checkIf("#{cond}") {
                 regex("somePattern1")
               }
             ),
@@ -109,7 +109,7 @@ class WsCompileTest extends Simulation {
     )
     .exec(
       ws("Message3")
-        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
         .await(30.seconds)(
           // match first message
           ws.checkTextMessage("checkName")
@@ -124,7 +124,7 @@ class WsCompileTest extends Simulation {
             .check(
               bodyLength.lte(50),
               bodyBytes.transform(_.length).saveAs("bytesLength"),
-              checkIf("${cond}") {
+              checkIf("#{cond}") {
                 bodyLength.lte(10)
               }
             )
@@ -151,6 +151,6 @@ class WsCompileTest extends Simulation {
     )
     .exec(
       ws("SendBytesMessageWithByteArrayBody")
-        .sendBytes(ByteArrayBody("${someByteArray}"))
+        .sendBytes(ByteArrayBody("#{someByteArray}"))
     )
 }

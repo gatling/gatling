@@ -39,7 +39,7 @@ class SseCompileTest extends Simulation {
           .check(
             jsonPath("$.foo"),
             jmesPath("foo"),
-            checkIf("${cond}") {
+            checkIf("#{cond}") {
               jsonPath("$.foo")
             }
           )

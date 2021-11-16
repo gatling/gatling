@@ -40,7 +40,7 @@ Iterator<Map<String, Object>> groupedRecordsFeeder =
 ChainBuilder chain =
   feed(groupedRecordsFeeder)
     .foreach("#{userRecords}", "record").on(
-      exec(http("request").get("${record.url}"))
+      exec(http("request").get("#{record.url}"))
     );
 //#grouping-feeder
 }
