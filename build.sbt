@@ -66,7 +66,8 @@ lazy val docSamples = (project in file("src/docs"))
     scalafmtSbtCheck := Def.task(true).value,
     scalafmtCheckAll := Def.task(()).value,
     spotlessCheck := Def.task(()).value,
-    gatlingScalafixCheck := Def.task(()).value
+    gatlingScalafixCheck := Def.task(()).value,
+    kotlinVersion := "1.6.0"
   )
   .dependsOn(
     Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(

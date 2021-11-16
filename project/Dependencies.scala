@@ -99,7 +99,6 @@ object Dependencies {
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                   % "1.15"
 
   // format: ON
-
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
     scalaTest,
