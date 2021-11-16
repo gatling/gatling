@@ -18,6 +18,9 @@ package io.gatling.http.check.ws
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.validation.Validation
+import io.gatling.core.session.{ Expression, Session }
+
 import com.softwaremill.quicklens._
 
 final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
@@ -42,6 +45,12 @@ object WsFrameCheck {
       this.modify(_.checks)(_ ::: newChecks.toList)
     }
 
+    def checkIf(condition: Expression[Boolean])(thenChecks: WsCheck.Binary*): Binary =
+      check(thenChecks.map(_.checkIf(condition)): _*)
+
+    def checkIf(condition: (Array[Byte], Session) => Validation[Boolean])(thenChecks: WsCheck.Binary*): Binary =
+      check(thenChecks.map(_.checkIf(condition)): _*)
+
     def silent: Binary =
       copy(isSilent = true)
   }
@@ -57,6 +66,12 @@ object WsFrameCheck {
       require(!newChecks.contains(null), "Checks can't contain null elements. Forward reference issue?")
       this.modify(_.checks)(_ ::: newChecks.toList)
     }
+
+    def checkIf(condition: Expression[Boolean])(thenChecks: WsCheck.Text*): Text =
+      check(thenChecks.map(_.checkIf(condition)): _*)
+
+    def checkIf(condition: (String, Session) => Validation[Boolean])(thenChecks: WsCheck.Text*): Text =
+      check(thenChecks.map(_.checkIf(condition)): _*)
 
     def silent: Text =
       copy(isSilent = true)

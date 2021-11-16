@@ -74,11 +74,11 @@ class HttpCompileTest extends Simulation {
           foo
         }
         .saveAs("theForm"),
-      checkIf("${bool}") {
+      checkIf("#{bool}") {
         jsonPath("$..foo")
       }
     )
-    .checkIf("${bool}")(
+    .checkIf("#{bool}")(
       jsonPath("$..foo"),
       jsonPath("$..foo")
     )
@@ -134,24 +134,24 @@ class HttpCompileTest extends Simulation {
     // url function
     .exec(http("Request").get(_ => "/"))
     // headers
-    .exec(http("Request").get(_ => "/").header("foo", "${bar}"))
+    .exec(http("Request").get(_ => "/").header("foo", "#{bar}"))
     .exec(http("Request").get(_ => "/").header("foo", _ => "bar"))
-    .exec(http("Request").get(_ => "/").headers(Map("foo" -> "${bar}")))
-    .exec(http("Request").get(_ => "/").headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "${bar}")))
+    .exec(http("Request").get(_ => "/").headers(Map("foo" -> "#{bar}")))
+    .exec(http("Request").get(_ => "/").headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "#{bar}")))
     // queryParam
     .exec(http("Request").get("/").queryParam("param", "one"))
     .exec(http("Request").get("/").queryParam("param1", "one").queryParam("param2", "two"))
-    .exec(http("Request").get("/").queryParam("param", "${param}"))
+    .exec(http("Request").get("/").queryParam("param", "#{param}"))
     .exec(http("Request").get("/").queryParam("param", _ => "foo"))
     .exec(http("Request").get("/").queryParam("foo", (_: Session) => io.gatling.commons.validation.Success(1)))
     // multivaluedQueryParam
     .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
-    .exec(http("Request").get("/").multivaluedQueryParam("param", "${foo}"))
+    .exec(http("Request").get("/").multivaluedQueryParam("param", "#{foo}"))
     .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
     // queryParamSeq
-    .exec(http("Request").get("/").queryParamSeq(Seq("foo" -> "${bar}")))
+    .exec(http("Request").get("/").queryParamSeq(Seq("foo" -> "#{bar}")))
     // queryParamMap
-    .exec(http("Request").get("/").queryParamMap(Map("foo" -> "${bar}")))
+    .exec(http("Request").get("/").queryParamMap(Map("foo" -> "#{bar}")))
     // auth
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
     .exec(http("Request").get("/").digestAuth("usr", "pwd"))
@@ -222,18 +222,18 @@ class HttpCompileTest extends Simulation {
           xpath("//input[@id='text1']/@value").findAll,
           xpath("//input[@id='text1']/@value").count,
           xpath("//input[@id='text1']/@value").name("This is a check"),
-          xpath("//input[@value='${aaaa_value}']/@id").name("foo").saveAs("sessionParam"),
+          xpath("//input[@value='#{aaaa_value}']/@id").name("foo").saveAs("sessionParam"),
           xpath("//input[@value='aaaa']/@id").not("param"),
-          xpath("//input[@id='${aaaa_value}']/@value").notExists,
+          xpath("//input[@id='#{aaaa_value}']/@value").notExists,
           xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
           md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
           sha1.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
           responseTimeInMillis.lt(1000),
-          checkIf("${bool}") {
+          checkIf("#{bool}") {
             jsonPath("$..foo")
           }
         )
-        .checkIf("${bool}")(
+        .checkIf("#{bool}")(
           jsonPath("$..foo"),
           jsonPath("$..foo")
         )
@@ -243,21 +243,21 @@ class HttpCompileTest extends Simulation {
     .exec(
       http("Request")
         .post("/")
-        .form("${theForm}")
-        .formParam("baz", "${qix}")
-        .formParamSeq(Seq("foo" -> "${bar}"))
-        .formParamMap(Map("foo" -> "${bar}"))
+        .form("#{theForm}")
+        .formParam("baz", "#{qix}")
+        .formParamSeq(Seq("foo" -> "#{bar}"))
+        .formParamMap(Map("foo" -> "#{bar}"))
         .multivaluedFormParam("foo", Seq("bar"))
     )
-    .exec(http("Request").post("/").multivaluedFormParam("foo", "${bar}"))
+    .exec(http("Request").post("/").multivaluedFormParam("foo", "#{bar}"))
     // resources
     .exec(
       http("Request")
         .get("/")
         .resources(
-          http("Request").post("/").multivaluedFormParam("foo", "${bar}"),
+          http("Request").post("/").multivaluedFormParam("foo", "#{bar}"),
           http("Request").get("/").queryParam("param", "foo"),
-          http("Request").get("/").queryParam("param", "${foo}"),
+          http("Request").get("/").queryParam("param", "#{foo}"),
           http("Request").get("/").queryParam("param", session => "foo")
         )
     )

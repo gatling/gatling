@@ -61,12 +61,12 @@ public class WsJavaCompileTest extends Simulation {
           .repeat(2, "i")
           .on(
               exec(ws("Say Hello WS")
-                      .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}"))
+                      .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}"))
                   .pause(1))
           .exec(
               ws("Message1")
                   .wsName("foo")
-                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
                   .await(Duration.ofSeconds(30))
                   .on(
                       ws.checkTextMessage("checkName1")
@@ -85,18 +85,20 @@ public class WsJavaCompileTest extends Simulation {
                           .check(jsonPath("$.message").findAll().saveAs("message2"))))
           .exec(
               ws("Message2")
-                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
                   .await(30)
                   .on(
                       ws.checkTextMessage("checkName1")
                           .check(
                               regex("somePattern1").saveAs("message1"),
-                              regex("somePattern2").saveAs("message2")),
+                              regex("somePattern2").saveAs("message2"))
+                          .checkIf("#{cond}")
+                          .then(regex("somePattern1")),
                       ws.checkTextMessage("checkName2")
                           .check(regex("somePattern2").saveAs("message2"))))
           .exec(
               ws("Message3")
-                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message ${i}!\"}")
+                  .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
                   .await(30)
                   .on(
                       // match first message
@@ -111,6 +113,8 @@ public class WsJavaCompileTest extends Simulation {
                           .check(
                               bodyLength().lte(50),
                               bodyBytes().transform(bytes -> bytes.length).saveAs("bytesLength"))
+                          .checkIf("#{cond}")
+                          .then(bodyLength().lte(10))
                           .silent()))
           .exec(ws("Close WS").close())
           .exec(ws("Open Named", "foo").connect("/bar"))

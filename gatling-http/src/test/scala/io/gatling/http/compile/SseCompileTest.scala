@@ -43,6 +43,9 @@ class SseCompileTest extends Simulation {
               jsonPath("$.foo")
             }
           )
+          .checkIf("#{cond}") {
+            jsonPath("$.foo")
+          }
       )
     )
     .pause(15)

@@ -17,9 +17,13 @@
 package io.gatling.javaapi.http;
 
 import io.gatling.javaapi.core.CheckBuilder;
+import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.http.internal.ScalaSseCheckConditions;
 import io.gatling.javaapi.http.internal.SseChecks;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 /**
@@ -33,7 +37,7 @@ public final class SseMessageCheck {
 
   private final io.gatling.http.check.sse.SseMessageCheck wrapped;
 
-  SseMessageCheck(io.gatling.http.check.sse.SseMessageCheck wrapped) {
+  public SseMessageCheck(io.gatling.http.check.sse.SseMessageCheck wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -83,5 +87,92 @@ public final class SseMessageCheck {
   @Nonnull
   public SseMessageCheck check(@Nonnull List<CheckBuilder> checks) {
     return new SseMessageCheck(wrapped.check(SseChecks.toScalaChecks(checks)));
+  }
+
+  /**
+   * Define the checks to apply on inbound messages when a condition holds true.
+   *
+   * @param condition a condition, expressed as a function
+   * @return the next DSL step
+   */
+  public UntypedCondition checkIf(Function<Session, Boolean> condition) {
+    return new UntypedCondition(ScalaSseCheckConditions.untyped(wrapped, condition));
+  }
+
+  /**
+   * Define the checks to apply on inbound messages when a condition holds true.
+   *
+   * @param condition a condition, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  public UntypedCondition checkIf(String condition) {
+    return new UntypedCondition(ScalaSseCheckConditions.untyped(wrapped, condition));
+  }
+
+  public static final class UntypedCondition {
+    private final ScalaSseCheckConditions.Untyped wrapped;
+
+    public UntypedCondition(ScalaSseCheckConditions.Untyped wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    /**
+     * Define the checks to apply on inbound messages when a condition holds true.
+     *
+     * @param thenChecks the checks
+     * @return a new Text instance
+     */
+    public SseMessageCheck then(CheckBuilder... thenChecks) {
+      return then(Arrays.asList(thenChecks));
+    }
+
+    /**
+     * Define the checks to apply when the condition holds true.
+     *
+     * @param thenChecks the checks
+     * @return a new Text instance
+     */
+    public SseMessageCheck then(List<CheckBuilder> thenChecks) {
+      return wrapped.then_(thenChecks);
+    }
+  }
+
+  /**
+   * Define the checks to apply on inbound messages when a condition holds true.
+   *
+   * @param condition a condition, expressed as a function that's aware of the HTTP response and the
+   *     Session
+   * @return the next DSL step
+   */
+  public TypedCondition checkIf(BiFunction<String, Session, Boolean> condition) {
+    return new TypedCondition(ScalaSseCheckConditions.typed(wrapped, condition));
+  }
+
+  public static final class TypedCondition {
+    private final ScalaSseCheckConditions.Typed wrapped;
+
+    public TypedCondition(ScalaSseCheckConditions.Typed wrapped) {
+      this.wrapped = wrapped;
+    }
+
+    /**
+     * Define the checks to apply when the condition holds true.
+     *
+     * @param thenChecks the checks
+     * @return a new Text instance
+     */
+    public SseMessageCheck then(CheckBuilder... thenChecks) {
+      return then(Arrays.asList(thenChecks));
+    }
+
+    /**
+     * Define the checks to apply when the condition holds true.
+     *
+     * @param thenChecks the checks
+     * @return a new Text instance
+     */
+    public SseMessageCheck then(List<CheckBuilder> thenChecks) {
+      return wrapped.then_(thenChecks);
+    }
   }
 }

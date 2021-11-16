@@ -29,7 +29,11 @@ public class SseJavaCompileTest extends Simulation {
               .sseName("sse")
               .connect("/stocks/prices")
               .await(30)
-              .on(sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))))
+              .on(
+                  sse.checkMessage("checkName1")
+                      .check(regex("event: snapshot(.*)"))
+                      .checkIf("#{cond}")
+                      .then(regex("event: snapshot(.*)"))))
           .exec(
               sse("waitForSomeMessage")
                   .setCheck()
