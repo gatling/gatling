@@ -163,6 +163,10 @@ public class RequestBuilder {
     return this;
   }
 
+  public String getContentType() {
+    return headers.get(CONTENT_TYPE);
+  }
+
   public Request build() {
     if (!headers.contains(ACCEPT)) {
       headers.set(ACCEPT, ACCEPT_ALL_HEADER_VALUE);
@@ -211,7 +215,7 @@ public class RequestBuilder {
 
     RequestBody body = null;
     if (bodyBuilder != null) {
-      String contentType = headers.get(CONTENT_TYPE);
+      String contentType = getContentType();
       Charset charset = extractContentTypeCharsetAttribute(contentType);
       body = bodyBuilder.build(contentType, charset, defaultCharset);
       String bodyContentType = body.getContentType();

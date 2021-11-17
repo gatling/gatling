@@ -125,7 +125,7 @@ abstract class RequestExpressionBuilder(
           for {
             resolvedUrl <- url(session)
             absoluteUri <- makeAbsolute(session, resolvedUrl)
-            resolvedQueryParams <- queryParams.resolveParamJList(session)
+            resolvedQueryParams <- resolveParamJList(queryParams, session)
           } yield UriEncoder.uriEncoder(fixUrlEncoding).encode(absoluteUri, resolvedQueryParams)
 
       case Right(uri) => uri.expressionSuccess

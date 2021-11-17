@@ -95,7 +95,7 @@ private[gatling] object HttpHelper extends StrictLogging {
   private val StandardApplicationTextExtensions = Set("+xml", "+json")
   def isText(headers: HttpHeaders): Boolean =
     mimeType(headers).exists {
-      case "multipart/related" => Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).flatMap(extractParameterFromContentType(_, "type=")).exists(isText)
+      case "multipart/related" => Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).flatMap(extractAttributeFromContentType(_, "type=")).exists(isText)
       case mt                  => isText(mt)
     }
 
@@ -133,8 +133,11 @@ private[gatling] object HttpHelper extends StrictLogging {
   def isAbsoluteHttpUrl(url: String): Boolean = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String): Boolean = url.startsWith(WsScheme)
 
+  def isMultipartFormData(contentType: String): Boolean =
+    contentType != null && contentType.startsWith(HttpHeaderValues.MULTIPART_FORM_DATA.toString)
+
   def extractCharsetFromContentType(contentType: String): Option[Charset] =
-    extractParameterFromContentType(contentType, "charset=").flatMap { charsetString =>
+    extractAttributeFromContentType(contentType, "charset=").flatMap { charsetString =>
       try {
         Some(Charset.forName(charsetString))
       } catch {
@@ -142,7 +145,7 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
     }
 
-  private def extractParameterFromContentType(contentType: String, attributeNameAndEqualChar: String): Option[String] =
+  private def extractAttributeFromContentType(contentType: String, attributeNameAndEqualChar: String): Option[String] =
     contentType.indexOf(attributeNameAndEqualChar) match {
       case -1 => None
 

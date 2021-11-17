@@ -16,6 +16,8 @@
 
 package io.gatling.http.request.builder
 
+import java.{ util => ju }
+
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
@@ -23,7 +25,7 @@ import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
-import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.{ Param, Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
 import io.gatling.http.client.body.file.FileRequestBodyBuilder
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
@@ -33,6 +35,7 @@ import io.gatling.http.client.body.string.StringRequestBodyBuilder
 import io.gatling.http.client.body.stringchunks.StringChunksRequestBodyBuilder
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
+import io.gatling.http.util.HttpHelper
 
 import io.netty.handler.codec.http.HttpHeaderNames
 
@@ -60,12 +63,48 @@ class HttpRequestExpressionBuilder(
 
   import RequestExpressionBuilder._
 
-  private def configureBodyParts(session: Session, requestBuilder: ClientRequestBuilder, bodyParts: List[BodyPart]): Validation[ClientRequestBuilder] =
+  private def mergeFormParamsAndFormIntoParamJList(
+      params: List[HttpParam],
+      formMaybe: Option[Expression[Map[String, Any]]],
+      session: Session
+  ): Validation[ju.List[Param]] = {
+    val formParams = resolveParamJList(params, session)
+
+    formMaybe match {
+      case Some(form) =>
+        for {
+          resolvedFormParams <- formParams
+          resolvedForm <- form(session)
+        } yield {
+          val formParamsByName = resolvedFormParams.asScala.groupBy(_.getName)
+          val formFieldsByName: Map[String, Seq[Param]] =
+            resolvedForm.map { case (key, value) =>
+              value match {
+                case multipleValues: Seq[_] => key -> multipleValues.map(value => new Param(key, value.toString))
+                case monoValue              => key -> Seq(new Param(key, monoValue.toString))
+              }
+            }
+          // override form with formParams
+          val javaParams: ju.List[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
+          javaParams
+        }
+
+      case _ =>
+        formParams
+    }
+  }
+
+  private def configureMultipartFormData(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
     for {
-      params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
+      params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
       stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null, null))
-      parts <- HttpRequestExpressionBuilder.bodyPartsToMultiparts(bodyParts, session)
+      parts <- HttpRequestExpressionBuilder.bodyPartsToMultiparts(httpAttributes.bodyParts, session)
     } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((stringParts ++ parts).asJava))
+
+  private def configureFormUrlEncoded(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
+    for {
+      params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
+    } yield requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
 
   private def setBody(session: Session, requestBuilder: ClientRequestBuilder, body: Body): Validation[ClientRequestBuilder] =
     body match {
@@ -83,22 +122,23 @@ class HttpRequestExpressionBuilder(
       case InputStreamBody(is)  => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
     }
 
-  private val configureBody: RequestBuilderConfigure = {
+  private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
     require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
     httpAttributes.body match {
-      case Some(body) => session => requestBuilder => setBody(session, requestBuilder, body)
+      case Some(body) =>
+        setBody(session, requestBuilder, body)
       case _ =>
-        if (httpAttributes.bodyParts.nonEmpty) { session => requestBuilder =>
-          configureBodyParts(session, requestBuilder, httpAttributes.bodyParts)
-        } else if (httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty) { session => requestBuilder =>
-          httpAttributes.formParams
-            .mergeWithFormIntoParamJList(httpAttributes.form, session)
-            .map { resolvedFormParams =>
-              requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(resolvedFormParams))
-            }
+        val hasParts = httpAttributes.bodyParts.nonEmpty
+        val hasForm = httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty
+        val hadExplicitFormDataContentType = HttpHelper.isMultipartFormData(requestBuilder.getContentType)
+
+        if (hasParts || (hasForm && hadExplicitFormDataContentType)) {
+          configureMultipartFormData(session, requestBuilder)
+        } else if (hasForm) {
+          configureFormUrlEncoded(session, requestBuilder)
         } else {
-          ConfigureIdentity
+          requestBuilder.success
         }
     }
   }
@@ -122,7 +162,7 @@ class HttpRequestExpressionBuilder(
   override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure =
     session =>
       requestBuilder =>
-        configureBody(session)(requestBuilder)
+        configureBody(session, requestBuilder)
           .flatMap(configurePriorKnowledge(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
