@@ -208,7 +208,7 @@ This section refers to payloads encoded with [`application/x-www-form-urlencoded
 
 {{< alert tip >}}
 Unless you've explicitly set the `Content-Type` header:
-* if you've ser at least one file part, Gatling will set it to `multipart/form-data`
+* if you've set at least one file part, Gatling will set it to `multipart/form-data`
 * otherwise, it will set it to `application/x-www-form-urlencoded`.
 {{</ alert >}}
 
