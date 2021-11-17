@@ -9,7 +9,7 @@ weight: 007007
 
 Functional specs support was initially contributed by [Constantijn Visinescu](https://github.com/constantijn).
 
-### Writing functional specs with gatling
+## Writing functional specs with gatling
 
 In addition to writing load tests Gatling's DSL also allows you to write functional specs that are meant to run along
 your integration or unit tests. This way you can write end to end tests using Gatling's DSL. This is especially useful
@@ -28,6 +28,6 @@ Functional tests written with Gatling look like this:
 7. Start running your checks. For more info on what kind of checks you can run look [here]({{< ref "../../http/check" >}})
 8. As a best practice you should put all your check type definitions in a companion object and your validations on them in the check statements. This leads to much more readable tests and less code duplication.
 
-### Quick start
+## Quick start
 
 We have an [demo project](https://github.com/gatling/gatling-funspec-demo/) configured to run functional specs with sbt to help you get started right away.

@@ -1,5 +1,5 @@
 ---
-title: "Jenkins plugin"
+title: "Jenkins Plugin"
 description: "Jenkins plugin for Gatling Enterprise"
 lead: "Jenkins CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00

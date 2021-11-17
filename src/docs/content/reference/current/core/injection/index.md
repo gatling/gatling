@@ -9,7 +9,7 @@ weight: 003030
 
 The definition of the injection profile of users is done with the `injectOpen` and `injectClosed` methods (just `inject` in Scala). This method takes as an argument a sequence of injection steps that will be processed sequentially.
 
-### Open vs Closed Workload Models
+## Open vs Closed Workload Models
 
 When it comes to load model, systems behave in 2 different ways:
 
@@ -43,7 +43,7 @@ You can read more about open and closed models [here](https://www.usenix.org/leg
 Open and closed workload models are antinomical and you can't mix them in the same injection profile.
 {{< /alert >}}
 
-### Open Model
+## Open Model
 
 {{< include-code "open-injection" java kt scala >}}
 
@@ -58,7 +58,7 @@ The building blocks for open model profile injection are:
 7. `rampUsersPerSec(rate1).to(rate2).during(duration).randomized`: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
 8. `stressPeakUsers(nbUsers).during(duration)`: Injects a given number of users following a smooth approximation of the [heaviside step function](http://en.wikipedia.org/wiki/Heaviside_step_function) stretched to a given duration.
 
-### Closed Model
+## Closed Model
 
 {{< include-code "closed-injection" java kt scala >}}
 
@@ -72,17 +72,17 @@ Ramping down the number of concurrent users won't force the existing users to in
 The only way for virtual users to terminate is to complete their scenario.
 {{< /alert >}}
 
-### Meta DSL
+## Meta DSL
 
 It is possible to use elements of Meta DSL to write tests in an easier way.
 If you want to chain levels and ramps to reach the limit of your application (a test sometimes called capacity load testing), you can do it manually using the regular DSL and looping using map and flatMap.
 But there is now an alternative using the meta DSL.
 
-#### `incrementUsersPerSec`
+### `incrementUsersPerSec`
 
 {{< include-code "incrementUsersPerSec" java kt scala >}}
 
-#### `incrementConcurrentUsers`
+### `incrementConcurrentUsers`
 
 {{< include-code "incrementConcurrentUsers" java kt scala >}}
 
@@ -92,19 +92,19 @@ But there is now an alternative using the meta DSL.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
 If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
 
-### Concurrent Scenarios
+## Concurrent Scenarios
 
 You can configure multiple scenarios in the same `setUp` block to start at the same time and execute concurrently.
 
 {{< include-code "multiple" java kt scala >}}
 
-### Sequential Scenarios
+## Sequential Scenarios
 
 It's also possible with `andThen` to chain scenarios, so that children scenarios start once all the users in the parent scenario terminate.
 
 {{< include-code "andThen" java kt scala >}}
 
-### Disabling Gatling Enterprise Load Sharding
+## Disabling Gatling Enterprise Load Sharding
 
 By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple nodes.
 
@@ -114,5 +114,3 @@ Indeed, only one node would run this user, leaving the other nodes without an in
 You can use `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
 
 {{< include-code "noShard" java kt scala >}}
-
-

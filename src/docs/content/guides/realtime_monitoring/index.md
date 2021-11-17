@@ -1,5 +1,5 @@
 ---
-title: "Realtime monitoring"
+title: "Realtime Monitoring"
 description: "Analyze reports metrics as it is happening"
 lead: "Analyze reports metrics as it is happening"
 date: 2021-04-20T18:30:56+02:00

@@ -10,7 +10,7 @@ weight: 030
 In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.
 We will apply a series of refactorings to introduce more advanced concepts and [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) constructs.
 
-## Step 01: Isolate processes
+## Step 1: Isolate processes
 
 Presently our Simulation is one big monolithic scenario.
 
@@ -32,7 +32,7 @@ We can now rewrite our scenario using these reusable business processes:
 
 {{< include-code "processes" java kt scala >}}
 
-## Step 02: Configure virtual users
+## Step 2: Configure virtual users
 
 So, this is great, we can load test our server with... one user!
 Let's increase the number of users.
@@ -62,7 +62,7 @@ In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 
 
 {{< include-code "setup-users-and-admins" java kt scala >}}
 
-## Step 03: Use dynamic data with Feeders and Checks
+## Step 3: Use dynamic data with Feeders and Checks
 
 We have set our simulation to run a bunch of users, but they all search for the same model.
 Wouldn't it be nice if every user could search a different model name?
@@ -103,7 +103,7 @@ For more details regarding *Feeders*, please check out the [Feeder reference pag
 For more details regarding *HTTP Checks*, please check out the [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
 {{< /alert >}}
 
-## Step 04: Looping
+## Step 4: Looping
 
 In the *browse* process we have a lot of repetition when iterating through the pages.
 We have four times the same request with a different query param value. Can we change this to not violate the DRY principle?
@@ -128,7 +128,7 @@ Explanations:
 For more details regarding loops, please check out the [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
 {{< /alert >}}
 
-## Step 05: Check and failure management
+## Step 5: Check and failure management
 
 Up until now we have only used `check` to extract some data from the html response and store it in the session.
 But `check` is also handy to check properties of the response.
