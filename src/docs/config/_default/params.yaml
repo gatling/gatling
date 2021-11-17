@@ -31,8 +31,6 @@ themeColor: "#fff"
 # Images
 quality: 85
 bgColor: "#fff"
-landscapePhotoWidths: [900, 800, 700, 600, 500]
-portraitPhotoWidths: [800, 700, 600, 500]
 lqipWidth: "20x"
 
 # Footer
@@ -50,11 +48,10 @@ options:
   instantPage: true
   flexSearch: true
   darkMode: true
-  bootStrapJs: false
   breadCrumb: false
 
 includeCode:
-  default: scala
+  default: java
   labels:
     java: Java
     kt: Kotlin
