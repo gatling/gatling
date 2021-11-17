@@ -17,6 +17,8 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 ## Setup
 
+### Java
+
 In your `pom.xml`, add:
 
 ```xml
@@ -36,12 +38,19 @@ In your `pom.xml`, add:
 </plugin>
 ```
 
-## Demo samples
+Please check our [official sample project for maven and Java](https://github.com/gatling/gatling-maven-plugin-demo-java) on GitHub.
 
-You can find sample projects demoing the gatling-maven-plugin in Gatling's GitHub organization:
-* [for Java](https://github.com/gatling/gatling-maven-plugin-demo-java)
-* [for Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin)
-* [for Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala)
+### Kotlin
+
+Please check our [official sample project for maven and Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin) on GitHub.
+
+### Scala
+
+{{< alert warning >}}
+Starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala.
+{{< /alert >}}
+
+Please check our [official sample project for maven and Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala) on GitHub.
 
 ## Usage
 
@@ -49,8 +58,9 @@ You can find sample projects demoing the gatling-maven-plugin in Gatling's GitHu
 
 You can directly launch the `gatling-maven-plugin` with the `test` goal:
 
-  mvn gatling:test
-
+```
+mvn gatling:test
+```
 
 The gatling-maven-plugin will take care of compiling your code.
 

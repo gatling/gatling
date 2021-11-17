@@ -17,6 +17,10 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 ## Setup
 
+{{< alert warning >}}
+This plugin only supports Simulations written in Scala. If you want to write your Simulations in Java or Kotlin, please use maven or gradle.
+{{< /alert >}}
+
 In `project/plugins.sbt`, add:
 
 ```scala
@@ -40,16 +44,14 @@ lazy val project = Project(...)
   .settings(libraryDependencies ++= /* Gatling dependencies */)
 ```
 
-or in your `.sbt` file, for SBT 0.13.6 and later::
+or in your `.sbt` file::
 ```scala
 enablePlugins(GatlingPlugin)
 
 libraryDependencies ++= /* Gatling dependencies */
 ```
-## Demo sample
 
-You can find a sample project demoing the `gatling-sbt-plugin` in Gatling's GitHub organization:
-* [for Scala](https://github.com/gatling/gatling-sbt-plugin-demo)
+Please check our [official sample project for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo) on GitHub.
 
 ## Usage
 
