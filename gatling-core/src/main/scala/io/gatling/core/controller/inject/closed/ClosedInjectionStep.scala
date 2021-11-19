@@ -19,7 +19,7 @@ package io.gatling.core.controller.inject.closed
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 
-private[inject] sealed trait ClosedInjectionStep extends Product with Serializable {
+sealed trait ClosedInjectionStep extends Product with Serializable {
 
   private[inject] def valueAt(t: FiniteDuration): Int
 
