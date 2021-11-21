@@ -314,6 +314,15 @@ Make the user exit the scenario from this point if it previously had an error.
 
 {{< include-code "exitHereIfFailed" java kt scala >}}
 
+#### `stopInjector`
+
+Make the user exit abruptly stop the injector.
+
+In takes one single parameter:
+* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log an ERROR message
+
+{{< include-code "stopInjector" java kt scala >}}
+
 ### Groups
 
 Create a group of requests to model processes or requests in the same page.

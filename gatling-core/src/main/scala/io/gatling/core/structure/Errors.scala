@@ -18,7 +18,7 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import io.gatling.core.action.builder.{ ExitHereBuilder, TryMaxBuilder }
+import io.gatling.core.action.builder.{ ExitHereBuilder, StopInjectorBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
 private[structure] trait Errors[B] extends Execs[B] {
@@ -34,4 +34,6 @@ private[structure] trait Errors[B] extends Execs[B] {
   def exitHere: B = exitHereIf(TrueExpressionSuccess)
 
   def exitHereIfFailed: B = exec(ExitHereBuilder())
+
+  def stopInjector(message: Expression[String]): B = exec(new StopInjectorBuilder(message))
 }

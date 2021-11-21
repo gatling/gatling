@@ -191,6 +191,7 @@ class CoreCompileTest extends Simulation {
     .exitBlockOnFail {
       exec(noop)
     }
+    .stopInjector("Fatal Error")
 
   private val inject1 = nothingFor(10.milliseconds)
   private val inject2 = rampUsers(10).during(10.minutes)

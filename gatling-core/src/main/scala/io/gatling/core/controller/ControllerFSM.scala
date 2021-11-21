@@ -47,6 +47,6 @@ private[gatling] object ControllerCommand {
   private[gatling] final case object InjectorStopped extends ControllerCommand
   private[gatling] final case class Crash(exception: Exception) extends ControllerCommand
   private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
-  private[gatling] final case object Kill extends ControllerCommand
+  private[gatling] final case object StopInjector extends ControllerCommand
   private[gatling] final case object StatsEngineStopped extends ControllerCommand
 }

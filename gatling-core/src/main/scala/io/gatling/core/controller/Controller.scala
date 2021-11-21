@@ -80,8 +80,8 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       cancelTimer(maxDurationTimer)
       stopGracefully(data, Some(exception))
 
-    case Event(Kill, StartedData(initData)) =>
-      logger.info("Simulation was killed")
+    case Event(StopInjector, StartedData(initData)) =>
+      logger.info("Injector was forcefully stopped")
       stop(EndData(initData, None))
   }
 
@@ -100,8 +100,8 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       logger.debug("StatsEngine was stopped")
       stop(data)
 
-    case Event(Kill, data: EndData) =>
-      logger.error("Kill order received")
+    case Event(StopInjector, data: EndData) =>
+      logger.error("Injector was forcefully stopped")
       stop(data)
 
     case Event(message, _) =>

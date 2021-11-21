@@ -16,6 +16,8 @@
 
 package io.gatling.javaapi.core.error;
 
+import static io.gatling.javaapi.core.internal.Expressions.*;
+
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -194,5 +196,27 @@ public interface Errors<
   @Nonnull
   default T exitHereIfFailed() {
     return make(io.gatling.core.structure.Errors::exitHereIfFailed);
+  }
+
+  /**
+   * Have the virtual user abruptly stop the injector
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @return a new {@link StructureBuilder}
+   */
+  @Nonnull
+  default T stopInjector(String message) {
+    return make(wrapped -> wrapped.stopInjector(toStringExpression(message)));
+  }
+
+  /**
+   * Have the virtual user abruptly stop the injector
+   *
+   * @param message the message, expressed as a function
+   * @return a new {@link StructureBuilder}
+   */
+  @Nonnull
+  default T stopInjector(Function<Session, String> message) {
+    return make(wrapped -> wrapped.stopInjector(javaFunctionToExpression(message)));
   }
 }

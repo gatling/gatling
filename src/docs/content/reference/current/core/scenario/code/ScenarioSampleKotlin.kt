@@ -358,6 +358,11 @@ exitHereIf { session -> true }
 exitHereIfFailed()
 //#exitHereIfFailed
 
+//#stopInjector
+stopInjector("#{someErrorMessage}")
+stopInjector { session -> "someErrorMessage"}
+//#stopInjector
+
 //#group
 group("foo").on(
   exec(http("name").get("/"))
