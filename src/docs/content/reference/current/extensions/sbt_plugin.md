@@ -1,13 +1,14 @@
 ---
 title: "SBT Plugin"
-description: "SBT plugin to run Gatling test"
-lead: "The SBT plugin allows you to run Gatling test from the command line, without the bundle"
+description: "SBT plugin to run Gatling tests and deploy to Gatling Enterprise"
+lead: "The SBT plugin allows you to run Gatling tests from the command line, without the bundle, as well as to package your simulations for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2021-11-23T09:00:00+02:00
 weight: 007003
 ---
 
-This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testing framework.
+This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testing framework. It can also be used to
+package your Gatling project to run it on [Gatling Enterprise](https://gatling.io/enterprise/).
 
 ## Versions
 
@@ -18,93 +19,209 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 ## Setup
 
 {{< alert warning >}}
-This plugin only supports Simulations written in Scala. If you want to write your Simulations in Java or Kotlin, please use maven or gradle.
+This plugin only supports Simulations written in Scala. If you want to write your Simulations in Java or Kotlin, please
+use [Maven]({{< ref "../maven_plugin" >}}) or [Gradle]({{< ref "../gradle_plugin" >}}).
 {{< /alert >}}
 
-In `project/plugins.sbt`, add:
+{{< alert warning >}}
+This plugin requires using SBT 1 (SBT 0.13 is not supported). All code examples on this page use the
+[unified slash syntax](https://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html#Migrating+to+slash+syntax)
+introduced in SBT 1.1.
+{{< /alert >}}
+
+
+In `project/plugins.sbt`, add the Gatling plugin dependency:
 
 ```scala
 addSbtPlugin("io.gatling" % "gatling-sbt" % "MANUALLY_REPLACE_WITH_LATEST_VERSION")
 ```
 
-You'll also need those two dependencies:
+In `build.sbt`, add the Gatling library dependencies and enable the Gatling plugin:
 
-```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
-"io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
-```
-
-And then, in your `.scala` build
-
-```scala
-import io.gatling.sbt.GatlingPlugin
-
-lazy val project = Project(...)
-  .enablePlugins(GatlingPlugin)
-  .settings(libraryDependencies ++= /* Gatling dependencies */)
-```
-
-or in your `.sbt` file::
 ```scala
 enablePlugins(GatlingPlugin)
-
-libraryDependencies ++= /* Gatling dependencies */
+libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
+libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 ```
 
 Please check our [official sample project for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo) on GitHub.
 
+### 'Test' vs 'Integration Tests' configurations
+
+This plugin offers two different custom SBT configurations, named `Gatling` and `GatlingIt`.
+They are tied to different source directories (see next section for more details) and therefore allow to separate your simulations according to your needs, should you desire it.
+
+Ideally:
+
+* Your simulations with low injection profiles, which may serve as functional tests, should live in `src/test` (the default source directory for the `Gatling` configuration), and run along your unit tests, since they would complete quickly
+* Longer, more complex simulations with high injection profiles, should live in `src/it` (the default source directory for the `GatlingIt` configuration) and be run on an as-needed basis.
+
+Also, since they're tied to separate SBT configurations, your SBT settings can then be customized per configuration.
+You can expect a relatively short simulation to run easily with the default JVM settings, but, for example, simulations with much higher load could require an increase of the max heap memory.
+
+{{< alert tip >}}
+When using the `GatlingIt` configuration, you must use the `GatlingIt/` prefix, e.g. `Gatling/test` becomes `GatlingIt/test`, etc...
+{{< /alert >}}
+
+### Default settings
+
+For the `Gatling` configuration :
+
+* By default, Gatling simulations must be in `src/test/scala`, configurable using the `Gatling / scalaSource` setting.
+* By default, Gatling reports are written to `target/gatling`, configurable using the `Gatling / target` setting.
+
+For the `GatlingIt` configuration :
+
+* By default, Gatling simulations must be in `src/it/scala`, configurable using the `GatlingIt / scalaSource` setting.
+* By default, Gatling reports are written to `target/gatling-it`, configurable using the `GatlingIt / target` setting.
+
+If you override the default settings, you need to reset them on the project, eg:
+
+```scala
+Gatling / scalaSource := sourceDirectory.value / "gatling" / "scala"
+lazy val root = (project in file(".")).settings(inConfig(Gatling)(Defaults.testSettings): _*)
+```
+
+### Multi-project support
+
+If you have a [multi-project build](https://www.scala-sbt.org/1.x/docs/Multi-Project.html), make sure to only configure
+the subprojects which contain Gatling Simulations with the Gatling plugin and dependencies as described above. Your
+Gatling subproject can, however, depend on other subprojects.
+
 ## Usage
 
-As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks.
-However, since the SBT Plugin introduces many customizations that we don't want to interfere with unit tests, those commands are integrated into custom configurations,
-meaning you'll need to prefix them with `Gatling/` or `GatlingIt/`, eg. `Gatling/test` or `GatlingIt/test`.
+### Running your simulations
+
+As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`,
+`testQuick`, etc... tasks. However, since the SBT Plugin introduces many customizations that we don't want to interfere
+with unit tests, those commands are integrated into custom configurations, meaning you'll need to prefix them with
+`Gatling/` or `GatlingIt/`.
+
+For example, run all Gatling simulations from the `test` configuration:
+
+```bash
+sbt Gatling/test
+```
+
+Or run a single simulation, by its FQN (fully qualified class name), from the `it` configuration:
+
+```bash
+sbt GatlingIt/testOnly com.project.simu.MySimulation
+```
 
 {{< alert tip >}}
 This behavior differs from what was previously possible, eg. calling `test` without prefixing started Gatling simulations.
 However, this caused many interferences with other testing libraries and forcing the use of a prefix solves those issues.
 {{< /alert >}}
 
-## 'Test' vs 'Integration Tests' configurations
+### Working with Gatling Enterprise Cloud
 
-This plugin offers two different custom SBT configurations, named `Gatling` and `GatlingIt`.
-They are tied to different sources directories (see next section for more details) and therefore allow to separate your simulations according to your needs, should you desire it.
+#### Package
 
-Ideally:
+You can directly package your simulations for Gatling Enterprise Cloud:
 
-* Your simulations with low injection profiles, which may serve as functional tests, should live in 'src/test' (the default source directory for the `Gatling` configuration), and run along your unit tests, since they would complete quickly
-* Longer, more complex simulations with high injection profiles, should live in 'src/it' (the default source directory for the `GatlingIt` configuration) and be run on a as-needed basis.
-
-Also, since they're tied to separate SBT configurations, your SBT settings can then be customized per configuration.
-You can expect a relatively short simulation to run easily with the default JVM settings, but simulations with much higher load can very well require an increase of the max heap memory allowed for example).
-
-{{< alert tip >}}
-When using the `GatlingIt` configuration, you must use the `GatlingIt/` prefix, e.g. `Gatling/test` becomes `GatlingIt/test`, etc...
-{{< /alert >}}
-
-## Default settings
-
-For the `Gatling` configuration :
-
-* By default, Gatling simulations must be in `src/test/scala`, configurable using the `scalaSource in Gatling` setting.
-* By default, Gatling reports are written to `target/gatling`, configurable using the `target in Gatling` setting.
-
-For the `GatlingIt` configuration :
-
-* By default, Gatling simulations must be in `src/it/scala`, configurable using the `scalaSource in the GatlingIt` setting.
-* By default, Gatling reports are written to `target/gatling-it`, configurable using the `target in the GatlingIt` setting.
-
-If you override the default settings, you need to reset them on the project, eg:
-
-```scala
-scalaSource in Gatling := sourceDirectory.value / "gatling" / "scala"
-lazy val root = (project in file(".")).settings(inConfig(Gatling)(Defaults.testSettings): _*)
+```shell
+sbt Gatling/enterprisePackage
 ```
 
-## Additional tasks
+This will generate the `target/gatling/<artifactId>-gatling-enterprise-<version>.jar` package which you can then
+[upload to the Cloud](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/).
+
+To package simulations from the `it` configuration, `GatlingIt/enterprisePackage` will generate the
+`target/gatling-it/<artifactId>-gatling-enterprise-<version>.jar` package.
+
+#### Package and upload
+
+You can also create and upload the package in a single command. You must already have
+[configured a package](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/) (copy the package ID from
+the Packages table). You will also need [an API token](https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/)
+with appropriate permissions to upload a package.
+
+Configure the package ID (and possibly the API token, but see below for other options) on the plugin:
+
+```scala
+Gatling / enterprisePackageId := "YOUR_PACKAGE_ID"
+// omit enterpriseApiToken when using environment variable or Java System property instead
+Gatling / enterpriseApiToken := "YOUR_API_TOKEN"
+```
+
+Since you probably don't want to include you secret token in your source code, you can instead configure it using either:
+- the `GATLING_ENTERPRISE_API_TOKEN` environment variable
+- the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
+
+Then package and upload your simulation to gatling Enterprise Cloud:
+
+```shell
+sbt Gatling/enterpriseUpload
+```
+
+To package and upload simulations from the `it` configuration, simply replace `Gatling/` with `GatlingIt/` in the
+configuration and command.
+
+### Working with Gatling Enterprise Self-Hosted
+
+#### Build from sources
+
+Once you have configured the SBT plugin on your project, Gatling Enterprise Self-Hosted can build it from sources
+without additional configuration.
+[Add your source repository](https://gatling.io/docs/enterprise/self-hosted/reference/current/user/repositories/#sources-repository)
+and configure your simulation to
+[build from sources](https://gatling.io/docs/enterprise/self-hosted/reference/current/user/simulations/#option-1-build-from-sources)
+using SBT.
+
+To make sure your setup is correct, you can run the packaging command and check that you get a jar containing all the
+classes and extra dependencies of your project in `target/gatling/<artifactId>-gatling-enterprise-<version>.jar`:
+
+```shell
+sbt Gatling/enterprisePackage
+```
+
+{{< alert warning >}}
+If you use the `it` configuration, you will need to configure a custom build command in Gatling Enterprise, as the
+default one is for the `test` configuration:
+``sbt -J-Xss100M ;clean;GatlingIt/enterprisePackage -batch --error``
+{{< /alert >}}
+
+#### Publish to a binary repository
+
+Alternatively, you can package your simulations and publish them to a binary repository (JFrog Artifactory, Sonatype
+Nexus or AWS S3).
+
+{{< alert tip >}}
+Please refer to the [official documentation](https://www.scala-sbt.org/1.x/docs/Publishing.html) for generic
+configuration options. Please also check the standards within your organization for the best way to configure the
+credentials needed to access your binary repository.
+{{< /alert >}}
+
+Enable publishing the Gatling test artifact, then define the repository:
+
+```scala
+Gatling / publishArtifact := true
+publishTo := (
+  if (isSnapshot.value)
+    Some("private repo" at "REPLACE_WITH_YOUR_SNAPSHOTS_REPOSITORY_URL")
+  else
+    Some("private repo" at "REPLACE_WITH_YOUR_RELEASES_REPOSITORY_URL")
+)
+```
+
+The packaged artifact will be automatically attached to your project and deployed with the `tests` classifier when you publish it:
+
+```shell
+sbt publish
+```
+
+You can also set:
+- `GatlingIt / publishArtifact := true` to publish Gatling simulations from the `it` configuration, this artifact will be
+published with the `it` qualifier
+- `Compile / publishArtifact := false` e.g. if your project only contains Gatling simulations and you don't need to
+publish code from `src/main`.
+
+### Additional tasks
 
 Gatling's SBT plugin also offers four additional tasks:
 
-* `Gatling/startRecorder`: starts the Recorder, configured to save recorded simulations to the location specified by `scalaSource in Gatling` (by default, `src/test/scala`).
+* `Gatling/startRecorder`: starts the Recorder, configured to save recorded simulations to the location specified by `Gatling/scalaSource` (by default, `src/test/scala`).
 * `Gatling/generateReport`: generates reports for a specified report folder.
 * `Gatling/lastReport`: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
 * `Gatling/copyConfigFiles`: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
@@ -118,7 +235,7 @@ However, should you need to tweak them, you can use `overrideDefaultJavaOptions`
 E.g., if you want to tweak Xms/Xmx to give more memory to Gatling
 
 ```scala
-javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
+Gatling / javaOptions := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
 ```
 
 ## Sources
