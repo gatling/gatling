@@ -63,7 +63,7 @@ The plugin supports many configuration options, eg:
   <artifactId>gatling-maven-plugin</artifactId>
   <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
   <configuration>
-      <simulationClass>foo.Bar</simulationClass>
+    <simulationClass>foo.Bar</simulationClass>
   </configuration>
 </plugin>
 ```
