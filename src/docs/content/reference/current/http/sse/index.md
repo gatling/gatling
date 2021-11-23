@@ -4,7 +4,7 @@ description: "SSE support is an extension to the HTTP DSL"
 lead: "Learn the possible SSE operations with Gatling: connect, close"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005090
+weight: 2050900
 ---
 
 SSE support is an extension to the HTTP DSL, whose entry point is the `sse(requestName: Expression[String])` method.

@@ -4,7 +4,7 @@ description: "Setting Dynatrace Header"
 lead: "Setting Dynatrace Header"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 0036
+weight: 3060000
 ---
 
 ## Use Case

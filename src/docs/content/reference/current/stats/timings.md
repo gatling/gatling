@@ -4,7 +4,7 @@ description: "Gatling records the timings of multiple metrics used to analyze yo
 lead: "Learn about all the recorded metrics: active users, response times and counts"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003501
+weight: 2040100
 ---
 
 As Gatling runs and executes requests, several timings are recorded, which make up the basis of all forms of reporting in Gatling: console, HTML reports, etc...

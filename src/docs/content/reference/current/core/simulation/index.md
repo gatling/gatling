@@ -4,7 +4,7 @@ description: "Learn about the structure of the Gatling simulation"
 lead: "Learn about the main parts of a Gatling simulation: DSL imports, scenario definitions, simulation definitions, hooks"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003020
+weight: 2030200
 ---
 
 `Simulation` is the parent class your tests must extend so Gatling can launch them.

@@ -4,5 +4,15 @@ description: Gatling documentation
 cascade:
   version: 3.6
   latest: true
-weight: 001000
+ordering:
+  - cheat-sheet
+  - whats_new
+  - core
+  - stats
+  - http
+  - jms
+  - mqtt
+  - extensions
+  - upgrading
+  - project
 ---

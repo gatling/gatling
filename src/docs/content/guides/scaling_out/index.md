@@ -4,7 +4,7 @@ description: "Generating heavy load from multiple injectors"
 lead: "Generating heavy load from multiple injectors"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 0033
+weight: 3040000
 ---
 
 Sometimes, generating some very heavy load from a single machine might lead to saturating the OS or the network interface controller.

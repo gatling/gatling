@@ -4,7 +4,7 @@ description: "Learn about the DSL specific to scenarios"
 lead: "Learn how to execute requests, pauses, loops and conditions"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003040
+weight: 2030400
 ---
 
 This is the reference of the different components available to write scenarios with Gatling.

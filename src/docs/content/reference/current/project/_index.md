@@ -2,5 +2,5 @@
 title: "Project Information"
 description: "Licenses, bug tracking, contributors and much more."
 lead: Misc information about the Gatling project
-weight: 009000
+weight: 2100000
 ---

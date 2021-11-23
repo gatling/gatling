@@ -4,7 +4,7 @@ description: "Define the load you want to inject to your server"
 lead: "Injection profiles, differences between open and closed workload models"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003030
+weight: 2030300
 ---
 
 The definition of the injection profile of users is done with the `injectOpen` and `injectClosed` methods (just `inject` in Scala). This method takes as an argument a sequence of injection steps that will be processed sequentially.

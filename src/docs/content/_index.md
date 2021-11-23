@@ -3,12 +3,14 @@ title: "Gatling"
 description: "Gatling documentation"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-draft: false
-weight: 999
 cascade:
   docsRepo:
     url: https://github.com/gatling/gatling/blob/main/content
     rel: ""
+ordering:
+  - guides
+  - reference
+  - tutorials
 ---
 
 Gatling is a highly capable load testing tool.

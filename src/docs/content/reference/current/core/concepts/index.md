@@ -4,7 +4,7 @@ description: "Main Gatling concepts"
 lead: "Learn more about virtual users, scenarios, simulations, sessions, feeders, checks, assertions, reports"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003010
+weight: 2030100
 ---
 
 ## Immutability

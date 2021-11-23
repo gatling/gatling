@@ -4,7 +4,7 @@ description: "Craft a Gatling simulation"
 lead: "Isolate process, configure virtual users, use feeders, checks and looping"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 030
+weight: 1020000
 ---
 
 In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.

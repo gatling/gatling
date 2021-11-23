@@ -4,7 +4,7 @@ description: "Configuration of Gatling"
 lead: "Configure the logs with logback.xml, the configuration with gatling.conf, and the zip bundle command options"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003083
+weight: 2030800
 ---
 
 Gatling can be configured and optimized in three ways:

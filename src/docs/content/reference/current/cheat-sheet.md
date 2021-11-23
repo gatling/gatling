@@ -5,7 +5,7 @@ lead: "Quick reference guides and sheet in one page"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 type: cheat-sheet
-weight: 002000
+weight: 2010000
 draft: true
 content:
 

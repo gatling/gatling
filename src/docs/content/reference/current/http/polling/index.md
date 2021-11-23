@@ -5,7 +5,7 @@ lead: "Learn how to start and stop the polling"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 toc: true
-weight: 005070
+weight: 2050700
 ---
 
 HTTP polling is an extension to the HTTP DSL, whose entry point is the `poll` method.

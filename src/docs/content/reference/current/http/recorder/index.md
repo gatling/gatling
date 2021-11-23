@@ -4,7 +4,7 @@ description: "The recorder creates a basic Gatling Simulation, based on your nav
 lead: "Learn how to configure your recorder and run it, either as an HTTP proxy or a HAR converter"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005060
+weight: 2050600
 ---
 
 The Gatling Recorder helps you to quickly generate scenarios, by either acting as a HTTP proxy between the browser and the HTTP server or converting HAR (Http ARchive) files.

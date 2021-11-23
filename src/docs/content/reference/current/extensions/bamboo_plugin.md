@@ -4,7 +4,7 @@ description: "Bamboo plugin for Gatling Enterprise"
 lead: "Bamboo CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 007005
+weight: 2080500
 ---
 
 [Gatling Enterprise](https://gatling.io/enterprise/) has a dedicated Bamboo plugin.

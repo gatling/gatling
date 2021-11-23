@@ -4,7 +4,7 @@ description: "JMS protocol DSL"
 lead: "DSL for JMS"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005000
+weight: 2060000
 ---
 
 JMS support was initially contributed by [Jason Koch](https://github.com/jasonk000).

@@ -4,7 +4,7 @@ description: "Install and Gatling"
 lead: "Learn about the Java, Kotlin and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle "
 date: 2021-04-20T18:58:06+02:00
 lastmod: 2021-04-20T18:58:06+02:00
-weight: 010
+weight: 1010000
 ---
 
 ## Prerequisites

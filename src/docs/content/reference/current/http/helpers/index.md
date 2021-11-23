@@ -4,7 +4,7 @@ description: "Learn how to deal with cookies and cache"
 lead: "Helpers for handling cookies and caches"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005050
+weight: 2050500
 ---
 
 ## Dealing with Cookies

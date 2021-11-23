@@ -4,7 +4,7 @@ description: "Passing functions for computing dynamic values"
 lead: "Use functions to programmatically generate dynamic parameters"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003053
+weight: 2030503
 ---
 
 Sometimes, you might want to dynamic parameters that are too complex to compute for Gatling EL.

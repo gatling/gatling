@@ -4,7 +4,7 @@ description: "Configure Gatling's HTTP connection"
 lead: "Learn about connection, redirect, caching, resource infering and dns resolution"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005010
+weight: 2050100
 ---
 
 HTTP is the main protocol Gatling targets, so that's where we place most of our effort.

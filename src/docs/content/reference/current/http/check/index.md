@@ -4,7 +4,7 @@ description: "Use HTTP checks to validate your requests and capture elements"
 lead: "Checks specific to HTTP requests"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 005030
+weight: 2050300
 ---
 
 ## HTTP Specific Check Type {#http-check-type}

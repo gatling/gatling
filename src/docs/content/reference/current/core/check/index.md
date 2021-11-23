@@ -4,7 +4,7 @@ description: "Use checks to validate your requests and capture elements"
 lead: "Checks can be used to validate your request and extract elements which can be reused later"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 003060
+weight: 2030600
 ---
 
 This page describes generic checks that can in theory be supported in all official protocols supported in Gatling.
