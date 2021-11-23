@@ -20,7 +20,7 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 {{< alert warning >}}
 This plugin only supports Simulations written in Scala. If you want to write your Simulations in Java or Kotlin, please
-use [Maven]({{< ref "../maven_plugin" >}}) or [Gradle]({{< ref "../gradle_plugin" >}}).
+use [Maven]({{< ref "maven_plugin" >}}) or [Gradle]({{< ref "gradle_plugin" >}}).
 {{< /alert >}}
 
 {{< alert warning >}}

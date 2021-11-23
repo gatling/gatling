@@ -108,7 +108,7 @@ The order of filters has no impact on execution order, simulations will be sorte
 
 ### Running the Gatling Recorder
 
-You can launch the [Gatling Recorder]({{< ref "../../http/recorder" >}}):
+You can launch the [Gatling Recorder]({{< ref "../http/recorder" >}}):
 
 ```shell
 mvn gatling:recorder
