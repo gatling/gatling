@@ -79,6 +79,7 @@ lazy val docSamples = (project in file("src/docs"))
 def gatlingModule(id: String) =
   Project(id, file(id))
     .enablePlugins(GatlingOssPlugin)
+    .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
