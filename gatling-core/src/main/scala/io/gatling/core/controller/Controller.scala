@@ -83,6 +83,12 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
     case Event(StopInjector, StartedData(initData)) =>
       logger.info("Injector was forcefully stopped")
       stop(EndData(initData, None))
+
+    //[fl]
+    //
+    //
+    //
+    //[fl]
   }
 
   private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
@@ -103,6 +109,12 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
     case Event(StopInjector, data: EndData) =>
       logger.error("Injector was forcefully stopped")
       stop(data)
+
+    //[fl]
+    //
+    //
+    //
+    //[fl]
 
     case Event(message, _) =>
       logger.debug(s"Ignore message $message while waiting for resources to stop")
