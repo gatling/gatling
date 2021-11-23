@@ -43,13 +43,6 @@ alertText: ""
 # Edit Page
 editPage: true
 
-options:
-  lazySizes: true
-  instantPage: true
-  flexSearch: true
-  darkMode: true
-  breadCrumb: false
-
 includeCode:
   default: java
   labels:
