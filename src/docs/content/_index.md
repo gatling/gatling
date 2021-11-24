@@ -8,9 +8,9 @@ cascade:
     url: https://github.com/gatling/gatling/blob/main/content
     rel: ""
 ordering:
-  - guides
-  - reference
   - tutorials
+  - reference
+  - guides
 ---
 
 Gatling is a highly capable load testing tool.
