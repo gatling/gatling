@@ -104,9 +104,6 @@ private[render] class ProtocolTemplate(config: RecorderConfiguration) {
       }
       .mkString(Eol)
 
-  private def renderProtocolRoot =
-    s"http${format.parameterlessMethodCall}"
-
   def render(protocol: ProtocolDefinition): String = {
     val protocolType = format match {
       case Format.Scala | Format.Kotlin  => "private val"
@@ -114,7 +111,7 @@ private[render] class ProtocolTemplate(config: RecorderConfiguration) {
       case Format.Java8                  => "HttpProtocolBuilder"
     }
 
-    s"""$protocolType httpProtocol = $renderProtocolRoot
+    s"""$protocolType httpProtocol = http
        |  .baseUrl("${protocol.baseUrl}")
        |${renderProxy.indent(2)}
        |${renderFollowRedirect.indent(2)}
