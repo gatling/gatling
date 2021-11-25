@@ -33,10 +33,7 @@ import io.netty.handler.codec.http.cookie.Cookie
 object WsConnectingState extends StrictLogging {
   private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 
-  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame]): NextWsState =
-    gotoConnecting(fsm, session, next, fsm.httpProtocol.wsPart.maxReconnects)
-
-  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingTries: Int): NextWsState = {
+  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingReconnects: Int): NextWsState = {
 
     import fsm._
 
@@ -57,11 +54,11 @@ object WsConnectingState extends StrictLogging {
       userSslContexts.flatMap(_.alpnSslContext).orNull
     )
 
-    NextWsState(new WsConnectingState(fsm, session, next, clock.nowMillis, remainingTries))
+    NextWsState(new WsConnectingState(fsm, session, next, clock.nowMillis, remainingReconnects))
   }
 }
 
-final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], connectStart: Long, remainingTries: Int)
+final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], connectStart: Long, remainingReconnects: Int)
     extends WsState(fsm)
     with StrictLogging {
 
@@ -115,6 +112,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
             remainingChecks = remainingChecks,
             checkSequenceStart = connectEnd,
             remainingCheckSequences = remainingCheckSequences,
+            remainingReconnects = remainingReconnects,
             session = newSession,
             next = newNext
           )
@@ -136,7 +134,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
             val newSession = OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback)
 
             NextWsState(
-              new WsIdleState(fsm, newSession, webSocket),
+              new WsIdleState(fsm, newSession, webSocket, remainingReconnects),
               () => onConnectedAction ! newSession
             )
 
@@ -153,7 +151,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
               }
 
             NextWsState(
-              new WsIdleState(fsm, sessionWithGroupTimings, webSocket),
+              new WsIdleState(fsm, sessionWithGroupTimings, webSocket, remainingReconnects),
               afterStateUpdate
             )
         }
@@ -172,6 +170,6 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
     }
     logger.debug("Connect failed, performing next action")
 
-    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)), () => n ! failedSession)
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage), remainingReconnects), () => n ! failedSession)
   }
 }

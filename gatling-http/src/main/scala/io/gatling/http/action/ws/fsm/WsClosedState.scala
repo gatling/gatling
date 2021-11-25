@@ -16,4 +16,6 @@
 
 package io.gatling.http.action.ws.fsm
 
-final class WsClosedState(fsm: WsFsm) extends WsState(fsm)
+final class WsClosedState(fsm: WsFsm) extends WsState(fsm) {
+  override protected def remainingReconnects: Int = 0
+}

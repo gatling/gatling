@@ -47,4 +47,6 @@ final class WsClosingState(fsm: WsFsm, actionName: String, session: Session, nex
     val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage)).markAsFailed.remove(fsm.wsName)
     NextWsState(new WsClosedState(fsm), () => next ! newSession)
   }
+
+  override protected def remainingReconnects: Int = 0
 }

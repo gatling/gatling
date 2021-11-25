@@ -37,6 +37,7 @@ final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = Next
 abstract class WsState(fsm: WsFsm) extends StrictLogging {
 
   protected val stateName: String = getClass.getSimpleName
+  protected def remainingReconnects: Int
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
     onIllegalState(s"Can't call onPerformInitialConnect in $stateName state", fsm.clock.nowMillis)
@@ -87,7 +88,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
     fsm.cancelTimeout()
     logger.debug(s"WebSocket crashed by the server while in $stateName state", t)
-    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage), remainingReconnects))
   }
 
   //[fl]

@@ -34,6 +34,7 @@ final case class WsPerformingCheckState(
     remainingChecks: List[WsFrameCheck],
     checkSequenceStart: Long,
     remainingCheckSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+    remainingReconnects: Int,
     session: Session,
     next: Either[Action, SendFrame]
 ) extends WsState(fsm)
@@ -62,7 +63,8 @@ final case class WsPerformingCheckState(
       new WsIdleState(
         fsm,
         newSession,
-        webSocket
+        webSocket,
+        remainingReconnects
       ),
       () => nextAction ! newSession
     )
@@ -151,7 +153,7 @@ final case class WsPerformingCheckState(
           }
 
           NextWsState(
-            new WsIdleState(fsm, newSession, webSocket),
+            new WsIdleState(fsm, newSession, webSocket, remainingReconnects),
             () => nextAction ! newSession
           )
 
@@ -196,7 +198,7 @@ final case class WsPerformingCheckState(
                       case Right(sendFrame) => sendFrameNextAction(newSession, sendFrame)
                     }
                   NextWsState(
-                    new WsIdleState(fsm, newSession, webSocket),
+                    new WsIdleState(fsm, newSession, webSocket, remainingReconnects),
                     nextStateAction
                   )
               }
@@ -234,7 +236,7 @@ final case class WsPerformingCheckState(
     }
 
     NextWsState(
-      new WsCrashedState(fsm, Some(errorMessage)),
+      new WsCrashedState(fsm, Some(errorMessage), remainingReconnects),
       () => nextAction ! newSession
     )
   }

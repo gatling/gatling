@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame }
 
-final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) extends WsState(fsm) with StrictLogging {
+final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, protected val remainingReconnects: Int) extends WsState(fsm) with StrictLogging {
 
   import fsm._
 
@@ -59,6 +59,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
             checkSequenceStart = now,
             remainingCheckSequences,
             session = session,
+            remainingReconnects = remainingReconnects,
             next = Left(next)
           )
         )
@@ -98,6 +99,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
             checkSequenceStart = now,
             remainingCheckSequences,
             session = session,
+            remainingReconnects = remainingReconnects,
             next = Left(next)
           )
         )
@@ -124,7 +126,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
   override def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState = {
     // server issued close
     logger.debug(s"WebSocket was forcefully closed ($code:$reason) by the server while in Idle state")
-    NextWsState(new WsCrashedState(fsm, None))
+    NextWsState(new WsCrashedState(fsm, None, remainingReconnects))
   }
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
