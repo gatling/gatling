@@ -147,7 +147,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
                 case Right(sendFrame) =>
                   logger.debug("Reconnected, no checks, sending pending message")
-                  sendFrameNextAction(sessionWithGroupTimings, sendFrame)
+                  () => sendFrameNextAction(sessionWithGroupTimings, sendFrame)
               }
 
             NextWsState(

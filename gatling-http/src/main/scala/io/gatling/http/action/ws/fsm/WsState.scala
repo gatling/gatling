@@ -114,12 +114,12 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   protected def logUnmatchedServerMessage(session: Session): Unit =
     fsm.statsEngine.logResponse(session.scenario, session.groups, fsm.wsName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
 
-  protected def sendFrameNextAction(session: Session, sendFrame: SendFrame): () => Unit =
+  protected def sendFrameNextAction(session: Session, sendFrame: SendFrame): Unit =
     sendFrame match {
       case SendTextFrame(actionName, message, checkSequences, next) =>
-        () => fsm.onSendTextFrame(actionName, message, checkSequences, session, next)
+        fsm.onSendTextFrame(actionName, message, checkSequences, session, next)
       case SendBinaryFrame(actionName, message, checkSequences, next) =>
-        () => fsm.onSendBinaryFrame(actionName, message, checkSequences, session, next)
+        fsm.onSendBinaryFrame(actionName, message, checkSequences, session, next)
     }
 
   protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean = {

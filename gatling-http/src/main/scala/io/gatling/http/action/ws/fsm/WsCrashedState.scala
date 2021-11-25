@@ -76,7 +76,6 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remaini
       afterReconnectAction: SendFrame,
       frameType: String
   ): NextWsState = {
-    // FIXME sent message so be stashed until reconnect, instead of failed
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued a $frameType frame but WebSocket was already crashed: $mess"
       case _          => "Client issued a $frameType frame but WebSocket was already closed"

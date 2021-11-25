@@ -195,7 +195,7 @@ final case class WsPerformingCheckState(
                   val nextStateAction =
                     next match {
                       case Left(nextAction) => () => nextAction ! newSession
-                      case Right(sendFrame) => sendFrameNextAction(newSession, sendFrame)
+                      case Right(sendFrame) => () => sendFrameNextAction(newSession, sendFrame)
                     }
                   NextWsState(
                     new WsIdleState(fsm, newSession, webSocket, remainingReconnects),
