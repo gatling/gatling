@@ -86,7 +86,7 @@ object Dependencies {
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.27"
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.8.1"             % Test
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.8.2"             % Test
   private val junitEngine                    = junit.organization                     % "junit-jupiter-engine"            % junit.revision      % Test
   private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"               % "0.9.1"             % Test
 
