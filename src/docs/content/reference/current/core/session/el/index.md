@@ -42,9 +42,9 @@ Gatling EL uses a `#{attributeName}` syntax to define placeholders to be replace
 ```
 
 {{< alert warning >}}
-(Scala only) Beware that IntelliJ will automatically prepend your String with an `s` as soon as you start typing `${`
-because it thinks you want to use [Scala's String interpolation](https://docs.scala-lang.org/overviews/core/string-interpolation.html).
-You need to remove this `s` to use Gatling EL.
+The previous `${}` syntax is deprecated because it was clashing with Scala and Kotlin String interpolation. It will be dropped in a future release.
+
+Please ake sure to use the `#{}` syntax from now on.
 {{< /alert >}}
 
 ## Built-in Functions
