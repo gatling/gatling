@@ -110,14 +110,14 @@ abstract class Simulation {
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
   private var _globalThrottleSteps: Iterable[ThrottleStep] = Nil
-  private var _before: () => Unit = () => {}
-  private var _after: () => Unit = () => {}
+  private var _beforeSteps: List[() => Unit] = Nil
+  private var _afterSteps: List[() => Unit] = Nil
 
   def before(step: => Unit): Unit =
-    _before = () => step
+    _beforeSteps = (() => step) :: _beforeSteps
 
   def after(step: => Unit): Unit =
-    _after = () => step
+    _afterSteps = (() => step) :: _afterSteps
 
   def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
 
@@ -176,8 +176,8 @@ abstract class Simulation {
       _maxDuration,
       _globalPauseType,
       _globalThrottleSteps,
-      _before,
-      _after,
+      () => _beforeSteps.reverse.foreach(_.apply()),
+      () => _afterSteps.reverse.foreach(_.apply()),
       configuration
     )
 }
