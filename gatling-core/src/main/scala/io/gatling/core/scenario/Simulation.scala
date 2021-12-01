@@ -114,10 +114,10 @@ abstract class Simulation {
   private var _afterSteps: List[() => Unit] = Nil
 
   def before(step: => Unit): Unit =
-    _beforeSteps = (() => step) :: _beforeSteps
+    _beforeSteps +:= (() => step)
 
   def after(step: => Unit): Unit =
-    _afterSteps = (() => step) :: _afterSteps
+    _afterSteps +:= (() => step)
 
   def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
 
