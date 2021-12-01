@@ -41,7 +41,7 @@ import io.gatling.netty.util.StringBuilderPool
 import com.typesafe.scalalogging.StrictLogging
 
 object ElMessages {
-  def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '#name' is undefined for index $index".failure
+  def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
   def undefinedSessionAttribute(name: String): Failure = s"No attribute named '$name' is defined".failure
   def undefinedMapKey(map: String, key: String): Failure = s"Map named '$map' does not contain key '$key'".failure
   def sizeNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .size function".failure
@@ -314,7 +314,6 @@ class ElCompiler private extends RegexParsers {
       source.indexOf(DynamicPartStart, offset) match {
         case -1 => success(end)
         case n =>
-          println(s"n=$n offset=$offset test=${n - 1 >= offset} char=${source.charAt(n - 1)}")
           if (n - 1 >= offset && source.charAt(n - 1) == '\\') {
             Success("#{", in.drop(n - offset + 2))
           } else {
@@ -378,7 +377,7 @@ class ElCompiler private extends RegexParsers {
     objectName ~ valueAccess.* ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }
   }
 
-  private def objectName: Parser[AttributePart] = NameRegex ^^ (AttributePart(_))
+  private def objectName: Parser[AttributePart] = NameRegex ^^ AttributePart
 
   private def functionAccess(access: AccessFunction): Parser[AccessFunction] = access.token ^^ (_ => access)
 
