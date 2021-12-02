@@ -25,45 +25,36 @@ import java.time.Duration;
 
 public class AdvancedSimulationStep02 extends Simulation {
 
-  private static class Search {
+  ChainBuilder search =
+      exec(http("Home").get("/"))
+          .pause(1)
+          .exec(http("Search").get("/computers?f=macbook"))
+          .pause(1)
+          .exec(http("Select").get("/computers/6"))
+          .pause(1);
 
-    static ChainBuilder search =
-        exec(http("Home").get("/"))
-            .pause(1)
-            .exec(http("Search").get("/computers?f=macbook"))
-            .pause(1)
-            .exec(http("Select").get("/computers/6"))
-            .pause(1);
-  }
+  ChainBuilder browse =
+      exec(http("Home").get("/"))
+          .pause(2)
+          .exec(http("Page 1").get("/computers?p=1"))
+          .pause(Duration.ofMillis(670))
+          .exec(http("Page 2").get("/computers?p=2"))
+          .pause(Duration.ofMillis(629))
+          .exec(http("Page 3").get("/computers?p=3"))
+          .pause(Duration.ofMillis(734))
+          .exec(http("Page 4").get("/computers?p=4"))
+          .pause(5);
 
-  private static class Browse {
-
-    static ChainBuilder browse =
-        exec(http("Home").get("/"))
-            .pause(2)
-            .exec(http("Page 1").get("/computers?p=1"))
-            .pause(Duration.ofMillis(670))
-            .exec(http("Page 2").get("/computers?p=2"))
-            .pause(Duration.ofMillis(629))
-            .exec(http("Page 3").get("/computers?p=3"))
-            .pause(Duration.ofMillis(734))
-            .exec(http("Page 4").get("/computers?p=4"))
-            .pause(5);
-  }
-
-  private static class Edit {
-
-    static ChainBuilder edit =
-        exec(http("Form").get("/computers/new"))
-            .pause(1)
-            .exec(
-                http("Post")
-                    .post("/computers")
-                    .formParam("name", "Beautiful Computer")
-                    .formParam("introduced", "2012-05-30")
-                    .formParam("discontinued", "")
-                    .formParam("company", "37"));
-  }
+  ChainBuilder edit =
+      exec(http("Form").get("/computers/new"))
+          .pause(1)
+          .exec(
+              http("Post")
+                  .post("/computers")
+                  .formParam("name", "Beautiful Computer")
+                  .formParam("introduced", "2012-05-30")
+                  .formParam("discontinued", "")
+                  .formParam("company", "37"));
 
   HttpProtocolBuilder httpProtocol =
       http.baseUrl("http://computer-database.gatling.io")
@@ -75,9 +66,8 @@ public class AdvancedSimulationStep02 extends Simulation {
               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0");
 
   // Let's have multiple populations
-  ScenarioBuilder users =
-      scenario("Users").exec(Search.search, Browse.browse); // regular users can't edit
-  ScenarioBuilder admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit);
+  ScenarioBuilder users = scenario("Users").exec(search, browse); // regular users can't edit
+  ScenarioBuilder admins = scenario("Admins").exec(search, browse, edit);
 
   {
     // Let's have 10 regular users and 2 admins, and ramp them on 10 sec so we don't hammer the

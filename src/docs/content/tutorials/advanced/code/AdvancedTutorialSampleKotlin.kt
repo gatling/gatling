@@ -23,42 +23,33 @@ class AdvancedTutorialSampleKotlin {
   object Step1 : Simulation() {
 
 //#isolate-processes
-object Search {
+val search =
+  // let's give proper names, as they are displayed in the reports
+  exec(http("Home")
+    .get("/"))
+    .pause(7)
+    .exec(http("Search")
+    .get("/computers?f=macbook"))
+    .pause(2)
+    .exec(http("Select")
+    .get("/computers/6"))
+    .pause(3)
 
-  val search =
-    // let's give proper names, as they are displayed in the reports
-    exec(http("Home")
-      .get("/"))
-      .pause(7)
-      .exec(http("Search")
-      .get("/computers?f=macbook"))
-      .pause(2)
-      .exec(http("Select")
-      .get("/computers/6"))
-      .pause(3)
-}
+val browse: ChainBuilder = TODO()
 
-object Browse {
-
-  val browse: ChainBuilder = TODO()
-}
-
-object Edit {
-
-  val edit: ChainBuilder = TODO()
-}
+val edit: ChainBuilder = TODO()
 //#isolate-processes
 
 //#processes
 val scn = scenario("Scenario Name")
-  .exec(Search.search, Browse.browse, Edit.edit)
+  .exec(search, browse, edit)
 //#processes
 
 //#populations
 val users = scenario("Users")
-  .exec(Search.search, Browse.browse)
+  .exec(search, browse)
 val admins = scenario("Admins")
-  .exec(Search.search, Browse.browse, Edit.edit)
+  .exec(search, browse, edit)
 //#populations
 
     val httpProtocol = http
@@ -80,56 +71,50 @@ init {
 }
 
 //#feeder
-object Search {
-  val feeder = csv("search.csv").random() // 1, 2
+val feeder = csv("search.csv").random() // 1, 2
 
-  val search = exec(http("Home")
-    .get("/"))
-    .pause(1)
-    .feed(feeder) // 3
-    .exec(http("Search")
-      .get("/computers?f=#{searchCriterion}") // 4
-      .check(
-        css("a:contains('#{searchComputerName}')", "href") // 5
-          .saveAs("computerUrl")
-      )
+val search = exec(http("Home")
+  .get("/"))
+  .pause(1)
+  .feed(feeder) // 3
+  .exec(http("Search")
+    .get("/computers?f=#{searchCriterion}") // 4
+    .check(
+      css("a:contains('#{searchComputerName}')", "href") // 5
+        .saveAs("computerUrl")
     )
-    .pause(1)
-    .exec(http("Select")
-      .get("#{computerUrl}")) // 6
-    .pause(1)
-}
+  )
+  .pause(1)
+  .exec(http("Select")
+    .get("#{computerUrl}")) // 6
+  .pause(1)
 //#feeder
 
 object BrowseLoopSimple {
 //#loop-simple
-object Browse {
-  fun gotoPage(page: Int) =
-    exec(http("Page $page")
-      .get("/computers?p=$page"))
-      .pause(1)
+fun gotoPage(page: Int) =
+  exec(http("Page $page")
+    .get("/computers?p=$page"))
+    .pause(1)
 
-  val browse =
-    exec(
-      gotoPage(0),
-      gotoPage(1),
-      gotoPage(2),
-      gotoPage(3),
-      gotoPage(4)
-    )
-}
+val browse =
+  exec(
+    gotoPage(0),
+    gotoPage(1),
+    gotoPage(2),
+    gotoPage(3),
+    gotoPage(4)
+  )
 //#loop-simple
 }
 
 object BrowseLoopFor {
 //#loop-for
-object Browse {
-  val browse =
-    repeat(5, "n").on( // 1
-      exec(http("Page #{n}").get("/computers?p=#{n}")) // 2
-        .pause(1)
-    )
-}
+val browse =
+  repeat(5, "n").on( // 1
+    exec(http("Page #{n}").get("/computers?p=#{n}")) // 2
+      .pause(1)
+  )
 //#loop-for
 }
 

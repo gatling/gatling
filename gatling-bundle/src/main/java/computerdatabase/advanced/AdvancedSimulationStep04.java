@@ -24,45 +24,35 @@ import io.gatling.javaapi.http.*;
 
 public class AdvancedSimulationStep04 extends Simulation {
 
-  private static class Search {
+  FeederBuilder<String> feeder = csv("search.csv").random();
 
-    static FeederBuilder<String> feeder = csv("search.csv").random();
+  ChainBuilder search =
+      exec(http("Home").get("/"))
+          .pause(1)
+          .feed(feeder)
+          .exec(
+              http("Search")
+                  .get("/computers?f=#{searchCriterion}")
+                  .check(css("a:contains('#{searchComputerName}')", "href").saveAs("computerUrl")))
+          .pause(1)
+          .exec(http("Select").get("#{computerUrl}").check(status().is(200)))
+          .pause(1);
 
-    static ChainBuilder search =
-        exec(http("Home").get("/"))
-            .pause(1)
-            .feed(feeder)
-            .exec(
-                http("Search")
-                    .get("/computers?f=#{searchCriterion}")
-                    .check(
-                        css("a:contains('#{searchComputerName}')", "href").saveAs("computerUrl")))
-            .pause(1)
-            .exec(http("Select").get("#{computerUrl}").check(status().is(200)))
-            .pause(1);
-  }
+  // repeat is a loop resolved at RUNTIME
+  ChainBuilder browse =
+      // Note how we force the counter name so we can reuse it
+      repeat(4, "i").on(exec(http("Page #{i}").get("/computers?p=#{i}")).pause(1));
 
-  private static class Browse {
-
-    // repeat is a loop resolved at RUNTIME
-    static ChainBuilder browse =
-        // Note how we force the counter name so we can reuse it
-        repeat(4, "i").on(exec(http("Page #{i}").get("/computers?p=#{i}")).pause(1));
-  }
-
-  private static class Edit {
-
-    static ChainBuilder edit =
-        exec(http("Form").get("/computers/new"))
-            .pause(1)
-            .exec(
-                http("Post")
-                    .post("/computers")
-                    .formParam("name", "Beautiful Computer")
-                    .formParam("introduced", "2012-05-30")
-                    .formParam("discontinued", "")
-                    .formParam("company", "37"));
-  }
+  ChainBuilder edit =
+      exec(http("Form").get("/computers/new"))
+          .pause(1)
+          .exec(
+              http("Post")
+                  .post("/computers")
+                  .formParam("name", "Beautiful Computer")
+                  .formParam("introduced", "2012-05-30")
+                  .formParam("discontinued", "")
+                  .formParam("company", "37"));
 
   HttpProtocolBuilder httpProtocol =
       http.baseUrl("http://computer-database.gatling.io")
@@ -73,8 +63,8 @@ public class AdvancedSimulationStep04 extends Simulation {
           .userAgentHeader(
               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0");
 
-  ScenarioBuilder users = scenario("Users").exec(Search.search, Browse.browse);
-  ScenarioBuilder admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit);
+  ScenarioBuilder users = scenario("Users").exec(search, browse);
+  ScenarioBuilder admins = scenario("Admins").exec(search, browse, edit);
 
   {
     setUp(users.injectOpen(rampUsers(10).during(10)), admins.injectOpen(rampUsers(2).during(10)))

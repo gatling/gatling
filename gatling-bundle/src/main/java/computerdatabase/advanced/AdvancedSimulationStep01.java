@@ -28,47 +28,38 @@ public class AdvancedSimulationStep01 extends Simulation {
   // Let's split this big scenario into composable business processes, like one would do with
   // PageObject pattern with Selenium
 
-  private static class Search {
+  ChainBuilder search =
+      exec(http("Home") // let's give proper names, they are displayed in the reports, and used as
+              // keys
+              .get("/"))
+          .pause(1) // let's set the pauses to 1 sec for demo purpose
+          .exec(http("Search").get("/computers?f=macbook"))
+          .pause(1)
+          .exec(http("Select").get("/computers/6"))
+          .pause(1);
 
-    static ChainBuilder search =
-        exec(http("Home") // let's give proper names, they are displayed in the reports, and used as
-                // keys
-                .get("/"))
-            .pause(1) // let's set the pauses to 1 sec for demo purpose
-            .exec(http("Search").get("/computers?f=macbook"))
-            .pause(1)
-            .exec(http("Select").get("/computers/6"))
-            .pause(1);
-  }
+  ChainBuilder browse =
+      exec(http("Home").get("/"))
+          .pause(2)
+          .exec(http("Page 1").get("/computers?p=1"))
+          .pause(Duration.ofMillis(670))
+          .exec(http("Page 2").get("/computers?p=2"))
+          .pause(Duration.ofMillis(629))
+          .exec(http("Page 3").get("/computers?p=3"))
+          .pause(Duration.ofMillis(734))
+          .exec(http("Page 4").get("/computers?p=4"))
+          .pause(5);
 
-  private static class Browse {
-
-    static ChainBuilder browse =
-        exec(http("Home").get("/"))
-            .pause(2)
-            .exec(http("Page 1").get("/computers?p=1"))
-            .pause(Duration.ofMillis(670))
-            .exec(http("Page 2").get("/computers?p=2"))
-            .pause(Duration.ofMillis(629))
-            .exec(http("Page 3").get("/computers?p=3"))
-            .pause(Duration.ofMillis(734))
-            .exec(http("Page 4").get("/computers?p=4"))
-            .pause(5);
-  }
-
-  private static class Edit {
-
-    static ChainBuilder edit =
-        exec(http("Form").get("/computers/new"))
-            .pause(1)
-            .exec(
-                http("Post")
-                    .post("/computers")
-                    .formParam("name", "Beautiful Computer")
-                    .formParam("introduced", "2012-05-30")
-                    .formParam("discontinued", "")
-                    .formParam("company", "37"));
-  }
+  ChainBuilder edit =
+      exec(http("Form").get("/computers/new"))
+          .pause(1)
+          .exec(
+              http("Post")
+                  .post("/computers")
+                  .formParam("name", "Beautiful Computer")
+                  .formParam("introduced", "2012-05-30")
+                  .formParam("discontinued", "")
+                  .formParam("company", "37"));
 
   HttpProtocolBuilder httpProtocol =
       http.baseUrl("http://computer-database.gatling.io")
@@ -80,7 +71,7 @@ public class AdvancedSimulationStep01 extends Simulation {
               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0");
 
   // Now, we can write the scenario as a composition
-  ScenarioBuilder scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit);
+  ScenarioBuilder scn = scenario("Scenario Name").exec(search, browse, edit);
 
   {
     setUp(scn.injectOpen(atOnceUsers(1)).protocols(httpProtocol));

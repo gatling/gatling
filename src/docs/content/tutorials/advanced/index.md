@@ -14,17 +14,16 @@ We will apply a series of refactorings to introduce more advanced concepts and [
 
 Presently our Simulation is one big monolithic scenario.
 
-So first let us split it into composable business processes, akin to the PageObject pattern with Selenium.
+So first let us split it into composable business processes.
 This way, you'll be able to easily reuse some parts and build complex behaviors without sacrificing maintenance.
 
 In our scenario we have three separated processes:
 
-  * Search: search models by name
-  * Browse: browse the list of models
-  * Edit: edit a given model
+  * search: search models by name
+  * browse: browse the list of models
+  * edit: edit a given model
 
-We are going to extract those chains and store them into constants (static final fields in Java, object attributes in Scala and Kotlin).
-You can create those in dedicated files, or directly in the same file as the Simulation.
+Here, we're storing those chains into attributes in the same class, but you could as well store them in constants (static final fields in Java, object attributes in Scala and Kotlin, move them into a different class, etc.
 
 {{< include-code "isolate-processes" java kt scala >}}
 
