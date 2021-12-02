@@ -1,8 +1,8 @@
 # Contributing to Gatling
 
-## About Github's issue tracker
+## About GitHub's issue tracker
 
-We use Github's issue tracker as a TODO list or, and as far as you are concerned, for filing bug reports and asking for new features.
+We use GitHub's issue tracker as a TODO list or, and as far as you are concerned, for filing bug reports and asking for new features.
  
 If you need help or simply want to ask a question, please DON'T use this issue tracker!
 Search [Gatling's Google Group](https://groups.google.com/forum/#!forum/gatling) or post your questions there if they haven't been asked and answered previously.
@@ -75,5 +75,5 @@ Pull requests are automatically validated by Travis CI and pull requests resulti
 
 #### Commits and commit messages
 
-The commit message must be explicit and states what the commit changes. It must also references the Github issue it's closing.
+The commit message must be explicit and states what the commit changes. It must also reference the GitHub issue it's closing.
 A good example is : `Disable IPv6 by default, close #2013`.
