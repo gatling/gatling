@@ -118,7 +118,7 @@ public final class Http {
   @Nonnull
   public HttpRequestActionBuilder patch(@Nonnull String url) {
     return new HttpRequestActionBuilder(
-        new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
+        new io.gatling.http.request.builder.Http(name).patch(toStringExpression(url)));
   }
 
   /**
