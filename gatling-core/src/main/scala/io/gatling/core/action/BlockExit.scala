@@ -55,10 +55,10 @@ private object BlockExit {
 
     case head :: tail =>
       head match {
-        case `until`           => new BlockExit(exitAction, session, groupsToClose)
-        case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup(tail), group :: groupsToClose)
-        case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
-        case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
+        case `until`                             => new BlockExit(exitAction, session, groupsToClose)
+        case group: GroupBlock                   => blockExit(tail, until, exitAction, session.exitGroup(tail), group :: groupsToClose)
+        case TryMaxBlock(counterName, _, status) => blockExit(tail, until, exitAction, session.exitTryMax(counterName, status, tail), groupsToClose)
+        case counterBlock: CounterBlock          => blockExit(tail, until, exitAction, session.exitLoop(counterBlock.counterName, tail), groupsToClose)
       }
   }
 
@@ -77,11 +77,10 @@ private object BlockExit {
 
       case head :: tail =>
         head match {
-
-          case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
+          case ExitAsapLoopBlock(counterName, condition, exitAction) if !LoopBlock.continue(condition, session) =>
             val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
             // block stack head is now the loop itself, we must exit it
-            Some(new BlockExit(exit.exitAction, exit.session.exitLoop, exit.groupsToClose))
+            Some(new BlockExit(exit.exitAction, exit.session.exitLoop(counterName, tail), exit.groupsToClose))
 
           case _ => exitAsapLoopRec(tail)
         }

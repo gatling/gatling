@@ -98,7 +98,14 @@ class InnerLoop(
       }
 
     } else {
-      next ! incrementedSession.exitLoop
+      val newSession = incrementedSession.blockStack match {
+        case LoopBlock(counterName) :: tail => incrementedSession.exitLoop(counterName, tail)
+        case blockStack =>
+          logger.error(s"exitLoop called but stack $blockStack head isn't a Loop Block, please report.")
+          incrementedSession
+      }
+
+      next ! newSession
     }
   }
 }

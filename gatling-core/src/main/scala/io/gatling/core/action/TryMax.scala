@@ -118,7 +118,15 @@ class InnerTryMax(
         }
 
       } else {
-        next ! session.exitTryMax
+        val newSession =
+          session.blockStack match {
+            case TryMaxBlock(counterName, _, status) :: tail =>
+              session.exitTryMax(counterName, status, tail)
+            case blockStack =>
+              logger.error(s"exitTryMax called but stack $blockStack head isn't a TryMaxBlock, please report.")
+              session
+          }
+        next ! newSession
       }
     }
   }

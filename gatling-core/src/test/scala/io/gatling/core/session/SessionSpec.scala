@@ -166,51 +166,45 @@ class SessionSpec extends BaseSpec with EmptySession {
   }
 
   "exitTryMax" should "simply exit the closest TryMaxBlock and remove its associated counter if it has not failed" in {
-    val session = emptySession.enterTryMax("tryMax", nextAction).exitTryMax
+    val enterSession = emptySession.enterTryMax("tryMax", nextAction)
+    val exitSession = enterSession.exitTryMax("tryMax", OK, enterSession.blockStack.tail)
 
-    session.blockStack shouldBe empty
-    session.contains("tryMax") shouldBe false
+    exitSession.blockStack shouldBe empty
+    exitSession.contains("tryMax") shouldBe false
   }
 
   it should "simply exit the TryMaxBlock and remove its associated counter if it has failed but with no other TryMaxBlock in the stack" in {
-    val session = emptySession
+    val enterSession = emptySession
       .enterGroup("root group", System.currentTimeMillis())
       .enterTryMax("tryMax", nextAction)
       .markAsFailed
-      .exitTryMax
+    val exitSession = enterSession.exitTryMax("tryMax", OK, enterSession.blockStack.tail)
 
-    session.blockStack.head shouldBe a[GroupBlock]
-    session.contains("tryMax") shouldBe false
+    exitSession.blockStack.head shouldBe a[GroupBlock]
+    exitSession.contains("tryMax") shouldBe false
   }
 
   it should "exit the TryMaxBlock, remove its associated counter and set the closest TryMaxBlock in the stack's status to KO if it has failed" in {
-    val session = emptySession
+    val enterSession = emptySession
       .enterTryMax("tryMax1", nextAction)
       .enterGroup("root group", System.currentTimeMillis())
       .enterTryMax("tryMax2", nextAction)
       .markAsFailed
-      .exitTryMax
+    val exitSession = enterSession.exitTryMax("tryMax2", KO, enterSession.blockStack.tail)
 
-    session.blockStack.head shouldBe a[GroupBlock]
-    session.blockStack(1) shouldBe a[TryMaxBlock]
-    session.blockStack(1).asInstanceOf[TryMaxBlock].status shouldBe KO
-    session.contains("tryMax2") shouldBe false
-  }
-
-  it should "leave the session unmodified if there is no TryMaxBlock on top of the stack" in {
-    val session = emptySession
-    val unmodifiedSession = session.exitTryMax
-
-    session should be theSameInstanceAs unmodifiedSession
+    exitSession.blockStack.head shouldBe a[GroupBlock]
+    exitSession.blockStack(1) shouldBe a[TryMaxBlock]
+    exitSession.blockStack(1).asInstanceOf[TryMaxBlock].status shouldBe KO
+    exitSession.contains("tryMax2") shouldBe false
   }
 
   it should "propagate the failure to the baseStatus" in {
-    val session = emptySession
-      .enterTryMax("tryMax1", nextAction)
+    val enterSession = emptySession
+      .enterTryMax("tryMax", nextAction)
       .markAsFailed
-      .exitTryMax
+    val exitSession = enterSession.exitTryMax("tryMax", KO, enterSession.blockStack.tail)
 
-    session.isFailed shouldBe true
+    exitSession.isFailed shouldBe true
   }
 
   "isFailed" should "return true if baseStatus is KO and there is no failed TryMaxBlock in the stack" in {
@@ -313,18 +307,12 @@ class SessionSpec extends BaseSpec with EmptySession {
   }
 
   "exitLoop" should "remove the LoopBlock from the top of the stack and its associated counter" in {
-    val session = emptySession
+    val enterSession = emptySession
       .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false)
-    val sessionOutOfLoop = session.exitLoop
+    val exitSession = enterSession.exitLoop("loop", enterSession.blockStack.tail)
 
-    sessionOutOfLoop.blockStack shouldBe empty
-    sessionOutOfLoop.contains("loop") shouldBe false
-  }
-
-  it should "leave the stack unmodified if there's no LoopBlock on top of the stack" in {
-    val session = emptySession
-    val unModifiedSession = session.exitLoop
-    session should be theSameInstanceAs unModifiedSession
+    exitSession.blockStack shouldBe empty
+    exitSession.contains("loop") shouldBe false
   }
 
   "enterTimeBasedLoop" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
