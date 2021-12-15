@@ -102,7 +102,7 @@ final case class PopulationBuilder(
     val childrenScenarios = children.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling))
 
     new Scenario(
-      scenarioBuilder.name.trim,
+      scenarioBuilder.name,
       entry,
       protocolComponentsRegistry.onStart,
       protocolComponentsRegistry.onExit,
