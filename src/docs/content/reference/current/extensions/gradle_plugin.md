@@ -305,9 +305,9 @@ Configure the package ID (and possibly the API token, but see below for other op
 ```groovy
 gatling {
   enterprise {
-    packageId = YOUR_PACKAGE_ID
+    packageId "YOUR_PACKAGE_ID"
     // omit apiToken when using environment variable or Java System property instead
-    apiToken = YOUR_API_TOKEN
+    apiToken "YOUR_API_TOKEN"
   }
 }
 ```
