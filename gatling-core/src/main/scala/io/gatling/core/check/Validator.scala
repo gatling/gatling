@@ -117,7 +117,10 @@ object Matcher {
   }
 
   final class In[A](expected: Seq[A]) extends Matcher[A] {
-    def name: String = expected.mkString("in(", ",", ")")
+    def name: String = expected match {
+      case range: Range => s"in(${range.toString})"
+      case _            => expected.mkString("in(", ",", ")")
+    }
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
