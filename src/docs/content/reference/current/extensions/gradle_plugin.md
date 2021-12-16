@@ -252,24 +252,6 @@ Run a single simulation by its FQN (fully qualified class name):
 gradle gatlingRun-com.project.simu.MySimulation
 ```
 
-{{< alert tip >}}
-If you need to run a task several times in a row (with different environment or configuration), you may use the ``--rerun-tasks`` flag.
-
-example:
-
-```console
-gradle --rerun-tasks gatlingRun
-```
-
-To always rerun the gatling task when called, you may add this line in ``build.gradle``:
-
-```groovy
-tasks.withType(io.gatling.gradle.GatlingRunTask) {
-  outputs.upToDateWhen { false }
-}
-```
-{{< /alert >}}
-
 The following configuration options are available. Those options are similar to
 global `gatling` configurations. Options are used in a fallback manner, i.e. if
 an option is not set the value from the `gatling` global config is taken.
