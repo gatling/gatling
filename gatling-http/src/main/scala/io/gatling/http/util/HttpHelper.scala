@@ -39,7 +39,6 @@ private[gatling] object HttpHelper extends StrictLogging {
   val WsScheme = "ws"
   val OkCodes: BitSet = BitSet(
     OK.code,
-    NOT_MODIFIED.code,
     CREATED.code,
     ACCEPTED.code,
     NON_AUTHORITATIVE_INFORMATION.code,
@@ -48,7 +47,8 @@ private[gatling] object HttpHelper extends StrictLogging {
     PARTIAL_CONTENT.code,
     MULTI_STATUS.code,
     208,
-    209
+    209,
+    NOT_MODIFIED.code
   )
   private val RedirectStatusCodes = BitSet(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
 
