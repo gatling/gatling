@@ -4,7 +4,7 @@ description: "Learn the basics about Gatling"
 lead: "Learn Gatling concepts, and use the recorder to create a runnable Gatling simulation"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 1030000
+weight: 1020000
 ---
 
 ## Introduction
