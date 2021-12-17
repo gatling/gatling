@@ -25,10 +25,11 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Setup Scala
-        uses: olafurpg/setup-scala@v10
+      - name: Setup JDK
+        uses: actions/setup-java@v2
         with:
-          java-version: "zulu@1.8"
+          distribution: 'zulu'
+          java-version: '8'
 
       - name: Cache SBT
         uses: actions/cache@v2
