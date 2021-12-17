@@ -26,11 +26,11 @@ class HttpRequestSampleScala {
 
   {
 //#requestName
-// with a static vale
+// with a static value
 http("requestName").get("https://gatling.io")
-// with a static vale
+// with a static value
 http("#{requestName}").get("https://gatling.io")
-// with a static vale
+// with a static value
 http(session => session("requestName").as[String]).get("https://gatling.io")
 //#requestName
 
@@ -113,17 +113,17 @@ http("name").get("/")
 //#headers
 // Extracting a map of headers allows you to reuse these in several requests
 val sentHeaders = Map(
-  "Content-Type" -> "application/javascript",
-  "Accept" -> "text/html"
+  "content-type" -> "application/javascript",
+  "accept" -> "text/html"
 )
 
 http("name").get("/")
   // Adds several headers at once
   .headers(sentHeaders)
   // Adds another header to the request
-  .header("Keep-Alive", "150")
-  // Overrides the Content-Type header
-  .header("Content-Type", "application/json")
+  .header("keep-alive", "150")
+  // Overrides the content-type header
+  .header("content-type", "application/json")
 //#headers
 
 //#asXXX
@@ -132,30 +132,30 @@ http("name").post("/")
   .asJson
 // is a shortcut for:
 http("name").post("/")
-  .header("Accept", "application/json")
-  .header("Content-Type", "application/json")
+  .header("accept", "application/json")
+  .header("content-type", "application/json")
 
 // asXml
 http("name").post("/")
   .asXml
 // is a shortcut for:
 http("name").post("/")
-  .header("Accept", "application/xhtml+xml")
-  .header("Content-Type", "application/xhtml+xml")
+  .header("accept", "application/xhtml+xml")
+  .header("content-type", "application/xhtml+xml")
 
 // asFormUrlEncoded
 http("name").post("/")
   .asFormUrlEncoded
 // is a shortcut for:
 http("name").post("/")
-  .header("Content-Type", "application/application/x-www-form-urlencoded")
+  .header("content-type", "application/application/x-www-form-urlencoded")
 
 // asMultipartForm
 http("name").post("/")
   .asMultipartForm
 // is a shortcut for:
 http("name").post("/")
-  .header("Content-Type", "multipart/form-data")
+  .header("content-type", "multipart/form-data")
 //#asXXX
 
 //#ignoreProtocolHeaders
