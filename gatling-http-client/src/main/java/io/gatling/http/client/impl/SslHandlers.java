@@ -43,7 +43,7 @@ public class SslHandlers {
         peerPort = uri.getSchemeDefaultPort();
       } else {
         peerHost = virtualHost.substring(0, i);
-        peerPort = Integer.valueOf(virtualHost.substring(i + 1));
+        peerPort = Integer.parseInt(virtualHost.substring(i + 1));
       }
 
     } else {
