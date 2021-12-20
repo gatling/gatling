@@ -63,7 +63,7 @@ object Dependencies {
   private val compilerBridge                 = zinc.organization                     %% "compiler-bridge"                 % zinc.revision
   private val testInterface                  = zinc.organization                      % "test-interface"                  % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                   % "2.0.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.8"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.9"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.12"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.9.3"
