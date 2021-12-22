@@ -209,7 +209,7 @@ object CheckBuilder {
       override def in(expected: Expression[Seq[X]]): Final[T, P] = validate(expected.map(new Matcher.In(_)))
       override def exists: Final[T, P] = validate(new Validator.Exists[X]().expressionSuccess)
       override def notExists: Final[T, P] = validate(new Validator.NotExists[X]().expressionSuccess)
-      override def optional: Final[T, P] = validate(new Validator.Noop[X]().expressionSuccess)
+      override def optional: Final[T, P] = validate(new Validator.Optional[X]().expressionSuccess)
       override def lt(expected: Expression[X])(implicit ordering: Ordering[X]): Final[T, P] =
         validate(expected.map(new Matcher.Compare("lessThan", "less than", ordering.lt, _)))
       override def lte(expected: Expression[X])(implicit ordering: Ordering[X]): Final[T, P] =

@@ -43,8 +43,8 @@ object Validator {
     }
   }
 
-  final class Noop[A] extends Validator[A] {
-    val name = "noop"
+  final class Optional[A] extends Validator[A] {
+    val name = "optional"
     def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual.success
   }
 }
