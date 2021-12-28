@@ -32,7 +32,7 @@ public final class HttpCheckBuilder {
         io.gatling.core.check.CheckBuilder.MultipleFind<
                 CurrentLocationRegexCheckType, String, String>
             wrapped) {
-      super(wrapped, HttpCheckType.HeaderRegex);
+      super(wrapped, HttpCheckType.CurrentLocationRegex);
     }
 
     @Override
