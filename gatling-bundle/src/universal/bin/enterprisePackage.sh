@@ -14,6 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+set -e
+clean_up_on_error() {
+      ARG=$?
+      if [ $ARG != 0 ] && [ -n "$GATLING_HOME" ]; then
+        rm -f "${GATLING_HOME}/target/package.jar"
+      fi
+      exit $ARG
+}
+trap clean_up_on_error EXIT
+
 if [ -n "$JAVA_HOME" ]; then
     JAVA="$JAVA_HOME"/bin/java
     JAR="$JAVA_HOME"/bin/jar

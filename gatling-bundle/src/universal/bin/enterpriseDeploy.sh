@@ -15,6 +15,16 @@
 # limitations under the License.
 #
 
+set -e
+clean_up_on_error() {
+      ARG=$?
+      if [ $ARG != 0 ] && [ -n "$GATLING_HOME" ]; then
+        rm -f "${GATLING_HOME}/target/package.jar"
+      fi
+      exit $ARG
+}
+trap clean_up_on_error EXIT
+
 GATLING_ENTERPRISE_CLOUD_DOMAIN="https://cloud.gatling.io"
 usage() {
 cat << EOF
@@ -103,4 +113,5 @@ else
   echo "Upload failed"
   echo "http response code: $HTTP_RESPONSE_STATUS"
   echo "error: $HTTP_RESPONSE_BODY"
+  exit 1
 fi

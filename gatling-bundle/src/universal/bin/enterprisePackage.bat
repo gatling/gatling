@@ -74,20 +74,24 @@ echo Gatling-Version: %GATLING_VERSION%>> %MANIFEST_FILE%
 
 echo JAVA = "%JAVA%"
 echo JAR = "%JAR%"
+
 rem Run the compiler
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
+if %errorlevel% neq 0 (
+  set ERROR_CODE=%errorlevel%
+  goto exitOnError
+)
+
 rem Create the package
 %JAR% cfm "%GATLING_HOME%"\target\package.jar "%MANIFEST_FILE%" -C "%GATLING_HOME%"\target\test-classes . -C "%GATLING_HOME%"\user-files\resources .
-
 if %errorlevel% neq 0 (
- if not defined NO_PAUSE pause
- exit /b %errorlevel%
+  set ERROR_CODE=%errorlevel%
+  goto exitOnError
 )
-rem The above line will forward any potential exit codes from Java if jar failed
 
 del /f %MANIFEST_FILE%
 
-echo Created package "%GATLING_HOME%\target\package.jar"
+echo Created package "%GATLING_HOME%"\target\package.jar
 
 goto exit
 
@@ -105,3 +109,10 @@ goto exit
 if not defined NO_PAUSE pause
 endlocal
 exit /b 0
+
+:exitOnError
+if exist "%GATLING_HOME%"\target\package.jar (
+  del /f "%GATLING_HOME%"\target\package.jar
+)
+if not defined NO_PAUSE pause
+exit /b %ERROR_CODE%

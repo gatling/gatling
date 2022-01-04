@@ -64,11 +64,16 @@ rem Check if curl is installed
 WHERE curl >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 (
     ECHO curl is required to run this script
-    goto exit
+    set ERROR_CODE=1
+    goto exitOnError
 )
 
 rem Create jar package
 call enterprisePackage.bat < nul
+if %errorlevel% neq 0 (
+  set ERROR_CODE=%errorlevel%
+  goto exitOnError
+)
 rem Create jar package done
 
 rem Upload the package
@@ -86,7 +91,8 @@ for /F "delims=" %%x in ('
         ) else (
             echo Upload failed
             echo error: %%a
-            goto exit
+            set ERROR_CODE=1
+            goto exitOnError
         )
     )
 )
@@ -113,3 +119,10 @@ goto exit
 if not defined NO_PAUSE pause
 endlocal
 exit /b 0
+
+:exitOnError
+if exist "%GATLING_HOME%"\target\package.jar (
+  del /f "%GATLING_HOME%"\target\package.jar
+)
+if not defined NO_PAUSE pause
+exit /b %ERROR_CODE%
