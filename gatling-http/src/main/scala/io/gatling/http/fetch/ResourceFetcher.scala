@@ -93,7 +93,7 @@ private[http] class ResourceFetcher(
         // no content, retrieve from cache if exist
         httpCaches.getCachedInferredResources(httpProtocol, htmlDocumentUri) match {
           case null =>
-            logger.warn(s"Got a 304 for $htmlDocumentUri but could find cache entry?!")
+            logger.info(s"Got a 304 for $htmlDocumentUri but could not find a cache entry, probably because capacity is exceeded?!")
             Nil
           case inferredPageResources => inferredPageResources.requests
         }
