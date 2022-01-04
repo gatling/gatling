@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2011-2017 GatlingCorp (http://gatling.io)
 #
@@ -33,9 +33,9 @@ else
     JAR=jar
 fi
 
-OLDDIR=`pwd`
-BIN_DIR=`dirname $0`
-cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
+OLDDIR=$(pwd)
+BIN_DIR=$(dirname "$0")
+cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=$(pwd) && cd "${OLDDIR}"
 
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"
@@ -62,7 +62,7 @@ fi
 # Run the compiler
 "$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler $EXTRA_COMPILER_OPTIONS "$@" 2> /dev/null
 
-GATLING_VERSION="$(ls "${GATLING_HOME}"/lib/gatling-app-*.jar | sed -n -E "s/^.*gatling-app-(.*)\.jar$/\1/p")"
+GATLING_VERSION="$(ls "${GATLING_HOME}/lib/gatling-app-*.jar" | sed -n -E "s/^.*gatling-app-(.*)\.jar$/\1/p")"
 
 echo "GATLING_VERSION is set to '$GATLING_VERSION'"
 

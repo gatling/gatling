@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2011-2017 GatlingCorp (http://gatling.io)
 #
@@ -20,9 +20,9 @@ else
     JAVA=java
 fi
 
-OLDDIR=`pwd`
-BIN_DIR=`dirname $0`
-cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
+OLDDIR=$(pwd)
+BIN_DIR=$(dirname "$0")
+cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=$(pwd) && cd "${OLDDIR}"
 
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"
