@@ -34,6 +34,8 @@ trait Action extends StrictLogging {
 
   def name: String
 
+  override def toString: String = name
+
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def !(session: Session): Unit = {
     val eventLoop = session.eventLoop
