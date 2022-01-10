@@ -62,7 +62,7 @@ Basically, `map` is used to **chain with an operation that can't fail**, hence r
 
 {{< include-code "ValidationSample.scala#flatMap" scala >}}
 
-In both case, the chained function is not called if the original `Validation` was a `Failure`:
+In both cases, the chained function is not called if the original `Validation` was a `Failure`:
 
 {{< include-code "ValidationSample.scala#map-failure" scala >}}
 
