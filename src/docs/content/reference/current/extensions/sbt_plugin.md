@@ -116,6 +116,69 @@ However, this caused many interferences with other testing libraries and forcing
 
 ### Working with Gatling Enterprise Cloud
 
+{{< alert info >}}
+To work from the `it` configuration, simply replace `Gatling/` with `GatlingIt/` in the
+configuration and commands.
+{{< /alert >}}
+
+#### API tokens
+
+You need to configure an [an API token](https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/) for most of the tasks regarding Gatling Enterprise Cloud. The API token needs the `Configure` role.
+
+Since you probably don’t want to include you secret token in your source code, you can configure it using either:
+
+- the `GATLING_ENTERPRISE_API_TOKEN` environment variable
+- the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
+
+If really needed, you can also configure it in your build.gradle:
+```scala
+Gatling / enterpriseApiToken := "YOUR_API_TOKEN"
+```
+
+#### Create or start a simulation
+
+You can, using the `Gatling/enterpriseStart` task:
+
+- configure a new simulation on Gatling Enterprise Cloud, upload your packaged code, and immediately start the simulation
+- or, for a simulation already configured on Gatling Enterprise Cloud, upload any updated code and immediately start the simulation
+
+{{< alert warning >}}
+You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
+{{< /alert >}}
+
+Quick usage:
+
+- configure and start a new simulation with `sbt Gatling/enterpriseStart`, you will be prompted to choose all required
+  options. This will also print the simulationId of the newly configured simulation.
+- run the simulation again with `sbt console Gatling/enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
+
+
+List of configurations used by this task:
+
+```scala
+// You can also use the gatling.enterprise.simulationId system property
+Gatling / enterpriseSimulationId := "YOUR_SIMULATION_ID"
+// You can also use the gatling.enterprise.packageId system property
+Gatling / enterprisePackageId := "YOUR_PACKAGE_ID"
+// You can also use the gatling.enterprise.teamId system property
+Gatling / enterpriseTeamId := "YOUR_TEAM_ID"
+// default simulation fully qualified classname used when creating a new simulation, you can also use the gatling.enterprise.simulationClass system property
+Gatling / enterpriseSimulationClass := "computerdatabase.BasicSimulation"
+// custom system properties used when running the simulation on Gatling Enterprise
+Gatling / enterpriseSimulationSystemProperties := Map.empty
+```
+
+You can run it with the command:
+```shell
+sbt Gatling/enterpriseStart
+```
+
+If a `simulationId` is set, the task will start the simulation on Gatling Enterprise.
+
+If no simulationId is set, the task will ask you if you want to start or create a new simulation. If you choose create, you will be able to configure a new simulation (with the configured `packageId`, `teamId`, `simulationClass` as default), then start it. If you choose start, you will be able to start an already existing simulation on Gatling Enterprise.
+
+If you are on a CI environment, you don't want to handle interaction with the plugin. You should then set the `batchMode` option to true. In batch mode, no input will be asked from the user, the new simulation will be created using only the configuration.
+
 #### Package
 
 You can directly package your simulations for Gatling Enterprise Cloud:
@@ -132,22 +195,20 @@ To package simulations from the `it` configuration, `GatlingIt/enterprisePackage
 
 #### Package and upload
 
-You can also create and upload the package in a single command. You must already have
-[configured a package](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/) (copy the package ID from
-the Packages table). You will also need [an API token](https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/)
-with appropriate permissions to upload a package.
+{{< alert warning >}}
+You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
+{{< /alert >}}
 
-Configure the package ID (and possibly the API token, but see below for other options) on the plugin:
+You must already have [configured a package](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/). Copy the package ID from
+the Packages table, or copy the simulation ID linked to the package from the Simulations table.
+
+Configure the package ID or simulation ID on the plugin:
 
 ```scala
 Gatling / enterprisePackageId := "YOUR_PACKAGE_ID"
 // omit enterpriseApiToken when using environment variable or Java System property instead
 Gatling / enterpriseApiToken := "YOUR_API_TOKEN"
 ```
-
-Since you probably don't want to include you secret token in your source code, you can instead configure it using either:
-- the `GATLING_ENTERPRISE_API_TOKEN` environment variable
-- the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
 
 Then package and upload your simulation to gatling Enterprise Cloud:
 
