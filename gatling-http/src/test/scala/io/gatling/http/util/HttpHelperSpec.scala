@@ -73,6 +73,10 @@ class HttpHelperSpec extends BaseSpec {
     HttpHelper.extractCharsetFromContentType("text/plain; charset=Foo") shouldBe None
   }
 
+  it should "not crash when charset is empty" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=") shouldBe None
+  }
+
   "isText" should "detect standard JSON mime type" in {
     val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
     HttpHelper.isText(headers) shouldBe true
