@@ -1,4 +1,4 @@
-addSbtPlugin("io.gatling"         % "gatling-build-plugin"  % "4.2.0")
+addSbtPlugin("io.gatling"         % "gatling-build-plugin"  % "4.3.0")
 addSbtPlugin("com.github.sbt"     % "sbt-native-packager"   % "1.9.7")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"               % "0.4.3")
 addSbtPlugin("net.aichler"        % "sbt-jupiter-interface" % "0.9.1")
