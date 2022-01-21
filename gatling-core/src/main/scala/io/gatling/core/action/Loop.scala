@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,14 @@ class InnerLoop(
       }
 
     } else {
-      next ! incrementedSession.exitLoop
+      val newSession = incrementedSession.blockStack match {
+        case LoopBlock(counterName) :: tail => incrementedSession.exitLoop(counterName, tail)
+        case blockStack =>
+          logger.error(s"exitLoop called but stack $blockStack head isn't a Loop Block, please report.")
+          incrementedSession
+      }
+
+      next ! newSession
     }
   }
 }

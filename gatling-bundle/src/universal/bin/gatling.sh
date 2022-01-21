@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2011-2017 GatlingCorp (http://gatling.io)
 #
@@ -14,15 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+set -e
+
 if [ -n "$JAVA_HOME" ]; then
     JAVA="$JAVA_HOME"/bin/java
 else
     JAVA=java
 fi
 
-OLDDIR=`pwd`
-BIN_DIR=`dirname $0`
-cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
+OLDDIR=$(pwd)
+BIN_DIR=$(dirname "$0")
+cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=$(pwd) && cd "${OLDDIR}"
 
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"

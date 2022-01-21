@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,17 +47,6 @@ object GatlingHttpListener extends StrictLogging {
 
   private def logRequestCrash(tx: HttpTx, throwable: Throwable): Unit =
     logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 }
 
 class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
@@ -205,8 +194,17 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
       }
     }
 
-  private def buildFailure(t: Throwable): HttpFailure =
-    buildFailure(t.rootMessage)
+  private def buildFailure(t: Throwable): HttpFailure = {
+    val rootCause = t.rootCause
+    val message =
+      if (rootCause.getClass == classOf[io.netty.handler.ssl.NotSslRecordException]) {
+        "i.n.h.s.NotSslRecordException"
+      } else {
+        rootCause.detailedMessage
+      }
+
+    buildFailure(message)
+  }
 
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(

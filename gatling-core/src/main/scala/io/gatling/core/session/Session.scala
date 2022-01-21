@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,14 +167,8 @@ final case class Session(
       attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
     )
 
-  private[core] def exitTryMax: Session = blockStack match {
-    case TryMaxBlock(counterName, _, status) :: tail =>
-      copy(blockStack = tail).updateStatus(status).removeCounter(counterName)
-
-    case _ =>
-      logger.error(s"exitTryMax called but stack head $blockStack isn't a TryMaxBlock, please report.")
-      this
-  }
+  private[core] def exitTryMax(counterName: String, status: Status, tail: List[Block]): Session =
+    copy(blockStack = tail).updateStatus(status).removeCounter(counterName)
 
   def isFailed: Boolean = baseStatus == KO || blockStack.exists {
     case TryMaxBlock(_, _, KO) => true
@@ -259,12 +253,8 @@ final case class Session(
       attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
     )
 
-  private[core] def exitLoop: Session = blockStack match {
-    case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
-    case _ =>
-      logger.error(s"exitLoop called but stack head $blockStack isn't a Loop Block, please report.")
-      this
-  }
+  private[core] def exitLoop(counterName: String, tail: List[Block]): Session =
+    copy(blockStack = tail).removeCounter(counterName)
 
   private def newAttributesWithCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Map[String, Any] = {
     val withCounter = attributes.updated(counterName, 0)

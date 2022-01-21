@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,15 @@ class InnerTryMax(
         }
 
       } else {
-        next ! session.exitTryMax
+        val newSession =
+          session.blockStack match {
+            case TryMaxBlock(counterName, _, status) :: tail =>
+              session.exitTryMax(counterName, status, tail)
+            case blockStack =>
+              logger.error(s"exitTryMax called but stack $blockStack head isn't a TryMaxBlock, please report.")
+              session
+          }
+        next ! newSession
       }
     }
   }

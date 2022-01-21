@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class SslHandlers {
         peerPort = uri.getSchemeDefaultPort();
       } else {
         peerHost = virtualHost.substring(0, i);
-        peerPort = Integer.valueOf(virtualHost.substring(i + 1));
+        peerPort = Integer.parseInt(virtualHost.substring(i + 1));
       }
 
     } else {

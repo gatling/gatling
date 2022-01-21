@@ -15,6 +15,16 @@
 # limitations under the License.
 #
 
+set -e
+clean_up_on_error() {
+      ARG=$?
+      if [ $ARG != 0 ] && [ -n "$GATLING_HOME" ]; then
+        rm -f "${GATLING_HOME}/target/package.jar"
+      fi
+      exit $ARG
+}
+trap clean_up_on_error EXIT
+
 GATLING_ENTERPRISE_CLOUD_DOMAIN="https://cloud.gatling.io"
 usage() {
 cat << EOF
@@ -27,9 +37,9 @@ Options:
 EOF
 }
 
-OLDDIR=`pwd`
-BIN_DIR=`dirname $0`
-cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
+OLDDIR=$(pwd)
+BIN_DIR=$(dirname "$0")
+cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=$(pwd) && cd "${OLDDIR}"
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 
 unset GATLING_ENTERPRISE_PACKAGE_ID
@@ -92,10 +102,10 @@ HTTP_RESPONSE=$(
     --silent
 )
 # extract the body
-HTTP_RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUSCODE\:.*//g')
+HTTP_RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTPSTATUSCODE\:.*//g')
 
 # extract the status
-HTTP_RESPONSE_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUSCODE://')
+HTTP_RESPONSE_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -e 's/.*HTTPSTATUSCODE://')
 
 if [ "${HTTP_RESPONSE_STATUS}" == 200 ]; then
   echo "Package successfully uploaded to Gatling Enterprise with id ${GATLING_ENTERPRISE_PACKAGE_ID}"
@@ -103,4 +113,5 @@ else
   echo "Upload failed"
   echo "http response code: $HTTP_RESPONSE_STATUS"
   echo "error: $HTTP_RESPONSE_BODY"
+  exit 1
 fi

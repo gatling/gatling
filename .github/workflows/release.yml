@@ -15,15 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      JVM_OPTS: "-Xmx6G"
+      JAVA_OPTS: "-Xmx6G"
       SBT_OPTS: "-Dsbt.ci=true"
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Scala
-        uses: olafurpg/setup-scala@v10
+      - name: Setup JDK
+        uses: actions/setup-java@v2
         with:
-          java-version: "zulu@1.8"
+          distribution: 'zulu'
+          java-version: '8'
 
       - name: Prepare environment
         env:

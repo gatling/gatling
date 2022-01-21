@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import io.gatling.http.check.ws.WsFrameCheck
 
 trait WsAwaitActionBuilder[T] extends ActionBuilder {
 
+  // we need this override because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
   def await(timeout: FiniteDuration)(checks: WsFrameCheck*): T =
     await(timeout.expressionSuccess)(checks: _*)
 

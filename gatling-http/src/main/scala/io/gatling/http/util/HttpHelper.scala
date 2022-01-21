@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ private[gatling] object HttpHelper extends StrictLogging {
   val WsScheme = "ws"
   val OkCodes: BitSet = BitSet(
     OK.code,
-    NOT_MODIFIED.code,
     CREATED.code,
     ACCEPTED.code,
     NON_AUTHORITATIVE_INFORMATION.code,
@@ -48,7 +47,8 @@ private[gatling] object HttpHelper extends StrictLogging {
     PARTIAL_CONTENT.code,
     MULTI_STATUS.code,
     208,
-    209
+    209,
+    NOT_MODIFIED.code
   )
   private val RedirectStatusCodes = BitSet(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
 
@@ -137,12 +137,12 @@ private[gatling] object HttpHelper extends StrictLogging {
     contentType != null && contentType.startsWith(HttpHeaderValues.MULTIPART_FORM_DATA.toString)
 
   def extractCharsetFromContentType(contentType: String): Option[Charset] =
-    extractAttributeFromContentType(contentType, "charset=").flatMap { charsetString =>
-      try {
-        Some(Charset.forName(charsetString))
-      } catch {
-        case NonFatal(_) => None
-      }
+    try {
+      extractAttributeFromContentType(contentType, "charset=").map(Charset.forName)
+    } catch {
+      case NonFatal(e) =>
+        logger.debug(s"Failed to extract charset from Content-Type='$contentType'", e)
+        None
     }
 
   private def extractAttributeFromContentType(contentType: String, attributeNameAndEqualChar: String): Option[String] =
@@ -151,7 +151,6 @@ private[gatling] object HttpHelper extends StrictLogging {
 
       case s =>
         var start = s + attributeNameAndEqualChar.length
-
         if (contentType.regionMatches(true, start, UTF_8.name, 0, 5)) {
           // minor optim, bypass lookup for most common
           Some(UTF_8.name)
@@ -162,19 +161,19 @@ private[gatling] object HttpHelper extends StrictLogging {
             case e  => e
           }
 
-          while (contentType.charAt(start) == ' ' && start < end) start += 1
+          while (start < end && contentType.charAt(start) == ' ') start += 1
 
-          while (contentType.charAt(end - 1) == ' ' && end > start) end -= 1
+          while (end > start && contentType.charAt(end - 1) == ' ') end -= 1
 
-          if (contentType.charAt(start) == '"' && start < end)
+          if (start < end && contentType.charAt(start) == '"')
             start += 1
 
-          if (contentType.charAt(end - 1) == '"' && end > start)
+          if (end > start && contentType.charAt(end - 1) == '"')
             end -= 1
 
           val charsetString = contentType.substring(start, end)
 
-          Some(charsetString)
+          if (charsetString.isEmpty) None else Some(charsetString)
         }
     }
 

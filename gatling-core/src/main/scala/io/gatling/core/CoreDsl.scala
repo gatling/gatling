@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ trait CoreDsl
     with CoreDefaultImplicits
     with ValidationImplicits {
 
-  def scenario(name: String): ScenarioBuilder = new ScenarioBuilder(name.replaceAll("[\r\n\t]", " "), Nil)
+  def scenario(name: String): ScenarioBuilder = new ScenarioBuilder(name.replaceAll("[\r\n\t]", " ").trim, Nil)
 
   @deprecated("Will be removed in a future release. Please use AllowList instead.", "3.7.0")
   def WhiteList(patterns: String*): io.gatling.core.filter.AllowList = AllowList(patterns: _*)

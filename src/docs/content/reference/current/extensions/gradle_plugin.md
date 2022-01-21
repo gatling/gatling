@@ -252,24 +252,6 @@ Run a single simulation by its FQN (fully qualified class name):
 gradle gatlingRun-com.project.simu.MySimulation
 ```
 
-{{< alert tip >}}
-If you need to run a task several times in a row (with different environment or configuration), you may use the ``--rerun-tasks`` flag.
-
-example:
-
-```console
-gradle --rerun-tasks gatlingRun
-```
-
-To always rerun the gatling task when called, you may add this line in ``build.gradle``:
-
-```groovy
-tasks.withType(io.gatling.gradle.GatlingRunTask) {
-  outputs.upToDateWhen { false }
-}
-```
-{{< /alert >}}
-
 The following configuration options are available. Those options are similar to
 global `gatling` configurations. Options are used in a fallback manner, i.e. if
 an option is not set the value from the `gatling` global config is taken.
@@ -281,6 +263,79 @@ an option is not set the value from the `gatling` global config is taken.
 | `simulations`      | Closure             | `null` | [See Gradle docs](https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html) for details. |
 
 ### Working with Gatling Enterprise Cloud
+
+#### API tokens
+
+You need to configure an [an API token](https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/) for most of the tasks regarding Gatling Enterprise Cloud. The API token needs the `Configure` role.
+
+Since you probably don’t want to include you secret token in your source code, you can configure it using either:
+
+- the `GATLING_ENTERPRISE_API_TOKEN` environment variable
+- the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
+
+If really needed, you can also configure it in your build.gradle:
+```groovy
+gatling {
+  enterprise {
+    apiToken "YOUR_API_TOKEN"
+  }
+}
+```
+
+#### Create or start a simulation
+
+You can, using the `GatlingEnterpriseStart` task:
+
+- configure a new simulation on Gatling Enterprise Cloud, upload your packaged code, and immediately start the simulation
+- or, for a simulation already configured on Gatling Enterprise Cloud, upload any updated code and immediately start the simulation
+
+{{< alert warning >}}
+You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
+{{< /alert >}}
+
+Quick usage:
+
+- configure and start a new simulation with `gradle gatlingEnterpriseStart`, you will be prompted to choose all required
+  options. This will also print the simulationId of the newly configured simulation.
+- run the simulation again with `gradle gatlingEnterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
+
+
+List of configurations used by this task:
+
+```groovy
+gatling {
+  enterprise {
+    // Simulation that needs to be started, you will be able to create a new simulation if empty, you can also use the gatling.enterprise.simulationId system property
+    simulationId "YOUR_SIMULATION_ID"
+    // default package when creating a new simulation, you can also use the gatling.enterprise.packageId system property
+    packageId "YOUR_PACKAGE_ID"
+    // default team when creating a new simulation, you can also use the gatling.enterprise.teamId system property
+    teamId "YOUR_TEAM_ID"
+    // default simulation fully qualified classname used when creating a new simulation, you can also use the gatling.enterprise.simulationClass system property
+    simulationClass "computerdatabase.BasicSimulation"
+    // custom system properties used when running the simulation on Gatling Enterprise
+    systemProps ["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"]
+    //set to true if you don't want any user input, eg in a CI environment, you can also use the gatling.enterprise.batchMode system property
+    batchMode false 
+  }
+}
+```
+
+You can run it with the command:
+```shell
+gradle gatlingEnterpriseStart
+```
+
+If a `simulationId` is set, the task will start the simulation on Gatling Enterprise.
+
+If no simulationId is set, the task will ask you if you want to start or create a new simulation. If you choose create, you will be able to configure a new simulation (with the configured `packageId`, `teamId`, `simulationClass` as default), then start it. If you choose start, you will be able to start an already existing simulation on Gatling Enterprise.
+
+If you are on a CI environment, you don't want to handle interaction with the plugin. You should then set the `batchMode` option to true. In batch mode, no input will be asked from the user, the new simulation will be created using only the configuration.
+
+{{< alert tip >}}
+Lifecycle logs need to be enabled in interactive mode.
+{{< /alert >}}
+
 
 #### Package
 
@@ -295,32 +350,37 @@ This will generate the `build/libs/<artifactId>-<version>-tests.jar` package whi
 
 #### Package and upload
 
-You can also create and upload the package in a single command, using the `GatlingEnterpriseUploadTask`. You must already have
-[configured a package](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/) (copy the package ID from
-the Packages table). You will also need [an API token](https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/)
-with appropriate permissions to upload a package.
+You can also create and upload the package in a single command, using the `GatlingEnterpriseUploadTask`.
 
-Configure the package ID (and possibly the API token, but see below for other options) on the plugin:
+{{< alert warning >}}
+You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
+{{< /alert >}}
+
+You must already have [configured a package](https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/). Copy the package ID from
+the Packages table, or copy the simulation ID linked to the package from the Simulations table.
+
+
+Configure the package ID or simulation ID on the plugin:
 
 ```groovy
 gatling {
   enterprise {
-    packageId = YOUR_PACKAGE_ID
-    // omit apiToken when using environment variable or Java System property instead
-    apiToken = YOUR_API_TOKEN
+    packageId "YOUR_PACKAGE_ID"
+    simulationId "YOUR_SIMULATION_ID" // If packageId is missing, the task will use the package linked to the simulationId
   }
 }
 ```
 
-Since you probably don't want to include you secret token in your source code, you can instead configure it using either:
-- the `GATLING_ENTERPRISE_API_TOKEN` environment variable
-- the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
+You can also configure either of those using [Java System properties](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html):
+- packageId: `gatling.enterprise.packageId`
+- simulationId: `gatling.enterprise.simulationId`
 
 Then package and upload your simulation to gatling Enterprise Cloud:
 
 ```shell
 gradle gatlingEnterpriseUpload
 ```
+
 
 ### Working with Gatling Enterprise Self-Hosted
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ object RequestBuilder {
    */
   val DefaultHttpCheck: HttpCheck = {
     val okStatusValidator: Validator[Int] = new Validator[Int] {
-      override val name: String = OkCodes.mkString("in(", ",", ")")
+      override val name: String = "in([200, 209], 304)"
       override def apply(actual: Option[Int], displayActualValue: Boolean): Validation[Option[Int]] = actual match {
         case Some(actualValue) =>
           if (HttpHelper.isOk(actualValue))

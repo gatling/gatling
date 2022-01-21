@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,16 @@ private[structure] trait Loops[B] extends Execs[B] {
     )
   }
 
+  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
+  def during(duration: FiniteDuration)(chain: ChainBuilder): B =
+    during(duration.expressionSuccess)(chain)
+  def during(duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
+    during(duration.expressionSuccess, counterName)(chain)
+  def during(duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
+    during(duration.expressionSuccess, exitASAP = exitASAP)(chain)
+  def during(duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    during(duration.expressionSuccess, counterName, exitASAP)(chain)
+
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def during(duration: Expression[FiniteDuration], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
     clockBasedLoop(
@@ -87,6 +97,16 @@ private[structure] trait Loops[B] extends Execs[B] {
           conditionValue <- condition(session)
         } yield conditionValue && clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis
 
+  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
+  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.expressionSuccess)(chain)
+  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.expressionSuccess, counterName)(chain)
+  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.expressionSuccess, exitASAP = exitASAP)(chain)
+  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.expressionSuccess, counterName, exitASAP)(chain)
+
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def asLongAsDuring(
       condition: Expression[Boolean],
@@ -95,6 +115,16 @@ private[structure] trait Loops[B] extends Execs[B] {
       exitASAP: Boolean = true
   )(chain: ChainBuilder): B =
     clockBasedLoop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
+
+  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
+  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.expressionSuccess)(chain)
+  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.expressionSuccess, counterName)(chain)
+  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.expressionSuccess, exitASAP = exitASAP)(chain)
+  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.expressionSuccess, counterName, exitASAP)(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def doWhileDuring(

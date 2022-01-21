@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,6 @@ private[structure] trait Feeds[B] extends Execs[B] {
    */
   def feed(feederBuilder: FeederBuilder): B =
     feed(feederBuilder, Feeds.OneExpression)
-
-  @deprecated("Feeding multiple records at once and translating names will be dropped in the next release", "3.7.0")
-  // we need this overload because Int => Expression[Int] and Int => Expression[FiniteDuration] suddenly conflict?!
-  def feed(feederBuilder: FeederBuilder, number: Int): B =
-    feed(feederBuilder, number.expressionSuccess)
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session

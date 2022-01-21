@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ object Validator {
     }
   }
 
-  final class Noop[A] extends Validator[A] {
-    val name = "noop"
+  final class Optional[A] extends Validator[A] {
+    val name = "optional"
     def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual.success
   }
 }
@@ -117,7 +117,10 @@ object Matcher {
   }
 
   final class In[A](expected: Seq[A]) extends Matcher[A] {
-    def name: String = expected.mkString("in(", ",", ")")
+    def name: String = expected match {
+      case range: Range => s"in(${range.toString})"
+      case _            => expected.mkString("in(", ",", ")")
+    }
 
     protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
       case Some(actualValue) =>

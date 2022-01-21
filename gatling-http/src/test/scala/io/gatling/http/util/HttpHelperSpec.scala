@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,10 @@ class HttpHelperSpec extends BaseSpec {
 
   it should "not crash when charset is unknown" in {
     HttpHelper.extractCharsetFromContentType("text/plain; charset=Foo") shouldBe None
+  }
+
+  it should "not crash when charset is empty" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=") shouldBe None
   }
 
   "isText" should "detect standard JSON mime type" in {

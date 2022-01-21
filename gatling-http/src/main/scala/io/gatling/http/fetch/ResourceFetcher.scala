@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ private[http] class ResourceFetcher(
         // no content, retrieve from cache if exist
         httpCaches.getCachedInferredResources(httpProtocol, htmlDocumentUri) match {
           case null =>
-            logger.warn(s"Got a 304 for $htmlDocumentUri but could find cache entry?!")
+            logger.info(s"Got a 304 for $htmlDocumentUri but could not find a cache entry, probably because capacity is exceeded?!")
             Nil
           case inferredPageResources => inferredPageResources.requests
         }
@@ -158,7 +158,7 @@ private[http] class ResourceFetcher(
       case Failure(error) =>
         resource.requestName(session) match {
           case Success(requestName) => coreComponents.statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, error)
-          case Failure(m)           => logger.error(s"Could build request name for explicitResource: $error")
+          case Failure(m)           => logger.error(s"Could build request name for explicitResource: $m")
         }
         Nil
     }

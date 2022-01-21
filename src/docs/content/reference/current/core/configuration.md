@@ -30,11 +30,15 @@ Gatling configuration is based on the great [Typesafe Config library](https://gi
 
 Gatling configuration files, such as the default configuration file, use the [HOCON format](https://github.com/lightbend/config/blob/master/HOCON.md).
 
+{{< alert tip >}}
+Please check [the configuration file source on GitHub](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf) for all the available configuration options.
+{{< /alert >}}
+
 Gatling uses a fallback strategy, where:
 
 **System properties > `gatling.conf` > gatling-defaults.conf**
 
-`gatling-defaults.conf` is shipped in the gatling-core jar and must not be edited.
+`gatling-defaults.conf` is shipped in the gatling-core jar and must not be tampered.
 
 `gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a maven/gradle/sbt project and in `conf` in the bundle distribution. 
 
@@ -79,4 +83,3 @@ You can use the JAVA_OPTS environment variable to override those defaults, eg:
 JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 ```
 
-[Default configuration file](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf)

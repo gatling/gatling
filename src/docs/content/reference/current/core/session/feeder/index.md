@@ -13,7 +13,7 @@ It's very simple to build a custom one. For example, here's how one could build 
 
 {{< include-code "random-mail-generator" java kt scala >}}
 
-The structure DSL provides a `feed` method.
+The structure DSL provides a `feed` method that can be called at the same place as `exec`.
 
 {{< include-code "feed" java kt scala >}}
 

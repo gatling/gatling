@@ -78,11 +78,11 @@ It is possible to use elements of Meta DSL to write tests in an easier way.
 If you want to chain levels and ramps to reach the limit of your application (a test sometimes called capacity load testing), you can do it manually using the regular DSL and looping using map and flatMap.
 But there is now an alternative using the meta DSL.
 
-### `incrementUsersPerSec`
+#### `incrementUsersPerSec`
 
 {{< include-code "incrementUsersPerSec" java kt scala >}}
 
-### `incrementConcurrentUsers`
+#### `incrementConcurrentUsers`
 
 {{< include-code "incrementConcurrentUsers" java kt scala >}}
 

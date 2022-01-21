@@ -1,5 +1,5 @@
-import net.moznion.sbt.spotless.config._
-import net.moznion.sbt.SbtSpotless.autoImport.spotlessJava
+import net.moznion.sbt.SbtSpotless.autoImport.{ spotless, spotlessJava, spotlessKotlin }
+import net.moznion.sbt.spotless.config.{ GoogleJavaFormatConfig, JavaConfig, KotlinConfig, SpotlessConfig }
 import sbt.Keys._
 import sbt._
 
@@ -16,8 +16,18 @@ object BuildSettings {
     // [fl]
   )
 
+  lazy val spotlessSettings = Seq(
+    spotless := SpotlessConfig(
+      applyOnCompile = !sys.env.getOrElse("CI", "false").toBoolean
+    ),
+    spotlessJava := JavaConfig(
+      googleJavaFormat = GoogleJavaFormatConfig()
+    ),
+    spotlessKotlin := KotlinConfig()
+  )
+
   lazy val gatlingModuleSettings =
-    basicSettings ++ scaladocSettings ++ utf8Encoding
+    basicSettings ++ scaladocSettings ++ utf8Encoding ++ spotlessSettings
 
   lazy val skipPublishing =
     publish / skip := true

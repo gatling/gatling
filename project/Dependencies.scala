@@ -10,7 +10,7 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "2.1.0"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.69.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.73.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
   private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
@@ -19,31 +19,31 @@ object Dependencies {
   private val nettyEpollLinuxX86             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyEpollLinuxArm             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-aarch_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.46.Final"
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.47.Final"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.6.0"
   private val brotli4jMacOs                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
-  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.17"
+  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.18"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
-  private val saxon                          = "net.sf.saxon"                        % "Saxon-HE"                        % "10.6"
-  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.32"
+  private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "10.6"
+  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.33"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.17.0")
     .exclude("org.typelevel", "machinist_2.13")
     .exclude("org.typelevel", "algebra_2.13")
     .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.4"
-  private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.13.0"
+  private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.13.1"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.2.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val lagarto                        = "org.jodd"                             % "jodd-lagarto"                    % "6.0.5"
-  private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.0"
+  private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.1"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.42"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.5.7")
+  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.6.0")
     .exclude("org.jline", "jline")
     .exclude("org.scala-sbt.jline3", "jline-terminal")
     .exclude("org.jline", "jline-terminal-jna")
@@ -63,12 +63,12 @@ object Dependencies {
   private val compilerBridge                 = zinc.organization                     %% "compiler-bridge"                 % zinc.revision
   private val testInterface                  = zinc.organization                      % "test-interface"                  % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                   % "2.0.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.7"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.10"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.12"
-  private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.9.2"
-  private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.69"
-  private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.7.5"
+  private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.9.3"
+  private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.70"
+  private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.8.2"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.5"
   private val jsr305                         = "com.google.code.findbugs"             % "jsr305"                          % "3.0.2"
@@ -80,10 +80,10 @@ object Dependencies {
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                     % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.4"            % Test
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % Test
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "4.1.0"            % Test
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "4.2.0"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.3"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
-  private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % Test
+  private val h2                             = "com.h2database"                       % "h2"                              % "2.0.206"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.27"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.8.2"             % Test

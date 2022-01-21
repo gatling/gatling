@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public final class Http {
   @Nonnull
   public HttpRequestActionBuilder patch(@Nonnull String url) {
     return new HttpRequestActionBuilder(
-        new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
+        new io.gatling.http.request.builder.Http(name).patch(toStringExpression(url)));
   }
 
   /**
