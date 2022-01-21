@@ -28,13 +28,13 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 
 object Pauses {
-  def durationExpression(duration: String, unit: Option[TimeUnit]): Expression[FiniteDuration] =
+  private[gatling] def durationExpression(duration: String, unit: Option[TimeUnit]): Expression[FiniteDuration] =
     unit match {
       case Some(u) => duration.el[Long].map(FiniteDuration(_, u))
       case _       => duration.el[FiniteDuration]
     }
 
-  def durationExpression(min: FiniteDuration, max: FiniteDuration): Expression[FiniteDuration] =
+  private def durationExpression(min: FiniteDuration, max: FiniteDuration): Expression[FiniteDuration] =
     if (min == max)
       min.expressionSuccess
     else {
@@ -43,14 +43,14 @@ object Pauses {
       _ => ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis.success
     }
 
-  def durationExpression(min: String, max: String, unit: Option[TimeUnit]): Expression[FiniteDuration] = {
+  private def durationExpression(min: String, max: String, unit: Option[TimeUnit]): Expression[FiniteDuration] = {
     val minExpression = durationExpression(min, unit)
     val maxExpression = durationExpression(max, unit)
 
     durationExpression(minExpression, maxExpression)
   }
 
-  def durationExpression(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): Expression[FiniteDuration] =
+  private def durationExpression(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): Expression[FiniteDuration] =
     (session: Session) =>
       for {
         min <- min(session)
