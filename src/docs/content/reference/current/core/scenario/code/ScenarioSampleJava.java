@@ -221,7 +221,7 @@ asLongAsDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 );
 // with a counter name and exitASAP
-asLongAsDuring("#{condition}", session -> Duration.ofMinutes(10), "counter", false).on(
+asLongAsDuring(session -> true, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 );
 //#asLongAsDuring
@@ -232,7 +232,7 @@ doWhileDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 );
 // with a counter name and exitASAP
-doWhileDuring("#{condition}", session -> Duration.ofMinutes(10), "counter", false).on(
+doWhileDuring(session -> true, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 );
 //#doWhileDuring

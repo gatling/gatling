@@ -24,6 +24,7 @@ import io.gatling.http.check.sse.SseMessageCheck
 
 trait SseAwaitActionBuilder[T] extends ActionBuilder {
 
+  // we need this override because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
   def await(timeout: FiniteDuration)(checks: SseMessageCheck*): T =
     await(timeout.expressionSuccess)(checks: _*)
 

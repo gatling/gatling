@@ -19,7 +19,6 @@ package io.gatling.core
 import scala.concurrent.duration._
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session._
 
 object Predef extends CoreDsl {
 
@@ -106,12 +105,8 @@ object Predef extends CoreDsl {
   }
 
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
-  implicit def integerToFiniteDurationExpression(i: Integer): Expression[FiniteDuration] = intToFiniteDuration(i.toInt).expressionSuccess
 
   implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
-  implicit def intToFiniteDurationExpression(i: Int): Expression[FiniteDuration] = i.seconds.expressionSuccess
 
   implicit def jlongToFiniteDuration(i: java.lang.Long): FiniteDuration = i.toLong.seconds
-  implicit def jlongToFiniteDurationExpression(i: java.lang.Long): Expression[FiniteDuration] = i.toLong.seconds.expressionSuccess
-
 }

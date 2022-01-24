@@ -69,326 +69,238 @@ class CoreCompileTest extends Simulation {
       .group(session => "group") {
         chain1
       }
-      // feeds
-      .feed(csv("foo"))
-      .feed(csv("foo", '"'))
-      .feed(ssv("foo"))
-      .feed(ssv("foo", '"'))
-      .feed(tsv("foo"))
-      .feed(tsv("foo", '"'))
-      .feed(separatedValues("foo", '|'))
-      .feed(separatedValues("foo", '|', '"'))
-      .feed(jsonFile("foo"))
-      .feed(jsonUrl("foo"))
-      .feed(Iterator.from(0).map(i => Map("key" -> i)).take(10))
-      .feed(() => Iterator.from(0).map(i => Map("key" -> i)).take(10))
-      .feed(Array(Map.empty[String, Any], Map.empty[String, Any]).circular)
-      .feed(IndexedSeq(Map.empty[String, Any]).circular)
-      // pauses
-      .pause(1)
-      .pause(100.millis)
-      .pause("#{pause}")
-      .pause(session => 100.millis)
-      .pause(1, 2)
-      .pause(100.millis, 200.millis)
-      .pause("#{min}", "#{max}")
-      .pause(session => 100.millis, session => 200.millis)
-      .pause(1, constantPauses)
-      .pause(100.millis, constantPauses)
-      .pause("#{pause}", constantPauses)
-      .pause(session => 100.millis, constantPauses)
-      .pause(1, 2, constantPauses)
-      .pause(100.millis, 200.millis, constantPauses)
-      .pause("#{min}", "#{max}", constantPauses)
-      .pause(session => 100.millis, session => 200.millis, constantPauses)
-      // pace
-      .pace(1)
-      .pace(1, "counter")
-      .pace(1.second)
-      .pace(1.second, "counter")
-      .pace("#{pace}")
-      .pace("#{pace}", "counter")
-      .pace(session => 1.second)
-      .pace(session => 1.second, "counter")
-      .pace(1, 2)
-      .pace(1, 2, "counter")
-      .pace(1.second, 2.seconds)
-      .pace(1.second, 2.seconds, "counter")
-      .pace("#{min}", "#{max}", "counter")
-      .pace(session => 1.second, session => 2.seconds)
-      .pace(session => 1.second, session => 2.seconds, "counter")
-      // rendezVous
-      .rendezVous(5)
-      // repeat
-      .repeat(1) {
-        chain1
-      }
-      .repeat(1, "counterName") {
-        chain1
-      }
-      .repeat(session => 1) {
-        chain1
-      }
-      .repeat(session => 1, "counterName") {
-        chain1
-      }
-      //during
-      .during(1) {
-        chain1
-      }
-      .during(1.second) {
-        chain1
-      }
-      .during("#{duration}") {
-        chain1
-      }
-      .during(session => 1.seconds) {
-        chain1
-      }
-      // foreach
-      .foreach(Seq(1), "attributeName") {
-        chain1
-      }
-      .foreach(Seq(1), "attributeName", "counterName") {
-        chain1
-      }
-      .foreach(session => Seq(1), "attributeName") {
-        chain1
-      }
-      .foreach(session => Seq(1), "attributeName", "counterName") {
-        chain1
-      }
-      // forever
-      .forever {
-        chain1
-      }
-      .forever("counterName") {
-        chain1
-      }
-      // asLongAs
-      .asLongAs("#{condition}") {
-        chain1
-      }
-      .asLongAs("#{condition}", "counterName") {
-        chain1
-      }
-      .asLongAs("#{condition}", exitASAP = true) {
-        chain1
-      }
-      .asLongAs("#{condition}", "counterName", true) {
-        chain1
-      }
-      .asLongAs(session => true) {
-        chain1
-      }
-      .asLongAs(session => true, "counterName") {
-        chain1
-      }
-      .asLongAs(session => true, exitASAP = true) {
-        chain1
-      }
-      .asLongAs(session => true, "counterName", true) {
-        chain1
-      }
-      // doWhile
-      .doWhile("#{condition}") {
-        chain1
-      }
-      .doWhile("#{condition}", "counterName") {
-        chain1
-      }
-      .doWhile(session => true) {
-        chain1
-      }
-      .doWhile(session => true, "counterName") {
-        chain1
-      }
-      // asLongAsDuring
-      .asLongAsDuring("#{condition}", "#{duration}") {
-        chain1
-      }
-      .asLongAsDuring("#{condition}", "#{duration}", "counterName") {
-        chain1
-      }
-      .asLongAsDuring("#{condition}", "#{duration}", exitASAP = true) {
-        chain1
-      }
-      .asLongAsDuring("#{condition}", "#{duration}", "counterName", true) {
-        chain1
-      }
-      .asLongAsDuring(session => true, session => 1.second) {
-        chain1
-      }
-      .asLongAsDuring(session => true, session => 1.second, "counterName") {
-        chain1
-      }
-      .asLongAsDuring(session => true, session => 1.second, exitASAP = true) {
-        chain1
-      }
-      .asLongAsDuring(session => true, session => 1.second, "counterName", true) {
-        chain1
-      }
-      .doWhileDuring("#{condition}", "#{duration}") {
-        chain1
-      }
-      .doWhileDuring("#{condition}", "#{duration}", "counterName") {
-        chain1
-      }
-      .doWhileDuring("#{condition}", "#{duration}", exitASAP = true) {
-        chain1
-      }
-      .doWhileDuring("#{condition}", "#{duration}", "counterName", true) {
-        chain1
-      }
-      .doWhileDuring(session => true, session => 1.second) {
-        chain1
-      }
-      .doWhileDuring(session => true, session => 1.second, "counterName") {
-        chain1
-      }
-      .doWhileDuring(session => true, session => 1.second, exitASAP = true) {
-        chain1
-      }
-      .doWhileDuring(session => true, session => 1.second, "counterName", true) {
-        chain1
-      }
-      // doIf
-      .doIf("#{condition}") {
-        chain1
-      }
-      .doIf(session => true) {
-        chain1
-      }
-      // doIfOrElse
-      .doIfOrElse("#{condition}") {
-        chain1
-      } {
-        chain2
-      }
-      .doIfOrElse(session => true) {
-        chain1
-      } {
-        chain2
-      }
-      // doIfEquals
-      .doIfEquals("#{actual}", 1) {
-        chain1
-      }
-      .doIfEquals("#{actual}", "#{expected}") {
-        chain1
-      }
-      .doIfEquals("#{actual}", session => 1) {
-        chain1
-      }
-      .doIfEquals(session => "actual", 1) {
-        chain1
-      }
-      .doIfEquals(session => "actual", "#{expected}") {
-        chain1
-      }
-      .doIfEquals(session => "actual", session => 1) {
-        chain1
-      }
-      // doIfEqualsOrElse
-      .doIfEqualsOrElse("#{actual}", 1) {
-        chain1
-      } {
-        chain2
-      }
-      .doIfEqualsOrElse("#{actual}", "#{expected}") {
-        chain1
-      } {
-        chain2
-      }
-      .doIfEqualsOrElse("#{actual}", session => 1) {
-        chain1
-      } {
-        chain2
-      }
-      .doIfEqualsOrElse(session => "actual", 1) {
-        chain1
-      } {
-        chain2
-      }
-      .doIfEqualsOrElse(session => "actual", "#{expected}") {
-        chain1
-      } {
-        chain2
-      }
-      .doIfEqualsOrElse(session => "actual", session => 1) {
-        chain1
-      } {
-        chain2
-      }
-      // doSwitch
-      .doSwitch("#{value}")(
-        "value1" -> chain1,
-        "value2" -> chain2
-      )
-      .doSwitch(session => "value")(
-        "value1" -> chain1,
-        "value2" -> chain2
-      )
-      // doSwitchOrElse
-      .doSwitchOrElse("#{value}")(
-        "value1" -> chain1,
-        "value2" -> chain2
-      )(chain2)
-      .doSwitchOrElse(session => "value")(
-        "value1" -> chain1,
-        "value2" -> chain2
-      )(chain2)
-      // randomSwitch
-      .randomSwitch(
-        50.0 -> chain1,
-        50.0 -> chain2
-      )
-      // randomSwitchOrElse
-      .randomSwitchOrElse(
-        50.0 -> chain1,
-        50.0 -> chain2
-      )(chain2)
-      // uniformRandomSwitch
-      .uniformRandomSwitch(
-        chain1,
-        chain2
-      )
-      // roundRobinSwitch
-      .roundRobinSwitch(
-        chain1,
-        chain2
-      )
-      // exitBlockOnFail
-      .exitBlockOnFail(chain1)
-      // tryMax
-      .tryMax(1) {
-        chain1
-      }
-      .tryMax(1, "counterName") {
-        chain1
-      }
-      .tryMax("#{times}") {
-        chain1
-      }
-      .tryMax("#{times}", "counterName") {
-        chain1
-      }
-      .tryMax(session => 1) {
-        chain1
-      }
-      .tryMax(session => 1, "counterName") {
-        chain1
-      }
-      // exitHereIf
-      .exitHereIf("#{condition}")
-      .exitHereIf(session => true)
-      // exitHere
-      .exitHere
-      // exitHereIfFailed
-      .exitHereIfFailed
-      // stopInjector
-      .stopInjector("#{message}")
-      .stopInjector(session => "message")
+
+  private val feeds = scenario("feeds")
+    .feed(csv("foo"))
+    .feed(csv("foo", '"'))
+    .feed(ssv("foo"))
+    .feed(ssv("foo", '"'))
+    .feed(tsv("foo"))
+    .feed(tsv("foo", '"'))
+    .feed(separatedValues("foo", '|'))
+    .feed(separatedValues("foo", '|', '"'))
+    .feed(jsonFile("foo"))
+    .feed(jsonUrl("foo"))
+    .feed(Iterator.from(0).map(i => Map("key" -> i)).take(10))
+    .feed(() => Iterator.from(0).map(i => Map("key" -> i)).take(10))
+    .feed(Array(Map.empty[String, Any], Map.empty[String, Any]).circular)
+    .feed(IndexedSeq(Map.empty[String, Any]).circular)
+
+  private val pauses = scenario("pauses")
+    .pause(1)
+    .pause(100.millis)
+    .pause("#{pause}")
+    .pause(session => 100.millis)
+    .pause(1, 2)
+    .pause(100.millis, 200.millis)
+    .pause("#{min}", "#{max}")
+    .pause(session => 100.millis, session => 200.millis)
+    .pause(1, constantPauses)
+    .pause(100.millis, constantPauses)
+    .pause("#{pause}", constantPauses)
+    .pause(session => 100.millis, constantPauses)
+    .pause(1, 2, constantPauses)
+    .pause(100.millis, 200.millis, constantPauses)
+    .pause("#{min}", "#{max}", constantPauses)
+    .pause(session => 100.millis, session => 200.millis, constantPauses)
+    // pace
+    .pace(1)
+    .pace(1, "counter")
+    .pace(1.second)
+    .pace(1.second, "counter")
+    .pace("#{pace}")
+    .pace("#{pace}", "counter")
+    .pace(session => 1.second)
+    .pace(session => 1.second, "counter")
+    .pace(1, 2)
+    .pace(1, 2, "counter")
+    .pace(1.second, 2.seconds)
+    .pace(1.second, 2.seconds, "counter")
+    .pace("#{min}", "#{max}", "counter")
+    .pace(session => 1.second, session => 2.seconds)
+    .pace(session => 1.second, session => 2.seconds, "counter")
+    // rendezVous
+    .rendezVous(5)
+
+  private val loops = scenario("loops")
+    // repeat
+    .repeat(1)(chain1)
+    .repeat(1, "counterName")(chain1)
+    .repeat(session => 1)(chain1)
+    .repeat(session => 1, "counterName")(chain1)
+    //during - duration
+    .during(1)(chain1)
+    .during(1.second)(chain1)
+    .during("#{duration}")(chain1)
+    .during(session => 1.seconds)(chain1)
+    //during - duration + counterName
+    .during(1, "counterName")(chain1)
+    .during(1.second, "counterName")(chain1)
+    .during("#{duration}", "counterName")(chain1)
+    .during(session => 1.seconds, "counterName")(chain1)
+    //during - duration + exitASAP
+    .during(1, exitASAP = true)(chain1)
+    .during(1.second, exitASAP = true)(chain1)
+    .during("#{duration}", exitASAP = true)(chain1)
+    .during(session => 1.seconds, exitASAP = true)(chain1)
+    //during - duration + counterName + exitASAP
+    .during(1, "counterName", exitASAP = true)(chain1)
+    .during(1.second, "counterName", exitASAP = true)(chain1)
+    .during("#{duration}", "counterName", exitASAP = true)(chain1)
+    .during(session => 1.seconds, "counterName", exitASAP = true)(chain1)
+    // foreach
+    .foreach(Seq(1), "attributeName")(chain1)
+    .foreach(Seq(1), "attributeName", "counterName")(chain1)
+    .foreach(session => Seq(1), "attributeName")(chain1)
+    .foreach(session => Seq(1), "attributeName", "counterName")(chain1)
+    // forever
+    .forever(chain1)
+    .forever("counterName")(chain1)
+    // asLongAs
+    .asLongAs("#{condition}")(chain1)
+    .asLongAs("#{condition}", "counterName")(chain1)
+    .asLongAs("#{condition}", exitASAP = true)(chain1)
+    .asLongAs("#{condition}", "counterName", true)(chain1)
+    .asLongAs(session => true)(chain1)
+    .asLongAs(session => true, "counterName")(chain1)
+    .asLongAs(session => true, exitASAP = true)(chain1)
+    .asLongAs(session => true, "counterName", true)(chain1)
+    // doWhile
+    .doWhile("#{condition}")(chain1)
+    .doWhile("#{condition}", "counterName")(chain1)
+    .doWhile(session => true)(chain1)
+    .doWhile(session => true, "counterName")(chain1)
+
+  private val asLongAsDuringLoops = scenario("asLongAsDuring")
+    .asLongAsDuring("#{condition}", "#{duration}")(chain1)
+    .asLongAsDuring("#{condition}", "#{duration}", "counterName")(chain1)
+    .asLongAsDuring("#{condition}", "#{duration}", exitASAP = true)(chain1)
+    .asLongAsDuring("#{condition}", "#{duration}", "counterName", true)(chain1)
+    .asLongAsDuring("#{condition}", 1.second)(chain1)
+    .asLongAsDuring("#{condition}", 1.second, "counterName")(chain1)
+    .asLongAsDuring("#{condition}", 1.second, exitASAP = true)(chain1)
+    .asLongAsDuring("#{condition}", 1.second, "counterName", true)(chain1)
+    .asLongAsDuring("#{condition}", session => 1.second)(chain1)
+    .asLongAsDuring("#{condition}", session => 1.second, "counterName")(chain1)
+    .asLongAsDuring("#{condition}", session => 1.second, exitASAP = true)(chain1)
+    .asLongAsDuring("#{condition}", session => 1.second, "counterName", true)(chain1)
+    .asLongAsDuring(session => true, "#{duration}")(chain1)
+    .asLongAsDuring(session => true, "#{duration}", "counterName")(chain1)
+    .asLongAsDuring(session => true, "#{duration}", exitASAP = true)(chain1)
+    .asLongAsDuring(session => true, "#{duration}", "counterName", true)(chain1)
+    .asLongAsDuring(session => true, 1.second)(chain1)
+    .asLongAsDuring(session => true, 1.second, "counterName")(chain1)
+    .asLongAsDuring(session => true, 1.second, exitASAP = true)(chain1)
+    .asLongAsDuring(session => true, 1.second, "counterName", true)(chain1)
+    .asLongAsDuring(session => true, session => 1.second)(chain1)
+    .asLongAsDuring(session => true, session => 1.second, "counterName")(chain1)
+    .asLongAsDuring(session => true, session => 1.second, exitASAP = true)(chain1)
+    .asLongAsDuring(session => true, session => 1.second, "counterName", true)(chain1)
+
+  private val doWhileDuringLoops = scenario("doWhileDuring")
+    .doWhileDuring("#{condition}", "#{duration}")(chain1)
+    .doWhileDuring("#{condition}", "#{duration}", "counterName")(chain1)
+    .doWhileDuring("#{condition}", "#{duration}", exitASAP = true)(chain1)
+    .doWhileDuring("#{condition}", "#{duration}", "counterName", true)(chain1)
+    .doWhileDuring("#{condition}", 1.second)(chain1)
+    .doWhileDuring("#{condition}", 1.second, "counterName")(chain1)
+    .doWhileDuring("#{condition}", 1.second, exitASAP = true)(chain1)
+    .doWhileDuring("#{condition}", 1.second, "counterName", true)(chain1)
+    .doWhileDuring("#{condition}", session => 1.second)(chain1)
+    .doWhileDuring("#{condition}", session => 1.second, "counterName")(chain1)
+    .doWhileDuring("#{condition}", session => 1.second, exitASAP = true)(chain1)
+    .doWhileDuring("#{condition}", session => 1.second, "counterName", true)(chain1)
+    .doWhileDuring(session => true, "#{duration}")(chain1)
+    .doWhileDuring(session => true, "#{duration}", "counterName")(chain1)
+    .doWhileDuring(session => true, "#{duration}", exitASAP = true)(chain1)
+    .doWhileDuring(session => true, "#{duration}", "counterName", true)(chain1)
+    .doWhileDuring(session => true, 1.second)(chain1)
+    .doWhileDuring(session => true, 1.second, "counterName")(chain1)
+    .doWhileDuring(session => true, 1.second, exitASAP = true)(chain1)
+    .doWhileDuring(session => true, 1.second, "counterName", true)(chain1)
+    .doWhileDuring(session => true, session => 1.second)(chain1)
+    .doWhileDuring(session => true, session => 1.second, "counterName")(chain1)
+    .doWhileDuring(session => true, session => 1.second, exitASAP = true)(chain1)
+    .doWhileDuring(session => true, session => 1.second, "counterName", true)(chain1)
+
+  private val doIfs = scenario("doIf")
+    .doIf("#{condition}")(chain1)
+    .doIf(session => true)(chain1)
+    // doIfOrElse
+    .doIfOrElse("#{condition}")(chain1)(chain2)
+    .doIfOrElse(session => true)(chain1)(chain2)
+    // doIfEquals
+    .doIfEquals("#{actual}", 1)(chain1)
+    .doIfEquals("#{actual}", "#{expected}")(chain1)
+    .doIfEquals("#{actual}", session => 1)(chain1)
+    .doIfEquals(session => "actual", 1)(chain1)
+    .doIfEquals(session => "actual", "#{expected}")(chain1)
+    .doIfEquals(session => "actual", session => 1)(chain1)
+    // doIfEqualsOrElse
+    .doIfEqualsOrElse("#{actual}", 1)(chain1)(chain2)
+    .doIfEqualsOrElse("#{actual}", "#{expected}")(chain1)(chain2)
+    .doIfEqualsOrElse("#{actual}", session => 1)(chain1)(chain2)
+    .doIfEqualsOrElse(session => "actual", 1)(chain1)(chain2)
+    .doIfEqualsOrElse(session => "actual", "#{expected}")(chain1)(chain2)
+    .doIfEqualsOrElse(session => "actual", session => 1)(chain1)(chain2)
+    // doSwitch
+    .doSwitch("#{value}")(
+      "value1" -> chain1,
+      "value2" -> chain2
+    )
+    .doSwitch(session => "value")(
+      "value1" -> chain1,
+      "value2" -> chain2
+    )
+    // doSwitchOrElse
+    .doSwitchOrElse("#{value}")(
+      "value1" -> chain1,
+      "value2" -> chain2
+    )(chain2)
+    .doSwitchOrElse(session => "value")(
+      "value1" -> chain1,
+      "value2" -> chain2
+    )(chain2)
+    // randomSwitch
+    .randomSwitch(
+      50.0 -> chain1,
+      50.0 -> chain2
+    )
+    // randomSwitchOrElse
+    .randomSwitchOrElse(
+      50.0 -> chain1,
+      50.0 -> chain2
+    )(chain2)
+    // uniformRandomSwitch
+    .uniformRandomSwitch(
+      chain1,
+      chain2
+    )
+    // roundRobinSwitch
+    .roundRobinSwitch(
+      chain1,
+      chain2
+    )
+  private val exits = scenario("exits")
+    // exitBlockOnFail
+    .exitBlockOnFail(chain1)
+    // tryMax
+    .tryMax(1)(chain1)
+    .tryMax(1, "counterName")(chain1)
+    .tryMax("#{times}")(chain1)
+    .tryMax("#{times}", "counterName")(chain1)
+    .tryMax(session => 1)(chain1)
+    .tryMax(session => 1, "counterName")(chain1)
+    // exitHereIf
+    .exitHereIf("#{condition}")
+    .exitHereIf(session => true)
+    // exitHere
+    .exitHere
+    // exitHereIfFailed
+    .exitHereIfFailed
+    // stopInjector
+    .stopInjector("#{message}")
+    .stopInjector(session => "message")
 
   registerPebbleExtensions(null.asInstanceOf[com.mitchellbosecke.pebble.extension.Extension])
   setUp(

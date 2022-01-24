@@ -217,7 +217,7 @@ asLongAsDuring("#{condition}", 5) {
   exec(http("name").get("/"))
 }
 // with a counter name and exitASAP
-asLongAsDuring("#{condition}", session => 10.minutes, "counter", false) {
+asLongAsDuring(session => true, 10.minutes, "counter", false) {
   exec(http("name").get("/"))
 }
 //#asLongAsDuring
@@ -228,7 +228,7 @@ doWhileDuring("#{condition}", 5) {
   exec(http("name").get("/"))
 }
 // with a counter name and exitASAP
-doWhileDuring("#{condition}", session => 10.minutes, "counter", false) {
+doWhileDuring(session => true, 10.minutes, "counter", false) {
   exec(http("name").get("/"))
 }
 //#doWhileDuring
