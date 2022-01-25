@@ -215,6 +215,11 @@ public class ClosedInjectionStep {
       super(wrapped);
     }
 
+    private io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep wrapped() {
+      return (io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep)
+          asScala();
+    }
+
     /**
      * Define the initial number of concurrent users (optional)
      *
@@ -223,16 +228,7 @@ public class ClosedInjectionStep {
      */
     @Nonnull
     public Composite startingFrom(int startingUsers) {
-      io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep step =
-          (io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep) asScala();
-
-      return new Composite(
-          new io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep(
-              step.usersIncrement(),
-              step.levels(),
-              step.duration(),
-              startingUsers,
-              step.rampDuration()));
+      return new Composite(wrapped().startingFrom(startingUsers));
     }
 
     /**
@@ -254,16 +250,7 @@ public class ClosedInjectionStep {
      */
     @Nonnull
     public Composite separatedByRampsLasting(Duration duration) {
-      io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep step =
-          (io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep) asScala();
-
-      return new Composite(
-          new io.gatling.core.controller.inject.closed.StairsConcurrentUsersCompositeStep(
-              step.usersIncrement(),
-              step.levels(),
-              step.duration(),
-              step.startingUsers(),
-              toScalaDuration(duration)));
+      return new Composite(wrapped().separatedByRampsLasting(toScalaDuration(duration)));
     }
   }
 }
