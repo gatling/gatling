@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.ws.fsm
 
+import scala.concurrent.duration.DurationLong
+
 import io.gatling.commons.stats.OK
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
@@ -131,10 +133,11 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
     logger.debug("Client requested WebSocket close")
+    scheduleTimeout(connectRequest.getRequestTimeout.millis)
     webSocket.sendFrame(new CloseWebSocketFrame())
     //[fl]
     //
     //[fl]
-    NextWsState(new WsClosingState(fsm, actionName, session, next, clock.nowMillis)) // TODO should we have a close timeout?
+    NextWsState(new WsClosingState(fsm, actionName, session, next, clock.nowMillis))
   }
 }
