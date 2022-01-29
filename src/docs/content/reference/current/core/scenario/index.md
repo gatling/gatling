@@ -40,6 +40,12 @@ This can be used for manual debugging or to edit the [Session]({{< ref "../sessi
 
 {{< include-code "session-lambda" java kt scala >}}
 
+{{< alert warning >}}
+Remember that the [Gatling DSL components are merely definitions]({{< ref "../concepts#dsl" >}}). They have absolutely no effect when not chained with other DSL components. **Typically, you can't use them in functions.**
+{{< /alert >}}
+
+{{< include-code "session-lambda-bad" java kt scala >}}
+
 ### Pause
 
 #### `pause`

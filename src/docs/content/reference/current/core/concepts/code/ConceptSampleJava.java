@@ -15,17 +15,26 @@
  */
 
 import io.gatling.javaapi.core.*;
+import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
 class ConceptSampleJava extends Simulation {
 
-  private boolean computeSomeCondition(Session session) {
-    return true;
-  }
-
   public ConceptSampleJava() {
+
+//#dsl-bad
+for (int i = 0; i < 5; i++) {
+  http("Access Github").get("https://github.com");
+}
+//#dsl-bad
+
+//#dsl-immutable
+HttpRequestActionBuilder request1 = http("Access Github").get("https://github.com");
+// request1 is left unchanged
+HttpRequestActionBuilder request2 = request1.header("accept-encoding", "gzip");
+//#dsl-immutable
 
 //#simple-scenario
 scenario("Standard User")
@@ -46,16 +55,5 @@ setUp(
   advUser.injectOpen(rampUsers(500).during(200))
 );
 //#example-definition
-
-//#session-incorrect
-exec(session -> {
-  if (computeSomeCondition(session)) {
-    // just create a builder that is immediately discarded, hence doesn't do anything
-    // here, you should be using a doIf instead of a function
-    http("Gatling").get("https://gatling.io");
-  }
-  return session;
-});
-//#session-incorrect
   }
 }
