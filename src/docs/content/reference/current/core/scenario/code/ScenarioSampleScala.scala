@@ -52,6 +52,14 @@ exec { session =>
 }
 //#session-lambda
 
+//#session-lambda-bad
+exec { session =>
+  // just creates a dandling component, doesn't produce any effect
+  http("Gatling").get("https://gatling.io")
+  session
+}
+//#session-lambda-bad
+
 //#pause-fixed
 // with a number of seconds
 pause(10)
