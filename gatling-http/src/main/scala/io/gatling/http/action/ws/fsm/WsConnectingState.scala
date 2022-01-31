@@ -44,17 +44,19 @@ object WsConnectingState extends StrictLogging {
     // [fl]
     logger.debug(s"Connecting to ${connectRequest.getUri}")
     val userSslContexts = SslContextSupport.sslContexts(session)
-    httpEngine.executeRequest(
-      connectRequest,
-      session.userId,
-      httpProtocol.enginePart.shareConnections,
-      session.eventLoop,
-      listener,
-      userSslContexts.map(_.sslContext).orNull,
-      userSslContexts.flatMap(_.alpnSslContext).orNull
+    NextWsState(
+      state = new WsConnectingState(fsm, session, next, clock.nowMillis, remainingReconnects),
+      () =>
+        httpEngine.executeRequest(
+          connectRequest,
+          session.userId,
+          httpProtocol.enginePart.shareConnections,
+          session.eventLoop,
+          listener,
+          userSslContexts.map(_.sslContext).orNull,
+          userSslContexts.flatMap(_.alpnSslContext).orNull
+        )
     )
-
-    NextWsState(new WsConnectingState(fsm, session, next, clock.nowMillis, remainingReconnects))
   }
 }
 
@@ -162,7 +164,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
     // crash
     logger.debug(s"WebSocket crashed by the server while in Connecting state", t)
     val failedSession = session.markAsFailed
-    logResponse(failedSession, connectRequest.getName, connectStart, timestamp, KO, Some(t.rootMessage), None)
+    logResponse(failedSession, connectRequest.getName, connectStart, timestamp, KO, None, Some(t.rootMessage))
 
     val n = next match {
       case Left(nextAction) => nextAction
