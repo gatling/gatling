@@ -161,10 +161,7 @@ public class DefaultHttpClient implements HttpClient {
                   new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel channel) {
-                      channel
-                          .pipeline()
-                          .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-                          .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
+                      channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
                     }
                   });
 
@@ -951,6 +948,7 @@ public class DefaultHttpClient implements HttpClient {
 
                     ctx.pipeline()
                         .addLast(HTTP2_HANDLER, http2Handler)
+                        .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
                         .addLast(
                             APP_HTTP2_HANDLER,
                             new Http2AppHandler(

@@ -76,7 +76,7 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
     try {
       ByteBuf chunk;
       do {
-        chunk = content.readChunk(ByteBufAllocator.DEFAULT);
+        chunk = content.readChunk(ByteBufAllocator.DEFAULT).content();
         composite.addComponent(true, chunk);
       } while (chunk != null);
       return ByteBufUtils.byteBuf2Bytes(composite);

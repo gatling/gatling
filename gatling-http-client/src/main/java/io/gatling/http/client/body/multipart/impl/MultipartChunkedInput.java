@@ -21,6 +21,8 @@ import static io.gatling.http.client.util.MiscUtils.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.stream.ChunkedInput;
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
+public class MultipartChunkedInput implements ChunkedInput<HttpContent> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MultipartChunkedInput.class);
 
@@ -81,13 +83,12 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
 
   @Override
   @Deprecated
-  public ByteBuf readChunk(ChannelHandlerContext ctx) throws Exception {
+  public HttpContent readChunk(ChannelHandlerContext ctx) throws Exception {
     return readChunk(ctx.alloc());
   }
 
   @Override
-  public ByteBuf readChunk(ByteBufAllocator alloc) throws Exception {
-
+  public HttpContent readChunk(ByteBufAllocator alloc) throws Exception {
     if (endOfInput) {
       return null;
     }
@@ -98,13 +99,13 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
     switch (state) {
       case STOP:
         endOfInput = true;
-        return buffer;
+        return new DefaultHttpContent(buffer);
       case SUSPEND:
         // this will suspend the stream in ChunkedWriteHandler
         buffer.release();
         return null;
       case CONTINUE:
-        return buffer;
+        return new DefaultHttpContent(buffer);
       default:
         throw new IllegalStateException("Unknown state: " + state);
     }
