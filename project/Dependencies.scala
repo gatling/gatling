@@ -19,7 +19,8 @@ object Dependencies {
   private val nettyEpollLinuxX86             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyEpollLinuxArm             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-aarch_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.48.Final"
+  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes" % "2.0.48.Final"
+  private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.6.0"
   private val brotli4jMacOs                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
@@ -139,6 +140,7 @@ object Dependencies {
       scalaParserCombinators,
       scopt,
       nettyHandler,
+      nettyTcNative,
       quicklens
     ) ++
       parserDeps ++ testDeps
@@ -160,7 +162,8 @@ object Dependencies {
     nettyEpollLinuxX86,
     nettyEpollLinuxArm,
     nettyHttp2,
-    nettyBoringSsl,
+    nettyTcNative,
+    nettyTcNativeBoringSsl,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
@@ -179,7 +182,7 @@ object Dependencies {
 
   val jdbcDependencies = h2 +: testDeps
 
-  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
+  val mqttDependencies = Seq(nettyHandler, nettyTcNative, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
 
   val chartsDependencies = tdigest +: testDeps
 
