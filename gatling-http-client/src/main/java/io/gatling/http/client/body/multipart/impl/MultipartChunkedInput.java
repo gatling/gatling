@@ -154,4 +154,13 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   public long progress() {
     return progress;
   }
+
+  @Override
+  public String toString() {
+    return "MultipartChunkedInput{part.sizes="
+        + parts.size()
+        + ", contentLength="
+        + contentLength
+        + '}';
+  }
 }
