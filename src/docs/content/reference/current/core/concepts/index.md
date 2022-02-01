@@ -7,18 +7,29 @@ lastmod: 2021-04-20T18:30:56+02:00
 weight: 2030100
 ---
 
+## Domain-Specific Language (DSL) {#dsl}
+
+Gatling provides a kind of language to **define** your load test, called a [DSL](https://en.wikipedia.org/wiki/Domain-specific_language).
+
+{{< alert warning >}}
+The components of this DSL are mere **definitions** of the desired effect.
+They don't generate the desired effect where you invoke them in your own code.
+Only when chained with other components so they are ultimately passed to the [setUp]({{< ref "../simulation#setup" >}}), can the Gatling engine interpret them and produce the desired effect.
+{{< /alert >}}
+
+The example below doesn't execute 5 HTTP requests.
+It creates 5 dandling HTTP requests definitions that don't have any effect.
+
+{{< include-code "dsl-bad" java kt scala >}}
+
 ## Immutability
 
 {{< alert warning >}}
-Gatling DSL components are **immutable Builders**. They have to be chained one with another and the whole chain is only built once on startup.
-
-These builders don't do anything by themselves, they don't trigger any side effect such as executing an HTTP request, they are just definitions.
-
-As a result, creating such DSL components at runtime, typically in functions, has absolutely no effect.
-If you want conditional paths in your execution flow, use the proper DSL components (`doIf`, `randomSwitch`, etc)
+Most Gatling APIs such as DSL components and Session, are **immutable**.
+This means you can't update existing instances but only generate new instances with the desired changes.
 {{< /alert >}}
 
-{{< include-code "session-incorrect" java kt scala >}}
+{{< include-code "dsl-immutable" java kt scala >}}
 
 ## Virtual User
 

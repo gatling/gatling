@@ -19,7 +19,8 @@ object Dependencies {
   private val nettyEpollLinuxX86             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyEpollLinuxArm             = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-aarch_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.47.Final"
+  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes" % "2.0.48.Final"
+  private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.6.0"
   private val brotli4jMacOs                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
@@ -29,7 +30,7 @@ object Dependencies {
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "10.6"
-  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.33"
+  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.35"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.17.0")
     .exclude("org.typelevel", "machinist_2.13")
     .exclude("org.typelevel", "algebra_2.13")
@@ -43,7 +44,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.1"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.42"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.6.0")
+  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.6.1")
     .exclude("org.jline", "jline")
     .exclude("org.scala-sbt.jline3", "jline-terminal")
     .exclude("org.jline", "jline-terminal-jna")
@@ -75,15 +76,15 @@ object Dependencies {
   private val typetools                      = "net.jodah"                            % "typetools"                       % "0.6.3"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.10"            % Test
-  private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                 % "3.2.10.0"          % Test
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.11"            % Test
+  private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                 % "3.2.11.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                     % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.4"            % Test
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % Test
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "4.2.0"            % Test
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "4.3.1"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.3"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
-  private val h2                             = "com.h2database"                       % "h2"                              % "2.0.206"           % Test
+  private val h2                             = "com.h2database"                       % "h2"                              % "2.1.210"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.27"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.8.2"             % Test
@@ -139,6 +140,7 @@ object Dependencies {
       scalaParserCombinators,
       scopt,
       nettyHandler,
+      nettyTcNative,
       quicklens
     ) ++
       parserDeps ++ testDeps
@@ -160,7 +162,8 @@ object Dependencies {
     nettyEpollLinuxX86,
     nettyEpollLinuxArm,
     nettyHttp2,
-    nettyBoringSsl,
+    nettyTcNative,
+    nettyTcNativeBoringSsl,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
@@ -179,7 +182,7 @@ object Dependencies {
 
   val jdbcDependencies = h2 +: testDeps
 
-  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
+  val mqttDependencies = Seq(nettyHandler, nettyTcNative, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
 
   val chartsDependencies = tdigest +: testDeps
 

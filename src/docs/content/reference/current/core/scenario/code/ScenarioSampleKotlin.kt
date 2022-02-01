@@ -54,6 +54,14 @@ exec { session ->
 }
 //#session-lambda
 
+//#session-lambda-bad
+exec { session ->
+  // just creates a dandling component, doesn't produce any effect
+  http("Gatling").get("https://gatling.io")
+  session
+}
+//#session-lambda-bad
+
 //#pause-fixed
 // with a number of seconds
 pause(10)
@@ -219,7 +227,7 @@ asLongAsDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 )
 // with a counter name and exitASAP
-asLongAsDuring("#{condition}", { session -> Duration.ofMinutes(10) }, "counter", false).on(
+asLongAsDuring({ session -> true }, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 )
 //#asLongAsDuring
@@ -230,7 +238,7 @@ doWhileDuring("#{condition}", 5).on(
   exec(http("name").get("/"))
 )
 // with a counter name and exitASAP
-doWhileDuring("#{condition}", { session -> Duration.ofMinutes(10) }, "counter", false).on(
+doWhileDuring({ session -> true }, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/"))
 )
 //#doWhileDuring
