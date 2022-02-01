@@ -454,10 +454,15 @@ public class DefaultHttpClient implements HttpClient {
                 List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
                 String domain = requestUri.getHost();
-                Channel coalescedChannel =
-                    resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
-                if (coalescedChannel != null) {
-                  sendHttp2TxsWithChannel(txs, coalescedChannel);
+                Channel pooledChannel = resources.channelPool.poll(tx.key);
+                if (pooledChannel == null) {
+                  pooledChannel =
+                      resources.channelPool.pollCoalescedChannel(
+                          tx.key.clientId, domain, addresses);
+                }
+
+                if (pooledChannel != null) {
+                  sendHttp2TxsWithChannel(txs, pooledChannel);
                 } else {
                   sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses, logProxyAddress);
                 }
@@ -710,7 +715,7 @@ public class DefaultHttpClient implements HttpClient {
       List<InetSocketAddress> remoteAddresses,
       HttpListener listener,
       RequestTimeout requestTimeout) {
-
+    LOGGER.debug("Opening new channel");
     Bootstrap bootstrap = bootstrap(request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
     InetSocketAddress loggedProxyAddress =
