@@ -16,16 +16,21 @@
 
 package io.gatling.graphite.sender
 
-import akka.actor.{ ActorRef, FSM }
+import akka.actor.{ActorRef, FSM}
+import akka.util.ByteString
 
 private[sender] trait TcpSenderFSM extends FSM[TcpSenderState, TcpSenderData]
 
 private[sender] sealed trait TcpSenderState
 private[sender] case object WaitingForConnection extends TcpSenderState
 private[sender] case object Running extends TcpSenderState
+private[sender] case object Buffering extends TcpSenderState
+private[sender] case object FlushingBuffer extends TcpSenderState
+private[sender] case object AwaitingWritingResumed extends TcpSenderState
 private[sender] case object RetriesExhausted extends TcpSenderState
+private[sender] case object BufferOverflow extends TcpSenderState
 
 private[sender] sealed trait TcpSenderData
 private[sender] case object NoData extends TcpSenderData
 private[sender] final case class DisconnectedData(retry: Retry) extends TcpSenderData
-private[sender] final case class ConnectedData(connection: ActorRef, retry: Retry) extends TcpSenderData
+private[sender] final case class ConnectedData(connection: ActorRef, retry: Retry, storageOffset: Int, storage: Vector[ByteString], stored: Long, suspended: Boolean, nack: Int) extends TcpSenderData
