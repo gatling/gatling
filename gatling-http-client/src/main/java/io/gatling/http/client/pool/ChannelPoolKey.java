@@ -25,4 +25,9 @@ public final class ChannelPoolKey {
     this.clientId = clientId;
     this.remoteKey = remoteKey;
   }
+
+  @Override
+  public String toString() {
+    return "ChannelPoolKey{" + "clientId=" + clientId + ", remoteKey=" + remoteKey + '}';
+  }
 }
