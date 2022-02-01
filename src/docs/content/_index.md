@@ -34,5 +34,6 @@ Gatling's architecture is asynchronous as long as the underlying protocol, such 
 
 ## Migrating from a Previous Version of Gatling
 
-* If you're upgrading from Gatling 2.3 to Gatling 3.0, please check the [dedicated migration guide]({{< ref "reference/current/upgrading/2.3-to-3.0.md" >}}).
-* Otherwise, please follow the [previous migration guides]({{< ref "reference/current/upgrading" >}}).
+If you're upgrading from Gatling 2.3 to Gatling 3.0, please check the [dedicated migration guide]({{< ref "reference/current/upgrading/2.3-to-3.0.md" >}}).
+
+Otherwise, please follow the [previous migration guides]({{< ref "reference/current/upgrading" >}}).

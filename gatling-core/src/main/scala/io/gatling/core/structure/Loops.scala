@@ -18,12 +18,13 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 import io.gatling.commons.util.Clock
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
+import io.gatling.core.session.el.El
 
 private[structure] trait Loops[B] extends Execs[B] {
 
@@ -52,15 +53,16 @@ private[structure] trait Loops[B] extends Execs[B] {
     )
   }
 
-  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
-  def during(duration: FiniteDuration)(chain: ChainBuilder): B =
-    during(duration.expressionSuccess)(chain)
-  def during(duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
-    during(duration.expressionSuccess, counterName)(chain)
-  def during(duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
-    during(duration.expressionSuccess, exitASAP = exitASAP)(chain)
-  def during(duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
-    during(duration.expressionSuccess, counterName, exitASAP)(chain)
+  // we need these overrides because we can't add an Int => Expression[FiniteDuration]
+  // that would clash with Int => Expression[Any] when need for queryParam
+  def during(duration: Int)(chain: ChainBuilder): B =
+    during(duration.seconds.expressionSuccess)(chain)
+  def during(duration: Int, counterName: String)(chain: ChainBuilder): B =
+    during(duration.seconds.expressionSuccess, counterName)(chain)
+  def during(duration: Int, exitASAP: Boolean)(chain: ChainBuilder): B =
+    during(duration.seconds.expressionSuccess, exitASAP = exitASAP)(chain)
+  def during(duration: Int, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    during(duration.seconds.expressionSuccess, counterName, exitASAP)(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def during(duration: Expression[FiniteDuration], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
@@ -97,42 +99,77 @@ private[structure] trait Loops[B] extends Execs[B] {
           conditionValue <- condition(session)
         } yield conditionValue && clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis
 
-  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
-  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration)(chain: ChainBuilder): B =
-    asLongAsDuring(condition, duration.expressionSuccess)(chain)
-  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
-    asLongAsDuring(condition, duration.expressionSuccess, counterName)(chain)
-  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
-    asLongAsDuring(condition, duration.expressionSuccess, exitASAP = exitASAP)(chain)
-  def asLongAsDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
-    asLongAsDuring(condition, duration.expressionSuccess, counterName, exitASAP)(chain)
+  // we need all those overloads because of Scala bug with implicit conversions inference
+  def asLongAsDuring[D](condition: String, duration: Int)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def asLongAsDuring[D](condition: String, duration: Int, counterName: String)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def asLongAsDuring[D](condition: String, duration: Int, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def asLongAsDuring[D](condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(chain)
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def asLongAsDuring(
-      condition: Expression[Boolean],
-      duration: Expression[FiniteDuration],
-      counterName: String = UUID.randomUUID.toString,
-      exitASAP: Boolean = true
-  )(chain: ChainBuilder): B =
+  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration])(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition.el[Boolean], duration, counterName, exitASAP)(chain)
+
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, counterName: String)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(chain)
+
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: ChainBuilder): B =
+    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
     clockBasedLoop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
 
-  // we need these overrides because we can't add an Int => Expression[FiniteDuration] that would clash with Int => Expression[Any]
-  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration)(chain: ChainBuilder): B =
-    doWhileDuring(condition, duration.expressionSuccess)(chain)
-  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String)(chain: ChainBuilder): B =
-    doWhileDuring(condition, duration.expressionSuccess, counterName)(chain)
-  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, exitASAP: Boolean)(chain: ChainBuilder): B =
-    doWhileDuring(condition, duration.expressionSuccess, exitASAP = exitASAP)(chain)
-  def doWhileDuring(condition: Expression[Boolean], duration: FiniteDuration, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
-    doWhileDuring(condition, duration.expressionSuccess, counterName, exitASAP)(chain)
+  def doWhileDuring[D](condition: String, duration: Int)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def doWhileDuring[D](condition: String, duration: Int, counterName: String)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def doWhileDuring[D](condition: String, duration: Int, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def doWhileDuring[D](condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(chain)
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def doWhileDuring(
-      condition: Expression[Boolean],
-      duration: Expression[FiniteDuration],
-      counterName: String = UUID.randomUUID.toString,
-      exitASAP: Boolean = true
-  )(chain: ChainBuilder): B =
+  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration])(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition.el[Boolean], duration, counterName, exitASAP)(chain)
+
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Int)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, counterName: String)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(chain)
+
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, counterName, exitASAP = true)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: ChainBuilder): B =
+    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(chain)
+  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
     clockBasedLoop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)
 
   private def simpleLoop(

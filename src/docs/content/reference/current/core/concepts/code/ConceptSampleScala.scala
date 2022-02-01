@@ -15,10 +15,21 @@
  */
 
 import io.gatling.core.Predef._
-import io.gatling.core.session.Session
 import io.gatling.http.Predef._
 
 class ConceptSampleScala extends Simulation {
+
+//#dsl-bad
+for (i <- 1 to 5) {
+  http("Access Github").get("https://github.com")
+}
+//#dsl-bad
+
+//#dsl-immutable
+val request1 = http("Access Github").get("https://github.com")
+// request1 is left unchanged
+val request2 = request1.header("accept-encoding", "gzip")
+//#dsl-immutable
 
 //#simple-scenario
 scenario("Standard User")
@@ -39,17 +50,4 @@ setUp(
   advUser.inject(rampUsers(500).during(200))
 )
 //#example-definition
-
-  def computeSomeCondition(session: Session): Boolean = true
-
-//#session-incorrect
-exec { session =>
-  if (computeSomeCondition(session)) {
-    // just create a builder that is immediately discarded, hence doesn't do anything
-    // here, you should be using a doIf instead of a function
-    http("Gatling").get("https://gatling.io")
-  }
-  session
-}
-//#session-incorrect
 }

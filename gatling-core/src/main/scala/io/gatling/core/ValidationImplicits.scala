@@ -38,7 +38,24 @@ object NonValidable {
   implicit val d1, d2 = exclude[ActionBuilder]
 
   // Partially apply the type to be compatible with context bounds:
-  type Types[Scope] = {
+  type NonValidableTypes[Scope] = {
+    type DoesNotContain[X] = Exclude[Scope, X]
+  }
+}
+
+sealed trait NonValidableNonString
+
+@SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
+object NonValidableNonString {
+  private val exclude = Exclude.list[NonValidableNonString]
+  implicit val a_1, a_2 = exclude[SessionAttribute]
+  implicit val b_1, b_2 = exclude[ChainBuilder]
+  implicit val c_1, c_2 = exclude[ScenarioBuilder]
+  implicit val d_1, d_2 = exclude[ActionBuilder]
+  implicit val e_1, e_2 = exclude[String]
+
+  // Partially apply the type to be compatible with context bounds:
+  type NonValidableNonStringTypes[Scope] = {
     type DoesNotContain[X] = Exclude[Scope, X]
   }
 }
@@ -59,9 +76,11 @@ class NoUnexpectedValidationLifting[T](value: T) {
 trait ValidationImplicits {
 
   import NonValidable._
+  import NonValidableNonString._
 
-  implicit def stringToExpression[T: TypeCaster: Types[NonValidable]#DoesNotContain: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
-  implicit def value2Expression[T: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def stringToExpression[T: TypeCaster: ClassTag](string: String): Expression[T] = string.el
+  implicit def value2Success[T: NonValidableTypes[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
+  implicit def value2Expression[T: NonValidableNonStringTypes[NonValidableNonString]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def function2Expression[T](f: Session => T): Expression[T] = session => safely()(f(session))
   implicit def value2NoUnexpectedValidationLifting[T](value: T): NoUnexpectedValidationLifting[T] = new NoUnexpectedValidationLifting(value)
 }
