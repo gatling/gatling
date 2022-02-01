@@ -46,10 +46,6 @@ class CoalescingChannelPool {
 
   void addEntry(
       long clientId, IpAndPort ipAndPort, Set<String> subjectAlternativeNames, Channel channel) {
-    LOGGER.debug(
-        "Adding entry {} with subjectAlternativeNames {} to coalescing pool",
-        ipAndPort,
-        subjectAlternativeNames);
     Map<IpAndPort, Map.Entry<Set<String>, Queue<Channel>>> clientChannels =
         clientChannels(clientId);
     Map.Entry<Set<String>, Queue<Channel>> entry = clientChannels.get(ipAndPort);

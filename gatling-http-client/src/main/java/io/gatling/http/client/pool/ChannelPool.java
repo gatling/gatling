@@ -111,13 +111,16 @@ public class ChannelPool {
         break;
       } else if (isHttp1(channel)) {
         it.remove();
+        LOGGER.debug("Retrieved HTTP/1 channel from pool for key {}", key);
         return channel;
       } else if (isNotGoAway(channel) && canOpenStream(channel)) {
+        LOGGER.debug("Retrieved HTTP/2 channel from pool for key {}", key);
         touch(channel);
         return channel;
       }
     }
 
+    LOGGER.debug("No channel in the pool for key {}", key);
     return null;
   }
 
@@ -127,7 +130,7 @@ public class ChannelPool {
         coalescingChannelPool.getCoalescedChannel(
             clientId, domain, addresses, ChannelPool::canOpenStream);
     if (channel != null) {
-      LOGGER.debug("Retrieving channel from coalescing pool for domain {}", domain);
+      LOGGER.debug("Retrieved channel from coalescing pool for domain {}", domain);
     }
     return channel;
   }
@@ -138,6 +141,10 @@ public class ChannelPool {
       Channel channel,
       ChannelPoolKey key) {
     IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
+    LOGGER.debug(
+        "Offering channel entry {} with subjectAlternativeNames {} to coalescing pool",
+        ipAndPort,
+        subjectAlternativeNames);
     coalescingChannelPool.addEntry(key.clientId, ipAndPort, subjectAlternativeNames, channel);
   }
 
@@ -145,6 +152,8 @@ public class ChannelPool {
     ChannelPoolKey key = channel.attr(CHANNEL_POOL_KEY).get();
     assertNotNull(key, "Channel doesn't have a key");
     touch(channel);
+
+    LOGGER.debug("Offering channel entry {} to pool", key);
 
     if (isHttp1(channel)) {
       remoteChannels(key).offer(channel);
