@@ -970,7 +970,7 @@ public class DefaultHttpClient implements HttpClient {
                           sslHandler.engine().getSession().getProtocol(),
                           sslHandler.engine().getSession().getCipherSuite());
                     }
-                    if (!subjectAlternativeNames.isEmpty()) {
+                    if (subjectAlternativeNames.size() > 1) {
                       channelPool.offerCoalescedChannel(
                           subjectAlternativeNames,
                           (InetSocketAddress) channel.remoteAddress(),
