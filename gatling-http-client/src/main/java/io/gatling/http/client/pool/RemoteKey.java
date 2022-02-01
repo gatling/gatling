@@ -19,6 +19,7 @@ package io.gatling.http.client.pool;
 import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.uri.Uri;
+import java.util.Objects;
 
 public class RemoteKey {
 
@@ -58,9 +59,8 @@ public class RemoteKey {
 
     if (proxyPort != that.proxyPort) return false;
     if (!targetHostBaseUrl.equals(that.targetHostBaseUrl)) return false;
-    if (virtualHost != null ? !virtualHost.equals(that.virtualHost) : that.virtualHost != null)
-      return false;
-    return proxyHost != null ? proxyHost.equals(that.proxyHost) : that.proxyHost == null;
+    if (!Objects.equals(virtualHost, that.virtualHost)) return false;
+    return Objects.equals(proxyHost, that.proxyHost);
   }
 
   @Override
