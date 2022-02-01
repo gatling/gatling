@@ -31,7 +31,7 @@ private[graphite] object MetricsSender {
   def props(clock: Clock, configuration: GatlingConfiguration): Props = {
     val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
     configuration.data.graphite.protocol match {
-      case Tcp => Props(new TcpSender(remote, 5, 5.seconds, clock))
+      case Tcp => Props(new TcpSender(remote, 5, 5.seconds, clock, configuration.data.graphite.bufferSize))
       case Udp => Props(new UdpSender(remote))
     }
   }
