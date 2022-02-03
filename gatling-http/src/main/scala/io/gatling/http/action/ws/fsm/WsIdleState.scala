@@ -26,7 +26,7 @@ import io.gatling.http.client.WebSocket
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.Unpooled
-import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame }
+import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame, WebSocketCloseStatus }
 
 final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, protected val remainingReconnects: Int) extends WsState(fsm) with StrictLogging {
 
@@ -134,7 +134,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
     logger.debug("Client requested WebSocket close")
     scheduleTimeout(connectRequest.getRequestTimeout.millis)
-    webSocket.sendFrame(new CloseWebSocketFrame())
+    webSocket.sendFrame(new CloseWebSocketFrame(WebSocketCloseStatus.NORMAL_CLOSURE))
     //[fl]
     //
     //[fl]
