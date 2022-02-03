@@ -22,10 +22,11 @@ import io.gatling.core.session.Session
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remainingReconnects: Int) extends WsState(fsm) with StrictLogging {
 
-  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
+  override def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): NextWsState = {
     val newSession = (errorMessage match {
       case Some(mess) =>
         val newSession = session.markAsFailed

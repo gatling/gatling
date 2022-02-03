@@ -22,6 +22,7 @@ import io.gatling.http.request.builder.CommonAttributes
 import io.gatling.http.request.builder.ws.WsConnectRequestBuilder
 
 import io.netty.handler.codec.http.HttpMethod
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 object Ws {
 
@@ -67,7 +68,12 @@ class Ws(requestName: Expression[String], wsName: Expression[String]) {
   def sendBytes(bytes: Expression[Array[Byte]]): WsSendBinaryFrameBuilder = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
 
   /**
-   * Closes a WebSocket.
+   * Closes a WebSocket with a 1000 status.
    */
-  def close: WsCloseBuilder = new WsCloseBuilder(requestName, wsName)
+  def close: WsCloseBuilder = new WsCloseBuilder(requestName, wsName, WebSocketCloseStatus.NORMAL_CLOSURE)
+
+  /**
+   * Closes a WebSocket with specified status code and reason.
+   */
+  def close(statusCode: Int, reason: String): WsCloseBuilder = new WsCloseBuilder(requestName, wsName, new WebSocketCloseStatus(statusCode, reason))
 }

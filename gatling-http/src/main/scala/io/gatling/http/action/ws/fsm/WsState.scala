@@ -25,7 +25,7 @@ import io.gatling.http.client.WebSocket
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.Cookie
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
+import io.netty.handler.codec.http.websocketx.{ TextWebSocketFrame, WebSocketCloseStatus }
 
 object NextWsState {
   val DoNothing: () => Unit = () => {}
@@ -72,7 +72,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState =
     onIllegalState(s"Unexpected onWebSocketClosed in $stateName state", timestamp)
 
-  def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState =
+  def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): NextWsState =
     onIllegalState(s"Unexpected onClientCloseRequest call in $stateName state", fsm.clock.nowMillis)
 
   def onTimeout(): NextWsState =

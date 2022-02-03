@@ -135,13 +135,25 @@ public final class Ws {
   }
 
   /**
-   * Boostrap an action to send a CLOSE frame
+   * Boostrap an action to send a CLOSE frame with the default 1000 status code
    *
    * @return the next DSL step
    */
   @Nonnull
   public ActionBuilder close() {
     return wrapped::close;
+  }
+
+  /**
+   * Boostrap an action to send a CLOSE frame with specified status and reason
+   *
+   * @param statusCode the close frame status code
+   * @param reason the close frame reason
+   * @return the next DSL step
+   */
+  @Nonnull
+  public ActionBuilder close(int statusCode, String reason) {
+    return () -> wrapped.close(statusCode, reason);
   }
 
   public static final class Prefix {

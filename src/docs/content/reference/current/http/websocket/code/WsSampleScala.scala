@@ -42,7 +42,10 @@ exec(ws("Connect WS").connect("/room/chat?username=gatling")
 //#onConnected
 
 //#close
+// close with a 1000 status
 exec(ws("Close WS").close)
+// close with arbitrary status and reason
+exec(ws("Close WS").close(1007, "Invalid payload data"))
 //#close
 
 //#send

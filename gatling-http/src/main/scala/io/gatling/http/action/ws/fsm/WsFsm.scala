@@ -32,6 +32,7 @@ import io.gatling.http.protocol.HttpProtocol
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
 import io.netty.handler.codec.http.cookie.Cookie
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 class WsFsm(
     private[fsm] val wsName: String,
@@ -114,6 +115,6 @@ class WsFsm(
   def onWebSocketCrashed(t: Throwable, timestamp: Long): Unit =
     execute(currentState.onWebSocketCrashed(t, timestamp))
 
-  def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit =
-    execute(currentState.onClientCloseRequest(actionName, session, next))
+  def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): Unit =
+    execute(currentState.onClientCloseRequest(actionName, closeStatus, session, next))
 }

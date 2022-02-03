@@ -21,15 +21,19 @@ import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
+
 class WsCloseBuilder(
     requestName: Expression[String],
-    wsName: Expression[String]
+    wsName: Expression[String],
+    closeStatus: WebSocketCloseStatus
 ) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsClose(
       requestName,
       wsName,
+      closeStatus,
       ctx.coreComponents.statsEngine,
       ctx.coreComponents.clock,
       next = next

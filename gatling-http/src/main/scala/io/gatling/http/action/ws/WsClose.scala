@@ -23,9 +23,12 @@ import io.gatling.core.session.{ Session, _ }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
+
 class WsClose(
     override val requestName: Expression[String],
     wsName: Expression[String],
+    closeStatus: WebSocketCloseStatus,
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     val next: Action
@@ -43,6 +46,6 @@ class WsClose(
       fsm <- fetchFsm(fsmName, session)
     } yield {
       logger.debug(s"Closing websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onClientCloseRequest(reqName, session, next)
+      fsm.onClientCloseRequest(reqName, closeStatus, session, next)
     }
 }

@@ -131,10 +131,10 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     NextWsState(new WsCrashedState(fsm, None, remainingReconnects))
   }
 
-  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
+  override def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): NextWsState = {
     logger.debug("Client requested WebSocket close")
     scheduleTimeout(connectRequest.getRequestTimeout.millis)
-    webSocket.sendFrame(new CloseWebSocketFrame(WebSocketCloseStatus.NORMAL_CLOSURE))
+    webSocket.sendFrame(new CloseWebSocketFrame(closeStatus))
     //[fl]
     //
     //[fl]

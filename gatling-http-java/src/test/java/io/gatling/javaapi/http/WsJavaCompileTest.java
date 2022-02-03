@@ -119,6 +119,7 @@ public class WsJavaCompileTest extends Simulation {
                           .then(bodyLength().lte(10))
                           .silent()))
           .exec(ws("Close WS").close())
+          .exec(ws("Close WS").close(1000, "Bye"))
           .exec(ws("Open Named", "foo").connect("/bar"))
           .exec(ws("SendTextMessageWithElFileBody").sendText(ElFileBody("pathToSomeFile")))
           .exec(
