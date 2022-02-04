@@ -176,7 +176,7 @@ private[graphite] class TcpSender(
 
   initialize()
 
-  private def askForConnection(): Unit =
+  protected def askForConnection(): Unit =
     IO(Tcp) ! Connect(remote)
 
   private def stopIfLimitReachedOrContinueWith(failures: Retry)(continueState: this.State) =

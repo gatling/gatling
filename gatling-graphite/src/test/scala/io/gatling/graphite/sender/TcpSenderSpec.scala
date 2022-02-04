@@ -31,8 +31,9 @@ import akka.util.ByteString
 class TcpSenderSpec extends AkkaSpec {
 
   private val dummySocketAddress = new InetSocketAddress(9999)
+  private val dummyBufferSize = 8192
 
-  private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock) {
+  private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock, dummyBufferSize) {
     override def askForConnection(): Unit = ()
   }
 
