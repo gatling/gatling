@@ -10,6 +10,10 @@ weight: 2030503
 Sometimes, you might want to dynamic parameters that are too complex to compute for Gatling EL.
 Most Gatling DSL methods can also be passed a function to compute your parameter value programmatically.
 
+{{< alert warning >}}
+Those functions are executed in Gatling's shared threads, so you must absolutely avoid performing long blocking operations in there, such as remote API calls.
+{{< /alert >}}
+
 ## Syntax
 
 Those functions always take a `Session` parameter, so you can extract previously stored data.
