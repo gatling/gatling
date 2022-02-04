@@ -55,7 +55,7 @@ private[graphite] class TcpSender(
       unstashAll()
       val connection = sender()
       connection ! Register(self)
-      goto(Running) using ConnectedData(connection, failures, 0, Vector.empty[ByteString], 0L, false, 0)
+      goto(Running) using ConnectedData(connection, failures, 0, Nil, 0L, false, 0, 10, false)
 
     // Re-connection succeeded, flush outstanding messages and proceed to running state
     case Event(_: Connected, data: ConnectedData) =>
@@ -85,8 +85,8 @@ private[graphite] class TcpSender(
       logger.info(s"Sending metrics to Graphite server located at: $remote")
       data.connection ! Write(bytes, Ack(currentOffset(data)))
       buffer(bytes, data) match {
-        case Success(data) => stay() using data
-        case Failure(_) => goto(BufferOverflow) using NoData
+        case Success(newData) => stay() using newData
+        case _ => goto(BufferOverflow) using NoData
       }
 
     case Event(Ack(ack), data: ConnectedData) =>
@@ -94,59 +94,52 @@ private[graphite] class TcpSender(
 
     // Connection actor failed to send metric, log it as a failure
     case Event(CommandFailed(Write(_, Ack(ack))), data: ConnectedData) =>
-      logger.info(s"Failed to write to Graphite server located at: $remote, buffering...")
+      logger.warn(s"Failed to write to Graphite server located at: $remote, buffering...")
       data.connection ! ResumeWriting
       goto(Buffering) using data.copy(nack = ack)
 
     // Server quits unexpectedly, retry connection
     case Event(PeerClosed | ErrorClosed(_), data: ConnectedData) =>
-      logger.info(s"Disconnected from Graphite server located at: $remote, retrying...")
+      logger.warn(s"Disconnected from Graphite server located at: $remote, retrying...")
       stopIfLimitReachedOrReconnect(data)
   }
 
-  when(Buffering)(event => {
-    var toAck = 10
-    var peerClosed = false
+  when(Buffering) {
+    case Event(GraphiteMetrics(bytes), data: ConnectedData) =>
+      buffer(bytes, data) match {
+        case Success(data) => stay() using data
+        case _ => goto(BufferOverflow) using NoData
+      }
 
-    event match {
-      case Event(GraphiteMetrics(bytes), data: ConnectedData) =>
-        buffer(bytes, data) match {
-          case Success(data) => stay() using data
-          case Failure(_) => goto(BufferOverflow) using NoData
-        }
+    case Event(WritingResumed, data: ConnectedData) =>
+      writeFirst(data)
+      stay() using data
 
-      case Event(WritingResumed, data: ConnectedData) =>
-        writeFirst(data)
-        stay() using data
+    case Event(PeerClosed, data: ConnectedData) =>
+      stay() using data.copy(peerClosed = true)
 
-      case Event(PeerClosed, data: ConnectedData) =>
-        peerClosed = true
-        stay() using data
+    case Event(Ack(ack), data: ConnectedData) if ack < data.nack =>
+      stay() using acknowledge(ack, data)
 
-      case Event(Ack(ack), data: ConnectedData) if ack < data.nack =>
-        stay() using acknowledge(ack, data)
-
-      case Event(Ack(ack), data: ConnectedData) =>
-        val newData = acknowledge(ack, data)
-        if (newData.storage.nonEmpty) {
-          if (toAck > 0) {
-            writeFirst(newData)
-            toAck -= 1
-            stay() using newData
+    case Event(Ack(ack), data: ConnectedData) =>
+      val newData = acknowledge(ack, data)
+      if (newData.storage.nonEmpty) {
+        if (newData.toAck > 0) {
+          writeFirst(newData)
+          stay() using newData.copy(toAck = newData.toAck - 1)
+        } else {
+          writeAll(newData)
+          if (newData.peerClosed) {
+            goto(FlushingBuffer) using newData.copy(peerClosed = false, toAck = 10)
           } else {
-            writeAll(newData)
-            if (peerClosed) {
-              goto(FlushingBuffer) using newData
-            } else {
-              goto(Running) using newData
-            }
+            goto(Running) using newData.copy(peerClosed = false, toAck = 10)
           }
-        } else if (peerClosed) {
-          stopIfLimitReachedOrReconnect(newData)
         }
-        else goto(Running) using newData
-    }
-  })
+      } else if (newData.peerClosed) {
+        stopIfLimitReachedOrReconnect(newData.copy(peerClosed = false, toAck = 10))
+      }
+      else goto(Running) using newData.copy(peerClosed = false, toAck = 10)
+  }
 
   when(FlushingBuffer) {
     case Event(CommandFailed(_: Write), data: ConnectedData) =>
@@ -234,14 +227,12 @@ private[graphite] class TcpSender(
     }
   }
 
-  private def writeFirst(data: ConnectedData): Unit = {
+  private def writeFirst(data: ConnectedData): Unit =
     data.connection ! Write(data.storage(0), Ack(data.storageOffset))
-  }
 
   private def writeAll(data: ConnectedData): Unit = {
-    for ((bytes, i) <- data.storage.zipWithIndex) {
+    for ((bytes, i) <- data.storage.zipWithIndex)
       data.connection ! Write(bytes, Ack(data.storageOffset + i))
-    }
   }
 }
 
