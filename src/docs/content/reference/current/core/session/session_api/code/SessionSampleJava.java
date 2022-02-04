@@ -21,17 +21,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.gatling.javaapi.core.CoreDsl.*;
+
 class SessionSampleJava {
 
   Session session = null;
   {
 //#sessions-are-immutable
-// wrong usage: result from first call is discarded
-session.set("foo", "FOO");
-session.set("bar", "BAR");
+// wrong usage: result from Session#set is discarded
+exec(session -> {
+  session.set("foo", "bar");
+  System.out.println(session);
+  return session;
+});
 
 // correct usage
-session.set("foo", "FOO").set("bar", "BAR");
+exec(session -> {
+  Session newSession = session.set("foo", "bar");
+  System.out.println(newSession);
+  return newSession;
+});
 //#sessions-are-immutable
   }
 
