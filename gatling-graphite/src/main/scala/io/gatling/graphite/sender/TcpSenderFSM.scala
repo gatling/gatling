@@ -33,4 +33,4 @@ private[sender] case object BufferOverflow extends TcpSenderState
 private[sender] sealed trait TcpSenderData
 private[sender] case object NoData extends TcpSenderData
 private[sender] final case class DisconnectedData(retry: Retry) extends TcpSenderData
-private[sender] final case class ConnectedData(connection: ActorRef, retry: Retry, storageOffset: Int, storage: Vector[ByteString], stored: Long, suspended: Boolean, nack: Int) extends TcpSenderData
+private[sender] final case class ConnectedData(connection: ActorRef, retry: Retry, storageOffset: Int, storage: List[ByteString], stored: Long, suspended: Boolean, nack: Int, toAck: Int, peerClosed: Boolean) extends TcpSenderData
