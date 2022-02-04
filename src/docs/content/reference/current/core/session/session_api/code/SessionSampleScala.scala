@@ -15,19 +15,28 @@
  */
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.Predef._
 import io.gatling.core.session.Session
+
 
 class SessionSampleScala {
 val session: Session = ???
 
   {
 //#sessions-are-immutable
-// wrong usage: result from first call is discarded
-session.set("foo", "FOO")
-session.set("bar", "BAR")
+// wrong usage: result from Session#set is discarded
+exec { session =>
+  session.set("foo", "bar")
+  println(session)
+  session
+}
 
 // correct usage
-session.set("foo", "FOO").set("bar", "BAR")
+exec { session =>
+  val newSession = session.set("foo", "bar")
+  println(newSession)
+  newSession
+}
 //#sessions-are-immutable
   }
 
