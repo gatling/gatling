@@ -16,15 +16,17 @@
 
 package io.gatling.graphite.sender
 
-import akka.io.{IO, Tcp}
-import akka.util.ByteString
-import io.gatling.commons.util.Clock
-import io.gatling.graphite.message.GraphiteMetrics
-
 import java.net.InetSocketAddress
-import java.nio.BufferOverflowException
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import java.nio.BufferOverflowException
+
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
+import io.gatling.commons.util.Clock
+import io.gatling.graphite.message.GraphiteMetrics
+
+import akka.io.{IO, Tcp}
+import akka.util.ByteString
 
 private[graphite] final case class Ack(offset: Int) extends Tcp.Event
 
