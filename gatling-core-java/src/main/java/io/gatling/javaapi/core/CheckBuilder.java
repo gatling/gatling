@@ -98,11 +98,11 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.Find<T, P, ScalaX> wrapped,
           CheckType type,
+          Class<?> javaXClass,
           Function<ScalaX, JavaX> scalaXToJavaX) {
         this.wrapped = wrapped;
         this.type = type;
-        this.javaXClass =
-            TypeResolver.resolveRawArguments(Function.class, scalaXToJavaX.getClass())[1];
+        this.javaXClass = javaXClass;
         this.scalaXToJavaX = scalaXToJavaX;
       }
 
@@ -411,8 +411,9 @@ public interface CheckBuilder {
       public Default(
           @Nonnull io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped,
           @Nonnull CheckType type,
+          @Nonnull Class<?> javaXClass,
           @Nonnull Function<ScalaX, JavaX> scalaXToJavaX) {
-        super(wrapped, type, scalaXToJavaX);
+        super(wrapped, type, javaXClass, scalaXToJavaX);
         this.wrapped = wrapped;
       }
 
@@ -1203,7 +1204,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, P, String> wrapped,
           CheckBuilder.CheckType type) {
-        super(wrapped, type, Function.identity());
+        super(wrapped, type, String.class, Function.identity());
       }
 
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, P, X> extract(
@@ -1217,36 +1218,43 @@ public interface CheckBuilder {
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor2()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 3:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor3()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 4:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor4()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 5:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor5()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 6:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor6()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 7:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor7()),
                 type,
+                List.class,
                 Converters::toJavaList);
           case 8:
             return new MultipleFind.Default<>(
                 extract(io.gatling.core.check.regex.GroupExtractor.groupExtractor8()),
                 type,
+                List.class,
                 Converters::toJavaList);
           default:
             throw new IllegalArgumentException(
@@ -1356,7 +1364,7 @@ public interface CheckBuilder {
         implements JsonOfTypeFind {
       public Default(
           io.gatling.core.check.CheckBuilder.Find<T, JsonNode, String> wrapped, CheckType type) {
-        super(wrapped, type, Function.identity());
+        super(wrapped, type, String.class, Function.identity());
       }
 
       @Nonnull
@@ -1369,6 +1377,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
             type,
+            String.class,
             Function.identity());
       }
 
@@ -1378,6 +1387,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
             type,
+            Boolean.class,
             Boolean.class::cast);
       }
 
@@ -1387,6 +1397,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
             type,
+            Integer.class,
             Integer.class::cast);
       }
 
@@ -1396,6 +1407,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
             type,
+            Long.class,
             Long.class::cast);
       }
 
@@ -1405,6 +1417,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
             type,
+            Double.class,
             Double.class::cast);
       }
 
@@ -1414,6 +1427,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
             type,
+            List.class,
             Function.identity());
       }
 
@@ -1423,6 +1437,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
             type,
+            Map.class,
             Function.identity());
       }
 
@@ -1432,6 +1447,7 @@ public interface CheckBuilder {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
             type,
+            Object.class,
             Function.identity());
       }
     }
@@ -1514,7 +1530,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, String> wrapped,
           CheckType type) {
-        super(wrapped, type, Function.identity());
+        super(wrapped, type, String.class, Function.identity());
       }
 
       @Nonnull
@@ -1527,6 +1543,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
             type,
+            String.class,
             Function.identity());
       }
 
@@ -1536,6 +1553,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
             type,
+            Boolean.class,
             Boolean.class::cast);
       }
 
@@ -1545,6 +1563,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
             type,
+            Integer.class,
             Integer.class::cast);
       }
 
@@ -1554,6 +1573,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
             type,
+            Long.class,
             Long.class::cast);
       }
 
@@ -1563,6 +1583,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
             type,
+            Double.class,
             Double.class::cast);
       }
 
@@ -1572,6 +1593,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
             type,
+            List.class,
             Function.identity());
       }
 
@@ -1581,6 +1603,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
             type,
+            Map.class,
             Function.identity());
       }
 
@@ -1590,6 +1613,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
             type,
+            Object.class,
             Function.identity());
       }
     }
@@ -1737,7 +1761,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, NodeSelector, String> wrapped,
           CheckType type) {
-        super(wrapped, type, Function.identity());
+        super(wrapped, type, String.class, Function.identity());
       }
 
       @Nonnull
@@ -1751,6 +1775,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.css.NodeConverter.stringNodeConverter()),
             type,
+            String.class,
             Function.identity());
       }
 
@@ -1760,6 +1785,7 @@ public interface CheckBuilder {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.css.NodeConverter.nodeNodeConverter()),
             type,
+            Node.class,
             Function.identity());
       }
     }

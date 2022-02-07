@@ -28,12 +28,13 @@ import io.gatling.javaapi.core.internal.Expressions._
 object CoreCheckBuilders {
 
   def bodyLength(): CheckBuilder.Find[Integer] =
-    new CheckBuilder.Find.Default(io.gatling.core.Predef.bodyLength, CoreCheckType.BodyLength, (int: Int) => int.asInstanceOf[Integer])
+    new CheckBuilder.Find.Default(io.gatling.core.Predef.bodyLength, CoreCheckType.BodyLength, classOf[Integer], (int: Int) => int.asInstanceOf[Integer])
 
   def substring(pattern: String): CheckBuilder.MultipleFind[Integer] =
     new CheckBuilder.MultipleFind.Default(
       io.gatling.core.Predef.substring(toStringExpression(pattern)),
       CoreCheckType.Substring,
+      classOf[Integer],
       (int: Int) => int.asInstanceOf[Integer]
     )
 
@@ -41,11 +42,17 @@ object CoreCheckBuilders {
     new CheckBuilder.MultipleFind.Default(
       io.gatling.core.Predef.substring(javaFunctionToExpression(pattern)),
       CoreCheckType.Substring,
+      classOf[Integer],
       (int: Int) => int.asInstanceOf[Integer]
     )
 
   val responseTimeInMillis: CheckBuilder.Find[Integer] =
-    new CheckBuilder.Find.Default(io.gatling.core.Predef.responseTimeInMillis, CoreCheckType.ResponseTime, (int: Int) => int.asInstanceOf[Integer])
+    new CheckBuilder.Find.Default(
+      io.gatling.core.Predef.responseTimeInMillis,
+      CoreCheckType.ResponseTime,
+      classOf[Integer],
+      (int: Int) => int.asInstanceOf[Integer]
+    )
 
   def transformSingleCheck[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, ScalaX],
