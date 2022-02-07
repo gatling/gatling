@@ -417,32 +417,33 @@ public interface CheckBuilder {
       }
 
       private <X2> Validate<X2> makeValidate(
-          io.gatling.core.check.CheckBuilder.Validate<T, P, X2> wrapped) {
+          io.gatling.core.check.CheckBuilder.Validate<T, P, X2> wrapped, Class<?> javaXClass) {
         return new Validate.Default<>(wrapped, type, javaXClass);
       }
 
       @Override
       @Nonnull
       public Validate<JavaX> find() {
-        return makeValidate(transformSingleCheck(wrapped.find(), scalaXToJavaX));
+        return makeValidate(transformSingleCheck(wrapped.find(), scalaXToJavaX), javaXClass);
       }
 
       @Override
       @Nonnull
       public Validate<JavaX> find(int occurrence) {
-        return makeValidate(transformSingleCheck(wrapped.find(occurrence), scalaXToJavaX));
+        return makeValidate(
+            transformSingleCheck(wrapped.find(occurrence), scalaXToJavaX), javaXClass);
       }
 
       @Override
       @Nonnull
       public Validate<List<JavaX>> findAll() {
-        return makeValidate(transformSeqCheck(wrapped.findAll(), scalaXToJavaX));
+        return makeValidate(transformSeqCheck(wrapped.findAll(), scalaXToJavaX), List.class);
       }
 
       @Override
       @Nonnull
       public Validate<JavaX> findRandom() {
-        return makeValidate(transformSingleCheck(wrapped.findRandom(), scalaXToJavaX));
+        return makeValidate(transformSingleCheck(wrapped.findRandom(), scalaXToJavaX), javaXClass);
       }
 
       @Override
@@ -454,13 +455,14 @@ public interface CheckBuilder {
       @Override
       @Nonnull
       public Validate<List<JavaX>> findRandom(int num, boolean failIfLess) {
-        return makeValidate(transformSeqCheck(wrapped.findRandom(num, failIfLess), scalaXToJavaX));
+        return makeValidate(
+            transformSeqCheck(wrapped.findRandom(num, failIfLess), scalaXToJavaX), List.class);
       }
 
       @Override
       @Nonnull
       public Validate<Integer> count() {
-        return makeValidate(toCountCheck(wrapped));
+        return makeValidate(toCountCheck(wrapped), Integer.class);
       }
     }
   }
