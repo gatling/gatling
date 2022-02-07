@@ -36,38 +36,37 @@ The consequence is that it's identified by browsers as a security threat, so, on
 
 The Recorder has 3 modes:
 
-* Self-signed certificate (historical default)
+#### Certificate Authority {#https-ca}
+
+In this mode, the Recorder will use a private [Certificate Authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) to generate on-the-fly properly signed certificates for every visited domain.
+
+You can either ask Gatling to generate the CA certificate and private key files for you, or provide your own ones.
+
+{{< alert tip >}}
+You'll have to import the CA certificate into your browser's keystore:
+* official documentation for [desktop Google Chrome](https://support.google.com/chrome/a/answer/6342302?hl=en)
+* official documentation for [desktop Firefox](https://support.mozilla.org/en-US/kb/setting-certificate-authorities-firefox)
+* on OSX for iPhone, IPad, you simply have to send you the certificate file by email, and then open the attached file
+* official documentation for [Android](https://support.google.com/nexus/answer/2844832?hl=en).
+{{< /alert >}}
+
+#### Provided KeyStore {#https-keystore}
+
+You can pass a full Java keyStore (JKS or PKCS#12 format) that contains the certificate to be used.
+This mode is useful if you have already generated a Java keystore for your application and want to reuse it for recording.
+
+{{< alert tip >}}
+You'll have to import the CA certificate into your browser's keystore, as described above.
+{{< /alert >}}
+
+#### Self-signed Certificate (legacy) {#https-self-signed}
 
 The recorder will use the same self-signed certificate for every domain.
+This mode is the legacy one and is becoming more and more complicated to use due to the security hardening trend in web browsers.
+
 Browsers will prompt a security alert, and ask you if you want to add a security exception for this domain.
 If it doesn't do so, it means that you've already registered a validated (by a standard Certificate Authority) certificate and it refuses to replace it by a less secured one.
 You then have to remove it from your certificate registry.
-
-{{< alert warning >}}
-Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CDNs).
-
-The Recorder will list all such domains, you'll then have to directly visit every one of them and add a security exception for each.
-{{< /alert >}}
-
-* Provided KeyStore
-
-One can pass a full Java keyStore (JKS or PKCS#12 format) that contains the certificate to be used.
-This mode is useful if you have already generated a Java keystore for your application and want to reuse it for recording.
-
-* On-the-fly certificate generation
-
-This mode takes a Certificate Authority (certificate and private key, in PEM format) and generates signed certificates for every visited domain.
-
-You can either ask Gatling to generate those files for you, or provide a CA of your own.
-
-{{< alert tip >}}
-If you're not using the self-signed certificate, you'll have to import the Certificate Authority certificate into your browser's keystore:
-{{< /alert >}}
-
-* under desktop Chrome, go in HTTPS/SSL settings, Manage Certificates
-* under desktop Firefox, go in Advanced settings, Certificates, Display, Authorities, Import
-* on OSX for iPhone, IPad, you simply have to send you the certificate file by email, and then open the attached file
-* on Android, check [official documentation](https://support.google.com/nexus/answer/2844832?hl=en).
 
 ### Outgoing proxy
 
