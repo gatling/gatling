@@ -153,6 +153,7 @@ public final class HttpDsl {
     return new CheckBuilder.Find.Default<>(
         io.gatling.http.Predef.currentLocation(),
         HttpCheckType.CurrentLocation,
+        String.class,
         Function.identity());
   }
 
@@ -201,6 +202,7 @@ public final class HttpDsl {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.http.Predef.header(toStaticValueExpression(name)),
         HttpCheckType.Header,
+        String.class,
         Function.identity());
   }
 
@@ -215,6 +217,7 @@ public final class HttpDsl {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.http.Predef.header(toExpression(name, CharSequence.class)),
         HttpCheckType.Header,
+        String.class,
         Function.identity());
   }
 
@@ -230,6 +233,7 @@ public final class HttpDsl {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.http.Predef.header(javaFunctionToExpression(name)),
         HttpCheckType.Header,
+        String.class,
         Function.identity());
   }
 
