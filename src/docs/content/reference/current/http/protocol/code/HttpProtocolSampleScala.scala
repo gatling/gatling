@@ -41,7 +41,7 @@ val scn = scenario("Scenario")
   )
   // will make a request to "https://github.com/gatling/gatling"
   .exec(
-    http("Absolute").get("https://github.com")
+    http("Absolute").get("https://github.com/gatling/gatling")
   )
 
 setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
