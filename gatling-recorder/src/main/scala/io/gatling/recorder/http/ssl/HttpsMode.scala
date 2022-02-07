@@ -23,14 +23,14 @@ private[recorder] sealed abstract class HttpsMode(val label: String) extends Lab
 
 private[recorder] case object HttpsMode {
 
-  case object SelfSignedCertificate extends HttpsMode("Self-signed Certificate")
-  case object ProvidedKeyStore extends HttpsMode("Provided Keystore")
   case object CertificateAuthority extends HttpsMode("Certificate Authority")
+  case object ProvidedKeyStore extends HttpsMode("Provided Keystore")
+  case object SelfSignedCertificate extends HttpsMode("Self-signed Certificate")
 
   val AllHttpsModes = List(
-    SelfSignedCertificate,
+    CertificateAuthority,
     ProvidedKeyStore,
-    CertificateAuthority
+    SelfSignedCertificate
   )
 
   def apply(s: String): HttpsMode =
