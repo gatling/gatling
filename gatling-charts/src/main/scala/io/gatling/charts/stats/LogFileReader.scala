@@ -127,6 +127,10 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
 
     logger.info(s"First pass done: read $count lines")
 
+    assert(runStart != Long.MaxValue, "Undefined run start")
+    assert(runEnd != Long.MinValue, "Undefined run end")
+    assert(runEnd > runStart, s"Run didn't last")
+
     FirstPassData(
       runStart,
       runEnd,
