@@ -64,12 +64,7 @@ private[render] class ProtocolTemplate(config: RecorderConfiguration) {
       val filtersConfig = config.filters
 
       def quotedStringList(xs: Seq[String]): String =
-        format match {
-          case Format.Java8 | Format.Java11 =>
-            xs.map(p => "\"" + p.replace("\\", "\\\\") + "\"").mkString(", ")
-          case _ =>
-            xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-        }
+        xs.map(_.protect(format)).mkString(", ")
 
       def denyListPatterns = s"DenyList(${quotedStringList(filtersConfig.denyList.patterns)})"
       def allowListPatterns = s"AllowList(${quotedStringList(filtersConfig.allowList.patterns)})"

@@ -30,8 +30,8 @@ package object template {
   private[template] implicit final class TemplateString(val string: String) extends AnyVal {
     def protect(format: Format): String =
       format match {
-        case Format.Scala | Format.Kotlin | Format.Java17 => multilineString
-        case _                                            => protectJavaString
+        case Format.Scala | Format.Kotlin => multilineString
+        case _                            => protectJavaString
       }
 
     private def multilineString: String = {
