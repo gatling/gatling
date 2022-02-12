@@ -23,12 +23,13 @@ import scala.annotation.tailrec
 object Classes {
 
   private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
+    val lastPosition = className.length - 1
     var bufferedChar: Char = className.charAt(0)
     var offset = 0
     var next = 0
     while ({
       next = className.indexOf('.', offset)
-      next != -1
+      next != -1 && next != lastPosition
     }) {
       sb.append(bufferedChar).append('.')
       bufferedChar = className.charAt(next + 1)
@@ -39,7 +40,7 @@ object Classes {
       sb.append(bufferedChar)
     }
 
-    val endOffset = if (className.charAt(className.length - 1) == '$') 1 else 0
+    val endOffset = if (className.charAt(lastPosition) == '$') 1 else 0
 
     sb.append(className, offset, className.length - endOffset)
   }

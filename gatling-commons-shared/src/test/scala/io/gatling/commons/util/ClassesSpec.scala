@@ -34,4 +34,8 @@ class ClassesSpec extends AnyFlatSpecLike with Matchers {
   it should "drop object trailing $" in {
     toClassShortName("Foo$") shouldBe "Foo"
   }
+
+  it should "return malformed input as is" in {
+    toClassShortName("foo.") shouldBe "foo."
+  }
 }
