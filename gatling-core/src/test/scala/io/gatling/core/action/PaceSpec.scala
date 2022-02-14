@@ -25,6 +25,7 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.testkit._
 
+@SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class PaceSpec extends AkkaSpec {
 
   private val clock = new DefaultClock
