@@ -28,6 +28,7 @@ import akka.io.Tcp._
 import akka.testkit._
 import akka.util.ByteString
 
+@SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class TcpSenderSpec extends AkkaSpec {
 
   private val dummySocketAddress = new InetSocketAddress(9999)

@@ -17,12 +17,10 @@
 package io.gatling.compiler
 
 import java.io.{ File => JFile }
-import java.net.{ URL, URLClassLoader }
+import java.net.URLClassLoader
 import java.nio.file.{ Files, Path }
 import java.util.Optional
-import java.util.jar.{ Attributes, Manifest => JManifest }
 
-import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
 
 import io.gatling.compiler.config.CompilerConfiguration
@@ -38,7 +36,7 @@ import xsbti.{ FileConverter, Position, Problem, T2, VirtualFile }
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 import xsbti.compile.analysis.ReadStamps
 
-object ZincCompiler extends App with ProblemStringFormats {
+object ZincCompiler extends ProblemStringFormats {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
@@ -52,7 +50,7 @@ object ZincCompiler extends App with ProblemStringFormats {
         throw new RuntimeException(s"Can't find the jar matching $regex")
       )
 
-  private def doCompile(): Unit = {
+  private def doCompile(args: Array[String]): Unit = {
     val configuration = CompilerConfiguration.configuration(args)
     Files.createDirectories(configuration.binariesDirectory)
 
@@ -223,12 +221,13 @@ object ZincCompiler extends App with ProblemStringFormats {
     )
   }
 
-  try {
-    doCompile()
-    logger.debug("Compilation successful")
-  } catch {
-    case t: Throwable =>
-      logger.error("Compilation crashed", t)
-      System.exit(1)
-  }
+  def main(args: Array[String]): Unit =
+    try {
+      doCompile(args)
+      logger.debug("Compilation successful")
+    } catch {
+      case t: Throwable =>
+        logger.error("Compilation crashed", t)
+        System.exit(1)
+    }
 }
