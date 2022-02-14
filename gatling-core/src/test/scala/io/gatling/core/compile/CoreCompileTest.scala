@@ -96,7 +96,7 @@ class CoreCompileTest extends Simulation {
       .pause(1, constantPauses)
       .pause(100.millis, constantPauses)
       .pause("#{pause}", constantPauses)
-      .pause(session => 100.millis, constantPauses)
+//      .pause(session => 100.millis, constantPauses)
       .pause(1, 2, constantPauses)
       .pause(100.millis, 200.millis, constantPauses)
       .pause("#{min}", "#{max}", constantPauses)
@@ -109,7 +109,7 @@ class CoreCompileTest extends Simulation {
       .pace("#{pace}")
       .pace("#{pace}", "counter")
       .pace(session => 1.second)
-      .pace(session => 1.second, "counter")
+//      .pace(session => 1.second, "counter")
       .pace(1, 2)
       .pace(1, 2, "counter")
       .pace(1.second, 2.seconds)
@@ -172,9 +172,9 @@ class CoreCompileTest extends Simulation {
       .asLongAs("#{condition}", "counterName") {
         chain1
       }
-      .asLongAs("#{condition}", exitASAP = true) {
-        chain1
-      }
+//      .asLongAs("#{condition}", exitASAP = true) {
+//        chain1
+//      }
       .asLongAs("#{condition}", "counterName", true) {
         chain1
       }
@@ -184,9 +184,9 @@ class CoreCompileTest extends Simulation {
       .asLongAs(session => true, "counterName") {
         chain1
       }
-      .asLongAs(session => true, exitASAP = true) {
-        chain1
-      }
+//      .asLongAs(session => true, exitASAP = true) {
+//        chain1
+//      }
       .asLongAs(session => true, "counterName", true) {
         chain1
       }
@@ -210,9 +210,9 @@ class CoreCompileTest extends Simulation {
       .asLongAsDuring("#{condition}", "#{duration}", "counterName") {
         chain1
       }
-      .asLongAsDuring("#{condition}", "#{duration}", exitASAP = true) {
-        chain1
-      }
+//      .asLongAsDuring("#{condition}", "#{duration}", exitASAP = true) {
+//        chain1
+//      }
       .asLongAsDuring("#{condition}", "#{duration}", "counterName", true) {
         chain1
       }
@@ -222,9 +222,9 @@ class CoreCompileTest extends Simulation {
       .asLongAsDuring(session => true, session => 1.second, "counterName") {
         chain1
       }
-      .asLongAsDuring(session => true, session => 1.second, exitASAP = true) {
-        chain1
-      }
+//      .asLongAsDuring(session => true, session => 1.second, exitASAP = true) {
+//        chain1
+//      }
       .asLongAsDuring(session => true, session => 1.second, "counterName", true) {
         chain1
       }
@@ -234,9 +234,9 @@ class CoreCompileTest extends Simulation {
       .doWhileDuring("#{condition}", "#{duration}", "counterName") {
         chain1
       }
-      .doWhileDuring("#{condition}", "#{duration}", exitASAP = true) {
-        chain1
-      }
+//      .doWhileDuring("#{condition}", "#{duration}", exitASAP = true) {
+//        chain1
+//      }
       .doWhileDuring("#{condition}", "#{duration}", "counterName", true) {
         chain1
       }
@@ -246,9 +246,9 @@ class CoreCompileTest extends Simulation {
       .doWhileDuring(session => true, session => 1.second, "counterName") {
         chain1
       }
-      .doWhileDuring(session => true, session => 1.second, exitASAP = true) {
-        chain1
-      }
+//      .doWhileDuring(session => true, session => 1.second, exitASAP = true) {
+//        chain1
+//      }
       .doWhileDuring(session => true, session => 1.second, "counterName", true) {
         chain1
       }
