@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 60
     env:
       JAVA_OPTS: "-Xmx6G"
-      SBT_OPTS: "-Dsbt.ci=true"
+      SBT_OPTS: "-Dsbt.ci=true -Xss100M"
     steps:
       - uses: actions/checkout@v2
 

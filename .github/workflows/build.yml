@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 30
     env:
       JAVA_OPTS: "-Xmx6G"
-      SBT_OPTS: "-Dsbt.ci=true"
+      SBT_OPTS: "-Dsbt.ci=true -Xss100M"
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.8.0
