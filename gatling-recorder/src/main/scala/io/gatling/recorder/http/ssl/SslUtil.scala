@@ -29,18 +29,18 @@ import scala.concurrent.duration._
 import scala.util.{ Try, Using }
 
 import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.recorder.internal.bouncycastle.asn1.x509.{ Extension, GeneralName, GeneralNames }
+import io.gatling.recorder.internal.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
+import io.gatling.recorder.internal.bouncycastle.cert.jcajce.{ JcaX509CertificateConverter, JcaX509CertificateHolder, JcaX509v1CertificateBuilder }
+import io.gatling.recorder.internal.bouncycastle.jce.provider.BouncyCastleProvider
+import io.gatling.recorder.internal.bouncycastle.openssl.{ PEMKeyPair, PEMParser }
+import io.gatling.recorder.internal.bouncycastle.openssl.jcajce.{ JcaPEMKeyConverter, JcaPEMWriter }
+import io.gatling.recorder.internal.bouncycastle.operator.jcajce.JcaContentSignerBuilder
+import io.gatling.recorder.internal.bouncycastle.pkcs.PKCS10CertificationRequest
+import io.gatling.recorder.internal.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }
-import org.bouncycastle.asn1.x509.{ Extension, GeneralName, GeneralNames }
-import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
-import org.bouncycastle.cert.jcajce.{ JcaX509CertificateConverter, JcaX509CertificateHolder, JcaX509v1CertificateBuilder }
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.openssl.{ PEMKeyPair, PEMParser }
-import org.bouncycastle.openssl.jcajce.{ JcaPEMKeyConverter, JcaPEMWriter }
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import org.bouncycastle.pkcs.PKCS10CertificationRequest
-import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
 private[ssl] final case class Ca(cert: X509Certificate, privKey: PrivateKey)
 private[ssl] final case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey, hostname: String)
@@ -107,11 +107,15 @@ private[recorder] object SslUtil extends StrictLogging {
 
   def getCA(crtFile: InputStream, keyFile: InputStream): Try[Ca] =
     Try {
-      val certHolder = readPEM(crtFile).asInstanceOf[X509CertificateHolder]
-      val certificate = certificateFromHolder(certHolder)
+      val certificate = readPEM(crtFile) match {
+        case x509: X509CertificateHolder => certificateFromHolder(x509)
+        case _                           => throw new IllegalArgumentException("Cert file is not a valid X509 cert")
+      }
 
-      val keyInfo = readPEM(keyFile).asInstanceOf[PEMKeyPair].getPrivateKeyInfo
-      val privKey = new JcaPEMKeyConverter().getPrivateKey(keyInfo)
+      val privKey = readPEM(keyFile) match {
+        case pem: PEMKeyPair => new JcaPEMKeyConverter().getPrivateKey(pem.getPrivateKeyInfo)
+        case _               => throw new IllegalArgumentException("Key file is not a valid PEM key pair")
+      }
 
       Ca(certificate, privKey)
     }
