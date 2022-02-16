@@ -993,13 +993,10 @@ public class DefaultHttpClient implements HttpClient {
                     }
                     tx.listener.onProtocolAwareness(false);
                     ctx.pipeline()
-                        .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
-                        .addBefore(
-                            CHUNKED_WRITER_HANDLER,
-                            INFLATER_HANDLER,
-                            new CustomHttpContentDecompressor())
-                        .addAfter(
-                            CHUNKED_WRITER_HANDLER,
+                        .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
+                        .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
+                        .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
+                        .addLast(
                             APP_HTTP_HANDLER,
                             new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
                     whenAlpn.setSuccess(null);
