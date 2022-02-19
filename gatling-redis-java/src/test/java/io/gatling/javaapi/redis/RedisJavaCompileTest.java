@@ -27,7 +27,7 @@ public class RedisJavaCompileTest extends Simulation {
   private RedisClientPool redisPool = null; // new RedisClientPool("localhost", 6379);
 
   {
-    feed(redisFeeder(redisPool, "key").LPOP().SPOP().SRANDMEMBER());
+    feed(redisFeeder(redisPool, "key", "keydest").LPOP().SPOP().SRANDMEMBER().RPOPLPUSH());
   }
 
   @Override

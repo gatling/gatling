@@ -221,6 +221,7 @@ Gatling can read data from Redis using one of the following Redis commands.
 * LPOP - remove and return the first element of the list
 * SPOP - remove and return a random element from the set
 * SRANDMEMBER - return a random element from the set
+* RPOPLPUSH - return the last element of the list and also store as first element to another list
 
 By default RedisFeeder uses LPOP command:
 
@@ -231,6 +232,10 @@ You can then override the desired Redis command:
 {{< include-code "redis-SPOP" java kt scala >}}
 
 {{< include-code "redis-SRANDMEMBER" java kt scala >}}
+
+You can create a circular feeder by using the same keys with RPOPLPUSH
+
+{{< include-code "redis-RPOPLPUSH" java kt scala >}}
 
 ## Transforming Recordsy {#transform}
 

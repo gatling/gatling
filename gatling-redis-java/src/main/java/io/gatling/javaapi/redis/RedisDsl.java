@@ -35,4 +35,18 @@ public final class RedisDsl {
       @Nonnull RedisClientPool clients, @Nonnull String key) {
     return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients, key));
   }
+
+  /**
+   * Bootstrap a Redis feeder
+   *
+   * @param clients the clients pool
+   * @param keySrc the key to look up in the RPOPLPUSH command
+   * @param keyDest the key to store the value in RPOPLPUSH command
+   * @return a new RedisFeederBuilder instance
+   */
+  @Nonnull
+  public static RedisFeederBuilder redisFeeder(
+      @Nonnull RedisClientPool clients, @Nonnull String keySrc, @Nonnull String keyDest) {
+    return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients, keySrc, keyDest));
+  }
 }
