@@ -198,6 +198,28 @@ redisFeeder(redisPool, "foo").SRANDMEMBER();
 //#redis-SRANDMEMBER
   }
 
+
+  {
+    com.redis.RedisClientPool redisPool =
+            new com.redis.RedisClientPool(
+                    "localhost",
+                    6379,
+                    8,
+                    0,
+                    scala.Option.apply(null),
+                    0,
+                    -1,
+                    3000,
+                    scala.Option.apply(null),
+                    com.redis.RedisClient.SINGLE$.MODULE$);
+//#redis-RPOPLPUSH
+// read data using RPOPLPUSH command from a list named "foo" and atomically store in list named "bar"
+redisFeeder(redisPool, "foo", "bar").RPOPLPUSH();
+// identical to above but we create a circular list by using the same keys
+redisFeeder(redisPool, "foo", "foo").RPOPLPUSH();
+//#redis-RPOPLPUSH
+  }
+
   {
 //#transform
 csv("myFile.csv").transform((key, value) ->
