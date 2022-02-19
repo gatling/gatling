@@ -27,6 +27,7 @@ import org.mockito.Mockito._
 class RedisFeederSpec extends BaseSpec {
 
   val KEY = "key"
+  val KEYDEST = "key2"
 
   // Generate list of maps Map(<redis-key> -> <expected-value>)
   def valsLst(key: String, s: String*): List[Record[String]] =
@@ -67,6 +68,14 @@ class RedisFeederSpec extends BaseSpec {
       feeder.next() shouldBe Map(KEY -> "v1")
       feeder.next() shouldBe Map(KEY -> "v2")
       feeder.next() shouldBe Map(KEY -> "v3")
+    }
+  }
+
+  it should "use rpoplpush command" in {
+    new MockContext {
+      when(client.rpoplpush(KEY, KEYDEST)).thenReturn(Some("v3"), Some("v2"), Some("v1"), None)
+
+      redisFeeder(clientPool, KEY, KEYDEST).RPOPLPUSH.apply().toList shouldBe valsLst(KEY, "v3", "v2", "v1")
     }
   }
 }

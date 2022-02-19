@@ -22,34 +22,39 @@ import com.redis.{ RedisClient, RedisClientPool }
 
 /**
  * Class for feeding data from Redis DB, using LPOP, SPOP or
- * SRANDMEMBER commands.
+ * SRANDMEMBER, RPOPLPUSH commands.
  *
  * Originally contributed by Krishnen Chedambarum.
+ * RPOPLPUSH added by Shoaib Khan
  */
 object RedisFeederBuilder {
 
   // Function for executing Redis command
-  private type RedisCommand = (RedisClient, String) => Option[String]
+  private type RedisCommand = (RedisClient, String, String) => Option[String]
 
-  private val LPOP: RedisCommand = (redisClient, key) => redisClient.lpop(key)
+  private val LPOP: RedisCommand = (redisClient, keySrc, _) => redisClient.lpop(keySrc)
 
-  private val SPOP: RedisCommand = (redisClient, key) => redisClient.spop(key)
+  private val SPOP: RedisCommand = (redisClient, keySrc, _) => redisClient.spop(keySrc)
 
-  private val SRANDMEMBER: RedisCommand = (redisClient, key) => redisClient.srandmember(key)
+  private val SRANDMEMBER: RedisCommand = (redisClient, keySrc, _) => redisClient.srandmember(keySrc)
 
-  def apply(clientPool: RedisClientPool, key: String): RedisFeederBuilder =
-    new RedisFeederBuilder(clientPool, key, RedisFeederBuilder.LPOP)
+  private val RPOPLPUSH: RedisCommand = (redisClient, keySrc, keyDest) => redisClient.rpoplpush(keySrc, keyDest)
+
+  def apply(clientPool: RedisClientPool, keySrc: String, keyDest: String): RedisFeederBuilder =
+    new RedisFeederBuilder(clientPool, RedisFeederBuilder.LPOP, keySrc, keyDest)
 }
 
-final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, command: RedisFeederBuilder.RedisCommand) extends FeederBuilder {
+final case class RedisFeederBuilder(clientPool: RedisClientPool, command: RedisFeederBuilder.RedisCommand, keySrc: String, keyDest: String)
+    extends FeederBuilder {
   def LPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.LPOP)
   def SPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.SPOP)
   def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeederBuilder.SRANDMEMBER)
+  def RPOPLPUSH: RedisFeederBuilder = copy(command = RedisFeederBuilder.RPOPLPUSH)
 
   override def apply(): Feeder[Any] = {
     def next: Option[Map[String, String]] = clientPool.withClient { client =>
-      val value = command(client, key)
-      value.map(value => Map(key -> value))
+      val value = command(client, keySrc, keyDest)
+      value.map(value => Map(keySrc -> value))
     }
 
     Iterator.continually(next).takeWhile(_.isDefined).map(_.get)

@@ -145,6 +145,13 @@ redisFeeder(redisPool, "foo").SPOP()
 redisFeeder(redisPool, "foo").SRANDMEMBER()
 //#redis-SRANDMEMBER
 
+//#redis-RPOPLPUSH
+// read data using RPOPLPUSH command from a list named "foo" and atomically store in list named "bar"
+redisFeeder(redisPool, "foo", "bar").RPOPLPUSH();
+// identical to above but we create a circular list by using the same keys
+redisFeeder(redisPool, "foo", "foo").RPOPLPUSH();
+//#redis-RPOPLPUSH
+
 //#transform
 csv("myFile.csv").transform { key, value ->
   if (key.equals("attributeThatShouldBeAnInt")) Integer.valueOf(value) else value

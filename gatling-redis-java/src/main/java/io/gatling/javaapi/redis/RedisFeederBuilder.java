@@ -61,6 +61,16 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
     return new RedisFeederBuilder(wrapped.SRANDMEMBER());
   }
 
+  /**
+   * Use a RPOPLPUSH command (default)
+   *
+   * @return a new RedisFeederBuilder instance
+   */
+  @Nonnull
+  public RedisFeederBuilder RPOPLPUSH() {
+    return new RedisFeederBuilder(wrapped.RPOPLPUSH());
+  }
+
   @Override
   public Iterator<Map<String, Object>> get() {
     return toJavaFeeder(wrapped.apply());
