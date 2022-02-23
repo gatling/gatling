@@ -62,7 +62,7 @@ fi
 # Run the compiler
 "$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler $EXTRA_COMPILER_OPTIONS "$@" 2> /dev/null
 
-GATLING_VERSION="$(ls "${GATLING_HOME}/lib/gatling-app-*.jar" | sed -n -E "s/^.*gatling-app-(.*)\.jar$/\1/p")"
+GATLING_VERSION="$(ls "${GATLING_HOME}/lib/gatling-app-"*.jar | sed -n -E "s/^.*gatling-app-(.*)\.jar$/\1/p")"
 
 echo "GATLING_VERSION is set to '$GATLING_VERSION'"
 
