@@ -122,9 +122,9 @@ private[render] class SimulationTemplate(
           }
         }
 
-      s".pause($pauseString)"
+      s"pause($pauseString)"
     case request: RequestElement =>
-      s""".exec(
+      s"""exec(
          |${requestTemplate.render(simulationClassName, request, extractedUris).indent(2)}
          |)""".stripMargin
   }
@@ -138,14 +138,14 @@ private[render] class SimulationTemplate(
 
     if (elements.size <= MaxElementPerChain) {
       val scenarioElements = elements
-        .map(renderScenarioElement(_, extractedUris))
+        .map(element => s".${renderScenarioElement(element, extractedUris)}")
         .mkString(Eol)
 
       s"""$scenarioReferenceType scn = scenario("$simulationClassName")
          |${scenarioElements.indent(2)}${format.lineTermination}""".stripMargin
 
     } else {
-      val chains =
+      val chains: Seq[(Int, String)] =
         elements
           .grouped(MaxElementPerChain)
           .toList
@@ -166,7 +166,7 @@ private[render] class SimulationTemplate(
                 }
                 s"$prefix${renderScenarioElement(element, extractedUris)}"
               }
-            (i, chainContent)
+            (i, chainContent.mkString(Eol))
           }
 
       val chainReferenceType = format match {
@@ -175,7 +175,7 @@ private[render] class SimulationTemplate(
         case Format.Java8                  => "ChainBuilder"
       }
 
-      s"""${chains.map { case (i, content) => s"$chainReferenceType chain_$i = $content" }.mkString(s"${format.lineTermination}$Eol$Eol")}
+      s"""${chains.map { case (i, content) => s"$chainReferenceType chain_$i =$Eol${content.indent(2)}" }.mkString(s"${format.lineTermination}$Eol$Eol")}
          |
          |$scenarioReferenceType scn = scenario("$simulationClassName")
          |  .exec(${chains.map { case (i, _) => s"chain_$i" }.mkString(", ")})${format.lineTermination}""".stripMargin
