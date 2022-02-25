@@ -42,10 +42,10 @@ object BatchedSeparatedValuesFeeder {
     }
 
     val rawFeeder = strategy match {
-      case Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, streamer)
-      case Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
-      case Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
-      case Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, streamer)
+      case FeederStrategy.Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, streamer)
+      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
+      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
+      case FeederStrategy.Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, streamer)
     }
 
     conversion match {

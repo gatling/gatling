@@ -29,10 +29,10 @@ private[gatling] object InMemoryFeeder {
     }
 
     strategy match {
-      case Queue    => convertedRecords.iterator
-      case Random   => Iterator.continually(convertedRecords(ThreadLocalRandom.current.nextInt(records.length)))
-      case Shuffle  => scala.util.Random.shuffle(convertedRecords).iterator
-      case Circular => CircularIterator(convertedRecords, threadSafe = false)
+      case FeederStrategy.Queue    => convertedRecords.iterator
+      case FeederStrategy.Random   => Iterator.continually(convertedRecords(ThreadLocalRandom.current.nextInt(records.length)))
+      case FeederStrategy.Shuffle  => scala.util.Random.shuffle(convertedRecords).iterator
+      case FeederStrategy.Circular => CircularIterator(convertedRecords, threadSafe = false)
     }
   }
 }

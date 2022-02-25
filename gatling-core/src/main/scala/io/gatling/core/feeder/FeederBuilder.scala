@@ -66,10 +66,10 @@ final case class SourceFeederBuilder[T](
     options: FeederOptions[T]
 ) extends BatchableFeederBuilder[T] {
 
-  def queue: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Queue)
-  def random: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Random)
-  def shuffle: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Shuffle)
-  def circular: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(Circular)
+  def queue: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Queue)
+  def random: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Random)
+  def shuffle: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Shuffle)
+  def circular: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Circular)
 
   override def transform(f: PartialFunction[(String, T), Any]): BatchableFeederBuilder[Any] = {
     val conversion: Record[T] => Record[Any] =
@@ -101,7 +101,8 @@ private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMod
 private[feeder] case object Adaptive extends FeederLoadingMode
 
 object FeederOptions {
-  def default[T]: FeederOptions[T] = new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = Queue, loadingMode = Adaptive)
+  def default[T]: FeederOptions[T] =
+    new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = FeederStrategy.Queue, loadingMode = Adaptive)
 }
 
 final case class FeederOptions[T](
