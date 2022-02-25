@@ -51,7 +51,9 @@ private final class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) ex
       }
     } catch {
       case _: NoSuchElementException | _: ArrayIndexOutOfBoundsException => "Feeder is now empty, stopping engine".failure
-      case NonFatal(e)                                                   => s"Feeder crashed: ${e.detailedMessage}".failure
+      case NonFatal(e) =>
+        logger.error("Feeder crashed", e)
+        s"Feeder crashed: ${e.detailedMessage}".failure
     }
 
   def receive: Receive = { case FeedMessage(session, number, next) =>
