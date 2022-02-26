@@ -42,7 +42,7 @@ class BasicSimulationJava extends Simulation { // 3
   {
     setUp( // 11
       scn.injectOpen(atOnceUsers(1)) // 12
-    ).protocols(httpProtocol); // 13
+        .protocols(httpProtocol)); // 13
   }
 }
 //#quickstart-recorder-output
