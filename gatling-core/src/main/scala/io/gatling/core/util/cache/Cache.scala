@@ -46,7 +46,7 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
     if (map.get(key).contains(value) || maxCapacity == 0) {
       this
 
-    } else if (map.size == maxCapacity) {
+    } else if (map.sizeIs == maxCapacity) {
       val (removedKey, newQueue) = queue.dequeue
       val newMap = map - removedKey + (key -> value)
       new Cache(newQueue.enqueue(key), newMap, maxCapacity)

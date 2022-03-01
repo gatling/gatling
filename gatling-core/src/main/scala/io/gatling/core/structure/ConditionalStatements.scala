@@ -94,7 +94,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a switch added to its actions
    */
   def doSwitch(value: Expression[Any])(possibilities: (Any, ChainBuilder)*): B = {
-    require(possibilities.size >= 2, "doSwitch()() requires at least 2 possibilities")
+    require(possibilities.sizeIs >= 2, "doSwitch()() requires at least 2 possibilities")
     doSwitch(value, possibilities.toList, None)
   }
 
@@ -109,7 +109,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a switch added to its actions
    */
   def doSwitchOrElse(value: Expression[Any])(possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B = {
-    require(possibilities.size >= 2, "doSwitchOrElse()()() requires at least 2 possibilities")
+    require(possibilities.sizeIs >= 2, "doSwitchOrElse()()() requires at least 2 possibilities")
     doSwitch(value, possibilities.toList, Some(elseNext))
   }
 
@@ -154,7 +154,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a random switch added to its actions
    */
   def uniformRandomSwitch(possibilities: ChainBuilder*): B = {
-    require(possibilities.size >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
+    require(possibilities.sizeIs >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
     exec(new UniformRandomSwitchBuilder(possibilities.toList))
   }
 

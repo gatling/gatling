@@ -61,7 +61,7 @@ object ExtractedUris {
       .toMap
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =
-    uris.map(uri => uri.getScheme -> uri.getExplicitPort).toSet.size == 1
+    uris.map(uri => uri.getScheme -> uri.getExplicitPort).toSet.sizeIs == 1
 
   private def query(uri: Uri): String =
     if (uri.getQuery == null) "" else s"?${uri.getQuery}"
@@ -101,7 +101,7 @@ object ExtractedUris {
       .flatMap { case ((_, uris), index) =>
         val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
 
-        if (uris.size == 1 || schemesPortAreSame(uris)) {
+        if (uris.sizeIs == 1 || schemesPortAreSame(uris)) {
           val paths = uris.map(uri => uri.getPath)
           val longestCommonPath = longestCommonRoot(paths)
 

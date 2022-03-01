@@ -50,7 +50,7 @@ private final class RendezVousActor(users: Int, val next: Action) extends BaseAc
 
   def execute(session: Session): Unit = {
     buffer += session
-    if (buffer.length == users) {
+    if (buffer.sizeIs == users) {
       context.become(passThrough)
       buffer.foreach(next ! _)
       buffer.clear()

@@ -67,7 +67,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
         fiftyTimes.map(_ => shuffleFeeder.next())
       }
 
-    val allShuffledSeqsAreDifferent = (shuffledOutcome :+ orderedMaps).distinct.length == 4
+    val allShuffledSeqsAreDifferent = (shuffledOutcome :+ orderedMaps).distinct.sizeIs == 4
     if (!allShuffledSeqsAreDifferent) fail("Shuffle feeder returned the same order at least once out of three attempts")
   }
 

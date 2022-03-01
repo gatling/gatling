@@ -116,7 +116,7 @@ private[sender] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDura
 
   def newRetry: Retry = copyWithNewRetries(clock.nowMillis :: cleanupOldRetries)
 
-  def isLimitReached = cleanupOldRetries.length >= maxRetryLimit
+  def isLimitReached = cleanupOldRetries.sizeIs >= maxRetryLimit
 
   private def cleanupOldRetries: List[Long] = {
     val now = clock.nowMillis

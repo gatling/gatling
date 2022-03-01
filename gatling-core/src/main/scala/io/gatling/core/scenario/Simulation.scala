@@ -52,7 +52,7 @@ object Simulation {
     val duplicates =
       allPopulationBuilders
         .groupBy(_.scenarioBuilder.name)
-        .collect { case (name, scns) if scns.size > 1 => name }
+        .collect { case (name, scns) if scns.sizeIs > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
 
     allPopulationBuilders.foreach { scn =>

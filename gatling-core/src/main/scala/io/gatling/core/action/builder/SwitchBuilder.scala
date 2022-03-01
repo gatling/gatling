@@ -25,7 +25,7 @@ private[core] final class SwitchBuilder(value: Expression[Any], possibilities: L
     extends ActionBuilder
     with NameGen {
 
-  require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
+  require(possibilities.sizeIs >= 2, "Switch requires at least 2 possibilities")
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 

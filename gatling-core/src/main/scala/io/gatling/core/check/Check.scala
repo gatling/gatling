@@ -33,7 +33,7 @@ object Check {
   def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
 
     val preparedCache: PreparedCache =
-      if (checks.size > 1) {
+      if (checks.sizeIs > 1) {
         newPreparedCache
       } else {
         null

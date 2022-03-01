@@ -77,7 +77,7 @@ object CheckBuilder {
             fae(prepared)
               .flatMap {
                 case Some(seq) =>
-                  if (failIfLess && seq.size < num) {
+                  if (failIfLess && seq.sizeIs < num) {
                     s"Failed to collect $num matches".failure
 
                   } else if (seq.isEmpty) {
@@ -85,7 +85,7 @@ object CheckBuilder {
 
                   } else {
                     val randomSeq =
-                      if (num >= seq.size) {
+                      if (seq.sizeIs <= num) {
                         seq
                       } else {
                         val shuffledIndices = Arrays.shuffle(seq.indices.toArray)
@@ -205,7 +205,7 @@ object CheckBuilder {
       override def not(expected: Expression[X])(implicit equality: Equality[X]): Final[T, P] =
         validate(expected.map(new Matcher.Not(_, equality)))
       override def notNull: Final[T, P] = validate(new Matcher.NotNull[X].expressionSuccess)
-      override def in(expected: X*): Final[T, P] = validate(expected.toSeq.expressionSuccess.map(new Matcher.In(_)))
+      override def in(expected: X*): Final[T, P] = validate(expected.expressionSuccess.map(new Matcher.In(_)))
       override def in(expected: Expression[Seq[X]]): Final[T, P] = validate(expected.map(new Matcher.In(_)))
       override def exists: Final[T, P] = validate(new Validator.Exists[X]().expressionSuccess)
       override def notExists: Final[T, P] = validate(new Validator.NotExists[X]().expressionSuccess)

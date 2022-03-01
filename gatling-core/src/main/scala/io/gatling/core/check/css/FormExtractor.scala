@@ -140,7 +140,7 @@ private[css] object FormExtractor {
     }.toMap
 
     val (multiValuedInputs, singleValuedInputs) =
-      allInputs.collect { case single: SingleValueInput => single }.groupBy(_.name).partition { case (_, inputs) => inputs.size > 1 }
+      allInputs.collect { case single: SingleValueInput => single }.groupBy(_.name).partition { case (_, inputs) => inputs.sizeIs > 1 }
 
     val nonEmptyMultiValuedInputs: Map[String, Seq[String]] = filterNonCheckedCheckboxes(multiValuedInputs).collect {
       case (key, nonEmptyInputs) if nonEmptyInputs.nonEmpty => key -> nonEmptyInputs.map(_.value)

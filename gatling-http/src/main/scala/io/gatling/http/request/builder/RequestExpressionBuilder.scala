@@ -111,7 +111,7 @@ abstract class RequestExpressionBuilder(
     val queryParams = commonAttributes.queryParams
 
     commonAttributes.urlOrURI match {
-      case Left(StaticValueExpression(staticUrl)) if protocolBaseUrls.size <= 1 && queryParams.isEmpty =>
+      case Left(StaticValueExpression(staticUrl)) if protocolBaseUrls.sizeIs <= 1 && queryParams.isEmpty =>
         if (isAbsoluteUrl(staticUrl)) {
           Uri.create(staticUrl).expressionSuccess
         } else {
@@ -170,7 +170,7 @@ abstract class RequestExpressionBuilder(
     else {
       val staticHeaders = headers.collect { case (key, StaticValueExpression(value)) => key -> value }
 
-      if (staticHeaders.size == headers.size)
+      if (staticHeaders.sizeIs == headers.size)
         configureStaticHeaders(staticHeaders)
       else
         configureDynamicHeaders

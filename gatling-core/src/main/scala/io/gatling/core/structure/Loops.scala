@@ -45,7 +45,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)
 
     simpleLoop(
-      session => seq(session).map(_.size > session.loopCounterValue(counterName)),
+      session => seq(session).map(_.sizeIs > session.loopCounterValue(counterName)),
       new ChainBuilder(List(exposeCurrentValue)).exec(chain),
       counterName,
       exitASAP = false,

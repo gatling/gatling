@@ -136,7 +136,7 @@ private[render] class SimulationTemplate(
       case Format.Java8                  => "ScenarioBuilder"
     }
 
-    if (elements.size <= MaxElementPerChain) {
+    if (elements.sizeIs <= MaxElementPerChain) {
       val scenarioElements = elements
         .map(element => s".${renderScenarioElement(element, extractedUris)}")
         .mkString(Eol)

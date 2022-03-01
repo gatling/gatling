@@ -91,7 +91,7 @@ private[recorder] object HttpTraffic extends StrictLogging {
       thresholdForPauseCreation: Duration
   ): List[HttpTrafficElement] = {
 
-    if (sortedRequests.size <= 1)
+    if (sortedRequests.sizeIs <= 1)
       sortedRequests.map(_.element)
     else {
       val allElements: List[TimedScenarioElement[HttpTrafficElement]] = (sortedRequests ++ tags).sortBy(_.arrivalTime)

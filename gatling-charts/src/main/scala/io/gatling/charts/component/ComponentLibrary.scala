@@ -35,7 +35,7 @@ private[charts] object ComponentLibrary extends StrictLogging {
       .asScala
       .toList
 
-    if (paths.size > 1) {
+    if (paths.sizeIs > 1) {
       logger.warn("Class path contains multiple ComponentLibrary bindings")
       paths.foreach(url => logger.warn(s"Found ComponentLibrary binding in $url"))
     }

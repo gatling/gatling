@@ -30,7 +30,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
 
   private val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
 
-  private def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
+  private def lines(summary: ConsoleSummary) = summary.text.split("\r?\n")
 
   private def progressBar(summary: ConsoleSummary) = lines(summary)(8)
 
