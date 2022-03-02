@@ -223,7 +223,7 @@ Gatling can read data from Redis using one of the following Redis commands.
 * SRANDMEMBER - return a random element from the set
 * RPOPLPUSH - return the last element of the list and also store as first element to another list
 
-By default RedisFeeder uses LPOP command:
+By default, RedisFeeder uses LPOP command:
 
 {{< include-code "redis-LPOP" java kt scala >}}
 

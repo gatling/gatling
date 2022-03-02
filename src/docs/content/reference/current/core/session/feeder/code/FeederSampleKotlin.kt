@@ -17,9 +17,9 @@
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
 import io.gatling.javaapi.jdbc.JdbcDsl.*
+import io.gatling.javaapi.redis.*
 import io.gatling.javaapi.redis.RedisDsl.*
 import org.apache.commons.lang3.RandomStringUtils
-import scala.Option
 
 class FeederSampleKotlin {
 
@@ -114,19 +114,18 @@ sitemap("/path/to/sitemap/file")
 
 //#redis-LPOP
 // beware: you need to import the redis module
+// import io.gatling.javaapi.redis.*
+// import io.gatling.javaapi.redis.RedisDsl.*
 val redisPool =
-  com.redis.RedisClientPool(
-    "localhost",
-    6379,
-    8,
-    0,
-    Option.apply(null),
-    0,
-    -1,
-    3000,
-    scala.Option.apply(null),
-    com.redis.RedisClient.`SINGLE$`.`MODULE$`
-  )
+  RedisClientPool("localhost", 6379)
+    .withMaxIdle(8)
+      .withDatabase(0)
+      .withSecret(null)
+      .withTimeout(0)
+      .withMaxConnections(-1)
+      .withPoolWaitTimeout(3000)
+      .withSSLContext(null)
+      .withBatchMode(false)
 
 // use a list, so there's one single value per record, which is here named "foo"
 redisFeeder(redisPool, "foo")

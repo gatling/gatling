@@ -127,10 +127,9 @@ sitemap("/path/to/sitemap/file")
 
   {
 //#redis-LPOP
+// beware: you need to import the redis module
 import io.gatling.redis.Predef._
-
 import com.redis._
-
 val redisPool = new RedisClientPool("localhost", 6379)
 
 // use a list, so there's one single value per record, which is here named "foo"

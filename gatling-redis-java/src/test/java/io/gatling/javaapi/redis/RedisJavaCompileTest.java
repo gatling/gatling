@@ -19,7 +19,6 @@ package io.gatling.javaapi.redis;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.redis.RedisDsl.*;
 
-import com.redis.RedisClientPool;
 import io.gatling.javaapi.core.*;
 
 public class RedisJavaCompileTest extends Simulation {
@@ -28,10 +27,5 @@ public class RedisJavaCompileTest extends Simulation {
 
   {
     feed(redisFeeder(redisPool, "key", "keydest").LPOP().SPOP().SRANDMEMBER().RPOPLPUSH());
-  }
-
-  @Override
-  public void after() {
-    redisPool.close();
   }
 }

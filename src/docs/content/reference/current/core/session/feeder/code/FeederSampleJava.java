@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 import static io.gatling.javaapi.jdbc.JdbcDsl.*;
+import io.gatling.javaapi.redis.*;
 import static io.gatling.javaapi.redis.RedisDsl.*;
 
 class FeederSampleJava {
@@ -140,18 +141,18 @@ sitemap("/path/to/sitemap/file");
   {
 //#redis-LPOP
 // beware: you need to import the redis module
-com.redis.RedisClientPool redisPool =
-  new com.redis.RedisClientPool(
-    "localhost",
-    6379,
-    8,
-    0,
-    scala.Option.apply(null),
-    0,
-    -1,
-    3000,
-    scala.Option.apply(null),
-    com.redis.RedisClient.SINGLE$.MODULE$);
+// import io.gatling.javaapi.redis.*;
+// import static io.gatling.javaapi.redis.RedisDsl.*;
+RedisClientPool redisPool =
+  new RedisClientPool("localhost", 6379)
+    .withMaxIdle(8)
+    .withDatabase(0)
+    .withSecret(null)
+    .withTimeout(0)
+    .withMaxConnections(-1)
+    .withPoolWaitTimeout(3000)
+    .withSSLContext(null)
+    .withBatchMode(false);
 
 // use a list, so there's one single value per record, which is here named "foo"
 redisFeeder(redisPool, "foo");
@@ -161,18 +162,16 @@ redisFeeder(redisPool, "foo").LPOP();
   }
 
   {
-    com.redis.RedisClientPool redisPool =
-      new com.redis.RedisClientPool(
-        "localhost",
-        6379,
-        8,
-        0,
-        scala.Option.apply(null),
-        0,
-        -1,
-        3000,
-        scala.Option.apply(null),
-        com.redis.RedisClient.SINGLE$.MODULE$);
+    RedisClientPool redisPool =
+      new RedisClientPool("localhost", 6379)
+        .withMaxIdle(8)
+        .withDatabase(0)
+        .withSecret(null)
+        .withTimeout(0)
+        .withMaxConnections(-1)
+        .withPoolWaitTimeout(3000)
+        .withSSLContext(null)
+        .withBatchMode(false);
 //#redis-SPOP
 // read data using SPOP command from a set named "foo"
 redisFeeder(redisPool, "foo").SPOP();
@@ -180,38 +179,34 @@ redisFeeder(redisPool, "foo").SPOP();
   }
 
   {
-    com.redis.RedisClientPool redisPool =
-      new com.redis.RedisClientPool(
-        "localhost",
-        6379,
-        8,
-        0,
-        scala.Option.apply(null),
-        0,
-        -1,
-        3000,
-        scala.Option.apply(null),
-        com.redis.RedisClient.SINGLE$.MODULE$);
+    RedisClientPool redisPool =
+      new RedisClientPool("localhost", 6379)
+        .withMaxIdle(8)
+        .withDatabase(0)
+        .withSecret(null)
+        .withTimeout(0)
+        .withMaxConnections(-1)
+        .withPoolWaitTimeout(3000)
+        .withSSLContext(null)
+        .withBatchMode(false);
 //#redis-SRANDMEMBER
 // read data using SRANDMEMBER command from a set named "foo"
 redisFeeder(redisPool, "foo").SRANDMEMBER();
 //#redis-SRANDMEMBER
   }
 
-
   {
-    com.redis.RedisClientPool redisPool =
-            new com.redis.RedisClientPool(
-                    "localhost",
-                    6379,
-                    8,
-                    0,
-                    scala.Option.apply(null),
-                    0,
-                    -1,
-                    3000,
-                    scala.Option.apply(null),
-                    com.redis.RedisClient.SINGLE$.MODULE$);
+    RedisClientPool redisPool =
+      new RedisClientPool("localhost", 6379)
+        .withMaxIdle(8)
+        .withDatabase(0)
+        .withSecret(null)
+        .withTimeout(0)
+        .withMaxConnections(-1)
+        .withPoolWaitTimeout(3000)
+        .withSSLContext(null)
+        .withBatchMode(false);
+
 //#redis-RPOPLPUSH
 // read data using RPOPLPUSH command from a list named "foo" and atomically store in list named "bar"
 redisFeeder(redisPool, "foo", "bar").RPOPLPUSH();

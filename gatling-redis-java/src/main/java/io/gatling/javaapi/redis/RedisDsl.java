@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.redis;
 
-import com.redis.RedisClientPool;
 import javax.annotation.Nonnull;
 
 /** The entrypoint of the Redis DSL */
@@ -33,7 +32,7 @@ public final class RedisDsl {
   @Nonnull
   public static RedisFeederBuilder redisFeeder(
       @Nonnull RedisClientPool clients, @Nonnull String key) {
-    return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients, key));
+    return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients.asScala(), key));
   }
 
   /**
@@ -47,6 +46,7 @@ public final class RedisDsl {
   @Nonnull
   public static RedisFeederBuilder redisFeeder(
       @Nonnull RedisClientPool clients, @Nonnull String keySrc, @Nonnull String keyDest) {
-    return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients, keySrc, keyDest));
+    return new RedisFeederBuilder(
+        io.gatling.redis.Predef.redisFeeder(clients.asScala(), keySrc, keyDest));
   }
 }
