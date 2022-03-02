@@ -32,7 +32,7 @@ class FeedSpec extends AkkaSpec with MockitoSugar {
     val feedActor = TestProbe()
     val next = new ActorDelegatingAction("next", self)
 
-    val feed = new Feed(feedActor.ref, 1.expressionSuccess, mock[StatsEngine], clock, next)
+    val feed = new Feed(feedActor.ref, None, mock[StatsEngine], clock, next)
 
     feed ! emptySession
 

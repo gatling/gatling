@@ -22,12 +22,18 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorRef
 
-private final class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class Feed(feedActor: ActorRef, numberOpt: Option[Expression[Int]], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ExitableAction {
 
   override val name: String = feedActor.path.name
 
-  override def execute(session: Session): Unit = recover(session) {
-    number(session).map(num => feedActor ! FeedMessage(session, num, next))
-  }
+  override def execute(session: Session): Unit =
+    numberOpt match {
+      case Some(number) =>
+        recover(session) {
+          number(session).map(n => feedActor ! FeedMessage(session, Some(n), next))
+        }
+      case _ =>
+        feedActor ! FeedMessage(session, None, next)
+    }
 }

@@ -32,7 +32,7 @@ private[core] object FeedBuilder {
   private val Instances = new ju.IdentityHashMap[FeederBuilder, ActorRef].asScala
 }
 
-private[core] final class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
+private[core] final class FeedBuilder(feederBuilder: FeederBuilder, number: Option[Expression[Int]]) extends ActionBuilder with NameGen {
 
   private def newFeedActor(ctx: ScenarioContext): ActorRef = {
     val props = FeedActor.props(feederBuilder(), ctx.coreComponents.controller)

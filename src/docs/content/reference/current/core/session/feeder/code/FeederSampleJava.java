@@ -43,6 +43,12 @@ Iterator<Map<String, Object>> feeder =
 feed(feeder);
 //#feed
 
+//#feed-multiple
+feed(feeder, 2);
+feed(feeder, "#{numberOfRecords}");
+feed(feeder, session -> session.getInt("numberOfRecords"));
+//#feed-multiple
+
 //#strategies
 // default behavior: use an Iterator on the underlying sequence
 csv("foo").queue();

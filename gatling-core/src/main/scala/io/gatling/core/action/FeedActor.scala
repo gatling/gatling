@@ -16,7 +16,6 @@
 
 package io.gatling.core.action
 
-import scala.annotation.switch
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
@@ -34,21 +33,9 @@ private[core] object FeedActor {
 
 private final class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
 
-  private def pollNewAttributes(numberOfRecords: Int): Validation[Record[T]] =
+  private def withErrorHandling(f: => Validation[Record[Any]]): Validation[Record[Any]] =
     try {
-      (numberOfRecords: @switch) match {
-        case 1 =>
-          feeder.next().success
-        case n if n > 0 =>
-          (1 to n)
-            .foldLeft(Map.empty[String, T]) { (acc, i) =>
-              feeder.next().foldLeft(acc) { case (acc2, (key, value)) =>
-                acc2 + (key + Integer.toString(i) -> value)
-              }
-            }
-            .success
-        case _ => s"$numberOfRecords is not a valid number of records".failure
-      }
+      f
     } catch {
       case _: NoSuchElementException | _: ArrayIndexOutOfBoundsException => "Feeder is now empty, stopping engine".failure
       case NonFatal(e) =>
@@ -56,10 +43,42 @@ private final class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) ex
         s"Feeder crashed: ${e.detailedMessage}".failure
     }
 
+  private def pollSingleRecord(): Validation[Record[Any]] =
+    withErrorHandling(feeder.next().success)
+
+  private def pollMultipleRecords(n: Int): Validation[Record[Any]] =
+    withErrorHandling {
+      if (n <= 0) {
+        s"$n is not a valid number of records".failure
+      } else {
+        val map = feeder
+          .next()
+          .view
+          .mapValues { value =>
+            val array = new Array[Any](n)
+            array(0) = value
+            array
+          }
+          .toMap
+
+        for {
+          n <- 2 to n
+          (key, value) <- feeder.next()
+        } map.get(key).foreach(array => array(n - 1) = value)
+
+        map.success
+      }
+    }
+
   def receive: Receive = { case FeedMessage(session, number, next) =>
-    pollNewAttributes(number) match {
-      case Success(newAttributes) => next ! session.setAll(newAttributes)
-      case Failure(message)       => controller ! ControllerCommand.Crash(new IllegalStateException(message))
+    val newAttributes = number match {
+      case Some(n) => pollMultipleRecords(n)
+      case _       => pollSingleRecord()
+    }
+
+    newAttributes match {
+      case Success(attr)    => next ! session.setAll(attr)
+      case Failure(message) => controller ! ControllerCommand.Crash(new IllegalStateException(message))
     }
   }
 
@@ -70,4 +89,4 @@ private final class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) ex
     }
 }
 
-final case class FeedMessage(session: Session, number: Int, next: Action)
+final case class FeedMessage(session: Session, num: Option[Int], next: Action)

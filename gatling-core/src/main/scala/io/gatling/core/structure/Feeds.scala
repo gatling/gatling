@@ -19,11 +19,7 @@ package io.gatling.core.structure
 import io.gatling.core.action.builder.FeedBuilder
 import io.gatling.core.feeder._
 import io.gatling.core.session._
-
-object Feeds {
-
-  private val OneExpression = 1.expressionSuccess
-}
+import io.gatling.core.session.el._
 
 private[structure] trait Feeds[B] extends Execs[B] {
 
@@ -33,7 +29,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
    * @param feederBuilder a factory of a source of records
    */
   def feed(feederBuilder: FeederBuilder): B =
-    feed(feederBuilder, Feeds.OneExpression)
+    exec(new FeedBuilder(feederBuilder, None))
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
@@ -41,9 +37,8 @@ private[structure] trait Feeds[B] extends Execs[B] {
    * @param feederBuilder a factory of a source of records
    * @param number the number of records to be injected
    */
-  @deprecated("This feature will be dropped in the next release", "3.7.0")
   def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
-    exec(new FeedBuilder(feederBuilder, number))
+    exec(new FeedBuilder(feederBuilder, Some(number)))
 
   /**
    * Chain an action that will inject a single data record into the virtual users' Session
@@ -51,7 +46,16 @@ private[structure] trait Feeds[B] extends Execs[B] {
    * @param feeder a source of records
    */
   def feed(feeder: Feeder[Any]): B =
-    feed(feeder, Feeds.OneExpression)
+    feed(() => feeder)
+
+  /**
+   * Chain an action that will inject multiple data records into the virtual users' Session
+   *
+   * @param feeder a source of records
+   * @param number the number of records to be injected
+   */
+  def feed(feeder: Feeder[Any], number: String): B =
+    feed(feeder, number.el[Int])
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session

@@ -32,10 +32,10 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(emptySession, 0, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, Some(0), new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
 
-    feedActor ! FeedMessage(emptySession, -1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, Some(-1), new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
   }
 
@@ -43,7 +43,7 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.empty, controller)
 
-    feedActor ! FeedMessage(emptySession, 1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
   }
 
@@ -51,7 +51,7 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(emptySession, 1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", self))
 
     val newSession = expectMsgType[Session]
     newSession.contains("foo") shouldBe true
@@ -62,12 +62,10 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(emptySession, 2, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, Some(2), new ActorDelegatingAction("next", self))
 
     val newSession = expectMsgType[Session]
-    newSession.contains("foo1") shouldBe true
-    newSession("foo1").as[String] shouldBe "bar"
-    newSession.contains("foo2") shouldBe true
-    newSession("foo2").as[String] shouldBe "bar"
+    newSession.contains("foo") shouldBe true
+    newSession("foo").as[Array[Any]] shouldBe Array("bar", "bar")
   }
 }

@@ -599,6 +599,46 @@ public final class CoreDsl {
   }
 
   /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Supplier)}.
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, int numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Supplier)}.
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, String numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Supplier)}.
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder,
+      Function<Session, Integer> numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
+  }
+
+  /**
    * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Iterator)}.
    *
    * @param feeder a source of records.
@@ -610,6 +650,45 @@ public final class CoreDsl {
   }
 
   /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Iterator)}.
+   *
+   * @param feeder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Iterator)}.
+   *
+   * @param feeder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(Iterator)}.
+   *
+   * @param feeder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull Iterator<Map<String, Object>> feeder, Function<Session, Integer> numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
+  }
+
+  /**
    * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(FeederBuilder)}.
    *
    * @param feederBuilder a source of records.
@@ -618,6 +697,43 @@ public final class CoreDsl {
   @Nonnull
   public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder) {
     return ChainBuilder.EMPTY.feed(feederBuilder);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(FeederBuilder)}.
+   *
+   * @param feederBuilder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder, int numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(FeederBuilder)}.
+   *
+   * @param feederBuilder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder, String numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a feed action, see {@link Feeds#feed(FeederBuilder)}.
+   *
+   * @param feederBuilder a source of records.
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder feed(
+      @Nonnull FeederBuilder<?> feederBuilder, Function<Session, Integer> numberOfRecords) {
+    return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
   ////////// StructureBuilder.Loops

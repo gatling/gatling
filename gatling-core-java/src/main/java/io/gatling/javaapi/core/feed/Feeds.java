@@ -17,6 +17,7 @@
 package io.gatling.javaapi.core.feed;
 
 import io.gatling.javaapi.core.FeederBuilder;
+import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.feed.ScalaFeeds;
 import java.util.Iterator;
@@ -52,6 +53,46 @@ public interface Feeds<
   }
 
   /**
+   * Attach a feed action
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, int numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, String numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action
+   *
+   * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(
+      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder,
+      Function<Session, Integer> numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
+  }
+
+  /**
    * Attach a feed action.
    *
    * @param feeder a source of records
@@ -65,11 +106,85 @@ public interface Feeds<
   /**
    * Attach a feed action.
    *
+   * @param feeder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(@Nonnull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
+    return ScalaFeeds.apply(this, feeder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action.
+   *
+   * @param feeder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(@Nonnull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
+    return ScalaFeeds.apply(this, feeder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action.
+   *
+   * @param feeder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(
+      @Nonnull Iterator<Map<String, Object>> feeder, Function<Session, Integer> numberOfRecords) {
+    return ScalaFeeds.apply(this, feeder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action.
+   *
    * @param feederBuilder a source of records
    * @return a new StructureBuilder
    */
   @Nonnull
   default T feed(@Nonnull FeederBuilder<?> feederBuilder) {
-    return make(wrapped -> wrapped.feed(feederBuilder.asScala()));
+    return ScalaFeeds.apply(this, feederBuilder);
+  }
+
+  /**
+   * Attach a feed action.
+   *
+   * @param feederBuilder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(@Nonnull FeederBuilder<?> feederBuilder, int numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action.
+   *
+   * @param feederBuilder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(@Nonnull FeederBuilder<?> feederBuilder, String numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
+  }
+
+  /**
+   * Attach a feed action.
+   *
+   * @param feederBuilder a source of records
+   * @param numberOfRecords the number of records to poll from the feeder at once
+   * @return a new StructureBuilder
+   */
+  @Nonnull
+  default T feed(
+      @Nonnull FeederBuilder<?> feederBuilder, Function<Session, Integer> numberOfRecords) {
+    return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }
 }
