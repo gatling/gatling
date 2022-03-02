@@ -30,7 +30,7 @@ Gatling's architecture is asynchronous as long as the underlying protocol, such 
 
 [Gatling Enterprise](https://gatling.io/enterprise/), formerly known as Gatling FrontLine, is a management interface for Gatling, that includes advanced metrics and advanced features for integration and automation.
 
-{{< img src="Gatling-enterprise-logo-RVB.png" alt="FrontLine" >}}
+{{< img src="Gatling-enterprise-logo-RVB.png" alt="Gatling Enterprise" >}}
 
 ## Migrating from a Previous Version of Gatling
 
