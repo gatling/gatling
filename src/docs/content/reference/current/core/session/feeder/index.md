@@ -237,7 +237,7 @@ You can create a circular feeder by using the same keys with RPOPLPUSH
 
 {{< include-code "redis-RPOPLPUSH" java kt scala >}}
 
-## Transforming Recordsy {#transform}
+## Transforming Records {#transform}
 
 Sometimes, you might want to transform the raw data you got from your feeder.
 
