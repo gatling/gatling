@@ -32,8 +32,6 @@ Any version outside this range is not guaranteed to work.
 Install [Gradle](https://gradle.org/install/) or use the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
 Our official sample projects come pre-configured with the Gradle Wrapper.
 
-### Java
-
 In `build.gradle`, add:
 
 ```groovy
@@ -42,16 +40,12 @@ In `build.gradle`, add:
  }
 ```
 
-Please check our [official sample project for gradle and Java](https://github.com/gatling/gatling-gradle-plugin-demo-java) on GitHub.
-
-### Kotlin
-
-Please check our [official sample project for gradle and Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin) on GitHub.
-
-### Scala
-
-Please check our [official sample project for gradle and Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala) on GitHub.
-This plugin supports the same versions of Scala as the Gatling version you're using, meaning Scala 2.13 since Gatling 3.5.
+{{< alert tip >}}
+Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
+* [for gradle and Java](https://github.com/gatling/gatling-gradle-plugin-demo-java)
+* [for gradle and Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
+* [for gradle and Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala)
+{{< /alert >}}
 
 ### Multi-project support
 

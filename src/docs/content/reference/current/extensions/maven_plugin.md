@@ -18,8 +18,6 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 ## Setup
 
-### Java
-
 In your `pom.xml`, add:
 
 ```xml
@@ -39,19 +37,16 @@ In your `pom.xml`, add:
 </plugin>
 ```
 
-Please check our [official sample project for maven and Java](https://github.com/gatling/gatling-maven-plugin-demo-java) on GitHub.
-
-### Kotlin
-
-Please check our [official sample project for maven and Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin) on GitHub.
-
-### Scala
-
-{{< alert warning >}}
-Starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala.
+{{< alert tip >}}
+Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
+* [for maven and Java](https://github.com/gatling/gatling-maven-plugin-demo-java)
+* [for maven and Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin)
+* [for maven and Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala)
 {{< /alert >}}
 
-Please check our [official sample project for maven and Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala) on GitHub.
+{{< alert warning >}}
+For Scala users only: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala.
+{{< /alert >}}
 
 ## Configuration
 

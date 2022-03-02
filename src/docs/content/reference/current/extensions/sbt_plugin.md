@@ -44,7 +44,10 @@ libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "
 libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 ```
 
-Please check our [official sample project for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo) on GitHub.
+{{< alert tip >}}
+Cloning or downloading our demo project on GitHub is definitely the fastest way to get started:
+* [for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo)
+{{< /alert >}}
 
 ### 'Test' vs 'Integration Tests' configurations
 
