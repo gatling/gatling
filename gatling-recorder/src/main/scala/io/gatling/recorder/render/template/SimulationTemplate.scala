@@ -129,6 +129,25 @@ private[render] class SimulationTemplate(
          |)""".stripMargin
   }
 
+  private def chainElements(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]): String = {
+    var firstNonTagElement = true
+    elements
+      .map { element =>
+        val prefix = element match {
+          case TagElement(_) => ""
+          case _ =>
+            if (firstNonTagElement) {
+              firstNonTagElement = false
+              ""
+            } else {
+              "."
+            }
+        }
+        s"$prefix${renderScenarioElement(element, extractedUris)}"
+      }
+      .mkString(Eol)
+  }
+
   private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
     val scenarioReferenceType = format match {
       case Format.Scala | Format.Kotlin  => "private val"
@@ -137,9 +156,7 @@ private[render] class SimulationTemplate(
     }
 
     if (elements.sizeIs <= MaxElementPerChain) {
-      val scenarioElements = elements
-        .map(element => s".${renderScenarioElement(element, extractedUris)}")
-        .mkString(Eol)
+      val scenarioElements = chainElements(extractedUris, elements)
 
       s"""$scenarioReferenceType scn = scenario("$simulationClassName")
          |${scenarioElements.indent(2)}${format.lineTermination}""".stripMargin
@@ -151,22 +168,7 @@ private[render] class SimulationTemplate(
           .toList
           .zipWithIndex
           .map { case (chain, i) =>
-            var firstNonTagElement = true
-            val chainContent = chain
-              .map { element =>
-                val prefix = element match {
-                  case TagElement(_) => ""
-                  case _ =>
-                    if (firstNonTagElement) {
-                      firstNonTagElement = false
-                      ""
-                    } else {
-                      "."
-                    }
-                }
-                s"$prefix${renderScenarioElement(element, extractedUris)}"
-              }
-            (i, chainContent.mkString(Eol))
+            (i, chainElements(extractedUris, chain))
           }
 
       val chainReferenceType = format match {
