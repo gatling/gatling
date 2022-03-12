@@ -444,4 +444,9 @@ public final class Session {
   public io.gatling.core.session.Session asScala() {
     return wrapped;
   }
+
+  @Override
+  public String toString() {
+    return wrapped.toString();
+  }
 }
