@@ -57,8 +57,8 @@ public final class Session {
    * @return the value if it exists, null otherwise
    */
   public String getString(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    return valueOption.isDefined() ? valueOption.get().toString() : null;
+    Object value = get(key);
+    return value != null ? value.toString() : null;
   }
 
   /**
@@ -70,18 +70,15 @@ public final class Session {
    * @throws ClassCastException if the value is neither a number nor a String
    */
   public Integer getIntegerWrapper(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Integer) {
-        return (Integer) value;
-      } else if (value instanceof String) {
-        return Integer.valueOf((String) value);
-      } else {
-        throw new ClassCastException(value + " is not an Integer: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof Integer) {
+      return (Integer) value;
+    } else if (value instanceof String) {
+      return Integer.valueOf((String) value);
+    } else if (value == null) {
       return null;
+    } else {
+      throw new ClassCastException(value + " is not an Integer: " + value.getClass());
     }
   }
 
@@ -116,20 +113,17 @@ public final class Session {
    * @throws ClassCastException if the value is neither a number nor a String
    */
   public Long getLongWrapper(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Integer) {
-        return ((Integer) value).longValue();
-      } else if (value instanceof Long) {
-        return (Long) value;
-      } else if (value instanceof String) {
-        return Long.valueOf((String) value);
-      } else {
-        throw new ClassCastException(value + " is not an Long: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof Integer) {
+      return ((Integer) value).longValue();
+    } else if (value instanceof Long) {
+      return (Long) value;
+    } else if (value instanceof String) {
+      return Long.valueOf((String) value);
+    } else if (value == null) {
       return null;
+    } else {
+      throw new ClassCastException(value + " is not an Long: " + value.getClass());
     }
   }
 
@@ -164,22 +158,19 @@ public final class Session {
    * @throws ClassCastException if the value is neither a number nor a String
    */
   public Double getDoubleWrapper(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Integer) {
-        return ((Integer) value).doubleValue();
-      } else if (value instanceof Long) {
-        return ((Long) value).doubleValue();
-      } else if (value instanceof Double) {
-        return (Double) value;
-      } else if (value instanceof String) {
-        return Double.valueOf((String) value);
-      } else {
-        throw new ClassCastException(value + " is not an Double: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof Integer) {
+      return ((Integer) value).doubleValue();
+    } else if (value instanceof Long) {
+      return ((Long) value).doubleValue();
+    } else if (value instanceof Double) {
+      return (Double) value;
+    } else if (value instanceof String) {
+      return Double.valueOf((String) value);
+    } else if (value == null) {
       return null;
+    } else {
+      throw new ClassCastException(value + " is not an Double: " + value.getClass());
     }
   }
 
@@ -216,18 +207,15 @@ public final class Session {
    * @throws ClassCastException if the value is neither a boolean nor a String
    */
   public Boolean getBooleanWrapper(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Boolean) {
-        return (Boolean) value;
-      } else if (value instanceof String) {
-        return Boolean.valueOf((String) value);
-      } else {
-        throw new ClassCastException(value + " is not an Boolean: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof Boolean) {
+      return (Boolean) value;
+    } else if (value instanceof String) {
+      return Boolean.valueOf((String) value);
+    } else if (value == null) {
       return null;
+    } else {
+      throw new ClassCastException(value + " is not an Boolean: " + value.getClass());
     }
   }
 
@@ -261,18 +249,15 @@ public final class Session {
   @Nonnull
   @SuppressWarnings("unchecked")
   public <T> List<T> getList(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof List<?>) {
-        return (List<T>) value;
-      } else if (value instanceof Seq<?>) {
-        return toJavaList((Seq<T>) value);
-      } else {
-        throw new ClassCastException(value + " is not an List: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof List<?>) {
+      return (List<T>) value;
+    } else if (value instanceof Seq<?>) {
+      return toJavaList((Seq<T>) value);
+    } else if (value == null) {
       return Collections.emptyList();
+    } else {
+      throw new ClassCastException(value + " is not an List: " + value.getClass());
     }
   }
 
@@ -286,16 +271,13 @@ public final class Session {
   @Nonnull
   @SuppressWarnings("unchecked")
   public <T> Set<T> getSet(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Set<?>) {
-        return (Set<T>) value;
-      } else if (value instanceof scala.collection.Set<?>) {
-        return toJavaSet((scala.collection.Set<T>) value);
-      } else {
-        throw new ClassCastException(value + " is not an Set: " + value.getClass());
-      }
+    Object value = get(key);
+    if (value instanceof Set<?>) {
+      return (Set<T>) value;
+    } else if (value instanceof scala.collection.Set<?>) {
+      return toJavaSet((scala.collection.Set<T>) value);
+    } else if (value != null) {
+      throw new ClassCastException(value + " is not an Set: " + value.getClass());
     } else {
       return Collections.emptySet();
     }
@@ -311,18 +293,15 @@ public final class Session {
   @Nonnull
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getMap(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    if (valueOption.isDefined()) {
-      Object value = valueOption.get();
-      if (value instanceof Map<?, ?>) {
-        return (Map<String, T>) value;
-      } else if (value instanceof scala.collection.Map<?, ?>) {
-        return toJavaMap((scala.collection.Map<String, T>) value);
-      } else {
-        throw new ClassCastException(value + " is not an Map: " + value.getClass());
-      }
-    } else {
+    Object value = get(key);
+    if (value instanceof Map<?, ?>) {
+      return (Map<String, T>) value;
+    } else if (value instanceof scala.collection.Map<?, ?>) {
+      return toJavaMap((scala.collection.Map<String, T>) value);
+    } else if (value == null) {
       return Collections.emptyMap();
+    } else {
+      throw new ClassCastException(value + " is not an Map: " + value.getClass());
     }
   }
 
