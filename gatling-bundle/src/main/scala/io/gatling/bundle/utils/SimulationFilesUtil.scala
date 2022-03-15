@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.core.cli
+package io.gatling.bundle.utils
 
-private[gatling] final class CommandLineConstant(val full: String, val abbr: String, val text: String, val valueName: Option[String])
+import java.nio.file._
+
+import io.gatling.app.classloader.SimulationClassLoader
+
+object SimulationFilesUtil {
+
+  def simulationClasses(gatlingHome: String): List[String] = {
+    SimulationClassLoader(Paths.get(gatlingHome, "target", "test-classes")).simulationClasses
+      .map(_.canonicalName)
+  }
+}

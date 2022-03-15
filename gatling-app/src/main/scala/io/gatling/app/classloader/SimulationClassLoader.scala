@@ -26,7 +26,7 @@ import io.gatling.app.{ JavaSimulation, SimulationClass }
 import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
-private[app] object SimulationClassLoader {
+private[gatling] object SimulationClassLoader {
 
   def apply(binariesDirectory: Path): SimulationClassLoader =
     new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
@@ -41,7 +41,7 @@ private[app] object SimulationClassLoader {
   }
 }
 
-private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
+private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
 
   def simulationClasses: List[SimulationClass] =
     binaryDir

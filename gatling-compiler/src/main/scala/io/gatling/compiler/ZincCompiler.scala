@@ -17,11 +17,14 @@
 package io.gatling.compiler
 
 import java.io.{ File => JFile }
-import java.net.URLClassLoader
+import java.net.{ URL, URLClassLoader }
 import java.nio.file.{ Files, Path }
 import java.util.Optional
+import java.util.jar.{ Attributes, Manifest => JManifest }
 
+import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
+import scala.util.Using
 
 import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
@@ -40,6 +43,31 @@ object ZincCompiler extends ProblemStringFormats {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
+  private def manifestClasspath: Array[JFile] = {
+
+    val manifests = Thread.currentThread.getContextClassLoader
+      .getResources("META-INF/MANIFEST.MF")
+      .asScala
+      .map { url =>
+        val is = url.openStream()
+        try {
+          new JManifest(is)
+        } finally {
+          is.close()
+        }
+      }
+
+    val classPathEntries = manifests.collect {
+      case manifest if manifest.getMainAttributes.getValue("GATLING_ZINC") == "true" =>
+        manifest.getMainAttributes
+          .getValue(Attributes.Name.CLASS_PATH)
+          .split(" ")
+          .map(url => new JFile(new URL(url).toURI))
+    }
+
+    classPathEntries.flatten.toArray
+  }
+
   private def jarMatching(classpath: Array[JFile], regex: String): JFile =
     classpath
       .find(file =>
@@ -54,11 +82,20 @@ object ZincCompiler extends ProblemStringFormats {
     val configuration = CompilerConfiguration.configuration(args)
     Files.createDirectories(configuration.binariesDirectory)
 
-    val classpath: Array[JFile] =
-      System
+    val classpath: Array[JFile] = {
+      val files = System
         .getProperty("java.class.path")
         .split(JFile.pathSeparator)
         .map(new JFile(_))
+
+      if (files.exists(_.getName.startsWith("gatlingbooter"))) {
+        // we've been started by the manifest-only jar,
+        // we have to switch the manifest Class-Path entries
+        manifestClasspath
+      } else {
+        files
+      }
+    }
 
     val scalaLibraryJar = jarMatching(classpath, """scala-library-.*\.jar$""")
     val scalaReflectJar = jarMatching(classpath, """scala-reflect-.*\.jar$""")

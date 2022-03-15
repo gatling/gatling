@@ -18,13 +18,28 @@ package io.gatling.app.cli
 
 import io.gatling.core.cli.CommandLineConstant
 
-private object CommandLineConstants {
-  val Help = new CommandLineConstant("help", "h")
-  val NoReports = new CommandLineConstant("no-reports", "nr")
-  val ReportsOnly = new CommandLineConstant("reports-only", "ro")
-  val ResultsFolder = new CommandLineConstant("results-folder", "rf")
-  val ResourcesFolder = new CommandLineConstant("resources-folder", "rsf")
-  val BinariesFolder = new CommandLineConstant("binaries-folder", "bf")
-  val Simulation = new CommandLineConstant("simulation", "s")
-  val RunDescription = new CommandLineConstant("run-description", "rd")
+private[gatling] object CommandLineConstants {
+  val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
+  val NoReports = new CommandLineConstant("no-reports", "nr", "Runs simulation but does not generate reports", None)
+  val ReportsOnly = new CommandLineConstant("reports-only", "ro", "Generates the reports for the simulation in <directoryName>", Some("<directoryName>"))
+  val ResultsFolder = new CommandLineConstant(
+    "results-folder",
+    "rf",
+    "Uses <directoryPath> as the absolute path of the directory where results are stored",
+    Some("<directoryPath>")
+  )
+  val ResourcesFolder = new CommandLineConstant(
+    "resources-folder",
+    "rsf",
+    "Uses <directoryPath> as the absolute path of the directory where resources are stored",
+    Some("<directoryPath>")
+  )
+  val BinariesFolder = new CommandLineConstant(
+    "binaries-folder",
+    "bf",
+    "Uses <directoryPath> as the absolute path of the directory where binaries (jar files) are stored",
+    Some("<directoryPath>")
+  )
+  val Simulation = new CommandLineConstant("simulation", "s", "Runs <className> simulation", Some("<className>"))
+  val RunDescription = new CommandLineConstant("run-description", "rd", "A short <description> of the run to include in the report", Some("<description>"))
 }

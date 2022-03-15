@@ -34,6 +34,7 @@ private[config] class ArgsParser(args: Array[String]) {
 
   private class CompilerOptionParser extends OptionParser[CommandLineOverrides]("compiler") {
     override def errorOnUnknownArgument: Boolean = false
+    override def reportWarning(msg: String): Unit = ()
 
     def opt[A: Read](constant: CommandLineConstant): OptionDef[A, CommandLineOverrides] =
       opt[A](constant.full).abbr(constant.abbr)

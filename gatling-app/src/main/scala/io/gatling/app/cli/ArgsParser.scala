@@ -25,43 +25,27 @@ private[app] class ArgsParser(args: Array[String]) {
 
   private val props = new GatlingPropertiesBuilder
 
-  private val cliOptsParser = new GatlingOptionParser("gatling") {
-
-    help(Help).text("Show help (this message) and exit")
-
+  private val cliOptsParser = new GatlingOptionParser[Unit]("gatling") {
     opt[Unit](NoReports)
       .foreach(_ => props.noReports())
-      .text("Runs simulation but does not generate reports")
 
     opt[String](ReportsOnly)
       .foreach(props.reportsOnly)
-      .valueName("<directoryName>")
-      .text("Generates the reports for the simulation in <directoryName>")
 
     opt[String](ResourcesFolder)
       .foreach(props.resourcesDirectory)
-      .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where resources are stored")
 
     opt[String](ResultsFolder)
       .foreach(props.resultsDirectory)
-      .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where results are stored")
 
     opt[String](BinariesFolder)
       .foreach(props.binariesDirectory)
-      .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where Gatling should produce compiled binaries")
 
     opt[String](Simulation)
       .foreach(props.simulationClass)
-      .valueName("<className>")
-      .text("Runs <className> simulation")
 
     opt[String](RunDescription)
       .foreach(props.runDescription)
-      .valueName("<description>")
-      .text("A short <description> of the run to include in the report")
   }
 
   def parseArguments: Either[ConfigOverrides, StatusCode] =

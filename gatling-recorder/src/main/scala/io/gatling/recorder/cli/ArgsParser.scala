@@ -25,80 +25,52 @@ private[recorder] class ArgsParser(args: Array[String]) {
 
   private val props = new RecorderPropertiesBuilder
 
-  private val cliOptsParser = new GatlingOptionParser("recorder") {
-
-    help(Help).text("Show help (this message) and exit")
+  private val cliOptsParser = new GatlingOptionParser[Unit]("recorder") {
 
     opt[Int](LocalPort)
       .foreach(props.localPort)
-      .valueName("<port>")
-      .text("Local port used by Gatling Proxy for HTTP/HTTPS")
 
     opt[String](ProxyHost)
       .foreach(props.proxyHost)
-      .valueName("<host>")
-      .text("Outgoing proxy host")
 
     opt[Int](ProxyPort)
       .foreach(props.proxyPort)
-      .valueName("<port>")
-      .text("Outgoing proxy port for HTTP")
 
     opt[Int](ProxyPortSsl)
       .foreach(props.proxySslPort)
-      .valueName("<port>")
-      .text("Outgoing proxy port for HTTPS")
 
     opt[String](SimulationsFolder)
       .foreach(props.simulationsFolder)
-      .valueName("<folderName>")
-      .text("Uses <folderName> as the folder where generated simulations will be stored")
 
     opt[String](ResourcesFolder)
       .foreach(props.resourcesFolder)
-      .valueName("<folderName>")
-      .text("Uses <folderName> as the folder where generated resources will be stored")
 
     opt[String](ClassName)
       .foreach(props.simulationClassName)
-      .valueName("<className>")
-      .text("Sets the name of the generated class")
 
     opt[String](Package)
       .foreach(props.simulationPackage)
-      .valueName("<package>")
-      .text("Sets the package of the generated class")
 
     opt[String](Encoding)
       .foreach(props.encoding)
-      .valueName("<encoding>")
-      .text("Sets the encoding used in the recorder")
 
     opt[Boolean](FollowRedirect)
       .foreach(props.followRedirect)
-      .text("""Sets the "Follow Redirects" option to true""")
 
     opt[Boolean](AutomaticReferer)
       .foreach(props.automaticReferer)
-      .text("""Sets the "Automatic Referers" option to true""")
 
     opt[Boolean](InferHtmlResources)
       .foreach(props.inferHtmlResources)
-      .text("""Sets the "Fetch html resources" option to true""")
 
     opt[String](Mode)
       .foreach(m => props.mode(RecorderMode(m)))
-      .valueName(s"<${RecorderMode.AllModes.mkString("|")}>")
-      .text("The Recorder mode to use")
 
     opt[Boolean](Headless)
       .foreach(props.headless)
-      .text("Run the Recorder in headless mode")
 
     opt[String](HarFilePath)
       .foreach(props.harFilePath)
-      .valueName("<HarFilePath>")
-      .text("The path of the HAR file to convert")
   }
 
   def parseArguments: Option[ConfigOverrides] =

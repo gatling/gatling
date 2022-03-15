@@ -18,22 +18,28 @@ package io.gatling.recorder.cli
 
 import io.gatling.core.cli.CommandLineConstant
 
-private[cli] object CommandLineConstants {
+private[gatling] object CommandLineConstants {
 
-  val Help = new CommandLineConstant("help", "h")
-  val LocalPort = new CommandLineConstant("local-port", "lp")
-  val ProxyHost = new CommandLineConstant("proxy-host", "ph")
-  val ProxyPort = new CommandLineConstant("proxy-port", "pp")
-  val ProxyPortSsl = new CommandLineConstant("proxy-port-ssl", "pps")
-  val SimulationsFolder = new CommandLineConstant("simulations-folder", "sf")
-  val ResourcesFolder = new CommandLineConstant("resources-folder", "rf")
-  val ClassName = new CommandLineConstant("class-name", "cn")
-  val Package = new CommandLineConstant("package", "pkg")
-  val Encoding = new CommandLineConstant("encoding", "enc")
-  val FollowRedirect = new CommandLineConstant("follow-redirect", "fr")
-  val AutomaticReferer = new CommandLineConstant("automatic-referer", "ar")
-  val InferHtmlResources = new CommandLineConstant("infer-html-resources", "ihr")
-  val Mode = new CommandLineConstant("mode", "m")
-  val Headless = new CommandLineConstant("headless", "cli")
-  val HarFilePath = new CommandLineConstant("har-file", "hf")
+  val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
+  val LocalPort = new CommandLineConstant("local-port", "lp", "Local port used by Gatling Proxy for HTTP/HTTPS", None)
+  val ProxyHost = new CommandLineConstant("proxy-host", "ph", "Outgoing proxy host", Some("<host>"))
+  val ProxyPort = new CommandLineConstant("proxy-port", "pp", "Outgoing proxy port for HTTP", Some("<port>"))
+  val ProxyPortSsl = new CommandLineConstant("proxy-port-ssl", "pps", "Outgoing proxy port for HTTPS", Some("<port>"))
+  val SimulationsFolder = new CommandLineConstant(
+    "simulations-folder",
+    "sf",
+    "Uses <directoryPath> as the absolute path of the directory where simulations are stored",
+    Some("<directoryPath>")
+  )
+  val ResourcesFolder =
+    new CommandLineConstant("resources-folder", "rf", "Uses <folderName> as the folder where generated resources will be stored", Some("<folderName>"))
+  val ClassName = new CommandLineConstant("class-name", "cn", "Sets the name of the generated class", Some("<className>"))
+  val Package = new CommandLineConstant("package", "pkg", "Sets the package of the generated class", Some("<package>"))
+  val Encoding = new CommandLineConstant("encoding", "enc", "Sets the encoding used in the recorder", Some("<encoding>"))
+  val FollowRedirect = new CommandLineConstant("follow-redirect", "fr", """Sets the "Follow Redirects" option to true""", None)
+  val AutomaticReferer = new CommandLineConstant("automatic-referer", "ar", """Sets the "Automatic Referers" option to true""", None)
+  val InferHtmlResources = new CommandLineConstant("infer-html-resources", "ihr", """Sets the "Fetch html resources" option to true""", None)
+  val Mode = new CommandLineConstant("mode", "m", "The Recorder mode to use", None)
+  val Headless = new CommandLineConstant("headless", "cli", "Run the Recorder in headless mode", None)
+  val HarFilePath = new CommandLineConstant("har-file", "hf", "The path of the HAR file to convert", Some("<HarFilePath>"))
 }

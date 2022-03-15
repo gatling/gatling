@@ -1,6 +1,6 @@
 @ECHO OFF
 @REM
-@REM Copyright 2011-2017 GatlingCorp (http://gatling.io)
+@REM Copyright 2011-2022 GatlingCorp (http://gatling.io)
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -38,20 +38,11 @@ goto :noHome
 
 :gotHome
 
-if not defined GATLING_CONF set GATLING_CONF="%GATLING_HOME%"\conf
-
 echo GATLING_HOME is set to "%GATLING_HOME%"
 
-set JAVA_OPTS=-Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled -XX:+PerfDisableSharedMem -XX:+HeapDumpOnOutOfMemoryError -XX:MaxInlineLevel=20 -XX:MaxTrivialSize=12 -XX:-UseBiasedLocking %JAVA_OPTS%
+set JAVA_OPTS=%JAVA_OPTS%
 
-if "%PROCESSOR_ARCHITECTURE%" == "x86" if "%PROCESSOR_ARCHITEW6432%" == "" goto skipServer
-set JAVA_OPTS=-server %JAVA_OPTS%
-
-:skipServer
-set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
-rem Setup classpaths
-set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\*;%GATLING_CONF%;
-set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files\resources;%GATLING_CONF%;
+set CLASSPATH="%GATLING_HOME%"\lib\*
 
 set JAVA=java
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
@@ -62,15 +53,7 @@ set JAVA="%JAVA_HOME%\bin\java.exe"
 
 :run
 echo JAVA = "%JAVA%"
-rem Run the compiler
-%JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
-rem Run Gatling
-%JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
-if %errorlevel% neq 0 (
- if not defined NO_PAUSE pause
- exit /b %errorlevel%
-)
-rem The above line will forward any potential exit codes from Java if Gatling failed
+%JAVA% %JAVA_OPTS% -cp %CLASSPATH% io.gatling.bundle.GatlingCLI %USER_ARGS%
 
 goto exit
 

@@ -3,7 +3,6 @@ import sbt._
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
-import CopyLogback._
 import Dependencies._
 import VersionFile._
 
@@ -202,13 +201,13 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
   .settings(libraryDependencies ++= testFrameworkDependencies)
 
 lazy val bundle = gatlingModule("gatling-bundle")
-  .dependsOn(coreJava, httpJava)
+  .dependsOn(app, recorder)
   .enablePlugins(UniversalPlugin)
-  .settings(generateConfigFiles(core))
-  .settings(generateConfigFiles(recorder))
-  .settings(copyLogbackXml(core))
-  .settings(bundleSettings)
-  .settings(packageDoc / publishArtifact := false) // no javadoc
-  .settings(packageSrc / publishArtifact := false) // no source
-  .settings(packageBin / publishArtifact := false) // no jar (remains the bundle.zip)
-  .settings(CodeAnalysis.disable)
+  .settings(bundleSettings(core, samples, recorder))
+  .settings(libraryDependencies ++= bundleDependencies)
+
+lazy val samples = gatlingModule("gatling-samples")
+  .dependsOn(app)
+  .settings(
+    publish / skip := true
+  )
