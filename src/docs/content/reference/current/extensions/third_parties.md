@@ -15,8 +15,8 @@ If you run into an issue, please contact their respective owners.
 ## Active
 
 * [Kafka plugin](https://github.com/mnogu/gatling-kafka) by Muneyuki Noguchi
-* [Neo4j Bolt plugin](https://github.com/sarmbruster/gatling-bolt>) by Stefan Armbruster
-* [JDBC plugin](https://github.com/rbraeunlich/gatling-jdbc>) by Ronny Bräunlich
+* [Neo4j Bolt plugin](https://github.com/sarmbruster/gatling-bolt) by Stefan Armbruster
+* [JDBC plugin](https://github.com/rbraeunlich/gatling-jdbc) by Ronny Bräunlich
 * [gRPC plugin](https://github.com/phiSgr/gatling-grpc) by George Leung
 * [Cassandra plugin](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
 * [Git plugin](https://github.com/GerritForge/gatling-git) by GerritForge
