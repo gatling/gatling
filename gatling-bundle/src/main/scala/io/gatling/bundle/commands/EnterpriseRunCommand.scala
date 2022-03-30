@@ -16,122 +16,89 @@
 
 package io.gatling.bundle.commands
 
-import java.io.File
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
-import scala.util.{ Failure, Success, Using }
 
 import io.gatling.app.cli.CommandLineConstants.{ Simulation => SimulationOption }
-import io.gatling.bundle.{ CommandArguments, EnterpriseBundlePlugin }
+import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
 import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
-import io.gatling.bundle.commands.CommandHelper._
-import io.gatling.bundle.utils.SimulationFilesUtil
-import io.gatling.plugin.exceptions.SeveralTeamsFoundException
+import io.gatling.plugin.EnterprisePlugin
+import io.gatling.plugin.exceptions.{ SeveralSimulationClassNamesFoundException, SeveralTeamsFoundException, SimulationStartException }
 import io.gatling.plugin.model.Simulation
 
+object EnterpriseRunCommand {
+  val GroupId = "gatling"
+  val ArtifactId = "bundle"
+}
+
 class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
-  val groupId = "gatling"
-  val artifactId = "bundle"
 
-  private[bundle] def run(): Unit = {
+  import EnterpriseRunCommand._
 
-    val packagedFile = new PackageCommand(args).run()
+  private val logger = BundleIO.getLogger
+
+  private[bundle] def run(): Unit = try {
+    val file = new PackageCommand(args).run()
+
+    val enterpriseClient: EnterprisePlugin =
+      if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(config)
+      else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(config)
 
     val simulationStartResult = config.simulationId match {
-      case Some(simulationId)    => startNonInteractive(simulationId, packagedFile)
-      case _ if config.batchMode => createNonInteractive(packagedFile)
-      case _                     => createOrStartInteractive(packagedFile)
-    }
-
-    simulationStartResult match {
-      case Success(simulationResponse) =>
-        println(s"""
-                   |Simulation ${simulationResponse.simulation.name} successfully started
-                   |Once running, reports will be available at: ${config.url.toExternalForm + simulationResponse.runSummary.reportsPath}
-                   |""".stripMargin)
-      case Failure(e) => throw e
-    }
-
-  }
-
-  private def startNonInteractive(simulationId: UUID, file: File) =
-    Using(EnterpriseBundlePlugin.getEnterprisePlugin(config)) { enterprisePlugin =>
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, config.simulationSystemProperties.asJava, file)
-    }
-
-  private def createNonInteractive(file: File) = {
-    val classes = SimulationFilesUtil.simulationClasses(gatlingHome)
-    val chosenSimulation = config.simulationClass.getOrElse(classes.headOption.orNull)
-
-    if (config.simulationId.isEmpty && chosenSimulation == null) {
-      throw new IllegalArgumentException(
-        s"""
-           |Specify --${SimulationId.full} if you want to start a simulation on Gatling Enterprise,
-           |or --${SimulationOption.full} if you want to create a new simulation on Gatling Enterprise.
-           |See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.
-           |""".stripMargin
-      )
-    }
-
-    println("No simulationId configured, creating a new simulation in batch mode")
-    Using(EnterpriseBundlePlugin.getEnterprisePlugin(config)) { enterprisePlugin =>
-      try {
-        val simulationStartResult = enterprisePlugin.createAndStartSimulation(
+      case Some(simulationId) =>
+        enterpriseClient.uploadPackageAndStartSimulation(simulationId, config.simulationSystemProperties.asJava, config.simulationClass.orNull, file)
+      case _ =>
+        enterpriseClient.createAndStartSimulation(
           config.teamId.orNull,
-          groupId,
-          artifactId,
-          chosenSimulation,
+          GroupId,
+          ArtifactId,
+          config.simulationClass.orNull,
           config.packageId.orNull,
           config.simulationSystemProperties.asJava,
           file
         )
-        println(getLogCreatedSimulation(simulationStartResult.simulation, create = true))
-        simulationStartResult
-      } catch {
-        case e: SeveralTeamsFoundException =>
-          val teams = e.getAvailableTeams.asScala
-          val msg = s"""More than 1 team were found while creating a simulation.
-                       |Available teams:
-                       |${teams.map(team => s"- ${team.id} (${team.name})").mkString(System.lineSeparator)}
-                       |Specify the team you want to use with --${TeamId.full} <teamId>
-                       |""".stripMargin
-          throw new IllegalArgumentException(msg)
+    }
+
+    if (simulationStartResult.createdSimulation) {
+      logCreatedSimulation(simulationStartResult.simulation)
+    }
+
+    if (config.simulationId.isEmpty) {
+      logSimulationConfiguration(simulationStartResult.simulation.id)
+    }
+
+    val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
+    logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+  } catch {
+    case e: SeveralTeamsFoundException =>
+      val teams = e.getAvailableTeams.asScala
+      throw new IllegalArgumentException(s"""More than 1 team were found while creating a simulation.
+                                            |Available teams:
+                                            |${teams.map(team => s"- ${team.id} (${team.name})").mkString(System.lineSeparator)}
+                                            |Specify the team you want to use with --${TeamId.full} ${teams.head.id}
+                                            |""".stripMargin)
+    case e: SeveralSimulationClassNamesFoundException =>
+      val simulationClasses = e.getAvailableSimulationClassNames.asScala
+      throw new IllegalArgumentException(s"""Several simulation classes were found
+                                            |${simulationClasses.map("- " + _).mkString("\n")}
+                                            |Specify the team you want to use with --${SimulationOption.full} ${simulationClasses.head}
+                                            |""".stripMargin)
+    case e: SimulationStartException =>
+      if (e.isCreated) {
+        logCreatedSimulation(e.getSimulation)
       }
-    }
+      logSimulationConfiguration(e.getSimulation.id)
+      throw e.getCause
   }
 
-  private def createOrStartInteractive(file: File) =
-    Using(EnterpriseBundlePlugin.getEnterpriseInteractivePlugin(config)) { enterprisePlugin =>
-      val classes = SimulationFilesUtil.simulationClasses(gatlingHome)
+  private def logCreatedSimulation(simulation: Simulation): Unit =
+    logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")
 
-      val simulationStartResult = enterprisePlugin.createOrStartSimulation(
-        config.teamId.orNull,
-        groupId,
-        artifactId,
-        config.simulationClass.orNull,
-        classes.asJava,
-        config.packageId.orNull,
-        config.simulationSystemProperties.asJava,
-        file
-      )
-      println(getLogCreatedSimulation(simulationStartResult.simulation, simulationStartResult.createdSimulation))
-      simulationStartResult
-    }
-
-  private def getLogCreatedSimulation(simulation: Simulation, create: Boolean) = {
-    val verb = if (create) {
-      "Created"
-    } else {
-      "Started"
-    }
-    s"""
-       |$verb simulation ${simulation.name} with ID ${simulation.id}
-       |
-       |To start directly the same simulation, please add this option to your command:
-       |--${SimulationId.full} ${simulation.id}
-       |
-       |See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.
-       |""".stripMargin
-  }
+  private def logSimulationConfiguration(simulationId: UUID): Unit =
+    logger.info(s"""
+                   |Specify --${SimulationId.full} $simulationId if you want to start a simulation on Gatling Enterprise,
+                   |or --${SimulationOption.full} $simulationId if you want to create a new simulation on Gatling Enterprise.
+                   |See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.
+                   |""".stripMargin)
 }

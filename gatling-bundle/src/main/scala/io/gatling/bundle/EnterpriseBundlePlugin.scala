@@ -18,7 +18,7 @@ package io.gatling.bundle
 
 import scala.util.control.NoStackTrace
 
-import io.gatling.plugin.{ EnterprisePluginClient, InteractiveEnterprisePluginClient }
+import io.gatling.plugin.{ BatchEnterprisePlugin, BatchEnterprisePluginClient, InteractiveEnterprisePlugin, InteractiveEnterprisePluginClient }
 import io.gatling.plugin.client.EnterpriseClient
 import io.gatling.plugin.client.http.OkHttpEnterpriseClient
 import io.gatling.plugin.exceptions.UnsupportedClientException
@@ -59,9 +59,9 @@ object EnterpriseBundlePlugin {
     }
   }
 
-  private[bundle] def getEnterprisePlugin(config: CommandArguments) =
-    new EnterprisePluginClient(getClient(config), BundleIO.getLogger)
+  private[bundle] def getBatchEnterprisePlugin(config: CommandArguments): BatchEnterprisePlugin =
+    new BatchEnterprisePluginClient(getClient(config), BundleIO.getLogger)
 
-  private[bundle] def getEnterpriseInteractivePlugin(config: CommandArguments) =
+  private[bundle] def getInteractiveEnterprisePlugin(config: CommandArguments): InteractiveEnterprisePlugin =
     new InteractiveEnterprisePluginClient(getClient(config), BundleIO)
 }

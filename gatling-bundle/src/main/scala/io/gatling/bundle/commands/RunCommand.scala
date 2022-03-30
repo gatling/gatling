@@ -35,7 +35,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
         if (config.simulationId.nonEmpty) {
           println("Running the Simulation on Gatling Enterprise")
           new EnterpriseRunCommand(config, args).run()
-        } else if (config.simulationClass.nonEmpty || config.reportsOnly.nonEmpty) {
+        } else if (config.reportsOnly.nonEmpty) {
           println("Running the Simulation locally")
           new OpenSourceRunCommand(args).run()
         } else if (config.batchMode) {
