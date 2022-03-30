@@ -45,7 +45,7 @@ Cloning or downloading one of our demo projects on GitHub is definitely the fast
 {{< /alert >}}
 
 {{< alert warning >}}
-For Scala users only: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala.
+**For Scala users only**: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala. Please check the `pom.xml` of the demo project for maven and Scala mentioned above for complete configuration.
 {{< /alert >}}
 
 ## Configuration
