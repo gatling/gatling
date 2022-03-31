@@ -24,7 +24,6 @@ import java.util.zip.ZipOutputStream
 
 import scala.util.Using
 
-import io.gatling.bundle.CommandArguments
 import io.gatling.bundle.commands.CommandHelper._
 
 class PackageCommand(args: List[String]) {
@@ -55,9 +54,9 @@ class PackageCommand(args: List[String]) {
 
       val pathResources = Paths.get(s"$gatlingHome${File.separator}user-files${File.separator}resources").toAbsolutePath
       addJarEntries(pathResources, jos)
-    }
-    println("Package created")
-    file
+      println("Package created")
+      file
+    }.fold(throw _, identity)
   }
 
   private def addJarEntries(rootPath: Path, jos: JarOutputStream) = {
@@ -74,7 +73,7 @@ class PackageCommand(args: List[String]) {
                 jos.write(fileOut)
                 fileOut = reader.read()
               }
-            }
+            }.fold(throw _, _ => ())
             jos.flush()
           }
           jos.closeEntry()
