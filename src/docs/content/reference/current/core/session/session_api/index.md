@@ -12,7 +12,7 @@ weight: 2030501
 ### Going Stateful
 
 {{< alert tip >}}
-In order to build realist tests and draw conclusions that are valid for your live system, you must ensure your virtual users use application data in a realist fashion.
+In order to build realistic tests and draw conclusions that are valid for your live system, you must ensure your virtual users use application data in a realistic fashion.
 {{</ alert >}}
 
 In most load testing use cases, it's important that the virtual users don't play the same data.
