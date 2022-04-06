@@ -39,6 +39,7 @@ import io.gatling.http.util.{ HttpHelper, InetAddresses }
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.SslProvider
+import io.netty.util.internal.PlatformDependent
 
 object HttpProtocolBuilder {
 
@@ -143,10 +144,17 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   ): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
   def enableHttp2: HttpProtocolBuilder =
-    if (SslProvider.isAlpnSupported(if (useOpenSsl) SslProvider.OPENSSL_REFCNT else SslProvider.JDK)) {
+    if (useOpenSsl) {
+      if (SslProvider.isAlpnSupported(SslProvider.OPENSSL_REFCNT)) {
+        this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
+      } else {
+        throw new UnsupportedOperationException(s"You can't use HTTP/2: either OpenSSL is not available for ${PlatformDependent
+          .normalizedOs()}_${PlatformDependent.normalizedArch()}, or your Java version ${sys.props("java.version")} is too old.")
+      }
+    } else if (SslProvider.isAlpnSupported(SslProvider.JDK)) {
       this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
     } else {
-      throw new UnsupportedOperationException("You can't use HTTP/2 if OpenSSL is not available and Java doesn't support it either")
+      throw new UnsupportedOperationException(s"You can't use HTTP/2: your Java version ${sys.props("java.version")} is too old.")
     }
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]): HttpProtocolBuilder =
