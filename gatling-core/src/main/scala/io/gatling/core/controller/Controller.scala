@@ -51,8 +51,8 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
 
   startWith(WaitingToStart, NoData)
 
-  when(WaitingToStart) { case Event(Start(scenarios), NoData) =>
-    val initData = InitData(sender(), scenarios)
+  when(WaitingToStart) { case Event(Start(scenarioFlows), NoData) =>
+    val initData = InitData(sender(), scenarioFlows)
 
     simulationParams.maxDuration.foreach { maxDuration =>
       logger.debug("Setting up max duration")
@@ -61,7 +61,7 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
 
     throttler.foreach(_.start())
     statsEngine.start()
-    injector ! InjectorCommand.Start(self, initData.scenarios)
+    injector ! InjectorCommand.Start(self, initData.scenarioFlows)
 
     goto(Started) using StartedData(initData)
   }

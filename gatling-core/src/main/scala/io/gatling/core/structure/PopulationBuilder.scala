@@ -19,7 +19,7 @@ package io.gatling.core.structure
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.CoreComponents
-import io.gatling.core.controller.inject.InjectionProfile
+import io.gatling.core.controller.inject.{ InjectionProfile, ScenarioFlows }
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
@@ -30,20 +30,14 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.LazyLogging
 
 object PopulationBuilder {
-
-  def groupChildrenByParent(populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] = {
-    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-    def groupChildrenByParentRec(ancestorName: String, populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] =
-      if (populationBuilders.isEmpty) {
-        Map.empty
-      } else {
-        Map(ancestorName -> populationBuilders) ++ populationBuilders.flatMap(pb => groupChildrenByParentRec(pb.scenarioBuilder.name, pb.children.toList))
-      }
-
-    populationBuilders.foldLeft(Map.empty[String, List[PopulationBuilder]]) { (acc, populationBuilder) =>
-      acc ++ groupChildrenByParentRec(populationBuilder.scenarioBuilder.name, populationBuilder.children.toList)
-    }
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  private def collectRec(populationBuilder: PopulationBuilder): Seq[PopulationBuilder] = {
+    val children = populationBuilder.children.flatten
+    populationBuilder :: children.flatMap(collectRec)
   }
+
+  def flatten(populationBuilders: List[PopulationBuilder]): List[PopulationBuilder] =
+    populationBuilders.flatMap(collectRec)
 }
 
 final case class PopulationBuilder(
@@ -52,7 +46,7 @@ final case class PopulationBuilder(
     scenarioProtocols: Protocols,
     scenarioThrottleSteps: Iterable[ThrottleStep],
     pauseType: Option[PauseType],
-    children: Iterable[PopulationBuilder],
+    children: List[List[PopulationBuilder]],
     shard: Boolean
 ) extends LazyLogging {
 
@@ -60,7 +54,7 @@ final case class PopulationBuilder(
   def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
 
   def andThen(children: PopulationBuilder*): PopulationBuilder = andThen(children.toList)
-  def andThen(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children)(_ ++ children)
+  def andThen(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children)(_ ::: List(children.toList))
 
   def disablePauses: PopulationBuilder = pauses(Disabled)
   def constantPauses: PopulationBuilder = pauses(Constant)
@@ -84,7 +78,7 @@ final case class PopulationBuilder(
       protocolComponentsRegistries: ProtocolComponentsRegistries,
       globalPauseType: PauseType,
       globalThrottling: Option[Throttling]
-  ): Scenario = {
+  ): ScenarioFlows.Node[String, Scenario] = {
     val resolvedPauseType =
       if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {
         logger.info("Throttle is enabled, disabling pauses")
@@ -99,16 +93,17 @@ final case class PopulationBuilder(
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
-    val childrenScenarios = children.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling))
-
-    new Scenario(
-      scenarioBuilder.name,
-      entry,
-      protocolComponentsRegistry.onStart,
-      protocolComponentsRegistry.onExit,
-      injectionProfile,
-      ctx,
-      childrenScenarios
+    ScenarioFlows.Node(
+      key = scenarioBuilder.name,
+      value = new Scenario(
+        scenarioBuilder.name,
+        entry,
+        protocolComponentsRegistry.onStart,
+        protocolComponentsRegistry.onExit,
+        injectionProfile,
+        ctx
+      ),
+      childrenSequences = children.map(_.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling)))
     )
   }
 }

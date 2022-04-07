@@ -44,7 +44,7 @@ object OpenInjectionProfileSpec {
     var count = 0
 
     val workload = new OpenWorkload(
-      scenario = new Scenario("foo", null, identity, _ => (), null, null, Nil),
+      scenario = new Scenario("foo", null, identity, _ => (), null, null),
       stream = UserStream(profile.steps),
       userIdGen = new AtomicLong,
       startTime = System.currentTimeMillis(),

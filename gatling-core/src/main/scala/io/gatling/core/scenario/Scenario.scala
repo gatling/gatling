@@ -27,11 +27,5 @@ final class Scenario(
     val onStart: Session => Session,
     val onExit: Session => Unit,
     val injectionProfile: InjectionProfile,
-    val ctx: ScenarioContext,
-    val children: Iterable[Scenario]
-)
-
-private[gatling] final class Scenarios(
-    val roots: List[Scenario],
-    val children: Map[String, List[Scenario]]
+    val ctx: ScenarioContext
 )

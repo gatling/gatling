@@ -104,6 +104,8 @@ It's also possible with `andThen` to chain scenarios, so that children scenarios
 
 {{< include-code "andThen" java kt scala >}}
 
+When chaining `andThen` calls, Gatling will define the new children to only start once all the users of the previous children have terminated, descendants included.
+
 ## Disabling Gatling Enterprise Load Sharding
 
 By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple nodes.

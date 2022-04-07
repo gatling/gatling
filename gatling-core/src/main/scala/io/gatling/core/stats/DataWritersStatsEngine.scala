@@ -28,6 +28,7 @@ import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
+import io.gatling.core.structure.PopulationBuilder
 
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import akka.pattern.ask
@@ -53,7 +54,7 @@ object DataWritersStatsEngine {
         system.actorOf(Props(clazz, clock, configuration), className)
       }
 
-    val allPopulationBuilders = simulationParams.rootPopulationBuilders ++ simulationParams.childrenPopulationBuilders.values.flatten
+    val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
 
     val dataWriterInitMessage = Init(
       simulationParams.assertions,

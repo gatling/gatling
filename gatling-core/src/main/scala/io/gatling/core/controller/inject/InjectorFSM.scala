@@ -33,9 +33,9 @@ private[inject] object InjectorData {
   final case class StartedData(
       controller: ActorRef,
       inProgressWorkloads: Map[String, Workload],
-      scheduledForNextSecondScenarios: List[Scenario],
+      readyScenarios: List[Scenario],
       finishedInjectingScenarios: Set[String],
-      pendingChildrenScenarios: Map[String, List[Scenario]],
+      flows: ScenarioFlows[String, Scenario],
       timer: Cancellable
   ) extends InjectorData
 }

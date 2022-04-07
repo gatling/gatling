@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.Clock
 import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.controller.inject.open.OpenWorkload
-import io.gatling.core.scenario.{ Scenario, Scenarios }
+import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
@@ -32,7 +32,7 @@ import io.netty.channel.EventLoopGroup
 
 private[controller] sealed trait InjectorCommand
 private[controller] object InjectorCommand {
-  final case class Start(controller: ActorRef, scenarios: Scenarios) extends InjectorCommand
+  final case class Start(controller: ActorRef, scenarioFlows: ScenarioFlows[String, Scenario]) extends InjectorCommand
   final case class EmptyWorkloadComplete(scenario: String) extends InjectorCommand
   final case object Tick extends InjectorCommand
 }
@@ -66,7 +66,7 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
 
   private def inject(data: StartedData, firstBatch: Boolean): State = {
 
-    val newlyInProgressWorkloads = buildWorkloads(data.scheduledForNextSecondScenarios)
+    val newlyInProgressWorkloads = buildWorkloads(data.readyScenarios)
 
     val newInProgressWorkloads = data.inProgressWorkloads ++ newlyInProgressWorkloads
 
@@ -93,13 +93,14 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
 
     val (finishedInjectingWorkloads, injectingWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
 
+    // FIXME how can keys overlap? can we remove data.finishedInjectingScenarios?
     val newlyFinishedInjectingScenarios = finishedInjectingWorkloads.keySet -- data.finishedInjectingScenarios
 
     newlyFinishedInjectingScenarios.foreach { scenario =>
       logger.info(s"Scenario $scenario has finished injecting")
     }
 
-    val doneInjecting = injectingWorkloads.isEmpty && data.pendingChildrenScenarios.isEmpty
+    val doneInjecting = injectingWorkloads.isEmpty && data.flows.isEmpty
 
     if (doneInjecting) {
       logger.info("Injecting is done")
@@ -113,30 +114,34 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
       goto(Started) using data.copy(
         inProgressWorkloads = newInProgressWorkloads,
         finishedInjectingScenarios = data.finishedInjectingScenarios ++ newlyFinishedInjectingScenarios,
-        scheduledForNextSecondScenarios = Nil
+        readyScenarios = Nil
       )
     }
   }
 
-  when(WaitingToStart) { case Event(Start(controller, scenarios), NoData) =>
+  when(WaitingToStart) { case Event(Start(controller, scenarioFlows), NoData) =>
     val timer = system.scheduler.scheduleAtFixedRate(TickPeriod, TickPeriod, self, Tick)
-    inject(StartedData(controller, Map.empty, scenarios.roots, Set.empty, scenarios.children, timer), firstBatch = true)
+    val (readyScenarios, newScenarioFlows) = scenarioFlows.extractReady
+
+    inject(StartedData(controller, Map.empty, readyScenarios, Set.empty, newScenarioFlows, timer), firstBatch = true)
   }
 
   private def onWorkloadComplete(scenario: String, data: StartedData): State = {
     val newInProgressWorkloads = data.inProgressWorkloads - scenario
     // children scenarios will be started on next tick
-    val newScheduledForNextSecondScenarios = data.scheduledForNextSecondScenarios ++ data.pendingChildrenScenarios.getOrElse(scenario, Nil)
 
-    if (newInProgressWorkloads.isEmpty && newScheduledForNextSecondScenarios.isEmpty) {
+    val (newReady, newScenarioFlows) = data.flows.remove(scenario).extractReady
+    val newReadyScenarios = data.readyScenarios ++ newReady
+
+    if (newInProgressWorkloads.isEmpty && newReadyScenarios.isEmpty) {
       stopInjector(data.controller)
     } else {
       stay() using StartedData(
         controller = data.controller,
         inProgressWorkloads = newInProgressWorkloads,
-        scheduledForNextSecondScenarios = newScheduledForNextSecondScenarios,
+        readyScenarios = newReadyScenarios,
         finishedInjectingScenarios = data.finishedInjectingScenarios,
-        pendingChildrenScenarios = data.pendingChildrenScenarios - scenario,
+        flows = newScenarioFlows,
         timer = data.timer
       )
     }

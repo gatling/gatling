@@ -25,9 +25,9 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.{ Controller, ControllerCommand }
-import io.gatling.core.controller.inject.Injector
+import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.{ Scenarios, SimulationParams }
+import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
@@ -74,9 +74,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     val coreComponents = new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
-    val scenarios = simulationParams.scenarios(coreComponents)
+    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
 
-    start(simulationParams, scenarios, coreComponents) match {
+    start(simulationParams, scenarioFlows, coreComponents) match {
       case Failure(t) => throw t
       case _ =>
         simulationParams.after()
@@ -87,14 +87,14 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
-      scenarios: Scenarios,
+      scenarioFlows: ScenarioFlows[String, Scenario],
       coreComponents: CoreComponents
   ): Try[_] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")
     logger.trace("Asking Controller to start")
-    val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarios))(timeout).mapTo[Try[String]]
+    val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarioFlows))(timeout).mapTo[Try[String]]
     val runDone = Await.result(whenRunDone, timeout)
     println(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone

@@ -21,6 +21,7 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.inject.ScenarioFlows
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling, Throttlings }
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
@@ -46,8 +47,7 @@ object Simulation {
     val rootPopulationBuilders = _populationBuilders
     require(rootPopulationBuilders.nonEmpty, "No scenario set up")
 
-    val childrenPopulationBuilders = PopulationBuilder.groupChildrenByParent(rootPopulationBuilders)
-    val allPopulationBuilders = rootPopulationBuilders ++ childrenPopulationBuilders.values.flatten
+    val allPopulationBuilders = PopulationBuilder.flatten(rootPopulationBuilders)
 
     val duplicates =
       allPopulationBuilders
@@ -90,7 +90,6 @@ object Simulation {
     new SimulationParams(
       name,
       rootPopulationBuilders,
-      childrenPopulationBuilders,
       _globalProtocols,
       _globalPauseType,
       Throttlings(globalThrottling, scenarioThrottlings),
@@ -185,7 +184,6 @@ abstract class Simulation {
 final class SimulationParams(
     val name: String,
     val rootPopulationBuilders: List[PopulationBuilder],
-    val childrenPopulationBuilders: Map[String, List[PopulationBuilder]],
     val globalProtocols: Protocols,
     val globalPauseType: PauseType,
     val throttlings: Throttlings,
@@ -198,11 +196,8 @@ final class SimulationParams(
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
     populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global)
 
-  def scenarios(coreComponents: CoreComponents): Scenarios = {
+  def scenarioFlows(coreComponents: CoreComponents): ScenarioFlows[String, Scenario] = {
     val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
-    val rootScenarios = rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries))
-    val childrenScenarios = childrenPopulationBuilders.view.mapValues(_.map(buildScenario(_, coreComponents, protocolComponentsRegistries))).toMap
-
-    new Scenarios(rootScenarios, childrenScenarios)
+    ScenarioFlows.fromNodes(rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries)))
   }
 }
