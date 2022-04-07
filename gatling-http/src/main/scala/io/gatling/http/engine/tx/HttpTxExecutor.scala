@@ -127,6 +127,9 @@ class HttpTxExecutor(
     executeWithCache(origTx) { tx =>
       if (tx.redirectCount >= tx.request.requestConfig.httpProtocol.responsePart.maxRedirects) {
         val now = clock.nowMillis
+        // [fl]
+        //
+        // [fl]
         responseProcessorFactory(tx).onComplete(
           HttpFailure(
             request = tx.request.clientRequest,
