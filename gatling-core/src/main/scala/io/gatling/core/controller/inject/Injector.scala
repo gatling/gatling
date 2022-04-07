@@ -93,17 +93,10 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
 
     val (finishedInjectingWorkloads, injectingWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
 
-    // FIXME how can keys overlap? can we remove data.finishedInjectingScenarios?
-    val newlyFinishedInjectingScenarios = finishedInjectingWorkloads.keySet -- data.finishedInjectingScenarios
-
-    newlyFinishedInjectingScenarios.foreach { scenario =>
-      logger.info(s"Scenario $scenario has finished injecting")
-    }
-
     val doneInjecting = injectingWorkloads.isEmpty && data.flows.isEmpty
 
     if (doneInjecting) {
-      logger.info("Injecting is done")
+      logger.info("All scenarios have finished injecting")
       data.timer.cancel()
     }
 
@@ -113,7 +106,6 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
     } else {
       goto(Started) using data.copy(
         inProgressWorkloads = newInProgressWorkloads,
-        finishedInjectingScenarios = data.finishedInjectingScenarios ++ newlyFinishedInjectingScenarios,
         readyScenarios = Nil
       )
     }
@@ -123,7 +115,7 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
     val timer = system.scheduler.scheduleAtFixedRate(TickPeriod, TickPeriod, self, Tick)
     val (readyScenarios, newScenarioFlows) = scenarioFlows.extractReady
 
-    inject(StartedData(controller, Map.empty, readyScenarios, Set.empty, newScenarioFlows, timer), firstBatch = true)
+    inject(StartedData(controller, Map.empty, readyScenarios, newScenarioFlows, timer), firstBatch = true)
   }
 
   private def onWorkloadComplete(scenario: String, data: StartedData): State = {
@@ -136,13 +128,10 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
     if (newInProgressWorkloads.isEmpty && newReadyScenarios.isEmpty) {
       stopInjector(data.controller)
     } else {
-      stay() using StartedData(
-        controller = data.controller,
+      stay() using data.copy(
         inProgressWorkloads = newInProgressWorkloads,
         readyScenarios = newReadyScenarios,
-        finishedInjectingScenarios = data.finishedInjectingScenarios,
-        flows = newScenarioFlows,
-        timer = data.timer
+        flows = newScenarioFlows
       )
     }
   }

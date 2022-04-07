@@ -34,7 +34,6 @@ private[inject] object InjectorData {
       controller: ActorRef,
       inProgressWorkloads: Map[String, Workload],
       readyScenarios: List[Scenario],
-      finishedInjectingScenarios: Set[String],
       flows: ScenarioFlows[String, Scenario],
       timer: Cancellable
   ) extends InjectorData
