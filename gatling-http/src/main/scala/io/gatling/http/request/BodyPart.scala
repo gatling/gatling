@@ -77,7 +77,7 @@ object BodyPart {
           new StringPart(
             name,
             resolvedString,
-            charset.getOrElse(defaultCharset),
+            charset.orNull,
             transferEncoding.orNull,
             contentId.orNull,
             dispositionType.orNull,
