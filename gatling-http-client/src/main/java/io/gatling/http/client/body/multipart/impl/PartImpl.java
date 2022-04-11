@@ -203,8 +203,8 @@ public abstract class PartImpl implements Closeable {
       visitor.withBytes(CRLF_BYTES);
       visitor.withBytes(CONTENT_TYPE_BYTES);
       visitor.withBytes(contentType.getBytes(US_ASCII));
-      Charset charSet = part.getCharset();
-      if (charSet != null) {
+      Charset charset = part.getCharset();
+      if (charset != null) {
         visitor.withBytes(CHARSET_BYTES);
         visitor.withBytes(part.getCharset().name().getBytes(US_ASCII));
       }
