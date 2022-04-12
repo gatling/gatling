@@ -3,7 +3,7 @@ title: "Configuration"
 description: "Configuration of Gatling"
 lead: "Configure the logs with logback.xml, the configuration with gatling.conf, and the zip bundle command options"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-04-12T18:30:56+02:00
 weight: 2030800
 ---
 
@@ -40,7 +40,7 @@ Gatling uses a fallback strategy, where:
 
 `gatling-defaults.conf` is shipped in the gatling-core jar and must not be tampered.
 
-`gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a maven/gradle/sbt project and in `conf` in the bundle distribution. 
+`gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a maven/gradle/sbt project and in `conf` in the bundle distribution.
 
 This file name can be changed with a System property named `gatling.conf.file`, eg `-Dgatling.conf.file=gatling-special.conf`. Again, beware it's loaded from the ClassLoader, not the filesystem, eg:
 
@@ -60,19 +60,48 @@ When editing `gatling.conf`, don't forget to remove the leading `#` that comment
 
 ## Zip Bundle Command Line Options {#cli-options}
 
+The Zip bundle can be used to start Gatling locally, or with the Enterprise cloud edition. Run the `gatling.bat` file if you run on Windows, or the `gatling.sh` file if you run on MacOS or Linux.
+
 Gatling can be started with several options listed below:
+
+Common options:
 
 | Option (short)     | Option (long)                      | Description                                                                                        |
 | --- | --- | --- |
-| `-h`               | `--help`                           | Help                                                                                               |
+| `-h`               | `--help`                           | Show help (this message) and exit                                                                  |
+| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally or with the Enterprise edition. Options are 'opensource' and 'enterprise' |
+
+Options used when compiling your Gatling simulations:
+
+| Option (short)     | Option (long)                      | Description                                                                                        |
+| --- | --- | --- |
+| `-sf <path>`       | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
+| `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
+| `-eso <value>`     | `----extra-scalac-options <value>` | Defines additional scalac options for the compiler                                                 |
+
+Options used when running Gatling locally:
+
+| Option (short)     | Option (long)                      | Description                                                                                        |
+| --- | --- | --- |
 | `-nr`              | `--no-reports`                     | Runs simulation but does not generate reports                                                      |
 | `-ro <folderName>` | `--reports-only <folderName>`      | Generates the reports for the simulation log file located in `<gatling_home>/results/<folderName>` |
 | `-rf <path>`       | `--results-folder <path>`          | Uses `<path>` as the folder where results are stored                                               |
 | `-rsf <path>`      | `--resources-folder <path>`        | Uses `<path>` as the folder where resources are stored                                             |
-| `-sf <path>`       | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
 | `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
 | `-s <className>`   | `--simulation <className>`         | Uses `<className>` as the name of the simulation to be run                                         |
 | `-rd <description>`| `--run-description <description>`  | A short `<description>` of the run to include in the report                                        |
+
+Options used when running Gatling on Gatling Enterprise:
+
+| Option (short)     | Option (long)                      | Description                                                                                        |
+| --- | --- | --- |
+| `-bm`              | `--batch-mode`                     | No interactive user input will be asked                                                            |
+| `-at <token>`      | `--api-token <token>`              | Gatling Enterprise's API token with the 'Configure' role                                           |
+| `-sid <id>`        | `--simulation-id <id>`             | Specifies the Gatling Enterprise Simulation, when creating a new Simulation                        |
+|`-pid`              | `--package-id <id>`                | Specifies the Gatling Enterprise Package, when creating a new Simulation                           |
+|`-tid`              | `--team-id <id>`                   | Specifies the Gatling Enterprise Team, when creating a new Simulation                              |
+|`-s`                | `--simulation <className>`         | Runs `<className>` simulation                                                                      |
+|`-ssp`              | `--simulation-system-properties k1=v1,k2=v2` | Optional System Properties used when starting the Gatling Enterprise simulation          |
 
 ## $JAVA_OPTS
 
@@ -82,4 +111,3 @@ You can use the JAVA_OPTS environment variable to override those defaults, eg:
 ```console
 JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 ```
-
