@@ -19,7 +19,7 @@ package io.gatling.http.action.ws
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
-import io.gatling.core.session.{ Session, _ }
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 

@@ -33,7 +33,7 @@ object CodeAnalysis {
       Wart.StringPlusAny, // see https://github.com/wartremover/wartremover/issues/447
       Wart.Throw,
       Wart.ToString,
-      Wart.TraversableOps,
+      Wart.IterableOps,
       Wart.Var,
       Wart.While
     )

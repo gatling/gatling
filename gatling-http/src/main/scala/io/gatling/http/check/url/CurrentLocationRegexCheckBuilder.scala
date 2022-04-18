@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.url
 
-import io.gatling.core.check.{ Extractor, _ }
+import io.gatling.core.check._
 import io.gatling.core.check.regex._
 import io.gatling.core.session._
 import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
