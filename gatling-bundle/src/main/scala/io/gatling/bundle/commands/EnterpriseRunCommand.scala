@@ -24,7 +24,7 @@ import io.gatling.app.cli.CommandLineConstants.{ Simulation => SimulationOption 
 import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
 import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
 import io.gatling.plugin.EnterprisePlugin
-import io.gatling.plugin.exceptions.{ SeveralSimulationClassNamesFoundException, SeveralTeamsFoundException, SimulationStartException }
+import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
 object EnterpriseRunCommand {
@@ -71,6 +71,11 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
     val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
     logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
   } catch {
+    case e: UnsupportedJavaVersionException =>
+      throw new IllegalArgumentException(s"""${e.getMessage}
+                                            |In order to target the supported Java bytecode version, please use Java JDK ${e.supportedVersion}.
+                                            |Or, reported class may come from your project dependencies, published targeting Java ${e.version}.
+                                            |""".stripMargin)
     case e: SeveralTeamsFoundException =>
       val teams = e.getAvailableTeams.asScala
       throw new IllegalArgumentException(s"""More than 1 team were found while creating a simulation.
