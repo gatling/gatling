@@ -3,7 +3,7 @@ title: "Installation"
 description: "Install and Gatling"
 lead: "Learn about the Java, Kotlin and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle "
 date: 2021-04-20T18:58:06+02:00
-lastmod: 2021-04-20T18:58:06+02:00
+lastmod: 2022-04-26T17:00:00+02:00
 weight: 1010000
 ---
 
@@ -63,6 +63,7 @@ The bundle structure is as follows:
 * `user-files`:
     * `simulations`: where to place your Simulations code. You must respect the package folder hierarchy.
     * `resources`: non source code files such as feeder files and templates for request bodies.
+    * `lib`: you can add you own dependencies (JAR files) here. When running on Gatling Enterprise, they are packaged in a single "fat JAR" file together with your Simulations code.
 * `results`: where test results are generated.
 
 ## Using a Build Tool

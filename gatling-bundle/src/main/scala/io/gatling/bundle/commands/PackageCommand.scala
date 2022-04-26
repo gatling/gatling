@@ -16,15 +16,23 @@
 
 package io.gatling.bundle.commands
 
-import java.io.{ File, FileOutputStream }
-import java.nio.file.{ FileVisitResult, Files, Path, Paths, SimpleFileVisitor }
+import java.io.{ File, FileOutputStream, InputStream }
+import java.nio.file.{ FileVisitResult, Files, Path, SimpleFileVisitor }
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.Locale
 import java.util.jar.{ Attributes, JarEntry, JarOutputStream, Manifest }
-import java.util.zip.ZipOutputStream
+import java.util.zip.{ ZipFile, ZipOutputStream }
 
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 import io.gatling.bundle.commands.CommandHelper._
+import io.gatling.bundle.commands.PackageCommand.WriteEntry
+
+object PackageCommand {
+  private type WriteEntry = (String, JarOutputStream => Unit) => Unit
+}
 
 class PackageCommand(args: List[String]) {
 
@@ -40,47 +48,108 @@ class PackageCommand(args: List[String]) {
 
     Using(new JarOutputStream(new FileOutputStream(file))) { jos =>
       jos.setLevel(ZipOutputStream.STORED)
-      val je = new JarEntry("META-INF/MANIFEST.MF")
-      jos.putNextEntry(je)
-      val manifest = new Manifest
-      manifest.getMainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString, "1.0")
-      manifest.getMainAttributes.putValue(Attributes.Name.SIGNATURE_VERSION.toString, "GatlingCorp")
-      manifest.getMainAttributes.putValue("Gatling-Packager", "bundle")
-      manifest.getMainAttributes.putValue("Gatling-Version", gatlingVersion)
-      manifest.write(jos)
 
-      val pathTestClasses = Paths.get(s"$gatlingHome${File.separator}target${File.separator}test-classes").toAbsolutePath
-      addJarEntries(pathTestClasses, jos)
+      val entriesCache = mutable.HashSet.empty[String]
+      val writeEntry: WriteEntry = (entryName, writeContent) => {
+        val entry = new JarEntry(entryName)
+        if (entriesCache.add(entryName)) {
+          jos.putNextEntry(entry)
+          writeContent(jos)
+          jos.closeEntry()
+        }
+      }
 
-      val pathResources = Paths.get(s"$gatlingHome${File.separator}user-files${File.separator}resources").toAbsolutePath
-      addJarEntries(pathResources, jos)
+      addManifest(writeEntry)
+      addJarEntries(targetTestClassesDirectory, writeEntry)
+      addJarEntries(userResourcesDirectory, writeEntry)
+      addJarsContents(userLibsDirectory, writeEntry)
+
       println("Package created")
       file
     }.fold(throw _, identity)
   }
 
-  private def addJarEntries(rootPath: Path, jos: JarOutputStream) = {
+  private def addManifest(writeEntry: WriteEntry): Unit = {
+    writeEntry("META-INF/", _ => ())
+    writeEntry(
+      "META-INF/MANIFEST.MF",
+      jos => {
+        val manifest = new Manifest
+        manifest.getMainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString, "1.0")
+        manifest.getMainAttributes.putValue(Attributes.Name.SIGNATURE_VERSION.toString, "GatlingCorp")
+        manifest.getMainAttributes.putValue("Gatling-Packager", "bundle")
+        manifest.getMainAttributes.putValue("Gatling-Version", gatlingVersion)
+        manifest.write(jos)
+      }
+    )
+  }
+
+  private def addJarsContents(rootPath: Path, writeEntry: WriteEntry): Unit = {
+
+    def isExcluded(name: String): Boolean =
+      name.equalsIgnoreCase("META-INF/LICENSE") ||
+        name.equalsIgnoreCase("META-INF/MANIFEST.MF") ||
+        name.startsWith("META-INF/versions/") ||
+        name.startsWith("META-INF/maven/") ||
+        name.endsWith(".SF") ||
+        name.endsWith(".DSA") ||
+        name.endsWith(".RSA")
+
     Files.walkFileTree(
       rootPath,
       new SimpleFileVisitor[Path] {
         override def visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult = {
-          jos.putNextEntry(new JarEntry(rootPath.relativize(path).toString))
-          if (Files.isRegularFile(path)) {
-            Using(Files.newInputStream(path)) { reader =>
-              var fileOut = -1
-              fileOut = reader.read()
-              while (fileOut != -1) {
-                jos.write(fileOut)
-                fileOut = reader.read()
-              }
+          if (Files.isRegularFile(path) && path.getFileName.toString.toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
+            Using(new ZipFile(path.toFile)) { zip =>
+              zip
+                .entries()
+                .asScala
+                .filter(entry => !isExcluded(entry.getName))
+                .foreach { entry =>
+                  writeEntry(
+                    entry.getName,
+                    jos =>
+                      if (!entry.isDirectory) {
+                        copyFromInputStream(zip.getInputStream(entry), jos)
+                      }
+                  )
+                }
             }.fold(throw _, _ => ())
-            jos.flush()
           }
-          jos.closeEntry()
 
           super.visitFile(rootPath, attrs)
         }
       }
     )
+  }
+
+  private def addJarEntries(rootPath: Path, writeEntry: WriteEntry): Unit = {
+    Files.walkFileTree(
+      rootPath,
+      new SimpleFileVisitor[Path] {
+        override def visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          writeEntry(
+            rootPath.relativize(path).toString,
+            jos =>
+              if (Files.isRegularFile(path)) {
+                copyFromInputStream(Files.newInputStream(path), jos)
+              }
+          )
+          super.visitFile(rootPath, attrs)
+        }
+      }
+    )
+  }
+
+  private def copyFromInputStream(inputStream: => InputStream, jos: JarOutputStream): Unit = {
+    Using(inputStream) { is =>
+      var read = -1
+      read = is.read()
+      while (read != -1) {
+        jos.write(read)
+        read = is.read()
+      }
+    }.fold(throw _, _ => ())
+    jos.flush()
   }
 }

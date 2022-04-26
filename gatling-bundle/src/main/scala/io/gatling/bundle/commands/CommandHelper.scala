@@ -17,10 +17,11 @@
 package io.gatling.bundle.commands
 
 import java.io.File
-import java.nio.file.{ Files, Paths }
+import java.nio.file.{ Files, Path, Paths }
 import java.util.ResourceBundle
 
 import scala.jdk.CollectionConverters._
+import scala.jdk.StreamConverters._
 import scala.util.control.NoStackTrace
 
 import io.gatling.bundle.BundleIO
@@ -57,7 +58,6 @@ private[commands] object CommandHelper {
                                                                         |""".stripMargin)
     }
   }
-  def gatlingConf: File = optionEnv("GATLING_CONF").map(new File(_)).getOrElse(new File(gatlingHome, "conf"))
 
   def systemJavaOpts: List[String] = optionListEnv("JAVA_OPTS")
   def GATLING_JVM_ARGS: List[String] = List(
@@ -75,18 +75,25 @@ private[commands] object CommandHelper {
     throw new InvalidGatlingHomeException
   }
 
-  def gatlingLibs: List[String] = listFiles(new File(gatlingHome, "lib"))
-  def gatlingConfFiles: List[String] = listFiles(gatlingConf) ++ List(gatlingConf.getAbsolutePath)
-  def userResources: List[String] = List(s"$gatlingHome${File.separator}user-files${File.separator}resources")
+  val gatlingConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_)).getOrElse(Paths.get(gatlingHome, "conf")).toAbsolutePath
+  val gatlingLibsDirectory: Path = Paths.get(gatlingHome, "lib").toAbsolutePath
+  val userLibsDirectory: Path = Paths.get(gatlingHome, "user-files", "lib").toAbsolutePath
+  val userResourcesDirectory: Path = Paths.get(gatlingHome, "user-files", "resources").toAbsolutePath
+  val targetTestClassesDirectory: Path = Paths.get(gatlingHome, "target", "test-classes").toAbsolutePath
 
-  def listFiles(file: File): List[String] = {
-    if (!file.exists() || !file.isDirectory) {
+  def gatlingLibs: List[String] = listFiles(gatlingLibsDirectory)
+  def userLibs: List[String] = listFiles(userLibsDirectory)
+  def gatlingConfFiles: List[String] = listFiles(gatlingConfDirectory) ++ List(gatlingConfDirectory.toString)
+  def userResources: List[String] = List(userResourcesDirectory.toString)
+
+  def listFiles(file: Path): List[String] = {
+    if (!Files.exists(file) || !Files.isDirectory(file)) {
       throw new InvalidGatlingHomeException
     }
-    file
-      .listFiles()
-      .toList
-      .map(_.getAbsolutePath)
+    Files
+      .list(file)
+      .toScala(List)
+      .map(_.toAbsolutePath.toString)
   }
 
   def compile(args: List[String]): Unit = {
@@ -95,7 +102,7 @@ private[commands] object CommandHelper {
 
     val compilerOpts = List("-Xss100M") ++ GATLING_JVM_ARGS ++ systemJavaOpts
 
-    val classPath = gatlingLibs ++ gatlingConfFiles
+    val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
 
     val extraCompilerOptions = optionListEnv("EXTRA_SCALAC_OPTIONS")
       .flatMap(options => List("-eso", options))

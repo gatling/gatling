@@ -28,7 +28,7 @@ class OpenSourceRunCommand(args: List[String]) {
   private[bundle] def run(): Unit = {
     compile(args)
 
-    val classPath = gatlingLibs ++ userResources ++ gatlingConfFiles
+    val classPath = gatlingLibs ++ userLibs ++ userResources ++ gatlingConfFiles
 
     new Fork(
       "io.gatling.app.Gatling",
