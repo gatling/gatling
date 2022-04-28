@@ -239,7 +239,7 @@ object ZincCompiler extends ProblemStringFormats {
         "-language:implicitConversions",
         "-language:postfixOps"
       ) ++ configuration.extraScalacOptions, // _scalacOptions
-      Array.empty[String], // _javacOptions
+      configuration.extraJavacOptions.toArray, // _javacOptions
       100, // _maxErrors
       (position: Position) => position, // _sourcePositionMapper
       CompileOrder.Mixed, // _order

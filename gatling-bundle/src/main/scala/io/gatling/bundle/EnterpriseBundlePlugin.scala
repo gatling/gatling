@@ -28,7 +28,7 @@ object EnterpriseBundlePlugin {
   val ApiTokenEnv = "GATLING_ENTERPRISE_API_TOKEN"
   val ClientName = "gatling-bundle"
 
-  private def getClient(config: CommandArguments): EnterpriseClient = {
+  private[bundle] def getClient(config: CommandArguments): EnterpriseClient = {
     val validApiToken = config.apiToken match {
       case Some(token) => token
       case _ =>
@@ -59,9 +59,9 @@ object EnterpriseBundlePlugin {
     }
   }
 
-  private[bundle] def getBatchEnterprisePlugin(config: CommandArguments): BatchEnterprisePlugin =
-    new BatchEnterprisePluginClient(getClient(config), BundleIO.getLogger)
+  private[bundle] def getBatchEnterprisePlugin(client: EnterpriseClient): BatchEnterprisePlugin =
+    new BatchEnterprisePluginClient(client, BundleIO.getLogger)
 
-  private[bundle] def getInteractiveEnterprisePlugin(config: CommandArguments): InteractiveEnterprisePlugin =
-    new InteractiveEnterprisePluginClient(getClient(config), BundleIO)
+  private[bundle] def getInteractiveEnterprisePlugin(client: EnterpriseClient): InteractiveEnterprisePlugin =
+    new InteractiveEnterprisePluginClient(client, BundleIO)
 }

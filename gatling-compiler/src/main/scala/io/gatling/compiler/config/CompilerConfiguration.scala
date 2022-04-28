@@ -29,7 +29,8 @@ private[compiler] final case class CompilerConfiguration(
     encoding: String,
     simulationsDirectory: Path,
     binariesDirectory: Path,
-    extraScalacOptions: Seq[String]
+    extraScalacOptions: Seq[String],
+    extraJavacOptions: Seq[String]
 )
 
 private[compiler] object CompilerConfiguration {
@@ -66,8 +67,9 @@ private[compiler] object CompilerConfiguration {
       .fold(GatlingHome / "user-files" / "simulations")(resolvePath(_))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
       .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
-    val extraScalacOptions = commandLineOverrides.extraScalacOptions.split(",").toSeq
+    val extraScalacOptions = commandLineOverrides.extraScalacOptions.split(',').filter(_.nonEmpty).toSeq
+    val extraJavacOptions = commandLineOverrides.extraJavacOptions.split(',').filter(_.nonEmpty).toSeq
 
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, extraScalacOptions)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, extraScalacOptions, extraJavacOptions)
   }
 }

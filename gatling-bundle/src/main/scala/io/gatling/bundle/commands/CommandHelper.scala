@@ -27,6 +27,8 @@ import scala.util.control.NoStackTrace
 import io.gatling.bundle.BundleIO
 import io.gatling.plugin.util.Fork
 
+import io.netty.util.internal.PlatformDependent
+
 private[commands] object CommandHelper {
   private class InvalidGatlingHomeException
       extends IllegalStateException("""
@@ -47,6 +49,8 @@ private[commands] object CommandHelper {
     case Some(java) => s"$java${File.separator}bin${File.separator}java"
     case _          => "java"
   }
+
+  val javaVersion: Int = PlatformDependent.javaVersion()
 
   def gatlingHome: String = optionEnv("GATLING_HOME").getOrElse {
     try {
@@ -96,7 +100,7 @@ private[commands] object CommandHelper {
       .map(_.toAbsolutePath.toString)
   }
 
-  def compile(args: List[String]): Unit = {
+  def compile(args: List[String], maxJavaVersion: Option[Int]): Unit = {
 
     println(s"GATLING_HOME is set to $gatlingHome")
 
@@ -104,14 +108,22 @@ private[commands] object CommandHelper {
 
     val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
 
-    val extraCompilerOptions = optionListEnv("EXTRA_SCALAC_OPTIONS")
+    val extraJavacOptions = maxJavaVersion match {
+      case Some(maxVersion) if javaVersion > maxVersion =>
+        println(s"Currently running on unsupported Java version $javaVersion; Java code will be compiled with the '--release $maxVersion' option")
+        List("-ejo", s"--release,$maxVersion")
+      case _ =>
+        Nil
+    }
+
+    val extraScalacOptions = optionListEnv("EXTRA_SCALAC_OPTIONS")
       .flatMap(options => List("-eso", options))
 
     new Fork(
       "io.gatling.compiler.ZincCompiler",
       classPath.asJava,
       compilerOpts.asJava,
-      (extraCompilerOptions ++ args).asJava,
+      (extraJavacOptions ++ extraScalacOptions ++ args).asJava,
       java,
       true,
       BundleIO.getLogger,

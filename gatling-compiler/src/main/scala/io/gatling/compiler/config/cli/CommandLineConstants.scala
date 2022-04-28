@@ -22,4 +22,5 @@ private object CommandLineConstants {
   val SimulationsFolder: CommandLineConstant = CommandLineConstant("simulations-folder", "sf")
   val BinariesFolder: CommandLineConstant = CommandLineConstant("binaries-folder", "bf")
   val ExtraScalacOptions: CommandLineConstant = CommandLineConstant("extra-scalac-options", "eso")
+  val ExtraJavacOptions: CommandLineConstant = CommandLineConstant("extra-javac-options", "ejo")
 }

@@ -19,11 +19,13 @@ package io.gatling.bundle.commands
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
+import scala.util.{ Failure, Try, Using }
 
 import io.gatling.app.cli.CommandLineConstants.{ Simulation => SimulationOption }
 import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
 import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
 import io.gatling.plugin.EnterprisePlugin
+import io.gatling.plugin.client.EnterpriseClient
 import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
@@ -38,64 +40,72 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
 
   private val logger = BundleIO.getLogger
 
-  private[bundle] def run(): Unit = try {
-    val file = new PackageCommand(args).run()
+  private[bundle] def run(): Unit =
+    Using
+      .Manager { use =>
+        val enterpriseClient: EnterpriseClient = use(EnterpriseBundlePlugin.getClient(config))
+        val enterprisePlugin: EnterprisePlugin =
+          if (config.batchMode) use(EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient))
+          else use(EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient))
 
-    val enterpriseClient: EnterprisePlugin =
-      if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(config)
-      else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(config)
+        val serverInformation = enterpriseClient.getServerInformation
+        val maxJavaVersion = serverInformation.versions.java.max.toInt
 
-    val simulationStartResult = config.simulationId match {
-      case Some(simulationId) =>
-        enterpriseClient.uploadPackageAndStartSimulation(simulationId, config.simulationSystemProperties.asJava, config.simulationClass.orNull, file)
-      case _ =>
-        enterpriseClient.createAndStartSimulation(
-          config.teamId.orNull,
-          GroupId,
-          ArtifactId,
-          config.simulationClass.orNull,
-          config.packageId.orNull,
-          config.simulationSystemProperties.asJava,
-          file
-        )
-    }
+        val file = new PackageCommand(args, maxJavaVersion).run()
 
-    if (simulationStartResult.createdSimulation) {
-      logCreatedSimulation(simulationStartResult.simulation)
-    }
+        val simulationStartResult = config.simulationId match {
+          case Some(simulationId) =>
+            enterprisePlugin.uploadPackageAndStartSimulation(simulationId, config.simulationSystemProperties.asJava, config.simulationClass.orNull, file)
+          case _ =>
+            enterprisePlugin.createAndStartSimulation(
+              config.teamId.orNull,
+              GroupId,
+              ArtifactId,
+              config.simulationClass.orNull,
+              config.packageId.orNull,
+              config.simulationSystemProperties.asJava,
+              file
+            )
+        }
 
-    if (config.simulationId.isEmpty) {
-      logSimulationConfiguration(simulationStartResult.simulation.id)
-    }
+        if (simulationStartResult.createdSimulation) {
+          logCreatedSimulation(simulationStartResult.simulation)
+        }
 
-    val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
-    logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
-  } catch {
-    case e: UnsupportedJavaVersionException =>
-      throw new IllegalArgumentException(s"""${e.getMessage}
-                                            |In order to target the supported Java bytecode version, please use Java JDK ${e.supportedVersion}.
-                                            |Or, reported class may come from your project dependencies, published targeting Java ${e.version}.
-                                            |""".stripMargin)
-    case e: SeveralTeamsFoundException =>
-      val teams = e.getAvailableTeams.asScala
-      throw new IllegalArgumentException(s"""More than 1 team were found while creating a simulation.
-                                            |Available teams:
-                                            |${teams.map(team => s"- ${team.id} (${team.name})").mkString(System.lineSeparator)}
-                                            |Specify the team you want to use with --${TeamId.full} ${teams.head.id}
-                                            |""".stripMargin)
-    case e: SeveralSimulationClassNamesFoundException =>
-      val simulationClasses = e.getAvailableSimulationClassNames.asScala
-      throw new IllegalArgumentException(s"""Several simulation classes were found
-                                            |${simulationClasses.map("- " + _).mkString("\n")}
-                                            |Specify the team you want to use with --${SimulationOption.full} ${simulationClasses.head}
-                                            |""".stripMargin)
-    case e: SimulationStartException =>
-      if (e.isCreated) {
-        logCreatedSimulation(e.getSimulation)
+        if (config.simulationId.isEmpty) {
+          logSimulationConfiguration(simulationStartResult.simulation.id)
+        }
+
+        val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
+        logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
       }
-      logSimulationConfiguration(e.getSimulation.id)
-      throw e.getCause
-  }
+      .recoverWith {
+        case e: UnsupportedJavaVersionException =>
+          Failure(new IllegalArgumentException(s"""${e.getMessage}
+                                                  |In order to target the supported Java bytecode version, please use Java JDK ${e.supportedVersion}.
+                                                  |Or, reported class may come from your project dependencies, published targeting Java ${e.version}.
+                                                  |""".stripMargin))
+        case e: SeveralTeamsFoundException =>
+          val teams = e.getAvailableTeams.asScala
+          Failure(new IllegalArgumentException(s"""More than 1 team were found while creating a simulation.
+                                                  |Available teams:
+                                                  |${teams.map(team => s"- ${team.id} (${team.name})").mkString(System.lineSeparator)}
+                                                  |Specify the team you want to use with --${TeamId.full} ${teams.head.id}
+                                                  |""".stripMargin))
+        case e: SeveralSimulationClassNamesFoundException =>
+          val simulationClasses = e.getAvailableSimulationClassNames.asScala
+          Failure(new IllegalArgumentException(s"""Several simulation classes were found
+                                                  |${simulationClasses.map("- " + _).mkString("\n")}
+                                                  |Specify the team you want to use with --${SimulationOption.full} ${simulationClasses.head}
+                                                  |""".stripMargin))
+        case e: SimulationStartException =>
+          if (e.isCreated) {
+            logCreatedSimulation(e.getSimulation)
+          }
+          logSimulationConfiguration(e.getSimulation.id)
+          Failure(e.getCause)
+      }
+      .fold(throw _, _ => ())
 
   private def logCreatedSimulation(simulation: Simulation): Unit =
     logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")

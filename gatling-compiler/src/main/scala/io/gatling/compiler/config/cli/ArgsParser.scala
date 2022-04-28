@@ -21,13 +21,14 @@ import io.gatling.compiler.config.cli.CommandLineConstants._
 import scopt.{ OptionDef, OptionParser, Read }
 
 private[config] object CommandLineOverrides {
-  val Empty: CommandLineOverrides = CommandLineOverrides("", "", "")
+  val Empty: CommandLineOverrides = CommandLineOverrides("", "", "", "")
 }
 
 private[config] final case class CommandLineOverrides(
     simulationsDirectory: String,
     binariesFolder: String,
-    extraScalacOptions: String
+    extraScalacOptions: String,
+    extraJavacOptions: String
 )
 
 private[config] class ArgsParser(args: Array[String]) {
@@ -56,6 +57,11 @@ private[config] class ArgsParser(args: Array[String]) {
     opt[String](ExtraScalacOptions)
       .action { (extraScalacOpts, c) =>
         c.copy(extraScalacOptions = extraScalacOpts)
+      }
+
+    opt[String](ExtraJavacOptions)
+      .action { (extraJavacOpts, c) =>
+        c.copy(extraJavacOptions = extraJavacOpts)
       }
   }
 
