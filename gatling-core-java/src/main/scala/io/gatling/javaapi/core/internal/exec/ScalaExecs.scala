@@ -21,27 +21,21 @@ import java.{ util => ju }
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation.{ safely, SuccessWrapper }
-import io.gatling.javaapi.core.{ Session, StructureBuilder }
+import io.gatling.javaapi.core.{ ChainBuilder, Session, StructureBuilder }
 import io.gatling.javaapi.core.exec.Execs
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaExecs {
 
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W], B <: StructureBuilder[
-    _,
-    WB
-  ], WB <: io.gatling.core.structure.StructureBuilder[WB]](
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
       f: JavaExpression[Session]
   ): T =
     context.make(_.exec(session => safely()(f.apply(new Session(session)).asScala().success)))
 
-  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W], B <: StructureBuilder[
-    _,
-    WB
-  ], WB <: io.gatling.core.structure.StructureBuilder[WB]](
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
-      structureBuilders: ju.List[B]
+      structureBuilders: ju.List[ChainBuilder]
   ): T =
     context.make(_.exec(structureBuilders.asScala.map(_.wrapped)))
 }

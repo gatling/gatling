@@ -81,9 +81,7 @@ public interface Execs<
   }
 
   /**
-   * Attach some {@link StructureBuilder}s, Those can be {@link ChainBuilder}s or a {@link
-   * ScenarioBuilder}s. In the case of a {@link ScenarioBuilder}, only the chain of actions is
-   * considered, without the scenario name. Chains will be attached sequentially.
+   * Attach some {@link ChainBuilder}s. Chains will be attached sequentially.
    *
    * <pre>{@code
    * ChainBuilder chain1 = ???
@@ -91,13 +89,12 @@ public interface Execs<
    * ChainBuilder chain1ThenChain2 = exec(chain1, chain2);
    * }</pre>
    *
-   * @param structureBuilders some {@link ChainBuilder}
+   * @param chainBuilders some {@link ChainBuilder}s
    * @return a new StructureBuilder
    */
   @Nonnull
-  default <WB extends io.gatling.core.structure.StructureBuilder<WB>> T exec(
-      @Nonnull StructureBuilder<?, WB>... structureBuilders) {
-    return exec(Arrays.asList(structureBuilders));
+  default T exec(@Nonnull ChainBuilder... chainBuilders) {
+    return exec(Arrays.asList(chainBuilders));
   }
 
   /**
@@ -112,12 +109,11 @@ public interface Execs<
    * ChainBuilder chain1ThenChain2 = exec(chains);
    * }</pre>
    *
-   * @param structureBuilders some {@link ChainBuilder}
+   * @param chainBuilders some {@link ChainBuilder}s
    * @return a new StructureBuilder
    */
   @Nonnull
-  default <WB extends io.gatling.core.structure.StructureBuilder<WB>> T exec(
-      @Nonnull List<StructureBuilder<?, WB>> structureBuilders) {
-    return ScalaExecs.apply(this, structureBuilders);
+  default T exec(@Nonnull List<ChainBuilder> chainBuilders) {
+    return ScalaExecs.apply(this, chainBuilders);
   }
 }

@@ -143,29 +143,27 @@ public final class CoreDsl {
   }
 
   /**
-   * Bootstrap a new {@link ChainBuilder} from some {@link StructureBuilder}s, see {@link
-   * Execs#exec(StructureBuilder[])}.
+   * Bootstrap a new {@link ChainBuilder} from some {@link ChainBuilder}s, see {@link
+   * Execs#exec(ChainBuilder[])}.
    *
-   * @param structureBuilders some {@link ChainBuilder}
+   * @param chainBuilders some {@link ChainBuilder}
    * @return a new ChainBuilder
    */
   @Nonnull
-  public static <WB extends io.gatling.core.structure.StructureBuilder<WB>> ChainBuilder exec(
-      @Nonnull StructureBuilder<?, WB>... structureBuilders) {
-    return exec(Arrays.asList(structureBuilders));
+  public static ChainBuilder exec(@Nonnull ChainBuilder... chainBuilders) {
+    return exec(Arrays.asList(chainBuilders));
   }
 
   /**
-   * Bootstrap a new {@link ChainBuilder} from some {@link StructureBuilder}s, see {@link
+   * Bootstrap a new {@link ChainBuilder} from some {@link ChainBuilder}s, see {@link
    * Execs#exec(List)}.
    *
-   * @param structureBuilders some {@link ChainBuilder}
+   * @param chainBuilders some {@link ChainBuilder}s
    * @return a new ChainBuilder
    */
   @Nonnull
-  public static <WB extends io.gatling.core.structure.StructureBuilder<WB>> ChainBuilder exec(
-      @Nonnull List<StructureBuilder<?, WB>> structureBuilders) {
-    return ChainBuilder.EMPTY.exec(structureBuilders);
+  public static ChainBuilder exec(@Nonnull List<ChainBuilder> chainBuilders) {
+    return ChainBuilder.EMPTY.exec(chainBuilders);
   }
 
   ////////// StructureBuilder.Pauses
