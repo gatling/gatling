@@ -20,7 +20,7 @@ import java.net.URL
 import java.util.{ Locale, UUID }
 
 import io.gatling.app.cli.CommandLineConstants._
-import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunMode, RunOpenSource }
+import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunMode }
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption, _ }
 import io.gatling.bundle.commands.RunCommand
 import io.gatling.core.cli.GatlingOptionParser
@@ -35,13 +35,13 @@ object GatlingCLI {
 
     implicit val runModeRead: Read[RunMode] = Read.reads(input =>
       input.toLowerCase(Locale.ROOT) match {
-        case RunOpenSource.value => RunOpenSource
+        case RunLocal.value      => RunLocal
         case RunEnterprise.value => RunEnterprise
         case _ =>
           throw new IllegalArgumentException(
             s"""
                |Please specify:
-               |'--${RunModeOption.full} ${RunOpenSource.value}' to start the Simulation locally or
+               |'--${RunModeOption.full} ${RunLocal.value}' to start the Simulation locally or
                |'--${RunModeOption.full} ${RunEnterprise.value}' to start the Simulation on Gatling Enterprise""".stripMargin
           )
       }

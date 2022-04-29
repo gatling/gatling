@@ -37,7 +37,7 @@ object CommandArguments {
   )
 
   sealed abstract class RunMode(val value: String)
-  case object RunOpenSource extends RunMode("local")
+  case object RunLocal extends RunMode("local")
   case object RunEnterprise extends RunMode("enterprise")
 }
 

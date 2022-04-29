@@ -19,7 +19,7 @@ package io.gatling.bundle.commands
 import scala.jdk.CollectionConverters._
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
-import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunOpenSource }
+import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal }
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
 
@@ -28,7 +28,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
     config.runMode match {
       case Some(runMode) =>
         runMode match {
-          case RunOpenSource => new OpenSourceRunCommand(args).run()
+          case RunLocal      => new OpenSourceRunCommand(args).run()
           case RunEnterprise => new EnterpriseRunCommand(config, args).run()
         }
       case _ =>
@@ -41,7 +41,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
         } else if (config.batchMode) {
           throw new IllegalArgumentException(s"""
                                                 |If you're running Gatling in batch mode, you need to set the runMode option:
-                                                |- '--${RunModeOption.full} ${RunOpenSource.value}' if you want to start the Simulation locally
+                                                |- '--${RunModeOption.full} ${RunLocal.value}' if you want to start the Simulation locally
                                                 |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to start the Simulation on Gatling Enterprise
                                                 |""".stripMargin)
         } else {
