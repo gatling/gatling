@@ -77,7 +77,7 @@ object Dependencies {
   private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.1.2"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.11"            % Test
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.12"            % Test
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                   % "3.2.11.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                       % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.16.0"            % Test
