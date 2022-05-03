@@ -45,10 +45,7 @@ object Resource {
 
     def unapply(location: Location): Option[Validation[Resource]] = {
       val nixPath = location.path.replace('\\', '/')
-      val cleanPath = nixPath
-        .replace("src/test/resources/", "")
-        .replace("src/main/resources/", "")
-        .replace("src/gatling/resources/", "")
+      val cleanPath = cleanResourcePath(nixPath)
 
       if (cleanPath != nixPath) {
         logger.warn(s"""Your resource's path ${location.path} is incorrect.
@@ -92,6 +89,18 @@ object Resource {
       case AbsoluteFileResource(res)   => res
       case _                           => s"Resource $path not found".failure
     }
+
+  private implicit final class StringRemoveStart(val source: String) extends AnyVal {
+    def removeStart(pattern: String): String =
+      if (source.startsWith(pattern)) source.substring(pattern.length) else source
+  }
+
+  private[util] def cleanResourcePath(nixPath: String): String =
+    nixPath
+      .removeStart("./")
+      .removeStart("src/test/resources/")
+      .removeStart("src/main/resources/")
+      .removeStart("src/gatling/resources/")
 }
 
 sealed trait Resource {
