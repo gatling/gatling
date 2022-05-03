@@ -21,7 +21,6 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import io.gatling.javaapi.core.internal.Sessions;
 import java.util.*;
 import javax.annotation.Nonnull;
-import scala.Option;
 import scala.collection.Seq;
 
 /**
@@ -44,10 +43,8 @@ public final class Session {
    * @param <T> the type of the desired value
    * @return the value if it exists, null otherwise
    */
-  @SuppressWarnings("unchecked")
   public <T> T get(@Nonnull String key) {
-    Option<Object> valueOption = wrapped.attributes().get(key);
-    return valueOption.isDefined() ? (T) valueOption.get() : null;
+    return wrapped.attributes().getOrElse(key, () -> null);
   }
 
   /**
