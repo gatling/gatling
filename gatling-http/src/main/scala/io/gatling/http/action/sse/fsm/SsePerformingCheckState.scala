@@ -104,9 +104,9 @@ final case class SsePerformingCheckState(
             case nextCheck :: nextRemainingChecks =>
               // perform next check
               logger.debug("Perform next check of current check sequence")
-              //[fl]
+              //[e]
               //
-              //[fl]
+              //[e]
               NextSseState(
                 this.copy(
                   currentCheck = nextCheck,
@@ -121,9 +121,9 @@ final case class SsePerformingCheckState(
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
-                  //[fl]
+                  //[e]
                   //
-                  //[fl]
+                  //[e]
                   NextSseState(
                     this.copy(
                       currentCheck = nextCheck,

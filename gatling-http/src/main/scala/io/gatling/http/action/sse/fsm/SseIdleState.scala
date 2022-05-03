@@ -35,9 +35,9 @@ class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with Str
       case SseMessageCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check")
         scheduleTimeout(timeout)
-        //[fl]
+        //[e]
         //
-        //[fl]
+        //[e]
         NextSseState(
           SsePerformingCheckState(
             fsm,
@@ -75,9 +75,9 @@ class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with Str
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     logger.debug("Client requested SSE stream close")
-    //[fl]
+    //[e]
     //
-    //[fl]
+    //[e]
     NextSseState(new SseClosingState(fsm, actionName, session, next, clock.nowMillis), () => stream.requestingCloseByClient())
   }
 }

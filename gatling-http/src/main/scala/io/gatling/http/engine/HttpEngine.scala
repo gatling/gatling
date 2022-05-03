@@ -162,7 +162,7 @@ class HttpEngine(
       httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
     }
 
-  // [fl]
+  // [e]
   //
   //
   //
@@ -171,13 +171,13 @@ class HttpEngine(
   //
   //
   //
-  // [fl]
+  // [e]
 
-  // [fl]
+  // [e]
   def newJavaDnsNameResolver: InetAddressNameResolver =
     InetAddressNameResolver.JAVA_RESOLVER
 
-  // [fl]
+  // [e]
   def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress], cache: DnsCache): InetAddressNameResolver =
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)

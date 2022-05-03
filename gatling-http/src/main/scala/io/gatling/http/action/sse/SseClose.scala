@@ -41,9 +41,9 @@ class SseClose(
       fsmName <- sseName(session)
       fsm <- fetchFsm(fsmName, session)
     } yield {
-      // [fl]
+      // [e]
       //
-      // [fl]
+      // [e]
       fsm.onClientCloseRequest(reqName, session, next)
     }
 }

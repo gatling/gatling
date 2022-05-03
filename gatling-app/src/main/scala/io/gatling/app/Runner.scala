@@ -100,7 +100,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     runDone
   }
 
-  // [fl]
+  // [e]
   //
-  // [fl]
+  // [e]
 }

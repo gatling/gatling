@@ -69,14 +69,14 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
     if (!init) {
       init = true
       requestStartTimestamp = clock.nowMillis
-      // [fl]
+      // [e]
       //
       //
       //
-      // [fl]
+      // [e]
     }
 
-  // [fl]
+  // [e]
   //
   //
   //
@@ -123,7 +123,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   //
   //
   //
-  // [fl]
+  // [e]
 
   override def onProtocolAwareness(isHttp2: Boolean): Unit =
     this.isHttp2 = isHttp2

@@ -31,7 +31,7 @@ class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLo
 
   private var cookies: List[Cookie] = Nil
 
-  //[fl]
+  //[e]
   //
   //
   //
@@ -59,7 +59,7 @@ class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLo
   //
   //
   //
-  //[fl]
+  //[e]
 
   override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {
     logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")

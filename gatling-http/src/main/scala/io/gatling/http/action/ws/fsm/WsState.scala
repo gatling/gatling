@@ -91,10 +91,10 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
     NextWsState(new WsCrashedState(fsm, Some(t.rootMessage), remainingReconnects))
   }
 
-  //[fl]
+  //[e]
   //
   //
-  //[fl]
+  //[e]
 
   protected def logResponse(
       session: Session,

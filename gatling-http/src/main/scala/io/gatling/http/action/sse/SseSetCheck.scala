@@ -43,9 +43,9 @@ class SseSetCheck(
       fsm <- fetchFsm(fsmName, session)
       resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
-      // [fl]
+      // [e]
       //
-      // [fl]
+      // [e]
       fsm.onSetCheck(reqName, resolvedCheckSequences, session, next)
     }
 }

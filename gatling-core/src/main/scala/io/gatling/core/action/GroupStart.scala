@@ -30,10 +30,10 @@ private final class GroupStart(groupName: Expression[String], val statsEngine: S
   override def execute(session: Session): Unit = recover(session) {
     groupName(session).map { group =>
       val newSession = session.enterGroup(group, clock.nowMillis)
-      // [fl]
+      // [e]
       //
       //
-      // [fl]
+      // [e]
       next ! newSession
     }
   }

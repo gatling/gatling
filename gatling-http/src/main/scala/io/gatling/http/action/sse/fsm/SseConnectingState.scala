@@ -48,9 +48,9 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectSta
         logger.debug("Connected, performing checks before proceeding")
 
         scheduleTimeout(timeout)
-        //[fl]
+        //[e]
         //
-        //[fl]
+        //[e]
         NextSseState(
           SsePerformingCheckState(
             fsm,

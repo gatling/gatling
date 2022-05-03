@@ -61,12 +61,12 @@ object Gatling extends StrictLogging {
 
   private def start(overrides: ConfigOverrides, forcedSimulationClass: Option[SimulationClass]) =
     try {
-      //[fl]
+      //[e]
       //
       //
       //
       //
-      //[fl]
+      //[e]
 
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411

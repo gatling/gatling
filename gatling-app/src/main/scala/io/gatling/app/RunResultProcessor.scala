@@ -24,12 +24,12 @@ import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
-  // [fl]
+  // [e]
   //
   //
-  // [fl]
+  // [e]
 
-  // [fl]
+  // [e]
   def processRunResult(runResult: RunResult): StatusCode =
     initLogFileReader(runResult) match {
       case Some(reader) =>

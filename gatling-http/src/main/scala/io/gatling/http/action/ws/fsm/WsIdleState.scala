@@ -49,9 +49,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending text frame")
         scheduleTimeout(timeout)
-        //[fl]
+        //[e]
         //
-        //[fl]
+        //[e]
         NextWsState(
           WsPerformingCheckState(
             fsm,
@@ -89,9 +89,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending binary frame")
         scheduleTimeout(timeout)
-        //[fl]
+        //[e]
         //
-        //[fl]
+        //[e]
         NextWsState(
           WsPerformingCheckState(
             fsm,
@@ -135,9 +135,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     logger.debug("Client requested WebSocket close")
     scheduleTimeout(connectRequest.getRequestTimeout.millis)
     webSocket.sendFrame(new CloseWebSocketFrame(closeStatus))
-    //[fl]
+    //[e]
     //
-    //[fl]
+    //[e]
     NextWsState(new WsClosingState(fsm, actionName, session, next, clock.nowMillis))
   }
 }

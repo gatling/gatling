@@ -87,10 +87,10 @@ abstract class SseState(fsm: SseFsm) extends StrictLogging {
     newSessionWithMark
   }
 
-  //[fl]
+  //[e]
   //
   //
-  //[fl]
+  //[e]
 
   protected def setCheckNextAction(session: Session, setCheck: SetCheck): () => Unit =
     () => fsm.onSetCheck(setCheck.actionName, setCheck.checkSequences, session, setCheck.next)

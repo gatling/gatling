@@ -280,9 +280,9 @@ object GatlingConfiguration extends StrictLogging {
       http = httpConfiguration(config),
       jms = jmsConfiguration(config),
       data = dataConfiguration(config)
-      // [fl]
+      // [e]
       //
-      // [fl]
+      // [e]
     )
 }
 
@@ -440,7 +440,7 @@ final class GatlingConfiguration(
     val http: HttpConfiguration,
     val jms: JmsConfiguration,
     val data: DataConfiguration
-    // [fl]
+    // [e]
     //
-    // [fl]
+    // [e]
 )

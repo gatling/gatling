@@ -35,7 +35,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def logUserEnd(userMessage: UserEndMessage): Unit
 
-  // [fl]
+  // [e]
   //
   //
   //
@@ -62,7 +62,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
   //
   //
   //
-  // [fl]
+  // [e]
 
   def logResponse(
       scenario: String,

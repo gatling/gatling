@@ -60,9 +60,9 @@ class SseStream(
     val listener = new SseListener(this)
     state = Connecting(listener)
 
-    // [fl]
+    // [e]
     //
-    // [fl]
+    // [e]
     httpEngine.executeRequest(
       connectRequest,
       originalSession.userId,

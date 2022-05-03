@@ -39,9 +39,9 @@ object WsConnectingState extends StrictLogging {
 
     val listener = new WsListener(fsm, clock)
 
-    // [fl]
+    // [e]
     //
-    // [fl]
+    // [e]
     logger.debug(s"Connecting to ${connectRequest.getUri}")
     val userSslContexts = SslContextSupport.sslContexts(session)
     NextWsState(
@@ -102,9 +102,9 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
           }
 
         fsm.scheduleTimeout(timeout)
-        //[fl]
+        //[e]
         //
-        //[fl]
+        //[e]
 
         NextWsState(
           WsPerformingCheckState(
