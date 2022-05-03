@@ -88,6 +88,7 @@ object GatlingCLI {
         } catch {
           case e: UserQuitException =>
             println(e.getMessage)
+            System.out.flush()
             sys.exit(0)
         }
       case _ =>

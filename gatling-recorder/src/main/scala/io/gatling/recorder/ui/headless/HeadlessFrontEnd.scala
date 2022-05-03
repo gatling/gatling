@@ -46,6 +46,7 @@ private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration
       if (selectedRecorderMode == Proxy && RecorderPidFile.exists()) {
         printErr(s"Recorder lock file found at $RecorderPidFile.")
         printErr("Make sure that there is no other recording in progress.")
+        System.out.flush()
         sys.exit(1)
       } else startRecording()
     } else sys.runtime.halt(0)

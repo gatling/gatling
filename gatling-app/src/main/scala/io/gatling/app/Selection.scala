@@ -108,6 +108,7 @@ object Selection {
       def readSimulationNumber(attempts: Int): Int = {
         if (attempts > MaxReadSimulationNumberAttempts) {
           println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
+          System.out.flush()
           sys.exit(1)
         } else {
           println("Choose a simulation number:")
@@ -131,6 +132,7 @@ object Selection {
 
       if (simulationClasses.isEmpty) {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
+        System.out.flush()
         sys.exit(1)
       }
       simulationClasses(readSimulationNumber(0))

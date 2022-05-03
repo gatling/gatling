@@ -35,7 +35,10 @@ import org.slf4j.LoggerFactory
 object Gatling extends StrictLogging {
 
   // used by bundle
-  def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
+  def main(args: Array[String]): Unit = {
+    System.out.flush()
+    sys.exit(fromArgs(args, None))
+  }
 
   // used by maven archetype
   def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
