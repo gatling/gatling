@@ -29,10 +29,12 @@ import io.gatling.core.util.NameGen
 import akka.actor.ActorRef
 
 private[core] object FeedBuilder {
-  private val Instances = new ju.IdentityHashMap[FeederBuilder, ActorRef].asScala
+  private val Instances = new ju.HashMap[Long, ActorRef].asScala
 }
 
-private[core] final class FeedBuilder(feederBuilder: FeederBuilder, number: Option[Expression[Int]]) extends ActionBuilder with NameGen {
+private[core] final class FeedBuilder(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]])
+    extends ActionBuilder
+    with NameGen {
 
   private def newFeedActor(ctx: ScenarioContext): ActorRef = {
     val props = FeedActor.props(feederBuilder(), ctx.coreComponents.controller)
@@ -40,7 +42,7 @@ private[core] final class FeedBuilder(feederBuilder: FeederBuilder, number: Opti
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    val feedActor = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, newFeedActor(ctx))
+    val feedActor = FeedBuilder.Instances.getOrElseUpdate(feederBuilderKey, newFeedActor(ctx))
     new Feed(feedActor, number, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
   }
 }
