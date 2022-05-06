@@ -37,4 +37,7 @@ However, note that the Jenkins plugin relies on the report folder's naming conve
 
 ## Using Jenkins with Gatling Enterprise
 
-[Gatling Enterprise](https://gatling.io/enterprise/) has a dedicated Jenkins plugin. This plugin can launch a Gatling Enterprise simulation and display live metrics. Please refer to Gatling Enterprise documentation for the installation of this plugin.
+[Gatling Enterprise](https://gatling.io/enterprise/) has a dedicated Jenkins plugin.
+This plugin can launch a Gatling Enterprise simulation and display live metrics.
+
+Please refer to the Gatling Enterprise documentation for installing this plugin on [Cloud](https://gatling.io/docs/enterprise/cloud/reference/plugins/jenkins/) or [Self-hosted](https://gatling.io/docs/enterprise/self-hosted/reference/current/plugins/jenkins/).
