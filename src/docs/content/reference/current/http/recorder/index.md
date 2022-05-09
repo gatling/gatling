@@ -176,11 +176,11 @@ For those who prefer the command line, command line options can be passed to the
 | -cn <className>    | --class-name <className>            | Name of the generated simulation         |
 | -pkg <packageName> | --package <packageName>             | Package of the generated simulation      |
 | -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder            |
-| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*                |
-| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*              |
-| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*            |
-| -m <Proxy|Har>     | --mode <Proxy|Har>                  | Recorder mode to use                     |
-| -cli <true|false>  | --headless <true|false>             | Run Recorder in headless mode            |
+| -fr <true\|false>   | --follow-redirect <true\|false>      | Enable *Follow Redirects*                |
+| -ar <true\|false>   | --automatic-referer <true\|false>    | Enable *Automatic Referers*              |
+| -fhr <true\|false>  | --fetch-html-resources <true\|false> | Enable *Fetch html resources*            |
+| -m <Proxy\|Har>     | --mode <Proxy\|Har>                  | Recorder mode to use                     |
+| -cli <true\|false>  | --headless <true\|false>             | Run Recorder in headless mode            |
 | -hf <path>         | --har-file <path>                   | The HAR file to convert (if mode is Har) |
 
 {{< alert tip >}}
