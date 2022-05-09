@@ -165,23 +165,23 @@ In 'Har' mode, the Recorder will convert the provided HAR file to a Simulation a
 
 For those who prefer the command line, command line options can be passed to the Recorder:
 
-| Option (short)     | Option (long)                       | Description                              |
-| --- | --- | --- |
-| -lp <port>         | --local-port <port>                 | Local Proxy HTTP/HTTPS port              |
-| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host                      |
-| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port                      |
-| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                  |
-| -sf <path>         | --simulations-folder <path>         | Output folder for generated simulations  |
-| -rf <path>         | --resources-folder <path>           | Output folder for generated resources    |
-| -cn <className>    | --class-name <className>            | Name of the generated simulation         |
-| -pkg <packageName> | --package <packageName>             | Package of the generated simulation      |
-| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder            |
-| -fr <true\|false>   | --follow-redirect <true\|false>      | Enable *Follow Redirects*                |
-| -ar <true\|false>   | --automatic-referer <true\|false>    | Enable *Automatic Referers*              |
-| -fhr <true\|false>  | --fetch-html-resources <true\|false> | Enable *Fetch html resources*            |
-| -m <Proxy\|Har>     | --mode <Proxy\|Har>                  | Recorder mode to use                     |
-| -cli <true\|false>  | --headless <true\|false>             | Run Recorder in headless mode            |
-| -hf <path>         | --har-file <path>                   | The HAR file to convert (if mode is Har) |
+| Option (short)                      | Option (long)                                         | Description                              |
+|-------------------------------------|-------------------------------------------------------|------------------------------------------|
+| `-lp <port>`                        | `--local-port <port>`                                 | Local Proxy HTTP/HTTPS port              |
+| `-ph <port>`                        | `--proxy-host <port>`                                 | Outgoing proxy host                      |
+| `-pp <port>`                        | `--proxy-port <port>`                                 | Outgoing proxy port                      |
+| `-pps <port>`                       | `--proxy-port-ssl <port>`                             | Outgoing proxy SSL port                  |
+| `-sf <path>`                        | `--simulations-folder <path>`                         | Output folder for generated simulations  |
+| `-rf <path>`                        | `--resources-folder <path>`                           | Output folder for generated resources    |
+| `-cn <className>`                   | `--class-name <className>`                            | Name of the generated simulation         |
+| `-pkg <pkgName>`                    | `--package <pkgName>`                                 | Package of the generated simulation      |
+| `-enc <encoding>`                   | `--encoding <encoding>`                               | Encoding used in the Recorder            |
+| <code>-fr <true&#124;false></code>  | <code>--follow-redirect <true&#124;false></code>      | Enable *Follow Redirects*                |
+| <code>-ar <true&#124;false></code>  | <code>--automatic-referer <true&#124;false></code>    | Enable *Automatic Referers*              |
+| <code>-fhr <true&#124;false></code> | <code>--fetch-html-resources <true&#124;false></code> | Enable *Fetch html resources*            |
+| <code>-m <Proxy&#124;Har></code>    | <code>--mode <Proxy&#124;Har></code>                  | Recorder mode to use                     |
+| <code>-cli <true&#124;false></code> | <code>--headless <true&#124;false></code>             | Run Recorder in headless mode            |
+| `-hf <path>`                        | `--har-file <path>`                                   | The HAR file to convert (if mode is Har) |
 
 {{< alert tip >}}
 Command-line options override saved preferences.
