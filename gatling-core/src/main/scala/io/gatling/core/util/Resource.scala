@@ -47,15 +47,15 @@ object Resource {
       val nixPath = location.path.replace('\\', '/')
       val cleanPath = cleanResourcePath(nixPath)
 
-      if (cleanPath != nixPath) {
-        logger.warn(s"""Your resource's path ${location.path} is incorrect.
-                       |It should not be relative to your project root on the filesystem.
-                       |Instead, it should be relative to your classpath root.
-                       |We've clean it up into $cleanPath for you but please fix it.
-                       |""".stripMargin)
-      }
-
       Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
+        if (cleanPath != nixPath) {
+          logger.warn(s"""Your resource's path ${location.path} is incorrect.
+                         |It should not be relative to your project root on the filesystem.
+                         |Instead, it should be relative to your classpath root.
+                         |We've clean it up into $cleanPath for you but please fix it.
+                         |""".stripMargin)
+        }
+
         url.getProtocol match {
           case "file" => ClasspathFileResource(cleanPath, urlToFile(url)).success
           case "jar"  => ClasspathPackagedResource(cleanPath, url).success
