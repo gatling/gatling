@@ -67,8 +67,8 @@ lazy val docSamples = (project in file("src/docs"))
     // Avoid formatting but avoid errors when calling this tasks with "all"
     scalafmtSbtCheck := Def.task(true).value,
     scalafmtCheckAll := Def.task(()).value,
+    scalafixAll := Def.task(()).value,
     spotlessCheck := Def.task(()).value,
-    gatlingScalafixCheck := Def.task(()).value,
     kotlinVersion := "1.6.21"
   )
   .dependsOn(
