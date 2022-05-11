@@ -24,19 +24,31 @@ class ResourceSpec extends BaseSpec {
     Resource.cleanResourcePath("data/file.csv") shouldBe "data/file.csv"
   }
 
-  it should "fix src/test/resources" in {
+  it should "fix relative src/test/resources" in {
     Resource.cleanResourcePath("src/test/resources/data/file.csv") shouldBe "data/file.csv"
   }
 
-  it should "fix src/main/resources" in {
+  it should "fix relative src/main/resources" in {
     Resource.cleanResourcePath("src/main/resources/data/file.csv") shouldBe "data/file.csv"
   }
 
-  it should "fix src/gatling/resources" in {
+  it should "fix relative src/gatling/resources" in {
     Resource.cleanResourcePath("src/gatling/resources/data/file.csv") shouldBe "data/file.csv"
   }
 
-  it should "fix ./src/test/resources" in {
+  it should "fix relative ./src/test/resources" in {
     Resource.cleanResourcePath("src/test/resources/data/file.csv") shouldBe "data/file.csv"
+  }
+
+  it should "fix absolute src/test/resources" in {
+    Resource.cleanResourcePath("/Users/user/dir/src/test/resources/data/file.csv") shouldBe "data/file.csv"
+  }
+
+  it should "fix absolute src/main/resources" in {
+    Resource.cleanResourcePath("/Users/user/dir/src/main/resources/data/file.csv") shouldBe "data/file.csv"
+  }
+
+  it should "fix absolute src/gatling/resources" in {
+    Resource.cleanResourcePath("/Users/user/dir/src/gatling/resources/data/file.csv") shouldBe "data/file.csv"
   }
 }

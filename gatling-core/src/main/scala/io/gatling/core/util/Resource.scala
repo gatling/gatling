@@ -90,17 +90,19 @@ object Resource {
       case _                           => s"Resource $path not found".failure
     }
 
-  private implicit final class StringRemoveStart(val source: String) extends AnyVal {
-    def removeStart(pattern: String): String =
-      if (source.startsWith(pattern)) source.substring(pattern.length) else source
+  private implicit final class StringDropUntil(val source: String) extends AnyVal {
+    def dropUntil(pattern: String): String =
+      source.indexOf(pattern) match {
+        case i if i != -1 => source.substring(i + pattern.length, source.length)
+        case _            => source
+      }
   }
 
   private[util] def cleanResourcePath(nixPath: String): String =
     nixPath
-      .removeStart("./")
-      .removeStart("src/test/resources/")
-      .removeStart("src/main/resources/")
-      .removeStart("src/gatling/resources/")
+      .dropUntil("src/test/resources/")
+      .dropUntil("src/main/resources/")
+      .dropUntil("src/gatling/resources/")
 }
 
 sealed trait Resource {
