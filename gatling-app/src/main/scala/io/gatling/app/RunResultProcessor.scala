@@ -64,7 +64,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     val start = System.currentTimeMillis()
     val indexFile = new ReportsGenerator()(configuration).generateFor(reportsGenerationInputs)
     println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
-    println(s"Please open the following file: ${indexFile.toFile}")
+    println(s"Please open the following file: ${indexFile.toUri}")
   }
 
   private def runStatus(assertionResults: List[AssertionResult]): StatusCode = {
