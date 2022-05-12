@@ -27,8 +27,6 @@ import scala.util.control.NoStackTrace
 import io.gatling.bundle.BundleIO
 import io.gatling.plugin.util.Fork
 
-import io.netty.util.internal.PlatformDependent
-
 private[commands] object CommandHelper {
   private class InvalidGatlingHomeException
       extends IllegalStateException("""
@@ -50,7 +48,14 @@ private[commands] object CommandHelper {
     case _          => "java"
   }
 
-  val javaVersion: Int = PlatformDependent.javaVersion()
+  val javaVersion: Int = {
+    val javaSpecVersion = System.getProperty("java.specification.version")
+    (javaSpecVersion.split("\\.").toList match {
+      case "1" :: major :: _ => major
+      case major :: _        => major
+      case _                 => throw new IllegalArgumentException(s"Malformed java.specification.version System property value: $javaSpecVersion")
+    }).toInt
+  }
 
   def gatlingHome: String = optionEnv("GATLING_HOME").getOrElse {
     try {
