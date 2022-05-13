@@ -29,6 +29,7 @@ import scala.util.Using
 
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.bundle.commands.PackageCommand.WriteEntry
+import io.gatling.commons.util.Io._
 
 object PackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
@@ -142,14 +143,7 @@ class PackageCommand(args: List[String], maxJavaVersion: Int) {
   }
 
   private def copyFromInputStream(inputStream: => InputStream, jos: JarOutputStream): Unit = {
-    Using(inputStream) { is =>
-      var read = -1
-      read = is.read()
-      while (read != -1) {
-        jos.write(read)
-        read = is.read()
-      }
-    }.fold(throw _, _ => ())
+    Using(inputStream)(_.copyTo(jos)).fold(throw _, _ => ())
     jos.flush()
   }
 }
