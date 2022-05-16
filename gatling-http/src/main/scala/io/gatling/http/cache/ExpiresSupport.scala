@@ -17,11 +17,29 @@
 package io.gatling.http.cache
 
 import io.gatling.commons.util.Clock
-import io.gatling.commons.util.NumberHelper._
-import io.gatling.http.response.Response
 
 import io.netty.handler.codec.DateFormatter
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders }
+
+object ExpiresSupport {
+  private[cache] def extractLongValue(s: String, start: Int): Long = {
+    require(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
+
+    var value = 0L
+    var k = start
+    var c = ' '
+    while (
+      k < s.length && {
+        c = s.charAt(k)
+        c.isDigit
+      }
+    ) {
+      value = value * 10L + c.getNumericValue
+      k += 1
+    }
+    value
+  }
+}
 
 private[cache] trait ExpiresSupport {
 
@@ -36,7 +54,7 @@ private[cache] trait ExpiresSupport {
     if (index >= 0 && start <= s.length) {
       s.charAt(start) match {
         case '-'            => Some(-1)
-        case c if c.isDigit => Some(extractLongValue(s, start))
+        case c if c.isDigit => Some(ExpiresSupport.extractLongValue(s, start))
         case _              => None
       }
     } else {

@@ -24,24 +24,6 @@ object NumberHelper {
 
   private val Formatter = new DecimalFormat("###.###", DecimalFormatSymbols.getInstance(ENGLISH))
 
-  def extractLongValue(s: String, start: Int): Long = {
-    require(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
-
-    var value = 0L
-    var k = start
-    var c = ' '
-    while (
-      k < s.length && {
-        c = s.charAt(k)
-        c.isDigit
-      }
-    ) {
-      value = value * 10L + c.getNumericValue
-      k += 1
-    }
-    value
-  }
-
   implicit class RichDouble(val double: Double) extends AnyVal {
 
     private def suffix(i: Int) = i    % 10 match {
