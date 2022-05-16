@@ -26,7 +26,7 @@ import io.gatling.plugin.util.Fork
 
 class RecorderCommand(args: List[String]) {
   private[bundle] def run(): Unit = {
-    val javaOpts = systemJavaOpts ++ List("-Xms512M", "-Xmx512M", "-Xmn100M")
+    val javaOpts = systemJavaOpts ++ List("-Xms128M", "-Xmx512M")
     val javaClasspath = optionListEnv("JAVA_CLASSPATH")
 
     val classPath = gatlingLibs ++ gatlingConfFiles ++ javaClasspath
