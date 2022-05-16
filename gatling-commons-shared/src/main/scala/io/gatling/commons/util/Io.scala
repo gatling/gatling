@@ -20,8 +20,6 @@ import java.io._
 import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 
-import scala.io.Source
-
 object Io {
 
   val DefaultBufferSize: Int = 8 * 1024
@@ -84,14 +82,4 @@ object Io {
       }
     }
   }
-
-  @deprecated("Use scala.util.Using", "3.5.0")
-  def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T): T =
-    try block(closeable)
-    finally closeable.close()
-
-  @deprecated("Use scala.util.Using", "3.5.0")
-  def withSource[T, C <: Source](closeable: C)(block: C => T): T =
-    try block(closeable)
-    finally closeable.close()
 }
