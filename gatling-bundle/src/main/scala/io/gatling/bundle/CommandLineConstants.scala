@@ -24,7 +24,7 @@ private[bundle] object CommandLineConstants {
   val RunMode = new CommandLineConstant(
     "run-mode",
     "rm",
-    s"Specify if you want to run the Simulation with the Open-source or Enterprise version. Options are '${RunLocal.value}' and '${RunEnterprise.value}'",
+    s"Specify if you want to run the Simulation locally or on Gatling Enterprise. Options are '${RunLocal.value}' and '${RunEnterprise.value}'",
     None
   )
   val BatchMode = new CommandLineConstant("batch-mode", "bm", "No interactive user input will be asked", None)
@@ -32,7 +32,7 @@ private[bundle] object CommandLineConstants {
   val PackageId = new CommandLineConstant("package-id", "pid", "Specifies the Gatling Enterprise Package, when creating a new Simulation", None)
   val SimulationId = new CommandLineConstant("simulation-id", "sid", "Specifies the Gatling Enterprise Simulation that needs to be started", None)
   val TeamId = new CommandLineConstant("team-id", "tid", "Specifies the Gatling Enterprise Team, when creating a new Simulation", None)
-  val Url = new CommandLineConstant("url", "url", "Overrides cloud.gatling.io when connecting to Gatling Enterprise", None)
+  val Url = new CommandLineConstant("url", "url", "Overrides https://cloud.gatling.io when connecting to Gatling Enterprise", None)
   val SimulationSystemProperties =
     new CommandLineConstant(
       "simulation-system-properties",
@@ -43,15 +43,19 @@ private[bundle] object CommandLineConstants {
   val ExtraCompilerJvmOptions: CommandLineConstant = new CommandLineConstant(
     "extra-compiler-jvm-options",
     "ecjo",
-    """Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G").""",
+    """Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options.""",
     Some(""""-Option1 -Option2"""")
   )
-  val ExtraScalacOptions: CommandLineConstant =
-    new CommandLineConstant("extra-scalac-options", "eso", "Defines additional scalac options for the compiler", None)
+  val ExtraScalacOptions: CommandLineConstant = new CommandLineConstant(
+    "extra-scalac-options",
+    "eso",
+    "Defines additional compiler options for your Scala code. See https://docs.scala-lang.org/overviews/compiler-options/index.html for available options.)",
+    Some(""""-Option1 -Option2"""")
+  )
   val ExtraRunJvmOptions: CommandLineConstant = new CommandLineConstant(
     "extra-run-jvm-options",
     "erjo",
-    """Defines additional JVM options used when running your code locally (e.g. setting the heap size with "-Xms2G -Xmx4G")""",
+    """Defines additional JVM options used when running your code locally (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options.""",
     Some(""""-Option1 -Option2"""")
   )
 }

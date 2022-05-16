@@ -69,7 +69,7 @@ Common options:
 | Option (short)     | Option (long)                      | Description                                                                                        |
 | --- | --- | --- |
 | `-h`               | `--help`                           | Show help (this message) and exit                                                                  |
-| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally or with the Enterprise edition. Options are 'opensource' and 'enterprise' |
+| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally or on Gatling Enterprise. Options are `local` and `enterprise` |
 
 Options used when compiling your Gatling simulations:
 
@@ -78,6 +78,7 @@ Options used when compiling your Gatling simulations:
 | `-sf <path>`       | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
 | `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
 | `-eso <value>`     | `----extra-scalac-options <value>` | Defines additional scalac options for the compiler                                                 |
+| `-ecjo`            | `--extra-compiler-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
 
 Options used when running Gatling locally:
 
@@ -90,6 +91,7 @@ Options used when running Gatling locally:
 | `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
 | `-s <className>`   | `--simulation <className>`         | Uses `<className>` as the name of the simulation to be run                                         |
 | `-rd <description>`| `--run-description <description>`  | A short `<description>` of the run to include in the report                                        |
+| `-erjo`            | `--extra-run-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when running your code locally (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
 
 Options used when running Gatling on Gatling Enterprise:
 

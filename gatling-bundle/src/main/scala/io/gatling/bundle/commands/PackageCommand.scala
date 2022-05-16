@@ -144,7 +144,7 @@ class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersio
   }
 
   private def copyFromInputStream(inputStream: => InputStream, jos: JarOutputStream): Unit = {
-    Using(inputStream)(_.copyTo(jos)).fold(throw _, _ => ())
+    Using.resource(inputStream)(_.copyTo(jos))
     jos.flush()
   }
 }
