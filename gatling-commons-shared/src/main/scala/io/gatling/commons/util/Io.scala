@@ -26,17 +26,6 @@ object Io {
 
   val DefaultBufferSize: Int = 8 * 1024
 
-  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
-  implicit class RichURL(val url: URL) extends AnyVal {
-
-    def file: File =
-      try {
-        new File(url.toURI)
-      } catch {
-        case _: URISyntaxException => new File(url.getPath)
-      }
-  }
-
   // FIXME drop when switching to Java 9+
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
