@@ -19,7 +19,7 @@ package io.gatling.commons.util
 import java.{ lang => jl }
 import java.io.Writer
 
-final class FastStringWriter(initialSize: Int) extends Writer {
+private[util] final class FastStringWriter(initialSize: Int) extends Writer {
 
   private val buf: jl.StringBuilder = new jl.StringBuilder(initialSize)
 

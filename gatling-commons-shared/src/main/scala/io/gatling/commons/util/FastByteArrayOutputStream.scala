@@ -48,7 +48,7 @@ object FastByteArrayOutputStream {
   }
 }
 
-class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
+final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
 
   private val buffers = collection.mutable.ArrayBuffer.empty[Array[Byte]]
   private var currentBufferIndex = 0
