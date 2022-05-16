@@ -20,20 +20,25 @@ import java.io.File
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.bundle.BundleIO
+import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.plugin.util.Fork
 
-class OpenSourceRunCommand(args: List[String]) {
+class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
   private[bundle] def run(): Unit = {
-    compile(args, maxJavaVersion = None)
+    compile(config, args, maxJavaVersion = None)
 
     val classPath = gatlingLibs ++ userLibs ++ userResources ++ gatlingConfFiles
+
+    val runMemoryOptions = List("-Xmx1G")
+    // Note: options which come later in the list can override earlier ones (because the java command will use the last
+    // occurrence in its arguments list in case of conflict)
+    val runJavaOptions = defaultJavaOptions ++ runMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsRun
 
     new Fork(
       "io.gatling.app.Gatling",
       classPath.asJava,
-      (GATLING_JVM_ARGS ++ systemJavaOpts).asJava,
+      runJavaOptions.asJava,
       args.asJava,
       java,
       true,

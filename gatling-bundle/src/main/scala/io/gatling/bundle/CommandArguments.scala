@@ -33,7 +33,9 @@ object CommandArguments {
     batchMode = false,
     url = new URL("https://cloud.gatling.io"),
     runMode = None,
-    reportsOnly = None
+    reportsOnly = None,
+    extraJavaOptionsCompile = Nil,
+    extraJavaOptionsRun = Nil
   )
 
   sealed abstract class RunMode(val value: String)
@@ -52,7 +54,9 @@ final case class CommandArguments(
     batchMode: Boolean,
     url: URL,
     runMode: Option[RunMode],
-    reportsOnly: Option[String]
+    reportsOnly: Option[String],
+    extraJavaOptionsCompile: List[String],
+    extraJavaOptionsRun: List[String]
 ) {
   def getApiUrl: URL = new URL(url.toExternalForm + "/api/public")
 }

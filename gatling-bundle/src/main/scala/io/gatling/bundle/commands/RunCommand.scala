@@ -28,7 +28,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
     config.runMode match {
       case Some(runMode) =>
         runMode match {
-          case RunLocal      => new OpenSourceRunCommand(args).run()
+          case RunLocal      => new OpenSourceRunCommand(config, args).run()
           case RunEnterprise => new EnterpriseRunCommand(config, args).run()
         }
       case _ =>
@@ -37,7 +37,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
           new EnterpriseRunCommand(config, args).run()
         } else if (config.reportsOnly.nonEmpty) {
           println("Running the Simulation locally")
-          new OpenSourceRunCommand(args).run()
+          new OpenSourceRunCommand(config, args).run()
         } else if (config.batchMode) {
           throw new IllegalArgumentException(s"""
                                                 |If you're running Gatling in batch mode, you need to set the runMode option:
@@ -52,7 +52,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
           val isOpenSource = inputChoice.inputFromStringList(List(runGatlingOpenSource, runGatlingEnterprise).asJava, false).equals(runGatlingOpenSource)
 
           if (isOpenSource) {
-            new OpenSourceRunCommand(args).run()
+            new OpenSourceRunCommand(config, args).run()
           } else {
             new EnterpriseRunCommand(config, args).run()
           }

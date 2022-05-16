@@ -40,6 +40,18 @@ private[bundle] object CommandLineConstants {
       "Optional System Properties used when starting the Gatling Enterprise simulation",
       Some("k1=v1,k2=v2")
     )
+  val ExtraCompilerJvmOptions: CommandLineConstant = new CommandLineConstant(
+    "extra-compiler-jvm-options",
+    "ecjo",
+    """Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G").""",
+    Some(""""-Option1 -Option2"""")
+  )
   val ExtraScalacOptions: CommandLineConstant =
     new CommandLineConstant("extra-scalac-options", "eso", "Defines additional scalac options for the compiler", None)
+  val ExtraRunJvmOptions: CommandLineConstant = new CommandLineConstant(
+    "extra-run-jvm-options",
+    "erjo",
+    """Defines additional JVM options used when running your code locally (e.g. setting the heap size with "-Xms2G -Xmx4G")""",
+    Some(""""-Option1 -Option2"""")
+  )
 }

@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.StreamConverters._
 import scala.util.control.NoStackTrace
 
-import io.gatling.bundle.BundleIO
+import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.plugin.util.Fork
 
 private[commands] object CommandHelper {
@@ -69,16 +69,16 @@ private[commands] object CommandHelper {
   }
 
   def systemJavaOpts: List[String] = optionListEnv("JAVA_OPTS")
-  def GATLING_JVM_ARGS: List[String] = List(
+
+  def defaultJavaOptions: List[String] = List(
     "-server",
-    "-Xmx1G",
-    "-XX:+UseG1GC",
-    "-XX:+ParallelRefProcEnabled",
     "-XX:+HeapDumpOnOutOfMemoryError",
     "-XX:MaxInlineLevel=20",
-    "-XX:MaxTrivialSize=12",
-    "-XX:-UseBiasedLocking"
-  )
+    "-XX:MaxTrivialSize=12"
+  ) ++
+    (if (javaVersion < 9) List("-XX:+UseG1GC") else Nil) ++
+    (if (javaVersion < 11) List("-XX:+ParallelRefProcEnabled") else Nil) ++
+    (if (javaVersion < 15) List("-XX:-UseBiasedLocking") else Nil)
 
   if (Files.notExists(Paths.get(gatlingHome))) {
     throw new InvalidGatlingHomeException
@@ -105,11 +105,14 @@ private[commands] object CommandHelper {
       .map(_.toAbsolutePath.toString)
   }
 
-  def compile(args: List[String], maxJavaVersion: Option[Int]): Unit = {
+  def compile(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int]): Unit = {
 
     println(s"GATLING_HOME is set to $gatlingHome")
 
-    val compilerOpts = List("-Xss100M") ++ GATLING_JVM_ARGS ++ systemJavaOpts
+    val compilerMemoryOptions = List("-Xmx1G", "-Xss100M")
+    // Note: options which come later in the list can override earlier ones (because the java command will use the last
+    // occurrence in its arguments list in case of conflict)
+    val compilerJavaOptions = defaultJavaOptions ++ compilerMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsCompile
 
     val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
 
@@ -127,7 +130,7 @@ private[commands] object CommandHelper {
     new Fork(
       "io.gatling.compiler.ZincCompiler",
       classPath.asJava,
-      compilerOpts.asJava,
+      compilerJavaOptions.asJava,
       (extraJavacOptions ++ extraScalacOptions ++ args).asJava,
       java,
       true,

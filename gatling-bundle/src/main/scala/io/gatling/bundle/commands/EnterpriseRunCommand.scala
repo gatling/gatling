@@ -51,7 +51,7 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
         val serverInformation = enterpriseClient.getServerInformation
         val maxJavaVersion = serverInformation.versions.java.max.toInt
 
-        val file = new PackageCommand(args, maxJavaVersion).run()
+        val file = new PackageCommand(config, args, maxJavaVersion).run()
 
         val simulationStartResult = config.simulationId match {
           case Some(simulationId) =>

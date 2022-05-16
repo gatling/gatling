@@ -58,6 +58,7 @@ object GatlingCLI {
       opt[String](SimulationsFolder)
       opt[String](BinariesFolder)
       opt[String](ExtraScalacOptions)
+      opt[String](ExtraCompilerJvmOptions).action((x, c) => c.copy(extraJavaOptionsCompile = whitespaceSeparatedList(x)))
 
       note("")
       note("Following options are used when running Gatling locally")
@@ -68,6 +69,7 @@ object GatlingCLI {
       opt[String](BinariesFolder)
       opt[String](Simulation).action((x, c) => c.copy(simulationClass = Some(x)))
       opt[String](RunDescription)
+      opt[String](ExtraRunJvmOptions).action((x, c) => c.copy(extraJavaOptionsRun = whitespaceSeparatedList(x)))
 
       note("")
       note("Following options are used when running Gatling on Gatling Enterprise")
@@ -94,4 +96,7 @@ object GatlingCLI {
       case _ =>
     }
   }
+
+  private def whitespaceSeparatedList(x: String): List[String] =
+    x.split("""\s+""").filter(_.nonEmpty).toList
 }

@@ -27,6 +27,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
+import io.gatling.bundle.CommandArguments
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.bundle.commands.PackageCommand.WriteEntry
 import io.gatling.commons.util.Io._
@@ -35,10 +36,10 @@ object PackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
 }
 
-class PackageCommand(args: List[String], maxJavaVersion: Int) {
+class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int) {
 
   private[bundle] def run(): File = {
-    compile(args, Some(maxJavaVersion))
+    compile(config, args, Some(maxJavaVersion))
     println("Creating the package")
     createJar()
   }
