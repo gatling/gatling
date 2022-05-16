@@ -26,34 +26,4 @@ object Collections {
       sum
     }
   }
-
-  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.3", "3.4.0")
-  implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
-
-    def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
-      var sum = num.zero
-      t.iterator.foreach { x =>
-        sum = num.plus(sum, f(x))
-      }
-      sum
-    }
-  }
-
-  @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
-  @deprecated("Will be removed once Gatling Enterprise stops supporting Gatling 3.4", "3.5.0")
-  implicit class PimpedIterator[A](val it: Iterator[A]) extends AnyVal {
-
-    def lift(i: Int): Option[A] = {
-      var j = 0
-      var found: Option[A] = None
-      while (it.hasNext && found.isEmpty) {
-        val value = it.next()
-        if (i == j) {
-          found = Some(value)
-        }
-        j += 1
-      }
-      found
-    }
-  }
 }
