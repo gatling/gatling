@@ -44,21 +44,16 @@ private object Runner {
 
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
-  private[app] def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {
-    if (configuration.http.enableGA) Ga.send(configuration.core.version)
-    run0(forcedSimulationClass)
-  }
-
-  protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
-    DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
-
-  private def run0(forcedSimulationClass: Option[SimulationClass]): RunResult = {
+  private[app] final def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {
     logger.trace("Running")
 
     // ugly way to pass the configuration to the DSL
     io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(forcedSimulationClass, configuration)
+
+    if (configuration.http.enableGA) Ga.send(configuration.core.version)
+
     val simulationParams = selection.simulationClass.params(configuration)
     logger.trace("Simulation params built")
 
@@ -84,6 +79,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
         new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
+
+  protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
+    DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
