@@ -120,7 +120,7 @@ object ExtractedUris {
 }
 
 private[render] final class ExtractedUris(urlVals: List[UrlVal], renders: Map[String, String]) {
-  def renderUri(uri: String): String = renders.getOrElse(uri, uri)
+  def renderUri(uri: String): String = renders.getOrElse(uri, s""""$uri"""")
 
   def nonBaseUrls(baseUrl: String): Seq[UrlVal] =
     urlVals.filter { extractedUri =>
