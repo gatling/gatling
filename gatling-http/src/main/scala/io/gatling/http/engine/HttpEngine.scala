@@ -183,7 +183,7 @@ class HttpEngine(
     // [e]
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
-        .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport))
+        .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport, configuration.netty.useIoUring))
         .nameServerProvider(
           if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault
           else new SequentialDnsServerAddressStreamProvider(dnsServers: _*)

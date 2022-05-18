@@ -52,6 +52,7 @@ private[gatling] final class HttpClientFactory(
       .setHandshakeTimeout(sslConfig.handshakeTimeout.toMillis)
       .setEnableSni(sslConfig.enableSni)
       .setUseNativeTransport(nettyConfig.useNativeTransport)
+      .setUseIoUring(nettyConfig.useIoUring)
       .setThreadPoolName("gatling-http")
   }
 

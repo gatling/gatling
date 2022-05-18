@@ -198,6 +198,7 @@ object GatlingConfiguration extends StrictLogging {
   private def nettyConfiguration(config: Config) =
     new NettyConfiguration(
       useNativeTransport = config.getBoolean(netty.UseNativeTransport),
+      useIoUring = config.getBoolean(netty.UseIoUring),
       allocator = config.getString(netty.Allocator),
       maxThreadLocalCharBufferSize = config.getInt(netty.MaxThreadLocalCharBufferSize)
     )
@@ -358,6 +359,7 @@ final class SslConfiguration(
 
 final class NettyConfiguration(
     val useNativeTransport: Boolean,
+    val useIoUring: Boolean,
     val allocator: String,
     val maxThreadLocalCharBufferSize: Int
 )
