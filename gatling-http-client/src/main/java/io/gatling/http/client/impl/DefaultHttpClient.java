@@ -135,7 +135,9 @@ public class DefaultHttpClient implements HttpClient {
 
       http1Bootstrap =
           new Bootstrap()
-              .channelFactory(Transports.newSocketChannelFactory(config.isUseNativeTransport()))
+              .channelFactory(
+                  Transports.newSocketChannelFactory(
+                      config.isUseNativeTransport(), config.isUseIoUring()))
               .group(eventLoop)
               .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
               .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())

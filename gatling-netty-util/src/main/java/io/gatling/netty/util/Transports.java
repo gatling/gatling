@@ -27,6 +27,10 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.incubator.channel.uring.IOUring;
+import io.netty.incubator.channel.uring.IOUringDatagramChannel;
+import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
+import io.netty.incubator.channel.uring.IOUringSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.concurrent.ThreadFactory;
 
@@ -35,34 +39,55 @@ public final class Transports {
   private Transports() {}
 
   public static EventLoopGroup newEventLoopGroup(
-      boolean useNativeTransport, int nThreads, String poolName) {
+      boolean useNativeTransport, boolean useIoUring, int nThreads, String poolName) {
     ThreadFactory threadFactory = new DefaultThreadFactory(poolName);
-    return useNativeTransport && Epoll.isAvailable()
-        ? new EpollEventLoopGroup(nThreads, threadFactory)
-        : new NioEventLoopGroup(nThreads, threadFactory);
+    if (useNativeTransport) {
+      if (useIoUring && IOUring.isAvailable()) {
+        return new IOUringEventLoopGroup(nThreads, threadFactory);
+      } else if (Epoll.isAvailable()) {
+        return new EpollEventLoopGroup(nThreads, threadFactory);
+      }
+    }
+    return new NioEventLoopGroup(nThreads, threadFactory);
   }
 
   private static final ChannelFactory<? extends SocketChannel> EPOLL_SOCKET_CHANNEL_FACTORY =
       EpollSocketChannel::new;
+
+  private static final ChannelFactory<? extends SocketChannel> IOURING_SOCKET_CHANNEL_FACTORY =
+      IOUringSocketChannel::new;
   private static final ChannelFactory<? extends SocketChannel> NIO_SOCKET_CHANNEL_FACTORY =
       NioSocketChannel::new;
 
   public static ChannelFactory<? extends SocketChannel> newSocketChannelFactory(
-      boolean useNativeTransport) {
-    return useNativeTransport && Epoll.isAvailable()
-        ? EPOLL_SOCKET_CHANNEL_FACTORY
-        : NIO_SOCKET_CHANNEL_FACTORY;
+      boolean useNativeTransport, boolean useIoUring) {
+    if (useNativeTransport) {
+      if (useIoUring && IOUring.isAvailable()) {
+        return IOURING_SOCKET_CHANNEL_FACTORY;
+      } else if (Epoll.isAvailable()) {
+        return EPOLL_SOCKET_CHANNEL_FACTORY;
+      }
+    }
+    return NIO_SOCKET_CHANNEL_FACTORY;
   }
 
   private static final ChannelFactory<? extends DatagramChannel> EPOLL_DATAGRAM_CHANNEL_FACTORY =
       EpollDatagramChannel::new;
+
+  private static final ChannelFactory<? extends DatagramChannel> IOURING_DATAGRAM_CHANNEL_FACTORY =
+      IOUringDatagramChannel::new;
   private static final ChannelFactory<? extends DatagramChannel> NIO_DATAGRAM_CHANNEL_FACTORY =
       NioDatagramChannel::new;
 
   public static ChannelFactory<? extends DatagramChannel> newDatagramChannelFactory(
-      boolean useNativeTransport) {
-    return useNativeTransport && Epoll.isAvailable()
-        ? EPOLL_DATAGRAM_CHANNEL_FACTORY
-        : NIO_DATAGRAM_CHANNEL_FACTORY;
+      boolean useNativeTransport, boolean useIoUring) {
+    if (useNativeTransport) {
+      if (useIoUring && IOUring.isAvailable()) {
+        return IOURING_DATAGRAM_CHANNEL_FACTORY;
+      } else if (Epoll.isAvailable()) {
+        return EPOLL_DATAGRAM_CHANNEL_FACTORY;
+      }
+    }
+    return NIO_DATAGRAM_CHANNEL_FACTORY;
   }
 }

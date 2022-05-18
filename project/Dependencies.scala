@@ -18,6 +18,8 @@ object Dependencies {
   private val nettyDns                       = netty.withName("netty-resolver-dns")
   private val nettyEpollLinuxX86             = netty.withName("netty-transport-native-epoll")                               classifier "linux-x86_64"
   private val nettyEpollLinuxArm             = netty.withName("netty-transport-native-epoll")                               classifier "linux-aarch_64"
+  private val nettyIoUringLinuxX86           = "io.netty.incubator"                   % "netty-incubator-transport-native-io_uring" % "0.0.15.Final" classifier "linux-x86_64"
+  private val nettyIoUringLinuxArm           = nettyIoUringLinuxX86                                                                                  classifier "linux-aarch_64"
   private val nettyHttp2                     = netty.withName("netty-codec-http2")
   private val nettyResolverNativeOsXX86      = netty.withName("netty-resolver-dns-native-macos") classifier "osx-x86_64"
   private val nettyResolverNativeOsXArm      = nettyResolverNativeOsXX86                                 classifier "osx-aarch_64"
@@ -126,7 +128,7 @@ object Dependencies {
     Seq(commonsIo, commonsLang, commonsCodec)
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpollLinuxX86, nettyEpollLinuxArm, junit, junitEngine, jupiterInterface)
+    Seq(nettyBuffer, nettyEpollLinuxX86, nettyEpollLinuxArm, nettyIoUringLinuxX86, nettyIoUringLinuxArm, junit, junitEngine, jupiterInterface)
 
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps

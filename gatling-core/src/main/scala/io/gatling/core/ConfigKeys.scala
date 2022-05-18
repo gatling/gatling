@@ -62,6 +62,7 @@ object ConfigKeys {
 
   object netty {
     val UseNativeTransport = "gatling.netty.useNativeTransport"
+    val UseIoUring = "gatling.netty.useIoUring"
     val Allocator = "gatling.netty.allocator"
     val MaxThreadLocalCharBufferSize = "gatling.netty.maxThreadLocalCharBufferSize"
   }

@@ -39,6 +39,8 @@ public class HttpClientConfig {
 
   private boolean useNativeTransport;
 
+  private boolean useIoUring;
+
   private long channelPoolIdleTimeout = 30_000;
 
   private long channelPoolIdleCleanerPeriod = 1_000;
@@ -103,6 +105,15 @@ public class HttpClientConfig {
 
   public boolean isUseNativeTransport() {
     return useNativeTransport;
+  }
+
+  public HttpClientConfig setUseIoUring(boolean useIoUring) {
+    this.useIoUring = useIoUring;
+    return this;
+  }
+
+  public boolean isUseIoUring() {
+    return useIoUring;
   }
 
   public HttpClientConfig setChannelPoolIdleTimeout(long channelPoolIdleTimeout) {
