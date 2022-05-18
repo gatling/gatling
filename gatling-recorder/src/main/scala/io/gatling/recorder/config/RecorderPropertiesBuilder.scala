@@ -57,7 +57,22 @@ class RecorderPropertiesBuilder {
     this
   }
 
-  def simulationFormat(format: Format): RecorderPropertiesBuilder = {
+  def simulationFormatJava8: RecorderPropertiesBuilder =
+    simulationFormat(Format.Java8)
+
+  def simulationFormatJava11: RecorderPropertiesBuilder =
+    simulationFormat(Format.Java11)
+
+  def simulationFormatJava17: RecorderPropertiesBuilder =
+    simulationFormat(Format.Java17)
+
+  def simulationFormatKotlin: RecorderPropertiesBuilder =
+    simulationFormat(Format.Kotlin)
+
+  def simulationFormatScala: RecorderPropertiesBuilder =
+    simulationFormat(Format.Scala)
+
+  private[recorder] def simulationFormat(format: Format): RecorderPropertiesBuilder = {
     props += core.Format -> format.configValue
     this
   }
