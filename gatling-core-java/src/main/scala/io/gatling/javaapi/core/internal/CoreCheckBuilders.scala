@@ -57,14 +57,23 @@ object CoreCheckBuilders {
   def transformSingleCheck[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, ScalaX],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
-  ): io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX] =
-    wrapped.transform(scalaXToJavaX.asScala)
+  ): io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX] = {
+    if (scalaXToJavaX eq juf.Function.identity[JavaX]()) {
+      wrapped.asInstanceOf[io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX]]
+    } else {
+      wrapped.transform(scalaXToJavaX.asScala)
+    }
+  }
 
   def transformSeqCheck[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, Seq[ScalaX]],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
   ): io.gatling.core.check.CheckBuilder.Validate[T, P, ju.List[JavaX]] =
-    wrapped.transform(_.map(scalaXToJavaX.asScala).asJava)
+    if (scalaXToJavaX eq juf.Function.identity[JavaX]()) {
+      wrapped.transform(_.asInstanceOf[Seq[JavaX]].asJava)
+    } else {
+      wrapped.transform(_.map(scalaXToJavaX.asScala).asJava)
+    }
 
   def toFindRandomCheck[T, P, X](
       wrapped: io.gatling.core.check.CheckBuilder.MultipleFind[T, P, X],

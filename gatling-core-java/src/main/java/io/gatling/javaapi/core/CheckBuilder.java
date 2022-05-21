@@ -110,7 +110,7 @@ public interface CheckBuilder {
       @Nonnull
       public Validate<JavaX> find() {
         return new Validate.Default<>(
-            wrapped.find().transform(toScalaFunction(scalaXToJavaX)), type, javaXClass);
+            transformSingleCheck(wrapped.find(), scalaXToJavaX), type, javaXClass);
       }
 
       @Override
