@@ -25,7 +25,7 @@ import scala.jdk.FunctionConverters._
 import io.gatling.javaapi.core.{ CheckBuilder, Session }
 import io.gatling.javaapi.core.internal.Expressions._
 
-object CoreCheckBuilders {
+private[core] object CoreCheckBuilders {
 
   def bodyLength(): CheckBuilder.Find[Integer] =
     new CheckBuilder.Find.Default(io.gatling.core.Predef.bodyLength, CoreCheckType.BodyLength, classOf[Integer], (int: Int) => int.asInstanceOf[Integer])
@@ -57,22 +57,26 @@ object CoreCheckBuilders {
   def convertExtractedValueToJava[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, ScalaX],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
-  ): io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX] =
+  ): io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX] = {
+    val scalaXToJavaXF = scalaXToJavaX.asScala
     wrapped.transform0(
-      _.map(_.map(scalaXToJavaX.asScala)),
+      _.map(_.map(scalaXToJavaXF)),
       identity,
       "toJava crashed: " + _
     )
+  }
 
   def convertExtractedSeqToJava[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, Seq[ScalaX]],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
-  ): io.gatling.core.check.CheckBuilder.Validate[T, P, ju.List[JavaX]] =
+  ): io.gatling.core.check.CheckBuilder.Validate[T, P, ju.List[JavaX]] = {
+    val scalaXToJavaXF = scalaXToJavaX.asScala
     wrapped.transform0(
-      _.map(_.map(_.map(scalaXToJavaX.asScala).asJava)),
+      _.map(_.map(_.map(scalaXToJavaXF).asJava)),
       identity,
       "toJava crashed: " + _
     )
+  }
 
   def toFindRandomCheck[T, P, X](
       wrapped: io.gatling.core.check.CheckBuilder.MultipleFind[T, P, X],
