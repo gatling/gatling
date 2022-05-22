@@ -31,7 +31,7 @@ object ScalaExecs {
       context: Execs[T, W],
       f: JavaExpression[Session]
   ): T =
-    context.make(_.exec(session => safely()(f.apply(new Session(session)).asScala().success)))
+    context.make(_.exec(session => safely()(f.apply(new Session(session)).asScala.success)))
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
