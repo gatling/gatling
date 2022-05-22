@@ -110,7 +110,7 @@ public interface CheckBuilder {
       @Nonnull
       public Validate<JavaX> find() {
         return new Validate.Default<>(
-            wrapped.find().transform(toScalaFunction(scalaXToJavaX)), type, javaXClass);
+            convertExtractedValueToJava(wrapped.find(), scalaXToJavaX), type, javaXClass);
       }
 
       @Override
@@ -425,26 +425,28 @@ public interface CheckBuilder {
       @Override
       @Nonnull
       public Validate<JavaX> find() {
-        return makeValidate(transformSingleCheck(wrapped.find(), scalaXToJavaX), javaXClass);
+        return makeValidate(convertExtractedValueToJava(wrapped.find(), scalaXToJavaX), javaXClass);
       }
 
       @Override
       @Nonnull
       public Validate<JavaX> find(int occurrence) {
         return makeValidate(
-            transformSingleCheck(wrapped.find(occurrence), scalaXToJavaX), javaXClass);
+            convertExtractedValueToJava(wrapped.find(occurrence), scalaXToJavaX), javaXClass);
       }
 
       @Override
       @Nonnull
       public Validate<List<JavaX>> findAll() {
-        return makeValidate(transformSeqCheck(wrapped.findAll(), scalaXToJavaX), List.class);
+        return makeValidate(
+            convertExtractedSeqToJava(wrapped.findAll(), scalaXToJavaX), List.class);
       }
 
       @Override
       @Nonnull
       public Validate<JavaX> findRandom() {
-        return makeValidate(transformSingleCheck(wrapped.findRandom(), scalaXToJavaX), javaXClass);
+        return makeValidate(
+            convertExtractedValueToJava(wrapped.findRandom(), scalaXToJavaX), javaXClass);
       }
 
       @Override
@@ -457,7 +459,8 @@ public interface CheckBuilder {
       @Nonnull
       public Validate<List<JavaX>> findRandom(int num, boolean failIfLess) {
         return makeValidate(
-            transformSeqCheck(wrapped.findRandom(num, failIfLess), scalaXToJavaX), List.class);
+            convertExtractedSeqToJava(wrapped.findRandom(num, failIfLess), scalaXToJavaX),
+            List.class);
       }
 
       @Override

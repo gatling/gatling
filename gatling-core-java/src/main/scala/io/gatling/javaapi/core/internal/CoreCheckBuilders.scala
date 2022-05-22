@@ -54,17 +54,25 @@ object CoreCheckBuilders {
       (int: Int) => int.asInstanceOf[Integer]
     )
 
-  def transformSingleCheck[T, P, ScalaX, JavaX](
+  def convertExtractedValueToJava[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, ScalaX],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
   ): io.gatling.core.check.CheckBuilder.Validate[T, P, JavaX] =
-    wrapped.transform(scalaXToJavaX.asScala)
+    wrapped.transform0(
+      _.map(_.map(scalaXToJavaX.asScala)),
+      identity,
+      "toJava crashed: " + _
+    )
 
-  def transformSeqCheck[T, P, ScalaX, JavaX](
+  def convertExtractedSeqToJava[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, Seq[ScalaX]],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
   ): io.gatling.core.check.CheckBuilder.Validate[T, P, ju.List[JavaX]] =
-    wrapped.transform(_.map(scalaXToJavaX.asScala).asJava)
+    wrapped.transform0(
+      _.map(_.map(_.map(scalaXToJavaX.asScala).asJava)),
+      identity,
+      "toJava crashed: " + _
+    )
 
   def toFindRandomCheck[T, P, X](
       wrapped: io.gatling.core.check.CheckBuilder.MultipleFind[T, P, X],

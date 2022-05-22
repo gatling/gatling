@@ -111,8 +111,7 @@ public final class JmsDsl {
         return new io.gatling.core.check.CheckBuilder() {
           @Override
           public Check<?> build(CheckMaterializer materializer) {
-            return io.gatling.jms.Predef.simpleCheck(
-                toScalaFunction(f.andThen(Function.identity()))); // trick compiler
+            return io.gatling.jms.Predef.simpleCheck(toScalaFunction(f::apply));
           }
         };
       }
