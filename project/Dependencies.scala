@@ -36,7 +36,7 @@ object Dependencies {
     .exclude("org.typelevel", "algebra_2.13")
     .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
-  private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                     % "3.9.4"
+  private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                     % "3.9.5"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                  % "2.13.3"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                     % "8.2.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
