@@ -17,8 +17,9 @@ object CodeAnalysis {
 
   private def disabledWarts: List[Wart] =
     List(
-      Wart.AsInstanceOf,
       Wart.Any,
+      Wart.AutoUnboxing,
+      Wart.AsInstanceOf,
       Wart.Equals,
       Wart.ImplicitConversion,
       Wart.ImplicitParameter,
