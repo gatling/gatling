@@ -17,15 +17,12 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
-import io.gatling.commons.util.DefaultClock
-import io.gatling.core.stats.writer.UserEndMessage
+import io.gatling.core.controller.inject.InjectorCommand
 
 class ExitSpec extends AkkaSpec {
 
-  private val clock = new DefaultClock
-
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
-    val exit = new Exit(self, clock)
+    val exit = new Exit(self)
 
     var hasTerminated = false
 
@@ -33,7 +30,7 @@ class ExitSpec extends AkkaSpec {
     exit ! session
 
     hasTerminated shouldBe true
-    val userMessage = expectMsgType[UserEndMessage]
+    val userMessage = expectMsgType[InjectorCommand.UserEnd]
     userMessage.scenario shouldBe session.scenario
   }
 }

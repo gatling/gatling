@@ -23,7 +23,6 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
 import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
@@ -45,8 +44,8 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     nextSession shouldBe emptySession
-    val expected = ResponseMessage(emptySession.scenario, Nil, "success", 15, 30, OK, None, None)
-    statsEngine.dataWriterMsg should contain(expected)
+    val expected = MockStatsEngine.Message.Response(emptySession.scenario, Nil, "success", 15, 30, OK, None, None)
+    statsEngine.messages should contain(expected)
   }
 
   it should "pass KO to next actor when check fails" in {
@@ -60,8 +59,8 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     nextSession shouldBe emptySession.markAsFailed
-    val expected = ResponseMessage(emptySession.scenario, Nil, "failure", 15, 30, KO, None, Some("JMS check failed"))
-    statsEngine.dataWriterMsg should contain(expected)
+    val expected = MockStatsEngine.Message.Response(emptySession.scenario, Nil, "failure", 15, 30, KO, None, Some("JMS check failed"))
+    statsEngine.messages should contain(expected)
   }
 
   it should "pass updated session to next actor if modified by checks" in {
@@ -75,8 +74,8 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     nextSession shouldBe emptySession.set("id", "5")
-    val expected = ResponseMessage(emptySession.scenario, Nil, "updated", 15, 30, OK, None, None)
-    statsEngine.dataWriterMsg should contain(expected)
+    val expected = MockStatsEngine.Message.Response(emptySession.scenario, Nil, "updated", 15, 30, OK, None, None)
+    statsEngine.messages should contain(expected)
   }
 
   it should "pass information to session about response time in case group are used" in {

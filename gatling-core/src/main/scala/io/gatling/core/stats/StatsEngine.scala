@@ -31,9 +31,9 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def stop(controller: ActorRef, exception: Option[Exception]): Unit
 
-  def logUserStart(scenario: String, timestamp: Long): Unit
+  def logUserStart(scenario: String): Unit
 
-  def logUserEnd(userMessage: UserEndMessage): Unit
+  def logUserEnd(scenario: String): Unit
 
   // [e]
   //

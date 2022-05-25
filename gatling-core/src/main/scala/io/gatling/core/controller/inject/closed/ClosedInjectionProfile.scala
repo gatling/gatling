@@ -47,7 +47,6 @@ private[core] final class ClosedInjectionProfile(steps: Iterable[ClosedInjection
       scenario,
       userIdGen,
       eventLoopGroup,
-      statsEngine,
-      clock
+      statsEngine
     )
 }

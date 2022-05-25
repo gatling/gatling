@@ -58,7 +58,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
 
   private val flushTimerName = "flushTimer"
 
-  def onInit(init: Init): ConsoleData = {
+  def onInit(init: DataWriterMessage.Init): ConsoleData = {
 
     import init._
 
@@ -66,7 +66,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
-    startTimerAtFixedRate(flushTimerName, Flush, configuration.data.console.writePeriod)
+    startTimerAtFixedRate(flushTimerName, DataWriterMessage.Flush, configuration.data.console.writePeriod)
 
     data
   }
@@ -81,15 +81,15 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
     println(summary.text)
   }
 
-  override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
-    case user: UserStartMessage    => onUserStartMessage(user, data)
-    case user: UserEndMessage      => onUserEndMessage(user, data)
-    case response: ResponseMessage => onResponseMessage(response, data)
-    case error: ErrorMessage       => onErrorMessage(error, data)
-    case _                         =>
+  override def onMessage(message: DataWriterMessage.LoadEvent, data: ConsoleData): Unit = message match {
+    case user: DataWriterMessage.LoadEvent.UserStart    => onUserStartMessage(user, data)
+    case user: DataWriterMessage.LoadEvent.UserEnd      => onUserEndMessage(user, data)
+    case response: DataWriterMessage.LoadEvent.Response => onResponseMessage(response, data)
+    case error: DataWriterMessage.LoadEvent.Error       => onErrorMessage(error, data)
+    case _                                              =>
   }
 
-  private def onUserStartMessage(user: UserStartMessage, data: ConsoleData): Unit = {
+  private def onUserStartMessage(user: DataWriterMessage.LoadEvent.UserStart, data: ConsoleData): Unit = {
     import data._
     import user._
 
@@ -99,7 +99,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
     }
   }
 
-  private def onUserEndMessage(user: UserEndMessage, data: ConsoleData): Unit = {
+  private def onUserEndMessage(user: DataWriterMessage.LoadEvent.UserEnd, data: ConsoleData): Unit = {
     import data._
     import user._
 
@@ -110,7 +110,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  private def onResponseMessage(response: ResponseMessage, data: ConsoleData): Unit = {
+  private def onResponseMessage(response: DataWriterMessage.LoadEvent.Response, data: ConsoleData): Unit = {
     import data._
     import response._
 
@@ -129,7 +129,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
     }
   }
 
-  private def onErrorMessage(error: ErrorMessage, data: ConsoleData): Unit = {
+  private def onErrorMessage(error: DataWriterMessage.LoadEvent.Error, data: ConsoleData): Unit = {
     import data._
     errorsCounters(error.message) = errorsCounters.getOrElse(error.message, 0) + 1
   }

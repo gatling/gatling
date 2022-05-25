@@ -30,7 +30,7 @@ private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWrit
 
   startWith(Uninitialized, NoData)
 
-  def onInit(init: Init): T
+  def onInit(init: DataWriterMessage.Init): T
 
   def onFlush(data: T): Unit
 
@@ -38,9 +38,9 @@ private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWrit
 
   def onStop(data: T): Unit
 
-  def onMessage(message: LoadEventMessage, data: T): Unit
+  def onMessage(message: DataWriterMessage.LoadEvent, data: T): Unit
 
-  when(Uninitialized) { case Event(init: Init, NoData) =>
+  when(Uninitialized) { case Event(init: DataWriterMessage.Init, NoData) =>
     logger.info("Initializing")
     try {
       val newState = onInit(init)
@@ -56,20 +56,20 @@ private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWrit
   }
 
   when(Initialized) {
-    case Event(Flush, data: Any) =>
+    case Event(DataWriterMessage.Flush, data: Any) =>
       onFlush(data.asInstanceOf[T])
       stay()
 
-    case Event(Stop, data: Any) =>
+    case Event(DataWriterMessage.Stop, data: Any) =>
       onStop(data.asInstanceOf[T])
       sender() ! true
       goto(Terminated) using NoData
 
-    case Event(Crash(cause), data: Any) =>
+    case Event(DataWriterMessage.Crash(cause), data: Any) =>
       onCrash(cause, data.asInstanceOf[T])
       goto(Terminated) using NoData
 
-    case Event(message: LoadEventMessage, data: Any) =>
+    case Event(message: DataWriterMessage.LoadEvent, data: Any) =>
       onMessage(message, data.asInstanceOf[T])
       stay()
   }

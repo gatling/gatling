@@ -24,7 +24,6 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserEndMessage
 
 import io.netty.channel.EventLoopGroup
 
@@ -38,7 +37,7 @@ private[inject] class OpenWorkload(
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine,
     clock: Clock
-) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine, clock) {
+) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
 
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
     val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)
@@ -50,8 +49,6 @@ private[inject] class OpenWorkload(
     }
   }
 
-  override def endUser(userMessage: UserEndMessage): Unit = {
-    statsEngine.logUserEnd(userMessage)
+  override def endUser(): Unit =
     incrementStoppedUsers()
-  }
 }

@@ -25,16 +25,16 @@ import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.controller.inject.open.OpenWorkload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
 import io.netty.channel.EventLoopGroup
 
 private[controller] sealed trait InjectorCommand
-private[controller] object InjectorCommand {
-  final case class Start(controller: ActorRef, scenarioFlows: ScenarioFlows[String, Scenario]) extends InjectorCommand
-  final case class EmptyWorkloadComplete(scenario: String) extends InjectorCommand
-  final case object Tick extends InjectorCommand
+object InjectorCommand {
+  private[controller] final case class Start(controller: ActorRef, scenarioFlows: ScenarioFlows[String, Scenario]) extends InjectorCommand
+  private[controller] final case class EmptyWorkloadComplete(scenario: String) extends InjectorCommand
+  private[core] final case class UserEnd(scenario: String) extends InjectorCommand
+  private[controller] final case object Tick extends InjectorCommand
 }
 
 private[gatling] object Injector {
@@ -137,10 +137,11 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
   }
 
   when(Started) {
-    case Event(userMessage @ UserEndMessage(scenario, _), data: StartedData) =>
+    case Event(InjectorCommand.UserEnd(scenario), data: StartedData) =>
       logger.debug(s"End user #$scenario")
+      statsEngine.logUserEnd(scenario)
       val workload = data.inProgressWorkloads(scenario)
-      workload.endUser(userMessage)
+      workload.endUser()
       if (workload.isAllUsersStopped) {
         logger.info(s"All users of scenario $scenario are stopped")
         onWorkloadComplete(scenario, data)

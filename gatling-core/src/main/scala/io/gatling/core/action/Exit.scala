@@ -16,19 +16,18 @@
 
 package io.gatling.core.action
 
-import io.gatling.commons.util.Clock
+import io.gatling.core.controller.inject.InjectorCommand
 import io.gatling.core.session.Session
-import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
-private[gatling] final class Exit(injector: ActorRef, clock: Clock) extends Action {
+private[gatling] final class Exit(injector: ActorRef) extends Action {
 
   override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    injector ! UserEndMessage(session.scenario, clock.nowMillis)
+    injector ! InjectorCommand.UserEnd(session.scenario)
   }
 }

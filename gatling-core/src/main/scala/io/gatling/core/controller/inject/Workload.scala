@@ -21,11 +21,9 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
-import io.gatling.commons.util.Clock
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserEndMessage
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.{ EventLoop, EventLoopGroup }
@@ -34,8 +32,7 @@ private abstract class Workload(
     scenario: Scenario,
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,
-    statsEngine: StatsEngine,
-    clock: Clock
+    statsEngine: StatsEngine
 ) extends StrictLogging {
 
   private var scheduled = 0
@@ -54,10 +51,9 @@ private abstract class Workload(
   private def startUser(userId: Long, eventLoop: EventLoop): Unit = {
     val rawSession = Session(scenario.name, userId, scenario.onExit, eventLoop)
     val session = scenario.onStart(rawSession)
-    val timestamp = clock.nowMillis
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
-    statsEngine.logUserStart(scenario.name, timestamp)
+    statsEngine.logUserStart(scenario.name)
   }
 
   protected def injectUser(delay: FiniteDuration): Unit = {
@@ -79,7 +75,7 @@ private abstract class Workload(
 
   def injectBatch(batchWindow: FiniteDuration): Unit
 
-  def endUser(userMessage: UserEndMessage): Unit
+  def endUser(): Unit
 
   def isAllUsersScheduled: Boolean = allScheduled
 

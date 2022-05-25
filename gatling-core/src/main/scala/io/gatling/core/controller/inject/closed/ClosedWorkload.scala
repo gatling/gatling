@@ -20,11 +20,9 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserEndMessage
 import io.gatling.core.util.Shard
 
 import io.netty.channel.EventLoopGroup
@@ -36,9 +34,8 @@ private[inject] final class ClosedWorkload(
     scenario: Scenario,
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,
-    statsEngine: StatsEngine,
-    clock: Clock
-) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine, clock) {
+    statsEngine: StatsEngine
+) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
 
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero
@@ -75,8 +72,7 @@ private[inject] final class ClosedWorkload(
     }
   }
 
-  override def endUser(userMessage: UserEndMessage): Unit = {
-    statsEngine.logUserEnd(userMessage)
+  override def endUser(): Unit = {
     incrementStoppedUsers()
     if (getConcurrentUsers < _thisBatchTarget && !isAllUsersScheduled) {
       // start a new user

@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
@@ -50,9 +49,9 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUserStart(scenario: String, timestamp: Long): Unit = {}
+  override def logUserStart(scenario: String): Unit = {}
 
-  override def logUserEnd(userMessage: UserEndMessage): Unit = {}
+  override def logUserEnd(scenario: String): Unit = {}
 
   override def logResponse(
       scenario: String,

@@ -19,22 +19,38 @@ package io.gatling.jms.action
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.{ DataWriterMessage, GroupMessage, ResponseMessage, UserEndMessage }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 
+object MockStatsEngine {
+  sealed trait Message
+  object Message {
+    final case class Response(
+        scenario: String,
+        groups: List[String],
+        requestName: String,
+        startTimestamp: Long,
+        endTimestamp: Long,
+        status: Status,
+        responseCode: Option[String],
+        message: Option[String]
+    ) extends Message
+    final case class GroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long) extends Message
+  }
+}
+
 class MockStatsEngine extends StatsEngine with StrictLogging {
 
-  var dataWriterMsg: List[DataWriterMessage] = List()
+  var messages: List[MockStatsEngine.Message] = Nil
 
   override def start(): Unit = {}
 
   override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUserStart(scenario: String, timestamp: Long): Unit = {}
+  override def logUserStart(scenario: String): Unit = {}
 
-  override def logUserEnd(userMessage: UserEndMessage): Unit = {}
+  override def logUserEnd(scenario: String): Unit = {}
 
   override def logResponse(
       scenario: String,
@@ -47,27 +63,30 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
       message: Option[String]
   ): Unit =
     handle(
-      ResponseMessage(
+      MockStatsEngine.Message.Response(
         scenario,
         groups,
         requestName,
         startTimestamp,
         endTimestamp,
         status,
-        None,
+        responseCode,
         message
       )
     )
 
   override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
-    handle(GroupMessage(scenario, groupBlock.groups, groupBlock.startTimestamp, exitTimestamp, groupBlock.cumulatedResponseTime, groupBlock.status))
+    handle(
+      MockStatsEngine.Message
+        .GroupEnd(scenario, groupBlock, exitTimestamp)
+    )
 
   override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
 
   override def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit = {}
 
-  private def handle(msg: DataWriterMessage): Unit = {
-    dataWriterMsg = msg :: dataWriterMsg
+  private def handle(msg: MockStatsEngine.Message): Unit = {
+    messages = msg :: messages
     logger.debug(msg.toString)
   }
 }

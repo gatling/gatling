@@ -31,7 +31,6 @@ private[gatling] final case class RunMessage(
     runDescription: String,
     gatlingVersion: String
 ) {
-
   val runId: String = simulationId + "-" +
     DateTimeFormatter
       .ofPattern("yyyyMMddHHmmssSSS")
@@ -39,43 +38,41 @@ private[gatling] final case class RunMessage(
 }
 
 private[gatling] sealed trait DataWriterMessage
-private[gatling] final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
-private[gatling] case object Flush extends DataWriterMessage
-private[stats] final case class Crash(cause: String) extends DataWriterMessage
-private[stats] case object Stop extends DataWriterMessage
+private[gatling] object DataWriterMessage {
 
-private[gatling] sealed trait LoadEventMessage extends DataWriterMessage
+  final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+  case object Flush extends DataWriterMessage
+  private[stats] final case class Crash(cause: String) extends DataWriterMessage
+  private[stats] case object Stop extends DataWriterMessage
 
-private[gatling] final case class UserStartMessage(
-    scenario: String,
-    timestamp: Long
-) extends LoadEventMessage
+  sealed trait LoadEvent extends DataWriterMessage
+  object LoadEvent {
+    final case class UserStart(scenario: String, timestamp: Long) extends LoadEvent
 
-private[gatling] final case class UserEndMessage(
-    scenario: String,
-    timestamp: Long
-) extends LoadEventMessage
+    final case class UserEnd(scenario: String, timestamp: Long) extends LoadEvent
 
-private[gatling] final case class ResponseMessage(
-    scenario: String,
-    groupHierarchy: List[String],
-    name: String,
-    startTimestamp: Long,
-    endTimestamp: Long,
-    status: Status,
-    responseCode: Option[String],
-    message: Option[String]
-) extends LoadEventMessage
+    final case class Response(
+        scenario: String,
+        groupHierarchy: List[String],
+        name: String,
+        startTimestamp: Long,
+        endTimestamp: Long,
+        status: Status,
+        responseCode: Option[String],
+        message: Option[String]
+    ) extends LoadEvent
 
-private[gatling] final case class GroupMessage(
-    scenario: String,
-    groupHierarchy: List[String],
-    startTimestamp: Long,
-    endTimestamp: Long,
-    cumulatedResponseTime: Int,
-    status: Status
-) extends LoadEventMessage {
-  val duration: Int = (endTimestamp - startTimestamp).toInt
+    final case class Group(
+        scenario: String,
+        groupHierarchy: List[String],
+        startTimestamp: Long,
+        endTimestamp: Long,
+        cumulatedResponseTime: Int,
+        status: Status
+    ) extends LoadEvent {
+      val duration: Int = (endTimestamp - startTimestamp).toInt
+    }
+
+    final case class Error(message: String, date: Long) extends LoadEvent
+  }
 }
-
-private[stats] final case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

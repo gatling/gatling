@@ -44,7 +44,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
 
   private val flushTimerName = "flushTimer"
 
-  def onInit(init: Init): GraphiteData = {
+  def onInit(init: DataWriterMessage.Init): GraphiteData = {
     import init._
 
     val metricsSender: ActorRef = context.actorOf(MetricsSender.props(clock, configuration), genName("metricsSender"))
@@ -56,7 +56,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     usersByScenario.update(pattern.allUsersPath, new UserBreakdownBuffer(scenarios.sumBy(_.totalUserCount.getOrElse(0L))))
     scenarios.foreach(scenario => usersByScenario += (pattern.usersPath(scenario.name) -> new UserBreakdownBuffer(scenario.totalUserCount.getOrElse(0L))))
 
-    startTimerAtFixedRate(flushTimerName, Flush, configuration.data.graphite.writePeriod)
+    startTimerAtFixedRate(flushTimerName, DataWriterMessage.Flush, configuration.data.graphite.writePeriod)
 
     GraphiteData(metricsSender, requestsByPath, usersByScenario, pattern)
   }
@@ -79,7 +79,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     usersByScenario(format.allUsersPath).record(isStart)
   }
 
-  private def onResponseMessage(response: ResponseMessage, data: GraphiteData): Unit = {
+  private def onResponseMessage(response: DataWriterMessage.LoadEvent.Response, data: GraphiteData): Unit = {
     import data._
     import response._
     val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
@@ -89,11 +89,11 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     requestsByPath.getOrElseUpdate(format.allResponsesPath, newResponseMetricsBuffer).add(status, responseTime)
   }
 
-  override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
-    case UserStartMessage(scenario, _) => onUserMessage(scenario, isStart = true, data)
-    case UserEndMessage(scenario, _)   => onUserMessage(scenario, isStart = false, data)
-    case response: ResponseMessage     => onResponseMessage(response, data)
-    case _                             =>
+  override def onMessage(message: DataWriterMessage.LoadEvent, data: GraphiteData): Unit = message match {
+    case DataWriterMessage.LoadEvent.UserStart(scenario, _) => onUserMessage(scenario, isStart = true, data)
+    case DataWriterMessage.LoadEvent.UserEnd(scenario, _)   => onUserMessage(scenario, isStart = false, data)
+    case response: DataWriterMessage.LoadEvent.Response     => onResponseMessage(response, data)
+    case _                                                  =>
   }
 
   override def onCrash(cause: String, data: GraphiteData): Unit = {}

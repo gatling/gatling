@@ -56,7 +56,7 @@ object DataWritersStatsEngine {
 
     val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
 
-    val dataWriterInitMessage = Init(
+    val dataWriterInitMessage = DataWriterMessage.Init(
       simulationParams.assertions,
       runMessage,
       allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
@@ -66,7 +66,7 @@ object DataWritersStatsEngine {
   }
 }
 
-class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
+class DataWritersStatsEngine(dataWriterInitMessage: DataWriterMessage.Init, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
 
   private val active = new AtomicBoolean(true)
 
@@ -94,15 +94,15 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
     if (active.getAndSet(false)) {
       implicit val dispatcher: ExecutionContext = system.dispatcher
       implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
-      val responses = dataWriters.map(_ ? Stop)
+      val responses = dataWriters.map(_ ? DataWriterMessage.Stop)
       Future.sequence(responses).onComplete(_ => controller ! ControllerCommand.StatsEngineStopped)
     }
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
-  override def logUserStart(scenario: String, timestamp: Long): Unit = dispatch(UserStartMessage(scenario, timestamp))
+  override def logUserStart(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserStart(scenario, clock.nowMillis))
 
-  override def logUserEnd(userMessage: UserEndMessage): Unit = dispatch(userMessage)
+  override def logUserEnd(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserStart(scenario, clock.nowMillis))
 
   override def logResponse(
       scenario: String,
@@ -116,7 +116,7 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
   ): Unit =
     if (endTimestamp >= 0) {
       dispatch(
-        ResponseMessage(
+        DataWriterMessage.LoadEvent.Response(
           scenario,
           groups,
           requestName,
@@ -135,7 +135,7 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
       exitTimestamp: Long
   ): Unit =
     dispatch(
-      GroupMessage(
+      DataWriterMessage.LoadEvent.Group(
         scenario,
         groupBlock.groups,
         groupBlock.startTimestamp,
@@ -146,5 +146,5 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
     )
 
   override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
-    dispatch(ErrorMessage(s"$requestName: $error ", clock.nowMillis))
+    dispatch(DataWriterMessage.LoadEvent.Error(s"$requestName: $error ", clock.nowMillis))
 }
