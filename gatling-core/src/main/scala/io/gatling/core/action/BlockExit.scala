@@ -51,8 +51,6 @@ private object BlockExit {
    */
   @tailrec
   private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
-    case Nil => BlockExit(exitAction, session, groupsToClose)
-
     case head :: tail =>
       head match {
         case `until`                             => BlockExit(exitAction, session, groupsToClose)
@@ -60,6 +58,7 @@ private object BlockExit {
         case TryMaxBlock(counterName, _, status) => blockExit(tail, until, exitAction, session.exitTryMax(counterName, status, tail), groupsToClose)
         case counterBlock: CounterBlock          => blockExit(tail, until, exitAction, session.exitLoop(counterBlock.counterName, tail), groupsToClose)
       }
+    case _ => BlockExit(exitAction, session, groupsToClose)
   }
 
   /**
@@ -73,8 +72,6 @@ private object BlockExit {
 
     @tailrec
     def exitAsapLoopRec(leftToRightBlocks: List[Block], rightToLeftBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
-      case Nil => None
-
       case head :: tail =>
         head match {
           case ExitAsapLoopBlock(counterName, condition, exitAction) if !LoopBlock.continue(condition, session) =>
@@ -84,6 +81,7 @@ private object BlockExit {
 
           case _ => exitAsapLoopRec(tail, head :: rightToLeftBlocks)
         }
+      case _ => None
     }
 
     exitAsapLoopRec(session.blockStack.reverse, Nil)
@@ -100,17 +98,15 @@ private object BlockExit {
 
     @tailrec
     def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
-      case Nil => None
-
       case head :: tail =>
         head match {
-
           case TryMaxBlock(_, tryMaxActor, KO) =>
             // block stack head is now the tryMax itself, leave as is
             Some(blockExit(session.blockStack, head, tryMaxActor, session, Nil))
 
           case _ => exitTryMaxRec(tail)
         }
+      case _ => None
     }
 
     exitTryMaxRec(session.blockStack)
