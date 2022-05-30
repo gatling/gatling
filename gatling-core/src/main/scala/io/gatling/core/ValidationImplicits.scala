@@ -82,5 +82,6 @@ trait ValidationImplicits {
   implicit def value2Success[T: NonValidableTypes[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
   implicit def value2Expression[T: NonValidableNonStringTypes[NonValidableNonString]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
   implicit def function2Expression[T](f: Session => T): Expression[T] = session => safely()(f(session))
-  implicit def value2NoUnexpectedValidationLifting[T](value: T): NoUnexpectedValidationLifting[T] = new NoUnexpectedValidationLifting(value)
+  implicit def value2NoUnexpectedValidationLifting[T: NonValidableTypes[NonValidable]#DoesNotContain](value: T): NoUnexpectedValidationLifting[T] =
+    new NoUnexpectedValidationLifting(value)
 }
