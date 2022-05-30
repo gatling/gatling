@@ -22,6 +22,7 @@ import java.util.{ function => juf }
 import scala.jdk.CollectionConverters._
 import scala.jdk.FunctionConverters._
 
+import io.gatling.commons.validation.safely
 import io.gatling.javaapi.core.{ CheckBuilder, Session }
 import io.gatling.javaapi.core.internal.Expressions._
 
@@ -54,6 +55,8 @@ private[core] object CoreCheckBuilders {
       (int: Int) => int.asInstanceOf[Integer]
     )
 
+  private val ScalaXToJavaXFErrorMapper: String => String = "scalaXToJavaXF crashed: " + _
+
   def convertExtractedValueToJava[T, P, ScalaX, JavaX](
       wrapped: io.gatling.core.check.CheckBuilder.Validate[T, P, ScalaX],
       scalaXToJavaX: juf.Function[ScalaX, JavaX]
@@ -63,9 +66,11 @@ private[core] object CoreCheckBuilders {
     } else {
       val scalaXToJavaXF = scalaXToJavaX.asScala
       wrapped.transform0(
-        _.map(_.map(scalaXToJavaXF)),
-        identity,
-        "toJava crashed: " + _
+        extracted =>
+          safely(ScalaXToJavaXFErrorMapper) {
+            extracted.map(_.map(scalaXToJavaXF))
+          },
+        identity
       )
     }
 
@@ -78,15 +83,16 @@ private[core] object CoreCheckBuilders {
         .asInstanceOf[io.gatling.core.check.CheckBuilder.Validate[T, P, Seq[JavaX]]]
         .transform0(
           _.map(_.map(_.asJava)),
-          identity,
-          "toJava crashed: " + _
+          identity
         )
     } else {
       val scalaXToJavaXF = scalaXToJavaX.asScala
       wrapped.transform0(
-        _.map(_.map(_.map(scalaXToJavaXF).asJava)),
-        identity,
-        "toJava crashed: " + _
+        extracted =>
+          safely(ScalaXToJavaXFErrorMapper) {
+            extracted.map(_.map(_.map(scalaXToJavaXF).asJava))
+          },
+        identity
       )
     }
 

@@ -120,8 +120,7 @@ object CheckBuilder {
   trait Validate[T, P, X] {
     private[gatling] def transform0[X2](
         extractedF: Validation[Option[X]] => Validation[Option[X2]],
-        arityF: String => String,
-        errorMapper: String => String
+        arityF: String => String
     ): Validate[T, P, X2]
     def transform[X2](transformation: X => X2): Validate[T, P, X2]
     def transformWithSession[X2](transformation: (X, Session) => X2): Validate[T, P, X2]
@@ -146,74 +145,77 @@ object CheckBuilder {
   }
 
   object Validate {
-    val TransformErrorMapper: String => String = "transform crashed: " + _
-    val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
+    private val TransformErrorMapper: String => String = "transform crashed: " + _
+    private val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
+    private val TransformArity: String => String = _ + ".transform"
+    private val TransformOptionArity: String => String = _ + ".transformOption"
 
     final case class Default[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) extends Validate[T, P, X] {
 
-      private def mapExtracted[X2](
+      private def mapExtractor[X2](
           extractedF: Validation[Option[X]] => Validation[Option[X2]],
-          arityF: String => String,
-          errorMapper: String => String
+          arityF: String => String
       )(extractor: Extractor[P, X]) =
         new Extractor[P, X2] {
           override def name: String = extractor.name
           override def arity: String = arityF(extractor.arity)
-          override def apply(prepared: P): Validation[Option[X2]] =
-            safely(errorMapper) {
-              extractedF(extractor(prepared))
-            }
+          override def apply(prepared: P): Validation[Option[X2]] = extractedF(extractor(prepared))
         }
 
       override private[gatling] def transform0[X2](
           extractedF: Validation[Option[X]] => Validation[Option[X2]],
-          arityF: String => String,
-          errorMapper: String => String
+          arityF: String => String
       ): Validate[T, P, X2] =
-        copy(extractor = extractor.map(mapExtracted(extractedF, arityF, errorMapper)))
+        copy(extractor = extractor.map(mapExtractor(extractedF, arityF)))
 
       private def transformWithSession0[X2](
           extractedF: (Session, Validation[Option[X]]) => Validation[Option[X2]],
-          arityF: String => String,
-          errorMapper: String => String
+          arityF: String => String
       ): Validate[T, P, X2] =
         copy(extractor =
           session =>
             extractor(session).map(
-              mapExtracted(
+              mapExtractor(
                 extractedF(session, _),
-                arityF,
-                errorMapper
+                arityF
               )
             )
         )
 
       override def transform[X2](transformation: X => X2): Validate[T, P, X2] =
         transform0(
-          _.map(_.map(transformation)),
-          _ + ".transform",
-          Validate.TransformErrorMapper
+          extracted =>
+            safely(TransformErrorMapper) {
+              extracted.map(_.map(transformation))
+            },
+          TransformArity
         )
 
       override def transformWithSession[X2](transformation: (X, Session) => X2): Validate[T, P, X2] =
         transformWithSession0(
-          (session, extracted) => extracted.map(_.map(transformation(_, session))),
-          _ + ".transform",
-          Validate.TransformErrorMapper
+          (session, extracted) =>
+            safely(TransformErrorMapper) {
+              extracted.map(_.map(transformation(_, session)))
+            },
+          TransformArity
         )
 
       override def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): Validate[T, P, X2] =
         transform0(
-          _.flatMap(transformation),
-          _ + ".transformOption",
-          Validate.TransformOptionErrorMapper
+          extracted =>
+            safely(TransformOptionErrorMapper) {
+              extracted.flatMap(transformation)
+            },
+          TransformOptionArity
         )
 
       override def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): Validate[T, P, X2] =
         transformWithSession0(
-          (session, extracted) => extracted.flatMap(transformation(_, session)),
-          _ + ".transformOption",
-          Validate.TransformOptionErrorMapper
+          (session, extracted) =>
+            safely(TransformOptionErrorMapper) {
+              extracted.flatMap(transformation(_, session))
+            },
+          TransformOptionArity
         )
 
       override def withDefault(defaultValue: Expression[X]): Validate[T, P, X] =
