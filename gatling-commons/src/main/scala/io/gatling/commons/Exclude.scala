@@ -16,12 +16,10 @@
 
 package io.gatling.commons
 
-trait Exclude[Scope, X]
+sealed trait Exclude[Scope, T]
 
 object Exclude {
-  implicit def NOT_FOR_USER_CODE[X, A]: Exclude[X, A] = new Exclude[X, A] {}
-  @SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
-  def list[X] = new {
-    def apply[A]: Exclude[X, A] = NOT_FOR_USER_CODE[X, A]
-  }
+  private val Instance: Exclude[Any, Any] = new Exclude[Any, Any] {}
+
+  implicit def apply[Scope, T]: Exclude[Scope, T] = Instance.asInstanceOf[Exclude[Scope, T]]
 }

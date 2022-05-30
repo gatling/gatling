@@ -29,35 +29,33 @@ import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
 
 sealed trait NonValidable
 
-@SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
 object NonValidable {
-  private val exclude = Exclude.list[NonValidable]
-  implicit val a1, a2 = exclude[SessionAttribute]
-  implicit val b1, b2 = exclude[ChainBuilder]
-  implicit val c1, c2 = exclude[ScenarioBuilder]
-  implicit val d1, d2 = exclude[ActionBuilder]
+  implicit val sessionAttributeIsNonValidable1, sessionAttributeIsNonValidable2: Exclude[NonValidable, SessionAttribute] =
+    Exclude[NonValidable, SessionAttribute]
+  implicit val chainBuilderIsNonValidable1, chainBuilderIsNonValidable2: Exclude[NonValidable, ChainBuilder] = Exclude[NonValidable, ChainBuilder]
+  implicit val scenarioBuilderIsNonValidable1, scenarioBuilderIsNonValidable12: Exclude[NonValidable, ScenarioBuilder] = Exclude[NonValidable, ScenarioBuilder]
+  implicit val actionBuilderIsNonValidable1, actionBuilderIsNonValidable2: Exclude[NonValidable, ActionBuilder] = Exclude[NonValidable, ActionBuilder]
 
-  // Partially apply the type to be compatible with context bounds:
-  type NonValidableTypes[Scope] = {
-    type DoesNotContain[X] = Exclude[Scope, X]
-  }
+  // Partially apply the type to be compatible with context bounds
+  type DoesNotContain[X] = Exclude[NonValidable, X]
 }
 
-sealed trait NonValidableNonString
+sealed trait NeitherValidableNorString
 
-@SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
-object NonValidableNonString {
-  private val exclude = Exclude.list[NonValidableNonString]
-  implicit val a_1, a_2 = exclude[SessionAttribute]
-  implicit val b_1, b_2 = exclude[ChainBuilder]
-  implicit val c_1, c_2 = exclude[ScenarioBuilder]
-  implicit val d_1, d_2 = exclude[ActionBuilder]
-  implicit val e_1, e_2 = exclude[String]
+object NeitherValidableNorString {
+  implicit val sessionAttributeIsNeitherValidableNorString1, sessionAttributeIsNonValidable_2: Exclude[NeitherValidableNorString, SessionAttribute] =
+    Exclude[NeitherValidableNorString, SessionAttribute]
+  implicit val chainBuilderIsNeitherValidableNorString1, chainBuilderIsNeitherValidableNorString2: Exclude[NeitherValidableNorString, ChainBuilder] =
+    Exclude[NeitherValidableNorString, ChainBuilder]
+  implicit val scenarioBuilderIsNeitherValidableNorString1, scenarioBuilderIsNeitherValidableNorString2: Exclude[NeitherValidableNorString, ScenarioBuilder] =
+    Exclude[NeitherValidableNorString, ScenarioBuilder]
+  implicit val actionBuilderIsNeitherValidableNorString1, actionBuilderIsNeitherValidableNorString2: Exclude[NeitherValidableNorString, ActionBuilder] =
+    Exclude[NeitherValidableNorString, ActionBuilder]
+  implicit val stringIsNeitherValidableNorString1, stringIsNeitherValidableNorString2: Exclude[NeitherValidableNorString, String] =
+    Exclude[NeitherValidableNorString, String]
 
-  // Partially apply the type to be compatible with context bounds:
-  type NonValidableNonStringTypes[Scope] = {
-    type DoesNotContain[X] = Exclude[Scope, X]
-  }
+  // Partially apply the type to be compatible with context bounds
+  type DoesNotContain[X] = Exclude[NeitherValidableNorString, X]
 }
 
 class NoUnexpectedValidationLifting[T](value: T) {
@@ -74,14 +72,10 @@ class NoUnexpectedValidationLifting[T](value: T) {
 }
 
 trait ValidationImplicits {
-
-  import NonValidable._
-  import NonValidableNonString._
-
   implicit def stringToExpression[T: TypeCaster: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T: NonValidableTypes[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
-  implicit def value2Expression[T: NonValidableNonStringTypes[NonValidableNonString]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
-  implicit def function2Expression[T](f: Session => T): Expression[T] = session => safely()(f(session))
-  implicit def value2NoUnexpectedValidationLifting[T: NonValidableTypes[NonValidable]#DoesNotContain](value: T): NoUnexpectedValidationLifting[T] =
+  implicit def value2Success[T: NonValidable.DoesNotContain](value: T): Validation[T] = value.success
+  implicit def value2Expression[T: NeitherValidableNorString.DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def function2Expression[T](f: Session => T): Expression[T] = session => safely()(f(session).success)
+  implicit def value2NoUnexpectedValidationLifting[T: NonValidable.DoesNotContain](value: T): NoUnexpectedValidationLifting[T] =
     new NoUnexpectedValidationLifting(value)
 }
