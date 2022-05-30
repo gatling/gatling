@@ -2711,10 +2711,7 @@ public final class CoreDsl {
   @Nonnull
   public static CheckBuilder.Find<String> bodyString() {
     return new CheckBuilder.Find.Default<>(
-        io.gatling.core.Predef.bodyString(),
-        CoreCheckType.BodyString,
-        String.class,
-        Function.identity());
+        io.gatling.core.Predef.bodyString(), CoreCheckType.BodyString, String.class, null);
   }
 
   /**
@@ -2729,10 +2726,7 @@ public final class CoreDsl {
   @Nonnull
   public static CheckBuilder.Find<byte[]> bodyBytes() {
     return new CheckBuilder.Find.Default<>(
-        io.gatling.core.Predef.bodyBytes(),
-        CoreCheckType.BodyBytes,
-        byte[].class,
-        Function.identity());
+        io.gatling.core.Predef.bodyBytes(), CoreCheckType.BodyBytes, byte[].class, null);
   }
 
   /**
@@ -2762,10 +2756,7 @@ public final class CoreDsl {
   @Nonnull
   public static CheckBuilder.Find<InputStream> bodyStream() {
     return new CheckBuilder.Find.Default<>(
-        io.gatling.core.Predef.bodyStream(),
-        CoreCheckType.BodyStream,
-        InputStream.class,
-        Function.identity());
+        io.gatling.core.Predef.bodyStream(), CoreCheckType.BodyStream, InputStream.class, null);
   }
 
   /**
@@ -2823,7 +2814,7 @@ public final class CoreDsl {
             toStringExpression(path), io.gatling.core.Predef.defaultXmlParsers()),
         CoreCheckType.XPath,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -2846,7 +2837,7 @@ public final class CoreDsl {
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultXmlParsers()),
         CoreCheckType.XPath,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -2874,7 +2865,7 @@ public final class CoreDsl {
             io.gatling.core.Predef.defaultXmlParsers()),
         CoreCheckType.XPath,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -2902,7 +2893,7 @@ public final class CoreDsl {
             io.gatling.core.Predef.defaultXmlParsers()),
         CoreCheckType.XPath,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -2925,7 +2916,7 @@ public final class CoreDsl {
             toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
         CoreCheckType.Css,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -2948,7 +2939,7 @@ public final class CoreDsl {
             javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
         CoreCheckType.Css,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -3263,7 +3254,7 @@ public final class CoreDsl {
   @Nonnull
   public static CheckBuilder.Find<String> md5() {
     return new CheckBuilder.Find.Default<>(
-        io.gatling.core.Predef.md5(), CoreCheckType.Md5, String.class, Function.identity());
+        io.gatling.core.Predef.md5(), CoreCheckType.Md5, String.class, null);
   }
 
   /**
@@ -3279,7 +3270,7 @@ public final class CoreDsl {
   @Nonnull
   public static CheckBuilder.Find<String> sha1() {
     return new CheckBuilder.Find.Default<>(
-        io.gatling.core.Predef.sha1(), CoreCheckType.Sha1, String.class, Function.identity());
+        io.gatling.core.Predef.sha1(), CoreCheckType.Sha1, String.class, null);
   }
 
   /**

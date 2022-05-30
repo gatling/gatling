@@ -154,7 +154,7 @@ public final class HttpDsl {
         io.gatling.http.Predef.currentLocation(),
         HttpCheckType.CurrentLocation,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -203,7 +203,7 @@ public final class HttpDsl {
         io.gatling.http.Predef.header(toStaticValueExpression(name)),
         HttpCheckType.Header,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -218,7 +218,7 @@ public final class HttpDsl {
         io.gatling.http.Predef.header(toExpression(name, CharSequence.class)),
         HttpCheckType.Header,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**
@@ -234,7 +234,7 @@ public final class HttpDsl {
         io.gatling.http.Predef.header(javaFunctionToExpression(name)),
         HttpCheckType.Header,
         String.class,
-        Function.identity());
+        null);
   }
 
   /**

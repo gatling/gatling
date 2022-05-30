@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import jodd.lagarto.dom.Node;
 import jodd.lagarto.dom.NodeSelector;
 import net.jodah.typetools.TypeResolver;
@@ -412,7 +413,7 @@ public interface CheckBuilder {
           @Nonnull io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped,
           @Nonnull CheckType type,
           @Nonnull Class<?> javaXClass,
-          @Nonnull Function<ScalaX, JavaX> scalaXToJavaX) {
+          @Nullable Function<ScalaX, JavaX> scalaXToJavaX) {
         super(wrapped, type, javaXClass, scalaXToJavaX);
         this.wrapped = wrapped;
       }
@@ -1207,7 +1208,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, P, String> wrapped,
           CheckBuilder.CheckType type) {
-        super(wrapped, type, String.class, Function.identity());
+        super(wrapped, type, String.class, null);
       }
 
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, P, X> extract(
@@ -1367,7 +1368,7 @@ public interface CheckBuilder {
         implements JsonOfTypeFind {
       public Default(
           io.gatling.core.check.CheckBuilder.Find<T, JsonNode, String> wrapped, CheckType type) {
-        super(wrapped, type, String.class, Function.identity());
+        super(wrapped, type, String.class, null);
       }
 
       @Nonnull
@@ -1381,7 +1382,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
             type,
             String.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1431,7 +1432,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
             type,
             List.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1441,7 +1442,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
             type,
             Map.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1451,7 +1452,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
             type,
             Object.class,
-            Function.identity());
+            null);
       }
     }
   }
@@ -1533,7 +1534,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, String> wrapped,
           CheckType type) {
-        super(wrapped, type, String.class, Function.identity());
+        super(wrapped, type, String.class, null);
       }
 
       @Nonnull
@@ -1547,7 +1548,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
             type,
             String.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1597,7 +1598,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
             type,
             List.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1607,7 +1608,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
             type,
             Map.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1617,7 +1618,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
             type,
             Object.class,
-            Function.identity());
+            null);
       }
     }
   }
@@ -1764,7 +1765,7 @@ public interface CheckBuilder {
       public Default(
           io.gatling.core.check.CheckBuilder.MultipleFind<T, NodeSelector, String> wrapped,
           CheckType type) {
-        super(wrapped, type, String.class, Function.identity());
+        super(wrapped, type, String.class, null);
       }
 
       @Nonnull
@@ -1779,7 +1780,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.css.NodeConverter.stringNodeConverter()),
             type,
             String.class,
-            Function.identity());
+            null);
       }
 
       @Override
@@ -1789,7 +1790,7 @@ public interface CheckBuilder {
             ofType(io.gatling.core.check.css.NodeConverter.nodeNodeConverter()),
             type,
             Node.class,
-            Function.identity());
+            null);
       }
     }
   }
