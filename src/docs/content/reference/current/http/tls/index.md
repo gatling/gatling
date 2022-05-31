@@ -1,6 +1,6 @@
 ---
-title: "SSL"
-description: "Use SSL to do HTTPS with Gatling"
+title: "TLS"
+description: "Use TLS to do HTTPS with Gatling"
 lead: "Configure the SSLContext, SNI, keystore and truststore"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
@@ -25,10 +25,15 @@ If you want to revert to using JDK's implementation, you can set the `gatling.ht
 ## Disabling SNI
 
 By default, since JDK7, JDK enables [SNI](http://en.wikipedia.org/wiki/Server_Name_Indication) by default.
-This can cause SSL handshake exceptions, such as `handshake alert:  unrecognized_name` when server names are not properly configured on the server side.
+This can cause TLS handshake exceptions, such as `handshake alert:  unrecognized_name` when server names are not properly configured on the server side.
 Browsers are more loose than JDK regarding this.
 
 If you want to disable SNI, you can set the `gatling.http.ahc.enableSni` property to `false` in `gatling.conf`.
+
+## TLSv1.3
+
+Gatling supports TLSv1.3 as long as your Java version supports it as well, which means running **at least 1.8.0_262**.
+TLSv1.3 is enabled by default.
 
 ## Configuring KeyStore and TrustStore
 
