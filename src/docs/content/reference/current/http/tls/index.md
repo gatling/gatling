@@ -16,7 +16,7 @@ You can only have a shared `SSLContext` if you decide to [shareConnections]({{< 
 
 ## Disabling OpenSSL
 
-By default, Gatling uses [BoringSSL](https://opensource.google.com/projects/boringssl) to perform TLS.
+By default, Gatling uses [BoringSSL](https://opensource.google.com/projects/boringssl) (Google' fork of OpenSSL) to perform TLS.
 This implementation is more efficient than the JDK's one, especially on JDK8.
 It's also the only supported solution for HTTP/2 in Gatling with JDK8.
 
