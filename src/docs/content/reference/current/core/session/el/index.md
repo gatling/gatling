@@ -44,7 +44,7 @@ Gatling EL uses a `#{attributeName}` syntax to define placeholders to be replace
 {{< alert warning >}}
 The previous `${}` syntax is deprecated because it was clashing with Scala and Kotlin String interpolation. It will be dropped in a future release.
 
-Please ake sure to use the `#{}` syntax from now on.
+Please make sure to use the `#{}` syntax from now on.
 {{< /alert >}}
 
 ## Built-in Functions
