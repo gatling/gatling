@@ -94,7 +94,7 @@ If your files are very large, you can provide them zipped and ask gatling to `un
 
 {{< include-code "unzip" java kt scala >}}
 
-Supported formats are gzip and zip (but archive most contain only one single file).
+Supported formats are gzip and zip (but archive must contain only one single file).
 
 ## Distributed Files (Gatling Enterprise only)
 
