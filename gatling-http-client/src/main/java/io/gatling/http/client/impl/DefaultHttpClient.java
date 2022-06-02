@@ -864,6 +864,9 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
+    // [fl]
+    //
+    // [fl]
 
     try {
       SslHandler sslHandler =
@@ -873,9 +876,6 @@ public class DefaultHttpClient implements HttpClient {
               tx.request.getUri(),
               tx.request.getVirtualHost(),
               config);
-      // [fl]
-      //
-      // [fl]
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
