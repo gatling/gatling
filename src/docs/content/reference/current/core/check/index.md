@@ -134,7 +134,7 @@ It takes one single parameter:
 
 By default, it extracts Strings, meaning that non String values get serialized back into JSON.
 You can tell Gatling the expected type with an extra step.
-Note that the check will then fail is the actual value doesn't match the expected type.
+Note that the check will then fail if the actual value doesn't match the expected type.
 
 {{< include-code "jsonPath-ofType" java kt scala >}}
 
