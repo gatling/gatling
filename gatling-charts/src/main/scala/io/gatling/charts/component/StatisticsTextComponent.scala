@@ -59,7 +59,7 @@ private[charts] class StatisticsTextComponent(implicit configuration: GatlingCon
   override def html: String = s"""
                         <div class="infos">
                             <div class="infos-in">
-	                        <div class="infos-title">STATISTICS</div>
+	                        <div class="infos-title">Stats</div>
                                 <div class="repli"></div>                               
                                 <div class="info">
                                     <h2 class="first">Executions</h2>

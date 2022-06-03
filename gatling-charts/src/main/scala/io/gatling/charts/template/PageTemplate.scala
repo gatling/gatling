@@ -49,6 +49,10 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
     val runStart = PageTemplate.runStart
     val runEnd = PageTemplate.runEnd
     val duration = (runEnd - runStart) / 1000
+    val simulationClassSimpleName = runMessage.simulationClassName.lastIndexOf(".") match {
+      case -1 => runMessage.simulationClassName
+      case i  => runMessage.simulationClassName.substring(i + 1)
+    }
 
     val pageStats =
       if (isDetails) {
@@ -77,42 +81,47 @@ ${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></sc
 </head>
 <body>
 <div class="frise"></div>
+<div class="head">
+  <a class="logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
+</div>
 <div class="container details">
-    <div class="head">
-        <a class="logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
-        <div class="frontline"><a href="https://gatling.io/enterprise/" target="_blank">Get more features with Gatling Enterprise</a></div>
-    </div>
-    <div class="main">
-        <div class="cadre">
-                <div class="onglet">
-                    <img src="style/cible.png" />
-                    <p><span>${runMessage.simulationId}</span></p>
-                </div>
-                <div class="content">
-                    <div class="sous-menu">
-                        <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
-                        <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
-                        <script type="text/javascript">
-                          var timestamp = $runStart;
-                          var runStartHumanDate = moment(timestamp).format("YYYY-MM-DD HH:mm:ss Z");
-                          document.writeln("<p class='sim_desc' title='"+ runStartHumanDate +", duration : $duration seconds' data-content='${runMessage.runDescription.htmlEscape}'>");
-                          document.writeln("<b>" + runStartHumanDate + ", duration : $duration seconds ${runMessage.runDescription
-      .truncate(70)
-      .htmlEscape}</b>");
-                          document.writeln("</p>");
-                        </script>
-                    </div>
-                    <div class="content-in">
-                        <h1><span>> </span>$title</h1>
-                        <div class="article">
-                            ${components.map(_.html).mkString}
-                        </div>
-                    </div>
-                </div>
+  <div class="nav">
+    <ul></ul>
+  </div>
+  <div class="main">
+    <div class="cadre">
+      <div class="content">
+        <div class="content-header">
+          <div class="onglet">
+            $simulationClassSimpleName
+          </div>
+          <div class="sous-menu" id="sousMenu">
+            <div class="sous-menu-spacer">
+              <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">Global</a></div>
+                <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">Details</a></div>
+              </div>
+              <script type="text/javascript">
+                const runStartHumanDate = moment($runStart).format("YYYY-MM-DD HH:mm:ss Z");
+                const runInfo = document.createElement('p');
+                runInfo.setAttribute('class', 'sous-menu-spacer sim_desc');
+                runInfo.style.align = 'right';
+                runInfo.setAttribute('title', runStartHumanDate + ', duration : $duration seconds');
+                runInfo.setAttribute('data-content', '${runMessage.runDescription.htmlEscape}');
+                runInfo.innerHTML = "<b>" + runStartHumanDate + ", duration : $duration seconds ${runMessage.runDescription.truncate(70).htmlEscape}</b>";
+                document.getElementById('sousMenu').appendChild(runInfo);
+              </script>
+            </div>
+          </div>
+          <div class="content-in">
+            <div class="article">
+              ${components.map(_.html).mkString}
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="nav">
-        <ul></ul>
+    <div class="enterprise">
+      <img alt="Gatling Enterprise" src="style/logo-enterprise.svg" /><a href="https://gatling.io/enterprise/" target="_blank">Try Gatling Enterprise</a>
     </div>
 </div>
 <script type="text/javascript">

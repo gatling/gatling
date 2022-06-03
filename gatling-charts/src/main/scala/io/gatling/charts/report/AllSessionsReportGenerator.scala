@@ -19,7 +19,7 @@ package io.gatling.charts.report
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.{ IntVsTimePlot, Series }
-import io.gatling.charts.util.Colors.Orange
+import io.gatling.charts.util.Color
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class AllSessionsReportGenerator(
@@ -33,7 +33,7 @@ private[charts] class AllSessionsReportGenerator(
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-    val series = new Series[IntVsTimePlot]("Active Users", logFileReader.numberOfActiveSessionsPerSecond(None), List(Orange))
+    val series = new Series[IntVsTimePlot]("Active Users", logFileReader.numberOfActiveSessionsPerSecond(None), List(Color.Users.All))
 
     val javascript = componentLibrary.getAllUsersJs(logFileReader.runStart, series)
 

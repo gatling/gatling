@@ -20,7 +20,7 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.GlobalPageTemplate
-import io.gatling.charts.util.Colors._
+import io.gatling.charts.util.Color
 import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
@@ -33,9 +33,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     import reportsGenerationInputs._
 
     def activeSessionsChartComponent = {
-
-      val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
-      val seriesColors = Iterator.continually(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
+      val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileReader.scenarioNames.size).toList
 
       val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader.scenarioNames
         .map { scenarioName =>
@@ -50,8 +48,8 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
 
     def responseTimeDistributionChartComponent: Component = {
       val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, None, None)
-      val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
-      val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
+      val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
+      val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
       componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
     }
@@ -69,7 +67,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         title: String
     ): Component = {
       val successData = dataSource(OK, None, None)
-      val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+      val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, Color.Requests.Percentiles)
 
       componentFactory(logFileReader.runStart, successSeries)
     }
@@ -86,17 +84,21 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     ): Component = {
       val counts = dataSource(None, None).sortBy(_.time)
 
-      val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-      val okPieSlice = new PieSlice(Series.OK, count(counts, OK))
-      val koPieSlice = new PieSlice(Series.KO, count(counts, KO))
-      val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
+      val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
+      val pieRequestsSeries = new Series[PieSlice](
+        Series.Distribution,
+        List(new PieSlice(Series.OK, count(counts, OK)), new PieSlice(Series.KO, count(counts, KO))),
+        List(Color.Requests.Ok, Color.Requests.Ko)
+      )
 
       componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
     }
 
     val template = new GlobalPageTemplate(
-      componentLibrary.getNumberOfRequestsChartComponent(logFileReader.requestNames.size),
-      componentLibrary.getRequestDetailsIndicatorChartComponent,
+      new SchemaContainerComponent(
+        componentLibrary.getRequestDetailsIndicatorChartComponent,
+        componentLibrary.getNumberOfRequestsChartComponent(logFileReader.requestNames.size)
+      ),
       new AssertionsTableComponent(assertionResults),
       new StatisticsTableComponent,
       new ErrorsTableComponent(logFileReader.errors(None, None)),

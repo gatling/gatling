@@ -24,7 +24,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles
 
 private[charts] object ChartsFiles {
-  private val MenuFile = "menu.js"
   private val AllSessionsFile = "all_sessions.js"
   private val StatsJsFile = "stats.js"
   private val StatsJsonFile = "stats.json"
@@ -33,12 +32,12 @@ private[charts] object ChartsFiles {
   private val AssertionsJUnitFile = "assertions.xml"
   val GlobalPageName: String = "Global Information"
 
-  val CommonJsFiles = Seq(
+  val CommonJsFiles: Seq[String] = Seq(
     "jquery-3.5.1.min.js",
     "bootstrap.min.js",
     "gatling.js",
+    "menu.js",
     "moment-2.29.2.min.js",
-    MenuFile,
     AllSessionsFile,
     StatsJsFile
   )
@@ -59,8 +58,6 @@ private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfigu
   val jsDirectory: Path = resultDirectory / GatlingJsFolder
 
   val styleDirectory: Path = resultDirectory / GatlingStyleFolder
-
-  val menuFile: Path = jsDirectory / MenuFile
 
   val allSessionsFile: Path = jsDirectory / AllSessionsFile
 

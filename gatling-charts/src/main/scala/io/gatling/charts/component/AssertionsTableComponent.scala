@@ -33,7 +33,7 @@ private[charts] class AssertionsTableComponent(assertionResults: List[AssertionR
     else
       s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
-        <div class="title_collapsed" style="cursor: auto;">ASSERTIONS</div>
+        Assertions
     </div>
     <table id="container_assertions" class="statistics-in extensible-geant">
         <thead>

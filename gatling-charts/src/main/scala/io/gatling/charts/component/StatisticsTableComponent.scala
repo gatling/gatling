@@ -39,37 +39,38 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
     val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", "Std Dev")
 
     s"""
+                        <a name="stats"></a>
                         <div class="statistics extensible-geant collapsed">
                             <div class="title">
                                 <div class="right">
-                                    <span class="expand-all-button">Expand all groups</span> | <span class="collapse-all-button">Collapse all groups</span>
+                                    <span class="expand-all-button">Expand all groups</span> <span class="collapse-all-button">Collapse all groups</span>
                                 </div>
-                                <div id="statistics_title" class="title_collapsed">STATISTICS <span>(Click here to show more)</span></div>
+                                <div id="statistics_title" class="title_base">Stats <span class="expand-table">(Click here to expand)</span> <span class="collapse-table">(Click here to collapse)</span></div>
                             </div>
-                            <table id="container_statistics_head" class="statistics-in extensible-geant">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="2" id="col-1" class="header sortable sorted-up"><span>Requests</span></th>
-                                        <th colspan="5" class="header"><span class="executions">Executions</span></th>
-                                        <th colspan="${responseTimeFields.size}" class="header"><span class="response-time">Response Time (ms)</span></th>
-                                    </tr>
-                                    <tr>
-                                        <th id="col-2" class="header sortable"><span>Total</span></th>
-                                        <th id="col-3" class="header sortable"><span>OK</span></th>
-                                        <th id="col-4" class="header sortable"><span>KO</span></th>
-                                        <th id="col-5" class="header sortable"><span>% KO</span></th>
-                                        <th id="col-6" class="header sortable"><span><abbr title="Count of events per second">Cnt/s</abbr></span></th>
-                                        ${responseTimeFields.zipWithIndex
+                            <div class="scrollable">
+                              <table id="container_statistics_head" class="statistics-in extensible-geant">
+                                  <thead>
+                                      <tr>
+                                          <th rowspan="2" id="col-1" class="header sortable sorted-up"><span>Requests</span></th>
+                                          <th colspan="5" class="header"><span class="executions">Executions</span></th>
+                                          <th colspan="${responseTimeFields.size}" class="header"><span class="response-time">Response Time (ms)</span></th>
+                                      </tr>
+                                      <tr>
+                                          <th id="col-2" class="header sortable"><span>Total</span></th>
+                                          <th id="col-3" class="header sortable"><span>OK</span></th>
+                                          <th id="col-4" class="header sortable"><span>KO</span></th>
+                                          <th id="col-5" class="header sortable"><span>% KO</span></th>
+                                          <th id="col-6" class="header sortable"><span><abbr title="Count of events per second">Cnt/s</abbr></span></th>
+                                          ${responseTimeFields.zipWithIndex
       .map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }
       .mkString(Eol)}
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                            <div class="scrollable">
-                                <table id="container_statistics_body" class="statistics-in extensible-geant">
-                                    <tbody></tbody>
-                                </table>
+                                      </tr>
+                                  </thead>
+                                  <tbody></tbody>
+                              </table>
+                              <table id="container_statistics_body" class="statistics-in extensible-geant">
+                                  <tbody></tbody>
+                              </table>
                             </div>
                         </div>
 """
@@ -100,7 +101,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     else
         var koPercent = '-'
 
-    return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \\
+    return '<tr id="' + request.pathFormatted + '" data-parent=' + parent + '> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
             <a href="' + url +'" class="withTooltip">' + shortenNameAndDisplayFullOnHover(request.name) + '</a><span class="value" style="display:none;">' + index + '</span> \\
@@ -157,11 +158,10 @@ $$('.statistics').expandable();
 
 if (lines.index < 30) {
     $$('#statistics_title span').attr('style', 'display: none;');
-    $$('#statistics_title').attr('style', 'cursor: auto;')
-}
-else {
+} else {
+    $$('#statistics_title').addClass('title_collapsed');
     $$('#statistics_title').click(function(){
-        $$(this).toggleClass('title_collapsed').toggleClass('title_not_collapsed');
+        $$(this).toggleClass('title_collapsed').toggleClass('title_expanded');
         $$('#container_statistics_body').parent().toggleClass('scrollable').toggleClass('');
     });
 }

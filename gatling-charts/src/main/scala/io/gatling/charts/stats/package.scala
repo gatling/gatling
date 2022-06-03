@@ -16,6 +16,8 @@
 
 package io.gatling.charts.stats
 
+import io.gatling.charts.util.Color
+
 object Series {
   val OK = "OK"
   val KO = "KO"
@@ -23,7 +25,7 @@ object Series {
   val Distribution = "Distribution"
 }
 
-final class Series[X](val name: String, val data: Iterable[X], val colors: List[String])
+final class Series[X](val name: String, val data: Iterable[X], val colors: List[Color])
 final class IntVsTimePlot(val time: Int, val value: Int)
 final class CountsVsTimePlot(val time: Int, val oks: Int, val kos: Int) {
   def total: Int = oks + kos

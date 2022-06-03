@@ -20,7 +20,7 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
-import io.gatling.charts.util.Colors._
+import io.gatling.charts.util.Color
 import io.gatling.commons.shared.unstable.model.stats.{ Group, RequestStatsPath }
 import io.gatling.commons.stats._
 import io.gatling.core.config.GatlingConfiguration
@@ -40,8 +40,8 @@ private[charts] class RequestDetailsReportGenerator(
 
       def responseTimeDistributionChartComponent: Component = {
         val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, Some(requestName), group)
-        val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
-        val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
+        val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
+        val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
         componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
@@ -59,7 +59,7 @@ private[charts] class RequestDetailsReportGenerator(
           title: String
       ): Component = {
         val successData = dataSource(OK, Some(requestName), group)
-        val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+        val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, Color.Requests.Percentiles)
 
         componentFactory(logFileReader.runStart, successSeries)
       }
@@ -77,10 +77,10 @@ private[charts] class RequestDetailsReportGenerator(
 
         val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
-        val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
+        val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
         val okPieSlice = new PieSlice(Series.OK, count(counts, OK))
         val koPieSlice = new PieSlice(Series.KO, count(counts, KO))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Color.Requests.Ok, Color.Requests.Ko))
 
         componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
       }
@@ -98,8 +98,8 @@ private[charts] class RequestDetailsReportGenerator(
 
         val scatterPlotSuccessData = dataSource(OK, requestName, group)
         val scatterPlotFailuresData = dataSource(KO, requestName, group)
-        val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(TranslucidBlue))
-        val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(TranslucidRed))
+        val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(Color.Requests.TransparentOk))
+        val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(Color.Requests.TransparentKo))
 
         componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
       }
@@ -109,8 +109,10 @@ private[charts] class RequestDetailsReportGenerator(
           path,
           requestName,
           group,
-          new StatisticsTextComponent,
-          componentLibrary.getRequestDetailsIndicatorChartComponent,
+          new SchemaContainerComponent(
+            new StatisticsTextComponent,
+            componentLibrary.getRequestDetailsIndicatorChartComponent
+          ),
           new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
           responseTimeDistributionChartComponent,
           responseTimeChartComponent,

@@ -32,7 +32,7 @@ private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Comp
     else
       s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
-        <div class="title_collapsed" style="cursor: auto;">ERRORS</div>
+        Errors
     </div>
     <table id="container_errors" class="statistics-in extensible-geant">
         <thead>
@@ -46,9 +46,9 @@ private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Comp
 		    ${errors.zipWithIndex.map { case (error, index) =>
         s"""
 		    <tr>
-		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
-		    	<td class="value error-col-2 total">${error.count}</td>
-		    	<td class="value error-col-3 total">${error.percentage.toPrintableString} %</td>
+		    	<td class="error-col-1 total ko">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
+		    	<td class="value error-col-2 total ko">${error.count}</td>
+		    	<td class="value error-col-3 total ko">${error.percentage.toPrintableString} %</td>
 		    </tr>"""
       }.mkString}
 		</tbody>
