@@ -52,7 +52,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     val selection = Selection(forcedSimulationClass, configuration)
 
-    if (configuration.http.enableGA) Ga.send(configuration.core.version)
+    if (configuration.http.enableGA) Ga.send(GatlingVersion.Version)
 
     val simulationParams = selection.simulationClass.params(configuration)
     logger.trace("Simulation params built")
@@ -60,7 +60,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     simulationParams.before()
     logger.trace("Before hook executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, GatlingVersion.Version)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler.newThrottler(system, simulationParams)
     val injector = Injector(system, eventLoopGroup, statsEngine, clock)

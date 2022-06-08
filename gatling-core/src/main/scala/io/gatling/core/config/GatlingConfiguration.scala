@@ -107,7 +107,6 @@ object GatlingConfiguration extends StrictLogging {
 
   private def coreConfiguration(config: Config) =
     new CoreConfiguration(
-      version = ResourceBundle.getBundle("gatling-version").getString("version"),
       outputDirectoryBaseName = config.getString(core.OutputDirectoryBaseName).trimToOption,
       runDescription = config.getString(core.RunDescription).trimToOption,
       encoding = config.getString(core.Encoding),
@@ -287,7 +286,6 @@ object GatlingConfiguration extends StrictLogging {
 }
 
 final class CoreConfiguration(
-    val version: String,
     val outputDirectoryBaseName: Option[String],
     val runDescription: Option[String],
     val encoding: String,
