@@ -16,11 +16,11 @@
 
 package io.gatling.charts.template
 
+import io.gatling.charts.stats.RunInfo
 import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.core.stats.writer.RunMessage
 
-private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult]) {
+private[charts] final class AssertionsJUnitTemplate(runInfo: RunInfo, assertionResults: List[AssertionResult]) {
 
   private[this] def printMessage(assertionResult: AssertionResult): String =
     if (assertionResult.result)
@@ -34,7 +34,7 @@ private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionR
 </testcase>"""
 
   def getOutput: String =
-    s"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults
+    s"""<testsuite name="${runInfo.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults
       .count(_.result == false)}" time="0">
 ${assertionResults.map(print).mkString(Eol)}
 </testsuite>"""

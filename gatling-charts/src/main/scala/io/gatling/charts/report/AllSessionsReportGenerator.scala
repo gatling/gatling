@@ -33,9 +33,9 @@ private[charts] class AllSessionsReportGenerator(
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-    val series = new Series[IntVsTimePlot]("Active Users", logFileReader.numberOfActiveSessionsPerSecond(None), List(Color.Users.All))
+    val series = new Series[IntVsTimePlot]("Active Users", logFileData.numberOfActiveSessionsPerSecond(None), List(Color.Users.All))
 
-    val javascript = componentLibrary.getAllUsersJs(logFileReader.runStart, series)
+    val javascript = componentLibrary.getAllUsersJs(logFileData.runInfo.injectStart, series)
 
     new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript)
   }

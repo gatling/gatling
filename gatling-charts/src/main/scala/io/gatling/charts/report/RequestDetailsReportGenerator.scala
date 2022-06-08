@@ -39,7 +39,7 @@ private[charts] class RequestDetailsReportGenerator(
     def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
 
       def responseTimeDistributionChartComponent: Component = {
-        val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, Some(requestName), group)
+        val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, Some(requestName), group)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
         val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
@@ -48,7 +48,7 @@ private[charts] class RequestDetailsReportGenerator(
 
       def responseTimeChartComponent: Component =
         percentilesChartComponent(
-          logFileReader.responseTimePercentilesOverTime,
+          logFileData.responseTimePercentilesOverTime,
           componentLibrary.getRequestDetailsResponseTimeChartComponent,
           "Response Time Percentiles over Time"
         )
@@ -61,14 +61,14 @@ private[charts] class RequestDetailsReportGenerator(
         val successData = dataSource(OK, Some(requestName), group)
         val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, Color.Requests.Percentiles)
 
-        componentFactory(logFileReader.runStart, successSeries)
+        componentFactory(logFileData.runInfo.injectStart, successSeries)
       }
 
       def requestsChartComponent: Component =
-        countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+        countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
       def responsesChartComponent: Component =
-        countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+        countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
       def countsChartComponent(
           dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -82,12 +82,12 @@ private[charts] class RequestDetailsReportGenerator(
         val koPieSlice = new PieSlice(Series.KO, count(counts, KO))
         val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Color.Requests.Ok, Color.Requests.Ko))
 
-        componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
+        componentFactory(logFileData.runInfo.injectStart, countsSeries, pieRequestsSeries)
       }
 
       def responseTimeScatterChartComponent: Component =
         scatterChartComponent(
-          logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec,
+          logFileData.responseTimeAgainstGlobalNumberOfRequestsPerSec,
           componentLibrary.getRequestDetailsResponseTimeScatterChartComponent
         )
 
@@ -106,6 +106,7 @@ private[charts] class RequestDetailsReportGenerator(
 
       val template =
         new RequestDetailsPageTemplate(
+          logFileData.runInfo,
           path,
           requestName,
           group,
@@ -113,7 +114,7 @@ private[charts] class RequestDetailsReportGenerator(
             new StatisticsTextComponent,
             componentLibrary.getRequestDetailsIndicatorChartComponent
           ),
-          new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
+          new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),
           responseTimeDistributionChartComponent,
           responseTimeChartComponent,
           requestsChartComponent,
@@ -124,7 +125,7 @@ private[charts] class RequestDetailsReportGenerator(
       new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput(configuration.core.charset))
     }
 
-    logFileReader.statsPaths.foreach {
+    logFileData.statsPaths.foreach {
       case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
       case _                                =>
     }

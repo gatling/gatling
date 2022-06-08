@@ -21,25 +21,27 @@ import scala.collection.mutable
 import io.gatling.charts.stats.{ GroupRecord, RequestRecord }
 import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.{ KO, Status }
-import io.gatling.core.config.GatlingConfiguration
 
 private[stats] trait ResponseTimeRangeBuffers {
 
+  protected def lowerBound: Int
+  protected def higherBound: Int
+
   val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.Map.empty
 
-  def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group])(implicit configuration: GatlingConfiguration): ResponseTimeRangeBuffer =
+  def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
-  def updateResponseTimeRangeBuffer(record: RequestRecord)(implicit configuration: GatlingConfiguration): Unit = {
+  def updateResponseTimeRangeBuffer(record: RequestRecord): Unit = {
     import record._
     getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
     getResponseTimeRangeBuffers(None, None).update(responseTime, status)
   }
 
-  def updateGroupResponseTimeRangeBuffer(record: GroupRecord)(implicit configuration: GatlingConfiguration): Unit =
+  def updateGroupResponseTimeRangeBuffer(record: GroupRecord): Unit =
     getResponseTimeRangeBuffers(None, Some(record.group)).update(record.duration, record.status)
 
-  class ResponseTimeRangeBuffer(implicit configuration: GatlingConfiguration) {
+  final class ResponseTimeRangeBuffer {
 
     var low: Int = 0
     var middle: Int = 0
@@ -49,8 +51,8 @@ private[stats] trait ResponseTimeRangeBuffers {
     def update(time: Int, status: Status): Unit = {
 
       if (status == KO) ko += 1
-      else if (time < configuration.charting.indicators.lowerBound) low += 1
-      else if (time > configuration.charting.indicators.higherBound) high += 1
+      else if (time < lowerBound) low += 1
+      else if (time > higherBound) high += 1
       else middle += 1
     }
   }

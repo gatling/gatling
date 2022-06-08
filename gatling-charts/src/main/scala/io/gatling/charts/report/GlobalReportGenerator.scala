@@ -33,21 +33,21 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     import reportsGenerationInputs._
 
     def activeSessionsChartComponent = {
-      val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileReader.scenarioNames.size).toList
+      val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileData.scenarioNames.size).toList
 
-      val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader.scenarioNames
+      val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
         .map { scenarioName =>
-          scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName))
+          scenarioName -> logFileData.numberOfActiveSessionsPerSecond(Some(scenarioName))
         }
         .reverse
         .zip(seriesColors)
         .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
-      componentLibrary.getActiveSessionsChartComponent(logFileReader.runStart, activeSessionsSeries)
+      componentLibrary.getActiveSessionsChartComponent(logFileData.runInfo.injectStart, activeSessionsSeries)
     }
 
     def responseTimeDistributionChartComponent: Component = {
-      val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, None, None)
+      val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, None, None)
       val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
       val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
@@ -56,7 +56,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
 
     def responseTimeChartComponent: Component =
       percentilesChartComponent(
-        logFileReader.responseTimePercentilesOverTime,
+        logFileData.responseTimePercentilesOverTime,
         componentLibrary.getRequestDetailsResponseTimeChartComponent,
         "Response Time Percentiles over Time"
       )
@@ -69,14 +69,14 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       val successData = dataSource(OK, None, None)
       val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, Color.Requests.Percentiles)
 
-      componentFactory(logFileReader.runStart, successSeries)
+      componentFactory(logFileData.runInfo.injectStart, successSeries)
     }
 
     def requestsChartComponent: Component =
-      countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+      countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
     def responsesChartComponent: Component =
-      countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+      countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
     def countsChartComponent(
         dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -91,17 +91,18 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         List(Color.Requests.Ok, Color.Requests.Ko)
       )
 
-      componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
+      componentFactory(logFileData.runInfo.injectStart, countsSeries, pieRequestsSeries)
     }
 
     val template = new GlobalPageTemplate(
+      logFileData.runInfo,
       new SchemaContainerComponent(
         componentLibrary.getRequestDetailsIndicatorChartComponent,
-        componentLibrary.getNumberOfRequestsChartComponent(logFileReader.requestNames.size)
+        componentLibrary.getNumberOfRequestsChartComponent(logFileData.requestNames.size)
       ),
       new AssertionsTableComponent(assertionResults),
       new StatisticsTableComponent,
-      new ErrorsTableComponent(logFileReader.errors(None, None)),
+      new ErrorsTableComponent(logFileData.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,

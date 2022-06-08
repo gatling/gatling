@@ -40,9 +40,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
     def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
-      val total = logFileReader.requestGeneralStats(requestName, group, None)
-      val ok = logFileReader.requestGeneralStats(requestName, group, Some(OK))
-      val ko = logFileReader.requestGeneralStats(requestName, group, Some(KO))
+      val total = logFileData.requestGeneralStats(requestName, group, None)
+      val ok = logFileData.requestGeneralStats(requestName, group, Some(OK))
+      val ko = logFileData.requestGeneralStats(requestName, group, Some(KO))
 
       val numberOfRequestsStatistics = new Statistics("request count", total.count, ok.count, ko.count)
       val minResponseTimeStatistics = new Statistics("min response time", total.min, ok.min, ko.min)
@@ -58,7 +58,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko)
       val meanNumberOfRequestsPerSecondStatistics = new Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-      val groupedCounts = logFileReader
+      val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(requestName, group)
         .map { case (rangeName, count) =>
           GroupedCount(rangeName, count, total.count)
@@ -91,10 +91,10 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
         if (configuration.charting.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
-          logFileReader.groupDurationGeneralStats
+          logFileData.groupDurationGeneralStats
         } else {
           logger.debug("Use group cumulated response time stats.")
-          logFileReader.groupCumulatedResponseTimeGeneralStats
+          logFileData.groupCumulatedResponseTimeGeneralStats
         }
 
       val total = groupStatsFunction(group, None)
@@ -114,7 +114,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val meanNumberOfRequestsPerSecondStatistics =
         new Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-      val groupedCounts = logFileReader
+      val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(None, Some(group))
         .map { case (rangeName, count) =>
           GroupedCount(rangeName, count, total.count)
@@ -141,7 +141,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
     val rootContainer = GroupContainer.root(computeRequestStats(ChartsFiles.GlobalPageName, None, None))
 
-    val statsPaths = logFileReader.statsPaths
+    val statsPaths = logFileData.statsPaths
 
     val groupsByHierarchy: Map[List[String], Group] = statsPaths
       .collect {
@@ -182,6 +182,6 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
     new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
     new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
-    println(ConsoleTemplate.println(rootContainer.stats, logFileReader.errors(None, None)))
+    println(ConsoleTemplate.println(rootContainer.stats, logFileData.errors(None, None)))
   }
 }

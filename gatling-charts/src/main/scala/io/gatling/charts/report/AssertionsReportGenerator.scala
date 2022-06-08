@@ -28,8 +28,8 @@ private[charts] class AssertionsReportGenerator(reportsGenerationInputs: Reports
   import reportsGenerationInputs._
 
   def generate(): Unit = {
-    new TemplateWriter(chartsFiles.assertionsJUnitFile).writeToFile(new AssertionsJUnitTemplate(logFileReader.runMessage, assertionResults).getOutput)
+    new TemplateWriter(chartsFiles.assertionsJUnitFile).writeToFile(new AssertionsJUnitTemplate(logFileData.runInfo, assertionResults).getOutput)
     new TemplateWriter(chartsFiles.assertionsJsonFile)
-      .writeToFile(new AssertionsJsonTemplate(logFileReader.runMessage, logFileReader.scenarioNames, assertionResults).getOutput)
+      .writeToFile(new AssertionsJsonTemplate(logFileData.runInfo, logFileData.scenarioNames, assertionResults).getOutput)
   }
 }

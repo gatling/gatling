@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.charts.template
+package io.gatling.charts.stats
 
-import io.gatling.charts.component.Component
+import io.gatling.commons.stats.assertion.Assertion
 
-private[charts] class ActiveUsersPageTemplate(chartComponent: Component) extends PageTemplate("Active Users", false, None, None, chartComponent)
+private[charts] final case class RunInfo(
+    injectStart: Long,
+    injectEnd: Long,
+    simulationClassName: String,
+    simulationId: String,
+    runDescription: String,
+    assertions: List[Assertion]
+)

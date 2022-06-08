@@ -16,11 +16,11 @@
 
 package io.gatling.charts.report
 
-import io.gatling.charts.stats.LogFileReader
+import io.gatling.charts.stats.LogFileData
 import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 
 private[gatling] final class ReportsGenerationInputs(
     val reportFolderName: String,
-    val logFileReader: LogFileReader,
+    val logFileData: LogFileData,
     val assertionResults: List[AssertionResult]
 )

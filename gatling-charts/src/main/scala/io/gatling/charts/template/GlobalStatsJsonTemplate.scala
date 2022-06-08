@@ -21,7 +21,7 @@ import io.gatling.charts.component.Statistics.printable
 import io.gatling.charts.util.JsHelper._
 import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 
-private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
+private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
   private def group(i: Int) =
     s""""group${i + 1}": {

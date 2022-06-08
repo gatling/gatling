@@ -20,7 +20,6 @@ import java.nio.file.Path
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.template.PageTemplate
 import io.gatling.commons.shared.unstable.model.stats.RequestStatsPath
 import io.gatling.commons.shared.unstable.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
@@ -33,7 +32,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     val chartsFiles = new ChartsFiles(reportFolderName, configuration)
 
     def hasAtLeastOneRequestReported: Boolean =
-      logFileReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
+      logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
     def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
 
@@ -56,7 +55,6 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
       )
 
     copyAssets()
-    PageTemplate.setRunInfo(logFileReader.runMessage, logFileReader.runEnd)
     reportGenerators.foreach(_.generate())
     generateStats()
     generateAssertions()

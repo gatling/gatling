@@ -21,10 +21,14 @@ import scala.annotation.tailrec
 import io.gatling.charts.stats.buffers._
 import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.OK
-import io.gatling.core.config.GatlingConfiguration
 
-private class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Long, val buckets: Array[Int])(implicit configuration: GatlingConfiguration)
-    extends GeneralStatsBuffers(math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt)
+private class ResultsHolder(
+    override val minTimestamp: Long,
+    override val maxTimestamp: Long,
+    override val buckets: Array[Int],
+    override val lowerBound: Int,
+    override val higherBound: Int
+) extends GeneralStatsBuffers(math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt)
     with Buckets
     with RunTimes
     with NamesBuffers
