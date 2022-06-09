@@ -189,7 +189,7 @@ public final class Session {
     } else if (value instanceof Double) {
       return (Double) value;
     } else if (value instanceof String) {
-      return Long.parseLong((String) value);
+      return Double.parseDouble((String) value);
     } else {
       throw new ClassCastException(value + " is not an Double: " + value.getClass());
     }
