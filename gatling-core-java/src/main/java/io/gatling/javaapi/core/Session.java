@@ -95,7 +95,7 @@ public final class Session {
     } else if (value instanceof String) {
       return Integer.parseInt((String) value);
     } else if (value == null) {
-      throw new NullPointerException(key + " is undefined");
+      throw new NullPointerException(key + " is null");
     } else {
       throw new ClassCastException(value + " is not an Integer: " + value.getClass());
     }
@@ -141,6 +141,8 @@ public final class Session {
       return (Long) value;
     } else if (value instanceof String) {
       return Long.parseLong((String) value);
+    } else if (value == null) {
+      throw new NullPointerException(key + " is null");
     } else {
       throw new ClassCastException(value + " is not an Long: " + value.getClass());
     }
@@ -190,6 +192,8 @@ public final class Session {
       return (Double) value;
     } else if (value instanceof String) {
       return Double.parseDouble((String) value);
+    } else if (value == null) {
+      throw new NullPointerException(key + " is null");
     } else {
       throw new ClassCastException(value + " is not an Double: " + value.getClass());
     }
@@ -231,6 +235,8 @@ public final class Session {
       return (Boolean) value;
     } else if (value instanceof String) {
       return Boolean.parseBoolean((String) value);
+    } else if (value == null) {
+      throw new NullPointerException(key + " is null");
     } else {
       throw new ClassCastException(value + " is not an Boolean: " + value.getClass());
     }
