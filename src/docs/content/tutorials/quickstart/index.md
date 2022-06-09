@@ -113,7 +113,7 @@ This will make your scenario closer to real users' behavior.
 
 When you have finished playing the scenario, click on `Stop` in the Recorder interface.
 
-The Simulation will be generated in the folder `user-files/simulations/computerdatabase` of your Gatling installation under the name `BasicSimulation.scala`.
+The Simulation will be generated in the folder `user-files/simulations/computerdatabase` of your Gatling installation under the name `BasicSimulation.java`.
 
 ### Gatling scenario explained
 
