@@ -22,7 +22,7 @@ import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-private[charts] class StatisticsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
+private[charts] final class GlobalStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
   private val MaxRequestNameSize = 20
   private val NumberOfCharsBeforeDots = 8

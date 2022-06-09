@@ -20,7 +20,7 @@ import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-private[charts] object Statistics {
+private[charts] object Stats {
 
   def printable[T: Numeric](value: T): String =
     value match {
@@ -30,7 +30,7 @@ private[charts] object Statistics {
     }
 }
 
-private[charts] final class Statistics[T: Numeric](val name: String, val total: T, val success: T, val failure: T) {
+private[charts] final class Stats[T: Numeric](val name: String, val total: T, val success: T, val failure: T) {
   def all: List[T] = List(total, success, failure)
 }
 
@@ -41,20 +41,20 @@ private[charts] final case class GroupedCount(name: String, count: Long, total: 
 private[charts] final class RequestStatistics(
     val name: String,
     val path: String,
-    val numberOfRequestsStatistics: Statistics[Long],
-    val minResponseTimeStatistics: Statistics[Int],
-    val maxResponseTimeStatistics: Statistics[Int],
-    val meanStatistics: Statistics[Int],
-    val stdDeviationStatistics: Statistics[Int],
-    val percentiles1: Statistics[Int],
-    val percentiles2: Statistics[Int],
-    val percentiles3: Statistics[Int],
-    val percentiles4: Statistics[Int],
+    val numberOfRequestsStatistics: Stats[Long],
+    val minResponseTimeStatistics: Stats[Int],
+    val maxResponseTimeStatistics: Stats[Int],
+    val meanStatistics: Stats[Int],
+    val stdDeviationStatistics: Stats[Int],
+    val percentiles1: Stats[Int],
+    val percentiles2: Stats[Int],
+    val percentiles3: Stats[Int],
+    val percentiles4: Stats[Int],
     val groupedCounts: Seq[GroupedCount],
-    val meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
+    val meanNumberOfRequestsPerSecondStatistics: Stats[Double]
 )
 
-private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
+private[charts] final class DetailsStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
   override def html: String = s"""
                         <div class="infos">

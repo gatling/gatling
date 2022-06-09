@@ -17,7 +17,7 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.component.Statistics.printable
+import io.gatling.charts.component.Stats.printable
 import io.gatling.charts.util.JsHelper._
 import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 

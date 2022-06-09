@@ -43,7 +43,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         .zip(seriesColors)
         .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
-      componentLibrary.getActiveSessionsChartComponent(logFileData.runInfo.injectStart, activeSessionsSeries)
+      componentLibrary.getActiveSessionsComponent(logFileData.runInfo.injectStart, activeSessionsSeries)
     }
 
     def responseTimeDistributionChartComponent: Component = {
@@ -51,13 +51,13 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
       val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
-      componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+      componentLibrary.getDistributionComponent("Response Time", "Requests", okDistributionSeries, koDistributionSeries)
     }
 
     def responseTimeChartComponent: Component =
       percentilesChartComponent(
         logFileData.responseTimePercentilesOverTime,
-        componentLibrary.getRequestDetailsResponseTimeChartComponent,
+        componentLibrary.getPercentilesOverTimeComponent("Response Time", _, _),
         "Response Time Percentiles over Time"
       )
 
@@ -73,10 +73,10 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     }
 
     def requestsChartComponent: Component =
-      countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+      countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsComponent)
 
     def responsesChartComponent: Component =
-      countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+      countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesComponent)
 
     def countsChartComponent(
         dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -97,11 +97,11 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     val template = new GlobalPageTemplate(
       logFileData.runInfo,
       new SchemaContainerComponent(
-        componentLibrary.getRequestDetailsIndicatorChartComponent,
-        componentLibrary.getNumberOfRequestsChartComponent(logFileData.requestNames.size)
+        componentLibrary.getRangesComponent("Response Time Ranges", "requests"),
+        componentLibrary.getRequestCountPolarComponent
       ),
       new AssertionsTableComponent(assertionResults),
-      new StatisticsTableComponent,
+      new GlobalStatsTableComponent,
       new ErrorsTableComponent(logFileData.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,

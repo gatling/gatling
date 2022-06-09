@@ -43,8 +43,6 @@ private[gatling] final class LogFileData(
       .sortBy(_._2)
       .map(_._1)
 
-  def requestNames: List[String] = statsPaths.collect { case RequestStatsPath(request, _) => request }
-
   def scenarioNames: List[String] =
     resultsHolder.scenarioNameBuffer.map.toList
       .sortBy(_._2)
@@ -161,8 +159,8 @@ private[gatling] final class LogFileData(
 
     List(
       (s"t < $lowerBound ms", counts.low),
-      (s"$lowerBound ms < t < $higherBound ms", counts.middle),
-      (s"t > $higherBound ms", counts.high),
+      (s"t ≥ $lowerBound ms <br> t < $higherBound ms", counts.middle),
+      (s"t ≥ $higherBound ms", counts.high),
       ("failed", counts.ko)
     )
   }

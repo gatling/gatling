@@ -412,9 +412,9 @@ h1 span {
 	border: 1px solid var(--gatling-border-color);
 }
 
-.demi {
+.ranges {
 	height: 375px;
-	width: 630px;
+	width: 500px;
 }
 
 .geant {

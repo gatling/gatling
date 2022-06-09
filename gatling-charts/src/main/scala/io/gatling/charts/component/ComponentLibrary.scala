@@ -46,22 +46,17 @@ private[charts] object ComponentLibrary extends StrictLogging {
 
 private[gatling] trait ComponentLibrary {
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
-  def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
-  def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
-  def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
-  def getRequestDetailsResponseTimeChartComponent(runStart: Long, responseTimesSuccess: Series[PercentilesVsTimePlot]): Component
-  def getRequestDetailsResponseTimeDistributionChartComponent(
-      responseTimesSuccess: Series[PercentVsTimePlot],
-      responseTimesFailures: Series[PercentVsTimePlot]
-  ): Component
-  def getRequestDetailsResponseTimeScatterChartComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component
-  def getRequestDetailsIndicatorChartComponent: Component
-  def getNumberOfRequestsChartComponent(numberOfRequestNames: Int): Component
-  def getGroupDetailsDurationChartComponent(containerId: String, yAxisName: String, runStart: Long, durationsSuccess: Series[PercentilesVsTimePlot]): Component
-  def getGroupDetailsDurationDistributionChartComponent(
+  def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
+  def getRangesComponent(chartTitle: String, eventName: String): Component
+  def getRequestCountPolarComponent: Component
+  def getDistributionComponent(
       title: String,
-      containerId: String,
+      yAxisName: String,
       durationsSuccess: Series[PercentVsTimePlot],
       durationsFailure: Series[PercentVsTimePlot]
   ): Component
+  def getPercentilesOverTimeComponent(yAxisName: String, runStart: Long, successSeries: Series[PercentilesVsTimePlot]): Component
+  def getRequestsComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
+  def getResponsesComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
+  def getResponseTimeScatterComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component
 }

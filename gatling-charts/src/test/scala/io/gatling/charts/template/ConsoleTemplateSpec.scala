@@ -20,7 +20,7 @@ import java.{ lang => jl }
 
 import io.gatling.BaseSpec
 import io.gatling.charts.component.GroupedCount
-import io.gatling.charts.component.Statistics
+import io.gatling.charts.component.Stats
 import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleTemplateSpec extends BaseSpec {
@@ -28,7 +28,7 @@ class ConsoleTemplateSpec extends BaseSpec {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "console template" should "format the request counters properly" in {
-    val numberOfRequestsStatistics = new Statistics("numberOfRequestsStatistics", 20L, 19L, 1L)
+    val numberOfRequestsStatistics = new Stats("numberOfRequestsStatistics", 20L, 19L, 1L)
     val out = ConsoleTemplate.writeRequestCounters(new jl.StringBuilder, numberOfRequestsStatistics).toString
     out shouldBe "> numberOfRequestsStatistics                            20 (OK=19     KO=1     )"
   }

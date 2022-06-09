@@ -18,8 +18,8 @@ package io.gatling.charts.template
 
 import java.{ lang => jl }
 
-import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.component.Statistics.printable
+import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Stats }
+import io.gatling.charts.component.Stats.printable
 import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.stats.writer.ConsoleErrorsWriter
@@ -27,7 +27,7 @@ import io.gatling.core.stats.writer.ConsoleSummary._
 
 private[charts] object ConsoleTemplate {
 
-  private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Statistics[T]): jl.StringBuilder = {
+  private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Stats[T]): jl.StringBuilder = {
     import statistics._
     sb.append("> ")
       .append(name.rightPad(OutputLength - 32))

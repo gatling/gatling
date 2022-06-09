@@ -43,13 +43,13 @@ private[charts] class RequestDetailsReportGenerator(
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
         val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
-        componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+        componentLibrary.getDistributionComponent("Response Time", "Requests", okDistributionSeries, koDistributionSeries)
       }
 
       def responseTimeChartComponent: Component =
         percentilesChartComponent(
           logFileData.responseTimePercentilesOverTime,
-          componentLibrary.getRequestDetailsResponseTimeChartComponent,
+          componentLibrary.getPercentilesOverTimeComponent("Response Time", _, _),
           "Response Time Percentiles over Time"
         )
 
@@ -65,10 +65,10 @@ private[charts] class RequestDetailsReportGenerator(
       }
 
       def requestsChartComponent: Component =
-        countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+        countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsComponent)
 
       def responsesChartComponent: Component =
-        countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+        countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesComponent)
 
       def countsChartComponent(
           dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -88,7 +88,7 @@ private[charts] class RequestDetailsReportGenerator(
       def responseTimeScatterChartComponent: Component =
         scatterChartComponent(
           logFileData.responseTimeAgainstGlobalNumberOfRequestsPerSec,
-          componentLibrary.getRequestDetailsResponseTimeScatterChartComponent
+          componentLibrary.getResponseTimeScatterComponent
         )
 
       def scatterChartComponent(
@@ -111,8 +111,8 @@ private[charts] class RequestDetailsReportGenerator(
           requestName,
           group,
           new SchemaContainerComponent(
-            new StatisticsTextComponent,
-            componentLibrary.getRequestDetailsIndicatorChartComponent
+            componentLibrary.getRangesComponent("Response Time Ranges", "requests"),
+            new DetailsStatsTableComponent
           ),
           new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),
           responseTimeDistributionChartComponent,

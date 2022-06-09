@@ -63,7 +63,7 @@ function setDetailsMenu(){
 
 function setGlobalMenu(){
     $('.nav ul')
-      .append('<li><a class="item" href="#indicators">Indicators</a></li>')
+      .append('<li><a class="item" href="#ranges">Ranges</a></li>')
       .append('<li><a class="item" href="#stats">Stats</a></li>')
       .append('<li><a class="item" href="#active_users">Active Users</a></li>')
       .append('<li><a class="item" href="#requests">Requests / sec</a></li>')

@@ -16,7 +16,7 @@
 
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
+import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
@@ -36,7 +36,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
   def generate(): Unit = {
 
     def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
-      new Statistics(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
+      new Stats(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
     def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
@@ -44,11 +44,11 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val ok = logFileData.requestGeneralStats(requestName, group, Some(OK))
       val ko = logFileData.requestGeneralStats(requestName, group, Some(KO))
 
-      val numberOfRequestsStatistics = new Statistics("request count", total.count, ok.count, ko.count)
-      val minResponseTimeStatistics = new Statistics("min response time", total.min, ok.min, ko.min)
-      val maxResponseTimeStatistics = new Statistics("max response time", total.max, ok.max, ko.max)
-      val meanResponseTimeStatistics = new Statistics("mean response time", total.mean, ok.mean, ko.mean)
-      val stdDeviationStatistics = new Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
+      val numberOfRequestsStatistics = new Stats("request count", total.count, ok.count, ko.count)
+      val minResponseTimeStatistics = new Stats("min response time", total.min, ok.min, ko.min)
+      val maxResponseTimeStatistics = new Stats("max response time", total.max, ok.max, ko.max)
+      val meanResponseTimeStatistics = new Stats("mean response time", total.mean, ok.mean, ko.mean)
+      val stdDeviationStatistics = new Stats("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
 
       val percentilesTitle = (rank: Double) => s"response time ${rank.toRank} percentile"
 
@@ -56,7 +56,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val percentiles2 = percentiles(configuration.charting.indicators.percentile2, percentilesTitle, total, ok, ko)
       val percentiles3 = percentiles(configuration.charting.indicators.percentile3, percentilesTitle, total, ok, ko)
       val percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko)
-      val meanNumberOfRequestsPerSecondStatistics = new Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+      val meanNumberOfRequestsPerSecondStatistics = new Stats("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
       val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(requestName, group)
@@ -101,18 +101,18 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val ok = groupStatsFunction(group, Some(OK))
       val ko = groupStatsFunction(group, Some(KO))
 
-      val numberOfRequestsStatistics = new Statistics("numberOfRequests", total.count, ok.count, ko.count)
-      val minResponseTimeStatistics = new Statistics("minResponseTime", total.min, ok.min, ko.min)
-      val maxResponseTimeStatistics = new Statistics("maxResponseTime", total.max, ok.max, ko.max)
-      val meanResponseTimeStatistics = new Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
-      val stdDeviationStatistics = new Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+      val numberOfRequestsStatistics = new Stats("numberOfRequests", total.count, ok.count, ko.count)
+      val minResponseTimeStatistics = new Stats("minResponseTime", total.min, ok.min, ko.min)
+      val maxResponseTimeStatistics = new Stats("maxResponseTime", total.max, ok.max, ko.max)
+      val meanResponseTimeStatistics = new Stats("meanResponseTime", total.mean, ok.mean, ko.mean)
+      val stdDeviationStatistics = new Stats("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
 
       val percentiles1 = percentiles(configuration.charting.indicators.percentile1, _ => "percentiles1", total, ok, ko)
       val percentiles2 = percentiles(configuration.charting.indicators.percentile2, _ => "percentiles2", total, ok, ko)
       val percentiles3 = percentiles(configuration.charting.indicators.percentile3, _ => "percentiles3", total, ok, ko)
       val percentiles4 = percentiles(configuration.charting.indicators.percentile4, _ => "percentiles4", total, ok, ko)
       val meanNumberOfRequestsPerSecondStatistics =
-        new Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        new Stats("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
       val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(None, Some(group))

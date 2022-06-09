@@ -20,7 +20,7 @@ import io.gatling.charts.util.HtmlHelper.HtmlRichString
 import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.NumberHelper._
 
-private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
+private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
 
   def js: String = s"""
 	    $$('#container_errors').sortable('#container_errors');

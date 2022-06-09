@@ -23,34 +23,26 @@ import io.gatling.charts.stats._
  * Mock implementation that is removed from the binary.
  * A unique implementation is expected to be present in the classpath.
  */
-private[component] class ComponentLibraryImpl extends ComponentLibrary {
-
-  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String = throw new UnsupportedOperationException
-  def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
-  def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component =
-    throw new UnsupportedOperationException
-  def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component =
-    throw new UnsupportedOperationException
-  def getRequestDetailsResponseTimeChartComponent(runStart: Long, responseTimesSuccess: Series[PercentilesVsTimePlot]): Component =
-    throw new UnsupportedOperationException
-  def getRequestDetailsResponseTimeDistributionChartComponent(
-      responseTimesSuccess: Series[PercentVsTimePlot],
-      responseTimesFailures: Series[PercentVsTimePlot]
+private[component] final class ComponentLibraryImpl extends ComponentLibrary {
+  override def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String = throw new UnsupportedOperationException
+  override def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
+  override def getRangesComponent(chartTitle: String, eventName: String): Component = throw new UnsupportedOperationException
+  override def getRequestCountPolarComponent: Component = throw new UnsupportedOperationException
+  override def getDistributionComponent(
+      title: String,
+      yAxisName: String,
+      durationsSuccess: Series[PercentVsTimePlot],
+      durationsFailure: Series[PercentVsTimePlot]
   ): Component = throw new UnsupportedOperationException
-  def getRequestDetailsResponseTimeScatterChartComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component =
-    throw new UnsupportedOperationException
-  def getRequestDetailsIndicatorChartComponent: Component = throw new UnsupportedOperationException
-  def getNumberOfRequestsChartComponent(numberOfRequestNames: Int): Component = throw new UnsupportedOperationException
-  def getGroupDetailsDurationChartComponent(
-      containerId: String,
+  override def getPercentilesOverTimeComponent(
       yAxisName: String,
       runStart: Long,
       durationsSuccess: Series[PercentilesVsTimePlot]
   ): Component = throw new UnsupportedOperationException
-  def getGroupDetailsDurationDistributionChartComponent(
-      title: String,
-      containerId: String,
-      durationsSuccess: Series[PercentVsTimePlot],
-      durationsFailure: Series[PercentVsTimePlot]
-  ): Component = throw new UnsupportedOperationException
+  override def getRequestsComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component =
+    throw new UnsupportedOperationException
+  override def getResponsesComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component =
+    throw new UnsupportedOperationException
+  override def getResponseTimeScatterComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component =
+    throw new UnsupportedOperationException
 }
