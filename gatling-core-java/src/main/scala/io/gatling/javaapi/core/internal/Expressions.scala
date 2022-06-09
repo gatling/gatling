@@ -21,7 +21,6 @@ import java.time.Duration
 import java.util.{ function => juf }
 import java.util.concurrent.TimeUnit
 
-import scala.collection.immutable.Seq
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters._
 import scala.jdk.DurationConverters._
@@ -69,10 +68,10 @@ object Expressions {
   def javaDurationFunctionToExpression(f: JavaExpression[Duration]): Expression[FiniteDuration] =
     session => safely()(f.apply(new Session(session)).toScala.success)
 
-  def javaListFunctionToImmutableSeqExpression[T](f: JavaExpression[ju.List[T]]): Expression[collection.immutable.Seq[T]] =
+  def javaListFunctionToExpression[T](f: JavaExpression[ju.List[T]]): Expression[Seq[T]] =
     session => safely()(f.apply(new Session(session)).asScala.toSeq.success)
 
-  def javaMapFunctionToImmutableMapExpression[K, V](f: JavaExpression[ju.Map[K, V]]): Expression[collection.immutable.Map[K, V]] =
+  def javaMapFunctionToExpression[K, V](f: JavaExpression[ju.Map[K, V]]): Expression[Map[K, V]] =
     session => safely()(f.apply(new Session(session)).asScala.toMap.success)
 
   def javaPairListFunctionToTuple2SeqExpression(f: JavaExpression[ju.List[ju.Map.Entry[String, Object]]]): Expression[Seq[(String, Object)]] =

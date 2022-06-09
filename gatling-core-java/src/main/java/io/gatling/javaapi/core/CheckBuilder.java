@@ -1003,7 +1003,7 @@ public interface CheckBuilder {
       @Override
       @Nonnull
       public Final in(@Nonnull Function<Session, List<X>> expected) {
-        return makeFinal(wrapped.in(javaListFunctionToImmutableSeqExpression(expected)));
+        return makeFinal(wrapped.in(javaListFunctionToExpression(expected)));
       }
 
       @Override

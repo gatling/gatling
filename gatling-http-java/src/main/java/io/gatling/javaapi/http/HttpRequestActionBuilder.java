@@ -487,7 +487,7 @@ public final class HttpRequestActionBuilder
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
-                toStringExpression(key), javaListFunctionToImmutableSeqExpression(values)));
+                toStringExpression(key), javaListFunctionToExpression(values)));
   }
 
   /**
@@ -503,7 +503,7 @@ public final class HttpRequestActionBuilder
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
-                javaFunctionToExpression(key), javaListFunctionToImmutableSeqExpression(values)));
+                javaFunctionToExpression(key), javaListFunctionToExpression(values)));
   }
 
   /**
@@ -549,7 +549,7 @@ public final class HttpRequestActionBuilder
   @Nonnull
   public HttpRequestActionBuilder formParamMap(
       @Nonnull Function<Session, Map<String, Object>> map) {
-    return make(wrapped -> wrapped.formParamMap(javaMapFunctionToImmutableMapExpression(map)));
+    return make(wrapped -> wrapped.formParamMap(javaMapFunctionToExpression(map)));
   }
 
   /**
@@ -571,7 +571,7 @@ public final class HttpRequestActionBuilder
    */
   @Nonnull
   public HttpRequestActionBuilder form(@Nonnull Function<Session, Map<String, Object>> map) {
-    return make(wrapped -> wrapped.form(javaMapFunctionToImmutableMapExpression(map)));
+    return make(wrapped -> wrapped.form(javaMapFunctionToExpression(map)));
   }
 
   /**

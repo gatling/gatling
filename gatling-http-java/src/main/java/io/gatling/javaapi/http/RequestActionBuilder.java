@@ -202,7 +202,7 @@ public abstract class RequestActionBuilder<
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
-                toStringExpression(name), javaListFunctionToImmutableSeqExpression(values)));
+                toStringExpression(name), javaListFunctionToExpression(values)));
   }
 
   /**
@@ -218,7 +218,7 @@ public abstract class RequestActionBuilder<
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
-                javaFunctionToExpression(name), javaListFunctionToImmutableSeqExpression(values)));
+                javaFunctionToExpression(name), javaListFunctionToExpression(values)));
   }
 
   /**
@@ -284,7 +284,7 @@ public abstract class RequestActionBuilder<
    */
   @Nonnull
   public T queryParamMap(@Nonnull Function<Session, Map<String, Object>> map) {
-    return make(wrapped -> wrapped.queryParamMap(javaMapFunctionToImmutableMapExpression(map)));
+    return make(wrapped -> wrapped.queryParamMap(javaMapFunctionToExpression(map)));
   }
 
   /**
