@@ -26,8 +26,6 @@ private[gatling] object Color {
     val All: Color = Blue
     val Ok: Color = Green
     val Ko: Color = Red
-    val TransparentOk: Color = TransparentGreen
-    val TransparentKo: Color = TransparentRed
     val Fine: Color = Yellow
     val Poor: Color = Orange
 
@@ -77,8 +75,6 @@ private[gatling] object Color {
   private case object LightLime extends Color("#9EFF9E")
   private case object LightPurple extends Color("#CF82FF")
   private case object LightPink extends Color("#FF82F0")
-  private case object TransparentRed extends Color("rgba(255, 0, 0, .2)")
-  private case object TransparentGreen extends Color("rgba(128,255,128, .6)")
 
   object RangeSelector {
     case object Border extends Color("#000000")

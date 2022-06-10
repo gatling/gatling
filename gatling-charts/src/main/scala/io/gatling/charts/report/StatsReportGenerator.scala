@@ -18,6 +18,7 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
+import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
 import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group, GroupStatsPath, RequestStatsPath }
@@ -139,7 +140,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       )
     }
 
-    val rootContainer = GroupContainer.root(computeRequestStats(ChartsFiles.GlobalPageName, None, None))
+    val rootContainer = GroupContainer.root(computeRequestStats(AllRequestLineTitle, None, None))
 
     val statsPaths = logFileData.statsPaths
 

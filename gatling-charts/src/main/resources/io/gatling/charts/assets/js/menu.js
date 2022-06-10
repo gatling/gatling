@@ -9,7 +9,7 @@ function setDetailsLinkUrl(){
     });
 }
 
-var MENU_ITEM_MAX_LENGTH = 50;
+var MENU_ITEM_MAX_LENGTH = 20;
 
 function menuItem(item, level, parent, group) {
     if (group)
@@ -17,12 +17,15 @@ function menuItem(item, level, parent, group) {
     else
         var style = '';
 
-    if (item.name.length > MENU_ITEM_MAX_LENGTH) {
-        var title = ' title="' + item.name + '"';
-        var displayName = item.name.substr(0, MENU_ITEM_MAX_LENGTH) + '...';
+    var maxNameSize = MENU_ITEM_MAX_LENGTH - level * 2;
+
+    if (item.name.length > maxNameSize) {
+        var title = "class='item nav-tooltip' data-toggle='popover' data-placement='right' data-container='body' data-content='" + item.name + "''";
+        var truncatedLength = Math.max(3, maxNameSize - 1);
+        var displayName = item.name.substr(0, truncatedLength) + '&hellip;';
     }
     else {
-        var title = '';
+        var title = 'class="item"';
         var displayName = item.name;
     }
 
@@ -37,7 +40,7 @@ function menuItem(item, level, parent, group) {
     else
         var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden">&nbsp;</span>';
 
-    return '<li' + dataParent + '>' + expandButton + '<a class="item" href="' + getItemLink(item) + '"' + title + '>' + displayName + '</a></li>';
+    return '<li' + dataParent + ' class="withTooltip">' + expandButton + '<a href="' + getItemLink(item) + '"' + title + '>' + displayName + '</a></li>';
 }
 
 function menuItemsForGroup(group, level, parent) {
@@ -59,6 +62,7 @@ function menuItemsForGroup(group, level, parent) {
 function setDetailsMenu(){
     $('.nav ul').append(menuItemsForGroup(stats, 0));
     $('.nav').expandable();
+    $('.nav-tooltip').popover({trigger:'hover'});
 }
 
 function setGlobalMenu(){

@@ -26,7 +26,7 @@ import io.gatling.charts.stats._
 private[component] final class ComponentLibraryImpl extends ComponentLibrary {
   override def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String = throw new UnsupportedOperationException
   override def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
-  override def getRangesComponent(chartTitle: String, eventName: String): Component = throw new UnsupportedOperationException
+  override def getRangesComponent(chartTitle: String, eventName: String, large: Boolean): Component = throw new UnsupportedOperationException
   override def getRequestCountPolarComponent: Component = throw new UnsupportedOperationException
   override def getDistributionComponent(
       title: String,

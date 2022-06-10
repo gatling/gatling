@@ -98,8 +98,8 @@ private[charts] class RequestDetailsReportGenerator(
 
         val scatterPlotSuccessData = dataSource(OK, requestName, group)
         val scatterPlotFailuresData = dataSource(KO, requestName, group)
-        val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(Color.Requests.TransparentOk))
-        val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(Color.Requests.TransparentKo))
+        val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(Color.Requests.Ok))
+        val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(Color.Requests.Ko))
 
         componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
       }
@@ -111,7 +111,7 @@ private[charts] class RequestDetailsReportGenerator(
           requestName,
           group,
           new SchemaContainerComponent(
-            componentLibrary.getRangesComponent("Response Time Ranges", "requests"),
+            componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = true),
             new DetailsStatsTableComponent
           ),
           new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),

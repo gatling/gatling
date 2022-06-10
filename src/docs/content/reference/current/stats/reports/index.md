@@ -24,7 +24,7 @@ See [Configuration page]({{< ref "../../core/configuration#cli-options" >}}).
 
 Most of those charts are available for both the overall simulation report and for per request/group charts.
 
-### Indicators
+### Response time ranges
 
 {{< img src="charts-indicators.png" alt="DetailsIndicators" >}}
 

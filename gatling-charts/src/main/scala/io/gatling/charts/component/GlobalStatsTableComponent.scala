@@ -16,7 +16,7 @@
 
 package io.gatling.charts.component
 
-import io.gatling.charts.config.ChartsFiles.GlobalPageName
+import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.report.Container.{ Group, Request }
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
@@ -24,9 +24,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 private[charts] final class GlobalStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
-  private val MaxRequestNameSize = 20
-  private val NumberOfCharsBeforeDots = 8
-  private val NumberOfCharsAfterDots = 8
+  private val MaxRequestNameSize = 22
 
   override val html: String = {
 
@@ -36,16 +34,15 @@ private[charts] final class GlobalStatsTableComponent(implicit configuration: Ga
     val pct2 = pctTitle(configuration.charting.indicators.percentile2)
     val pct3 = pctTitle(configuration.charting.indicators.percentile3)
     val pct4 = pctTitle(configuration.charting.indicators.percentile4)
-    val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", "Std Dev")
+    val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", """<abbr title="Standard Deviation">Std Dev</abbr>""")
 
     s"""
-                        <a name="stats"></a>
-                        <div class="statistics extensible-geant collapsed">
+                        <div id="stats" class="statistics extensible-geant collapsed">
                             <div class="title">
-                                <div class="right">
-                                    <span class="expand-all-button">Expand all groups</span> <span class="collapse-all-button">Collapse all groups</span>
-                                </div>
-                                <div id="statistics_title" class="title_base">Stats <span class="expand-table">(Click here to expand)</span> <span class="collapse-table">(Click here to collapse)</span></div>
+                              <div id="statistics_title" class="title_base"><span class="title_base_stats">Stats</span><span class="expand-table">Fixed height</span><span id="toggle-stats" class="toggle-table"></span><span class="collapse-table">Full size</span></div>
+                              <div class="right">
+                                  <span class="expand-all-button">Expand all groups</span> <span class="collapse-all-button">Collapse all groups</span>
+                              </div>
                             </div>
                             <div class="scrollable">
                               <table id="container_statistics_head" class="statistics-in extensible-geant">
@@ -78,15 +75,18 @@ private[charts] final class GlobalStatsTableComponent(implicit configuration: Ga
 
   val js = s"""
 
-  function shortenNameAndDisplayFullOnHover(name){
-   if (name.length < $MaxRequestNameSize)
+  function shortenNameAndDisplayFullOnHover(name, level) {
+  var maxNameSize = $MaxRequestNameSize - level * 2;
+   if (name.length < maxNameSize) {
        return name;
-   else
-     return "<span class='tooltipContent'>"+name+"</span>" + name.substr(0,$NumberOfCharsBeforeDots)+"..."+name.substr(name.length-$NumberOfCharsAfterDots,name.length);
+   } else {
+     var truncatedLength = Math.max(3, maxNameSize - 1);
+     return "<span class='table-cell-tooltip' data-toggle='popover' data-placement='bottom' data-container='body' data-content='" + name + "'>"+name.substr(0,truncatedLength)+"&hellip;"+"</span>";
+    }
   }
 
 function generateHtmlRow(request, level, index, parent, group) {
-    if (request.name == '$GlobalPageName')
+    if (request.name == '$AllRequestLineTitle')
         var url = 'index.html';
     else
         var url = request.pathFormatted + '.html';
@@ -104,7 +104,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     return '<tr id="' + request.pathFormatted + '" data-parent=' + parent + '> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
-            <a href="' + url +'" class="withTooltip">' + shortenNameAndDisplayFullOnHover(request.name) + '</a><span class="value" style="display:none;">' + index + '</span> \\
+            <a href="' + url +'" class="withTooltip">' + shortenNameAndDisplayFullOnHover(request.name, level) + '</a><span class="value" style="display:none;">' + index + '</span> \\
         </td> \\
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
         <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
@@ -150,7 +150,7 @@ function generateHtmlRowsForGroup(group, level, index, parent) {
 
 $$('#container_statistics_head tbody').append(generateHtmlRow(stats, 0, 0));
 
-var lines = generateHtmlRowsForGroup(stats, 0, 0)
+var lines = generateHtmlRowsForGroup(stats, 0, 0);
 $$('#container_statistics_body tbody').append(lines.html);
 
 $$('#container_statistics_head').sortable('#container_statistics_body');
@@ -160,11 +160,13 @@ if (lines.index < 30) {
     $$('#statistics_title span').attr('style', 'display: none;');
 } else {
     $$('#statistics_title').addClass('title_collapsed');
-    $$('#statistics_title').click(function(){
+    $$('#statistics_title').click(function() {
+        $$('#toggle-stats').toggleClass("off");
         $$(this).toggleClass('title_collapsed').toggleClass('title_expanded');
         $$('#container_statistics_body').parent().toggleClass('scrollable').toggleClass('');
     });
 }
+$$('.table-cell-tooltip').popover({trigger:'hover'});
 """
 
   val jsFiles: Seq[String] = Seq.empty

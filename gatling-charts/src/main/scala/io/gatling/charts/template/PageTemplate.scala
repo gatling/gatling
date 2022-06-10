@@ -17,13 +17,14 @@
 package io.gatling.charts.template
 
 import java.nio.charset.Charset
+import java.time.Instant
 
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
 import io.gatling.charts.stats.RunInfo
-import io.gatling.charts.util.HtmlHelper._
 import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.util.GatlingVersion
 import io.gatling.commons.util.StringHelper._
 
 private[charts] abstract class PageTemplate(
@@ -39,7 +40,6 @@ private[charts] abstract class PageTemplate(
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def getOutput(charset: Charset): String = {
-    val duration = (runInfo.injectEnd - runInfo.injectStart) / 1000
     val simulationClassSimpleName = runInfo.simulationClassName.lastIndexOf(".") match {
       case -1 => runInfo.simulationClassName
       case i  => runInfo.simulationClassName.substring(i + 1)
@@ -59,27 +59,45 @@ private[charts] abstract class PageTemplate(
         "var pageStats = stats.stats;"
       }
 
+    val deprecationWarning = {
+      val gatlingVersionAgeInYears = (Instant.now().getEpochSecond - GatlingVersion.ReleaseDate.toInstant.getEpochSecond) / (365 * 24 * 3600)
+      if (gatlingVersionAgeInYears > 0) {
+        s"""<div class="alert-danger">
+           |  You are using Gatling ${GatlingVersion.Version} that was released on ${GatlingVersion.ReleaseDate.toLocalDate.toString},
+           |  hence more than $gatlingVersionAgeInYears year${if (gatlingVersionAgeInYears > 1) "s" else ""} ago.
+           |  Please check the <a href="https://gatling.io/docs/gatling/reference/current/whats_new">new features</a>,
+           |  the <a href="https://gatling.io/docs/gatling/reference/current/upgrading/">upgrade guides</a>,
+           |  and consider upgrading.
+           |</div>""".stripMargin
+      } else {
+        ""
+      }
+    }
+
     s"""
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
 <link href="style/style.css" rel="stylesheet" type="text/css" />
 <link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
-${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></script>""").mkString(Eol)}
+${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)}
 <title>Gatling Stats - $title</title>
 </head>
 <body>
+<div class="app-container">
 <div class="frise"></div>
 <div class="head">
-  <a class="logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
-</div>
+  <div class="gatling-open-source">
+    <a class="gatling-logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
+    <a class="gatling-documentation" href="https://gatling.io/docs/" target="_blank">Documentation</a>
+  </div>
+  <a class="enterprise" href="https://gatling.io/enterprise/" target="_blank">Try <img alt="Gatling Enterprise" src="style/logo-enterprise.svg"/></a></div>
 <div class="container details">
   <div class="nav">
     <ul></ul>
   </div>
-  <div class="main">
     <div class="cadre">
       <div class="content">
         <div class="content-header">
@@ -91,36 +109,23 @@ ${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></sc
               <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">Global</a></div>
                 <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">Details</a></div>
               </div>
-              <script type="text/javascript">
-                const runStartHumanDate = moment(${runInfo.injectStart}).format("YYYY-MM-DD HH:mm:ss Z");
-                const runInfo = document.createElement('p');
-                runInfo.setAttribute('class', 'sous-menu-spacer sim_desc');
-                runInfo.style.align = 'right';
-                runInfo.setAttribute('title', runStartHumanDate + ', duration : $duration seconds');
-                runInfo.setAttribute('data-content', '${runInfo.runDescription.htmlEscape}');
-                runInfo.innerHTML = "<b>" + runStartHumanDate + ", duration : $duration seconds ${runInfo.runDescription
-      .truncate(70)
-      .htmlEscape}</b>";
-                document.getElementById('sousMenu').appendChild(runInfo);
-              </script>
             </div>
           </div>
           <div class="content-in">
+            <div class="container-article">
             <div class="article">
+              $deprecationWarning
               ${components.map(_.html).mkString}
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="enterprise">
-      <img alt="Gatling Enterprise" src="style/logo-enterprise.svg" /><a href="https://gatling.io/enterprise/" target="_blank">Try Gatling Enterprise</a>
-    </div>
 </div>
-<script type="text/javascript">
+<script>
     $pageStats
     $$(document).ready(function() {
-        $$('.sim_desc').popover({trigger:'hover', placement:'bottom'});
+        $$('.simulation-tooltip').popover({trigger:'hover', placement:'left'});
         setDetailsLinkUrl();
         ${if (isDetails) "setDetailsMenu();" else "setGlobalMenu();"}
         setActiveMenu();
@@ -128,6 +133,7 @@ ${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></sc
         ${components.map(_.js).mkString}
     });
 </script>
+</div>
 </body>
 </html>
 """

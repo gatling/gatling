@@ -86,7 +86,7 @@ private[charts] class GroupDetailsReportGenerator(
         logFileData.runInfo,
         group,
         new SchemaContainerComponent(
-          componentLibrary.getRangesComponent("Group Duration Ranges", "groups"),
+          componentLibrary.getRangesComponent("Group Duration Ranges", "groups", large = true),
           new DetailsStatsTableComponent
         ),
         new ErrorsTableComponent(logFileData.errors(None, Some(group))),

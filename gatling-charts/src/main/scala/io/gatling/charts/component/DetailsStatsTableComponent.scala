@@ -69,13 +69,13 @@ private[charts] final class DetailsStatsTableComponent(implicit configuration: G
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="title"></td>
+                                                <td class="title">Total count</td>
                                                 <td id="numberOfRequests" class="total"></td>
                                                 <td id="numberOfRequestsOK" class="ok"></td>
                                                 <td id="numberOfRequestsKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">Mean <abbr title="Count of events per second">cnt/s</abbr></td>
+                                                <td class="title">Mean count/s</abbr></td>
                                                 <td id="meanNumberOfRequestsPerSecond" class="total"></td>
                                                 <td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
                                                 <td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
@@ -136,7 +136,7 @@ private[charts] final class DetailsStatsTableComponent(implicit configuration: G
                                                 <td id="meanResponseTimeKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">Std Deviation</td>
+                                                <td class="title">Standard Deviation</td>
                                                 <td id="standardDeviation" class="total"></td>
                                                 <td id="standardDeviationOK" class="ok"></td>
                                                 <td id="standardDeviationKO" class="ko"></td>

@@ -18,16 +18,14 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.Component
 
-final class SchemaContainerComponent(left: Component, right: Component) extends Component {
+final class SchemaContainerComponent(components: Component*) extends Component {
   override def html: String =
     s"""
        |<div class="schema-container">
-       |${left.html}
-       |${right.html}
+       |${components.map(_.html).mkString}
        |</div>
        |""".stripMargin
 
-  override def js: String = left.js + right.js
-
-  override def jsFiles: Seq[String] = left.jsFiles ++ right.jsFiles
+  override def js: String = components.map(_.js).mkString
+  override def jsFiles: Seq[String] = components.flatMap(_.jsFiles)
 }

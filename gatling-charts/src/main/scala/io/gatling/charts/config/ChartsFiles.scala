@@ -31,13 +31,13 @@ private[charts] object ChartsFiles {
   private val AssertionsJsonFile = "assertions.json"
   private val AssertionsJUnitFile = "assertions.xml"
   val GlobalPageName: String = "Global Information"
+  val AllRequestLineTitle: String = "All Requests"
 
   val CommonJsFiles: Seq[String] = Seq(
     "jquery-3.5.1.min.js",
     "bootstrap.min.js",
     "gatling.js",
     "menu.js",
-    "moment-2.29.2.min.js",
     AllSessionsFile,
     StatsJsFile
   )

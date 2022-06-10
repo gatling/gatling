@@ -47,7 +47,7 @@ private[charts] object ComponentLibrary extends StrictLogging {
 private[gatling] trait ComponentLibrary {
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
   def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
-  def getRangesComponent(chartTitle: String, eventName: String): Component
+  def getRangesComponent(chartTitle: String, eventName: String, large: Boolean): Component
   def getRequestCountPolarComponent: Component
   def getDistributionComponent(
       title: String,

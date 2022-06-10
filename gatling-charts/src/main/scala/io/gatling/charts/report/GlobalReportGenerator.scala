@@ -97,8 +97,9 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     val template = new GlobalPageTemplate(
       logFileData.runInfo,
       new SchemaContainerComponent(
-        componentLibrary.getRangesComponent("Response Time Ranges", "requests"),
-        componentLibrary.getRequestCountPolarComponent
+        componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = false),
+        componentLibrary.getRequestCountPolarComponent,
+        new SimulationCardComponent(logFileData.runInfo)
       ),
       new AssertionsTableComponent(assertionResults),
       new GlobalStatsTableComponent,
