@@ -40,6 +40,13 @@ private[bundle] object CommandLineConstants {
       "Optional System Properties used when starting the Gatling Enterprise simulation",
       Some("k1=v1,k2=v2")
     )
+  val SimulationEnvironmentVariables =
+    new CommandLineConstant(
+      "simulation-environment-variables",
+      "sev",
+      "Optional Environment Variables used when starting the Gatling Enterprise simulation",
+      Some("k1=v1,k2=v2")
+    )
   val ExtraCompilerJvmOptions: CommandLineConstant = new CommandLineConstant(
     "extra-compiler-jvm-options",
     "ecjo",

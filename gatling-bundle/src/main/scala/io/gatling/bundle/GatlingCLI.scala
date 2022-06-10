@@ -81,6 +81,7 @@ object GatlingCLI {
       opt[String](Simulation)
       opt[URL](Url).action((x, c) => c.copy(url = x)).hidden()
       opt[Map[String, String]](SimulationSystemProperties).action((x, c) => c.copy(simulationSystemProperties = x))
+      opt[Map[String, String]](SimulationEnvironmentVariables).action((x, c) => c.copy(simulationEnvironmentVariables = x))
     }
 
     parser.parse(args, CommandArguments.Empty) match {

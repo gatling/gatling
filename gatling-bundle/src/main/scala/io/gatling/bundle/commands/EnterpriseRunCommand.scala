@@ -55,7 +55,13 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
 
         val simulationStartResult = config.simulationId match {
           case Some(simulationId) =>
-            enterprisePlugin.uploadPackageAndStartSimulation(simulationId, config.simulationSystemProperties.asJava, config.simulationClass.orNull, file)
+            enterprisePlugin.uploadPackageAndStartSimulation(
+              simulationId,
+              config.simulationSystemProperties.asJava,
+              config.simulationEnvironmentVariables.asJava,
+              config.simulationClass.orNull,
+              file
+            )
           case _ =>
             enterprisePlugin.createAndStartSimulation(
               config.teamId.orNull,
@@ -64,6 +70,7 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
               config.simulationClass.orNull,
               config.packageId.orNull,
               config.simulationSystemProperties.asJava,
+              config.simulationEnvironmentVariables.asJava,
               file
             )
         }
