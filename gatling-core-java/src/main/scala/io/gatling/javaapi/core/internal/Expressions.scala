@@ -75,11 +75,7 @@ object Expressions {
     session => safely()(f.apply(new Session(session)).asScala.toMap.success)
 
   def javaPairListFunctionToTuple2SeqExpression(f: JavaExpression[ju.List[ju.Map.Entry[String, Object]]]): Expression[Seq[(String, Object)]] =
-    session =>
-      safely() {
-        val seq = f.apply(new Session(session))
-        toScalaTuple2Seq(seq).success
-      }
+    session => safely()(toScalaTuple2Seq(f.apply(new Session(session))).success)
 
   def toAnyExpression(s: String): Expression[Any] =
     s.el[Any]
@@ -110,6 +106,8 @@ object Expressions {
     val expression =
       if (clazz == classOf[String]) {
         s.el[String]
+      } else if (clazz == classOf[CharSequence]) {
+        s.el[CharSequence]
       } else if (clazz == classOf[jl.Boolean]) {
         s.el[Boolean]
       } else if (clazz == classOf[jl.Integer]) {

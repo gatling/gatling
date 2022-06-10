@@ -240,6 +240,13 @@ object TypeCaster extends LowPriorityTypeCaster {
       value.toString.success
   }
 
+  implicit val CharSequenceCaster: TypeCaster[CharSequence] = new TypeCaster[CharSequence] {
+    override def cast(key: String, value: Any): CharSequence = value.toString
+
+    override def validate(key: String, value: Any): Validation[CharSequence] =
+      value.toString.success
+  }
+
   implicit val FiniteDurationCaster: TypeCaster[FiniteDuration] = new TypeCaster[FiniteDuration] {
     @throws[ClassCastException]
     override def cast(key: String, value: Any): FiniteDuration =
