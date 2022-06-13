@@ -281,7 +281,7 @@ private[el] case object AccessJsonStringify extends AccessFunction { val token: 
 private[el] case object AccessHtmlUnescape extends AccessFunction { val token: String = functionToken("htmlUnescape") }
 private[el] final case class AccessTuple(index: String, token: String) extends AccessToken
 
-class ElCompiler private extends RegexParsers {
+final class ElCompiler private extends RegexParsers {
 
   import ElCompiler._
 
