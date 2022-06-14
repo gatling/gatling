@@ -217,7 +217,7 @@ object ElCompiler extends StrictLogging {
 
   private val NameRegex = """[^.#{}()]+""".r
   private val DateFormatRegex = """[^#{}()]+""".r
-  private val NumberRegex = "[0-9]+".r
+  private val NumberRegex = "\\d+".r
   private val DynamicPartStart = "#{".toCharArray
 
   private val ElCompilers = new ThreadLocal[ElCompiler] {
