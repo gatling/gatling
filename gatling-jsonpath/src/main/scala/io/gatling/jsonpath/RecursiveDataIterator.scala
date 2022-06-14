@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType.{ ARRAY, OBJECT }
  *
  * Originally contributed by Nicolas Rémond.
  */
-class RecursiveDataIterator(root: JsonNode) extends RecursiveIterator[ju.Iterator[JsonNode]](root) {
+final class RecursiveDataIterator(root: JsonNode) extends RecursiveIterator[ju.Iterator[JsonNode]](root) {
 
   override protected def visit(it: ju.Iterator[JsonNode]): Unit = {
     while (it.hasNext && !pause) {

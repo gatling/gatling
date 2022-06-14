@@ -105,6 +105,7 @@ lazy val commons = gatlingModule("gatling-commons")
   .settings(generateVersionFileSettings)
 
 lazy val jsonpath = gatlingModule("gatling-jsonpath")
+  .dependsOn(nettyUtil)
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 

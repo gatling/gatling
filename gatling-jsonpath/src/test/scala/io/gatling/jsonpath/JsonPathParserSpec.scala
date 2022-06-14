@@ -17,13 +17,13 @@
 package io.gatling.jsonpath
 
 import io.gatling.jsonpath.AST._
-import io.gatling.jsonpath.GatlingElParser._
+import io.gatling.jsonpath.JsonPathParser._
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.{ MatchResult, Matcher }
 import org.scalatest.matchers.should.Matchers
 
-class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
+class JsonPathParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
 
   "Fast string replacement" should "work as expected" in {
     fastReplaceAll("foo", "f", "b") shouldBe "boo"
@@ -48,7 +48,7 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
   }
 
   it should "work with the root object" in {
-    parse(GatlingElParser.root, "$") should beParsedAs(RootNode)
+    parse(JsonPathParser.root, "$") should beParsedAs(RootNode)
   }
 
   it should "work when having multiple fields" in {
@@ -97,8 +97,8 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
   }
 
   it should "work with array access on the root object" in {
-    new GatlingElParser().compile("$[1]").get should be(RootNode :: ArrayRandomAccess(List(1)) :: Nil)
-    new GatlingElParser().compile("$[*]").get should be(RootNode :: ArraySlice.All :: Nil)
+    new JsonPathParser().parse("$[1]").get should be(RootNode :: ArrayRandomAccess(List(1)) :: Nil)
+    new JsonPathParser().parse("$[*]").get should be(RootNode :: ArraySlice.All :: Nil)
   }
 
   it should "work with array access on fields" in {
@@ -117,17 +117,17 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
   }
 
   it should "work on the root element" in {
-    new GatlingElParser().compile("$.foo").get should be(RootNode :: Field("foo") :: Nil)
-    new GatlingElParser().compile("$['foo']").get should be(RootNode :: Field("foo") :: Nil)
+    new JsonPathParser().parse("$.foo").get should be(RootNode :: Field("foo") :: Nil)
+    new JsonPathParser().parse("$['foo']").get should be(RootNode :: Field("foo") :: Nil)
 
     // TODO  : how to access childs w/ ['xxx'] notation
-    new GatlingElParser().compile("$..foo").get should be(RootNode :: RecursiveField("foo") :: Nil)
+    new JsonPathParser().parse("$..foo").get should be(RootNode :: RecursiveField("foo") :: Nil)
   }
 
   // cf : http://goessner.net/articles/JsonPath
   "Expressions from Goessner specs" should "be correctly parsed" in {
     def shouldParse(query: String, expected: Any) = {
-      new GatlingElParser().compile(query).get should be(expected)
+      new JsonPathParser().parse(query).get should be(expected)
     }
 
     shouldParse(
@@ -192,8 +192,8 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
 
   "Failures" should "be handled gracefully" in {
     def gracefulFailure(query: String): Unit =
-      new GatlingElParser().compile(query) match {
-        case GatlingElParser.Failure(msg, _) =>
+      new JsonPathParser().parse(query) match {
+        case JsonPathParser.Failure(msg, _) =>
           info(s"""that's an expected failure for "$query": $msg""")
         case other =>
           fail(s"""a Failure was expected but instead, for "$query" got: $other""")
@@ -218,7 +218,7 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
       HasFilter(SubQuery(List(CurrentNode, Field("foo"))))
     )
 
-    new GatlingElParser().compile("$.things[?(@.foo.bar)]").get should be(
+    new JsonPathParser().parse("$.things[?(@.foo.bar)]").get should be(
       RootNode
         :: Field("things")
         :: HasFilter(SubQuery(CurrentNode :: Field("foo") :: Field("bar") :: Nil))
@@ -295,21 +295,21 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
       ComparisonFilter(EqOperator, SubQuery(List(CurrentNode)), SubQuery(List(RootNode, Field("foo"))))
     )
 
-    new GatlingElParser().compile("$['points'][?(@['y'] >= 3)].id").get should be(
+    new JsonPathParser().parse("$['points'][?(@['y'] >= 3)].id").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(GreaterOrEqOperator, SubQuery(List(CurrentNode, Field("y"))), FilterDirectValue.long(3))
         :: Field("id") :: Nil
     )
 
-    new GatlingElParser().compile("$.points[?(@['id']=='i4')].x").get should be(
+    new JsonPathParser().parse("$.points[?(@['id']=='i4')].x").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(EqOperator, SubQuery(List(CurrentNode, Field("id"))), FilterDirectValue.string("i4"))
         :: Field("x") :: Nil
     )
 
-    new GatlingElParser().compile("""$.points[?(@['id']=="i4")].x""").get should be(
+    new JsonPathParser().parse("""$.points[?(@['id']=="i4")].x""").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(EqOperator, SubQuery(List(CurrentNode, Field("id"))), FilterDirectValue.string("i4"))
@@ -370,24 +370,24 @@ class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers
 
 trait ParsingMatchers {
 
-  class SuccessBeMatcher[+T <: AstToken](expected: T) extends Matcher[GatlingElParser.ParseResult[AstToken]] {
-    def apply(left: GatlingElParser.ParseResult[AstToken]): MatchResult = {
+  class SuccessBeMatcher[+T <: AstToken](expected: T) extends Matcher[JsonPathParser.ParseResult[AstToken]] {
+    def apply(left: JsonPathParser.ParseResult[AstToken]): MatchResult = {
       left match {
-        case GatlingElParser.Success(res, _) =>
+        case JsonPathParser.Success(res, _) =>
           MatchResult(
             expected == res,
             s"$res is not equal to expected value $expected",
             s"$res is equal to $expected but it shouldn't be"
           )
-        case GatlingElParser.NoSuccess(msg, _) =>
+        case JsonPathParser.NoSuccess(msg, _) =>
           MatchResult(
             matches = false,
             s"parsing issue, $msg",
             s"parsing issue, $msg"
           )
-        case error: GatlingElParser.Error =>
+        case error: JsonPathParser.Error =>
           throw new Exception(error.toString)
-        case failure: GatlingElParser.Failure =>
+        case failure: JsonPathParser.Failure =>
           throw new Exception(failure.toString)
       }
     }

@@ -31,7 +31,7 @@
 
 package io.gatling.netty.util;
 
-public class StringBuilderPool {
+public final class StringBuilderPool {
 
   public static final StringBuilderPool DEFAULT = new StringBuilderPool();
 

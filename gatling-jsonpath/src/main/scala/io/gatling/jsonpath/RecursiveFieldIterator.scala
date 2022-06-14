@@ -21,7 +21,7 @@ import java.{ util => ju }
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType.{ ARRAY, OBJECT }
 
-sealed trait VisitedIterator {
+private[jsonpath] sealed trait VisitedIterator {
   def hasNext: Boolean
 }
 final case class VisitedObject(it: ju.Iterator[ju.Map.Entry[String, JsonNode]]) extends VisitedIterator {

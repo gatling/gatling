@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode
 /**
  * Originally contributed by Nicolas Rémond.
  */
-abstract class RecursiveIterator[T](root: JsonNode) extends AbstractIterator[JsonNode] {
+private[jsonpath] abstract class RecursiveIterator[T](root: JsonNode) extends AbstractIterator[JsonNode] {
 
   protected var nextNode: JsonNode = _
   protected var finished: Boolean = _

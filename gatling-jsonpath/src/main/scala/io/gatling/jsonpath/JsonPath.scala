@@ -30,23 +30,20 @@ final case class JPError(reason: String)
  * Originally contributed by Nicolas Rémond.
  */
 object JsonPath {
-  private val JsonPathParser = ThreadLocal.withInitial[GatlingElParser](() => new GatlingElParser)
+  private val JsonPathParser = ThreadLocal.withInitial[JsonPathParser](() => new JsonPathParser)
 
   def compile(query: String): Either[JPError, JsonPath] =
-    JsonPathParser.get.compile(query) match {
-      case GatlingElParser.Success(q, _) => Right(new JsonPath(q))
-      case ns: GatlingElParser.NoSuccess => Left(JPError(ns.msg))
-    }
+    JsonPathParser.get.compile(query)
 
   def query(query: String, jsonObject: JsonNode): Either[JPError, Iterator[JsonNode]] =
     compile(query).map(_.query(jsonObject))
 }
 
-class JsonPath(path: List[PathToken]) {
+final class JsonPath(path: List[PathToken]) {
   def query(jsonNode: JsonNode): Iterator[JsonNode] = new JsonPathWalker(jsonNode, path).walk()
 }
 
-class JsonPathWalker(rootNode: JsonNode, fullPath: List[PathToken]) {
+final class JsonPathWalker(rootNode: JsonNode, fullPath: List[PathToken]) {
 
   def walk(): Iterator[JsonNode] = walk(rootNode, fullPath)
 

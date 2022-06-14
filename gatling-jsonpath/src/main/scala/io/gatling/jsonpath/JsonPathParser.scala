@@ -16,27 +16,15 @@
 
 package io.gatling.jsonpath
 
-import java.{ lang => jl }
-
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.jsonpath.AST._
-
-class StringBuilderPool extends ThreadLocal[jl.StringBuilder] {
-
-  override def initialValue() = new jl.StringBuilder(512)
-
-  override def get(): jl.StringBuilder = {
-    val sb = super.get()
-    sb.setLength(0)
-    sb
-  }
-}
+import io.gatling.netty.util.StringBuilderPool
 
 /**
  * Originally contributed by Nicolas Rémond.
  */
-object GatlingElParser extends RegexParsers {
+private[jsonpath] object JsonPathParser extends RegexParsers {
 
   private val stringBuilderPool = new StringBuilderPool
 
@@ -58,7 +46,7 @@ object GatlingElParser extends RegexParsers {
   }
 
   private val NumberRegex = """-?\d+""".r
-  private val FieldRegex = """[^\*\.\[\]\(\)=!<>\s]+""".r
+  private val FieldRegex = """[^*.\[\]()=!<>\s]+""".r
   private val SingleQuotedFieldRegex = """(\\.|[^'])+""".r
   private val DoubleQuotedFieldRegex = """(\\.|[^"])+""".r
   private val SingleQuotedValueRegex = """(\\.|[^'])*""".r
@@ -207,11 +195,17 @@ object GatlingElParser extends RegexParsers {
 
   private[jsonpath] def root: Parser[PathToken] = "$" ^^^ RootNode
 
-  private def query: Parser[List[PathToken]] =
+  private val query: Parser[List[PathToken]] =
     phrase(root ~ pathSequence) ^^ { case r ~ ps => r :: ps }
 }
 
-class GatlingElParser {
-  private val query = GatlingElParser.query
-  def compile(jsonpath: String): GatlingElParser.ParseResult[List[PathToken]] = GatlingElParser.parse(query, jsonpath)
+private[jsonpath] final class JsonPathParser {
+  private val query = JsonPathParser.query
+
+  private[jsonpath] def parse(jsonpath: String): JsonPathParser.ParseResult[List[PathToken]] = JsonPathParser.parse(query, jsonpath)
+
+  def compile(jsonpath: String): Either[JPError, JsonPath] = parse(jsonpath) match {
+    case JsonPathParser.Success(q, _) => Right(new JsonPath(q))
+    case ns: JsonPathParser.NoSuccess => Left(JPError(ns.msg))
+  }
 }
