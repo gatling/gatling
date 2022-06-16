@@ -228,7 +228,7 @@ object ElCompiler extends StrictLogging {
   private def convertLegacyPattern(raw: String): String =
     if (!raw.contains("#{") && raw.contains("${")) {
       if (warmingNotAlreadyLogged.getAndSet(false)) {
-        logger.warn("You're still using the deprecated ${} pattern for Gatling EL. Please use to the #{} pattern instead.")
+        logger.warn("You're still using the deprecated ${} pattern for Gatling EL. Please use the #{} pattern instead.")
       }
       raw.replace("$${", "\\#{").replace("${", "#{")
     } else {
