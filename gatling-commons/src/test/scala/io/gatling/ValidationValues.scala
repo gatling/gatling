@@ -29,12 +29,12 @@ trait ValidationValues {
     def succeeded: T = validation match {
       case Success(v) => v
       case Failure(msg) =>
-        throw new TestFailedException(s"Cannot call .value on $validation, was a Failure", 0)
+        throw new TestFailedException(s"Cannot call .value on $validation, was a Failure($msg)", 0)
     }
 
     def failed: String = validation match {
       case Success(v) =>
-        throw new TestFailedException(s"Cannot call .failMessage on $validation, was a Success", 0)
+        throw new TestFailedException(s"Cannot call .failMessage on $validation, was a Success($v)", 0)
       case Failure(msg) => msg
     }
   }
