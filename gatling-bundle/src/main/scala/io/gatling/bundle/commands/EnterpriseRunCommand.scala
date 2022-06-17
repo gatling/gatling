@@ -41,51 +41,50 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
   private val logger = BundleIO.getLogger
 
   private[bundle] def run(): Unit =
-    Using
-      .Manager { use =>
-        val enterpriseClient: EnterpriseClient = use(EnterpriseBundlePlugin.getClient(config))
-        val enterprisePlugin: EnterprisePlugin =
-          if (config.batchMode) use(EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient))
-          else use(EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient))
+    Try {
+      val enterpriseClient: EnterpriseClient = EnterpriseBundlePlugin.getClient(config)
+      val enterprisePlugin: EnterprisePlugin =
+        if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient)
+        else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient)
 
-        val serverInformation = enterpriseClient.getServerInformation
-        val maxJavaVersion = serverInformation.versions.java.max.toInt
+      val serverInformation = enterpriseClient.getServerInformation
+      val maxJavaVersion = serverInformation.versions.java.max.toInt
 
-        val file = new PackageCommand(config, args, maxJavaVersion).run()
+      val file = new PackageCommand(config, args, maxJavaVersion).run()
 
-        val simulationStartResult = config.simulationId match {
-          case Some(simulationId) =>
-            enterprisePlugin.uploadPackageAndStartSimulation(
-              simulationId,
-              config.simulationSystemProperties.asJava,
-              config.simulationEnvironmentVariables.asJava,
-              config.simulationClass.orNull,
-              file
-            )
-          case _ =>
-            enterprisePlugin.createAndStartSimulation(
-              config.teamId.orNull,
-              GroupId,
-              ArtifactId,
-              config.simulationClass.orNull,
-              config.packageId.orNull,
-              config.simulationSystemProperties.asJava,
-              config.simulationEnvironmentVariables.asJava,
-              file
-            )
-        }
-
-        if (simulationStartResult.createdSimulation) {
-          logCreatedSimulation(simulationStartResult.simulation)
-        }
-
-        if (config.simulationId.isEmpty) {
-          logSimulationConfiguration(simulationStartResult.simulation.id)
-        }
-
-        val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
-        logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+      val simulationStartResult = config.simulationId match {
+        case Some(simulationId) =>
+          enterprisePlugin.uploadPackageAndStartSimulation(
+            simulationId,
+            config.simulationSystemProperties.asJava,
+            config.simulationEnvironmentVariables.asJava,
+            config.simulationClass.orNull,
+            file
+          )
+        case _ =>
+          enterprisePlugin.createAndStartSimulation(
+            config.teamId.orNull,
+            GroupId,
+            ArtifactId,
+            config.simulationClass.orNull,
+            config.packageId.orNull,
+            config.simulationSystemProperties.asJava,
+            config.simulationEnvironmentVariables.asJava,
+            file
+          )
       }
+
+      if (simulationStartResult.createdSimulation) {
+        logCreatedSimulation(simulationStartResult.simulation)
+      }
+
+      if (config.simulationId.isEmpty) {
+        logSimulationConfiguration(simulationStartResult.simulation.id)
+      }
+
+      val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
+      logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+    }
       .recoverWith {
         case e: UnsupportedJavaVersionException =>
           Failure(new IllegalArgumentException(s"""${e.getMessage}

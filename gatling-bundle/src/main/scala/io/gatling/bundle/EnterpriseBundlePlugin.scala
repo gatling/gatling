@@ -20,7 +20,7 @@ import scala.util.control.NoStackTrace
 
 import io.gatling.plugin.{ BatchEnterprisePlugin, BatchEnterprisePluginClient, InteractiveEnterprisePlugin, InteractiveEnterprisePluginClient }
 import io.gatling.plugin.client.EnterpriseClient
-import io.gatling.plugin.client.http.OkHttpEnterpriseClient
+import io.gatling.plugin.client.http.HttpEnterpriseClient
 import io.gatling.plugin.exceptions.UnsupportedClientException
 
 object EnterpriseBundlePlugin {
@@ -49,7 +49,7 @@ object EnterpriseBundlePlugin {
     }
 
     try {
-      new OkHttpEnterpriseClient(config.getApiUrl, validApiToken, ClientName, getClass.getPackage.getImplementationVersion)
+      new HttpEnterpriseClient(config.getApiUrl, validApiToken, ClientName, getClass.getPackage.getImplementationVersion)
     } catch {
       case e: UnsupportedClientException =>
         throw new IllegalArgumentException(
