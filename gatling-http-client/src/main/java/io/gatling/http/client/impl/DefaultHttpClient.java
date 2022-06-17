@@ -30,8 +30,6 @@ import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.proxy.SockProxyServer;
-import io.gatling.http.client.realm.DigestRealm;
-import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.ssl.Tls;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.util.Pair;
@@ -481,19 +479,6 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     tx.requestTimeout.setChannel(channel);
-
-    Realm realm = tx.request.getRealm();
-    if (realm instanceof DigestRealm) {
-      // FIXME is it the right place?
-      // FIXME wouldn't work for WebSocket
-      // FIXME wouldn't work with HTTP/2
-      channel
-          .pipeline()
-          .addBefore(
-              APP_HTTP_HANDLER,
-              DIGEST_AUTH_HANDLER,
-              new DigestAuthHandler(tx, (DigestRealm) realm, config));
-    }
 
     channel.write(tx);
   }

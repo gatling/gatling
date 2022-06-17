@@ -21,74 +21,38 @@ import io.netty.handler.codec.http.HttpMethod;
 
 public class DigestRealm implements Realm {
 
-  private final String username;
-  private final String password;
+  @FunctionalInterface
+  public interface AuthorizationGen {
+    String apply(HttpMethod requestMethod, Uri requestUri, String username, String password);
+  }
+
+  public final String username;
+  public final String password;
+  private final AuthorizationGen authorizationHeaderF;
 
   public DigestRealm(String username, String password) {
+    this(username, password, null);
+  }
+
+  private DigestRealm(String username, String password, AuthorizationGen authorizationHeaderF) {
     this.username = username;
     this.password = password;
+    this.authorizationHeaderF = authorizationHeaderF;
   }
 
-  public String computeAuthorizationHeader(
-      HttpMethod requestMethod, Uri requestUri, String authenticateHeader) {
-
-    return new DigestAuth(
-            username,
-            password,
-            match(authenticateHeader, "realm"),
-            match(authenticateHeader, "nonce"),
-            match(authenticateHeader, "opaque"),
-            match(authenticateHeader, "algorithm"),
-            parseRawQop(match(authenticateHeader, "qop")),
-            "00000001", // FIXME
-            requestMethod,
-            requestUri.toRelativeUrl())
-        .computeAuthorization();
+  public DigestRealm withAuthorizationGen(AuthorizationGen authorizationHeaderF) {
+    return new DigestRealm(username, password, authorizationHeaderF);
   }
 
-  // TODO: A Pattern/Matcher may be better.
-  private static String match(String headerLine, String token) {
-    if (headerLine == null) {
-      return null;
+  public String getAuthorizationHeader(HttpMethod requestMethod, Uri requestUri) {
+    if (authorizationHeaderF == null) {
+      throw new UnsupportedOperationException("authorizationHeaderF is not configured");
     }
-
-    int match = headerLine.indexOf(token);
-    if (match <= 0) {
-      return null;
-    }
-
-    // = to skip
-    match += token.length() + 1;
-    int trailingComa = headerLine.indexOf(",", match);
-    String value =
-        headerLine.substring(match, trailingComa > 0 ? trailingComa : headerLine.length());
-    value =
-        value.length() > 0 && value.charAt(value.length() - 1) == '"'
-            ? value.substring(0, value.length() - 1)
-            : value;
-    return value.charAt(0) == '"' ? value.substring(1) : value;
+    return authorizationHeaderF.apply(requestMethod, requestUri, username, password);
   }
 
-  private static String parseRawQop(String rawQop) {
-    if (rawQop == null) {
-      return null;
-    }
-
-    String[] rawServerSupportedQops = rawQop.split(",");
-    String[] serverSupportedQops = new String[rawServerSupportedQops.length];
-    for (int i = 0; i < rawServerSupportedQops.length; i++) {
-      serverSupportedQops[i] = rawServerSupportedQops[i].trim();
-    }
-
-    // prefer auth over auth-int
-    for (String rawServerSupportedQop : serverSupportedQops) {
-      if (rawServerSupportedQop.equals("auth")) return rawServerSupportedQop;
-    }
-
-    for (String rawServerSupportedQop : serverSupportedQops) {
-      if (rawServerSupportedQop.equals("auth-int")) return rawServerSupportedQop;
-    }
-
-    return null;
+  @Override
+  public String toString() {
+    return "DigestRealm{username='" + username + "', password='*******'}";
   }
 }

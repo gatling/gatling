@@ -49,9 +49,9 @@ class PollerResponseProcessor(
         statsProcessor.reportStats(tx.fullRequestName, newSession, status, response, errorMessage)
         newSession
 
-      case Redirect(redirectTx) =>
-        statsProcessor.reportStats(tx.fullRequestName, redirectTx.session, OK, response, None)
-        logger.error("Polling support doesn't support redirect atm")
+      case FollowUp(followUpTx) =>
+        statsProcessor.reportStats(tx.fullRequestName, followUpTx.session, OK, response, None)
+        logger.error("Polling support doesn't support follow-up requests such as redirect atm")
         tx.session.markAsFailed
 
       case Crash(errorMessage) =>

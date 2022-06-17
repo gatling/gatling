@@ -26,6 +26,7 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.BasicRealm;
+import io.gatling.http.client.realm.DigestRealm;
 import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.uri.Uri;
@@ -172,8 +173,14 @@ public class RequestBuilder {
       headers.set(ACCEPT, ACCEPT_ALL_HEADER_VALUE);
     }
 
+    String authorization = null;
     if (realm instanceof BasicRealm) {
-      headers.add(AUTHORIZATION, ((BasicRealm) realm).getAuthorizationHeader());
+      authorization = ((BasicRealm) realm).getAuthorizationHeader();
+    } else if (realm instanceof DigestRealm) {
+      authorization = ((DigestRealm) realm).getAuthorizationHeader(method, uri);
+    }
+    if (authorization != null) {
+      headers.add(AUTHORIZATION, authorization);
     }
 
     if (!uri.isSecured() && proxyServer instanceof HttpProxyServer) {

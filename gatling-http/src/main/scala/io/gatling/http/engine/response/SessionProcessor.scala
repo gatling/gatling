@@ -18,6 +18,7 @@ package io.gatling.http.engine.response
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.session.Session
+import io.gatling.http.auth.{ DigestAuth, DigestAuthSupport }
 import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
@@ -79,6 +80,12 @@ sealed abstract class SessionProcessor(
     val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, response.endTimestamp)
     val sessionWithGroupUpdate = updateSessionStats(sessionWithCookieStoreUpdate, response.startTimestamp, response.endTimestamp, OK)
     cacheRedirect(sessionWithGroupUpdate, response, redirectUri)
+  }
+
+  def updatedDigestChallengeSession(session: Session, response: Response, challenges: Seq[DigestAuth.Challenge]): Session = {
+    val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, response.endTimestamp)
+    val sessionWihUpdatedStore = DigestAuthSupport.storeChallenges(sessionWithCookieStoreUpdate, challenges)
+    updateSessionStats(sessionWihUpdatedStore, response.startTimestamp, response.endTimestamp, OK)
   }
 
   private def cacheRedirect(session: Session, response: Response, redirectUri: Uri): Session =

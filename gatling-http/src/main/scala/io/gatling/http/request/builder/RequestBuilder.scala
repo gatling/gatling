@@ -31,7 +31,6 @@ import io.gatling.http.client.sign.OAuthSignatureCalculator
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
-import io.gatling.http.util.HttpHelper._
 
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }

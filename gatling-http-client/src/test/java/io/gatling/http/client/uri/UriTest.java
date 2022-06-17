@@ -459,4 +459,16 @@ class UriTest {
         uri.getPath(),
         "getPath should support non ASCII chars");
   }
+
+  @Test
+  void getLastDirectoryPathShouldReturnSlashWhenPathIsEmpty() {
+    Uri uri = Uri.create("https://gatling.io");
+    assertEquals("/", uri.getLastDirectoryPath());
+  }
+
+  @Test
+  void getLastDirectoryPathShouldReturnLastDirectory() {
+    Uri uri = Uri.create("https://gatling.io/foo/bar/baz");
+    assertEquals("/foo/bar", uri.getLastDirectoryPath());
+  }
 }

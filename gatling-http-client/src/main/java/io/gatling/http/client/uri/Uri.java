@@ -231,6 +231,19 @@ public class Uri {
     return isNonEmpty(path) ? path : "/";
   }
 
+  public static String getLastDirectoryPath(String path) {
+    int lastSlash = path.lastIndexOf('/');
+    if (lastSlash > 0) {
+      // mote than one slack
+      return path.substring(0, lastSlash);
+    }
+    return "/";
+  }
+
+  public String getLastDirectoryPath() {
+    return getLastDirectoryPath(path);
+  }
+
   public List<Param> getEncodedQueryParams() {
     if (isNonEmpty(query)) {
       List<Param> queryParams = new ArrayList<>(1);

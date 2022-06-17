@@ -25,20 +25,25 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
+import io.gatling.http.auth.DigestAuthSupport
+import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpResponseStatus }
+import io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION
 
 sealed trait ProcessorResult
 final case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult
-final case class Redirect(redirectTx: HttpTx) extends ProcessorResult
+final case class FollowUp(followUpTx: HttpTx) extends ProcessorResult
 final case class Crash(error: String) extends ProcessorResult
 
 object ResponseProcessor extends StrictLogging {
+
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   def processResponse(tx: HttpTx, sessionProcessor: SessionProcessor, defaultCharset: Charset, response: Response): ProcessorResult =
     try {
       if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
@@ -54,7 +59,7 @@ object ResponseProcessor extends StrictLogging {
             val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
             val newRedirectCount = tx.redirectCount + 1
             val redirectRequest =
-              RedirectProcessor.redirectRequest(
+              FollowUpProcessor.redirectRequest(
                 tx.request.requestName,
                 tx.request.clientRequest,
                 newSession,
@@ -64,7 +69,7 @@ object ResponseProcessor extends StrictLogging {
                 defaultCharset,
                 newRedirectCount
               )
-            Redirect(
+            FollowUp(
               tx.copy(
                 session = newSession,
                 request = tx.request.copy(clientRequest = redirectRequest),
@@ -74,8 +79,35 @@ object ResponseProcessor extends StrictLogging {
           }
         }
       } else {
-        val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
-        Proceed(newSession, errorMessage)
+        val digestAuthChallenges = DigestAuthSupport.extractChallenges(response.headers, tx.request.clientRequest.getUri)
+        tx.request.clientRequest.getRealm match {
+          case digestRealm: DigestRealm
+              if response.status == HttpResponseStatus.UNAUTHORIZED
+                && digestAuthChallenges.nonEmpty && //
+                (digestAuthChallenges.exists(_.stale) || !tx.request.clientRequest.getHeaders.contains(AUTHORIZATION)) =>
+            // otherwise we have non stale challenges while we've already tried to send an Authorization header,
+            // this means invalid credentials => let's fail
+            val newSession = sessionProcessor.updatedDigestChallengeSession(tx.session, response, digestAuthChallenges)
+
+            val challengeRequest =
+              FollowUpProcessor.digestChallengeRequest(
+                tx.request.requestName,
+                tx.request.clientRequest,
+                newSession,
+                digestRealm,
+                defaultCharset
+              )
+            FollowUp(
+              tx.copy(
+                session = newSession,
+                request = tx.request.copy(clientRequest = challengeRequest)
+              )
+            )
+
+          case _ =>
+            val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
+            Proceed(newSession, errorMessage)
+        }
       }
     } catch {
       case NonFatal(t) =>
@@ -139,9 +171,9 @@ class DefaultResponseProcessor(
         statsProcessor.reportStats(tx.fullRequestName, newSession, status, response, errorMessage)
         nextExecutor.executeNext(newSession, status, response)
 
-      case Redirect(redirectTx) =>
-        statsProcessor.reportStats(tx.fullRequestName, redirectTx.currentSession, OK, response, None)
-        nextExecutor.executeRedirect(redirectTx)
+      case FollowUp(followUpTx) =>
+        statsProcessor.reportStats(tx.fullRequestName, followUpTx.currentSession, OK, response, None)
+        nextExecutor.executeFollowUp(followUpTx)
 
       case Crash(errorMessage) =>
         val newSession = sessionProcessor.updateSessionCrashed(tx.currentSession, response.startTimestamp, response.endTimestamp)

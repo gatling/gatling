@@ -25,8 +25,10 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.http.auth.DigestAuthSupport
 import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches, LocalAddressSupport }
 import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.client.uri.{ Uri, UriEncoder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
@@ -200,8 +202,15 @@ abstract class RequestExpressionBuilder(
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(httpProtocol.requestPart.realm) match {
-      case Some(realm) => session => requestBuilder => realm(session).map(requestBuilder.setRealm)
-      case _           => ConfigureIdentity
+      case Some(realm) =>
+        session =>
+          requestBuilder =>
+            realm(session).map {
+              case digestRealm: DigestRealm =>
+                requestBuilder.setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
+              case other => requestBuilder.setRealm(other)
+            }
+      case _ => ConfigureIdentity
     }
 
   private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit = {

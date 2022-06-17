@@ -27,10 +27,10 @@ import io.netty.handler.codec.http.cookie.Cookie
 
 private[http] object CookieSupport {
 
-  val CookieJarAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
+  private[cookie] val CookieJarAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
   private val NoCookieJarFailure = "No CookieJar in session".failure
 
-  def cookieJar(session: Session): Option[CookieJar] = session.attributes.get(CookieJarAttributeName).map(_.asInstanceOf[CookieJar])
+  private def cookieJar(session: Session): Option[CookieJar] = session.attributes.get(CookieJarAttributeName).map(_.asInstanceOf[CookieJar])
 
   def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
     cookieJar(session) match {

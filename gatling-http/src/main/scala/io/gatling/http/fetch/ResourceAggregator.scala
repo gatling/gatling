@@ -48,7 +48,7 @@ private[http] trait ResourceAggregator {
       content: String
   ): Unit
 
-  def onRedirect(originalTx: HttpTx, redirectTx: HttpTx): Unit
+  def onFollowUp(originalTx: HttpTx, followUpTx: HttpTx): Unit
 
   def onCachedResource(resourceTx: ResourceTx, tx: HttpTx): Unit
 }
@@ -266,22 +266,22 @@ private[fetch] class DefaultResourceAggregator(
     resourceFetched(remote, status, silent, Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, remote).contains(true))
   }
 
-  override def onRedirect(originalTx: HttpTx, redirectTx: HttpTx): Unit = {
-    this.session = redirectTx.session
+  override def onFollowUp(originalTx: HttpTx, followUpTx: HttpTx): Unit = {
+    this.session = followUpTx.session
     val originUri = originalTx.request.clientRequest.getUri
     val originRemote = Remote(originUri)
-    val redirectUri = redirectTx.request.clientRequest.getUri
-    val redirectRemote = Remote(redirectUri)
+    val followUpUri = followUpTx.request.clientRequest.getUri
+    val followUpRemote = Remote(followUpUri)
 
-    if (redirectRemote == originRemote) {
-      sendBufferedRequest(redirectTx.request, redirectRemote)
+    if (followUpRemote == originRemote) {
+      sendBufferedRequest(followUpTx.request, followUpRemote)
     } else {
       releaseTokenAndContinue(originRemote, Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, originRemote).contains(true))
-      availableTokensByHost += redirectRemote -> (availableTokensByHost(redirectRemote) - 1)
-      if (availableTokensByHost(redirectRemote) > 0) {
-        sendBufferedRequest(redirectTx.request, redirectRemote)
+      availableTokensByHost += followUpRemote -> (availableTokensByHost(followUpRemote) - 1)
+      if (availableTokensByHost(followUpRemote) > 0) {
+        sendBufferedRequest(followUpTx.request, followUpRemote)
       } else {
-        bufferedResourcesByHost += redirectRemote -> (redirectTx.request :: bufferedResourcesByHost(redirectRemote))
+        bufferedResourcesByHost += followUpRemote -> (followUpTx.request :: bufferedResourcesByHost(followUpRemote))
       }
     }
   }

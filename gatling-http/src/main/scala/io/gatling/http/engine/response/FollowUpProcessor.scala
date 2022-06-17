@@ -21,17 +21,18 @@ import java.nio.charset.Charset
 import scala.jdk.CollectionConverters._
 
 import io.gatling.core.session.Session
+import io.gatling.http.auth.DigestAuthSupport
 import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
 
-import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpMethod._
-import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.handler.codec.http.HttpResponseStatus._
 
-object RedirectProcessor {
+object FollowUpProcessor {
 
   def redirectRequest(
       requestName: String,
@@ -96,6 +97,49 @@ object RedirectProcessor {
     }
 
     val cookies = CookieSupport.getStoredCookies(session, redirectUri)
+    if (cookies.nonEmpty) {
+      requestBuilder.setCookies(cookies.asJava)
+    }
+
+    requestBuilder.build
+  }
+
+  def digestChallengeRequest(
+      requestName: String,
+      originalRequest: Request,
+      session: Session,
+      digestRealm: DigestRealm,
+      defaultCharset: Charset
+  ): Request = {
+
+    val newHeaders = originalRequest.getHeaders
+      .remove(HttpHeaderNames.HOST)
+      .remove(HttpHeaderNames.CONTENT_LENGTH)
+      .remove(HttpHeaderNames.COOKIE)
+      .remove(HttpHeaderNames.ORIGIN)
+      // remove Authorization header if there's a realm as it will be recomputed
+      .remove(HttpHeaderNames.AUTHORIZATION)
+
+    val requestBuilder =
+      new RequestBuilder(
+        requestName,
+        originalRequest.getMethod,
+        originalRequest.getUri,
+        originalRequest.getNameResolver
+      )
+        .setHeaders(newHeaders)
+        .setHttp2Enabled(originalRequest.isHttp2Enabled)
+        .setLocalIpV4Address(originalRequest.getLocalIpV4Address)
+        .setLocalIpV6Address(originalRequest.getLocalIpV6Address)
+        .setRealm(originalRequest.getRealm)
+        .setRequestTimeout(originalRequest.getRequestTimeout)
+        .setDefaultCharset(defaultCharset)
+        .setVirtualHost(originalRequest.getVirtualHost)
+        .setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
+
+    Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
+
+    val cookies = CookieSupport.getStoredCookies(session, originalRequest.getUri)
     if (cookies.nonEmpty) {
       requestBuilder.setCookies(cookies.asJava)
     }

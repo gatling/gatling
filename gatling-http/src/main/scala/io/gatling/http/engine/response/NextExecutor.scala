@@ -28,7 +28,7 @@ trait NextExecutor {
 
   def executeNext(session: Session, status: Status, response: Response): Unit
   def executeNextOnCrash(session: Session): Unit
-  def executeRedirect(redirectTx: HttpTx): Unit
+  def executeFollowUp(redirectTx: HttpTx): Unit
 }
 
 class RootNextExecutor(
@@ -47,8 +47,8 @@ class RootNextExecutor(
   override def executeNextOnCrash(session: Session): Unit =
     tx.next ! session
 
-  override def executeRedirect(redirectTx: HttpTx): Unit =
-    httpTxExecutor.execute(redirectTx)
+  override def executeFollowUp(followUpTx: HttpTx): Unit =
+    httpTxExecutor.execute(followUpTx)
 }
 
 class ResourceNextExecutor(
@@ -74,6 +74,6 @@ class ResourceNextExecutor(
   override def executeNextOnCrash(session: Session): Unit =
     resourceTx.aggregator.onRegularResourceFetched(resourceTx, KO, session, tx.silent)
 
-  override def executeRedirect(redirectTx: HttpTx): Unit =
-    resourceTx.aggregator.onRedirect(tx, redirectTx)
+  override def executeFollowUp(followUpTx: HttpTx): Unit =
+    resourceTx.aggregator.onFollowUp(tx, followUpTx)
 }

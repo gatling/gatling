@@ -32,11 +32,6 @@ private[cookie] object CookieJar {
 
   private def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase(Locale.ROOT)
 
-  private def requestPath(requestUri: Uri) = requestUri.getPath match {
-    case "" => "/"
-    case p  => p
-  }
-
   // rfc6265#section-5.2.3
   // Let cookie-domain be the attribute-value without the leading %x2E (".") character.
   private def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
@@ -49,21 +44,11 @@ private[cookie] object CookieJar {
   // rfc6265#section-5.2.4
   private def cookiePath(rawCookiePath: Option[String], requestPath: String) = {
 
-    // rfc6265#section-5.1.4
-    def defaultCookiePath() = requestPath match {
-      case p if p.length > 1 && p.charAt(0) == '/' =>
-        val lastSlash = p.lastIndexOf('/')
-        if (lastSlash > 0) { // more than one slash
-          p.substring(0, lastSlash)
-        } else {
-          "/"
-        }
-      case _ => "/"
-    }
-
     rawCookiePath match {
-      case Some(path) if !path.isEmpty && path.charAt(0) == '/' => path
-      case _                                                    => defaultCookiePath()
+      case Some(path) if path.nonEmpty && path.charAt(0) == '/' => path
+      case _                                                    =>
+        // rfc6265#section-5.1.4
+        Uri.getLastDirectoryPath(requestPath)
     }
   }
 
@@ -97,7 +82,7 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
   def add(requestUri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = {
 
     val thisRequestDomain = requestDomain(requestUri)
-    val thisRequestPath = requestPath(requestUri)
+    val thisRequestPath = requestUri.getNonEmptyPath
 
     add(thisRequestDomain, thisRequestPath, cookies, nowMillis)
   }
@@ -151,7 +136,7 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
   def get(requestUri: Uri): List[Cookie] =
     get(
       domain = requestDomain(requestUri),
-      path = requestPath(requestUri),
+      path = requestUri.getNonEmptyPath,
       secure = requestUri.isSecured
     )
 }
