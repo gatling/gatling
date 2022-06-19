@@ -31,6 +31,6 @@ public class FileRequestBodyBuilder extends RequestBodyBuilder.Base<File> {
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new FileRequestBody(content, contentType, withDefault(charset, defaultCharset));
+    return new FileRequestBody(content, withDefault(charset, defaultCharset));
   }
 }

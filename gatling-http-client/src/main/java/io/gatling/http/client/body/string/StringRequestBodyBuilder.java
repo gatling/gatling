@@ -30,6 +30,6 @@ public class StringRequestBodyBuilder extends RequestBodyBuilder.Base<String> {
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new StringRequestBody(content, contentType, withDefault(charset, defaultCharset));
+    return new StringRequestBody(content, withDefault(charset, defaultCharset));
   }
 }

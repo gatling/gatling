@@ -225,9 +225,9 @@ public class RequestBuilder {
       String contentType = getContentType();
       Charset charset = extractContentTypeCharsetAttribute(contentType);
       body = bodyBuilder.build(contentType, charset, defaultCharset);
-      String bodyContentType = body.getContentType();
-      if (bodyContentType != null) {
-        headers.set(CONTENT_TYPE, bodyContentType);
+      CharSequence patchedContentType = body.getPatchedContentType();
+      if (patchedContentType != null) {
+        headers.set(CONTENT_TYPE, patchedContentType);
       }
     }
 

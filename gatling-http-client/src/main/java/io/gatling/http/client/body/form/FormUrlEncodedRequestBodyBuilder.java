@@ -35,9 +35,7 @@ public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<Li
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     return new FormUrlEncodedRequestBody(
         content,
-        contentType != null
-            ? contentType
-            : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(),
+        contentType == null ? HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED : null,
         withDefault(charset, defaultCharset));
   }
 }

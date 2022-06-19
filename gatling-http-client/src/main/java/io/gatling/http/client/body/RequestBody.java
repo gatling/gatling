@@ -21,31 +21,26 @@ import java.io.IOException;
 
 public interface RequestBody {
 
-  String getContentType();
-
   WritableContent build(ByteBufAllocator alloc) throws IOException;
 
   RequestBodyBuilder newBuilder();
 
   byte[] getBytes();
 
+  default CharSequence getPatchedContentType() {
+    return null;
+  }
+
   abstract class Base<T> implements RequestBody {
 
     protected final T content;
-    protected final String contentType;
 
-    public Base(T content, String contentType) {
+    public Base(T content) {
       this.content = content;
-      this.contentType = contentType;
     }
 
     public T getContent() {
       return content;
-    }
-
-    @Override
-    public String getContentType() {
-      return contentType;
     }
   }
 }

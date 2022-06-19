@@ -29,6 +29,6 @@ public class InputStreamRequestBodyBuilder extends RequestBodyBuilder.Base<Input
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new InputStreamRequestBody(content, contentType);
+    return new InputStreamRequestBody(content);
   }
 }

@@ -23,13 +23,15 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedFile;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 public final class FileRequestBody extends RequestBody.Base<File> {
 
   private final Charset charset;
 
-  public FileRequestBody(File content, String contentType, Charset charset) {
-    super(content, contentType);
+  public FileRequestBody(File content, Charset charset) {
+    super(content);
     this.charset = charset;
   }
 
@@ -52,7 +54,7 @@ public final class FileRequestBody extends RequestBody.Base<File> {
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public byte[] getBytes() {
     byte[] bytes = new byte[(int) content.length()];
-    try (InputStream is = new FileInputStream(content)) {
+    try (InputStream is = Files.newInputStream(content.toPath(), StandardOpenOption.READ)) {
       is.read(bytes);
     } catch (IOException e) {
       throw new IllegalArgumentException("Can't read file", e);
@@ -67,14 +69,6 @@ public final class FileRequestBody extends RequestBody.Base<File> {
 
   @Override
   public String toString() {
-    return "FileRequestBody{"
-        + "contentType='"
-        + contentType
-        + '\''
-        + ", charset="
-        + charset
-        + ", content="
-        + content
-        + '}';
+    return "FileRequestBody{" + "charset=" + charset + ", content=" + content + '}';
   }
 }

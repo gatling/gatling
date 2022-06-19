@@ -39,10 +39,12 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
   private static final Logger LOGGER = LoggerFactory.getLogger(MultipartFormDataRequestBody.class);
 
   private final byte[] boundary;
+  private final String patchedContentType;
 
-  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, byte[] boundary) {
-    super(content, contentType);
+  MultipartFormDataRequestBody(List<Part<?>> content, String patchedContentType, byte[] boundary) {
+    super(content);
     this.boundary = boundary;
+    this.patchedContentType = patchedContentType;
   }
 
   private MultipartChunkedInput toChunkedInput() {
@@ -91,10 +93,15 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
   }
 
   @Override
+  public String getPatchedContentType() {
+    return patchedContentType;
+  }
+
+  @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("MultipartFormDataRequestBody{");
     sb.append("boundary=").append(Arrays.toString(boundary));
-    sb.append(", contentType='").append(contentType).append('\'');
+    sb.append(", patchedContentType='").append(patchedContentType).append('\'');
     sb.append(", content=");
     content.forEach(part -> sb.append(part).append("\n"));
     sb.append('}');

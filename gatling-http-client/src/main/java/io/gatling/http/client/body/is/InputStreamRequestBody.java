@@ -46,8 +46,8 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
     }
   }
 
-  public InputStreamRequestBody(InputStream stream, String contentType) {
-    super(new ConsumableInputStream(stream), contentType);
+  public InputStreamRequestBody(InputStream stream) {
+    super(new ConsumableInputStream(stream));
   }
 
   @Override
@@ -72,6 +72,6 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
 
   @Override
   public String toString() {
-    return "InputStreamRequestBody{" + "contentType='" + contentType + '\'' + ", content=???" + '}';
+    return "InputStreamRequestBody{content=???}";
   }
 }

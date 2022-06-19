@@ -35,11 +35,15 @@ import java.util.List;
 public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param>> {
 
   private final Charset charset;
+
+  private final CharSequence patchedContentType;
   private static final StringBuilderPool SB_POOL = new StringBuilderPool();
 
-  public FormUrlEncodedRequestBody(List<Param> content, String contentType, Charset charset) {
-    super(content, contentType);
+  public FormUrlEncodedRequestBody(
+      List<Param> content, CharSequence patchedContentType, Charset charset) {
+    super(content);
     this.charset = charset;
+    this.patchedContentType = patchedContentType;
   }
 
   @Override
@@ -95,12 +99,16 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
   }
 
   @Override
+  public CharSequence getPatchedContentType() {
+    return patchedContentType;
+  }
+
+  @Override
   public String toString() {
     return "FormUrlEncodedRequestBody{"
-        + "contentType='"
-        + contentType
-        + '\''
-        + ", charset="
+        + "patchedContentType='"
+        + patchedContentType
+        + "', charset="
         + charset
         + ", content="
         + encode()

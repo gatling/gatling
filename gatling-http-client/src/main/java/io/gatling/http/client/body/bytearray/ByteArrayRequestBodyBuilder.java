@@ -33,7 +33,6 @@ public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]>
 
   @Override
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
-    return new ByteArrayRequestBody(
-        content, contentType, fileName, withDefault(charset, defaultCharset));
+    return new ByteArrayRequestBody(content, fileName, withDefault(charset, defaultCharset));
   }
 }

@@ -38,16 +38,18 @@ public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder.Base
   public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
 
     byte[] boundary;
+    String patchedContentType;
     String contentTypeBoundaryAttribute = extractContentTypeBoundaryAttribute(contentType);
     if (contentTypeBoundaryAttribute != null) {
       boundary = contentTypeBoundaryAttribute.getBytes(US_ASCII);
+      patchedContentType = null;
     } else {
       boundary = computeMultipartBoundary();
-      contentType =
+      patchedContentType =
           patchContentTypeWithBoundaryAttribute(
               withDefault(contentType, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
     }
 
-    return new MultipartFormDataRequestBody(content, contentType, boundary);
+    return new MultipartFormDataRequestBody(content, patchedContentType, boundary);
   }
 }

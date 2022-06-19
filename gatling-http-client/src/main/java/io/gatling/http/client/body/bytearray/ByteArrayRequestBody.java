@@ -29,9 +29,8 @@ public final class ByteArrayRequestBody extends RequestBody.Base<byte[]> {
   private final String fileName;
   private final Charset charset;
 
-  public ByteArrayRequestBody(
-      byte[] content, String contentType, String fileName, Charset charset) {
-    super(content, contentType);
+  public ByteArrayRequestBody(byte[] content, String fileName, Charset charset) {
+    super(content);
     this.fileName = fileName;
     this.charset = charset;
   }
@@ -62,10 +61,7 @@ public final class ByteArrayRequestBody extends RequestBody.Base<byte[]> {
   @Override
   public String toString() {
     return "ByteArrayRequestBody{"
-        + "contentType='"
-        + contentType
-        + '\''
-        + ", content (Base64)="
+        + "content (Base64)="
         + Base64.getEncoder().encodeToString(content)
         + '}';
   }

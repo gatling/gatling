@@ -30,8 +30,8 @@ public final class StringRequestBody extends RequestBody.Base<String> {
 
   private final Charset charset;
 
-  public StringRequestBody(String content, String contentType, Charset charset) {
-    super(content, contentType);
+  public StringRequestBody(String content, Charset charset) {
+    super(content);
     this.charset = charset;
   }
 
@@ -57,14 +57,6 @@ public final class StringRequestBody extends RequestBody.Base<String> {
 
   @Override
   public String toString() {
-    return "StringRequestBody{"
-        + "contentType='"
-        + contentType
-        + '\''
-        + ", charset="
-        + charset
-        + ", content="
-        + content
-        + '}';
+    return "StringRequestBody{" + "charset=" + charset + ", content=" + content + '}';
   }
 }
