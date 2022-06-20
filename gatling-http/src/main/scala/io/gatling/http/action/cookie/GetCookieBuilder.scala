@@ -37,8 +37,7 @@ class GetCookieBuilder(name: Expression[String], domain: Option[Expression[Strin
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
-    import ctx._
-    val httpProtocol = lookUpHttpComponents(protocolComponentsRegistry).httpProtocol
+    val httpProtocol = lookUpHttpComponents(ctx.protocolComponentsRegistry).httpProtocol
 
     val nonEmptyDomain = domain.getOrElse(defaultDomain(httpProtocol))
     val resolvedPath = path.getOrElse(DefaultPath)
@@ -50,6 +49,6 @@ class GetCookieBuilder(name: Expression[String], domain: Option[Expression[Strin
         cookieValue <- getCookieValue(session, resolvedDomain, resolvedPath, resolvedName, secure)
       } yield session.set(saveAs.getOrElse(resolvedName), cookieValue)
 
-    new SessionHook(expression, genName("getCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
+    new SessionHook(expression, genName("getCookie"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
   }
 }

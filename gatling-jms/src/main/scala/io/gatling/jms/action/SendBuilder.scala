@@ -23,17 +23,16 @@ import io.gatling.jms.request.JmsAttributes
 final class SendBuilder(attributes: JmsAttributes) extends JmsActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val jmsComponents = components(protocolComponentsRegistry)
+    val jmsComponents = components(ctx.protocolComponentsRegistry)
 
     new Send(
       attributes,
       jmsComponents.jmsProtocol,
       jmsComponents.jmsConnectionPool,
-      coreComponents.statsEngine,
-      coreComponents.clock,
+      ctx.coreComponents.statsEngine,
+      ctx.coreComponents.clock,
       next,
-      coreComponents.throttler.filter(_ => ctx.throttled)
+      ctx.coreComponents.throttler.filter(_ => ctx.throttled)
     )
   }
 }

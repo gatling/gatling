@@ -39,10 +39,8 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   def build(ctx: ScenarioContext, next: Action): Action = {
 
-    import ctx._
-
     val clock = ctx.coreComponents.clock
-    val httpProtocol = lookUpHttpComponents(protocolComponentsRegistry).httpProtocol
+    val httpProtocol = lookUpHttpComponents(ctx.protocolComponentsRegistry).httpProtocol
 
     val requestDomain = domain match {
       case None =>
@@ -66,6 +64,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
         storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
       }
 
-    new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
+    new SessionHook(expression, genName("addCookie"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
   }
 }

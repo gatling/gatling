@@ -47,13 +47,12 @@ final case class WsConnectRequestBuilder(
     this.modify(_.checkSequences)(_ :+ checkSequence)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val httpComponents = lookUpHttpComponents(ctx.protocolComponentsRegistry)
     val request = new WsRequestExpressionBuilder(
       commonAttributes,
       httpComponents.httpCaches,
       httpComponents.httpProtocol,
-      coreComponents.configuration,
+      ctx.coreComponents.configuration,
       subprotocol
     ).build
 
@@ -67,9 +66,9 @@ final case class WsConnectRequestBuilder(
       request,
       checkSequences,
       onConnected,
-      coreComponents,
+      ctx.coreComponents,
       httpComponents,
-      next = next
+      next
     )
   }
 }

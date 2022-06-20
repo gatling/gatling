@@ -48,10 +48,22 @@ final case class SseConnectRequestBuilder(
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName, checkSequences)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val request = new SseRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, coreComponents.configuration).build
-    new SseConnect(commonAttributes.requestName, sseName, request, checkSequences, coreComponents, httpComponents, next)
+    val httpComponents = lookUpHttpComponents(ctx.protocolComponentsRegistry)
+    val request = new SseRequestExpressionBuilder(
+      commonAttributes,
+      httpComponents.httpCaches,
+      httpComponents.httpProtocol,
+      ctx.coreComponents.configuration
+    ).build
+    new SseConnect(
+      commonAttributes.requestName,
+      sseName,
+      request,
+      checkSequences,
+      ctx.coreComponents,
+      httpComponents,
+      next
+    )
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))

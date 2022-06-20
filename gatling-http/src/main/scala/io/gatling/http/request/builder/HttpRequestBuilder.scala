@@ -159,13 +159,12 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
     this.modify(_.httpAttributes.requestTimeout).setTo(Some(timeout))
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val httpRequest = build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled, coreComponents.configuration)
+    val httpComponents = lookUpHttpComponents(ctx.protocolComponentsRegistry)
+    val httpRequest = build(httpComponents.httpCaches, httpComponents.httpProtocol, ctx.throttled, ctx.coreComponents.configuration)
     new HttpRequestAction(
       httpRequest,
       httpComponents.httpTxExecutor,
-      coreComponents,
+      ctx.coreComponents,
       next
     )
   }

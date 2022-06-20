@@ -30,13 +30,12 @@ class PollingStartBuilder(
 ) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val requestDef = requestBuilder.build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled, coreComponents.configuration)
+    val httpComponents = lookUpHttpComponents(ctx.protocolComponentsRegistry)
+    val requestDef = requestBuilder.build(httpComponents.httpCaches, httpComponents.httpProtocol, ctx.throttled, ctx.coreComponents.configuration)
     new PollingStart(
       pollerName,
       period,
-      coreComponents,
+      ctx.coreComponents,
       requestDef,
       httpComponents.httpCaches,
       httpComponents.httpProtocol,
