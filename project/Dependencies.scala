@@ -31,7 +31,7 @@ object Dependencies {
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.2"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "1.7.36"
-  private val spire                          = ("org.typelevel"                      %% "spire-macros"                      % "0.17.0")
+  private val spire                          = ("org.typelevel"                      %% "spire-macros"                      % "0.18.0")
     .exclude("org.typelevel", "machinist_2.13")
     .exclude("org.typelevel", "algebra_2.13")
     .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
