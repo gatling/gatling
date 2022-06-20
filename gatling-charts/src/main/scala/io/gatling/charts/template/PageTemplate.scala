@@ -93,7 +93,7 @@ ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)
     <a class="gatling-logo" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
     <a class="gatling-documentation" href="https://gatling.io/docs/" target="_blank">Documentation</a>
   </div>
-  <a class="enterprise" href="https://gatling.io/enterprise/" target="_blank">Try <img alt="Gatling Enterprise" src="style/logo-enterprise.svg"/></a></div>
+  <a class="enterprise" href="https://gatling.io/enterprise/next-step/" target="_blank">Try <img alt="Gatling Enterprise" src="style/logo-enterprise.svg"/></a></div>
 <div class="container details">
   <div class="nav">
     <ul></ul>
