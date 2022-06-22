@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType._
 private[gatling] object Json {
 
   private val stringBuilders = new StringBuilderPool
-  private val objectMapper = new ObjectMapper
+  private[json] val objectMapper: ObjectMapper = new ObjectMapper
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
 

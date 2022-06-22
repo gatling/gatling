@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets.{ UTF_16, UTF_8 }
 
 import io.gatling.commons.validation._
 
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.JsonNode
 
 object JsonParsers {
 
@@ -34,21 +34,19 @@ final class JsonParsers {
 
   import JsonParsers._
 
-  private val objectMapper = new ObjectMapper
-
   def parse(is: InputStream, charset: Charset): JsonNode =
     if (JsonParsers.JsonSupportedEncodings.contains(charset)) {
-      objectMapper.readValue(is, classOf[JsonNode])
+      Json.objectMapper.readValue(is, classOf[JsonNode])
     } else {
       val reader = new InputStreamReader(is, charset)
-      objectMapper.readValue(reader, classOf[JsonNode])
+      Json.objectMapper.readValue(reader, classOf[JsonNode])
     }
 
   def safeParse(is: InputStream, charset: Charset): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(is, charset).success)
 
   def parse(string: String): JsonNode =
-    objectMapper.readValue(string, classOf[JsonNode])
+    Json.objectMapper.readValue(string, classOf[JsonNode])
 
   def safeParse(string: String): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(string).success)
