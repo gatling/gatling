@@ -126,13 +126,13 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     expression(session).succeeded shouldBe "fooBAR2"
   }
 
-  "'index' function in Expression" should "return n-th element of a list in monovalued expression" in {
+  "index access" should "return n-th element of a Seq when n is a static number" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
     val expression = "#{bar(0)}".el[String]
     expression(session).succeeded shouldBe "BAR1"
   }
 
-  it should "return expected result when used with resolved index" in {
+  it should "return n-th element of a Seq when n is a variable" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
     val expression = "{foo#{bar(baz)}}".el[String]
     expression(session).succeeded shouldBe "{fooBAR2}"
@@ -151,6 +151,27 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val session = newSession(Map("lst" -> lst))
     val expression = "#{lst(0)}".el[Int]
     expression(session).succeeded shouldBe 1
+  }
+
+  it should "return (length + n)-th element of a Seq when n is a negative number" in {
+    val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
+    val expression = "#{bar(-1)}".el[String]
+    expression(session).succeeded shouldBe "BAR2"
+  }
+
+  it should "return (length + n)-th element of an Array when n is a negative number" in {
+    val session = newSession(Map("arr" -> Array(1, 2)))
+    val expression = "#{arr(1)}".el[Int]
+    expression(session).succeeded shouldBe 2
+  }
+
+  it should "return (length + n)-th element of a JList when n is a negative number" in {
+    val lst = new ju.LinkedList[Int]
+    lst.add(1)
+    lst.add(2)
+    val session = newSession(Map("lst" -> lst))
+    val expression = "#{lst(-1)}".el[Int]
+    expression(session).succeeded shouldBe 2
   }
 
   it should "handle gracefully when index in an Array is out of range" in {

@@ -122,7 +122,11 @@ final case class HtmlUnescape(part: ElPart[Any], name: String) extends ElPart[St
 }
 
 private class IntStringOpt(val s: String) extends AnyVal {
-  def isEmpty: Boolean = s.exists(char => char < '0' || char > '9')
+  def isEmpty: Boolean =
+    s.toCharArray.zipWithIndex.exists { case (char, i) =>
+      (char < '0' || char > '9') && !(char == '-' && i == 0)
+    }
+
   def get: Int = s.toInt
 }
 
@@ -135,20 +139,42 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
       case seq: Seq[_] =>
-        if (seq.isDefinedAt(index)) seq(index).success
-        else ElMessages.undefinedSeqIndex(seqName, index)
+        if (seq.isDefinedAt(index)) {
+          seq(index).success
+        } else if (index < 0) {
+          val backwardIndex = seq.length + index
+          if (seq.isDefinedAt(backwardIndex)) {
+            seq(backwardIndex).success
+          } else {
+            ElMessages.undefinedSeqIndex(seqName, index)
+          }
+        } else {
+          ElMessages.undefinedSeqIndex(seqName, index)
+        }
 
       case arr: Array[_] =>
-        if (index < arr.length) arr(index).success
-        else ElMessages.undefinedSeqIndex(seqName, index)
+        val actualIndex = if (index >= 0) index else arr.length + index
+        if (actualIndex < arr.length) {
+          arr(actualIndex).success
+        } else {
+          ElMessages.undefinedSeqIndex(seqName, index)
+        }
 
       case list: ju.List[_] =>
-        if (index < list.size) list.get(index).success
-        else ElMessages.undefinedSeqIndex(seqName, index)
+        val actualIndex = if (index >= 0) index else list.size + index
+        if (actualIndex < list.size) {
+          list.get(actualIndex).success
+        } else {
+          ElMessages.undefinedSeqIndex(seqName, index)
+        }
 
       case product: Product =>
-        if (index < product.productArity) product.productElement(index).success
-        else ElMessages.outOfRangeAccess(seqName, product, index)
+        val actualIndex = if (index >= 0) index else product.productArity + index
+        if (actualIndex < product.productArity) {
+          product.productElement(actualIndex).success
+        } else {
+          ElMessages.outOfRangeAccess(seqName, product, index)
+        }
 
       case other => ElMessages.indexAccessNotSupported(other, seqName)
     }
