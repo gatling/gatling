@@ -16,14 +16,153 @@
 
 package io.gatling.commons.util
 
-import java.time.ZonedDateTime
+import java.net.{ HttpURLConnection, URL }
+import java.nio.charset.StandardCharsets
+import java.time.{ Instant, ZoneOffset, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 import java.util.ResourceBundle
+import java.util.prefs.Preferences
+
+import scala.util.{ Success, Try }
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.Io._
+
+import com.typesafe.scalalogging.StrictLogging
 
 object GatlingVersion {
 
-  private val bundle = ResourceBundle.getBundle("gatling-version")
+  val ThisVersion: GatlingVersion = {
+    val bundle = ResourceBundle.getBundle("gatling-version")
+    GatlingVersion(
+      bundle.getString("version"),
+      ZonedDateTime.parse(bundle.getString("release-date"), DateTimeFormatter.ISO_DATE_TIME)
+    )
+  }
 
-  val Version: String = bundle.getString("version")
-  val ReleaseDate: ZonedDateTime = ZonedDateTime.parse(bundle.getString("release-date"), DateTimeFormatter.ISO_DATE_TIME)
+  lazy val LatestRelease: Option[GatlingVersion] = LatestGatlingRelease.load()
+}
+
+final case class GatlingVersion(number: String, releaseDate: ZonedDateTime)
+
+private object LatestGatlingRelease extends StrictLogging {
+
+  private sealed abstract class FetchResult(val lastCheckTimestamp: Long, maxAgeMillis: Long) extends Product with Serializable {
+    def valid(nowMillis: Long): Boolean = nowMillis - lastCheckTimestamp < maxAgeMillis
+  }
+
+  private object FetchResult {
+    final case class Success(override val lastCheckTimestamp: Long, latestRelease: GatlingVersion) extends FetchResult(lastCheckTimestamp, 24 * 3600)
+    final case class Failure(override val lastCheckTimestamp: Long) extends FetchResult(lastCheckTimestamp, 3600)
+  }
+
+  private val Prefs = Preferences.userRoot().node("/io/gatling/latestVersion")
+  private val LastCheckTimestampPref = "lastCheckTimestamp"
+  private val LastCheckSuccessPref = "lastCheckSuccess"
+  private val LatestReleaseNumberPref = "latestReleaseNumber"
+  private val LatestReleaseDatePref = "latestReleaseDate"
+
+  private val MavenCentralQuery = "https://search.maven.org/solrsearch/select?q=g:io.gatling+AND+a:gatling-core+AND+p:jar&rows=1&wt=json&core=gav"
+  private val MavenCentralQueryTimeoutMillis = 1000
+  private val MavenCentralQueryVersionRegex = """"v":\s*"(.+?)"""".r
+  private val MavenCentralQueryTimestampRegex = """"timestamp":\s*(\d+)""".r
+
+  private def loadPersisted(): Try[FetchResult] =
+    Try {
+      val lastCheckTimestamp = Prefs.getLong(LastCheckTimestampPref, 0)
+      if (Prefs.getBoolean(LastCheckSuccessPref, false)) {
+        FetchResult.Success(
+          lastCheckTimestamp,
+          GatlingVersion(
+            Option(Prefs.get(LatestReleaseNumberPref, null)).getOrElse(throw new IllegalStateException(s"$LatestReleaseNumberPref is missing")),
+            Option(Prefs.get(LatestReleaseDatePref, null))
+              .map(ZonedDateTime.parse(_, DateTimeFormatter.ISO_DATE_TIME))
+              .getOrElse(throw new IllegalStateException(s"$LatestReleaseDatePref is missing"))
+          )
+        )
+      } else {
+        FetchResult.Failure(lastCheckTimestamp)
+      }
+    }
+
+  private def persist(lastCheck: FetchResult): Try[Unit] =
+    Try {
+      Prefs.putLong(LastCheckTimestampPref, lastCheck.lastCheckTimestamp)
+      lastCheck match {
+        case FetchResult.Success(_, latestRelease) =>
+          Prefs.putBoolean(LastCheckSuccessPref, true)
+          Prefs.put(LatestReleaseNumberPref, latestRelease.number)
+          Prefs.putLong(LastCheckSuccessPref, latestRelease.releaseDate.toInstant.toEpochMilli)
+
+        case _ =>
+          Prefs.putBoolean(LastCheckSuccessPref, false)
+          Prefs.remove(LatestReleaseNumberPref)
+          Prefs.remove(LastCheckSuccessPref)
+      }
+      Prefs.flush()
+    }
+
+  private def fetchLatestReleaseFromMavenCentral(): Try[GatlingVersion] =
+    Try {
+      val conn = new URL(MavenCentralQuery).openConnection().asInstanceOf[HttpURLConnection]
+
+      try {
+        conn.setReadTimeout(MavenCentralQueryTimeoutMillis)
+        conn.setConnectTimeout(MavenCentralQueryTimeoutMillis)
+        conn.setDoInput(true)
+        conn.setDoOutput(false)
+        conn.setUseCaches(true)
+        conn.setRequestMethod("GET")
+        conn.setRequestProperty("Connection", "close")
+
+        val response = new String(conn.getInputStream.toByteArray(), StandardCharsets.UTF_8)
+        parseMavenCentralResponse(response)
+
+      } finally {
+        conn.disconnect()
+      }
+    }
+
+  private[util] def parseMavenCentralResponse(response: String): GatlingVersion = {
+    val version =
+      MavenCentralQueryVersionRegex
+        .findFirstMatchIn(response)
+        .getOrElse(throw new IllegalArgumentException(s"Failed to find version field in $response"))
+        .group(1)
+    val timestamp =
+      MavenCentralQueryTimestampRegex
+        .findFirstMatchIn(response)
+        .getOrElse(throw new IllegalArgumentException(s"Failed to find timestamp field in $response"))
+        .group(1)
+        .toLong
+    GatlingVersion(version, ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC))
+  }
+
+  private implicit final class OnFailureTry[T](val t: Try[T]) extends AnyVal {
+    def logWarnOnFailure(message: String): Try[T] =
+      t.recoverWith { case NonFatal(e) =>
+        logger.warn(message, e)
+        t
+      }
+  }
+
+  def load(): Option[GatlingVersion] = {
+    val now = System.currentTimeMillis()
+    loadPersisted().logWarnOnFailure("Failed to load persisted latest release") match {
+      case Success(lastCheck) if lastCheck.valid(now) =>
+        lastCheck match {
+          case FetchResult.Success(_, latestRelease) => Some(latestRelease)
+          case _                                     => None
+        }
+
+      case _ =>
+        val maybeFetched = fetchLatestReleaseFromMavenCentral().logWarnOnFailure("Failed to fetch latest release from maven central")
+        val fetchResult = maybeFetched.fold(
+          _ => FetchResult.Failure(now),
+          FetchResult.Success(now, _)
+        )
+        persist(fetchResult).logWarnOnFailure("Failed to persist last version check")
+        maybeFetched.toOption
+    }
+  }
 }

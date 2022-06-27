@@ -17,7 +17,7 @@
 package io.gatling.charts.template
 
 import java.nio.charset.Charset
-import java.time.Instant
+import java.time.{ ZoneOffset, ZonedDateTime }
 
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
@@ -60,18 +60,30 @@ private[charts] abstract class PageTemplate(
       }
 
     val deprecationWarning = {
-      val gatlingVersionAgeInYears = (Instant.now().getEpochSecond - GatlingVersion.ReleaseDate.toInstant.getEpochSecond) / (365 * 24 * 3600)
-      if (gatlingVersionAgeInYears > 0) {
-        s"""<div class="alert-danger">
-           |  You are using Gatling ${GatlingVersion.Version} that was released on ${GatlingVersion.ReleaseDate.toLocalDate.toString},
-           |  hence more than $gatlingVersionAgeInYears year${if (gatlingVersionAgeInYears > 1) "s" else ""} ago.
-           |  Please check the <a href="https://gatling.io/docs/gatling/reference/current/whats_new">new features</a>,
-           |  the <a href="https://gatling.io/docs/gatling/reference/current/upgrading/">upgrade guides</a>,
-           |  and consider upgrading.
-           |</div>""".stripMargin
-      } else {
-        ""
+      val thisReleaseDate = GatlingVersion.ThisVersion.releaseDate
+      val thisReleaseDatePlus1Year = thisReleaseDate.plusYears(1)
+
+      val deprecationMessage = GatlingVersion.LatestRelease match {
+        case Some(GatlingVersion(number, releaseDate)) if releaseDate.isAfter(thisReleaseDatePlus1Year) =>
+          s"""
+             |You are using Gatling ${GatlingVersion.ThisVersion.number}
+             | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
+             | Gatling $number is available since ${releaseDate.toLocalDate.toString}.
+             |""".stripMargin
+        case None if ZonedDateTime.now(ZoneOffset.UTC).isAfter(thisReleaseDatePlus1Year) =>
+          s"""You are using Gatling ${GatlingVersion.ThisVersion.number}
+             | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
+             |""".stripMargin
+        case _ =>
+          ""
       }
+
+      deprecationMessage.map(m => s"""<div class="alert-danger">
+                                     |  $m.
+                                     |  Please check the <a href="https://gatling.io/docs/gatling/reference/current/whats_new">new features</a>,
+                                     |  the <a href="https://gatling.io/docs/gatling/reference/current/upgrading/">upgrade guides</a>,
+                                     |  and consider upgrading.
+                                     |</div>""".stripMargin)
     }
 
     s"""
