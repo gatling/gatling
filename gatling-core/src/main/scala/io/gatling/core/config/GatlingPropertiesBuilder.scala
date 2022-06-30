@@ -59,5 +59,15 @@ final class GatlingPropertiesBuilder {
     this
   }
 
+  def launcher(v: String): GatlingPropertiesBuilder = {
+    props += data.Launcher -> v
+    this
+  }
+
+  def buildToolVersion(v: String): GatlingPropertiesBuilder = {
+    props += data.BuildToolVersion -> v
+    this
+  }
+
   def build: mutable.Map[String, Any] = props
 }

@@ -25,6 +25,7 @@ import scala.jdk.StreamConverters._
 import scala.util.control.NoStackTrace
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
+import io.gatling.commons.util.Java
 import io.gatling.plugin.util.Fork
 
 private[commands] object CommandHelper {
@@ -48,15 +49,6 @@ private[commands] object CommandHelper {
     case _          => "java"
   }
 
-  val javaVersion: Int = {
-    val javaSpecVersion = System.getProperty("java.specification.version")
-    (javaSpecVersion.split("\\.").toList match {
-      case "1" :: major :: _ => major
-      case major :: _        => major
-      case _                 => throw new IllegalArgumentException(s"Malformed java.specification.version System property value: $javaSpecVersion")
-    }).toInt
-  }
-
   def gatlingHome: String = optionEnv("GATLING_HOME").getOrElse {
     try {
       Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.toURI).getParent.getParent.toAbsolutePath.toString
@@ -76,9 +68,9 @@ private[commands] object CommandHelper {
     "-XX:MaxInlineLevel=20",
     "-XX:MaxTrivialSize=12"
   ) ++
-    (if (javaVersion < 9) List("-XX:+UseG1GC") else Nil) ++
-    (if (javaVersion < 11) List("-XX:+ParallelRefProcEnabled") else Nil) ++
-    (if (javaVersion < 15) List("-XX:-UseBiasedLocking") else Nil)
+    (if (Java.MajorVersion < 9) List("-XX:+UseG1GC") else Nil) ++
+    (if (Java.MajorVersion < 11) List("-XX:+ParallelRefProcEnabled") else Nil) ++
+    (if (Java.MajorVersion < 15) List("-XX:-UseBiasedLocking") else Nil)
 
   if (Files.notExists(Paths.get(gatlingHome))) {
     throw new InvalidGatlingHomeException
@@ -117,8 +109,8 @@ private[commands] object CommandHelper {
     val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
 
     val extraJavacOptions = maxJavaVersion match {
-      case Some(maxVersion) if javaVersion > maxVersion =>
-        println(s"Currently running on unsupported Java version $javaVersion; Java code will be compiled with the '--release $maxVersion' option")
+      case Some(maxVersion) if Java.MajorVersion > maxVersion =>
+        println(s"Currently running on unsupported Java version ${Java.MajorVersion}; Java code will be compiled with the '--release $maxVersion' option")
         List("-ejo", s"--release,$maxVersion")
       case _ =>
         Nil

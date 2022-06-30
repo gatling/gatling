@@ -54,7 +54,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     val selection = Selection(forcedSimulationClass, configuration)
 
-    if (configuration.http.enableGA) Ga.send(GatlingVersion.ThisVersion.number)
+    if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, configuration.data.launcher, configuration.data.buildToolVersion)
 
     val simulationParams = selection.simulationClass.params(configuration)
     logger.trace("Simulation params built")
@@ -62,7 +62,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     simulationParams.before()
     logger.trace("Before hook executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, GatlingVersion.ThisVersion.number)
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, GatlingVersion.ThisVersion.fullVersion)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler.newThrottler(system, simulationParams)
     val injector = Injector(system, eventLoopGroup, statsEngine, clock)
@@ -107,7 +107,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   protected def displayVersionWarning(): Unit =
     GatlingVersion.LatestRelease.foreach { latest =>
       if (latest.releaseDate.isAfter(GatlingVersion.ThisVersion.releaseDate)) {
-        println(s"Gatling ${latest.number} is available! (you're using ${GatlingVersion.ThisVersion.number})")
+        println(s"Gatling ${latest.fullVersion} is available! (you're using ${GatlingVersion.ThisVersion.fullVersion})")
       }
     }
 }

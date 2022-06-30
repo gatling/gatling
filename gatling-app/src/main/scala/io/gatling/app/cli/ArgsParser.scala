@@ -46,6 +46,12 @@ private[app] class ArgsParser(args: Array[String]) {
 
     opt[String](RunDescription)
       .foreach(props.runDescription)
+
+    opt[String](Launcher)
+      .foreach(props.launcher)
+
+    opt[String](BuildToolVersion)
+      .foreach(props.buildToolVersion)
   }
 
   def parseArguments: Either[ConfigOverrides, StatusCode] =

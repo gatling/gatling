@@ -42,4 +42,6 @@ private[gatling] object CommandLineConstants {
   )
   val Simulation = new CommandLineConstant("simulation", "s", "Runs <className> simulation", Some("<className>"))
   val RunDescription = new CommandLineConstant("run-description", "rd", "A short <description> of the run to include in the report", Some("<description>"))
+  val Launcher = new CommandLineConstant("launcher", "l", "The program that launched Gatling", None)
+  val BuildToolVersion = new CommandLineConstant("build-tool-version", "btv", "The version of the build tool used to launch Gatling", None)
 }

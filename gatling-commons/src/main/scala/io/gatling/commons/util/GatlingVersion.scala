@@ -43,7 +43,12 @@ object GatlingVersion {
   lazy val LatestRelease: Option[GatlingVersion] = LatestGatlingRelease.load()
 }
 
-final case class GatlingVersion(number: String, releaseDate: ZonedDateTime)
+final case class GatlingVersion(fullVersion: String, releaseDate: ZonedDateTime) {
+  val minorVersion: String = fullVersion.split("\\.").take(2).mkString(".")
+  val majorVersion: String = fullVersion.substring(fullVersion.indexOf('.'))
+  def isSnapshot: Boolean = fullVersion.endsWith("-SNAPSHOT")
+  def isEnterprise: Boolean = fullVersion.contains(".FL")
+}
 
 private object LatestGatlingRelease extends StrictLogging {
 
@@ -91,7 +96,7 @@ private object LatestGatlingRelease extends StrictLogging {
       lastCheck match {
         case FetchResult.Success(_, latestRelease) =>
           Prefs.putBoolean(LastCheckSuccessPref, true)
-          Prefs.put(LatestReleaseNumberPref, latestRelease.number)
+          Prefs.put(LatestReleaseNumberPref, latestRelease.fullVersion)
           Prefs.putLong(LastCheckSuccessPref, latestRelease.releaseDate.toInstant.toEpochMilli)
 
         case _ =>

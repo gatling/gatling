@@ -1,0 +1,124 @@
+/*
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.gatling.app
+
+import java.net.{ HttpURLConnection, URL }
+import java.nio.charset.StandardCharsets.UTF_8
+
+import scala.util.{ Try, Using }
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.{ GatlingVersion, Java }
+
+object Analytics {
+
+  private val ApiKeyDev = "c942a452709b79a25f792ea63b60f2b1"
+  private val ApiKeyProd = "c82eb1f1552d655a799501ecc8181fca"
+
+  def send(simulationClass: SimulationClass, explicitLauncher: Option[String], buildToolVersion: Option[String]): Unit = {
+
+    val apiKey = if (GatlingVersion.ThisVersion.isSnapshot) ApiKeyDev else ApiKeyProd
+    val programmingLanguage = simulationClass match {
+      case SimulationClass.Java(_) =>
+        Try {
+          getClass.getClassLoader.loadClass("kotlin.KotlinVersion")
+          "kotlin"
+        }.toOption.getOrElse("java")
+
+      case SimulationClass.Scala(_) => "scala"
+    }
+    val launcher = explicitLauncher
+      .orElse(
+        if (sys.props.get("java.class.path").exists(_.contains("idea"))) {
+          Some("idea")
+        } else if (
+          // eclipse on MacOS
+          sys.env.get("__CFBundleIdentifier").exists(_.contains("eclipse")) ||
+          // eclipse on Windows with bundle JRE
+          sys.props.get("java.library.path").exists(_.contains("eclipse"))
+        ) {
+          Some("eclipse")
+        } else {
+          None
+        }
+      )
+
+    val userPropertiesBase = Map(
+      "java_version_major" -> Java.MajorVersion.toString,
+      "gatling_version_major" -> GatlingVersion.ThisVersion.majorVersion,
+      "gatling_version_minor" -> GatlingVersion.ThisVersion.minorVersion,
+      "gatling_version_full" -> GatlingVersion.ThisVersion.fullVersion,
+      "gatling_version_enterprise" -> GatlingVersion.ThisVersion.isEnterprise,
+      "programming_language" -> programmingLanguage
+    )
+
+    val launcherProperties = launcher.fold(Map.empty[String, String])(l => Map("launcher" -> l))
+    val buildToolVersionProperties = buildToolVersion.fold(Map.empty[String, String])(btv => Map("build-tool-version" -> btv))
+
+    val jsonUserProperties =
+      (userPropertiesBase ++ launcherProperties ++ buildToolVersionProperties).map { case (key, value) => s""""$key": "$value"""" }.toSeq.sorted.mkString(",\n")
+
+    val bodyBytes =
+      s"""{
+         |   "api_key":"$apiKey",
+         |   "events":[
+         |      {
+         |         "user_id":"gatling",
+         |         "event_type":"gatling_run",
+         |         "ip":"$$remote",
+         |         "user_properties":{
+         |            $jsonUserProperties
+         |         }
+         |      }
+         |   ]
+         |}""".stripMargin
+        .getBytes(UTF_8)
+
+    val url = new URL("https://api.eu.amplitude.com/2/httpapi")
+
+    val thread = new Thread(() =>
+      try {
+        val conn = url.openConnection().asInstanceOf[HttpURLConnection]
+
+        try {
+          conn.setReadTimeout(2000)
+          conn.setConnectTimeout(2000)
+          conn.setDoInput(true)
+          conn.setDoOutput(true)
+          conn.setUseCaches(false)
+          conn.setRequestMethod("POST")
+          conn.setRequestProperty("Connection", "close")
+          conn.setRequestProperty("Content-Length", bodyBytes.length.toString)
+
+          Using.resource(conn.getOutputStream) { os =>
+            os.write(bodyBytes)
+            os.flush()
+
+            // wait for the response (at least one byte) before closing
+            conn.getInputStream.read()
+          }
+        } finally {
+          conn.disconnect()
+        }
+      } catch {
+        case NonFatal(_) =>
+      }
+    )
+    thread.setDaemon(true)
+    thread.start()
+  }
+}

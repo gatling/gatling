@@ -112,7 +112,6 @@ object ConfigKeys {
     val FetchedHtmlCacheMaxCapacity = "gatling.http.fetchedHtmlCacheMaxCapacity"
     val PerUserCacheMaxCapacity = "gatling.http.perUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
-    val EnableGA = "gatling.http.enableGA"
     val PooledConnectionIdleTimeout = "gatling.http.pooledConnectionIdleTimeout"
     val RequestTimeout = "gatling.http.requestTimeout"
     val EnableHostnameVerification = "gatling.http.enableHostnameVerification"
@@ -149,5 +148,8 @@ object ConfigKeys {
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WritePeriod = "gatling.data.graphite.writePeriod"
     }
+    val EnableAnalytics = "gatling.data.enableAnalytics"
+    val Launcher = "gatling.data.launcher"
+    val BuildToolVersion = "gatling.data.buildToolVersion"
   }
 }

@@ -66,12 +66,12 @@ private[charts] abstract class PageTemplate(
       val deprecationMessage = GatlingVersion.LatestRelease match {
         case Some(GatlingVersion(number, releaseDate)) if releaseDate.isAfter(thisReleaseDatePlus1Year) =>
           s"""
-             |You are using Gatling ${GatlingVersion.ThisVersion.number}
+             |You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
              | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
              | Gatling $number is available since ${releaseDate.toLocalDate.toString}.
              |""".stripMargin
         case None if ZonedDateTime.now(ZoneOffset.UTC).isAfter(thisReleaseDatePlus1Year) =>
-          s"""You are using Gatling ${GatlingVersion.ThisVersion.number}
+          s"""You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
              | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
              |""".stripMargin
         case _ =>

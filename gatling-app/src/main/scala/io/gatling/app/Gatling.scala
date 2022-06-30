@@ -40,7 +40,7 @@ object Gatling extends StrictLogging {
     sys.exit(fromArgs(args, None))
   }
 
-  // used by maven archetype
+  // used by Engine
   def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
 
   // used by sbt-test-framework

@@ -223,7 +223,6 @@ object GatlingConfiguration extends StrictLogging {
       fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
       perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
       warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
-      enableGA = config.getBoolean(http.EnableGA),
       requestTimeout = config.getInt(http.RequestTimeout).millis,
       pooledConnectionIdleTimeout = config.getInt(http.PooledConnectionIdleTimeout).millis,
       enableHostnameVerification = {
@@ -266,7 +265,10 @@ object GatlingConfiguration extends StrictLogging {
         rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
         bufferSize = config.getInt(data.graphite.BufferSize),
         writePeriod = config.getInt(data.graphite.WritePeriod).seconds
-      )
+      ),
+      enableAnalytics = config.getBoolean(data.EnableAnalytics),
+      launcher = config.getStringOption(data.Launcher),
+      buildToolVersion = config.getStringOption(data.BuildToolVersion)
     )
 
   private def mapToGatlingConfig(config: Config) =
@@ -380,7 +382,6 @@ final class HttpConfiguration(
     val fetchedHtmlCacheMaxCapacity: Long,
     val perUserCacheMaxCapacity: Int,
     val warmUpUrl: Option[String],
-    val enableGA: Boolean,
     val pooledConnectionIdleTimeout: FiniteDuration,
     val requestTimeout: FiniteDuration,
     val enableHostnameVerification: Boolean,
@@ -401,7 +402,10 @@ final class DataConfiguration(
     val file: FileDataWriterConfiguration,
     val leak: LeakDataWriterConfiguration,
     val console: ConsoleDataWriterConfiguration,
-    val graphite: GraphiteDataWriterConfiguration
+    val graphite: GraphiteDataWriterConfiguration,
+    val enableAnalytics: Boolean,
+    val launcher: Option[String],
+    val buildToolVersion: Option[String]
 ) {
   def fileDataWriterEnabled: Boolean = dataWriters.contains(DataWriterType.File)
 }

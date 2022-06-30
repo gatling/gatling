@@ -39,7 +39,7 @@ class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
       "io.gatling.app.Gatling",
       classPath.asJava,
       runJavaOptions.asJava,
-      args.asJava,
+      (args ::: List("-l", "bundle")).asJava,
       java,
       true,
       BundleIO.getLogger,

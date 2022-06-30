@@ -49,7 +49,7 @@ private[charts] final class SimulationCardComponent(runInfo: RunInfo) extends Co
        |  <span class="simulation-information-title">Gatling Version</span>
        |    <span class="simulation-information-item">
        |      <span class="simulation-information-label">Version: </span>
-       |      <span>${GatlingVersion.ThisVersion.number}</span>
+       |      <span>${GatlingVersion.ThisVersion.fullVersion}</span>
        |    </span>
        |    <span class="simulation-information-item">
        |      <span class="simulation-information-label">Released: </span>
