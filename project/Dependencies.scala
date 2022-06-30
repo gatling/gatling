@@ -21,10 +21,15 @@ object Dependencies {
   private val nettyHttp2                     = netty.withName("netty-codec-http2")
   private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes"            % "2.0.53.Final"
   private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
+  private val nettyTcNativeBoringSslLinuxX86 = nettyTcNativeBoringSsl  classifier "linux-x86_64"
+  private val nettyTcNativeBoringSslLinuxArm = nettyTcNativeBoringSsl  classifier "linux-aarch_64"
+  private val nettyTcNativeBoringSslOsXX86   = nettyTcNativeBoringSsl  classifier "osx-x86_64"
+  private val nettyTcNativeBoringSslOsXArm   = nettyTcNativeBoringSsl  classifier "osx-aarch_64"
+  private val nettyTcNativeBoringSslWindows  = nettyTcNativeBoringSsl  classifier "windows-x86_64"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                          % "1.7.1"
-  private val brotli4jMacOs                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
+  private val brotli4cOsXX86                  = brotli4j.withName("native-osx-x86_64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                        % "2.6.19"
   private val akkaSlf4j                      = akka.withName("akka-slf4j")
@@ -165,10 +170,15 @@ object Dependencies {
     nettyHttp2,
     nettyTcNative,
     nettyTcNativeBoringSsl,
+    nettyTcNativeBoringSslLinuxX86,
+    nettyTcNativeBoringSslLinuxArm,
+    nettyTcNativeBoringSslOsXX86,
+    nettyTcNativeBoringSslOsXArm,
+    nettyTcNativeBoringSslWindows,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
-    brotli4jMacOs,
+    brotli4cOsXX86,
     brotli4jWindows,
     junit,
     junitEngine,
