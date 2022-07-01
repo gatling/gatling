@@ -25,7 +25,7 @@ import scala.jdk.StreamConverters._
 import scala.util.control.NoStackTrace
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
-import io.gatling.commons.util.Java
+import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.Fork
 
 private[commands] object CommandHelper {
@@ -62,20 +62,6 @@ private[commands] object CommandHelper {
 
   def systemJavaOpts: List[String] = optionListEnv("JAVA_OPTS")
 
-  def defaultJavaOptions: List[String] = List(
-    "-server",
-    "-XX:+HeapDumpOnOutOfMemoryError",
-    "-XX:MaxInlineLevel=20",
-    "-XX:MaxTrivialSize=12"
-  ) ++
-    (if (Java.MajorVersion < 9) List("-XX:+UseG1GC") else Nil) ++
-    (if (Java.MajorVersion < 11) List("-XX:+ParallelRefProcEnabled") else Nil) ++
-    (if (Java.MajorVersion < 15) List("-XX:-UseBiasedLocking") else Nil)
-
-  if (Files.notExists(Paths.get(gatlingHome))) {
-    throw new InvalidGatlingHomeException
-  }
-
   val gatlingConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_)).getOrElse(Paths.get(gatlingHome, "conf")).toAbsolutePath
   val gatlingLibsDirectory: Path = Paths.get(gatlingHome, "lib").toAbsolutePath
   val userLibsDirectory: Path = Paths.get(gatlingHome, "user-files", "lib").toAbsolutePath
@@ -104,13 +90,15 @@ private[commands] object CommandHelper {
     val compilerMemoryOptions = List("-Xmx1G", "-Xss100M")
     // Note: options which come later in the list can override earlier ones (because the java command will use the last
     // occurrence in its arguments list in case of conflict)
-    val compilerJavaOptions = defaultJavaOptions ++ compilerMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsCompile
+    val compilerJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_BASE.asScala ++ compilerMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsCompile
 
     val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
 
     val extraJavacOptions = maxJavaVersion match {
-      case Some(maxVersion) if Java.MajorVersion > maxVersion =>
-        println(s"Currently running on unsupported Java version ${Java.MajorVersion}; Java code will be compiled with the '--release $maxVersion' option")
+      case Some(maxVersion) if GatlingConstants.JAVA_MAJOR_VERSION > maxVersion =>
+        println(
+          s"Currently running on unsupported Java version ${GatlingConstants.JAVA_MAJOR_VERSION}; Java code will be compiled with the '--release $maxVersion' option"
+        )
         List("-ejo", s"--release,$maxVersion")
       case _ =>
         Nil

@@ -22,6 +22,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.bundle.commands.CommandHelper._
+import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.Fork
 
 class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
@@ -30,10 +31,9 @@ class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
 
     val classPath = gatlingLibs ++ userLibs ++ userResources ++ gatlingConfFiles
 
-    val runMemoryOptions = List("-Xmx1G")
     // Note: options which come later in the list can override earlier ones (because the java command will use the last
     // occurrence in its arguments list in case of conflict)
-    val runJavaOptions = defaultJavaOptions ++ runMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsRun
+    val runJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala ++ systemJavaOpts ++ config.extraJavaOptionsRun
 
     new Fork(
       "io.gatling.app.Gatling",
