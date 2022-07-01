@@ -20,6 +20,7 @@ import java.{ util => ju }
 
 import scala.collection.mutable
 
+import io.gatling.commons.util.Java
 import io.gatling.recorder.config.ConfigKeys._
 import io.gatling.recorder.render.template.Format
 
@@ -56,6 +57,17 @@ class RecorderPropertiesBuilder {
     props += core.ClassName -> className
     this
   }
+
+  def simulationFormatJava: RecorderPropertiesBuilder =
+    simulationFormat(
+      if (Java.MajorVersion >= 17) {
+        Format.Java17
+      } else if (Java.MajorVersion >= 11) {
+        Format.Java11
+      } else {
+        Format.Java8
+      }
+    )
 
   def simulationFormatJava8: RecorderPropertiesBuilder =
     simulationFormat(Format.Java8)
