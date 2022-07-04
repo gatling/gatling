@@ -95,6 +95,7 @@ setUp(
 val parent = scenario("parent")
 val child1 = scenario("child1")
 val child2 = scenario("child2")
+val child3 = scenario("child3")
 val grandChild = scenario("grandChild")
 val injectionProfile = constantConcurrentUsers(5).during(5)
 
@@ -107,6 +108,9 @@ setUp(
         // grandChild will start when last child1 user will terminate
         .andThen(grandChild.injectClosed(injectionProfile)),
       child2.injectClosed(injectionProfile)
+    ).andThen(
+      // child3 will start when last grandChild and child2 users will terminate
+      child3.injectClosed(injectionProfile)
     )
 )
 //#andThen

@@ -34,8 +34,9 @@ Gatling EL uses a `#{attributeName}` syntax to define placeholders to be replace
 
 // access by index
 // supports arrays, Java List, Scala Seq and Product
+// n can be negative to count backward from the end
 "#{foo(n)}"
-  
+
 // access by key
 // supports Java Map, Java POJO, Java records, Scala Map and Scala case class
 "#{foo.bar}"

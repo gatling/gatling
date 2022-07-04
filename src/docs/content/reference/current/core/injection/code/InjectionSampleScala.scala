@@ -95,6 +95,7 @@ setUp(
 private val parent = scenario("parent")
 private val child1 = scenario("child1")
 private val child2 = scenario("child2")
+private val child3 = scenario("child3")
 private val grandChild = scenario("grandChild")
 private val injectionProfile = constantConcurrentUsers(5).during(5)
 
@@ -118,6 +119,9 @@ setUp(
     .andThen(
       // child load will be sharded
       child1.inject(injectionProfile)
+    ).andThen(
+      // child3 will start when last grandChild and child2 users will terminate
+      child3.inject(injectionProfile)
     )
 )
 //#noShard

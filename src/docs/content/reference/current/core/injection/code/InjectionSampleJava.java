@@ -99,6 +99,7 @@ setUp(
 ScenarioBuilder parent = scenario("parent");
 ScenarioBuilder child1 = scenario("child1");
 ScenarioBuilder child2 = scenario("child2");
+ScenarioBuilder child3 = scenario("child3");
 ScenarioBuilder grandChild = scenario("grandChild");
 ClosedInjectionStep injectionProfile = constantConcurrentUsers(5).during(5);
 
@@ -111,6 +112,9 @@ setUp(
         // grandChild will start when last child1 user will terminate
         .andThen(grandChild.injectClosed(injectionProfile)),
       child2.injectClosed(injectionProfile)
+    ).andThen(
+      // child3 will start when last grandChild and child2 users will terminate
+      child3.injectClosed(injectionProfile)
     )
 );
 //#andThen
