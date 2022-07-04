@@ -16,7 +16,9 @@
 
 package io.gatling.http.protocol
 
+import io.gatling.core.session.Expression
+
 trait ProxySupport {
 
-  def Proxy(host: String, port: Int): ProxyBuilder = ProxyBuilder(host, port)
+  def Proxy(host: Expression[String], port: Expression[Int]): ProxyBuilder = ProxyBuilder(host, port)
 }

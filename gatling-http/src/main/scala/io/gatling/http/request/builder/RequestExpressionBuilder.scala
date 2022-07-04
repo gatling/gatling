@@ -136,10 +136,10 @@ abstract class RequestExpressionBuilder(
 
   private val proxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
 
-  private def configureProxy(requestBuilder: ClientRequestBuilder): Unit =
+  private def configureProxy(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     proxy.foreach { proxy =>
       if (!httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
-        requestBuilder.setProxyServer(proxy)
+        proxy(session).map(requestBuilder.setProxyServer)
       }
     }
 
@@ -242,7 +242,7 @@ abstract class RequestExpressionBuilder(
   protected def configureRequestBuilderForProtocol: RequestBuilderConfigure
 
   private def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
-    configureProxy(requestBuilder)
+    configureProxy(session, requestBuilder)
     configureRequestTimeout(requestBuilder)
     configureCookies(session, requestBuilder)
     configureLocalAddress(session, requestBuilder)

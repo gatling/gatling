@@ -20,9 +20,11 @@ import java.nio.charset.Charset
 
 import scala.jdk.CollectionConverters._
 
+import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.session.Session
 import io.gatling.http.auth.DigestAuthSupport
 import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.cookie.CookieSupport
@@ -88,8 +90,16 @@ object FollowUpProcessor {
 
     if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
       val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
-      val protocolProxy = httpProtocol.proxyPart.proxy
-      originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
+
+      val protocolProxy = httpProtocol.proxyPart.proxy.map(_.apply(session) match {
+        case Success(value)   => value
+        case failure: Failure => failure
+      })
+
+      originalRequestProxy.orElse(protocolProxy).foreach {
+        case _: ProxyServer   => requestBuilder.setProxyServer(_)
+        case failure: Failure => failure
+      }
     }
 
     if (keepBody) {

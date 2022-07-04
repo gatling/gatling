@@ -507,7 +507,18 @@ public abstract class RequestActionBuilder<
    */
   @Nonnull
   public T proxy(@Nonnull Proxy proxy) {
-    return make(wrapped -> wrapped.proxy(proxy.asScala()));
+    return make(wrapped -> wrapped.proxy(toStaticValueExpression(proxy.asScala())));
+  }
+
+  /**
+   * Define a Proxy to be used for this request
+   *
+   * @param proxy the proxy, expressed as a function
+   * @return a new DSL instance
+   */
+  @Nonnull
+  public T proxy(@Nonnull Function<Session, Proxy> proxy) {
+    return make(wrapped -> wrapped.proxy(javaFunctionToExpressionUnwrap(proxy)));
   }
 
   /**

@@ -24,9 +24,13 @@ import scala.collection.BitSet
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
+import io.gatling.commons.model.Credentials
+import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
+import io.gatling.http.client.proxy.{ HttpProxyServer, ProxyServer, Socks4ProxyServer, Socks5ProxyServer }
 import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.client.uri.Uri
+import io.gatling.http.protocol.{ HttpProxy, Proxy, ProxyCredentials, ProxyType, Socks4Proxy, Socks5Proxy }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
@@ -81,6 +85,38 @@ private[gatling] object HttpHelper extends StrictLogging {
         passwordValue <- password(session)
       } yield new DigestRealm(usernameValue, passwordValue)
 
+  def resolveProxyCreds(session: Session, proxyCredentials: Option[Expression[ProxyCredentials]]): Option[Credentials] = {
+    val creds: Validation[Credentials] = proxyCredentials match {
+      case Some(credentials) =>
+        for {
+          cred <- credentials(session)
+          username <- cred.username(session)
+          password <- cred.password(session)
+        } yield Credentials(username, password)
+    }
+
+    creds.toOption
+  }
+
+  def buildProxy(proxy: Expression[Proxy]): Session => Validation[ProxyServer] = { (session: Session) =>
+    for {
+      proxy <- proxy(session)
+      host <- proxy.host(session)
+      port <- proxy.port(session)
+      securePort <- proxy.securePort(session)
+    } yield proxyServer(host, port, securePort, proxy.proxyType, resolveProxyCreds(session, proxy.credentials))
+  }
+
+  private def proxyServer(host: String, port: Int, securePort: Int, proxyType: ProxyType, credentials: Option[Credentials]): ProxyServer = {
+    def basicRealm: Option[BasicRealm] = credentials.map(c => new BasicRealm(c.username, c.password))
+
+    proxyType match {
+      case HttpProxy   => new HttpProxyServer(host, port, securePort, basicRealm.orNull)
+      case Socks4Proxy => new Socks4ProxyServer(host, port, credentials.map(_.username).orNull)
+      case Socks5Proxy => new Socks5ProxyServer(host, port, basicRealm.orNull)
+    }
+  }
+
   private def mimeType(headers: HttpHeaders): Option[String] =
     Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).map { contentType =>
       val comma = contentType.indexOf(';')
@@ -93,6 +129,7 @@ private[gatling] object HttpHelper extends StrictLogging {
 
   private val StandardApplicationTextMimeSubTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded", "x-javascript")
   private val StandardApplicationTextExtensions = Set("+xml", "+json")
+
   def isText(headers: HttpHeaders): Boolean =
     mimeType(headers).exists {
       case "multipart/related" => Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).flatMap(extractAttributeFromContentType(_, "type=")).exists(isText)
@@ -106,8 +143,10 @@ private[gatling] object HttpHelper extends StrictLogging {
     }
 
   def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(HttpHeaderValues.TEXT_CSS.toString)
+
   def isHtml(headers: HttpHeaders): Boolean =
     mimeType(headers).exists(mt => mt == HttpHeaderValues.TEXT_HTML.toString || mt == HttpHeaderValues.APPLICATION_XHTML.toString)
+
   def isAjax(headers: HttpHeaders): Boolean = headers.contains(HttpHeaderNames.X_REQUESTED_WITH, HttpHeaderValues.XML_HTTP_REQUEST.toString, false)
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
@@ -126,11 +165,15 @@ private[gatling] object HttpHelper extends StrictLogging {
     }
 
   def isOk(statusCode: Int): Boolean = OkCodes.contains(statusCode)
+
   def isRedirect(status: HttpResponseStatus): Boolean = RedirectStatusCodes.contains(status.code)
+
   def isPermanentRedirect(status: HttpResponseStatus): Boolean = status == MOVED_PERMANENTLY || status == PERMANENT_REDIRECT
+
   def isNotModified(status: HttpResponseStatus): Boolean = status == NOT_MODIFIED
 
   def isAbsoluteHttpUrl(url: String): Boolean = url.startsWith(HttpScheme)
+
   def isAbsoluteWsUrl(url: String): Boolean = url.startsWith(WsScheme)
 
   def isMultipartFormData(contentType: String): Boolean =

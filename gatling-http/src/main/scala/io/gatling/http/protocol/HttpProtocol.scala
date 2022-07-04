@@ -190,7 +190,7 @@ final case class HttpProtocolWsPart(
 )
 
 final case class HttpProtocolProxyPart(
-    proxy: Option[ProxyServer],
+    proxy: Option[Expression[ProxyServer]],
     proxyExceptions: Seq[String]
 )
 

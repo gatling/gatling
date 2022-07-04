@@ -16,6 +16,11 @@
 
 package io.gatling.javaapi.http;
 
+import static io.gatling.javaapi.core.internal.Expressions.*;
+
+import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.core.Unwrap;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 /**
@@ -23,7 +28,7 @@ import javax.annotation.Nonnull;
  *
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
-public final class Proxy {
+public final class Proxy implements Unwrap<io.gatling.http.protocol.Proxy> {
   private final io.gatling.http.protocol.ProxyBuilder wrapped;
 
   Proxy(io.gatling.http.protocol.ProxyBuilder wrapped) {
@@ -71,8 +76,19 @@ public final class Proxy {
    * @return a new Proxy instance
    */
   @Nonnull
-  public Proxy httpsPort(int port) {
-    return new Proxy(wrapped.httpsPort(port));
+  public Proxy httpsPort(Integer port) {
+    return new Proxy(wrapped.httpsPort(toIntExpression(port.toString())));
+  }
+
+  /**
+   * Define this proxy uses a different port for HTTPS
+   *
+   * @param port the https port, expressed as a function
+   * @return a new Proxy instance
+   */
+  @Nonnull
+  public Proxy httpsPort(Function<Session, Integer> port) {
+    return new Proxy(wrapped.httpsPort(javaIntegerFunctionToExpression(port)));
   }
 
   /**
@@ -84,6 +100,22 @@ public final class Proxy {
    */
   @Nonnull
   public Proxy credentials(@Nonnull String username, @Nonnull String password) {
-    return new Proxy(wrapped.credentials(username, password));
+    return new Proxy(
+        wrapped.credentials(toStringExpression(username), toStringExpression(password)));
+  }
+
+  /**
+   * Define some Basic Auth credentials for this proxy
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a function
+   * @return a new Proxy instance
+   */
+  @Nonnull
+  public Proxy credentials(
+      @Nonnull Function<Session, String> username, @Nonnull Function<Session, String> password) {
+    return new Proxy(
+        wrapped.credentials(
+            javaFunctionToExpression(username), javaFunctionToExpression(password)));
   }
 }

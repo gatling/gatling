@@ -33,6 +33,7 @@ import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.client.{ HttpClientConfig, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
+import io.gatling.http.client.proxy.HttpProxyServer
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
@@ -261,6 +262,37 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
       Chunks,
       Body
     )
+  }
+
+  it should "work when pass proxy as Gatling EL" in {
+    val form = Map(
+      "ip" -> "1.1.1.13",
+      "port" -> 88,
+      "username" -> "root",
+      "password" -> "qwerty"
+    )
+
+    val session = sessionBase.setAll(form)
+
+    val reqBuild = httpRequestDef(
+      _.proxy(Proxy("#{ip}", "#{port}").credentials("#{username}", "#{password}"))
+    ).build(session)
+
+    val paramsProxy = reqBuild
+      .map(_.clientRequest.getProxyServer)
+      .succeeded
+
+    val paramsCredentials = reqBuild
+      .map(_.clientRequest.getProxyServer match {
+        case server: HttpProxyServer => server.getRealm
+      })
+      .succeeded
+
+    paramsProxy.getHost shouldBe "1.1.1.13"
+    paramsProxy.getPort shouldBe 88
+
+    paramsCredentials.getUsername shouldBe "root"
+    paramsCredentials.getPassword shouldBe "qwerty"
   }
 
   // Not possible to check prior of default over protocol, as only default added value is status

@@ -29,7 +29,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session => ScalaSession, _ }
 import io.gatling.core.session.el.El
 import io.gatling.core.structure.Pauses
-import io.gatling.javaapi.core.Session
+import io.gatling.javaapi.core.{ Session, Unwrap }
 import io.gatling.javaapi.core.internal.Converters.toScalaTuple2Seq
 
 object Expressions {
@@ -46,6 +46,9 @@ object Expressions {
    */
   def javaFunctionToExpression[T](f: JavaExpression[T]): Expression[T] =
     session => safely()(f.apply(new Session(session)).success)
+
+  def javaFunctionToExpressionUnwrap[T <: Unwrap[Q], Q](f: JavaExpression[T]): Expression[Q] =
+    session => safely()(f.apply(new Session(session)).asScala().success)
 
   def javaBiFunctionToExpression[U, R](f: juf.BiFunction[U, Session, R]): (U, ScalaSession) => Validation[R] =
     (u, session) => safely()(f.apply(u, new Session(session)).success)

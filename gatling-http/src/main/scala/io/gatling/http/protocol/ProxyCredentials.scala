@@ -18,15 +18,4 @@ package io.gatling.http.protocol
 
 import io.gatling.core.session.Expression
 
-final case class Proxy(
-    host: Expression[String],
-    port: Expression[Int],
-    securePort: Expression[Int],
-    proxyType: ProxyType,
-    credentials: Option[Expression[ProxyCredentials]]
-)
-
-sealed trait ProxyType
-case object HttpProxy extends ProxyType
-case object Socks4Proxy extends ProxyType
-case object Socks5Proxy extends ProxyType
+final case class ProxyCredentials(username: Expression[String], password: Expression[String])

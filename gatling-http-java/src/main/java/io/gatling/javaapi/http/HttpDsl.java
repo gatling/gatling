@@ -1021,11 +1021,27 @@ public final class HttpDsl {
    * Bootstrap the DSL for defining a Proxy
    *
    * @param host the proxy host
-   * @param port the proxy prot
+   * @param port the proxy port
    * @return the next DSL step
    */
   @Nonnull
-  public static Proxy Proxy(@Nonnull String host, int port) {
-    return new Proxy(io.gatling.http.Predef.Proxy(host, port));
+  public static Proxy Proxy(@Nonnull String host, Integer port) {
+    return new Proxy(
+        io.gatling.http.Predef.Proxy(toStringExpression(host), toIntExpression(port.toString())));
+  }
+
+  /**
+   * Bootstrap the DSL for defining a Proxy
+   *
+   * @param host the proxy host, expressed as a function
+   * @param port the proxy port, expressed as a function
+   * @return the next DSL step
+   */
+  @Nonnull
+  public static Proxy Proxy(
+      @Nonnull Function<Session, String> host, Function<Session, Integer> port) {
+    return new Proxy(
+        io.gatling.http.Predef.Proxy(
+            javaFunctionToExpression(host), javaIntegerFunctionToExpression(port)));
   }
 }

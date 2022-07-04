@@ -16,15 +16,15 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.commons.model.Credentials
+import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
 
 import com.softwaremill.quicklens._
 
 object ProxyBuilder {
 
-  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy, None))
+  def apply(host: Expression[String], port: Expression[Int]): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy, None))
 
-  implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
+  implicit def toProxy(proxyBuilder: ProxyBuilder): Expression[Proxy] = proxyBuilder.proxy.expressionSuccess
 }
 
 final class ProxyBuilder(val proxy: Proxy) {
@@ -38,9 +38,9 @@ final class ProxyBuilder(val proxy: Proxy) {
   def socks5: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks5Proxy))
 
-  def httpsPort(port: Int): ProxyBuilder =
+  def httpsPort(port: Expression[Int]): ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.securePort).setTo(port))
 
-  def credentials(username: String, password: String): ProxyBuilder =
-    new ProxyBuilder(proxy.modify(_.credentials).setTo(Some(Credentials(username, password))))
+  def credentials(username: Expression[String], password: Expression[String]): ProxyBuilder =
+    new ProxyBuilder(proxy.modify(_.credentials).setTo(Some(ProxyCredentials(username, password).expressionSuccess)))
 }

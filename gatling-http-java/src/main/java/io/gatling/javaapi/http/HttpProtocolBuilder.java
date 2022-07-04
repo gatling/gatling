@@ -1157,7 +1157,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @return a new HttpProtocolBuilder instance
    */
   public HttpProtocolBuilder proxy(Proxy proxy) {
-    return new HttpProtocolBuilder(wrapped.proxy(proxy.asScala()));
+    return new HttpProtocolBuilder(wrapped.proxy(toStaticValueExpression(proxy.asScala())));
   }
 
   // dnsPart

@@ -84,7 +84,7 @@ class HttpEngine(
             .setRequestTimeout(1000)
             .setDefaultCharset(configuration.core.charset)
 
-          httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
+          httpProtocol.proxyPart.proxy.foreach(_.map(requestBuilder.setProxyServer))
           val eventLoop = eventLoopGroup.next()
 
           try {

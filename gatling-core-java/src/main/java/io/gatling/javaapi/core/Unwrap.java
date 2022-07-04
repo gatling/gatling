@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package io.gatling.http.protocol
+package io.gatling.javaapi.core;
 
-import io.gatling.core.session.Expression
+public interface Unwrap<T> {
 
-final case class Proxy(
-    host: Expression[String],
-    port: Expression[Int],
-    securePort: Expression[Int],
-    proxyType: ProxyType,
-    credentials: Option[Expression[ProxyCredentials]]
-)
-
-sealed trait ProxyType
-case object HttpProxy extends ProxyType
-case object Socks4Proxy extends ProxyType
-case object Socks5Proxy extends ProxyType
+  T asScala();
+}

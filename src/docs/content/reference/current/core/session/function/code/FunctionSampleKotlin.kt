@@ -19,7 +19,7 @@ import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
 
-class FunctionSampleJava {
+class FunctionSampleKotlin {
   init {
 //#function
 // inline usage with a Java lamdba
