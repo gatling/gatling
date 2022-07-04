@@ -44,7 +44,7 @@ object GatlingVersion {
 }
 
 final case class GatlingVersion(fullVersion: String, releaseDate: ZonedDateTime) {
-  val minorVersion: String = fullVersion.split("\\.").take(2).mkString(".")
+  val minorVersion: String = fullVersion.split('.').take(2).mkString(".")
   val majorVersion: String = fullVersion.substring(fullVersion.indexOf('.'))
   def isSnapshot: Boolean = fullVersion.endsWith("-SNAPSHOT")
   def isEnterprise: Boolean = fullVersion.contains(".FL")

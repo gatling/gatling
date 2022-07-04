@@ -20,7 +20,7 @@ import scala.util.Properties
 
 object Java {
   val MajorVersion: Int = {
-    (Properties.javaSpecVersion.split("\\.").toList match {
+    (Properties.javaSpecVersion.split('.').toList match {
       case "1" :: major :: _ => major
       case major :: _        => major
       case _                 => throw new IllegalArgumentException(s"Malformed java.specification.version System property value: ${Properties.javaSpecVersion}")
