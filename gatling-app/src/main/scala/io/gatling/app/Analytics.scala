@@ -26,12 +26,12 @@ import io.gatling.commons.util.{ GatlingVersion, Java }
 
 object Analytics {
 
-  private val ApiKeyDev = "c942a452709b79a25f792ea63b60f2b1"
-  private val ApiKeyProd = "c82eb1f1552d655a799501ecc8181fca"
+  private val ApiKeyDev = "27a3799b1445c6ab08674c6b8fa3b956"
+  private val ApiKeyProd = "4ba61bcc5dc0854ac5ee8cafa62e403b"
 
   def send(simulationClass: SimulationClass, explicitLauncher: Option[String], buildToolVersion: Option[String]): Unit = {
 
-    val apiKey = if (GatlingVersion.ThisVersion.isSnapshot) ApiKeyDev else ApiKeyProd
+    val apiKey = if (GatlingVersion.ThisVersion.isDev) ApiKeyDev else ApiKeyProd
     val programmingLanguage = simulationClass match {
       case SimulationClass.Java(_) =>
         Try {
