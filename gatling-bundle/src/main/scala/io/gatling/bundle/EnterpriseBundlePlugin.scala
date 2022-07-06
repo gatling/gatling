@@ -49,7 +49,7 @@ object EnterpriseBundlePlugin {
     }
 
     try {
-      new HttpEnterpriseClient(config.getApiUrl, validApiToken, ClientName, getClass.getPackage.getImplementationVersion)
+      new HttpEnterpriseClient(config.url, validApiToken, ClientName, getClass.getPackage.getImplementationVersion)
     } catch {
       case e: UnsupportedClientException =>
         throw new IllegalArgumentException(

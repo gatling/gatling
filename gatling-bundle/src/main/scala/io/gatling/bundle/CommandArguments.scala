@@ -60,6 +60,4 @@ final case class CommandArguments(
     reportsOnly: Option[String],
     extraJavaOptionsCompile: List[String],
     extraJavaOptionsRun: List[String]
-) {
-  def getApiUrl: URL = new URL(url.toExternalForm + "/api/public")
-}
+)
