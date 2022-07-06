@@ -36,17 +36,25 @@ object PackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
 }
 
-class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int) {
+class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int], cleanFile: Boolean) {
 
   private[bundle] def run(): File = {
-    compile(config, args, Some(maxJavaVersion))
+    compile(config, args, maxJavaVersion)
     println("Creating the package")
-    createJar()
+    createJar(cleanFile)
   }
 
-  private def createJar(): File = {
-    val file = File.createTempFile("package", ".jar")
-    file.deleteOnExit()
+  private def createJar(cleanFile: Boolean): File = {
+    val file = if (cleanFile) {
+      val tempFile = File.createTempFile("package", ".jar")
+      tempFile.deleteOnExit()
+      tempFile
+    } else {
+      val packageFile = new File(targetDirectory.toFile, "package.jar")
+      packageFile.delete()
+      packageFile.createNewFile()
+      packageFile
+    }
 
     Using(new JarOutputStream(new FileOutputStream(file))) { jos =>
       jos.setLevel(ZipOutputStream.STORED)
@@ -67,6 +75,9 @@ class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersio
       addJarsContents(userLibsDirectory, writeEntry)
 
       println("Package created")
+      if (!cleanFile) {
+        println(s"Package can be found here: ${file.getAbsolutePath}")
+      }
       file
     }.fold(throw _, identity)
   }

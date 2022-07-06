@@ -42,15 +42,15 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
 
   private[bundle] def run(): Unit =
     Try {
-      val enterpriseClient: EnterpriseClient = EnterpriseBundlePlugin.getClient(config)
-      val enterprisePlugin: EnterprisePlugin =
+      val enterpriseClient = EnterpriseBundlePlugin.getClient(config)
+      val enterprisePlugin =
         if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient)
         else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient)
 
       val serverInformation = enterpriseClient.getServerInformation
       val maxJavaVersion = serverInformation.versions.java.max.toInt
 
-      val file = new PackageCommand(config, args, maxJavaVersion).run()
+      val file = new PackageCommand(config, args, Some(maxJavaVersion), cleanFile = true).run()
 
       val simulationStartResult = config.simulationId match {
         case Some(simulationId) =>

@@ -19,7 +19,7 @@ package io.gatling.bundle.commands
 import scala.jdk.CollectionConverters._
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
-import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal }
+import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage }
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
 
@@ -30,6 +30,7 @@ class RunCommand(config: CommandArguments, args: List[String]) {
         runMode match {
           case RunLocal      => new OpenSourceRunCommand(config, args).run()
           case RunEnterprise => new EnterpriseRunCommand(config, args).run()
+          case RunPackage    => new PackageCommand(config, args, maxJavaVersion = None, cleanFile = false).run()
         }
       case _ =>
         if (config.simulationId.nonEmpty) {
@@ -42,19 +43,22 @@ class RunCommand(config: CommandArguments, args: List[String]) {
           throw new IllegalArgumentException(s"""
                                                 |If you're running Gatling in batch mode, you need to set the runMode option:
                                                 |- '--${RunModeOption.full} ${RunLocal.value}' if you want to start the Simulation locally
-                                                |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to start the Simulation on Gatling Enterprise
+                                                |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to start the Simulation on Gatling Enterprise Cloud
+                                                |- '--${RunModeOption.full} ${RunPackage.value}' if you want to package the Simulation for Gatling Enterprise
                                                 |""".stripMargin)
         } else {
-          println("Do you want to run the simulation locally or Enterprise?")
+          println("Do you want to run the simulation locally, on Gatling Enterprise, or just package it?")
           val inputChoice = new InputChoice(BundleIO)
-          val runGatlingOpenSource = "Run the Simulation locally"
-          val runGatlingEnterprise = "Run the Simulation on Gatling Enterprise"
-          val isOpenSource = inputChoice.inputFromStringList(List(runGatlingOpenSource, runGatlingEnterprise).asJava, false).equals(runGatlingOpenSource)
+          val RunGatlingOpenSource = "Run the Simulation locally"
+          val RunGatlingEnterprise = "Run the Simulation on Gatling Enterprise Cloud"
+          val RunPackage = "Package the Simulation for Gatling Enterprise"
+          val choice = inputChoice.inputFromStringList(List(RunGatlingOpenSource, RunGatlingEnterprise, RunPackage).asJava, false)
 
-          if (isOpenSource) {
-            new OpenSourceRunCommand(config, args).run()
-          } else {
-            new EnterpriseRunCommand(config, args).run()
+          choice match {
+            case RunGatlingOpenSource => new OpenSourceRunCommand(config, args).run()
+            case RunPackage           => new PackageCommand(config, args, maxJavaVersion = None, cleanFile = false).run()
+            case RunGatlingEnterprise => new EnterpriseRunCommand(config, args).run()
+            case _                    => throw new IllegalArgumentException(s"Couldn't recognize the chosen option $choice")
           }
         }
     }

@@ -20,7 +20,7 @@ import java.net.URL
 import java.util.{ Locale, UUID }
 
 import io.gatling.app.cli.CommandLineConstants._
-import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunMode }
+import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunMode, RunPackage }
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption, _ }
 import io.gatling.bundle.commands.RunCommand
 import io.gatling.core.cli.GatlingOptionParser
@@ -37,12 +37,14 @@ object GatlingCLI {
       input.toLowerCase(Locale.ROOT) match {
         case RunLocal.value      => RunLocal
         case RunEnterprise.value => RunEnterprise
+        case RunPackage.value    => RunPackage
         case _ =>
           throw new IllegalArgumentException(
             s"""
                |Please specify:
-               |'--${RunModeOption.full} ${RunLocal.value}' to start the Simulation locally or
-               |'--${RunModeOption.full} ${RunEnterprise.value}' to start the Simulation on Gatling Enterprise""".stripMargin
+               |'--${RunModeOption.full} ${RunLocal.value}' to start the Simulation locally,
+               |'--${RunModeOption.full} ${RunEnterprise.value}' to start the Simulation on Gatling Enterprise Cloud or
+               |'--${RunModeOption.full} ${RunPackage.value}' to package the Simulation for Gatling Enterprise""".stripMargin
           )
       }
     )

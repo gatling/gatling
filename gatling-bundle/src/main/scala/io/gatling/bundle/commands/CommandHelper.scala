@@ -66,6 +66,7 @@ private[commands] object CommandHelper {
   val gatlingLibsDirectory: Path = Paths.get(gatlingHome, "lib").toAbsolutePath
   val userLibsDirectory: Path = Paths.get(gatlingHome, "user-files", "lib").toAbsolutePath
   val userResourcesDirectory: Path = Paths.get(gatlingHome, "user-files", "resources").toAbsolutePath
+  val targetDirectory: Path = Paths.get(gatlingHome, "target").toAbsolutePath
   val targetTestClassesDirectory: Path = Paths.get(gatlingHome, "target", "test-classes").toAbsolutePath
 
   def gatlingLibs: List[String] = listFiles(gatlingLibsDirectory)
