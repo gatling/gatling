@@ -144,16 +144,16 @@ private object LatestGatlingRelease extends StrictLogging {
   }
 
   private implicit final class OnFailureTry[T](val t: Try[T]) extends AnyVal {
-    def logWarnOnFailure(message: String): Try[T] =
+    def logDebugOnFailure(message: String): Try[T] =
       t.recoverWith { case NonFatal(e) =>
-        logger.warn(message, e)
+        logger.debug(message, e)
         t
       }
   }
 
   def load(): Option[GatlingVersion] = {
     val now = System.currentTimeMillis()
-    loadPersisted().logWarnOnFailure("Failed to load persisted latest release") match {
+    loadPersisted().logDebugOnFailure("Failed to load persisted latest release") match {
       case Success(lastCheck) if lastCheck.valid(now) =>
         lastCheck match {
           case FetchResult.Success(_, latestRelease) => Some(latestRelease)
@@ -161,12 +161,12 @@ private object LatestGatlingRelease extends StrictLogging {
         }
 
       case _ =>
-        val maybeFetched = fetchLatestReleaseFromMavenCentral().logWarnOnFailure("Failed to fetch latest release from maven central")
+        val maybeFetched = fetchLatestReleaseFromMavenCentral().logDebugOnFailure("Failed to fetch latest release from maven central")
         val fetchResult = maybeFetched.fold(
           _ => FetchResult.Failure(now),
           FetchResult.Success(now, _)
         )
-        persist(fetchResult).logWarnOnFailure("Failed to persist last version check")
+        persist(fetchResult).logDebugOnFailure("Failed to persist last version check")
         maybeFetched.toOption
     }
   }
