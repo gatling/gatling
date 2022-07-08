@@ -66,19 +66,19 @@ Gatling can be started with several options listed below:
 
 Common options:
 
-| Option (short)     | Option (long)                      | Description                                                                                        |
+| Option (short)     | Option (long)                      | Description                                                                                                                                          |
 | --- | --- | --- |
-| `-h`               | `--help`                           | Show help (this message) and exit                                                                  |
-| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally or on Gatling Enterprise. Options are `local` and `enterprise` |
+| `-h`               | `--help`                           | Show help (this message) and exit                                                                                                                    |
+| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally, on Gatling Enterprise or package the simulation. Options are `local`, `enterprise` and `package`  |
 
 Options used when compiling your Gatling simulations:
 
-| Option (short)     | Option (long)                      | Description                                                                                        |
+| Option (short)  | Option (long)                      | Description                                                                                        |
 | --- | --- | --- |
-| `-sf <path>`       | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
-| `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
-| `-eso <value>`     | `----extra-scalac-options <value>` | Defines additional scalac options for the compiler                                                 |
-| `-ecjo`            | `--extra-compiler-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
+| `-sf <path>`    | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
+| `-bf <path>`    | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
+| `-eso <value>`  | `----extra-scalac-options <value>` | Defines additional scalac options for the compiler                                                 |
+| `-ecjo <value>` | `--extra-compiler-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
 
 Options used when running Gatling locally:
 

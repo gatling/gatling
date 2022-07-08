@@ -15,7 +15,7 @@ The way to pass such System Properties would depend on your launcher:
 * maven: `mvn gatling:test -Dusers=500 -Dramp=3600`
 * gradle: `gradle gatlingRun -Dusers=500 -Dramp=3600`
 * sbt: `sbt -Dusers=500 -Dramp=3600 Gatling/test`
-* Gatling bundle's `gatling.sh` or `gatling.bat`: set the `JAVA_OPTS` env var, eg `JAVA_OPTS="-Dusers=500 -Dramp=3600"`
+* Gatling bundle's `gatling.sh` or `gatling.bat`: use the `-erjo` option: `./gatling.sh -erjo "-Dusers=500 -Dramp=3600"`
 
 You can then resolve those properties directly in your code:
 
