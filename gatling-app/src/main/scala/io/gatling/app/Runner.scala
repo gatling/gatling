@@ -106,7 +106,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
   protected def displayVersionWarning(): Unit =
     GatlingVersion.LatestRelease.foreach { latest =>
-      if (latest.releaseDate.isAfter(GatlingVersion.ThisVersion.releaseDate)) {
+      if (latest.fullVersion != GatlingVersion.ThisVersion.fullVersion && latest.releaseDate.isAfter(GatlingVersion.ThisVersion.releaseDate)) {
         println(s"Gatling ${latest.fullVersion} is available! (you're using ${GatlingVersion.ThisVersion.fullVersion})")
       }
     }
