@@ -27,6 +27,7 @@ import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.plugin.exceptions.UserQuitException
 import io.gatling.recorder.cli.CommandLineConstants.SimulationsFolder
 
+import org.apache.commons.exec.ExecuteException
 import scopt.Read
 
 object GatlingCLI {
@@ -92,12 +93,18 @@ object GatlingCLI {
           new RunCommand(config, args.toList).run()
         } catch {
           case e: UserQuitException =>
-            println(e.getMessage)
-            System.out.flush()
-            sys.exit(0)
+            exitWithoutStacktrace(e)
+          case e: ExecuteException if e.getMessage.startsWith("There is no simulation script.") =>
+            exitWithoutStacktrace(e)
         }
       case _ =>
     }
+  }
+
+  private def exitWithoutStacktrace(e: Exception): Unit = {
+    println(e.getMessage)
+    System.out.flush()
+    sys.exit(0)
   }
 
   private def whitespaceSeparatedList(x: String): List[String] =
