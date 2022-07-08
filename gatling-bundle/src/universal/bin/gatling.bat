@@ -52,7 +52,7 @@ goto run
 set JAVA="%JAVA_HOME%\bin\java.exe"
 
 :run
-echo JAVA = "%JAVA%"
+echo JAVA = %JAVA%
 %JAVA% %JAVA_OPTS% -cp %CLASSPATH% io.gatling.bundle.GatlingCLI %USER_ARGS%
 
 goto exit
