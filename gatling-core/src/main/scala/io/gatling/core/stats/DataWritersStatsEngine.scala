@@ -102,7 +102,7 @@ class DataWritersStatsEngine(dataWriterInitMessage: DataWriterMessage.Init, data
 
   override def logUserStart(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserStart(scenario, clock.nowMillis))
 
-  override def logUserEnd(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserStart(scenario, clock.nowMillis))
+  override def logUserEnd(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserEnd(scenario, clock.nowMillis))
 
   override def logResponse(
       scenario: String,
