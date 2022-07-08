@@ -118,9 +118,10 @@ object Selection {
 
           Try(StdIn.readInt()) match {
             case Success(number) =>
-              if (validRange contains number) number
-              else {
-                println(s"Invalid selection, must be in $validRange")
+              if (validRange.contains(number)) {
+                number
+              } else {
+                println(s"Invalid selection, must be in [0, ${simulationClasses.length - 1}].")
                 readSimulationNumber(attempts + 1)
               }
             case _ =>
