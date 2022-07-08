@@ -65,25 +65,27 @@ private[charts] abstract class PageTemplate(
 
       val deprecationMessage = GatlingVersion.LatestRelease match {
         case Some(GatlingVersion(number, releaseDate)) if releaseDate.isAfter(thisReleaseDatePlus1Year) =>
-          s"""
-             |You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
-             | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
-             | Gatling $number is available since ${releaseDate.toLocalDate.toString}.
-             |""".stripMargin
+          Some(s"""
+                  |You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
+                  | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
+                  | Gatling $number is available since ${releaseDate.toLocalDate.toString}.
+                  |""".stripMargin)
         case None if ZonedDateTime.now(ZoneOffset.UTC).isAfter(thisReleaseDatePlus1Year) =>
-          s"""You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
-             | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
-             |""".stripMargin
+          Some(s"""You are using Gatling ${GatlingVersion.ThisVersion.fullVersion}
+                  | released on ${thisReleaseDate.toLocalDate.toString}, more than 1 year ago.
+                  |""".stripMargin)
         case _ =>
-          ""
+          None
       }
 
-      deprecationMessage.map(m => s"""<div class="alert-danger">
-                                     |  $m.
-                                     |  Please check the <a href="https://gatling.io/docs/gatling/reference/current/whats_new">new features</a>,
-                                     |  the <a href="https://gatling.io/docs/gatling/reference/current/upgrading/">upgrade guides</a>,
-                                     |  and consider upgrading.
-                                     |</div>""".stripMargin)
+      deprecationMessage
+        .map(m => s"""<div class="alert-danger">
+                     |  $m
+                     |  Please check the <a href="https://gatling.io/docs/gatling/reference/current/whats_new">new features</a>,
+                     |  the <a href="https://gatling.io/docs/gatling/reference/current/upgrading/">upgrade guides</a>,
+                     |  and consider upgrading.
+                     |</div>""".stripMargin)
+        .getOrElse("")
     }
 
     s"""
