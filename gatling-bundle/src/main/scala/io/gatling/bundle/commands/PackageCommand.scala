@@ -36,10 +36,10 @@ object PackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
 }
 
-class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int], cleanFile: Boolean) {
+class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int, cleanFile: Boolean) {
 
   private[bundle] def run(): File = {
-    compile(config, args, maxJavaVersion)
+    compile(config, args, Some(maxJavaVersion))
     println("Creating the package")
     createJar(cleanFile)
   }

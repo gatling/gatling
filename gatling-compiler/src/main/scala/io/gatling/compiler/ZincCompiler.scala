@@ -24,7 +24,6 @@ import java.util.jar.{ Attributes, Manifest => JManifest }
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
-import scala.util.Using
 
 import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._

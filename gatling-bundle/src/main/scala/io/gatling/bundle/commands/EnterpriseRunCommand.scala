@@ -19,13 +19,11 @@ package io.gatling.bundle.commands
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
-import scala.util.{ Failure, Try, Using }
+import scala.util.{ Failure, Try }
 
 import io.gatling.app.cli.CommandLineConstants.{ Simulation => SimulationOption }
 import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
 import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
-import io.gatling.plugin.EnterprisePlugin
-import io.gatling.plugin.client.EnterpriseClient
 import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
@@ -50,7 +48,7 @@ class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
       val serverInformation = enterpriseClient.getServerInformation
       val maxJavaVersion = serverInformation.versions.java.max.toInt
 
-      val file = new PackageCommand(config, args, Some(maxJavaVersion), cleanFile = true).run()
+      val file = new PackageCommand(config, args, maxJavaVersion, cleanFile = true).run()
 
       val simulationStartResult = config.simulationId match {
         case Some(simulationId) =>
