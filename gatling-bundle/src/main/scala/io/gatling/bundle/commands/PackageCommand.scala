@@ -61,8 +61,9 @@ class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersio
 
       val entriesCache = mutable.HashSet.empty[String]
       val writeEntry: WriteEntry = (entryName, writeContent) => {
-        val entry = new JarEntry(entryName)
-        if (entriesCache.add(entryName)) {
+        val fixedEntryName = entryName.replace('\\', '/')
+        val entry = new JarEntry(fixedEntryName)
+        if (entriesCache.add(fixedEntryName)) {
           jos.putNextEntry(entry)
           writeContent(jos)
           jos.closeEntry()
