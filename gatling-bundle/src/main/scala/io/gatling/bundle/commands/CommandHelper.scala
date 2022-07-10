@@ -22,19 +22,12 @@ import java.util.ResourceBundle
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.StreamConverters._
-import scala.util.control.NoStackTrace
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.Fork
 
 private[commands] object CommandHelper {
-  private class InvalidGatlingHomeException
-      extends IllegalStateException("""
-                                      |Gatling Home is not set correctly,
-                                      |Please set the 'GATLING_HOME' environment variable to the root of the Gatling bundle.
-                                      |""".stripMargin)
-      with NoStackTrace
 
   def gatlingVersion: String = ResourceBundle.getBundle("gatling-version").getString("version")
 
@@ -53,10 +46,11 @@ private[commands] object CommandHelper {
     try {
       Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.toURI).getParent.getParent.toAbsolutePath.toString
     } catch {
-      case _: NullPointerException => throw new IllegalStateException("""
-                                                                        |Couldn't dynamically compute the Gatling Home.
-                                                                        |Please set the 'GATLING_HOME' environment variable to the root of the Gatling bundle.
-                                                                        |""".stripMargin)
+      case _: NullPointerException =>
+        throw new IllegalStateException("""
+                                          |'GATLING_HOME' environment variable is not set and Gatling couldn't infer it either.
+                                          |Please set the 'GATLING_HOME' environment variable to the root of the Gatling bundle.
+                                          |""".stripMargin)
     }
   }
 
@@ -74,12 +68,10 @@ private[commands] object CommandHelper {
   def gatlingConfFiles: List[String] = listFiles(gatlingConfDirectory) ++ List(gatlingConfDirectory.toString)
   def userResources: List[String] = List(userResourcesDirectory.toString)
 
-  def listFiles(file: Path): List[String] = {
-    if (!Files.exists(file) || !Files.isDirectory(file)) {
-      throw new InvalidGatlingHomeException
-    }
+  def listFiles(directory: Path): List[String] = {
+    require(Files.isDirectory(directory), s"Gatling bundle directory $directory is missing")
     Files
-      .list(file)
+      .list(directory)
       .toScala(List)
       .map(_.toAbsolutePath.toString)
   }
