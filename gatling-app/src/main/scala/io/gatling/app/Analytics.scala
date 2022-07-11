@@ -24,6 +24,8 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.{ GatlingVersion, Java }
 
+import io.netty.util.internal.PlatformDependent
+
 object Analytics {
 
   private val ApiKeyDev = "27a3799b1445c6ab08674c6b8fa3b956"
@@ -63,7 +65,9 @@ object Analytics {
       "gatling_version_minor" -> GatlingVersion.ThisVersion.minorVersion,
       "gatling_version_full" -> GatlingVersion.ThisVersion.fullVersion,
       "gatling_version_enterprise" -> GatlingVersion.ThisVersion.isEnterprise,
-      "programming_language" -> programmingLanguage
+      "programming_language" -> programmingLanguage,
+      "system_os" -> PlatformDependent.normalizedOs,
+      "system_arch" -> PlatformDependent.normalizedArch
     )
 
     val launcherProperties = launcher.fold(Map.empty[String, String])(l => Map("launcher" -> l))
