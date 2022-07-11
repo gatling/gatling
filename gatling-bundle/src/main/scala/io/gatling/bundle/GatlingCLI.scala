@@ -25,6 +25,7 @@ import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption, _ }
 import io.gatling.bundle.commands.RunCommand
 import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.plugin.exceptions.UserQuitException
+import io.gatling.plugin.util.Fork
 import io.gatling.recorder.cli.CommandLineConstants.SimulationsFolder
 
 import scopt.Read
@@ -93,7 +94,7 @@ object GatlingCLI {
         } catch {
           case e: UserQuitException =>
             exitWithoutStacktrace(e)
-          case e: IllegalStateException if e.getMessage.startsWith("command line returned non-zero value") =>
+          case e: Fork.ForkException =>
             exitWithoutStacktrace(e)
         }
       case _ =>
