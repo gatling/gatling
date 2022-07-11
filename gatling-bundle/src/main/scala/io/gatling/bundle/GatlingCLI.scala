@@ -27,7 +27,6 @@ import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.plugin.exceptions.UserQuitException
 import io.gatling.recorder.cli.CommandLineConstants.SimulationsFolder
 
-import org.apache.commons.exec.ExecuteException
 import scopt.Read
 
 object GatlingCLI {
@@ -94,7 +93,7 @@ object GatlingCLI {
         } catch {
           case e: UserQuitException =>
             exitWithoutStacktrace(e)
-          case e: ExecuteException if e.getMessage.startsWith("There is no simulation script.") =>
+          case e: IllegalStateException if e.getMessage.startsWith("command line returned non-zero value") =>
             exitWithoutStacktrace(e)
         }
       case _ =>
