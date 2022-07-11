@@ -178,6 +178,11 @@ List of configurations used by this task:
             <key1>VALUE_1</key1>
             <key2>VALUE_2</key2>
         </simulationSystemProperties>
+      <!-- Additional environment variables used when running the simulation on Gatling Enterprise -->
+        <simulationEnvironmentVariables>
+            <key1>VALUE_1</key1>
+            <key2>VALUE_2</key2>
+        </simulationEnvironmentVariables>
     </configuration>
 </plugin>
 ```

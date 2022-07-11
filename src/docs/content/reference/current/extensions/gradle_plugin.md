@@ -252,9 +252,10 @@ an option is not set the value from the `gatling` global config is taken.
 
 | Property name | Type | Default value | Description |
 | --- | --- | --- | --- |
-| `jvmArgs`          | List<String>        | `null` | Additional arguments passed to JVM when executing Gatling simulations |
-| `systemProperties` | Map<String, Object> | `null` | Additional systems properties passed to JVM together with caller JVM system properties |
-| `simulations`      | Closure             | `null` | [See Gradle docs](https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html) for details. |
+| `jvmArgs`              | List<String>        | `null` | Additional arguments passed to JVM when executing Gatling simulations |
+| `systemProperties`     | Map<String, Object> | `null` | Additional systems properties passed to JVM together with caller JVM system properties |
+| `environmentVariables` | Map<String, Object> | `null` | Additional environment variables passed to the simulation |
+| `simulations`          | Closure             | `null` | [See Gradle docs](https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html) for details. |
 
 ### Working with Gatling Enterprise Cloud
 
@@ -309,6 +310,8 @@ gatling {
     simulationClass "computerdatabase.BasicSimulation"
     // custom system properties used when running the simulation on Gatling Enterprise
     systemProps ["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"]
+    // additional environment variables used when running the simulation on Gatling Enterprise
+    environmentVariables ["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"]
     //set to true if you don't want any user input, eg in a CI environment, you can also use the gatling.enterprise.batchMode system property
     batchMode false 
   }

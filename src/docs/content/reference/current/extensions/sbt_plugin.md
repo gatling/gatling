@@ -169,6 +169,8 @@ Gatling / enterpriseTeamId := "YOUR_TEAM_ID"
 Gatling / enterpriseSimulationClass := "computerdatabase.BasicSimulation"
 // custom system properties used when running the simulation on Gatling Enterprise
 Gatling / enterpriseSimulationSystemProperties := Map.empty
+// Additional environment variables used when running the simulation on Gatling Enterprise
+Gatling / enterpriseSimulationEnvironmentVariables := Map.empty
 ```
 
 You can run it with the command:
