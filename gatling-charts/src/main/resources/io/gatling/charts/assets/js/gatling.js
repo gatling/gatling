@@ -109,7 +109,7 @@
 			else
 				var value = cell.find('.value').text();
 
-			return parseInt(value);
+			return parseFloat(value);
 		}
 
 		function sortLines (lines, group) {
