@@ -280,6 +280,7 @@ class HttpCompileTest extends Simulation {
         .bodyPart(ElFileBodyPart("name", "path"))
         .bodyPart(ElFileBodyPart("name", "path").contentType("foo"))
         .bodyPart(PebbleFileBodyPart("name", "path"))
+        .bodyPart(StringBodyPart("name", "someString").charset("UTF-8"))
         .bodyPart(PebbleStringBodyPart("name", "somePebbleString"))
         .bodyParts(
           RawFileBodyPart("name1", "path1"),
