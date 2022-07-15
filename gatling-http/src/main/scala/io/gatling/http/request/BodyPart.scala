@@ -70,14 +70,15 @@ object BodyPart {
       contentType: Option[String],
       customHeaders: ju.List[Param],
       fileName: Option[String]
-  ): Expression[Part[_]] =
+  ): Expression[Part[_]] = {
+    val resolvedCharset = charset.getOrElse(defaultCharset)
     fileName match {
       case None =>
         string.map { resolvedString =>
           new StringPart(
             name,
             resolvedString,
-            charset.orNull,
+            resolvedCharset,
             transferEncoding.orNull,
             contentId.orNull,
             dispositionType.orNull,
@@ -86,7 +87,7 @@ object BodyPart {
           )
         }
       case _ =>
-        byteArrayBodyPartBuilder(string.map(_.getBytes(charset.getOrElse(defaultCharset))))(
+        byteArrayBodyPartBuilder(string.map(_.getBytes(resolvedCharset)))(
           name,
           charset,
           transferEncoding,
@@ -97,6 +98,7 @@ object BodyPart {
           fileName
         )
     }
+  }
 
   private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(
       name: String,
