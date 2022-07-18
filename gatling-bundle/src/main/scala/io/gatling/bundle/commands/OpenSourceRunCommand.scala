@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.plugin.GatlingConstants
-import io.gatling.plugin.util.Fork
+import io.gatling.plugin.util.{ Fork, JavaLocator }
 
 class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
   private[bundle] def run(): Unit = {
@@ -40,7 +40,7 @@ class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
       classPath.asJava,
       runJavaOptions.asJava,
       (args ::: List("-l", "bundle")).asJava,
-      java,
+      JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,
       new File(gatlingHome)

@@ -25,7 +25,7 @@ import scala.jdk.StreamConverters._
 
 import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.plugin.GatlingConstants
-import io.gatling.plugin.util.Fork
+import io.gatling.plugin.util.{ Fork, JavaLocator }
 
 private[commands] object CommandHelper {
 
@@ -36,11 +36,6 @@ private[commands] object CommandHelper {
 
   def optionListEnv(env: String): List[String] =
     optionEnv(env).map(_.split(" ").toList).getOrElse(Nil)
-
-  def java: String = optionEnv("JAVA_HOME") match {
-    case Some(java) => s"$java${File.separator}bin${File.separator}java"
-    case _          => "java"
-  }
 
   def gatlingHome: String = optionEnv("GATLING_HOME").getOrElse {
     try {
@@ -105,7 +100,7 @@ private[commands] object CommandHelper {
       classPath.asJava,
       compilerJavaOptions.asJava,
       (extraJavacOptions ++ extraScalacOptions ++ args).asJava,
-      java,
+      JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,
       new File(gatlingHome)

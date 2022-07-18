@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.bundle.BundleIO
 import io.gatling.bundle.commands.CommandHelper._
-import io.gatling.plugin.util.Fork
+import io.gatling.plugin.util.{ Fork, JavaLocator }
 
 class RecorderCommand(args: List[String]) {
   private[bundle] def run(): Unit = {
@@ -36,7 +36,7 @@ class RecorderCommand(args: List[String]) {
       classPath.asJava,
       javaOpts.asJava,
       args.asJava,
-      java,
+      JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,
       new File(gatlingHome)
