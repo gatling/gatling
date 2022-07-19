@@ -131,6 +131,7 @@ body {
 	max-height: calc(100vh - var(--gatling-spacing-layout) - var(--gatling-spacing-layout));
 	background: var(--gatling-light-color);
 	border-right: 1px solid var(--gatling-border-color);
+	overflow-y: auto;
 }
 
 .nav ul {
