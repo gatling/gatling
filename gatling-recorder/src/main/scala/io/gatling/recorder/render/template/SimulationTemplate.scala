@@ -159,7 +159,7 @@ private[render] class SimulationTemplate(
       val scenarioElements = chainElements(extractedUris, elements)
 
       s"""$scenarioReferenceType scn = scenario("$simulationClassName")
-         |${scenarioElements.indent(2)}${format.lineTermination}""".stripMargin
+         |${s".$scenarioElements".indent(2)}${format.lineTermination}""".stripMargin
 
     } else {
       val chains: Seq[(Int, String)] =
