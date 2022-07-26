@@ -63,8 +63,6 @@ public class BasicSimulation extends Simulation {
               http("request_10")
                   // Here's an example of a POST request
                   .post("/computers")
-                  // Note the triple double quotes: used in Scala for protecting a whole chain of
-                  // characters (no need for backslash)
                   .formParam("name", "Beautiful Computer")
                   .formParam("introduced", "2012-05-30")
                   .formParam("discontinued", "")

@@ -204,11 +204,19 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
 lazy val bundle = gatlingModule("gatling-bundle")
   .dependsOn(app, recorder)
   .enablePlugins(UniversalPlugin)
-  .settings(bundleSettings(core, samples, recorder))
+  .settings(bundleSettings(core, bundleSamples, recorder))
   .settings(libraryDependencies ++= bundleDependencies)
 
-lazy val samples = gatlingModule("gatling-samples")
+lazy val bundleSamples = gatlingModule("gatling-bundle-samples")
   .dependsOn(app)
   .settings(
-    publish / skip := true
+    skipPublishing
+  )
+
+lazy val publicSamples = Project("gatling-samples", file("gatling-samples"))
+  .dependsOn(app)
+  .enablePlugins(GatlingOssPlugin)
+  .settings(gatlingModuleSettings)
+  .settings(
+    skipPublishing
   )

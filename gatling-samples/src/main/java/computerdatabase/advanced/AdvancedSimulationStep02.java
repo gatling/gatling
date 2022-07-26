@@ -70,8 +70,8 @@ public class AdvancedSimulationStep02 extends Simulation {
   ScenarioBuilder admins = scenario("Admins").exec(search, browse, edit);
 
   {
-    // Let's have 10 regular users and 2 admins, and ramp them on 10 sec so we don't hammer the
-    // server
+    // Let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer
+    // the server
     setUp(users.injectOpen(rampUsers(10).during(10)), admins.injectOpen(rampUsers(2).during(10)))
         .protocols(httpProtocol);
   }

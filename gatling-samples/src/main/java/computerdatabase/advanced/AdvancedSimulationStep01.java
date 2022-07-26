@@ -25,14 +25,14 @@ import java.time.Duration;
 
 public class AdvancedSimulationStep01 extends Simulation {
 
-  // Let's split this big scenario into composable business processes, like one would do with
+  // Let's split this big scenario into composable business processes, like one would do with the
   // PageObject pattern with Selenium
 
   ChainBuilder search =
-      exec(http("Home") // let's give proper names, they are displayed in the reports, and used as
-              // keys
-              .get("/"))
-          .pause(1) // let's set the pauses to 1 sec for demo purpose
+      exec(
+          // Let's give proper names, they are displayed in the reports, and used as keys
+          http("Home").get("/"))
+          .pause(1) // Let's set the pauses to 1 sec for demo purpose
           .exec(http("Search").get("/computers?f=macbook"))
           .pause(1)
           .exec(http("Select").get("/computers/6"))

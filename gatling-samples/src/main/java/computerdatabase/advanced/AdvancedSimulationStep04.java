@@ -38,8 +38,8 @@ public class AdvancedSimulationStep04 extends Simulation {
           .exec(http("Select").get("#{computerUrl}").check(status().is(200)))
           .pause(1);
 
-  // repeat is a loop resolved at RUNTIME
   ChainBuilder browse =
+      // Repeat is a loop resolved at RUNTIME
       // Note how we force the counter name so we can reuse it
       repeat(4, "i").on(exec(http("Page #{i}").get("/computers?p=#{i}")).pause(1));
 

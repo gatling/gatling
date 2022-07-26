@@ -29,26 +29,26 @@ public class AdvancedSimulationStep03 extends Simulation {
   // completely different from the live system (caching, JIT...)
   // ==> Feeders!
 
-  // default is queue, so for this test, we use random to avoid feeder starvation
+  // Default is queue, so for this test, we use random to avoid feeder starvation
   FeederBuilder<String> feeder = csv("search.csv").random();
 
   ChainBuilder search =
       exec(http("Home").get("/"))
           .pause(1)
-          // every time a user passes here, a record is popped from the feeder and
+          // Every time a user passes here, a record is popped from the feeder and
           // injected into the user's session
           .feed(feeder)
           .exec(
               http("Search")
-                  // use session data thanks to Gatling's EL
+                  // Use session data thanks to Gatling's EL
                   .get("/computers?f=#{searchCriterion}")
                   .check(
-                      // use a CSS selector with an EL, save the result of the capture group
+                      // Use a CSS selector with an EL, save the result of the capture group
                       css("a:contains('#{searchComputerName}')", "href").saveAs("computerUrl")))
           .pause(1)
           .exec(
               http("Select")
-                  // use the link previously saved
+                  // Use the link previously saved
                   .get("#{computerUrl}")
                   .check(status().is(200)))
           .pause(1);

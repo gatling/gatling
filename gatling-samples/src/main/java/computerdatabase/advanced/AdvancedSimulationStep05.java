@@ -17,14 +17,10 @@
 package computerdatabase.advanced;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.http;
-import static io.gatling.javaapi.http.HttpDsl.status;
+import static io.gatling.javaapi.http.HttpDsl.*;
 
-import io.gatling.javaapi.core.ChainBuilder;
-import io.gatling.javaapi.core.FeederBuilder;
-import io.gatling.javaapi.core.ScenarioBuilder;
-import io.gatling.javaapi.core.Simulation;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
+import io.gatling.javaapi.core.*;
+import io.gatling.javaapi.http.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AdvancedSimulationStep05 extends Simulation {
@@ -43,17 +39,16 @@ public class AdvancedSimulationStep05 extends Simulation {
           .exec(http("Select").get("#{computerUrl}").check(status().is(200)))
           .pause(1);
 
-  // repeat is a loop resolved at RUNTIME
   ChainBuilder browse =
+      // Repeat is a loop resolved at RUNTIME
       // Note how we force the counter name so we can reuse it
       repeat(4, "i").on(exec(http("Page #{i}").get("/computers?p=#{i}")).pause(1));
 
   // Note we should be using a feeder here
-  // let's demonstrate how we can retry: let's make the request fail randomly and retry a given
+  // Let's demonstrate how we can retry: let's make the request fail randomly and retry a given
   // number of times
-
   ChainBuilder edit =
-      // let's try at max 2 times
+      // Let's try at max 2 times
       tryMax(2)
           .on(
               exec(http("Form").get("/computers/new"))
@@ -68,11 +63,11 @@ public class AdvancedSimulationStep05 extends Simulation {
                           .check(
                               status()
                                   .is(
-                                      // we do a check on a condition that's been customized with
+                                      // We do a check on a condition that's been customized with
                                       // a lambda. It will be evaluated every time a user executes
-                                      // the request
+                                      // the request.
                                       session -> 200 + ThreadLocalRandom.current().nextInt(2)))))
-          // if the chain didn't finally succeed, have the user exit the whole scenario
+          // If the chain didn't finally succeed, have the user exit the whole scenario
           .exitHereIfFailed();
 
   HttpProtocolBuilder httpProtocol =

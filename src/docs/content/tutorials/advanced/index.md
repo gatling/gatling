@@ -10,6 +10,10 @@ weight: 1030000
 In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.
 We will apply a series of refactorings to introduce more advanced concepts and [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) constructs.
 
+{{< alert tip >}}
+The files for this tutorial can be found [on GitHub](https://github.com/gatling/gatling/tree/main/gatling-samples/src/main/).
+{{< /alert >}}
+
 ## Step 1: Isolate processes
 
 Presently our Simulation is one big monolithic scenario.
@@ -159,7 +163,3 @@ For more details regarding conditional blocks, please check out the [Conditional
 {{< /alert >}}
 
 That's all Folks!
-
-{{< alert tip >}}
-The files for this tutorial can be found in the distribution in the `user-files/simulations` directory, and on GitHub [here](https://github.com/gatling/gatling/tree/main/gatling-samples/src/main/java/computerdatabase).
-{{< /alert >}}
