@@ -23,9 +23,12 @@ import java.util.ResourceBundle
 import scala.jdk.CollectionConverters._
 import scala.jdk.StreamConverters._
 
-import io.gatling.bundle.{ BundleIO, CommandArguments }
+import io.gatling.app.cli.CommandLineConstants.BinariesFolder
+import io.gatling.bundle.{ BundleIO, CLIHelper, CommandArguments }
+import io.gatling.bundle.CommandLineConstants._
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.{ Fork, JavaLocator }
+import io.gatling.recorder.cli.CommandLineConstants.SimulationsFolder
 
 private[commands] object CommandHelper {
 
@@ -99,7 +102,7 @@ private[commands] object CommandHelper {
       "io.gatling.compiler.ZincCompiler",
       classPath.asJava,
       compilerJavaOptions.asJava,
-      (extraJavacOptions ++ extraScalacOptions ++ args).asJava,
+      (extraJavacOptions ++ extraScalacOptions ++ CLIHelper.filterArgOptions(args, List(SimulationsFolder, BinariesFolder, ExtraScalacOptions))).asJava,
       JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,

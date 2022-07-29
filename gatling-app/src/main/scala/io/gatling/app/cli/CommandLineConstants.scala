@@ -19,7 +19,6 @@ package io.gatling.app.cli
 import io.gatling.core.cli.CommandLineConstant
 
 private[gatling] object CommandLineConstants {
-  val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
   val NoReports = new CommandLineConstant("no-reports", "nr", "Runs simulation but does not generate reports", None)
   val ReportsOnly = new CommandLineConstant("reports-only", "ro", "Generates the reports for the simulation in <directoryName>", Some("<directoryName>"))
   val ResultsFolder = new CommandLineConstant(
@@ -42,6 +41,8 @@ private[gatling] object CommandLineConstants {
   )
   val Simulation = new CommandLineConstant("simulation", "s", "Runs <className> simulation", Some("<className>"))
   val RunDescription = new CommandLineConstant("run-description", "rd", "A short <description> of the run to include in the report", Some("<description>"))
-  val Launcher = new CommandLineConstant("launcher", "l", "The program that launched Gatling", None)
-  val BuildToolVersion = new CommandLineConstant("build-tool-version", "btv", "The version of the build tool used to launch Gatling", None)
+  val Launcher = new CommandLineConstant("launcher", "l", "The program that launched Gatling", Some(""))
+  val BuildToolVersion = new CommandLineConstant("build-tool-version", "btv", "The version of the build tool used to launch Gatling", Some(""))
+
+  val AllOptions = List(NoReports, ReportsOnly, ResultsFolder, ResourcesFolder, BinariesFolder, Simulation, RunDescription, Launcher, BuildToolVersion)
 }

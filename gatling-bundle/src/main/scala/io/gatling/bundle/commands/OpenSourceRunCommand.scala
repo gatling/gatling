@@ -20,7 +20,8 @@ import java.io.File
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.bundle.{ BundleIO, CommandArguments }
+import io.gatling.app.cli.CommandLineConstants._
+import io.gatling.bundle.{ BundleIO, CLIHelper, CommandArguments }
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.{ Fork, JavaLocator }
@@ -39,7 +40,10 @@ class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
       "io.gatling.app.Gatling",
       classPath.asJava,
       runJavaOptions.asJava,
-      (args ::: List("-l", "bundle")).asJava,
+      (CLIHelper.filterArgOptions(
+        args,
+        AllOptions
+      ) ::: List("-l", "bundle")).asJava,
       JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,

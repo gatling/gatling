@@ -21,11 +21,12 @@ import io.gatling.core.cli.CommandLineConstant
 
 private[bundle] object CommandLineConstants {
 
+  val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
   val RunMode = new CommandLineConstant(
     "run-mode",
     "rm",
     s"Specify if you want to run the Simulation locally or on Gatling Enterprise. Options are '${RunLocal.value}' and '${RunEnterprise.value}'",
-    None
+    Some(RunLocal.value)
   )
   val BatchMode = new CommandLineConstant("batch-mode", "bm", "No interactive user input will be asked", None)
   val ApiToken = new CommandLineConstant("api-token", "at", "Gatling Enterprise's API token with the 'Configure' role", None)
