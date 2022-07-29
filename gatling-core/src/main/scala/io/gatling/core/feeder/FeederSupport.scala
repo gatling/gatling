@@ -16,8 +16,13 @@
 
 package io.gatling.core.feeder
 
-import scala.collection.immutable.ArraySeq
+import java.io.{ BufferedInputStream, BufferedOutputStream, File, FileOutputStream }
+import java.net.URL
 
+import scala.collection.immutable.ArraySeq
+import scala.util.Using
+
+import io.gatling.commons.util.Io.RichInputStream
 import io.gatling.commons.validation._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.SeparatedValuesParser._
@@ -54,15 +59,18 @@ trait FeederSupport extends ResourceCache {
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
     cachedResource(GatlingFiles.customResourcesDirectory(configuration), filePath) match {
-      case Success(resource) =>
-        val data = new JsonFeederFileParser(jsonParsers).parse(resource, configuration.core.charset)
-        SourceFeederBuilder(InMemoryFeederSource(data), configuration)
-
-      case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
+      case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers, configuration.core.charset), configuration)
+      case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
-    val data = new JsonFeederFileParser(jsonParsers).url(url, configuration.core.charset)
-    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+    val tempFile = File.createTempFile("jsonUrl", null)
+    tempFile.deleteOnExit()
+
+    Using.resources(new BufferedInputStream(new URL(url).openStream), new BufferedOutputStream(new FileOutputStream(tempFile))) { (is, os) =>
+      is.copyTo(os)
+    }
+
+    jsonFile(tempFile.getPath)
   }
 }

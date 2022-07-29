@@ -16,15 +16,14 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ BufferedOutputStream, File, FileOutputStream, InputStream }
 import java.nio.channels.FileChannel
-import java.util.zip.{ GZIPInputStream, ZipInputStream }
+import java.nio.charset.Charset
 
-import scala.annotation.switch
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Using
 
-import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.{ Json, JsonParsers }
 import io.gatling.core.util._
 
 import com.typesafe.scalalogging.LazyLogging
@@ -41,57 +40,28 @@ private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Re
     InMemoryFeeder(records, options.conversion, options.strategy)
 }
 
-private object TwoBytesMagicValueInputStream {
-  val PkZipMagicValue: (Int, Int) = ('P', 'K')
-  val GzipMagicValue: (Int, Int) = (31, 139)
-}
+private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
+  override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] = {
 
-private final class TwoBytesMagicValueInputStream(is: InputStream) extends InputStream {
-  val magicValue: (Int, Int) = (is.read(), is.read())
-  private var pos: Int = 0
-
-  override def read(): Int =
-    (pos: @switch) match {
-      case 0 =>
-        pos += 1
-        magicValue._1
-      case 1 =>
-        pos += 1
-        magicValue._2
-      case _ => is.read()
-    }
-}
-
-private[gatling] object SeparatedValuesFeederSource {
-
-  private def unzip(resource: Resource): Resource = {
-    val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
-    tempFile.deleteOnExit()
-
-    Using.resources(new BufferedOutputStream(new FileOutputStream(tempFile)), new TwoBytesMagicValueInputStream(resource.inputStream)) { (os, is) =>
-      is.magicValue match {
-        case TwoBytesMagicValueInputStream.PkZipMagicValue =>
-          val zis = new ZipInputStream(is)
-          val zipEntry = zis.getNextEntry()
-          if (zipEntry == null) {
-            throw new IllegalArgumentException("ZIP Archive is empty")
-          }
-
-          zis.copyTo(os)
-
-          val nextZipEntry = zis.getNextEntry()
-          if (nextZipEntry != null) {
-            throw new IllegalArgumentException(s"ZIP Archive contains more than one file (at least ${zipEntry.getName} and ${nextZipEntry.getName})")
-          }
-
-        case TwoBytesMagicValueInputStream.GzipMagicValue =>
-          new GZIPInputStream(is).copyTo(os): Unit
-
-        case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
+    val uncompressedResource =
+      if (options.unzip) {
+        Unzip.unzip(resource)
+      } else {
+        resource
       }
 
-      FilesystemResource(tempFile)
+    val records = Using.resource(uncompressedResource.inputStream) { is =>
+      val node = jsonParsers.parse(is, charset)
+      if (node.isArray) {
+        node.elements.asScala.collect {
+          case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
+        }.toVector
+      } else {
+        throw new IllegalArgumentException("Root element of JSON feeder file isn't an array")
+      }
     }
+
+    InMemoryFeeder(records, options.conversion, options.strategy)
   }
 }
 
@@ -101,7 +71,7 @@ private[gatling] final class SeparatedValuesFeederSource(resource: Resource, sep
 
     val uncompressedResource =
       if (options.unzip) {
-        SeparatedValuesFeederSource.unzip(resource)
+        Unzip.unzip(resource)
       } else {
         resource
       }
