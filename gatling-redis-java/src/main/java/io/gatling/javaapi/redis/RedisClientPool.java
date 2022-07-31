@@ -35,7 +35,7 @@ public class RedisClientPool {
   private com.redis.RedisClientPool scalaInstance;
 
   private synchronized void loadScalaInstance() {
-    if (scalaInstance != null) {
+    if (scalaInstance == null) {
       scalaInstance =
           new com.redis.RedisClientPool(
               host,
