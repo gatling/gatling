@@ -102,7 +102,7 @@ object GatlingCLI {
   }
 
   private def exitWithoutStacktrace(e: Exception): Unit = {
-    println(e.getMessage)
+    Option(e.getMessage).foreach(println)
     System.out.flush()
     sys.exit(0)
   }
