@@ -132,7 +132,7 @@ object Selection {
       }
 
       if (simulationClasses.isEmpty) {
-        println("There is no simulation script. Please check that your scripts are in user-files/simulations")
+        println("Couldn't find any Simulation class. Please check that your Simulations are in the correct location.")
         System.out.flush()
         sys.exit(1)
       }
