@@ -34,7 +34,7 @@ Then, you'll just need a text editor, possibly with Java, Kotlin or Scala syntac
 Check out our [Open Source page](https://gatling.io/open-source/) for the download link.
 
 {{< alert warning >}}
-This package only support Java and Scala, not Kotlin. For using Kotlin, you'll need a [maven]({{< ref "#maven" >}}) or [gradle]({{< ref "#gradle" >}}) project.
+The bundle only supports Java and Scala, not Kotlin. For using Kotlin, you'll need a [maven]({{< ref "#maven" >}}) or [gradle]({{< ref "#gradle" >}}) project.
 {{</ alert >}}
 
 Unzip the downloaded bundle to a folder of your choice.
