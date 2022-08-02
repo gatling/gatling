@@ -31,7 +31,7 @@ object GatlingFiles {
 
   def customResourcesDirectory(configuration: GatlingConfiguration): Option[Path] = configuration.core.directory.customResources.map(resolvePath)
   def binariesDirectory(configuration: GatlingConfiguration): Path =
-    configuration.core.directory.binaries.map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
+    configuration.core.directory.binaries.map(resolvePath).getOrElse(GatlingHome / "target" / "test-classes")
   def resultDirectory(runUuid: String, configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results) / runUuid
 
   def simulationLogDirectory(runUuid: String, create: Boolean, configuration: GatlingConfiguration): Path = {
