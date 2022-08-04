@@ -35,6 +35,10 @@ For example:
 
 {{< include-code "pollerStart" java kt scala >}}
 
+{{< alert warning >}}
+Currently, polling doesn't support checks. If you define some checks on your polled requests, they won't do anything.
+{{</ alert >}}
+
 ### Stop polling
 
 When you don't need to poll a request anymore, you can stop the poller:
