@@ -21,6 +21,15 @@ import io.gatling.http.Predef._
 
 class ScalaAdvancedSimulationStep04 extends Simulation {
 
+  val httpProtocol =
+    http
+      .baseUrl("http://computer-database.gatling.io")
+      .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+      .doNotTrackHeader("1")
+      .acceptLanguageHeader("en-US,en;q=0.5")
+      .acceptEncodingHeader("gzip, deflate")
+      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+
   val feeder = csv("search.csv").random()
 
   val search =
@@ -54,15 +63,6 @@ class ScalaAdvancedSimulationStep04 extends Simulation {
           .formParam("discontinued", "")
           .formParam("company", "37")
       )
-
-  val httpProtocol =
-    http
-      .baseUrl("http://computer-database.gatling.io")
-      .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-      .doNotTrackHeader("1")
-      .acceptLanguageHeader("en-US,en;q=0.5")
-      .acceptEncodingHeader("gzip, deflate")
-      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
   val users = scenario("Users").exec(search, browse)
   val admins = scenario("Admins").exec(search, browse, edit)
