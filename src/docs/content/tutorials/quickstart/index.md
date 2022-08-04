@@ -15,6 +15,19 @@ In this section we will use Gatling to load test a simple cloud hosted web serve
 Feel free to join our [Google Group](https://groups.google.com/g/gatling) and ask for help **once you've read this documentation**.
 {{< /alert >}}
 
+### Picking the Right Language
+
+Gatling provides:
+* a Java DSL, introduced in Gatling 3.7, that can also be used in Kotlin
+* the original Scala DSL
+
+When picking a language for using Gatling, we recommend the following rule:
+* if your target Gatling users are Scala developers, use Scala
+* if they are Kotlin developers, use Kotlin
+* otherwise, use Java
+
+Java is widely taught in CS courses, requires less CPU for compiling and is easier to configure in maven or gradle.
+
 ### Installing
 
 Please check the [installation section]({{< ref "installation" >}}) to pick a setup that matches your needs.
