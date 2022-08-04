@@ -25,6 +25,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class AdvancedSimulationStep05 extends Simulation {
 
+  HttpProtocolBuilder httpProtocol =
+      http.baseUrl("http://computer-database.gatling.io")
+          .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+          .doNotTrackHeader("1")
+          .acceptLanguageHeader("en-US,en;q=0.5")
+          .acceptEncodingHeader("gzip, deflate")
+          .userAgentHeader(
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"
+          );
+
   FeederBuilder<String> feeder = csv("search.csv").random();
 
   ChainBuilder search =
@@ -69,15 +79,6 @@ public class AdvancedSimulationStep05 extends Simulation {
                                       session -> 200 + ThreadLocalRandom.current().nextInt(2)))))
           // If the chain didn't finally succeed, have the user exit the whole scenario
           .exitHereIfFailed();
-
-  HttpProtocolBuilder httpProtocol =
-      http.baseUrl("http://computer-database.gatling.io")
-          .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-          .doNotTrackHeader("1")
-          .acceptLanguageHeader("en-US,en;q=0.5")
-          .acceptEncodingHeader("gzip, deflate")
-          .userAgentHeader(
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0");
 
   ScenarioBuilder users = scenario("Users").exec(search, browse);
   ScenarioBuilder admins = scenario("Admins").exec(search, browse, edit);

@@ -192,12 +192,12 @@ You should then see a menu with the simulation examples:
 
 ```
 Choose a simulation number:
-     [0] computerdatabase.BasicSimulation
-     [1] computerdatabase.advanced.AdvancedSimulationStep01
-     [2] computerdatabase.advanced.AdvancedSimulationStep02
-     [3] computerdatabase.advanced.AdvancedSimulationStep03
-     [4] computerdatabase.advanced.AdvancedSimulationStep04
-     [5] computerdatabase.advanced.AdvancedSimulationStep05
+[0] computerdatabase.BasicSimulation
+[1] computerdatabase.advanced.AdvancedSimulationStep01
+[2] computerdatabase.advanced.AdvancedSimulationStep02
+[3] computerdatabase.advanced.AdvancedSimulationStep03
+[4] computerdatabase.advanced.AdvancedSimulationStep04
+[5] computerdatabase.advanced.AdvancedSimulationStep05
 ```
 
 Press 0 then enter. Press enter next when gatling asks for a run description.
