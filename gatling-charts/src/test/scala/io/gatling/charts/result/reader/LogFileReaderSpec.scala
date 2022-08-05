@@ -124,7 +124,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._2) shouldBe List(0, 8, 0, 0)
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3) shouldBe List(0, 8, 0, 0)
   }
 
   it should "indicate that 1 request had a response time below 2500ms" in {
@@ -134,8 +134,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    val nRequestInResponseTimeRange = fileData.numberOfRequestInResponseTimeRange(None, None).map(_._2)
-    nRequestInResponseTimeRange.head shouldBe 1
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(0) shouldBe 1
   }
 
   it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
@@ -145,8 +144,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    val nRequestInResponseTimeRange = fileData.numberOfRequestInResponseTimeRange(None, None).map(_._2)
-    nRequestInResponseTimeRange(1) shouldBe 5
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(1) shouldBe 5
   }
 
   it should "indicate that 2 request had a response time above 5000ms" in {
@@ -156,7 +154,6 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    val nRequestInResponseTimeRange = fileData.numberOfRequestInResponseTimeRange(None, None).map(_._2)
-    nRequestInResponseTimeRange(2) shouldBe 2
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(2) shouldBe 2
   }
 }

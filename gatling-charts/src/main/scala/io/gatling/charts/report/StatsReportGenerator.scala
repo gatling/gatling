@@ -16,7 +16,7 @@
 
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Stats }
+import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.RequestPath
@@ -28,8 +28,8 @@ import io.gatling.core.config.GatlingConfiguration
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
-    implicit configuration: GatlingConfiguration
+private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles)(implicit
+    configuration: GatlingConfiguration
 ) extends StrictLogging {
 
   import reportsGenerationInputs._
@@ -61,8 +61,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(requestName, group)
-        .map { case (rangeName, count) =>
-          GroupedCount(rangeName, count, total.count)
+        .map { case (textLabel, htmlLabel, count) =>
+          GroupedCount(textLabel, htmlLabel, count, total.count)
         }
 
       val path = requestName match {
@@ -117,8 +117,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       val groupedCounts = logFileData
         .numberOfRequestInResponseTimeRange(None, Some(group))
-        .map { case (rangeName, count) =>
-          GroupedCount(rangeName, count, total.count)
+        .map { case (textLabel, htmlLabel, count) =>
+          GroupedCount(textLabel, htmlLabel, count, total.count)
         }
 
       val path = RequestPath.path(group)

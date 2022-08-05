@@ -25,7 +25,8 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
 
   private def group(i: Int) =
     s""""group${i + 1}": {
-       |    "name": "${stats.groupedCounts(i).name}",
+       |    "name": "${stats.groupedCounts(i).textLabel}",
+       |    "htmlName": "${stats.groupedCounts(i).htmlLabel}",
        |    "count": ${stats.groupedCounts(i).count},
        |    "percentage": ${stats.groupedCounts(i).percentage}
        |}""".stripMargin

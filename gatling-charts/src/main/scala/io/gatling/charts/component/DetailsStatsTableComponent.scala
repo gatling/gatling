@@ -34,7 +34,7 @@ private[charts] final class Stats[T: Numeric](val name: String, val total: T, va
   def all: List[T] = List(total, success, failure)
 }
 
-private[charts] final case class GroupedCount(name: String, count: Long, total: Long) {
+private[charts] final case class GroupedCount(textLabel: String, htmlLabel: String, count: Long, total: Long) {
   val percentage: Int = if (total == 0) 0 else (count.toDouble / total * 100).round.toInt
 }
 

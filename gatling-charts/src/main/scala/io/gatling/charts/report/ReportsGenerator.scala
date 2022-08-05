@@ -34,7 +34,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     def hasAtLeastOneRequestReported: Boolean =
       logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
 
     def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
 

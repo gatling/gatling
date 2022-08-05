@@ -43,7 +43,7 @@ private[charts] object ConsoleTemplate {
   private[template] def writeGroupedCounters(sb: jl.StringBuilder, groupedCount: GroupedCount): jl.StringBuilder = {
     import groupedCount._
     sb.append("> ")
-      .append(name.rightPad(OutputLength - 32))
+      .append(textLabel.rightPad(OutputLength - 32))
       .append(' ')
       .append(count.toString.leftPad(7))
       .append(" (")

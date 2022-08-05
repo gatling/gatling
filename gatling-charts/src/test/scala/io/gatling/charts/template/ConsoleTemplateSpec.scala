@@ -34,7 +34,7 @@ class ConsoleTemplateSpec extends BaseSpec {
   }
 
   it should "format the grouped counts properly" in {
-    val out = ConsoleTemplate.writeGroupedCounters(new jl.StringBuilder, GroupedCount("t < 42 ms", 90, (90 / 0.42d).round.toInt)).toString
+    val out = ConsoleTemplate.writeGroupedCounters(new jl.StringBuilder, GroupedCount("t < 42 ms", "t < 42 ms", 90, (90 / 0.42d).round.toInt)).toString
     out shouldBe "> t < 42 ms                                             90 ( 42%)"
   }
 }
