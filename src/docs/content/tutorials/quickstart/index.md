@@ -3,7 +3,7 @@ title: "Quickstart"
 description: "Learn the basics about Gatling"
 lead: "Learn Gatling concepts, and use the recorder to create a runnable Gatling simulation"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-08-08T23:00:00+02:00
 weight: 1020000
 ---
 
@@ -12,7 +12,7 @@ weight: 1020000
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL (Domain Specific Language).
 
 {{< alert tip >}}
-Feel free to join our [Google Group](https://groups.google.com/g/gatling) and ask for help **once you've read this documentation**.
+Feel free to join our [Gatling Community](https://community.gatling.io) and ask for help **once you've read this documentation**.
 {{< /alert >}}
 
 ### Picking the Right Language
@@ -205,7 +205,7 @@ Press 0 then enter. Press enter next when gatling asks for a run description.
 When the simulation is done, the console will display a link to the HTML reports.
 
 {{< alert tip >}}
-If Gatling doesn't work as expected, see our [FAQ]({{< ref "../../reference/current/project/faq" >}}) or ask on our [Google Group](https://groups.google.com/forum/#!forum/gatling).
+If Gatling doesn't work as expected, see our [FAQ]({{< ref "../../reference/current/project/faq" >}}) or ask on our [Gatling Community](https://community.gatling.io).
 {{< /alert >}}
 
 ### Going Further

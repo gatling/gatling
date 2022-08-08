@@ -3,7 +3,7 @@ title: "FAQ"
 description: "Common questions and answers"
 lead: "Common questions and answers"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-08-08T23:00:00+02:00
 toc: false
 weight: 2100200
 ---
@@ -11,7 +11,7 @@ weight: 2100200
 If you are here, chances are that Gatling does not work as expected.
 To help you fixing the problem, here is a list of common problems and their solutions.
 
-If you can't find a solution here, consider joining our [Google Group](https://groups.google.com/forum/#!forum/gatling).
+If you can't find a solution here, consider joining our [Gatling Community](https://community.gatling.io).
 
 #### Why is gatling-highcharts a dedicated project/repository and why does it uses a different license?
 

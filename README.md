@@ -25,7 +25,7 @@ Gatling is developed in Scala and built upon :
 
 Read the [documentation](https://gatling.io/docs/current/).
 
-Join the [Gatling User Group](https://groups.google.com/forum/#!forum/gatling).
+Join the [Gatling Community](https://community.gatling.io).
 
 Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues).
 
