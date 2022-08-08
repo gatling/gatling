@@ -19,6 +19,7 @@ package io.gatling.http.action.ws.fsm
 import io.gatling.commons.stats.KO
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws.WsLogger
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -78,7 +79,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remaini
   ): NextWsState = {
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued a $frameType frame but WebSocket was already crashed: $mess"
-      case _          => "Client issued a $frameType frame but WebSocket was already closed"
+      case _          => s"Client issued a $frameType frame but WebSocket was already closed"
     }
 
     logger.debug(loggedMessage)

@@ -18,6 +18,7 @@ package io.gatling.http.action.ws.fsm
 
 import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
+import scala.collection.mutable.{ ArrayBuffer, ListBuffer }
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
@@ -47,12 +48,14 @@ class WsFsm(
 ) extends StrictLogging {
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
+  val currentMessageBuffer: ArrayBuffer[(Long, String)] = scala.collection.mutable.ArrayBuffer.empty[(Long, String)]
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {
         logger.debug(s"Timeout ${currentTimeout.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
+        currentMessageBuffer.clear()
       },
       dur.toMillis,
       TimeUnit.MILLISECONDS
@@ -70,6 +73,7 @@ class WsFsm(
         logger.debug(s"Failed to cancel timeout ${currentTimeout.hashCode}")
       }
       currentTimeout = null
+      currentMessageBuffer.clear()
     }
 
   private def execute(f: => NextWsState): Unit = {

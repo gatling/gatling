@@ -131,4 +131,8 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
       false
     }
   }
+
+  protected def saveMessageToBuffer(message: String, timestamp: Long): Unit = {
+    fsm.currentMessageBuffer += ((timestamp, message))
+  }
 }

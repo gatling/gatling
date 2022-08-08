@@ -114,7 +114,9 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
             remainingCheckSequences = remainingCheckSequences,
             remainingReconnects = remainingReconnects,
             session = newSession,
-            next = newNext
+            next = newNext,
+            actionName = fsm.connectRequest.getName,
+            requestMessage = None
           )
         )
 

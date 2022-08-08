@@ -21,6 +21,7 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.stats.OK
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws.WsLogger
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 
@@ -42,6 +43,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new TextWebSocketFrame(message))
+    WsLogger.logOK(actionName, session, fsm.currentMessageBuffer, Some(message))
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
@@ -61,7 +63,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
             remainingCheckSequences,
             session = session,
             remainingReconnects = remainingReconnects,
-            next = Left(next)
+            next = Left(next),
+            actionName = actionName,
+            requestMessage = Some(message)
           )
         )
 
@@ -82,6 +86,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
+    WsLogger.logOK(actionName, session, fsm.currentMessageBuffer, Some(s"<<<BINARY CONTENT length=${message.length}>>>"))
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
@@ -101,7 +106,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
             remainingCheckSequences,
             session = session,
             remainingReconnects = remainingReconnects,
-            next = Left(next)
+            next = Left(next),
+            actionName = actionName,
+            requestMessage = Some(s"<<<BINARY CONTENT length=${message.length}>>>")
           )
         )
 
@@ -111,6 +118,8 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
+//    println(s"Receive message: ${message}")
+    saveMessageToBuffer(message, timestamp)
     // try to auto reply or log the message
     if (!autoReplyTextFrames(message, webSocket)) {
       logUnmatchedServerMessage(session)
@@ -119,6 +128,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
+    saveMessageToBuffer(s"<<<BINARY CONTENT length=${message.length}>>>", timestamp)
     // server push message, just log
     logUnmatchedServerMessage(session)
     NextWsState(this)
@@ -126,7 +136,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
 
   override def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState = {
     // server issued close
-    logger.debug(s"WebSocket was forcefully closed ($code:$reason) by the server while in Idle state")
+    logger.debug(s"WebSocket was forcefully closed ($code/$reason) by the server while in Idle state")
     NextWsState(new WsCrashedState(fsm, None, remainingReconnects))
   }
 
