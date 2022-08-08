@@ -97,7 +97,7 @@ object Dependencies {
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.9.0"             % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
-  private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"                 % "0.10.0"            % Test
+  private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"                 % "0.11.0"            % Test
 
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "9.4.48.v20220622"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
