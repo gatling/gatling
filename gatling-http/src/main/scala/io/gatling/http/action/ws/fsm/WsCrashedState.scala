@@ -78,7 +78,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remaini
   ): NextWsState = {
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued a $frameType frame but WebSocket was already crashed: $mess"
-      case _          => "Client issued a $frameType frame but WebSocket was already closed"
+      case _          => s"Client issued a $frameType frame but WebSocket was already closed"
     }
 
     logger.debug(loggedMessage)

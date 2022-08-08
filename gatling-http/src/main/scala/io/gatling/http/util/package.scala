@@ -17,6 +17,8 @@
 package io.gatling.http
 
 import java.{ lang => jl }
+import java.time.{ Instant, ZoneId }
+import java.time.format.DateTimeFormatter
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -31,6 +33,9 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaders
 
 package object util extends LazyLogging {
+
+  private val bufferFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+
   implicit class HttpStringBuilder(val buff: jl.StringBuilder) extends AnyVal {
     def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
       headers.asScala.foreach { entry =>
@@ -105,5 +110,15 @@ package object util extends LazyLogging {
           }
         case _ => buff
       }
+
+    def appendWebsocketInboundMessages(messageBuffer: Seq[(Long, String)]): jl.StringBuilder = {
+      messageBuffer.zipWithIndex
+        .foreach { case ((timestamp, message), index) =>
+          val time = bufferFormat.format(Instant.ofEpochMilli(timestamp))
+          buff.append(s"$time [$index] -> $message").append(Eol)
+        }
+
+      buff
+    }
   }
 }

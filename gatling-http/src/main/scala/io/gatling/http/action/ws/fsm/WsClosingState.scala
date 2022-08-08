@@ -32,11 +32,13 @@ final class WsClosingState(fsm: WsFsm, actionName: String, session: Session, nex
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
+    saveStringMessageToBuffer(message, timestamp)
     logUnmatchedServerMessage(session)
     NextWsState(this)
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
+    saveBinaryMessageToBuffer(message, timestamp)
     logUnmatchedServerMessage(session)
     NextWsState(this)
   }

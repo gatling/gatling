@@ -23,7 +23,7 @@ import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.ws.fsm.WsFsm
+import io.gatling.http.action.ws.fsm.{ WsFsm, WsLogger }
 import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
@@ -36,7 +36,8 @@ class WsConnect(
     onConnected: Option[Action],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
-    val next: Action
+    val next: Action,
+    wsLogger: WsLogger
 ) extends RequestAction
     with WsAction
     with NameGen {
@@ -66,7 +67,8 @@ class WsConnect(
               httpComponents.httpEngine,
               httpComponents.httpProtocol,
               session.eventLoop,
-              clock
+              clock,
+              wsLogger
             )
 
             fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)

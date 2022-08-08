@@ -21,6 +21,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.action.ws.{ OnConnectedChainEndActionBuilder, WsAwaitActionBuilder, WsConnect, WsFrameCheckSequenceBuilder }
+import io.gatling.http.action.ws.fsm.WsLogger
 import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
 
@@ -59,6 +60,8 @@ final case class WsConnectRequestBuilder(
       chain.exec(OnConnectedChainEndActionBuilder).build(ctx, next)
     }
 
+    val wsLogger = new WsLogger
+
     new WsConnect(
       commonAttributes.requestName,
       wsName,
@@ -67,7 +70,8 @@ final case class WsConnectRequestBuilder(
       onConnected,
       ctx.coreComponents,
       httpComponents,
-      next
+      next,
+      wsLogger
     )
   }
 }
