@@ -5,7 +5,7 @@
 We use GitHub's issue tracker as a TODO list or, and as far as you are concerned, for filing bug reports and asking for new features.
  
 If you need help or simply want to ask a question, please DON'T use this issue tracker!
-Search [Gatling's Google Group](https://groups.google.com/forum/#!forum/gatling) or post your questions there if they haven't been asked and answered previously.
+Search [Gatling Community Forum](https://community.gatling.io) or post your questions there if they haven't been asked and answered previously.
 
 ## Preliminaries 
 
