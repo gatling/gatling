@@ -81,6 +81,19 @@ Gatling EL provide the following built-in functions:
   
 // unescape an HTML String (entities decoded)
 "#{foo.htmlUnescape()}"
+
+// generate UUID, example: e0fce6ff-66d6-4ea8-8b11-26c359cff500
+"${UUID()}"
+
+// generate random number by range. You can define min and max OR only max value.
+// also it supports Int and Long max value.        
+"#{randomNumber(10)}"
+"#{randomNumber(5,10)}"
+"#{randomNumber(5, max)}"
+"#{randomNumber(5, maxL)}"
+
+// random alphanumeric with length
+"#{randomAlphanum(5)}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:

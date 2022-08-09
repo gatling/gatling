@@ -18,12 +18,13 @@ package io.gatling.core.session.el
 
 import java.{ util => ju }
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{ Date, UUID }
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
+import scala.util.Random
 import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
@@ -237,6 +238,43 @@ final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[St
   def apply(session: Session): Validation[String] = format.format(new Date()).success
 }
 
+final case class RandomNumberPart(value: String) extends ElPart[Long] {
+
+  def random[@specialized(Int, Long) T](min: Long, max: T): Long = {
+    val newMax = max match {
+      case l: Long => if (l == Long.MaxValue) l - 1 else l
+      case i: Int  => if (i == Int.MaxValue) i - 1 else i
+    }
+    min + ThreadLocalRandom.current.nextLong((newMax - min) + 1)
+  }
+
+  def resolveSingleValue(arg: String): (Long, Long) = arg match {
+    case singleValue if !singleValue.contains("max") => (0, singleValue.toLong)
+    case "max"                                       => (0, Int.MaxValue)
+    case "maxL"                                      => (0, Long.MaxValue)
+  }
+
+  def convertStringRangeToNumbers(arg: String): (Long, Long) = arg match {
+    case doubleValue if doubleValue contains "," =>
+      val l = arg.split(",").map(_.trim)
+      (resolveSingleValue(l(0))._2, resolveSingleValue(l(1))._2)
+    case _ => resolveSingleValue(arg)
+  }
+
+  def apply(session: Session): Validation[Long] = {
+    val v = convertStringRangeToNumbers(value)
+    random(v._1, v._2).success
+  }
+}
+
+case object UUIDPart extends ElPart[String] {
+  def apply(session: Session): Validation[String] = UUID.randomUUID().toString.success
+}
+
+final case class AlphanumPart(value: String) extends ElPart[String] {
+  def apply(session: Session): Validation[String] = Random.alphanumeric.take(value.toInt).mkString.success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
@@ -366,7 +404,13 @@ final class ElCompiler private extends RegexParsers {
 
   private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
 
-  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate
+  private def randomNumbers: Parser[ElPart[Any]] = "randomNumber(" ~> NameRegex <~ ")" ^^ (n => RandomNumberPart(n))
+
+  private def randomAlphanum: Parser[ElPart[Any]] = "randomAlphanum(" ~> NameRegex <~ ")" ^^ (n => AlphanumPart(n))
+
+  private def uuid: Parser[ElPart[Any]] = "UUID()" ^^ (_ => UUIDPart)
+
+  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomNumbers | uuid | randomAlphanum
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 
