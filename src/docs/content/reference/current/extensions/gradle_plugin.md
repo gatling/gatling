@@ -98,8 +98,8 @@ The plugin defines the following extension properties in the `gatling` closure:
 | `logHttp`           | String  | `'NONE'` | Verbosity of logging HTTP requests performed by Gatling, must be one of: <br/> * `'NONE'` - do not log, <br/> * `'ALL'` - log all requests, <br/> * `'FAILURES'` - only failed requests |
 | `includeMainOutput` | Boolean | `true` | `true` |
 | `includeTestOutput` | Boolean | `true` | Include test source set output to gatlingImplementation |
-| `scalaVersion`      | String  | `'2.13.7'` | Scala version that fits your Gatling version |
-| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br>  '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12',<br> '-XX:-UseBiasedLocking'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
+| `scalaVersion`      | String  | `'2.13.8'` | Scala version that fits your Gatling version |
+| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br> '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12',<br> '-XX:-UseBiasedLocking'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
 | `systemProperties`  | Map     | `['java.net.preferIPv6Addresses': true]` | Additional systems properties passed to JVM together with caller JVM system properties |
 | `simulations`       | Closure | `include("**/*Simulation*.java", "**/*Simulation*.kt", "**/*Simulation*.scala")` | Simulations filter. [See Gradle docs](https://gatling.io/docs/current/extensions/gradle_plugin/?highlight=gradle%20plugin#id2) for details. |
 
@@ -107,7 +107,7 @@ How to override Gatling version, JVM arguments and system properties:
 
 ```groovy
 gatling {
-  gatlingVersion = '3.7.0'
+  gatlingVersion = '3.8.3'
   jvmArgs = ['-server', '-Xms512M', '-Xmx512M']
   systemProperties = ['file.encoding': 'UTF-8']
 }
@@ -232,7 +232,7 @@ to run particular simulations, or use the default tasks:
 | --- | --- | --- |
 | `gatlingClasses`           | ---            | Compiles Gatling simulation and copies resources |
 | `gatlingRun`               | GatlingRunTask | Executes all Gatling simulations configured by extension |
-| `gatlingRun-SimulationFQN` | GatlingRunTask | Executes single Gatling simulation\n`SimulationFQN` should be replaced by fully qualified simulation class name. |
+| `gatlingRun-SimulationFQN` | GatlingRunTask | Executes single Gatling simulation<br>`SimulationFQN` should be replaced by fully qualified simulation class name. |
 
 For example, run all simulations:
 
