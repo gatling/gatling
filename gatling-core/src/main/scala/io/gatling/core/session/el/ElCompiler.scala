@@ -242,8 +242,8 @@ final case class RandomNumberPart(value: String) extends ElPart[Long] {
 
   def random[@specialized(Int, Long) T](min: Long, max: T): Long = {
     val newMax = max match {
-      case l: Long => if (l == Long.MaxValue) l - 1 else l
-      case i: Int  => if (i == Int.MaxValue) i - 1 else i
+      case l: Long => if (l == Long.MaxValue && min == 0) l - 1 else l
+      case i: Int  => if (i == Int.MaxValue && min == 0) i - 1 else i
     }
     min + ThreadLocalRandom.current.nextLong((newMax - min) + 1)
   }
