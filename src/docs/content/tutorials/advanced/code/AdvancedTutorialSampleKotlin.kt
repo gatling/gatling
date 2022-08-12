@@ -17,6 +17,7 @@
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
+import kotlin.random.Random
 
 class AdvancedTutorialSampleKotlin {
 
@@ -125,8 +126,8 @@ val edit =
     .pause(1)
     .exec(http("Post")
       .post("/computers")
-      .check(status().shouldBe { session ->
-        200 + java.util.concurrent.ThreadLocalRandom.current().nextInt(2)
+      .check(status().shouldBe {
+        200 + Random.nextInt(2)
       })
     )
 //#check
