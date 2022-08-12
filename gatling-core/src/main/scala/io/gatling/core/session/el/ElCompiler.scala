@@ -237,11 +237,11 @@ final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[St
   def apply(session: Session): Validation[String] = format.format(new Date()).success
 }
 
-case object randomSecureUUID extends ElPart[UUID] {
+case object RandomSecureUUID extends ElPart[UUID] {
   def apply(session: Session): Validation[UUID] = UUID.randomUUID().success
 }
 
-case object randomUUID extends ElPart[UUID] {
+case object RandomUUID extends ElPart[UUID] {
 
   private val Version4Mask = 2L << 62
   private val VariantMask = 2L << 62
@@ -391,9 +391,9 @@ final class ElCompiler private extends RegexParsers {
 
   private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
 
-  private def randomSecuredUuid: Parser[ElPart[Any]] = "randomSecuredUuid()" ^^ (_ => randomSecureUUID)
+  private def randomSecuredUuid: Parser[ElPart[Any]] = "randomSecuredUuid()" ^^ (_ => RandomSecureUUID)
 
-  private def randomUuid: Parser[ElPart[Any]] = "randomUuid()" ^^ (_ => randomUUID)
+  private def randomUuid: Parser[ElPart[Any]] = "randomUuid()" ^^ (_ => RandomUUID)
 
   private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomUuid | randomSecuredUuid
 
