@@ -18,7 +18,7 @@ package io.gatling.core.session.el
 
 import java.{ util => ju }
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{ Date, UUID }
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -237,6 +237,31 @@ final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[St
   def apply(session: Session): Validation[String] = format.format(new Date()).success
 }
 
+case object RandomSecureUUID extends ElPart[UUID] {
+  def apply(session: Session): Validation[UUID] = UUID.randomUUID().success
+}
+
+case object RandomUUID extends ElPart[UUID] {
+
+  private val Version4Mask = 2L << 62
+  private val VariantMask = 2L << 62
+
+  def version4UUID(): UUID = {
+    val rnd = ThreadLocalRandom.current()
+    var mostSigBits = rnd.nextLong()
+    var leastSigBits = rnd.nextLong()
+
+    mostSigBits &= ~0xf000L
+    mostSigBits |= Version4Mask
+
+    leastSigBits = (leastSigBits << 2) >>> 2
+    leastSigBits |= VariantMask
+    new UUID(mostSigBits, leastSigBits)
+  }
+
+  def apply(session: Session): Validation[UUID] = version4UUID().success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
@@ -366,7 +391,11 @@ final class ElCompiler private extends RegexParsers {
 
   private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
 
-  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate
+  private def randomSecureUuid: Parser[ElPart[Any]] = "randomSecureUuid()" ^^ (_ => RandomSecureUUID)
+
+  private def randomUuid: Parser[ElPart[Any]] = "randomUuid()" ^^ (_ => RandomUUID)
+
+  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomUuid | randomSecureUuid
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

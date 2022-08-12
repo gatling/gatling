@@ -17,6 +17,7 @@
 package io.gatling.core.session.el
 
 import java.{ util => ju }
+import java.util.UUID
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation.Success
@@ -695,5 +696,15 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val session = newSession(Map("foo" -> "FOO"))
     val expression = "\\#{foo}".el[String]
     expression(session).succeeded shouldBe "#{foo}"
+  }
+
+  "randomUuid" should "generate uuid" in {
+    val randomUuid = "#{randomUuid()}".el[UUID]
+    randomUuid(emptySession).succeeded shouldBe a[UUID]
+  }
+
+  "randomSecureUuid" should "generate uuid" in {
+    val randomSecureUuid = "#{randomSecureUuid()}".el[UUID]
+    randomSecureUuid(emptySession).succeeded shouldBe a[UUID]
   }
 }
