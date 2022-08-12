@@ -81,6 +81,12 @@ Gatling EL provide the following built-in functions:
   
 // unescape an HTML String (entities decoded)
 "#{foo.htmlUnescape()}"
+
+// generate UUID
+"#{randomUuid()}"
+
+// generate secure UUID
+"#{randomSecuredUuid()}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:
