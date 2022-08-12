@@ -391,11 +391,11 @@ final class ElCompiler private extends RegexParsers {
 
   private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
 
-  private def randomSecuredUuid: Parser[ElPart[Any]] = "randomSecuredUuid()" ^^ (_ => RandomSecureUUID)
+  private def randomSecureUuid: Parser[ElPart[Any]] = "randomSecureUuid()" ^^ (_ => RandomSecureUUID)
 
   private def randomUuid: Parser[ElPart[Any]] = "randomUuid()" ^^ (_ => RandomUUID)
 
-  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomUuid | randomSecuredUuid
+  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomUuid | randomSecureUuid
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 
