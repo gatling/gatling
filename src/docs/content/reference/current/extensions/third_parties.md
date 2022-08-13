@@ -15,7 +15,7 @@ If you run into an issue, please contact their respective owners.
 ### Active
 
 * [AMQP plugin (Gatling 3.8)](https://github.com/TinkoffCreditSystems/gatling-amqp-plugin) by Vyacheslav Kalyokin
-* [Cassandra plugin (Gatling 3.7)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
+* [Cassandra plugin (Gatling 3.8)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
 * [gRPC plugin (Gatling 3.7)](https://github.com/phiSgr/gatling-grpc) by George Leung
 * [Kafka plugin (Gatling 3.7)](https://github.com/TinkoffCreditSystems/gatling-kafka-plugin) by Ioann Akhaltsev
 
