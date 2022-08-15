@@ -87,6 +87,18 @@ Gatling EL provide the following built-in functions:
 
 // generate a random UUID (standard java.util.UUID#randomUUID: cryptographically secure, but slower)
 "#{randomSecureUuid()}"
+
+// generate a random Int with full range        
+"#{randomInt()}"
+
+// generate a random Int with range where 5 is the min and 10 is the max (inclusive)          
+"#{randomInt(5,10)}"
+
+// generate a random Long with full range
+"#{randomLong()}"
+
+// generate a random Long with range where 2147483648 is the min and 2147483658 is the max (inclusive)        
+"#{randomLong(2147483648,2147483658)}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:

@@ -262,13 +262,36 @@ case object RandomUUID extends ElPart[UUID] {
   def apply(session: Session): Validation[UUID] = version4UUID().success
 }
 
+case object RandomInt extends ElPart[Int] {
+  def apply(session: Session): Validation[Int] = ThreadLocalRandom.current().nextInt().success
+}
+
+final case class RandomIntRange(min: Int, max: Int) extends ElPart[Int] {
+  require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
+  private val length = max - min + 1
+
+  def apply(session: Session): Validation[Int] = (min + ThreadLocalRandom.current().nextInt(length)).success
+}
+
+case object RandomLong extends ElPart[Long] {
+  def apply(session: Session): Validation[Long] = ThreadLocalRandom.current().nextLong().success
+}
+
+final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
+  require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
+  private val length = max - min + 1
+
+  def apply(session: Session): Validation[Long] = (min + ThreadLocalRandom.current().nextLong(length)).success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
 
   private val NameRegex = """[^.#{}()]+""".r
   private val DateFormatRegex = """[^#{}()]+""".r
-  private val NumberRegex = "\\d+".r
+  private val NumberRegex = """\d+""".r
+  private val NumberRegexWithNegative = """-?\d+""".r
   private val DynamicPartStart = "#{".toCharArray
 
   private val ElCompilers = new ThreadLocal[ElCompiler] {
@@ -395,7 +418,20 @@ final class ElCompiler private extends RegexParsers {
 
   private def randomUuid: Parser[ElPart[Any]] = "randomUuid()" ^^ (_ => RandomUUID)
 
-  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate | randomUuid | randomSecureUuid
+  private def randomInt: Parser[ElPart[Any]] = "randomInt()" ^^ (_ => RandomInt)
+
+  private def randomIntRange: Parser[ElPart[Any]] = "randomInt(" ~> NumberRegexWithNegative ~ ("," ~> NumberRegexWithNegative) <~ ")" ^^ { case min ~ max =>
+    RandomIntRange(min.toInt, max.toInt)
+  }
+
+  private def randomLong: Parser[ElPart[Any]] = "randomLong()" ^^ (_ => RandomLong)
+
+  private def randomLongRange: Parser[ElPart[Any]] = "randomLong(" ~> NumberRegexWithNegative ~ ("," ~> NumberRegexWithNegative) <~ ")" ^^ { case min ~ max =>
+    RandomLongRange(min.toLong, max.toLong)
+  }
+
+  private def nonSessionObject: Parser[ElPart[Any]] =
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

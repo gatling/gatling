@@ -707,4 +707,46 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val randomSecureUuid = "#{randomSecureUuid()}".el[UUID]
     randomSecureUuid(emptySession).succeeded shouldBe a[UUID]
   }
+
+  "randomInt" should "generate random Int full range" in {
+    val randomInt = "#{randomInt()}".el[Int]
+    randomInt(emptySession).succeeded should (be >= Int.MinValue and be <= Int.MaxValue)
+  }
+
+  "randomIntRange" should "generate random Int with range (inclusive)" in {
+    val randomInt = "#{randomInt(0,10)}".el[Int]
+    val actual = Set.fill(1000)(randomInt(emptySession).succeeded)
+    val expected = (0 to 10).toSet
+    actual should contain theSameElementsAs expected
+  }
+
+  "randomIntRange" should "generate random Int with negative numbers" in {
+    val randomInt = "#{randomInt(-10,-5)}".el[Int]
+    randomInt(emptySession).succeeded should (be < 0)
+  }
+
+  "randomIntRange" should "throw exception with 'max' less than 'min'" in {
+    an[ElParserException] should be thrownBy "#{randomInt(20,1)}".el[Int]
+  }
+
+  "randomLong" should "generate random Long with full range" in {
+    val randomLong = "#{randomLong()}".el[Long]
+    randomLong(emptySession).succeeded should (be >= Long.MinValue and be <= Long.MaxValue)
+  }
+
+  "randomLongRange" should "generate random Long with range (inclusive)" in {
+    val randomLong = "#{randomLong(2147483648,2147483658)}".el[Long]
+    val actual = Set.fill(1000)(randomLong(emptySession).succeeded)
+    val expected = (Int.MaxValue + 1L to Int.MaxValue + 11L).toSet
+    actual should contain theSameElementsAs expected
+  }
+
+  "randomLongRange" should "generate random Long with negative numbers" in {
+    val randomInt = "#{randomLong(-2147483658,-2147483648)}".el[Long]
+    randomInt(emptySession).succeeded should (be < -2147483647L)
+  }
+
+  "randomLongRange" should "throw exception with 'max' less than 'min'" in {
+    an[ElParserException] should be thrownBy "#{randomLong(2147483658,2147483648)}".el[Long]
+  }
 }
