@@ -28,10 +28,11 @@ object Dependencies {
   private val nettyTcNativeBoringSslOsXX86   = nettyTcNativeBoringSsl  classifier "osx-x86_64"
   private val nettyTcNativeBoringSslOsXArm   = nettyTcNativeBoringSsl  classifier "osx-aarch_64"
   private val nettyTcNativeBoringSslWindows  = nettyTcNativeBoringSsl  classifier "windows-x86_64"
-  private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                          % "1.7.1"
+  private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                          % "1.8.0"
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
-  private val brotli4cOsXX86                  = brotli4j.withName("native-osx-x86_64")
+  private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
+  private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                        % "2.6.19"
   private val akkaSlf4j                      = akka.withName("akka-slf4j")
@@ -183,6 +184,7 @@ object Dependencies {
     brotli4jLinuxX86,
     brotli4jLinuxArm,
     brotli4cOsXX86,
+    brotli4cOsXArm,
     brotli4jWindows,
     junit,
     junitEngine,
