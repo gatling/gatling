@@ -267,7 +267,7 @@ case object RandomInt extends ElPart[Int] {
 }
 
 final case class RandomIntRange(min: Int, max: Int) extends ElPart[Int] {
-  require(min < max, s"Range `max` value must be above than `min`")
+  require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
   private val length = max - min + 1
 
   def apply(session: Session): Validation[Int] = (min + ThreadLocalRandom.current().nextInt(length)).success
@@ -278,7 +278,7 @@ case object RandomLong extends ElPart[Long] {
 }
 
 final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
-  require(min < max, s"Range `max` value must be above than `min`")
+  require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
   private val length = max - min + 1
 
   def apply(session: Session): Validation[Long] = (min + ThreadLocalRandom.current().nextLong(length)).success
