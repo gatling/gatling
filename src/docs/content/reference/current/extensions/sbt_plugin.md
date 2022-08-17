@@ -109,7 +109,7 @@ sbt Gatling/test
 Or run a single simulation, by its FQN (fully qualified class name), from the `it` configuration:
 
 ```bash
-sbt GatlingIt/testOnly com.project.simu.MySimulation
+sbt 'GatlingIt/testOnly com.project.simu.MySimulation'
 ```
 
 {{< alert tip >}}
