@@ -180,6 +180,9 @@ http
   // to server ping messages (`2`) with pong (`3`).
   // Cannot be used together with `wsAutoReplyTextFrame`.
   .wsAutoReplySocketIo4
+
+  // enable to store all received messages to buffer and print to stdout
+  .wsLogsPiling
 //#protocol
 
 //#chatroom-example

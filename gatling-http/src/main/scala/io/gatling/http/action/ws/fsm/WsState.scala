@@ -22,6 +22,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.ws._
 import io.gatling.http.client.WebSocket
+import io.gatling.http.engine.response.HttpTracing
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.Cookie
@@ -132,7 +133,10 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
     }
   }
 
-  protected def saveMessageToBuffer(message: String, timestamp: Long): Unit = {
-    fsm.currentMessageBuffer += ((timestamp, message))
-  }
+  protected def saveStringMessageToBuffer(message: String, timestamp: Long): Unit =
+    if (fsm.httpProtocol.wsPart.logsPiling) fsm.currentMessageBuffer += ((timestamp, message))
+
+  protected def saveBinaryMessageToBuffer(message: Array[Byte], timestamp: Long): Unit =
+    if (fsm.httpProtocol.wsPart.logsPiling) fsm.currentMessageBuffer += ((timestamp, s"<<<BINARY CONTENT length=${message.length}>>>"))
+
 }

@@ -123,7 +123,7 @@ WebSocket support introduces new HttpProtocol parameters:
 You can inspect WebSocket traffic if you add the following logger to your logback configuration:
 
 ```xml
-<logger name="io.gatling.http.action.ws.WsLogger" level="DEBUG" />
+<logger name="io.gatling.http.action.ws.fsm" level="DEBUG" />
 ```
 
 ## Example

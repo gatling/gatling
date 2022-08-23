@@ -30,6 +30,7 @@ class WsCompileTest extends Simulation {
     .wsMaxReconnects(3)
     .wsAutoReplyTextFrame { case "ping" => "pong"; case "1" => "2" }
     .wsAutoReplySocketIo4
+    .wsLogsPiling
 
   private val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))

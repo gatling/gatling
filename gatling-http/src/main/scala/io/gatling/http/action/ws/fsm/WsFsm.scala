@@ -44,7 +44,8 @@ class WsFsm(
     private[fsm] val httpEngine: HttpEngine,
     private[fsm] val httpProtocol: HttpProtocol,
     eventLoop: EventLoop,
-    private[fsm] val clock: Clock
+    private[fsm] val clock: Clock,
+    private[fsm] val wsLog: WsLogger
 ) extends StrictLogging {
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
@@ -75,6 +76,8 @@ class WsFsm(
       currentTimeout = null
       currentMessageBuffer.clear()
     }
+
+  def fetchBuffer(): Seq[(Long, String)] = currentMessageBuffer.toSeq
 
   private def execute(f: => NextWsState): Unit = {
     val NextWsState(nextState, afterStateUpdate) = f

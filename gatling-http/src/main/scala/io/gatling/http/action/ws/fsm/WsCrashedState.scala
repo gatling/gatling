@@ -19,7 +19,6 @@ package io.gatling.http.action.ws.fsm
 import io.gatling.commons.stats.KO
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws.WsLogger
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
