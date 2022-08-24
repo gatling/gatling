@@ -19,16 +19,16 @@ import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
 
-class FunctionSampleJava {
+class FunctionSampleKotlin {
   init {
 //#function
 // inline usage with a Java lamdba
 exec(http("name")
-  .get { session -> "/foo/${session.getString("param").toLowerCase(Locale.getDefault())}" })
+  .get { session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" })
 
 // passing a reference to a function
 val f =
-  { session: Session -> "/foo/${session.getString("param").toLowerCase(Locale.getDefault())}" }
+  { session: Session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" }
 exec(http("name").get(f))
 //#function
   }

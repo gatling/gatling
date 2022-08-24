@@ -358,7 +358,7 @@ http("").get("")
   jmesPath("foo")
     .validate("MyCustomValidator") { actual, session ->
 
-      val prefix: String = session.getString("prefix")
+      val prefix: String = session.getString("prefix")!!
       if (actual == null) {
         throw NullPointerException("Value is missing")
       } else {
