@@ -60,24 +60,24 @@ val contains = session.contains("key")
 // get an attribute value and cast it
 val string = session.getString("key")
 
-// get an int attribute (will throw if it's null)
+// get an Int attribute (will throw if it's null)
 val primitiveInt = session.getInt("key")
-// get an Integer attribute
+// get an Int? attribute
 val intWrapper = session.getIntegerWrapper("key")
 
-// get a long attribute (will throw if it's null)
+// get a Long attribute (will throw if it's null)
 val primitiveLong = session.getLong("key")
-// get a Long attribute
+// get a Long? attribute
 val longWrapper = session.getLongWrapper("key")
 
-// get a boolean attribute (will throw if it's null)
+// get a Boolean attribute (will throw if it's null)
 val primitiveBoolean = session.getBoolean("key")
-// get a Boolean attribute
+// get a Boolean? attribute
 val booleanWrapper = session.getBooleanWrapper("key")
 
-// get a double attribute (will throw if it's null)
+// get a Double attribute (will throw if it's null)
 val primitiveDouble = session.getDouble("key")
-// get a Double attribute
+// get a Double? attribute
 val doubleWrapper = session.getDoubleWrapper("key")
 
 // get an attribute value and cast it into a List
