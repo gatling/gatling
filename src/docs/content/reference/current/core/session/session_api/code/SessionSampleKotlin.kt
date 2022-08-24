@@ -87,7 +87,7 @@ val set: Set<MyPojo> = session.getSet("key")
 // get an attribute value and cast it into a Map
 val map: Map<String, MyPojo> = session.getMap("key")
 // get an attribute value and cast it
-val myPojo: MyPojo = session.get("key")
+val myPojoOrNull: MyPojo? = session.get("key")
 //#get
   }
 
