@@ -748,4 +748,56 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   "randomLongRange" should "throw exception with 'max' less than 'min'" in {
     an[ElParserException] should be thrownBy "#{randomLong(2147483658,2147483648)}".el[Long]
   }
+
+  "randomDoubleRange" should "throw an ELParse exception when first parameter is digit.digit.digit" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(0.42.1,42.42)}".el[Double]
+  }
+
+  it should "throw an ELParse exception when second parameter is not digit.digit.digit" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(0.42,42.42.42)}".el[Double]
+  }
+
+  it should "throw an ELParse exception when parameter has .digit" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(.42,1.42)}".el[Double]
+  }
+
+  it should "throw an ELParse exception when parameter has digit." in {
+    a[ElParserException] should be thrownBy "#{randomDouble(0.42,1.)}".el[Double]
+  }
+
+  it should "throw an ELParse exception when second parameter is a string" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(0.42,a)}".el[Double]
+  }
+
+  it should "throw an ELParse exception when first parameter is a character" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(abc,42.42)}".el[Double]
+  }
+
+  it should "generate random Double" in {
+    val randomDouble = "#{randomDouble(-0.42,42.42)}".el[Double]
+    all(List.fill(420)(randomDouble(emptySession).succeeded)) should (be >= -.42 and be < 42.42)
+  }
+
+  "randomDoubleRangeDigits" should "generate random Double with limited fractional digits" in {
+    val randomDouble = "#{randomDouble(1111.11,2222.22,4)}".el[Double]
+    val foo = List.fill(420)(randomDouble(emptySession).succeeded)
+    all(foo.map(s => s.toString.split("\\.")(1).length)) should be <= 9
+  }
+
+  it should "generate random Double with 0 fractional digits sets to 1 fractional digit with digits.0" in {
+    val randomDouble = "#{randomDouble(-3.14,3.14,0)}".el[Double]
+    all(List.fill(420)(randomDouble(emptySession).succeeded.toString.split("\\.")(1)).map(s => (s.length, s))) should be <= (1, "0")
+  }
+
+  it should "throw exception when max <= min" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(42.42,42.42)}".el[Double]
+  }
+
+  "randomDoubleRangeDigits" should "throw exception num of digits is less than 0" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(4.242,42.42,-42)}".el[Double]
+  }
+
+  it should "throw exception when max <= min given a valid fractionalDigits" in {
+    a[ElParserException] should be thrownBy "#{randomDouble(42.42,42.42,42)}".el[Double]
+  }
 }
