@@ -21,6 +21,7 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import io.gatling.javaapi.core.internal.Sessions;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import scala.collection.Seq;
 
 /**
@@ -43,7 +44,7 @@ public final class Session {
    * @param <T> the type of the desired value
    * @return the value if it exists, null otherwise
    */
-  public <T> T get(@Nonnull String key) {
+  public <T> @Nullable T get(@Nonnull String key) {
     return wrapped.attributes().getOrElse(key, () -> null);
   }
 
@@ -53,7 +54,7 @@ public final class Session {
    * @param key the storage key
    * @return the value if it exists, null otherwise
    */
-  public String getString(@Nonnull String key) {
+  public @Nullable String getString(@Nonnull String key) {
     Object value = get(key);
     return value != null ? value.toString() : null;
   }
@@ -66,7 +67,7 @@ public final class Session {
    * @throws NumberFormatException if the value is a String that can't be parsed into a int
    * @throws ClassCastException if the value is neither a number nor a String
    */
-  public Integer getIntegerWrapper(@Nonnull String key) {
+  public @Nullable Integer getIntegerWrapper(@Nonnull String key) {
     Object value = get(key);
     if (value instanceof Integer) {
       return (Integer) value;
@@ -109,7 +110,7 @@ public final class Session {
    * @throws NumberFormatException if the value is a String that can't be parsed into a long
    * @throws ClassCastException if the value is neither a number nor a String
    */
-  public Long getLongWrapper(@Nonnull String key) {
+  public @Nullable Long getLongWrapper(@Nonnull String key) {
     Object value = get(key);
     if (value instanceof Integer) {
       return ((Integer) value).longValue();
@@ -156,7 +157,7 @@ public final class Session {
    * @throws NumberFormatException if the value is a String that can't be parsed into a double
    * @throws ClassCastException if the value is neither a number nor a String
    */
-  public Double getDoubleWrapper(@Nonnull String key) {
+  public @Nullable Double getDoubleWrapper(@Nonnull String key) {
     Object value = get(key);
     if (value instanceof Integer) {
       return ((Integer) value).doubleValue();
@@ -207,7 +208,7 @@ public final class Session {
    * @throws NumberFormatException if the value is a String that can't be parsed into a boolean
    * @throws ClassCastException if the value is neither a boolean nor a String
    */
-  public Boolean getBooleanWrapper(@Nonnull String key) {
+  public @Nullable Boolean getBooleanWrapper(@Nonnull String key) {
     Object value = get(key);
     if (value instanceof Boolean) {
       return (Boolean) value;
