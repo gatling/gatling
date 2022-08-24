@@ -266,9 +266,7 @@ case object RandomInt extends ElPart[Int] {
 
 final case class RandomIntRange(min: Int, max: Int) extends ElPart[Int] {
   require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
-  private val length = max - min + 1
-
-  def apply(session: Session): Validation[Int] = (min + ThreadLocalRandom.current().nextInt(length)).success
+  def apply(session: Session): Validation[Int] = ThreadLocalRandom.current().nextInt(min, max).success
 }
 
 case object RandomLong extends ElPart[Long] {
@@ -277,9 +275,22 @@ case object RandomLong extends ElPart[Long] {
 
 final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
   require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
-  private val length = max - min + 1
+  def apply(session: Session): Validation[Long] = ThreadLocalRandom.current().nextLong(min, max).success
+}
 
-  def apply(session: Session): Validation[Long] = (min + ThreadLocalRandom.current().nextLong(length)).success
+final case class RandomDoubleRange(min: Double, max: Double) extends ElPart[Double] {
+  require(min < max, s"'max'($max) should be greater than 'min'($min)")
+  def apply(session: Session): Validation[Double] =
+    ThreadLocalRandom.current().nextDouble(min, max).success
+}
+
+final case class RandomDoubleRangeDigits(min: Double, max: Double, fractionalDigits: Int) extends ElPart[Double] {
+  require(min < max, s"'max'($max) should be greater than 'min'($min)")
+  require(fractionalDigits >= 0, s"fractionalDigits($fractionalDigits) must be positive")
+
+  private val tens = Math.pow(10.0, fractionalDigits)
+  def apply(session: Session): Validation[Double] =
+    ((ThreadLocalRandom.current().nextDouble(min, max) * tens).round / tens).success
 }
 
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
@@ -289,6 +300,7 @@ object ElCompiler extends StrictLogging {
   private val DateFormatRegex = """[^#{}()]+""".r
   private val NumberRegex = """\d+""".r
   private val NumberRegexWithNegative = """-?\d+""".r
+  private val DecimalRegexWithNegative = """-?\d+\.\d+""".r
   private val DynamicPartStart = "#{".toCharArray
 
   private val ElCompilers = new ThreadLocal[ElCompiler] {
@@ -427,8 +439,17 @@ final class ElCompiler private extends RegexParsers {
     RandomLongRange(min.toLong, max.toLong)
   }
 
+  private def randomDoubleRange: Parser[ElPart[Any]] = "randomDouble(" ~> DecimalRegexWithNegative ~ ("," ~> DecimalRegexWithNegative) <~ ")" ^^ {
+    case min ~ max =>
+      RandomDoubleRange(min.toDouble, max.toDouble)
+  }
+
+  private def randomDoubleRangeDigits: Parser[ElPart[Any]] =
+    "randomDouble(" ~> DecimalRegexWithNegative ~ ("," ~> DecimalRegexWithNegative) ~ ("," ~> NumberRegex) <~ ")" ^^ { case min ~ max ~ digit =>
+      RandomDoubleRangeDigits(min.toDouble, max.toDouble, digit.toInt)
+    }
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

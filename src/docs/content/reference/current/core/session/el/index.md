@@ -88,17 +88,31 @@ Gatling EL provide the following built-in functions:
 // generate a random UUID (standard java.util.UUID#randomUUID: cryptographically secure, but slower)
 "#{randomSecureUuid()}"
 
-// generate a random Int with full range        
+// generate a random Int with full range
 "#{randomInt()}"
 
-// generate a random Int with range where 5 is the min and 10 is the max (inclusive)          
+// generate a random Int, where the number generated is >= 5 and < 10 (the right bound of 10 is excluded)
 "#{randomInt(5,10)}"
 
 // generate a random Long with full range
 "#{randomLong()}"
 
-// generate a random Long with range where 2147483648 is the min and 2147483658 is the max (inclusive)        
+// generate a random Long, where the number generated is >= 2147483648 and < 2147483658 (the right bound is excluded)
 "#{randomLong(2147483648,2147483658)}"
+
+// The following functions generate a random Double value in a given range
+// To use these functions you must adhere to the following formats and pay attention to the gotchas
+// * a valid double string is of the format number.number, ex 0.34 or -12.34, while these are INVALID .34 or 2. or +0.34
+//   must be of the format  -?\d+.\d+ (can start with a - then has digit(s) then a . then has digit(s))
+// * when the double is converted to a string in the payload,
+//   you may end up seeing doubles represented in scientific notation.
+//   This can happen when you choose very small or very big numbers or when requesting many decimal places
+
+// generate a random Double, where the number generated is >= -42.42 and < 42.42 (the right bound of 42.42 is excluded)
+"#{randomDouble(-42.42,42.42)}"
+
+// generate a random Double, similar to above, but limit to max of 3 decimal places
+"#{randomDouble(-42.42,42.42,3)}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:
