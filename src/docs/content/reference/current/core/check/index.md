@@ -412,7 +412,7 @@ It takes one single parameter:
 
 #### `saveAs`
 
-Saving is an **optional** step for storing the result of the previous step (extraction or transformation) into the virtual user's Session, so that it can be reused later.
+Saving is an **optional** step for storing the result of the check into the virtual user's Session, so that it can be reused later. It's only effective when the check is successful: it could match the response and passed validation.
 
 It takes one single parameter:
 * `key` can only be a static String.
