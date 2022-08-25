@@ -77,7 +77,7 @@ class PebbleSpec extends BaseSpec {
   }
 
   it should "remove any Gatling private attribute" in {
-    val input = Map("foo" -> "bar", SessionPrivateAttributes.PrivateAttributePrefix + "hello" -> "world")
+    val input = Map("foo" -> "bar", SessionPrivateAttributes.generatePrivateAttribute("hello") -> "world")
     val output = Pebble.sessionAttributesToJava(input)
     output.size shouldBe 1
   }

@@ -82,7 +82,7 @@ private[gatling] object Pebble extends StrictLogging {
 
   private[body] def sessionAttributesToJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
     val jMap = new ju.HashMap[String, AnyRef](map.size)
-    for ((k, v) <- map if !k.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)) {
+    for ((k, v) <- map if !SessionPrivateAttributes.isAttributePrivate(k)) {
       jMap.put(k, anyRefToJava(v))
     }
     jMap

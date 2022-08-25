@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 object Ws {
 
-  private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
+  private val DefaultWebSocketName = SessionPrivateAttributes.generatePrivateAttribute("http.webSocket")
 
   def apply(requestName: Expression[String]): Ws = apply(requestName, DefaultWebSocketName.expressionSuccess)
 

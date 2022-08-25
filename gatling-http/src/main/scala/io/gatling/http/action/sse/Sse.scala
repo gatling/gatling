@@ -21,7 +21,7 @@ import io.gatling.http.check.sse.SseMessageCheck
 import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 
 object Sse {
-  private val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
+  private val DefaultSseName = SessionPrivateAttributes.generatePrivateAttribute("http.sse")
 
   def apply(requestName: Expression[String]): Sse = apply(requestName, DefaultSseName.expressionSuccess)
 

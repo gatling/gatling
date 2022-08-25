@@ -34,7 +34,7 @@ class SessionSpec extends BaseSpec with EmptySession {
   }
 
   "reset" should "remove all non private attributes from the session" in {
-    val privateAttribute = SessionPrivateAttributes.PrivateAttributePrefix + "foo"
+    val privateAttribute = SessionPrivateAttributes.generatePrivateAttribute("foo")
     val session = emptySession
       .setAll("key" -> 1, "otherKey" -> 2, privateAttribute -> 5)
       .reset

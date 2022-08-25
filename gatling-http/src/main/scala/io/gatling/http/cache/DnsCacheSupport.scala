@@ -30,7 +30,7 @@ import io.gatling.http.resolver.{ AliasesAwareNameResolver, SharedAsyncDnsNameRe
 import io.netty.resolver.dns.DefaultDnsCache
 
 private[http] object DnsCacheSupport {
-  val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
+  val DnsNameResolverAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.dns")
 }
 
 private[http] trait DnsCacheSupport {

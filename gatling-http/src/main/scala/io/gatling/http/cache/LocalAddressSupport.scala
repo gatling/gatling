@@ -24,8 +24,8 @@ import io.gatling.http.protocol.HttpProtocol
 
 private[http] object LocalAddressSupport {
 
-  private val LocalIpV4AddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localIpV4Address"
-  private val LocalIpV6AddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localIpV6Address"
+  private val LocalIpV4AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV4Address")
+  private val LocalIpV6AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV6Address")
 
   def setLocalAddresses(httpProtocol: HttpProtocol): Session => Session = {
     val ipV4Addresses = httpProtocol.enginePart.localIpV4Addresses
