@@ -30,9 +30,13 @@ import io.gatling.core.stats.message.ResponseTimings
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.channel.EventLoop
 
-object SessionPrivateAttributes {
+private[gatling] object SessionPrivateAttributes {
 
-  val PrivateAttributePrefix = "gatling."
+  private val PrivateAttributePrefix = "gatling."
+
+  def isAttributePrivate(attributeName: String): Boolean = attributeName.startsWith(PrivateAttributePrefix)
+
+  def generatePrivateAttribute(base: String): String = PrivateAttributePrefix + base
 }
 
 final case class SessionAttribute(session: Session, key: String) {
@@ -116,17 +120,15 @@ final case class Session(
     val newAttributes =
       if (blockStack.isEmpty) {
         // not in a block
-        attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+        attributes.view.filterKeys(SessionPrivateAttributes.isAttributePrivate)
       } else {
         val counterNames: Set[String] = blockStack.view.collect { case loopBlock: LoopBlock => loopBlock.counterName }.to(Set)
         if (counterNames.isEmpty) {
           // no counter based blocks (only groups)
-          attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+          attributes.view.filterKeys(SessionPrivateAttributes.isAttributePrivate)
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.view.filterKeys(key =>
-            counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
-          )
+          attributes.view.filterKeys(key => counterNames.contains(key) || timestampNames.contains(key) || SessionPrivateAttributes.isAttributePrivate(key))
         }
       }
     copy(attributes = newAttributes.to(Map))

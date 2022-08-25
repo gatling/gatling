@@ -30,9 +30,9 @@ import com.typesafe.scalalogging.LazyLogging
 
 private[http] object BaseUrlSupport extends LazyLogging {
 
-  private val BaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
+  private val BaseUrlAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.baseUrl")
 
-  private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
+  private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.wsBaseUrl")
 
   private def preResolve(baseUrl: String, aliasedHostnames: Set[String]): Unit =
     try {

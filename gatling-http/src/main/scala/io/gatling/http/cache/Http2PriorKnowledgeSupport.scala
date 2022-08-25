@@ -23,7 +23,7 @@ import io.gatling.http.response.Response
 import com.typesafe.scalalogging.StrictLogging
 
 private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
-  val Http2PriorKnowledgeAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.priorKnowledgeHttp2"
+  private[cache] val Http2PriorKnowledgeAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.priorKnowledgeHttp2")
 
   def setHttp2PriorKnowledge(httpProtocol: HttpProtocol): Session => Session =
     if (httpProtocol.enginePart.enableHttp2) {

@@ -30,7 +30,7 @@ object OnConnectedChainEndActionBuilder extends ActionBuilder with NameGen {
 
 object OnConnectedChainEndAction {
 
-  private val OnConnectedChainEndCallback: String = SessionPrivateAttributes.PrivateAttributePrefix + "onConnectedChainEndCallback"
+  private val OnConnectedChainEndCallback: String = SessionPrivateAttributes.generatePrivateAttribute("onConnectedChainEndCallback")
 
   def setOnConnectedChainEndCallback(session: Session, callback: Session => Unit): Session =
     session.set(OnConnectedChainEndCallback, callback)

@@ -30,7 +30,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[http] object SslContextSupport extends StrictLogging {
 
-  private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.ssl.sslContexts"
+  private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.ssl.sslContexts")
 
   private def resolvePerUserKeyManagerFactory(session: Session, perUserKeyManagerFactory: Option[Long => KeyManagerFactory]): Option[KeyManagerFactory] =
     perUserKeyManagerFactory match {
