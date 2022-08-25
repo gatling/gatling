@@ -39,26 +39,21 @@ private final case class BlockExit(exitAction: Action, session: Session, groupsT
 
 private object BlockExit {
 
-  /**
-   * Recursively loop on a block List until a stop point and build the Interruption to execute.
-   *
-   * @param blocks        the blocks to scan
-   * @param until         the exit point of the loop
-   * @param exitAction    the next action when exiting
-   * @param session       the session so far
-   * @param groupsToClose the groups so far to close when exiting
-   * @return the Interruption to process
-   */
-  @tailrec
-  private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
-    case head :: tail =>
-      head match {
-        case `until`                             => BlockExit(exitAction, session, groupsToClose)
-        case group: GroupBlock                   => blockExit(tail, until, exitAction, session.exitGroup(tail), group :: groupsToClose)
-        case TryMaxBlock(counterName, _, status) => blockExit(tail, until, exitAction, session.exitTryMax(counterName, status, tail), groupsToClose)
-        case loopBlock: LoopBlock                => blockExit(tail, until, exitAction, session.exitLoop(loopBlock.counterName, tail), groupsToClose)
-      }
-    case _ => BlockExit(exitAction, session, groupsToClose)
+  private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session): BlockExit = {
+
+    @tailrec
+    def blockExitRec(blocks: List[Block], session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
+      case head :: tail =>
+        head match {
+          case `until`                             => BlockExit(exitAction, session, groupsToClose)
+          case group: GroupBlock                   => blockExitRec(tail, session.exitGroup(tail), group :: groupsToClose)
+          case TryMaxBlock(counterName, _, status) => blockExitRec(tail, session.exitTryMax(counterName, status, tail), groupsToClose)
+          case loopBlock: LoopBlock                => blockExitRec(tail, session.exitLoop(loopBlock.counterName, tail), groupsToClose)
+        }
+      case _ => BlockExit(exitAction, session, groupsToClose)
+    }
+
+    blockExitRec(blocks, session, Nil)
   }
 
   /**
@@ -75,7 +70,7 @@ private object BlockExit {
       case head :: tail =>
         head match {
           case ExitAsapLoopBlock(counterName, condition, exitAction) if !LoopBlock.continue(condition, session) =>
-            val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
+            val exit = blockExit(session.blockStack, head, exitAction, session)
             // block stack head is now the loop itself, we must exit it
             Some(exit.copy(session = exit.session.exitLoop(counterName, rightToLeftBlocks)))
 
@@ -102,7 +97,7 @@ private object BlockExit {
         head match {
           case TryMaxBlock(_, tryMaxActor, KO) =>
             // block stack head is now the tryMax itself, leave as is
-            Some(blockExit(session.blockStack, head, tryMaxActor, session, Nil))
+            Some(blockExit(session.blockStack, head, tryMaxActor, session))
 
           case _ => exitTryMaxRec(tail)
         }
