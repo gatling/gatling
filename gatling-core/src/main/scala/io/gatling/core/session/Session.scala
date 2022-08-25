@@ -16,6 +16,8 @@
 
 package io.gatling.core.session
 
+import java.util.UUID
+
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
@@ -37,6 +39,8 @@ private[gatling] object SessionPrivateAttributes {
   def isAttributePrivate(attributeName: String): Boolean = attributeName.startsWith(PrivateAttributePrefix)
 
   def generatePrivateAttribute(base: String): String = PrivateAttributePrefix + base
+
+  def generateRandomUuidPrivateAttribute(): String = PrivateAttributePrefix + UUID.randomUUID()
 }
 
 final case class SessionAttribute(session: Session, key: String) {
