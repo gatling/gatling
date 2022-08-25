@@ -16,11 +16,11 @@
 
 package io.gatling.javaapi.core.pause;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.pause.ScalaPaces;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
@@ -48,7 +48,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(long duration) {
-    return pace(duration, UUID.randomUUID().toString());
+    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -72,7 +72,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(@Nonnull Duration duration) {
-    return pace(duration, UUID.randomUUID().toString());
+    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -98,7 +98,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(@Nonnull String duration) {
-    return pace(duration, UUID.randomUUID().toString());
+    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -124,7 +124,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(@Nonnull Function<Session, Duration> duration) {
-    return pace(duration, UUID.randomUUID().toString());
+    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -149,7 +149,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(long min, long max) {
-    return pace(min, max, UUID.randomUUID().toString());
+    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -175,7 +175,7 @@ public interface Paces<
    */
   @Nonnull
   default T pace(@Nonnull Duration min, @Nonnull Duration max) {
-    return pace(min, max, UUID.randomUUID().toString());
+    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
@@ -218,7 +218,7 @@ public interface Paces<
   @Nonnull
   default T pace(
       @Nonnull Function<Session, Duration> min, @Nonnull Function<Session, Duration> max) {
-    return pace(min, max, UUID.randomUUID().toString());
+    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
   /**
