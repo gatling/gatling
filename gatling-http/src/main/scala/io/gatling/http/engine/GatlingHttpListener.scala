@@ -196,9 +196,12 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
 
   private def buildFailure(t: Throwable): HttpFailure = {
     val rootCause = t.rootCause
+    val rootCauseClass = rootCause.getClass
     val message =
-      if (rootCause.getClass == classOf[io.netty.handler.ssl.NotSslRecordException]) {
+      if (rootCauseClass eq classOf[io.netty.handler.ssl.NotSslRecordException]) {
         "i.n.h.s.NotSslRecordException"
+      } else if (rootCauseClass eq classOf[io.gatling.http.client.impl.RequestTimeoutException]) {
+        rootCause.getMessage
       } else {
         rootCause.detailedMessage
       }
