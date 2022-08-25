@@ -44,8 +44,7 @@ public final class Session {
    * @param <T> the type of the desired value
    * @return the value if it exists, null otherwise
    */
-  @Nullable
-  public <T> T get(@Nonnull String key) {
+  public <T> @Nullable T get(@Nonnull String key) {
     return wrapped.attributes().getOrElse(key, () -> null);
   }
 
