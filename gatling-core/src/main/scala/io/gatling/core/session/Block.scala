@@ -24,7 +24,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 sealed trait Block extends Product with Serializable
 
-sealed trait CounterBlock extends Block {
+sealed trait LoopBlock extends Block {
   def counterName: String
 }
 
@@ -44,10 +44,10 @@ object LoopBlock extends StrictLogging {
   }
 }
 
-final case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
+final case class ExitOnCompleteLoopBlock(counterName: String) extends LoopBlock
 
-final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
+final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends LoopBlock
 
-final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status) extends CounterBlock
+final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status) extends LoopBlock
 
 final case class GroupBlock(groups: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status) extends Block

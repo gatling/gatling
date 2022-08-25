@@ -118,7 +118,7 @@ final case class Session(
         // not in a block
         attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
       } else {
-        val counterNames: Set[String] = blockStack.view.collect { case counterBlock: CounterBlock => counterBlock.counterName }.to(Set)
+        val counterNames: Set[String] = blockStack.view.collect { case loopBlock: LoopBlock => loopBlock.counterName }.to(Set)
         if (counterNames.isEmpty) {
           // no counter based blocks (only groups)
           attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
