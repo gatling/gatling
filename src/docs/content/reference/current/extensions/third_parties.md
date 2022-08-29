@@ -14,10 +14,11 @@ If you run into an issue, please contact their respective owners.
 
 ### Active
 
-* [AMQP plugin (Gatling 3.8)](https://github.com/TinkoffCreditSystems/gatling-amqp-plugin) by Vyacheslav Kalyokin
+* [AMQP plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-amqp-plugin) by Tinkoff
 * [Cassandra plugin (Gatling 3.8)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
-* [gRPC plugin (Gatling 3.7)](https://github.com/phiSgr/gatling-grpc) by George Leung
-* [Kafka plugin (Gatling 3.7)](https://github.com/TinkoffCreditSystems/gatling-kafka-plugin) by Ioann Akhaltsev
+* [gRPC plugin (Gatling 3.8)](https://github.com/phiSgr/gatling-grpc) by George Leung
+* [JDBC plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
+* [Kafka plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
 
 ### Lagging Gatling Version
 
