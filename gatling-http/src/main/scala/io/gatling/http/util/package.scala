@@ -111,14 +111,11 @@ package object util extends LazyLogging {
       }
 
     def appendWebsocketInboundMessages(messageBuffer: Seq[(Long, String)]): jl.StringBuilder = {
-      buff.append(
-        messageBuffer.zipWithIndex
-          .map { case ((timestamp, message), index) =>
-            val time = bufferFormat.format(timestamp)
-            s"$time [$index] -> $message"
-          }
-          .mkString("\n")
-      )
+      messageBuffer.zipWithIndex
+        .foreach { case ((timestamp, message), index) =>
+          val time = bufferFormat.format(timestamp)
+          buff.append(s"$time [$index] -> $message").append(Eol)
+        }
 
       buff
     }
