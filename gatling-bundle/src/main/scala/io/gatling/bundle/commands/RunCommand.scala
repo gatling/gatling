@@ -24,7 +24,7 @@ import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage 
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
 
-class RunCommand(config: CommandArguments, args: List[String]) {
+class RunCommand(config: CommandArguments, args: List[String], displayHelp: () => Unit) {
   private[bundle] def run(): Unit = {
     config.runMode match {
       case Some(runMode) =>
@@ -44,21 +44,23 @@ class RunCommand(config: CommandArguments, args: List[String]) {
           throw new IllegalArgumentException(s"""
                                                 |If you're running Gatling in batch mode, you need to set the runMode option:
                                                 |- '--${RunModeOption.full} ${RunLocal.value}' if you want to start the Simulation locally
-                                                |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to start the Simulation on Gatling Enterprise Cloud
+                                                |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to upload the Simulation to Gatling Enterprise Cloud, and run it there
                                                 |- '--${RunModeOption.full} ${RunPackage.value}' if you want to package the Simulation for Gatling Enterprise
                                                 |""".stripMargin)
         } else {
           println("Do you want to run the simulation locally, on Gatling Enterprise, or just package it?")
           val inputChoice = new InputChoice(BundleIO)
           val RunGatlingOpenSource = "Run the Simulation locally"
-          val RunGatlingEnterprise = "Run the Simulation on Gatling Enterprise Cloud"
+          val RunGatlingEnterprise = "Package and upload the Simulation to Gatling Enterprise Cloud, and run it there"
           val RunPackage = "Package the Simulation for Gatling Enterprise"
-          val choice = inputChoice.inputFromStringList(List(RunGatlingOpenSource, RunGatlingEnterprise, RunPackage).asJava, false)
+          val RunHelp = "Show help and exit"
+          val choice = inputChoice.inputFromStringList(List(RunGatlingOpenSource, RunGatlingEnterprise, RunPackage, RunHelp).asJava, false)
 
           choice match {
             case RunGatlingOpenSource => new OpenSourceRunCommand(config, args).run()
             case RunPackage           => runPackageCommand()
             case RunGatlingEnterprise => new EnterpriseRunCommand(config, args).run()
+            case RunHelp              => displayHelp()
             case _                    => throw new IllegalArgumentException(s"Couldn't recognize the chosen option $choice")
           }
         }

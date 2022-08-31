@@ -87,10 +87,15 @@ object GatlingCLI {
       opt[Map[String, String]](SimulationEnvironmentVariables).action((x, c) => c.copy(simulationEnvironmentVariables = x))
     }
 
+    val displayHelp = () => {
+      parser.parse(List(s"-${Help.abbr}"), CommandArguments.Empty)
+      ()
+    }
+
     parser.parse(args, CommandArguments.Empty) match {
       case Some(config) =>
         try {
-          new RunCommand(config, args.toList).run()
+          new RunCommand(config, args.toList, displayHelp).run()
         } catch {
           case e: UserQuitException =>
             exitWithoutStacktrace(e)
