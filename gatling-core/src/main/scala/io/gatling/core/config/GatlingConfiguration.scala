@@ -283,6 +283,7 @@ object GatlingConfiguration extends StrictLogging {
       data = dataConfiguration(config)
       // [e]
       //
+      //
       // [e]
     )
 }
@@ -443,6 +444,7 @@ final class GatlingConfiguration(
     val jms: JmsConfiguration,
     val data: DataConfiguration
     // [e]
+    //
     //
     // [e]
 )
