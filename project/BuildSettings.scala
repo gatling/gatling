@@ -58,11 +58,4 @@ object BuildSettings {
     fork := true,
     Test / javaOptions := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
   )
-
-  lazy val excludeDummyComponentLibrary = Seq(
-    Compile / packageBin / mappings := {
-      val compiledClassesMappings = (Compile / packageBin / mappings).value
-      compiledClassesMappings.filter { case (_, path) => !path.contains("io/gatling/charts/component/impl") }
-    }
-  )
 }
