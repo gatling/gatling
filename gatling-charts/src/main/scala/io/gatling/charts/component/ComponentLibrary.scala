@@ -16,32 +16,22 @@
 
 package io.gatling.charts.component
 
+import java.util.ServiceLoader
+
 import scala.jdk.CollectionConverters._
 
-import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.charts.stats._
 
 import com.typesafe.scalalogging.StrictLogging
 
 private[charts] object ComponentLibrary extends StrictLogging {
 
-  val Instance: ComponentLibrary = {
-
-    val StaticLibraryBinderPath = "io/gatling/charts/component/impl/ComponentLibraryImpl.class"
-
-    val paths = Option(getClass.getClassLoader)
-      .map(_.getResources(StaticLibraryBinderPath))
-      .getOrElse(ClassLoader.getSystemResources(StaticLibraryBinderPath))
-      .asScala
-      .toList
-
-    if (paths.sizeIs > 1) {
-      logger.warn("Class path contains multiple ComponentLibrary bindings")
-      paths.foreach(url => logger.warn(s"Found ComponentLibrary binding in $url"))
+  val Instance: ComponentLibrary =
+    ServiceLoader.load(classOf[ComponentLibrary]).iterator().asScala.toList match {
+      case Nil         => throw new IllegalStateException("Couldn't find a ComponentLibrary implementation")
+      case single :: _ => single
+      case multiple    => throw new IllegalStateException(s"Found multiple ComponentLibrary implementations: $multiple")
     }
-
-    new ComponentLibraryImpl
-  }
 }
 
 private[gatling] trait ComponentLibrary {

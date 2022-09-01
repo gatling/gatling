@@ -170,7 +170,6 @@ lazy val charts = gatlingModule("gatling-charts")
   .disablePlugins(SbtSpotless)
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= chartsDependencies)
-  .settings(excludeDummyComponentLibrary)
   .settings(chartTestsSettings)
 
 lazy val graphite = gatlingModule("gatling-graphite")
