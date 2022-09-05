@@ -80,9 +80,9 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       cancelTimer(maxDurationTimer)
       stopGracefully(data, Some(exception))
 
-    case Event(StopInjector, StartedData(initData)) =>
+    case Event(StopInjector, data: StartedData) =>
       logger.info("Injector was forcefully stopped")
-      stop(EndData(initData, None))
+      stopGracefully(data, None)
 
     //[e]
     //
