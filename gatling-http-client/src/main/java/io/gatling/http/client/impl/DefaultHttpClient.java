@@ -83,7 +83,6 @@ public class DefaultHttpClient implements HttpClient {
   private static final String HTTP2_HANDLER = "http2";
   private static final String INFLATER_HANDLER = "inflater";
   private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
-  private static final String DIGEST_AUTH_HANDLER = "digest";
   private static final String WS_OBJECT_AGGREGATOR = "ws-object-aggregator";
   private static final String WS_COMPRESSION = "ws-compression";
   private static final String WS_FRAME_AGGREGATOR = "ws-frame-aggregator";
