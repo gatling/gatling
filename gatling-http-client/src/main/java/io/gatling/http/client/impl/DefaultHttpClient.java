@@ -38,7 +38,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.FixedHttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http2.*;
@@ -93,8 +93,8 @@ public class DefaultHttpClient implements HttpClient {
 
   public static final String APP_HTTP_HANDLER = "app-http";
 
-  private HttpClientCodec newHttpClientCodec() {
-    return new HttpClientCodec(4096, Integer.MAX_VALUE, 8192, false, false, 128);
+  private ChannelHandler newHttpClientCodec() {
+    return new FixedHttpClientCodec(4096, Integer.MAX_VALUE, 8192, false, false, 128);
   }
 
   private class EventLoopResources {
