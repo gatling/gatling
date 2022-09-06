@@ -67,7 +67,7 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
   }
 
   when(Started) {
-    case Event(InjectorStopped, data: StartedData) =>
+    case Event(RunTerminated, data: StartedData) =>
       logger.info(s"Injector has stopped, initiating graceful stop")
       cancelTimer(maxDurationTimer)
       stopGracefully(data, None)

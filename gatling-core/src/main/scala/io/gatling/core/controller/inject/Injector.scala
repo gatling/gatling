@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.controller.ControllerCommand.InjectorStopped
+import io.gatling.core.controller.ControllerCommand.RunTerminated
 import io.gatling.core.controller.inject.open.OpenWorkload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
@@ -159,7 +159,7 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
 
   private def stopInjector(controller: ActorRef): State = {
     logger.info("Stopping")
-    controller ! InjectorStopped
+    controller ! RunTerminated
     stop()
   }
 }

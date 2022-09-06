@@ -45,7 +45,7 @@ private object ControllerData {
 private[gatling] sealed trait ControllerCommand
 private[gatling] object ControllerCommand {
   private[gatling] final case class Start(scenarioFlows: ScenarioFlows[String, Scenario]) extends ControllerCommand
-  private[gatling] final case object InjectorStopped extends ControllerCommand
+  private[gatling] final case object RunTerminated extends ControllerCommand
   private[gatling] final case class Crash(exception: Exception) extends ControllerCommand
   private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
   private[gatling] final case object StopInjector extends ControllerCommand
