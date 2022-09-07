@@ -290,6 +290,7 @@ Similar to `randomSwitch`, but dispatch uses a round-robin strategy.
 #### `tryMax`
 
 Any error (a technical exception such as a timeout, or a failed check) in the wrapped chain would cause the virtual user to interrupt and start over from the beginning, up to a maximum number of times.
+All requests performed in failing iterations will be logged, including the failing one.
 
 It takes 2 parameters:
 * `times`: the maximum number of attempts, an int
