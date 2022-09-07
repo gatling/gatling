@@ -16,7 +16,7 @@
 
 package io.gatling.bundle
 
-import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal }
+import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage }
 import io.gatling.core.cli.CommandLineConstant
 
 private[bundle] object CommandLineConstants {
@@ -25,7 +25,7 @@ private[bundle] object CommandLineConstants {
   val RunMode = new CommandLineConstant(
     "run-mode",
     "rm",
-    s"Specify if you want to run the Simulation locally or on Gatling Enterprise. Options are '${RunLocal.value}' and '${RunEnterprise.value}'",
+    s"Specify if you want to run the Simulation locally, on Gatling Enterprise or package the simulation. Options are '${RunLocal.value}', '${RunEnterprise.value}' and '${RunPackage.value}'",
     Some(RunLocal.value)
   )
   val BatchMode = new CommandLineConstant("batch-mode", "bm", "No interactive user input will be asked", None)

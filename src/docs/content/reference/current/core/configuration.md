@@ -104,6 +104,7 @@ Options used when running Gatling on Gatling Enterprise:
 |`-tid`              | `--team-id <id>`                   | Specifies the Gatling Enterprise Team, when creating a new Simulation                              |
 |`-s`                | `--simulation <className>`         | Runs `<className>` simulation                                                                      |
 |`-ssp`              | `--simulation-system-properties k1=v1,k2=v2` | Optional System Properties used when starting the Gatling Enterprise simulation          |
+|`-sev`              | `--simulation-environment-variables k1=v1,k2=v2` | Optional Environment Variables used when starting the Gatling Enterprise simulation          |
 
 ## $JAVA_OPTS
 
