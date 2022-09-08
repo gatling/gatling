@@ -28,10 +28,10 @@ private[bundle] object RecorderCommand {
 
 private[bundle] final class RecorderCommand(args: List[String]) {
   private[bundle] def run(): Unit = {
-    val javaOpts = systemJavaOpts ++ RecorderCommand.RecorderMemoryOptions
+    val javaOpts = JavaOptsEnvVar ++ RecorderCommand.RecorderMemoryOptions
     val javaClasspath = optionListEnv("JAVA_CLASSPATH")
 
-    val classPath = gatlingLibs ++ gatlingConfFiles ++ javaClasspath
+    val classPath = GatlingLibs ++ GatlingConfFiles ++ javaClasspath
 
     new Fork(
       "io.gatling.recorder.GatlingRecorder",
