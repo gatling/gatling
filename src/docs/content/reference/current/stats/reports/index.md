@@ -35,6 +35,8 @@ The right panel show number of OK/KO requests.
 these ranges can be configured in the `gatling.conf` file.
 {{< /alert >}}
 
+### Summary
+
 {{< img src="charts-statistics.png" alt="Statistics" >}}
 
 The top panel shows some standard statistics such as min, max, average, standard deviation and percentiles globally and per request.
