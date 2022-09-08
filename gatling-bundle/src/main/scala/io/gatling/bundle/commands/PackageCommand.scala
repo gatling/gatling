@@ -39,7 +39,7 @@ object PackageCommand {
 class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int, cleanFile: Boolean) {
 
   private[bundle] def run(): File = {
-    compile(config, args, Some(maxJavaVersion))
+    Compiler.compile(config, args, Some(maxJavaVersion))
     println("Creating the package")
     createJar(cleanFile)
   }
