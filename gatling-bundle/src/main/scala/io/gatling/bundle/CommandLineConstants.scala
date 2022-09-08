@@ -54,6 +54,12 @@ private[bundle] object CommandLineConstants {
     """Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options.""",
     Some(""""-Option1 -Option2"""")
   )
+  val ExtraJavacOptions: CommandLineConstant = new CommandLineConstant(
+    "extra-javac-options",
+    "ejo",
+    "Defines additional compiler options for your Java code. See https://download.java.net/java/early_access/panama/docs/specs/man/javac.html#options for available options.",
+    Some(""""-Option1 -Option2"""")
+  )
   val ExtraScalacOptions: CommandLineConstant = new CommandLineConstant(
     "extra-scalac-options",
     "eso",

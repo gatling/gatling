@@ -16,17 +16,19 @@
 
 package io.gatling.bundle.commands
 
-import java.io.File
-
 import scala.jdk.CollectionConverters._
 
 import io.gatling.bundle.BundleIO
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.plugin.util.{ Fork, JavaLocator }
 
+object RecorderCommand {
+  private val RecorderMemoryOptions = List("-Xmx1G", "-Xss100M")
+}
+
 class RecorderCommand(args: List[String]) {
   private[bundle] def run(): Unit = {
-    val javaOpts = systemJavaOpts ++ List("-Xms128M", "-Xmx512M")
+    val javaOpts = systemJavaOpts ++ RecorderCommand.RecorderMemoryOptions
     val javaClasspath = optionListEnv("JAVA_CLASSPATH")
 
     val classPath = gatlingLibs ++ gatlingConfFiles ++ javaClasspath
@@ -39,7 +41,7 @@ class RecorderCommand(args: List[String]) {
       JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,
-      new File(gatlingHome)
+      GatlingHome.toFile
     ).run()
   }
 }

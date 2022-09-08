@@ -16,8 +16,6 @@
 
 package io.gatling.bundle.commands
 
-import java.io.File
-
 import scala.jdk.CollectionConverters._
 
 import io.gatling.app.cli.CommandLineConstants._
@@ -28,7 +26,7 @@ import io.gatling.plugin.util.{ Fork, JavaLocator }
 
 class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
   private[bundle] def run(): Unit = {
-    compile(config, args, maxJavaVersion = None)
+    Compiler.compile(config, args, maxJavaVersion = None)
 
     val classPath = gatlingLibs ++ userLibs ++ userResources ++ gatlingConfFiles
 
@@ -47,7 +45,7 @@ class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
       JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,
-      new File(gatlingHome)
+      GatlingHome.toFile
     ).run()
   }
 }

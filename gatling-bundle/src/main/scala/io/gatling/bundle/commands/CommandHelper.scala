@@ -16,19 +16,10 @@
 
 package io.gatling.bundle.commands
 
-import java.io.File
 import java.nio.file.{ Files, Path, Paths }
 import java.util.ResourceBundle
 
-import scala.jdk.CollectionConverters._
 import scala.jdk.StreamConverters._
-
-import io.gatling.app.cli.CommandLineConstants.BinariesFolder
-import io.gatling.bundle.{ BundleIO, CLIHelper, CommandArguments }
-import io.gatling.bundle.CommandLineConstants._
-import io.gatling.plugin.GatlingConstants
-import io.gatling.plugin.util.{ Fork, JavaLocator }
-import io.gatling.recorder.cli.CommandLineConstants.SimulationsFolder
 
 private[commands] object CommandHelper {
 
@@ -40,26 +31,30 @@ private[commands] object CommandHelper {
   def optionListEnv(env: String): List[String] =
     optionEnv(env).map(_.split(" ").toList).getOrElse(Nil)
 
-  def gatlingHome: String = optionEnv("GATLING_HOME").getOrElse {
-    try {
-      Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.toURI).getParent.getParent.toAbsolutePath.toString
-    } catch {
-      case _: NullPointerException =>
-        throw new IllegalStateException("""
-                                          |'GATLING_HOME' environment variable is not set and Gatling couldn't infer it either.
-                                          |Please set the 'GATLING_HOME' environment variable to the root of the Gatling bundle.
-                                          |""".stripMargin)
+  val GatlingHome: Path = optionEnv("GATLING_HOME")
+    .map(Paths.get(_))
+    .getOrElse {
+      try {
+        Paths.get(getClass.getProtectionDomain.getCodeSource.getLocation.toURI).getParent.getParent
+      } catch {
+        case _: NullPointerException =>
+          throw new IllegalStateException("""
+                                            |'GATLING_HOME' environment variable is not set and Gatling couldn't infer it either.
+                                            |Please set the 'GATLING_HOME' environment variable to the root of the Gatling bundle.
+                                            |""".stripMargin)
+      }
     }
-  }
+    .toAbsolutePath
+  println(s"GATLING_HOME is set to $GatlingHome")
 
   def systemJavaOpts: List[String] = optionListEnv("JAVA_OPTS")
 
-  val gatlingConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_)).getOrElse(Paths.get(gatlingHome, "conf")).toAbsolutePath
-  val gatlingLibsDirectory: Path = Paths.get(gatlingHome, "lib").toAbsolutePath
-  val userLibsDirectory: Path = Paths.get(gatlingHome, "user-files", "lib").toAbsolutePath
-  val userResourcesDirectory: Path = Paths.get(gatlingHome, "user-files", "resources").toAbsolutePath
-  val targetDirectory: Path = Paths.get(gatlingHome, "target").toAbsolutePath
-  val targetTestClassesDirectory: Path = Paths.get(gatlingHome, "target", "test-classes").toAbsolutePath
+  val gatlingConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_).toAbsolutePath).getOrElse(GatlingHome.resolve("conf"))
+  val gatlingLibsDirectory: Path = GatlingHome.resolve("lib")
+  val userLibsDirectory: Path = GatlingHome.resolve("user-files").resolve("lib")
+  val userResourcesDirectory: Path = GatlingHome.resolve("user-files").resolve("resources")
+  val targetDirectory: Path = GatlingHome.resolve("target")
+  val targetTestClassesDirectory: Path = targetDirectory.resolve("test-classes")
 
   def gatlingLibs: List[String] = listFiles(gatlingLibsDirectory)
   def userLibs: List[String] = listFiles(userLibsDirectory)
@@ -72,41 +67,5 @@ private[commands] object CommandHelper {
       .list(directory)
       .toScala(List)
       .map(_.toAbsolutePath.toString)
-  }
-
-  def compile(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int]): Unit = {
-
-    println(s"GATLING_HOME is set to $gatlingHome")
-
-    val compilerMemoryOptions = List("-Xmx1G", "-Xss100M")
-    // Note: options which come later in the list can override earlier ones (because the java command will use the last
-    // occurrence in its arguments list in case of conflict)
-    val compilerJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_BASE.asScala ++ compilerMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsCompile
-
-    val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
-
-    val extraJavacOptions = maxJavaVersion match {
-      case Some(maxVersion) if GatlingConstants.JAVA_MAJOR_VERSION > maxVersion =>
-        println(
-          s"Currently running on unsupported Java version ${GatlingConstants.JAVA_MAJOR_VERSION}; Java code will be compiled with the '--release $maxVersion' option"
-        )
-        List("-ejo", s"--release,$maxVersion")
-      case _ =>
-        Nil
-    }
-
-    val extraScalacOptions = optionListEnv("EXTRA_SCALAC_OPTIONS")
-      .flatMap(options => List("-eso", options))
-
-    new Fork(
-      "io.gatling.compiler.ZincCompiler",
-      classPath.asJava,
-      compilerJavaOptions.asJava,
-      (extraJavacOptions ++ extraScalacOptions ++ CLIHelper.filterArgOptions(args, List(SimulationsFolder, BinariesFolder, ExtraScalacOptions))).asJava,
-      JavaLocator.getJavaExecutable,
-      true,
-      BundleIO.getLogger,
-      new File(gatlingHome)
-    ).run()
   }
 }
