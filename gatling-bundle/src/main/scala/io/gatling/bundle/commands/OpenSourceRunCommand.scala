@@ -28,7 +28,7 @@ private[bundle] final class OpenSourceRunCommand(config: CommandArguments, args:
   private[bundle] def run(): Unit = {
     Compiler.compile(config, args, maxJavaVersion = None)
 
-    val classPath = GatlingLibs ++ UserLibs ++ List(DefaultUserResourcesDirectory.toString) ++ GatlingConfFiles
+    val classPath = GatlingLibs ++ UserLibs ++ List(config.resourcesDirectory.toString) ++ GatlingConfFiles
 
     // Note: options which come later in the list can override earlier ones (because the java command will use the last
     // occurrence in its arguments list in case of conflict)

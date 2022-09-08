@@ -21,7 +21,7 @@ import java.util.ResourceBundle
 
 import scala.jdk.StreamConverters._
 
-private[commands] object CommandHelper {
+private[bundle] object CommandHelper {
 
   val GatlingVersion: String = ResourceBundle.getBundle("gatling-version").getString("version")
 
@@ -44,7 +44,7 @@ private[commands] object CommandHelper {
   val JavaOptsEnvVar: List[String] = optionListEnv("JAVA_OPTS")
 
   val UserLibDirectory: Path = GatlingHome.resolve("user-files").resolve("lib")
-  val DefaultUserResourcesDirectory: Path = GatlingHome.resolve("user-files").resolve("resources")
+  val DefaultResourcesDirectory: Path = GatlingHome.resolve("user-files").resolve("resources")
   val TargetDirectory: Path = GatlingHome.resolve("target")
   val DefaultBinariesDirectory: Path = TargetDirectory.resolve("test-classes")
 
