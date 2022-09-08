@@ -38,7 +38,7 @@ class RunCommand(config: CommandArguments, args: List[String], displayHelp: () =
           println("Running the Simulation on Gatling Enterprise")
           new EnterpriseRunCommand(config, args).run()
         } else if (config.reportsOnly.nonEmpty) {
-          println("Running the Simulation locally")
+          println("Generating Gatling reports locally")
           new OpenSourceRunCommand(config, args).run()
         } else if (config.batchMode) {
           throw new IllegalArgumentException(s"""
