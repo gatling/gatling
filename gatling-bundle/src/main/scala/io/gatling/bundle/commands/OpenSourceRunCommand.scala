@@ -24,7 +24,7 @@ import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.{ Fork, JavaLocator }
 
-class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
+private[bundle] final class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
   private[bundle] def run(): Unit = {
     Compiler.compile(config, args, maxJavaVersion = None)
 
