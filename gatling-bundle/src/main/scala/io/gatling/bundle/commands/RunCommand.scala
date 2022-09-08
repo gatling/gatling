@@ -24,7 +24,7 @@ import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage 
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
 
-class RunCommand(config: CommandArguments, args: List[String], displayHelp: () => Unit) {
+private[bundle] final class RunCommand(config: CommandArguments, args: List[String], displayHelp: () => Unit) {
   private[bundle] def run(): Unit = {
     config.runMode match {
       case Some(runMode) =>

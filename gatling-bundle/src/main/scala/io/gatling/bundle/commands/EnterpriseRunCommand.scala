@@ -27,12 +27,12 @@ import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
 import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
-object EnterpriseRunCommand {
+private[bundle] object EnterpriseRunCommand {
   val GroupId = "gatling"
   val ArtifactId = "bundle"
 }
 
-class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
+private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
 
   import EnterpriseRunCommand._
 

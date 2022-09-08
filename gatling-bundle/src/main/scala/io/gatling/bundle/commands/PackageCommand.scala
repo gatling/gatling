@@ -32,11 +32,11 @@ import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.bundle.commands.PackageCommand.WriteEntry
 import io.gatling.commons.util.Io._
 
-object PackageCommand {
+private[bundle] object PackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
 }
 
-class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int, cleanFile: Boolean) {
+private[bundle] final class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int, cleanFile: Boolean) {
 
   private[bundle] def run(): File = {
     Compiler.compile(config, args, Some(maxJavaVersion))
