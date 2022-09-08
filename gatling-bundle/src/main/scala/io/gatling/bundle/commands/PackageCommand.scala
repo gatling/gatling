@@ -71,8 +71,8 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
       }
 
       addManifest(writeEntry)
-      addJarEntries(DefaultBinariesDirectory, writeEntry)
-      addJarEntries(DefaultUserResourcesDirectory, writeEntry)
+      addJarEntries(config.binariesDirectory, writeEntry)
+      addJarEntries(config.resourcesDirectory, writeEntry)
       addJarsContents(UserLibDirectory, writeEntry)
 
       println("Package created")

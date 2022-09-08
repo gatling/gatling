@@ -17,9 +17,11 @@
 package io.gatling.bundle
 
 import java.net.URL
+import java.nio.file.Path
 import java.util.UUID
 
 import io.gatling.bundle.CommandArguments.RunMode
+import io.gatling.bundle.commands.CommandHelper
 
 object CommandArguments {
   val Empty: CommandArguments = new CommandArguments(
@@ -36,7 +38,9 @@ object CommandArguments {
     runMode = None,
     reportsOnly = None,
     extraJavaOptionsCompile = Nil,
-    extraJavaOptionsRun = Nil
+    extraJavaOptionsRun = Nil,
+    binariesDirectory = CommandHelper.DefaultBinariesDirectory,
+    resourcesDirectory = CommandHelper.DefaultResourcesDirectory
   )
 
   sealed abstract class RunMode(val value: String)
@@ -59,5 +63,7 @@ final case class CommandArguments(
     runMode: Option[RunMode],
     reportsOnly: Option[String],
     extraJavaOptionsCompile: List[String],
-    extraJavaOptionsRun: List[String]
+    extraJavaOptionsRun: List[String],
+    binariesDirectory: Path,
+    resourcesDirectory: Path
 )

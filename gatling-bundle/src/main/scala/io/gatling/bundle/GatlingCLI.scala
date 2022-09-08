@@ -17,6 +17,7 @@
 package io.gatling.bundle
 
 import java.net.URL
+import java.nio.file.Paths
 import java.util.{ Locale, UUID }
 
 import io.gatling.app.cli.CommandLineConstants._
@@ -59,8 +60,8 @@ object GatlingCLI {
       note("")
       note("Generic options:")
       opt[String](SimulationsFolder)
-      opt[String](BinariesFolder)
-      opt[String](ResourcesFolder)
+      opt[String](BinariesFolder).action((x, c) => c.copy(binariesDirectory = Paths.get(x).toAbsolutePath))
+      opt[String](ResourcesFolder).action((x, c) => c.copy(resourcesDirectory = Paths.get(x).toAbsolutePath))
       opt[String](ExtraScalacOptions)
       opt[String](Simulation).action((x, c) => c.copy(simulationClass = Some(x)))
       opt[String](ExtraCompilerJvmOptions).action((x, c) => c.copy(extraJavaOptionsCompile = whitespaceSeparatedList(x)))
