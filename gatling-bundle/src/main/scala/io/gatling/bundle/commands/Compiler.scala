@@ -33,9 +33,9 @@ private[commands] object Compiler {
   def compile(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int]): Unit = {
     // Note: options which come later in the list can override earlier ones (because the java command will use the last
     // occurrence in its arguments list in case of conflict)
-    val compilerJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_BASE.asScala ++ CompilerMemoryOptions ++ systemJavaOpts ++ config.extraJavaOptionsCompile
+    val compilerJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_BASE.asScala ++ CompilerMemoryOptions ++ JavaOptsEnvVar ++ config.extraJavaOptionsCompile
 
-    val classPath = gatlingLibs ++ userLibs ++ gatlingConfFiles
+    val classPath = GatlingLibs ++ UserLibs ++ GatlingConfFiles
 
     val extraJavacOptions = maxJavaVersion match {
       case Some(maxVersion) if GatlingConstants.JAVA_MAJOR_VERSION > maxVersion =>

@@ -50,7 +50,7 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
       tempFile.deleteOnExit()
       tempFile
     } else {
-      val packageFile = new File(targetDirectory.toFile, "package.jar")
+      val packageFile = new File(TargetDirectory.toFile, "package.jar")
       packageFile.delete()
       packageFile.createNewFile()
       packageFile
@@ -71,9 +71,9 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
       }
 
       addManifest(writeEntry)
-      addJarEntries(targetTestClassesDirectory, writeEntry)
-      addJarEntries(userResourcesDirectory, writeEntry)
-      addJarsContents(userLibsDirectory, writeEntry)
+      addJarEntries(DefaultBinariesDirectory, writeEntry)
+      addJarEntries(DefaultUserResourcesDirectory, writeEntry)
+      addJarsContents(UserLibDirectory, writeEntry)
 
       println("Package created")
       if (!cleanFile) {
@@ -92,7 +92,7 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
         manifest.getMainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString, "1.0")
         manifest.getMainAttributes.putValue(Attributes.Name.SIGNATURE_VERSION.toString, "GatlingCorp")
         manifest.getMainAttributes.putValue("Gatling-Packager", "bundle")
-        manifest.getMainAttributes.putValue("Gatling-Version", gatlingVersion)
+        manifest.getMainAttributes.putValue("Gatling-Version", GatlingVersion)
         manifest.write(jos)
       }
     )
