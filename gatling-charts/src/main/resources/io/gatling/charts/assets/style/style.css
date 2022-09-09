@@ -45,6 +45,8 @@
 	--gatling-font-size-heading: 16px;
 	--gatling-font-size-section: 22px;
 	--gatling-font-size-header: 34px;
+
+	--gatling-media-desktop-large: 1920px;
 }
 
 * {
@@ -127,12 +129,19 @@ body {
 }
 
 .nav {
-	width: 210px;
 	min-width: 210px;
+	width: 210px;
 	max-height: calc(100vh - var(--gatling-spacing-layout) - var(--gatling-spacing-layout));
 	background: var(--gatling-light-color);
 	border-right: 1px solid var(--gatling-border-color);
 	overflow-y: auto;
+}
+
+@media screen and (min-width: 1920px) {
+	.nav {
+		min-width: 310px;
+		width: 310px;
+	}
 }
 
 .nav ul {
@@ -350,6 +359,17 @@ h1 span {
 	margin: 0 auto;
 	padding: var(--gatling-spacing-layout);
 	box-sizing: border-box;
+}
+
+@media screen and (min-width: 1920px) {
+	.container-article {
+		min-width: 1350px;
+		width: 1350px;
+	}
+
+	#responses * .highcharts-tracker {
+		transform: translate(400px, 70px);
+	}
 }
 
 
