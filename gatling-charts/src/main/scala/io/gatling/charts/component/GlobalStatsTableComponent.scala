@@ -75,16 +75,6 @@ private[charts] final class GlobalStatsTableComponent(implicit configuration: Ga
 
   val js = s"""
 
-  function shortenNameAndDisplayFullOnHover(name, level) {
-  var maxNameSize = $MaxRequestNameSize - level * 2;
-   if (name.length < maxNameSize) {
-       return name;
-   } else {
-     var truncatedLength = Math.max(3, maxNameSize - 1);
-     return "<span class='table-cell-tooltip' data-toggle='popover' data-placement='bottom' data-container='body' data-content='" + name + "'>"+name.substr(0,truncatedLength)+"&hellip;"+"</span>";
-    }
-  }
-
 function generateHtmlRow(request, level, index, parent, group) {
     if (request.name == '$AllRequestLineTitle')
         var url = 'index.html';
@@ -103,8 +93,10 @@ function generateHtmlRow(request, level, index, parent, group) {
 
     return '<tr id="' + request.pathFormatted + '" data-parent=' + parent + '> \\
         <td class="total col-1"> \\
+          <div class="expandable-container"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
-            <a href="' + url +'" class="withTooltip">' + shortenNameAndDisplayFullOnHover(request.name, level) + '</a><span class="value" style="display:none;">' + index + '</span> \\
+            <a href="' + url +'" class="withTooltip">' + ellipsedLabel({ name: request.name, parentClass: "table-cell-tooltip" }) + '</a><span class="value" style="display:none;">' + index + '</span> \\
+          </div> \\
         </td> \\
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
         <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
