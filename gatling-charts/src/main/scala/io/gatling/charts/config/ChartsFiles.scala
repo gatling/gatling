@@ -38,6 +38,7 @@ private[charts] object ChartsFiles {
     "bootstrap.min.js",
     "gatling.js",
     "menu.js",
+    "ellipsis.js",
     AllSessionsFile,
     StatsJsFile
   )

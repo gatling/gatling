@@ -127,6 +127,7 @@ body {
 }
 
 .nav {
+	width: 210px;
 	min-width: 210px;
 	max-height: calc(100vh - var(--gatling-spacing-layout) - var(--gatling-spacing-layout));
 	background: var(--gatling-light-color);
@@ -153,13 +154,16 @@ body {
 	display: inline-flex;
 	align-items: center;
 	margin: 0 auto;
-	padding: var(--gatling-spacing) var(--gatling-spacing-layout);
 	white-space: nowrap;
 	color: var(--gatling-text-color);
 	font-size: var(--gatling-font-size-default);
 	font-weight: var(--gatling-font-weight-bold);
 	margin: 0;
 	width: 100%;
+}
+
+.nav .item .nav-label {
+	padding: var(--gatling-spacing) var(--gatling-spacing-layout);
 }
 
 .nav .item:hover {
@@ -283,6 +287,14 @@ h1 span {
 	margin: 0;
 }
 
+.ellipsed-name {
+	display: block;
+
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 .simulation-information-item {
 	display: flex;
 	flex-direction: row;
@@ -314,7 +326,6 @@ h1 span {
 	word-wrap: break-word;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 100%;
 }
 
 .content {
@@ -729,6 +740,14 @@ h1 span {
 
 .statistics-in .col-1 {
 	width: 175px;
+	max-width: 175px;
+}
+
+.expandable-container {
+	display: flex;
+	flex-direction: row;
+	box-sizing: border-box;
+	max-width: 100%;
 }
 
 .statistics-in .value {
@@ -827,7 +846,7 @@ h1 span {
 	font-size: var(--gatling-font-size-default);
 }
 
-.withTooltip {outline:none; }
+.withTooltip { outline:none; }
 .withTooltip:hover {text-decoration:none;}
 .withTooltip .tooltipContent {
 	position: absolute;

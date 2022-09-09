@@ -9,26 +9,7 @@ function setDetailsLinkUrl(){
     });
 }
 
-var MENU_ITEM_MAX_LENGTH = 20;
-
 function menuItem(item, level, parent, group) {
-    if (group)
-        var style = 'group';
-    else
-        var style = '';
-
-    var maxNameSize = MENU_ITEM_MAX_LENGTH - level * 2;
-
-    if (item.name.length > maxNameSize) {
-        var title = "class='item nav-tooltip' data-toggle='popover' data-placement='right' data-container='body' data-content='" + item.name + "''";
-        var truncatedLength = Math.max(3, maxNameSize - 1);
-        var displayName = item.name.substr(0, truncatedLength) + '&hellip;';
-    }
-    else {
-        var title = 'class="item"';
-        var displayName = item.name;
-    }
-
     if (parent) {
       var dataParent = ' data-parent="' + ((level == 0) ? 'ROOT' : ("menu-" + parent)) + '"';
     } else {
@@ -40,7 +21,7 @@ function menuItem(item, level, parent, group) {
     else
         var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden">&nbsp;</span>';
 
-    return '<li' + dataParent + ' class="withTooltip">' + expandButton + '<a href="' + getItemLink(item) + '"' + title + '>' + displayName + '</a></li>';
+    return '<li' + dataParent + '>' + expandButton + '<a href="' + getItemLink(item) + '" class="item withTooltip">' + ellipsedLabel({ name: item.name, parentClass: "nav-tooltip", childClass: "nav-label" }) + '</a></li>';
 }
 
 function menuItemsForGroup(group, level, parent) {
@@ -67,11 +48,11 @@ function setDetailsMenu(){
 
 function setGlobalMenu(){
     $('.nav ul')
-      .append('<li><a class="item" href="#ranges">Ranges</a></li>')
-      .append('<li><a class="item" href="#stats">Stats</a></li>')
-      .append('<li><a class="item" href="#active_users">Active Users</a></li>')
-      .append('<li><a class="item" href="#requests">Requests / sec</a></li>')
-      .append('<li><a class="item" href="#responses">Responses / sec</a></li>');
+      .append('<li><a class="item" href="#ranges"><span class="nav-label">Ranges</span></a></li>')
+      .append('<li><a class="item" href="#stats"><span class="nav-label">Stats</span></a></li>')
+      .append('<li><a class="item" href="#active_users"><span class="nav-label">Active Users</span></a></li>')
+      .append('<li><a class="item" href="#requests"><span class="nav-label">Requests / sec</span></a></li>')
+      .append('<li><a class="item" href="#responses"><span class="nav-label">Responses / sec</span></a></li>');
 }
 
 function getLink(link){
