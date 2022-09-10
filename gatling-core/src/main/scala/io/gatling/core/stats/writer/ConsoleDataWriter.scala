@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import java.util.Date
+import java.time.LocalDateTime
 
 import scala.collection.mutable
 
@@ -76,7 +76,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
 
     val runDuration = (clock.nowMillis - startUpTime) / 1000
 
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, new Date)
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, LocalDateTime.now())
     complete = summary.complete
     println(summary.text)
   }

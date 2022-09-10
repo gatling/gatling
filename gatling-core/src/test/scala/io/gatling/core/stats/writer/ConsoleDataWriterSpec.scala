@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import java.util.GregorianCalendar
+import java.time.{ LocalDateTime, Month }
 
 import scala.collection.mutable
 
@@ -28,7 +28,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
 
   private val configuration = GatlingConfiguration.loadForTest()
 
-  private val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
+  private val time = LocalDateTime.of(2012, Month.SEPTEMBER, 24, 13, 37, 0)
 
   private def lines(summary: ConsoleSummary) = summary.text.split("\r?\n")
 

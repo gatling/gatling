@@ -17,8 +17,8 @@
 package io.gatling.core.stats.writer
 
 import java.{ lang => jl }
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
 
 import scala.collection.mutable
 import scala.math.{ ceil, floor }
@@ -31,7 +31,7 @@ import io.gatling.core.config.GatlingConfiguration
 private[gatling] object ConsoleSummary {
 
   private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  private val Iso8601DateTimeFormat = new SimpleDateFormat(Iso8601Format)
+  private val Iso8601DateTimeFormat = DateTimeFormatter.ofPattern(Iso8601Format)
   val OutputLength: Int = 80
   val NewBlock: String = "=" * OutputLength
 
@@ -45,7 +45,7 @@ private[gatling] object ConsoleSummary {
       requestsCounters: mutable.Map[String, RequestCounters],
       errorsCounters: mutable.Map[String, Int],
       configuration: GatlingConfiguration,
-      time: Date
+      time: TemporalAccessor
   ): ConsoleSummary = {
 
     def writeUsersCounters(sb: jl.StringBuilder, scenarioName: String, userCounters: UserCounters): jl.StringBuilder = {
