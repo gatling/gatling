@@ -17,8 +17,8 @@
 package io.gatling.core.session.el
 
 import java.{ util => ju }
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -233,8 +233,8 @@ case object CurrentTimeMillisPart extends ElPart[Long] {
   def apply(session: Session): Validation[Long] = System.currentTimeMillis().success
 }
 
-final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[String] {
-  def apply(session: Session): Validation[String] = format.format(new Date()).success
+final case class CurrentDateTimePart(format: DateTimeFormatter) extends ElPart[String] {
+  def apply(session: Session): Validation[String] = format.format(LocalDateTime.now()).success
 }
 
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
@@ -364,7 +364,8 @@ final class ElCompiler private extends RegexParsers {
 
   private def currentTimeMillis: Parser[ElPart[Any]] = "currentTimeMillis()" ^^ (_ => CurrentTimeMillisPart)
 
-  private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
+  private def currentDate: Parser[ElPart[Any]] =
+    "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(DateTimeFormatter.ofPattern(format)))
 
   private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate
 
