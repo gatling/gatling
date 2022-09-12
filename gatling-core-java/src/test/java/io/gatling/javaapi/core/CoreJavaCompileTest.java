@@ -39,17 +39,17 @@ public class CoreJavaCompileTest extends Simulation {
   private ChainBuilder group2 = group(session -> "group").on(chain1);
 
   // bodies
-  private Body.WithString stringBody1 = StringBody("static #{dynamic} static");
-  private Body.WithString stringBody2 = StringBody(session -> "body");
-  private Body.WithBytes rawFileBody1 = RawFileBody("path");
-  private Body.WithBytes rawFileBody2 = RawFileBody(session -> "path");
-  private Body.WithString elFileBody1 = ElFileBody("path");
-  private Body.WithString elFileBody2 = ElFileBody(session -> "path");
-  private Body.WithString pebbleStringBody = PebbleStringBody("template string");
-  private Body.WithString pebbleFileBody1 = PebbleFileBody("path");
-  private Body.WithString pebbleFileBody2 = PebbleFileBody(session -> "path");
-  private Body.WithBytes byteArrayBody1 = ByteArrayBody(new byte[] {1});
-  private Body.WithBytes byteArrayBody2 = ByteArrayBody(session -> new byte[] {1});
+  private Body stringBody1 = StringBody("static #{dynamic} static");
+  private Body stringBody2 = StringBody(session -> "body");
+  private Body rawFileBody1 = RawFileBody("path");
+  private Body rawFileBody2 = RawFileBody(session -> "path");
+  private Body elFileBody1 = ElFileBody("path");
+  private Body elFileBody2 = ElFileBody(session -> "path");
+  private Body pebbleStringBody = PebbleStringBody("template string");
+  private Body pebbleFileBody1 = PebbleFileBody("path");
+  private Body pebbleFileBody2 = PebbleFileBody(session -> "path");
+  private Body byteArrayBody1 = ByteArrayBody(new byte[] {1});
+  private Body byteArrayBody2 = ByteArrayBody(session -> new byte[] {1});
   private Body inputStreamBody =
       InputStreamBody(session -> new ByteArrayInputStream(new byte[] {1}));
 
