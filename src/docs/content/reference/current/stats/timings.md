@@ -23,10 +23,14 @@ At a given second, active users are computed as:
 
 ### Response Time
 
-The response time is the elapsed time between the instant a request is sent and the instant the complete response is received:
+The response time is the elapsed time between:
 
-* The beginning of the request's sending is the instant when the connection to the target host has been established or grabbed from the pool.
-* The end of the response's receiving is the instant when the whole response (status, headers and body) has been received by Gatling
+* the instant Gatling tries to send a request. It accounts for:
+  * DNS resolution time (might be bypassed if it's already cached). Note that the DNS resolution time metric is available in Gatling Enterprise.
+  * TCP connect time (might be bypassed if a keep-alive connection is available in the connection pool). Note that the TCP connect time metric is available in Gatling Enterprise.
+  * TLS handshake time (might be bypassed if a keep-alive connection is available in the connection pool). Note that the TLS handshake time metric is available in Gatling Enterprise.
+  * HTTP round trip
+* the instant Gatling receives a complete response or experiences an error (timeout, connection error, etc)
 
 ## Groups
 
