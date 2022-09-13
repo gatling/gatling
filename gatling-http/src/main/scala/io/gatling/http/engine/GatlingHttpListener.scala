@@ -47,6 +47,10 @@ object GatlingHttpListener extends StrictLogging {
 
   private def logRequestCrash(tx: HttpTx, throwable: Throwable): Unit =
     logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
+
+  // [e]
+  //
+  // [e]
 }
 
 class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
