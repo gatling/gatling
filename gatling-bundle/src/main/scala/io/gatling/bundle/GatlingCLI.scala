@@ -97,18 +97,18 @@ object GatlingCLI {
           new RunCommand(config, args.toList, displayHelp).run()
         } catch {
           case e: UserQuitException =>
-            exitWithoutStacktrace(e)
+            exitWithoutStacktrace(e, 0)
           case e: Fork.ForkException =>
-            exitWithoutStacktrace(e)
+            exitWithoutStacktrace(e, e.exitValue)
         }
       case _ =>
     }
   }
 
-  private def exitWithoutStacktrace(e: Exception): Unit = {
+  private def exitWithoutStacktrace(e: Exception, exitValue: Int): Unit = {
     Option(e.getMessage).foreach(println)
     System.out.flush()
-    sys.exit(0)
+    sys.exit(exitValue)
   }
 
   private def whitespaceSeparatedList(x: String): List[String] =
