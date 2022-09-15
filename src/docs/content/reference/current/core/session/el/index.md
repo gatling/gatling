@@ -76,7 +76,7 @@ Gatling EL provide the following built-in functions:
 // System.currentTimeMillis
 "#{currentTimeMillis()}"
 
-// LocalDateTime.now() formatted with a java.time.format.DateTimeFormatter pattern
+// ZonedDateTime.now() formatted with a java.time.format.DateTimeFormatter pattern
 "#{currentDate(<pattern>)}"
   
 // unescape an HTML String (entities decoded)
