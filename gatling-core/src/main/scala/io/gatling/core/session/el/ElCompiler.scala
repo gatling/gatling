@@ -17,7 +17,7 @@
 package io.gatling.core.session.el
 
 import java.{ util => ju }
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
@@ -235,7 +235,7 @@ case object CurrentTimeMillisPart extends ElPart[Long] {
 }
 
 final case class CurrentDateTimePart(format: DateTimeFormatter) extends ElPart[String] {
-  def apply(session: Session): Validation[String] = format.format(LocalDateTime.now()).success
+  def apply(session: Session): Validation[String] = format.format(ZonedDateTime.now()).success
 }
 
 case object RandomSecureUUID extends ElPart[UUID] {
