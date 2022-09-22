@@ -208,7 +208,7 @@ class CookieJarSpec extends BaseSpec {
     cookieStore.get(Uri.create("https://y.x.foo.org/")) should have size 1
   }
 
-  it should "should serve the last cookie when they are definied twice" in {
+  it should "should serve the last cookie when they are defined twice" in {
     val cookie1 = decode("cookie1=VALUE1; Path=/")
     val cookie2 = decode("cookie1=VALUE2; Path=/")
     val cookie3 = decode("cookie1=VALUE3; Path=/")
