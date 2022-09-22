@@ -50,22 +50,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, configuration.data.launcher, configuration.data.buildToolVersion)
 
-    val simulationParams = selection.simulationClass.params(configuration)
-    logger.trace("Simulation params built")
-
-    simulationParams.before()
-    logger.trace("Before hook executed")
-
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, GatlingVersion.ThisVersion.fullVersion)
-    val statsEngine = newStatsEngine(simulationParams, runMessage)
-    val throttler = Throttler.newThrottler(system, simulationParams)
-    val injector = Injector(system, eventLoopGroup, statsEngine, clock)
-    val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams), Controller.ControllerActorName)
-    val exit = new Exit(injector)
-    val coreComponents = new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
-    logger.trace("CoreComponents instantiated")
-
-    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
+    val (simulationParams, runMessage, coreComponents, scenarioFlows) = load(selection)
 
     start(simulationParams, scenarioFlows, coreComponents) match {
       case Failure(t) => throw t
@@ -78,6 +63,29 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
+
+  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents, ScenarioFlows[String, Scenario]) = {
+    val simulationParams = selection.simulationClass.params(configuration)
+    logger.trace("Simulation params built")
+
+    simulationParams.before()
+    logger.trace("Before hook executed")
+
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, GatlingVersion.ThisVersion.fullVersion)
+    val coreComponents = {
+      val statsEngine = newStatsEngine(simulationParams, runMessage)
+      val throttler = Throttler.newThrottler(system, simulationParams)
+      val injector = Injector(system, eventLoopGroup, statsEngine, clock)
+      val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams), Controller.ControllerActorName)
+      val exit = new Exit(injector)
+      new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
+    }
+    logger.trace("CoreComponents instantiated")
+
+    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
+
+    (simulationParams, runMessage, coreComponents, scenarioFlows)
+  }
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
@@ -93,10 +101,6 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     println(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone
   }
-
-  // [e]
-  //
-  // [e]
 
   protected def displayVersionWarning(): Unit =
     GatlingVersion.LatestRelease.foreach { latest =>
