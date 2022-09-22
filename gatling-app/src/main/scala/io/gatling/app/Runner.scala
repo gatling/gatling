@@ -36,6 +36,11 @@ import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 
+private[gatling] object Runner {
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration): Runner =
+    new Runner(system, eventLoopGroup, new DefaultClock, configuration)
+}
+
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
   private[app] final def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {

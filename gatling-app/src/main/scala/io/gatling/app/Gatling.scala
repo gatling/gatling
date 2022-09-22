@@ -24,7 +24,6 @@ import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 import io.gatling.app.cli.ArgsParser
-import io.gatling.commons.util.DefaultClock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.scenario.Simulation
 import io.gatling.netty.util.Transports
@@ -86,7 +85,7 @@ object Gatling extends StrictLogging {
             val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
             val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, 0, "gatling")
             try {
-              val runner = new Runner(system, eventLoopGroup, new DefaultClock, configuration)
+              val runner = Runner(system, eventLoopGroup, configuration)
               logger.trace("Runner instantiated")
               runner.run(forcedSimulationClass)
             } catch {
