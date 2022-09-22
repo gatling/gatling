@@ -202,7 +202,7 @@ final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) exte
     case m: Map[_, _] =>
       m.asInstanceOf[Map[Any, _]].get(key) match {
         case Some(value) => value.success
-        case None        => ElMessages.undefinedMapKey(mapName, key)
+        case _           => ElMessages.undefinedMapKey(mapName, key)
       }
 
     case map: ju.Map[_, _] =>
