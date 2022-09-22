@@ -24,13 +24,12 @@ import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
-  // [e]
-  //
-  //
-  // [e]
-
-  // [e]
   def processRunResult(runResult: RunResult): StatusCode =
+    // [e]
+    //
+    //
+    //
+    // [e]
     initLogFileData(runResult) match {
       case Some(logFileData) =>
         val assertionResults = AssertionValidator.validateAssertions(logFileData)

@@ -165,20 +165,22 @@ class HttpEngine(
   // [e]
   //
   //
-  //
-  //
-  //
-  //
-  //
-  //
   // [e]
 
-  // [e]
   def newJavaDnsNameResolver: InetAddressNameResolver =
+    // [e]
+    //
+    //
+    //
+    // [e]
     InetAddressNameResolver.JAVA_RESOLVER
 
-  // [e]
   def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress], cache: DnsCache): InetAddressNameResolver =
+    // [e]
+    //
+    //
+    //
+    // [e]
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
         .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport))
