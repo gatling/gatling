@@ -25,7 +25,7 @@ import io.gatling.core.stats.writer._
 import akka.actor.ActorRef
 import io.netty.channel.ChannelHandler
 
-trait StatsEngine extends FrontLineStatsEngineExtensions {
+trait StatsEngine extends EnterpriseStatsEngineExtensions {
 
   def start(): Unit
 
@@ -87,8 +87,8 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
     logCrash(scenario, groups, requestName, s"Failed to build request: $errorMessage")
 }
 
-// WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
-trait FrontLineStatsEngineExtensions {
+// WARNING those methods only serve a purpose in Gatling Enterprise and mustn't be called from other components
+trait EnterpriseStatsEngineExtensions {
   final def statsChannelHandler(remoteAddress: String): ChannelHandler = null
 
   final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
