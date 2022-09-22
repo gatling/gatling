@@ -50,10 +50,6 @@ public class Longs {
     }
   }
 
-  public static void writePositiveLongString(int i, ByteBuffer bb) {
-    writePositiveLongString(i, positiveLongStringSize(i), bb);
-  }
-
   public static void writePositiveLongString(long i, int stringSize, ByteBuffer bb) {
     long q;
     int r;

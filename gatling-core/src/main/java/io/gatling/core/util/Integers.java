@@ -56,10 +56,6 @@ public class Integers {
     return ans + 1;
   }
 
-  public static void writePositiveIntString(int i, ByteBuffer bb) {
-    writePositiveIntString(i, positiveIntStringSize(i), bb);
-  }
-
   public static void writePositiveIntString(int i, int stringSize, ByteBuffer bb) {
     int q, r;
     int finalPosition = bb.position() + stringSize;
