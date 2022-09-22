@@ -362,8 +362,4 @@ class HttpCompileTest extends Simulation {
       .checkIf((response: Response, _: Session) => isJsonResponse(response)) {
         jsonPath("$..foo")
       }
-
-  //[e]
-  //
-  //[e]
 }
