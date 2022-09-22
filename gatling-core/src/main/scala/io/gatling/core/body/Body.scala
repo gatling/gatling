@@ -42,7 +42,7 @@ object RawFileBody {
 
 final case class RawFileBody(resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends BodyWithBytesExpression {
   override def apply(session: Session): Validation[Array[Byte]] =
-    resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
+    resourceAndCachedBytes(session).map { case ResourceAndCachedBytes(resource, cachedBytes) => cachedBytes.getOrElse(resource.bytes) }
 }
 
 final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends BodyWithBytesExpression {
