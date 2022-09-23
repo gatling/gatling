@@ -273,6 +273,10 @@ object GatlingConfiguration extends StrictLogging {
 
   private def mapToGatlingConfig(config: Config) =
     new GatlingConfiguration(
+      // [e]
+      //
+      //
+      // [e]
       core = coreConfiguration(config),
       socket = socketConfiguration(config),
       ssl = sslConfiguration(config),
@@ -281,10 +285,6 @@ object GatlingConfiguration extends StrictLogging {
       http = httpConfiguration(config),
       jms = jmsConfiguration(config),
       data = dataConfiguration(config)
-      // [e]
-      //
-      //
-      // [e]
     )
 }
 
@@ -435,6 +435,10 @@ final class GraphiteDataWriterConfiguration(
 )
 
 final class GatlingConfiguration(
+    // [e]
+    //
+    //
+    // [e]
     val core: CoreConfiguration,
     val socket: SocketConfiguration,
     val netty: NettyConfiguration,
@@ -443,8 +447,4 @@ final class GatlingConfiguration(
     val http: HttpConfiguration,
     val jms: JmsConfiguration,
     val data: DataConfiguration
-    // [e]
-    //
-    //
-    // [e]
 )
