@@ -74,6 +74,8 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
       children = Nil,
       shard = true
     )
+
+  override def toString = s"ScenarioBuilder($name)"
 }
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {
