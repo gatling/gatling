@@ -54,7 +54,7 @@ object ClosedInjectionBuilder {
 object ClosedInjectionSupport {
 
   val ClosedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
-    (steps: Iterable[ClosedInjectionStep]) => new ClosedInjectionProfile(steps)
+    (steps: Iterable[ClosedInjectionStep]) => new ClosedInjectionProfile(steps.toList)
 }
 
 trait ClosedInjectionSupport {

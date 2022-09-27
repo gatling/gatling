@@ -72,7 +72,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
 
   "Inserting a pause between steps" should "produce the right number of users" in {
 
-    val steps = Seq(AtOnceOpenInjection(1), NothingForOpenInjection(2.seconds), AtOnceOpenInjection(1))
+    val steps = List(AtOnceOpenInjection(1), NothingForOpenInjection(2.seconds), AtOnceOpenInjection(1))
     val profile = new OpenInjectionProfile(steps)
     profile.totalUserCount shouldBe Some(2)
   }
@@ -83,7 +83,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validUsers, "users"), (validDurationSeconds, "durationSeconds")) { (users, durationSeconds) =>
-      val steps = Seq(RampOpenInjection(users, durationSeconds.second))
+      val steps = List(RampOpenInjection(users, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(steps)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -96,7 +96,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 1)
 
     forAll((validRate, "rate"), (validDurationSeconds, "durationSeconds")) { (startRate, durationSeconds) =>
-      val steps = Seq(ConstantRateOpenInjection(startRate, durationSeconds.second))
+      val steps = List(ConstantRateOpenInjection(startRate, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(steps)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -110,7 +110,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validStartRate, "startRate"), (validEndRate, "endRate"), (validDurationSeconds, "durationSeconds")) { (startRate, endRate, durationSeconds) =>
-      val steps = Seq(RampRateOpenInjection(startRate, endRate, durationSeconds.second))
+      val steps = List(RampRateOpenInjection(startRate, endRate, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(steps)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -122,7 +122,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validUsers = Gen.choose(1, 100).suchThat(_ > 0)
 
     forAll((validUsers, "users")) { users =>
-      val steps = Seq(AtOnceOpenInjection(users))
+      val steps = List(AtOnceOpenInjection(users))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(steps)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -135,7 +135,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validUsers, "users"), (validDurationSeconds, "durationSeconds")) { (users, durationSeconds) =>
-      val steps = Seq(HeavisideOpenInjection(users, durationSeconds.second))
+      val steps = List(HeavisideOpenInjection(users, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(steps)
       profile.totalUserCount shouldBe Some(actualCount)

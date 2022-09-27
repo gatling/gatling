@@ -44,7 +44,7 @@ final case class PopulationBuilder(
     scenarioBuilder: ScenarioBuilder,
     injectionProfile: InjectionProfile,
     scenarioProtocols: Protocols,
-    scenarioThrottleSteps: Iterable[ThrottleStep],
+    scenarioThrottleSteps: List[ThrottleStep],
     pauseType: Option[PauseType],
     children: List[List[PopulationBuilder]],
     shard: Boolean
@@ -64,10 +64,10 @@ final case class PopulationBuilder(
   def uniformPauses(plusOrMinus: FiniteDuration): PopulationBuilder = pauses(new UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
-  def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toList)
+  def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps)
   def throttle(throttleSteps: Iterable[ThrottleStep]): PopulationBuilder = {
     require(throttleSteps.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
-    copy(scenarioThrottleSteps = throttleSteps)
+    copy(scenarioThrottleSteps = throttleSteps.toList)
   }
 
   def noShard: PopulationBuilder = copy(shard = false)
