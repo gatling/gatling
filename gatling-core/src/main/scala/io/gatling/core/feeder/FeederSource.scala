@@ -30,6 +30,8 @@ import com.typesafe.scalalogging.LazyLogging
 
 private[gatling] sealed trait FeederSource[T] {
   def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any]
+
+  def name: String
 }
 
 private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
@@ -38,6 +40,8 @@ private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Re
 
   override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] =
     InMemoryFeeder(records, options.conversion, options.strategy)
+
+  override def name: String = "in-memory"
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
@@ -63,9 +67,11 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
 
     InMemoryFeeder(records, options.conversion, options.strategy)
   }
+
+  override def name: String = s"json(${resource.name})"
 }
 
-private[gatling] final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
+private[gatling] final class SeparatedValuesFeederSource(val resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
 
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
 
@@ -94,4 +100,6 @@ private[gatling] final class SeparatedValuesFeederSource(resource: Resource, sep
 
     applyBatch(uncompressedResource)
   }
+
+  override def name: String = s"json(${resource.name})"
 }

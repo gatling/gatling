@@ -26,7 +26,7 @@ import akka.testkit._
 class FeedActorSpec extends AkkaSpec {
 
   private def createFeedActor[T](feeder: Feeder[T], controller: TestProbe) =
-    TestActorRef(FeedActor.props(feeder, controller.ref))
+    TestActorRef(FeedActor.props(feeder, None, controller.ref))
 
   "FeedActor" should "force the simulation termination if the nb of records to pop is not strictly positive" in {
     val controller = TestProbe()
