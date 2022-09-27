@@ -20,7 +20,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -113,14 +113,24 @@ trait RequestAction extends ExitableAction {
   def requestName: Expression[String]
   def sendRequest(session: Session): Validation[Unit]
 
-  private def reportUnbuildableRequest(session: Session, message: String): Unit =
-    requestName(session).foreach(statsEngine.reportUnbuildableRequest(session.scenario, session.groups, _, message))
+  private def reportUnbuildableRequest(session: Session, error: String): Unit = {
+    val loggedName = requestName(session) match {
+      case Success(requestNameValue) =>
+        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, error, requestNameValue)
+        requestNameValue
+      case _ =>
+        name
+    }
+    logger.error(s"'$loggedName' failed to execute: $error")
+  }
 
-  override def execute(session: Session): Unit = recover(session) {
+  override def execute(session: Session): Unit =
     try {
-      sendRequest(session).mapFailure { error =>
-        reportUnbuildableRequest(session, error)
-        error
+      sendRequest(session) match {
+        case Failure(error) =>
+          reportUnbuildableRequest(session, error)
+          next ! session.markAsFailed
+        case _ =>
       }
     } catch {
       case NonFatal(e) =>
@@ -128,5 +138,4 @@ trait RequestAction extends ExitableAction {
         // rethrow so we trigger exception handling in "ChainableAction!"
         throw e
     }
-  }
 }
