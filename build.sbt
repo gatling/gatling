@@ -13,9 +13,9 @@ Global / gatlingDevelopers := Seq(
   GatlingDeveloper("ccousseran@gatling.io", "Cédric Cousseran", isGatlingCorp = true),
   GatlingDeveloper("tpetillot@gatling.io  ", "Thomas Petillot", isGatlingCorp = true)
 )
-// [fl]
+// [e]
 //
-// [fl]
+// [e]
 
 // Root project
 
