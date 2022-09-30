@@ -16,7 +16,7 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.core.feeder.{ Feeder, FeederBuilder }
+import io.gatling.core.feeder.{ Feeder, NamedFeederBuilder }
 
 import com.redis.{ RedisClient, RedisClientPool }
 
@@ -45,7 +45,7 @@ object RedisFeederBuilder {
 }
 
 final case class RedisFeederBuilder(clientPool: RedisClientPool, command: RedisFeederBuilder.RedisCommand, keySrc: String, keyDest: String)
-    extends FeederBuilder {
+    extends NamedFeederBuilder {
   def LPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.LPOP)
   def SPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.SPOP)
   def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeederBuilder.SRANDMEMBER)
@@ -59,4 +59,6 @@ final case class RedisFeederBuilder(clientPool: RedisClientPool, command: RedisF
 
     Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
   }
+
+  override val name: String = "redis"
 }

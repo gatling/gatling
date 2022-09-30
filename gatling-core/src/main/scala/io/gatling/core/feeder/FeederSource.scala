@@ -34,14 +34,12 @@ private[gatling] sealed trait FeederSource[T] {
   def name: String
 }
 
-private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
+private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]], override val name: String) extends FeederSource[T] with LazyLogging {
 
   require(records.nonEmpty, "Feeder must not be empty")
 
   override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] =
     InMemoryFeeder(records, options.conversion, options.strategy)
-
-  override def name: String = "in-memory"
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
@@ -101,5 +99,5 @@ private[gatling] final class SeparatedValuesFeederSource(val resource: Resource,
     applyBatch(uncompressedResource)
   }
 
-  override def name: String = s"json(${resource.name})"
+  override def name: String = s"csv(${resource.name})"
 }

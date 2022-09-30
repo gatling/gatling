@@ -23,5 +23,5 @@ import io.gatling.jdbc.feeder.JdbcFeederSource
 object Predef {
 
   def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): FeederBuilderBase[Any] =
-    SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql)), configuration)
+    SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql), s"jdbc($sql)"), configuration)
 }

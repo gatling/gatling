@@ -20,6 +20,10 @@ import io.gatling.core.config.GatlingConfiguration
 
 import com.softwaremill.quicklens._
 
+private[gatling] trait NamedFeederBuilder extends FeederBuilder {
+  def name: String
+}
+
 trait FeederBuilderBase[T] extends FeederBuilder {
   def queue: FeederBuilderBase[T]
   def random: FeederBuilderBase[T]
@@ -64,7 +68,8 @@ final case class SourceFeederBuilder[T](
     source: FeederSource[T],
     configuration: GatlingConfiguration,
     options: FeederOptions[T]
-) extends BatchableFeederBuilder[T] {
+) extends BatchableFeederBuilder[T]
+    with NamedFeederBuilder {
 
   def queue: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Queue)
   def random: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Random)
@@ -90,6 +95,8 @@ final case class SourceFeederBuilder[T](
   override def shard: BatchableFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
+
+  override def name: String = source.name
 }
 
 private[feeder] trait FeederLoadingMode
