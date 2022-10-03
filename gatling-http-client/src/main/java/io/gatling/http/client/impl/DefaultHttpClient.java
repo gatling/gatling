@@ -791,21 +791,21 @@ public class DefaultHttpClient implements HttpClient {
         channelPromise.setFailure(cause);
       }
     } else {
-      // [fl]
+      // [e]
       //
-      // [fl]
+      // [e]
       ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
 
       whenChannel.addListener(
           f -> {
             if (f.isSuccess()) {
-              // [fl]
+              // [e]
               //
               //
               //
               //
               //
-              // [fl]
+              // [e]
               channelPromise.setSuccess(whenChannel.channel());
 
             } else {
@@ -817,9 +817,9 @@ public class DefaultHttpClient implements HttpClient {
                         + localAddress,
                     f.cause());
               }
-              // [fl]
+              // [e]
               //
-              // [fl]
+              // [e]
 
               if (requestTimeout.isDone()) {
                 channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
@@ -850,9 +850,9 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
-    // [fl]
+    // [e]
     //
-    // [fl]
+    // [e]
 
     try {
       SslHandler sslHandler =
@@ -883,22 +883,22 @@ public class DefaultHttpClient implements HttpClient {
                         sslHandler.engine().getSession().getCipherSuite());
                   }
 
-                  // [fl]
+                  // [e]
                   //
-                  // [fl]
+                  // [e]
                 } else {
                   tx.requestTimeout.cancel();
-                  // [fl]
+                  // [e]
                   //
-                  // [fl]
+                  // [e]
                   tx.listener.onThrowable(f.cause());
                 }
               });
     } catch (RuntimeException e) {
       tx.requestTimeout.cancel();
-      // [fl]
+      // [e]
       //
-      // [fl]
+      // [e]
       tx.listener.onThrowable(e);
       return new DefaultPromise<Channel>(ImmediateEventExecutor.INSTANCE).setFailure(e);
     }
