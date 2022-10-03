@@ -24,7 +24,7 @@ private[gatling] trait NamedFeederBuilder extends FeederBuilder {
   def name: String
 }
 
-trait FeederBuilderBase[T] extends FeederBuilder {
+sealed trait FeederBuilderBase[T] extends FeederBuilder {
   def queue: FeederBuilderBase[T]
   def random: FeederBuilderBase[T]
   def shuffle: FeederBuilderBase[T]
@@ -33,10 +33,11 @@ trait FeederBuilderBase[T] extends FeederBuilder {
   @deprecated("Please use transform instead.", "3.7.0")
   def convert(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any] = transform(f)
   def readRecords: Seq[Record[Any]]
+  def recordsCount: Int
   def shard: FeederBuilderBase[T]
 }
 
-trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
+sealed trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
   override def queue: FileBasedFeederBuilder[T]
   override def random: FileBasedFeederBuilder[T]
   override def shuffle: FileBasedFeederBuilder[T]
@@ -46,7 +47,7 @@ trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
   def unzip: FileBasedFeederBuilder[T]
 }
 
-trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
+sealed trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
   override def queue: BatchableFeederBuilder[T]
   override def random: BatchableFeederBuilder[T]
   override def shuffle: BatchableFeederBuilder[T]
@@ -87,6 +88,7 @@ final case class SourceFeederBuilder[T](
   }
 
   override def readRecords: Seq[Record[Any]] = apply().toVector
+  override def recordsCount: Int = source.recordsCount(options, configuration)
 
   override def unzip: BatchableFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 

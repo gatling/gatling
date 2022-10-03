@@ -33,8 +33,7 @@ object BatchedSeparatedValuesFeeder {
       bufferSize: Int,
       charset: Charset
   ): Feeder[Any] = {
-
-    val streamer: ReadableByteChannel => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
+    val feederFactory: ReadableByteChannel => Feeder[String] = SeparatedValuesParser.feederFactory(separator, quoteChar, charset)
 
     val channelFactory = {
       val path = file.toPath
@@ -42,10 +41,10 @@ object BatchedSeparatedValuesFeeder {
     }
 
     val rawFeeder = strategy match {
-      case FeederStrategy.Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, streamer)
-      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
-      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
-      case FeederStrategy.Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, streamer)
+      case FeederStrategy.Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
+      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, feederFactory, bufferSize)
+      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, feederFactory, bufferSize)
+      case FeederStrategy.Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
     }
 
     conversion match {

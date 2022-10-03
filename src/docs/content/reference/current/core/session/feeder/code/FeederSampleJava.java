@@ -234,4 +234,10 @@ csv("myFile.csv").transform((key, value) ->
 List<Map<String, Object>> records = csv("myFile.csv").readRecords();
 //#records
   }
+
+  {
+//#recordsCount
+int recordsCount = csv("myFile.csv").recordsCount();
+//#recordsCount
+  }
 }

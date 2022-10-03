@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -52,6 +53,9 @@ public class CoreJavaCompileTest extends Simulation {
   private Body byteArrayBody2 = ByteArrayBody(session -> new byte[] {1});
   private Body inputStreamBody =
       InputStreamBody(session -> new ByteArrayInputStream(new byte[] {1}));
+
+  private List<Map<String, Object>> records = csv("foo").readRecords();
+  private int recordsCount = csv("foo").recordsCount();
 
   // scenario
   private ScenarioBuilder scenario =

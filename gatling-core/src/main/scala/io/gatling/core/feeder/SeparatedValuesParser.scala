@@ -31,7 +31,9 @@ private[gatling] object SeparatedValuesParser {
   val SemicolonSeparator: Char = ';'
   val TabulationSeparator: Char = '\t'
 
-  def stream(columnSeparator: Char, quoteChar: Char, charset: Charset): ReadableByteChannel => Feeder[String] = {
+  private def withRecordsIterator[T](columnSeparator: Char, quoteChar: Char, charset: Charset)(
+      f: (Array[String], Iterator[Array[String]]) => T
+  ): ReadableByteChannel => T = {
     val parser = CsvParser
       .separator(columnSeparator)
       .quote(quoteChar)
@@ -47,7 +49,12 @@ private[gatling] object SeparatedValuesParser {
         require(header.nonEmpty, "CSV headers can't be empty")
       }
 
-      it.asScala.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
+      f(headers, it.asScala)
     }
   }
+
+  def feederFactory(columnSeparator: Char, quoteChar: Char, charset: Charset): ReadableByteChannel => Feeder[String] =
+    withRecordsIterator(columnSeparator, quoteChar, charset) { (headers, it) =>
+      it.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
+    }
 }

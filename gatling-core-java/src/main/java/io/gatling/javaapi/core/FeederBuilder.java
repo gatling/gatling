@@ -95,6 +95,13 @@ public interface FeederBuilder<T> {
   List<Map<String, Object>> readRecords();
 
   /**
+   * Return the number of records more efficiantly than readRecords().size().
+   *
+   * @return the number of recordss
+   */
+  int recordsCount();
+
+  /**
    * Distribute data evenly amongst all the injectors of a Gatling Enterprise cluster. Only
    * effective when the test is running with Gatling Enterprise, noop otherwise.
    *
@@ -335,6 +342,11 @@ public interface FeederBuilder<T> {
       return Converters.toJavaList(wrapped.readRecords()).stream()
           .map(Converters::toJavaMap)
           .collect(Collectors.toList());
+    }
+
+    @Override
+    public int recordsCount() {
+      return wrapped.recordsCount();
     }
 
     @Override

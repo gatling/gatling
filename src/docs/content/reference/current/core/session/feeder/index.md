@@ -264,3 +264,9 @@ Sometimes, you just might want to reuse or convenient built-in feeders for custo
 {{< alert warning >}}
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.
 {{< /alert >}}
+
+## Count the Number of Records {#recordsCounts}
+
+Sometimes, you want to know the size of your feeder without having to use `readRecords` and copy all the data in memory.
+
+{{< include-code "readRecords" java kt scala >}}

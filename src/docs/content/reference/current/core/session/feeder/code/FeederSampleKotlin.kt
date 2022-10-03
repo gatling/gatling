@@ -166,5 +166,10 @@ csv("myFile.csv").transform { key, value ->
 //#records
 val records = csv("myFile.csv").readRecords()
 //#records
+
+//#recordsCount
+val recordsCount = csv("myFile.csv").recordsCount()
+//#recordsCount
   }
 }
+

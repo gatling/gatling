@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
+import io.gatling.core.feeder.Record
 
 class CoreCompileTest extends Simulation {
 
@@ -85,6 +86,9 @@ class CoreCompileTest extends Simulation {
     .feed(() => Iterator.from(0).map(i => Map("key" -> i)).take(10))
     .feed(Array(Map.empty[String, Any], Map.empty[String, Any]).circular)
     .feed(IndexedSeq(Map.empty[String, Any]).circular)
+
+  val records: Seq[Record[Any]] = csv("foo").readRecords
+  val recordsCount: Int = csv("foo").recordsCount
 
   private val pauses = scenario("pauses")
     .pause(1)

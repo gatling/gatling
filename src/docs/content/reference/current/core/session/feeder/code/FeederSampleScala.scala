@@ -198,4 +198,10 @@ csv("myFile.csv").transform {
 val records: Seq[Map[String, Any]] = csv("myFile.csv").readRecords
 //#records
   }
+
+  {
+//#recordsCount
+val recordsCount = csv("myFile.csv").recordsCount
+//#recordsCount
+  }
 }
