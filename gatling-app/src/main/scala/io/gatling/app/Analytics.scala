@@ -18,6 +18,7 @@ package io.gatling.app
 
 import java.net.{ HttpURLConnection, URL }
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.concurrent.ThreadLocalRandom
 
 import scala.util.{ Try, Using }
 import scala.util.control.NonFatal
@@ -81,7 +82,7 @@ object Analytics {
          |   "api_key":"$apiKey",
          |   "events":[
          |      {
-         |         "user_id":"gatling",
+         |         "device_id":"gatling-${ThreadLocalRandom.current().nextLong(0, Long.MaxValue)}",
          |         "event_type":"gatling_run",
          |         "ip":"$$remote",
          |         "user_properties":{
