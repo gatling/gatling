@@ -21,7 +21,6 @@ import java.nio.charset.Charset
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
-import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 final case class CachingPath(path: Path) {
@@ -58,20 +57,6 @@ object PathHelper {
     def isDirectory: Boolean = Files.isDirectory(path)
 
     def segments: List[Path] = path.iterator.asScala.toList
-
-    def ancestor(n: Int): Path = {
-      @tailrec
-      def loop(path: Path, n: Int): Path =
-        n match {
-          case 0 => path
-          case _ => loop(path.getParent, n - 1)
-        }
-
-      require(n >= 0, s"ancestor rank must be positive but asked for $n")
-      val length = path.segments.length
-      require(n <= length, s"can't ask for ancestor rank $n while segments length is $length")
-      loop(path, n)
-    }
 
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
 
