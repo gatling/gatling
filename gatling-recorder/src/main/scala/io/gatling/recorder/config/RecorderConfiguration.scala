@@ -17,7 +17,7 @@
 package io.gatling.recorder.config
 
 import java.io.FileNotFoundException
-import java.nio.file.{ Path, Paths }
+import java.nio.file.{ Files, Path, Paths }
 
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
@@ -26,7 +26,6 @@ import scala.util.Properties.userHome
 import scala.util.Using
 import scala.util.control.NonFatal
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.ConfigHelper.configChain
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
@@ -89,8 +88,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       case NonFatal(e) =>
         logger.warn(s"Loading configuration crashed: ${e.rootMessage}. Probable cause is a format change, resetting.")
         configFile.foreach { file =>
-          if (file.exists) {
-            file.delete()
+          if (Files.exists(file)) {
+            Files.delete(file)
           }
         }
         _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig)))
@@ -105,16 +104,18 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
     val configToSave = recorderConfiguration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file => Using.resource(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
+    configFile.foreach(file =>
+      Using.resource(Files.newBufferedWriter(createAndOpen(file), gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions)))
+    )
   }
 
   private[config] def createAndOpen(path: Path): Path =
-    if (!path.exists) {
+    if (!Files.exists(path)) {
       val parent = path.getParent
-      if (!parent.exists) {
+      if (!Files.exists(parent)) {
         throw new FileNotFoundException(s"Directory '${parent.toString}' for recorder configuration does not exist")
       }
-      path.createFile()
+      Files.createFile(path)
     } else {
       path
     }

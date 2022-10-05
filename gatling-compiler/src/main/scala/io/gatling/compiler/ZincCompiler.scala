@@ -103,7 +103,7 @@ object ZincCompiler extends ProblemStringFormats {
 
     val compilerBridgeJar =
       jarMatching(classpath, """compiler-bridge_.*\.jar$""")
-    val cacheFile = (GatlingHome / "target" / "inc_compile.zip").toFile
+    val cacheFile = GatlingHome.resolve("target").resolve("inc_compile.zip").toFile
 
     val scalaVersionExtractor = """scala-library-(.*)\.jar$""".r
 

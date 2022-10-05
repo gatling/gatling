@@ -18,7 +18,7 @@ package io.gatling.recorder.http.ssl
 
 import java.io._
 import java.math.BigInteger
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.security._
 import java.security.cert.X509Certificate
 import java.util.Date
@@ -28,7 +28,6 @@ import javax.security.auth.x500.X500Principal
 import scala.concurrent.duration._
 import scala.util.{ Try, Using }
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.recorder.internal.bouncycastle.asn1.x509.{ Extension, GeneralName, GeneralNames }
 import io.gatling.recorder.internal.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
 import io.gatling.recorder.internal.bouncycastle.cert.jcajce.{ JcaX509CertificateConverter, JcaX509CertificateHolder, JcaX509v1CertificateBuilder }
@@ -78,7 +77,7 @@ private[recorder] object SslUtil extends StrictLogging {
   private def newSigner(privKey: PrivateKey) = new JcaContentSignerBuilder("SHA256withRSA").build(privKey)
 
   def generateGatlingCAPEMFiles(dir: Path, privKeyFileName: String, certFileName: String): Unit = {
-    assert(dir.isDirectory, s"$dir isn't a directory")
+    assert(Files.isDirectory(dir), s"$dir isn't a directory")
 
     def generateCACertificate(pair: KeyPair): X509CertificateHolder = {
       val dn = s"C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
@@ -101,8 +100,8 @@ private[recorder] object SslUtil extends StrictLogging {
     val pair = newRSAKeyPair
     val crtHolder = generateCACertificate(pair)
 
-    writePEM(crtHolder, (dir / certFileName).outputStream)
-    writePEM(pair, (dir / privKeyFileName).outputStream)
+    writePEM(crtHolder, new BufferedOutputStream(Files.newOutputStream(dir.resolve(certFileName))))
+    writePEM(pair, new BufferedOutputStream(Files.newOutputStream(dir.resolve(privKeyFileName))))
   }
 
   def getCA(crtFile: InputStream, keyFile: InputStream): Try[Ca] =

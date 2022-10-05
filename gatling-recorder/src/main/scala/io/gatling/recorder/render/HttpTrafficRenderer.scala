@@ -16,8 +16,8 @@
 
 package io.gatling.recorder.render
 
-import java.io.{ File, IOException }
-import java.nio.file.{ Path, Paths }
+import java.io.{ BufferedOutputStream, File, IOException }
+import java.nio.file.{ Files, Path, Paths }
 import java.util.Locale
 
 import scala.annotation.tailrec
@@ -25,7 +25,6 @@ import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderConfiguration
@@ -43,7 +42,7 @@ private[render] object DumpedBodies {
 
     val bodiesFolderPath: Path = {
       val path = config.core.resourcesFolder + File.separator + config.core.pkg.replace(".", File.separator) + File.separator + classNameAsFolderName
-      Paths.get(path).mkdirs()
+      Files.createDirectories(Paths.get(path))
     }
 
     val bodiesClassPathLocation: String = {
@@ -70,7 +69,7 @@ private[render] class DumpedBodies(
 
     new DumpedBody(
       bodiesClassPathLocation + "/" + fileName,
-      bodiesFolderPath / fileName,
+      bodiesFolderPath.resolve(fileName),
       bytes
     )
   }
@@ -85,14 +84,14 @@ private[render] class DumpedBody(
 private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) extends StrictLogging {
 
   private val simulationFile: Path = {
-    val sourcesFolderPath = Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)).mkdirs()
-    sourcesFolderPath / s"${config.core.className}.${config.core.format.fileExtension}"
+    val sourcesFolderPath = Files.createDirectories(Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)))
+    sourcesFolderPath.resolve(s"${config.core.className}.${config.core.format.fileExtension}")
   }
 
-  def simulationFileExists: Boolean = simulationFile.exists
+  def simulationFileExists: Boolean = Files.exists(simulationFile)
 
   private def dumpBody(body: DumpedBody): Unit = {
-    Using.resource(body.filePath.outputStream) { fw =>
+    Using.resource(new BufferedOutputStream(Files.newOutputStream(body.filePath))) { fw =>
       try {
         fw.write(body.bytes)
       } catch {
@@ -124,7 +123,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
 
-    Using.resource(simulationFile.outputStream) {
+    Using.resource(new BufferedOutputStream(Files.newOutputStream(simulationFile))) {
       _.write(output.getBytes(config.core.encoding))
     }
   }

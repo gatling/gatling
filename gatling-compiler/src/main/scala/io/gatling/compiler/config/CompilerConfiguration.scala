@@ -64,9 +64,9 @@ private[compiler] object CompilerConfiguration {
 
     val encoding = config.getString(encodingKey)
     val simulationsDirectory = string2option(config.getString(simulationsDirectoryKey))
-      .fold(GatlingHome / "user-files" / "simulations")(resolvePath(_))
+      .fold(GatlingHome.resolve("user-files").resolve("simulations"))(path => resolvePath(Paths.get(path)))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
-      .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
+      .fold(GatlingHome.resolve("target").resolve("test-classes"))(path => resolvePath(Paths.get(path)))
     val extraScalacOptions = commandLineOverrides.extraScalacOptions.split(',').filter(_.nonEmpty).toSeq
     val extraJavacOptions = commandLineOverrides.extraJavacOptions.split(',').filter(_.nonEmpty).toSeq
 

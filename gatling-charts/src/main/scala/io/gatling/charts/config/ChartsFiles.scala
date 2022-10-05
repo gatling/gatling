@@ -19,7 +19,6 @@ package io.gatling.charts.config
 import java.nio.file.{ Path, Paths }
 
 import io.gatling.charts.FileNamingConventions
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles
 
@@ -46,8 +45,8 @@ private[charts] object ChartsFiles {
   private val GatlingJsFolder: Path = Paths.get("js")
   private val GatlingStyleFolder: Path = Paths.get("style")
   private val GatlingAssetsPackage: Path = Paths.get("io", "gatling", "charts", "assets")
-  val GatlingAssetsJsPackage: Path = GatlingAssetsPackage / GatlingJsFolder
-  val GatlingAssetsStylePackage: Path = GatlingAssetsPackage / GatlingStyleFolder
+  val GatlingAssetsJsPackage: Path = GatlingAssetsPackage.resolve(GatlingJsFolder)
+  val GatlingAssetsStylePackage: Path = GatlingAssetsPackage.resolve(GatlingStyleFolder)
 }
 
 private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfiguration) {
@@ -56,27 +55,27 @@ private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfigu
 
   private val resultDirectory = GatlingFiles.resultDirectory(runUuid, configuration)
 
-  val jsDirectory: Path = resultDirectory / GatlingJsFolder
+  val jsDirectory: Path = resultDirectory.resolve(GatlingJsFolder)
 
-  val styleDirectory: Path = resultDirectory / GatlingStyleFolder
+  val styleDirectory: Path = resultDirectory.resolve(GatlingStyleFolder)
 
-  val allSessionsFile: Path = jsDirectory / AllSessionsFile
+  val allSessionsFile: Path = jsDirectory.resolve(AllSessionsFile)
 
-  val globalFile: Path = resultDirectory / "index.html"
+  val globalFile: Path = resultDirectory.resolve("index.html")
 
   def requestFile(requestName: String): Path =
-    resultDirectory / (requestName.toRequestFileName(configuration.core.charset) + ".html")
+    resultDirectory.resolve(requestName.toRequestFileName(configuration.core.charset) + ".html")
 
   def groupFile(requestName: String): Path =
-    resultDirectory / (requestName.toGroupFileName(configuration.core.charset) + ".html")
+    resultDirectory.resolve(requestName.toGroupFileName(configuration.core.charset) + ".html")
 
-  val statsJsFile: Path = jsDirectory / StatsJsFile
+  val statsJsFile: Path = jsDirectory.resolve(StatsJsFile)
 
-  val statsJsonFile: Path = jsDirectory / StatsJsonFile
+  val statsJsonFile: Path = jsDirectory.resolve(StatsJsonFile)
 
-  val globalStatsJsonFile: Path = jsDirectory / GlobalStatsJsonFile
+  val globalStatsJsonFile: Path = jsDirectory.resolve(GlobalStatsJsonFile)
 
-  val assertionsJsonFile: Path = jsDirectory / AssertionsJsonFile
+  val assertionsJsonFile: Path = jsDirectory.resolve(AssertionsJsonFile)
 
-  val assertionsJUnitFile: Path = jsDirectory / AssertionsJUnitFile
+  val assertionsJUnitFile: Path = jsDirectory.resolve(AssertionsJUnitFile)
 }

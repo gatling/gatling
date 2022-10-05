@@ -16,13 +16,12 @@
 
 package io.gatling.recorder.controller
 
-import java.nio.file.Paths
+import java.nio.file.{ Files, Paths }
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import scala.concurrent.duration.DurationLong
 import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.filter.Filters
@@ -53,7 +52,7 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
     val selectedMode = frontEnd.selectedRecorderMode
     val harFilePath = frontEnd.harFilePath
     val harFile = Paths.get(harFilePath)
-    if (selectedMode == Har && !harFile.exists) {
+    if (selectedMode == Har && !Files.exists(harFile)) {
       frontEnd.handleMissingHarFile(harFilePath)
     } else {
       val proceed = if (converter.simulationFileExists) frontEnd.askSimulationOverwrite else true

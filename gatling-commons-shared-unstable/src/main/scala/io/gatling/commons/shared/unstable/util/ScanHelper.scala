@@ -18,7 +18,7 @@ package io.gatling.commons.shared.unstable.util
 
 import java.io.{ BufferedInputStream, FileInputStream, InputStream }
 import java.net.JarURLConnection
-import java.nio.file.{ Path, Paths, StandardCopyOption }
+import java.nio.file.{ Files, Path, Paths, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
 
 import scala.jdk.CollectionConverters._
@@ -43,8 +43,8 @@ object ScanHelper {
     private val file = path.toFile
 
     override def copyTo(target: Path): Unit = {
-      target.getParent.mkdirs()
-      path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
+      Files.createDirectories(target.getParent)
+      Files.copy(path, target, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
     override def inputStream(): InputStream = new BufferedInputStream(new FileInputStream(file))
@@ -57,8 +57,8 @@ object ScanHelper {
     override def path: Path = Paths.get(jarEntry.getName)
 
     override def copyTo(target: Path): Unit = {
-      target.getParent.mkdirs()
-      Using.resources(jar.getInputStream(jarEntry), target.outputStream) { (in, out) =>
+      Files.createDirectories(target.getParent)
+      Using.resources(jar.getInputStream(jarEntry), Files.newOutputStream(target)) { (in, out) =>
         in.copyTo(out)
       }
     }
@@ -79,7 +79,7 @@ object ScanHelper {
       pkgURL.getProtocol match {
         case "file" =>
           val rootDir = Paths.get(pkgURL.toURI)
-          val files = if (deep) rootDir.deepFiles(_ => true) else rootDir.files
+          val files = if (deep) PathHelper.deepFiles(rootDir) else PathHelper.files(rootDir)
           files.map(f => FileResource(f.path))
 
         case "jar" =>
@@ -99,14 +99,14 @@ object ScanHelper {
   def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path): Unit = {
 
     def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
-      val pathString = path.segments.mkString(Separator)
-      val pkgString = pkg.segments.mkString(Separator)
+      val pathString = path.iterator.asScala.mkString(Separator)
+      val pkgString = pkg.iterator.asScala.mkString(Separator)
       val segments = pathString.split(pkgString).last.split(Separator)
       Paths.get(segments.head, segments.tail: _*)
     }
 
     getPackageResources(pkg, deep = true).foreach { resource =>
-      val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
+      val target = targetDirectoryPath.resolve(getPathStringAfterPackage(resource.path, pkg))
       resource.copyTo(target)
     }
   }

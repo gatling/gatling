@@ -17,14 +17,13 @@
 package io.gatling.recorder.http.ssl
 
 import java.io.{ BufferedInputStream, File, FileInputStream }
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.security.{ KeyStore, Security }
 import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.{ KeyManagerFactory, SSLEngine }
 
 import scala.util.{ Failure, Using }
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 
 import io.netty.buffer.ByteBufAllocator
@@ -109,13 +108,13 @@ private[recorder] object SslServerContext {
 
   final class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
 
-    require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
-    require(pemKeyFile.isFile, s"$pemKeyFile is not a file")
+    require(Files.isRegularFile(pemCrtFile), s"$pemCrtFile is not a file")
+    require(Files.isRegularFile(pemKeyFile), s"$pemKeyFile is not a file")
 
     private val password: Array[Char] = "gatling".toCharArray
     private val storeType = KeyStoreType.JKS.toString
     private val aliasContexts = new ConcurrentHashMap[String, SslContext]
-    private lazy val ca = SslUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
+    private lazy val ca = SslUtil.getCA(Files.newInputStream(pemCrtFile), Files.newInputStream(pemKeyFile))
     private lazy val keyStore = {
       val ks = KeyStore.getInstance(storeType)
       ks.load(null, null)
