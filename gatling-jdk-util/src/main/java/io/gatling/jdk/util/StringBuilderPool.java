@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.jva.util;
+package io.gatling.jdk.util;
 
 public final class StringBuilderPool {
 

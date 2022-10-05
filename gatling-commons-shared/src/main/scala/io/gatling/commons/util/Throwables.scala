@@ -17,7 +17,7 @@
 package io.gatling.commons.util
 
 import io.gatling.commons.util.Classes._
-import io.gatling.jva.util.StringBuilderPool
+import io.gatling.jdk.util.StringBuilderPool
 
 object Throwables {
 

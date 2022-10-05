@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
 import io.gatling.commons.util.Spire._
-import io.gatling.jva.util.StringBuilderPool
+import io.gatling.jdk.util.StringBuilderPool
 
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }

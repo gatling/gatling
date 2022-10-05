@@ -22,7 +22,7 @@ import java.text.Normalizer
 import java.util.Locale
 
 import io.gatling.commons.util.Spire.cfor
-import io.gatling.jva.util.StringBuilderPool
+import io.gatling.jdk.util.StringBuilderPool
 
 object StringHelper {
 
