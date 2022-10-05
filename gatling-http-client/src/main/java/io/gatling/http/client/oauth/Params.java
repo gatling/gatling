@@ -32,7 +32,7 @@
 package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
-import io.gatling.jva.util.StringBuilderPool;
+import io.gatling.jdk.util.StringBuilderPool;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

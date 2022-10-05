@@ -25,7 +25,7 @@ import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.validation.Validation
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.StringUtils.toHexString
-import io.gatling.jva.util.StringBuilderPool
+import io.gatling.jdk.util.StringBuilderPool
 
 import io.netty.handler.codec.http.HttpMethod
 

@@ -35,7 +35,7 @@ import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.util.Utf8UrlEncoder;
-import io.gatling.jva.util.StringBuilderPool;
+import io.gatling.jdk.util.StringBuilderPool;
 import java.util.List;
 
 public enum UriEncoder {
