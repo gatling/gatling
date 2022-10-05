@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.shared.unstable.util
+package io.gatling.commons.util
 
 object SystemProps {
 
