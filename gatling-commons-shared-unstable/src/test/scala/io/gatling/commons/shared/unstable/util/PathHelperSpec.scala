@@ -27,18 +27,6 @@ class PathHelperSpec extends AnyFlatSpecLike with Matchers {
 
   private val root = Paths.get("foo")
 
-  "ancestor" should "throw an IllegalArgumentException when ancestor rank is negative" in {
-    an[IllegalArgumentException] should be thrownBy root.ancestor(-1)
-  }
-
-  it should "throw an IllegalArgumentException when asked rank > nb of parents" in {
-    an[IllegalArgumentException] should be thrownBy (root / "bar").ancestor(3)
-  }
-
-  it should "get the parent of rank n otherwise" in {
-    (root / "foo" / "bar").ancestor(1) shouldBe (root / "foo")
-  }
-
   "extension" should "return an empty String when the specified path has no extension" in {
     root.extension shouldBe ""
   }
