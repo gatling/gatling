@@ -23,6 +23,8 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import scala.jdk.CollectionConverters._
 
+// can't extend Path, even if interface is public
+// Files.newInputStream would crash with a java.nio.file.ProviderMismatchException
 final case class CachingPath(path: Path) {
 
   override def toString: String = path.toString
