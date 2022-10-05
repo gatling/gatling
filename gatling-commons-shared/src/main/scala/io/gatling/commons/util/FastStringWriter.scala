@@ -54,8 +54,6 @@ private[util] final class FastStringWriter(initialSize: Int) extends Writer {
 
   override def toString: String = buf.toString
 
-  def getBuffer: jl.StringBuilder = buf
-
   def flush(): Unit = {}
 
   def close(): Unit = {}

@@ -19,7 +19,7 @@ package io.gatling.jsonpath
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.jsonpath.AST._
-import io.gatling.netty.util.StringBuilderPool
+import io.gatling.jva.util.StringBuilderPool
 
 /**
  * Originally contributed by Nicolas Rémond.

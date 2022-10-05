@@ -26,6 +26,7 @@ lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
   .disablePlugins(SbtSpotless)
   .aggregate(
+    javaUtil,
     nettyUtil,
     commonsShared,
     commonsSharedUnstable,
@@ -84,12 +85,15 @@ def gatlingModule(id: String) =
     .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
+lazy val javaUtil = gatlingModule("gatling-java-util")
+
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
+  .dependsOn(javaUtil)
   .settings(libraryDependencies ++= nettyUtilDependencies)
 
 lazy val commonsShared = gatlingModule("gatling-commons-shared")
   .disablePlugins(SbtSpotless)
-  .dependsOn(nettyUtil % "compile->compile;test->test")
+  .dependsOn(javaUtil)
   .settings(libraryDependencies ++= commonsSharedDependencies(scalaVersion.value))
 
 lazy val commonsSharedUnstable = gatlingModule("gatling-commons-shared-unstable")
@@ -105,11 +109,12 @@ lazy val commons = gatlingModule("gatling-commons")
   .settings(generateVersionFileSettings)
 
 lazy val jsonpath = gatlingModule("gatling-jsonpath")
-  .dependsOn(nettyUtil)
+  .dependsOn(javaUtil)
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 
 lazy val core = gatlingModule("gatling-core")
+  .dependsOn(nettyUtil)
   .dependsOn(commons % "compile->compile;test->test")
   .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)

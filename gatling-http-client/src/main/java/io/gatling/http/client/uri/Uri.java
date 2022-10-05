@@ -36,8 +36,7 @@ import static io.gatling.http.client.util.MiscUtils.isEmpty;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.util.MiscUtils;
-import io.gatling.netty.util.StringBuilderPool;
+import io.gatling.jva.util.StringBuilderPool;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -210,7 +209,7 @@ public class Uri {
 
   public String toRelativeUrl() {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    if (MiscUtils.isNonEmpty(path)) sb.append(path);
+    if (isNonEmpty(path)) sb.append(path);
     else sb.append('/');
     if (query != null) sb.append('?').append(query);
 

@@ -48,6 +48,8 @@ import java.nio.charset.CoderResult;
 public final class ByteBufUtils {
 
   public static final ByteBuf[] EMPTY_BYTEBUF_ARRAY = new ByteBuf[0];
+
+  private static final byte[] EMPTY_BYTES = new byte[0];
   private static final char[] EMPTY_CHARS = new char[0];
   private static final ThreadLocal<CharBuffer> CHAR_BUFFERS =
       ThreadLocal.withInitial(() -> CharBuffer.allocate(1024));
@@ -56,16 +58,41 @@ public final class ByteBufUtils {
 
   public static byte[] byteBuf2Bytes(ByteBuf buf) {
     int readable = buf.readableBytes();
-    int readerIndex = buf.readerIndex();
-    if (buf.hasArray()) {
-      byte[] array = buf.array();
-      if (buf.arrayOffset() == 0 && readerIndex == 0 && array.length == readable) {
-        return array;
-      }
+    if (readable == 0) {
+      return EMPTY_BYTES;
     }
-    byte[] array = new byte[readable];
-    buf.getBytes(readerIndex, array);
-    return array;
+    byte[] bytes = new byte[readable];
+    if (buf.hasArray()) {
+      System.arraycopy(buf.array(), buf.readerIndex(), bytes, 0, readable);
+    } else {
+      buf.getBytes(buf.readerIndex(), bytes);
+    }
+    return bytes;
+  }
+
+  public static byte[] byteBufs2Bytes(ByteBuf... bufs) {
+    int size = 0;
+    for (ByteBuf buf : bufs) {
+      size += buf.readableBytes();
+    }
+
+    if (size == 0) {
+      return EMPTY_BYTES;
+    }
+
+    byte[] bytes = new byte[size];
+    int destPos = 0;
+    for (ByteBuf buf : bufs) {
+      int readable = buf.readableBytes();
+      if (buf.hasArray()) {
+        System.arraycopy(buf.array(), buf.readerIndex(), bytes, destPos, readable);
+      } else {
+        buf.getBytes(buf.readerIndex(), bytes, destPos, readable);
+      }
+      destPos += readable;
+    }
+
+    return bytes;
   }
 
   public static String byteBuf2String(Charset charset, ByteBuf buf) {

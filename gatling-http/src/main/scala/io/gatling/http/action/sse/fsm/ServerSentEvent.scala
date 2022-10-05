@@ -17,7 +17,7 @@
 package io.gatling.http.action.sse.fsm
 
 import io.gatling.core.json.Json
-import io.gatling.netty.util.StringBuilderPool
+import io.gatling.jva.util.StringBuilderPool
 
 final case class ServerSentEvent(
     name: Option[String],
