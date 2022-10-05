@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.ByteBufs._
 import io.gatling.commons.util.FastByteArrayInputStream
 import io.gatling.netty.util.ByteBufUtils._
 
@@ -89,7 +88,7 @@ private[gatling] final class ByteBufsResponseBody(override val length: Int, chun
     byteBuf2Chars(charset, chunks.map(_.duplicate): _*)
 
   override lazy val bytes: Array[Byte] =
-    byteBufsToByteArray(chunks.map(_.duplicate))
+    byteBufs2Bytes(chunks.map(_.duplicate): _*)
 
   override def stream: InputStream =
     new SequenceInputStream(chunks.map(chunk => new ByteBufInputStream(chunk.duplicate)).iterator.asJavaEnumeration)

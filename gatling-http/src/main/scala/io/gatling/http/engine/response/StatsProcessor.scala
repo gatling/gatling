@@ -22,7 +22,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util._
-import io.gatling.netty.util.StringBuilderPool
+import io.gatling.jva.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 

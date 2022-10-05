@@ -36,7 +36,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
 import io.gatling.core.util.Html
-import io.gatling.netty.util.StringBuilderPool
+import io.gatling.jva.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 
