@@ -22,23 +22,11 @@ import scala.util.Properties._
 
 private[compiler] object ConfigUtils {
 
-  // WARN copied from io.gatling.commons.util.PathHelper
-  implicit def string2path(pathString: String): Path = Paths.get(pathString)
-
-  implicit class RichPath(val path: Path) extends AnyVal {
-
-    def /(pathString: String): Path = path.resolve(pathString)
-
-    def /(other: Path): Path = path.resolve(other)
-
-    def exists: Boolean = Files.exists(path)
-  }
-
   // WARN copied from io.gatling.core.config.GatlingFiles
   val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   def resolvePath(path: Path): Path =
-    (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
+    (if (path.isAbsolute || Files.exists(path)) path else GatlingHome.resolve(path)).normalize().toAbsolutePath
 
   def string2option(string: String): Option[String] = string.trim match {
     case "" => None

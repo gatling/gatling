@@ -18,13 +18,13 @@ package io.gatling.charts.stats
 
 import java.io.InputStream
 import java.nio.ByteBuffer
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.util.Base64
 
 import scala.collection.mutable
 import scala.io.Source
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
@@ -41,7 +41,8 @@ private[gatling] object LogFileReader extends StrictLogging {
   private val SimulationFilesNamePattern = """.*\.log"""
 
   def apply(runUuid: String, configuration: GatlingConfiguration): LogFileReader = {
-    val inputFiles = simulationLogDirectory(runUuid, create = false, configuration).files
+    val inputFiles = PathHelper
+      .files(simulationLogDirectory(runUuid, create = false, configuration))
       .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
 
     logger.info(s"Collected $inputFiles from $runUuid")
@@ -77,7 +78,7 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
     def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
       streams.map(Source.fromInputStream(_)(configuration.core.charset).getLines()).reduce((first, second) => first ++ second)
 
-    val streams = inputFiles.map(_.inputStream)
+    val streams = inputFiles.map(path => Files.newInputStream(path))
     try f(multipleFileIterator(streams))
     finally streams.foreach(_.close)
   }

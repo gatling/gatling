@@ -23,7 +23,6 @@ import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.Base64
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.StringHelper._
@@ -39,7 +38,7 @@ object BufferedFileChannelWriter {
 
   def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
     val encoder = configuration.core.charset.newEncoder
-    val simulationLog = simulationLogDirectory(runId, create = true, configuration) / "simulation.log"
+    val simulationLog = simulationLogDirectory(runId, create = true, configuration).resolve("simulation.log")
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
 

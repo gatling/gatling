@@ -23,6 +23,7 @@ import java.nio.file.Path
 import scala.util.Properties
 
 import io.gatling.app.{ JavaSimulation, SimulationClass }
+import io.gatling.commons.shared.unstable.util.PathHelper
 import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
@@ -43,15 +44,16 @@ private[gatling] object SimulationClassLoader {
 
 private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
 
-  def simulationClasses: List[SimulationClass] =
-    binaryDir
-      .deepFiles(_.path.hasExtension("class"))
+  def simulationClasses: List[SimulationClass] = {
+    PathHelper
+      .deepFiles(binaryDir, _.path.hasExtension("class"))
       .map(file => classLoader.loadClass(pathToClassName(file.path, binaryDir)))
       .collect {
         case clazz if isScalaSimulationClass(clazz) => SimulationClass.Scala(clazz.asInstanceOf[Class[Simulation]])
         case clazz if isJavaSimulationClass(clazz)  => SimulationClass.Java(clazz.asInstanceOf[Class[JavaSimulation]])
       }
       .toList
+  }
 
   private def isConcreteClass(clazz: Class[_]): Boolean =
     !(clazz.isInterface || Modifier.isAbstract(clazz.getModifiers))
@@ -63,7 +65,9 @@ private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir
     classOf[JavaSimulation].isAssignableFrom(clazz) && isConcreteClass(clazz)
 
   private def pathToClassName(path: Path, root: Path): String =
-    (path.getParent / path.stripExtension).toString
+    path.getParent
+      .resolve(path.stripExtension)
+      .toString
       .stripPrefix(root.toString + File.separator)
       .replace(File.separator, ".")
 }

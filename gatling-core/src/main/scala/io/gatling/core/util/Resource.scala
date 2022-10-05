@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 import scala.util.Using
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Io._
 import io.gatling.commons.validation._
 
@@ -68,18 +67,28 @@ object Resource {
   private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       location.customDirectory.flatMap { customDirectory =>
-        (customDirectory / location.path).ifFile { f =>
-          if (f.canRead)
-            FilesystemResource(f).success
+        val path = customDirectory.resolve(location.path)
+        if (Files.isRegularFile(path)) {
+          val file = path.toFile
+          if (file.canRead)
+            Some(FilesystemResource(file).success)
           else
-            s"File $f can't be read".failure
+            Some(s"File $file can't be read".failure)
+        } else {
+          None
         }
       }
   }
 
   private object AbsoluteFileResource {
-    def unapply(location: Location): Option[Validation[Resource]] =
-      Paths.get(location.path).ifFile(FilesystemResource(_).success)
+    def unapply(location: Location): Option[Validation[Resource]] = {
+      val path = Paths.get(location.path)
+      if (Files.isRegularFile(path)) {
+        Some(FilesystemResource(path.toFile).success)
+      } else {
+        None
+      }
+    }
   }
 
   private[gatling] def resolveResource(customDirectory: Option[Path], path: String): Validation[Resource] =

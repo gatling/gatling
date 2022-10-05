@@ -16,55 +16,74 @@
 
 package io.gatling.commons.shared.unstable.util
 
-import java.io._
-import java.nio.charset.Charset
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
 import scala.jdk.CollectionConverters._
 
-// can't extend Path, even if interface is public
-// Files.newInputStream would crash with a java.nio.file.ProviderMismatchException
-final case class CachingPath(path: Path) {
-
-  override def toString: String = path.toString
-
-  lazy val filename: String = path.getFileName.toString
-}
-
 object PathHelper {
 
+  // can't extend Path, even if interface is public
+  // Files.newInputStream would crash with a java.nio.file.ProviderMismatchException
+  final case class CachingPath(path: Path) {
+
+    override def toString: String = path.toString
+
+    lazy val filename: String = path.getFileName.toString
+  }
+
+  def deepDirs(path: Path): Seq[CachingPath] = deepDirs(path, _ => true)
+
+  def deepDirs(path: Path, f: CachingPath => Boolean): Seq[CachingPath] =
+    if (Files.exists(path)) {
+      val acc = new collection.mutable.ArrayBuffer[CachingPath]
+      Files.walkFileTree(
+        path,
+        new SimpleFileVisitor[Path] {
+          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            val cachingPath = CachingPath(dir)
+            if (f(cachingPath))
+              acc += cachingPath
+            super.preVisitDirectory(path, attrs)
+          }
+        }
+      )
+      acc.toSeq
+    } else {
+      Nil
+    }
+
+  def deepFiles(path: Path): Seq[CachingPath] = deepFiles(path, _ => true)
+
+  def deepFiles(path: Path, f: CachingPath => Boolean): Seq[CachingPath] =
+    if (Files.exists(path)) {
+      val acc = new collection.mutable.ArrayBuffer[CachingPath]
+      Files.walkFileTree(
+        path,
+        new SimpleFileVisitor[Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            val cachingPath = CachingPath(file)
+            if (f(cachingPath))
+              acc += cachingPath
+            super.visitFile(path, attrs)
+          }
+        }
+      )
+      acc.toSeq
+    } else {
+      Nil
+    }
+
+  def files(path: Path): Seq[CachingPath] =
+    Files
+      .list(path)
+      .iterator
+      .asScala
+      .filter(file => !Files.isDirectory(file))
+      .map(CachingPath(_))
+      .toList
+
   implicit class RichPath(val path: Path) extends AnyVal {
-
-    def /(pathString: String): Path = path.resolve(pathString)
-
-    def /(other: Path): Path = path.resolve(other)
-
-    def filename: String = path.getFileName.toString
-
-    def exists: Boolean = Files.exists(path)
-
-    def mkdirs(): Path = Files.createDirectories(path)
-
-    def createFile(): Path = Files.createFile(path)
-
-    def delete(): Unit = Files.delete(path)
-
-    def inputStream: InputStream = Files.newInputStream(path)
-
-    def outputStream: OutputStream = Files.newOutputStream(path)
-
-    def isFile: Boolean = Files.isRegularFile(path)
-
-    def isDirectory: Boolean = Files.isDirectory(path)
-
-    def segments: List[Path] = path.iterator.asScala.toList
-
-    def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
-
-    def writer(charset: Charset): Writer = Files.newBufferedWriter(path, charset)
-
-    def copyTo(other: Path, options: CopyOption*): Path = Files.copy(path, other, options: _*)
 
     def extension: String = {
       val pathString = path.toString
@@ -75,47 +94,6 @@ object PathHelper {
     def hasExtension(ext: String): Boolean =
       extension.equalsIgnoreCase(ext)
 
-    def stripExtension: String = filename.stripSuffix("." + extension)
-
-    def deepFiles(f: CachingPath => Boolean): Seq[CachingPath] = deepFiles(f, Int.MaxValue)
-    def deepFiles(f: CachingPath => Boolean, maxDepth: Int): Seq[CachingPath] =
-      if (path.exists) {
-        val acc = new collection.mutable.ArrayBuffer[CachingPath]
-        Files.walkFileTree(
-          path,
-          new SimpleFileVisitor[Path] {
-            override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-              val cachingPath = CachingPath(file)
-              if (f(cachingPath))
-                acc += cachingPath
-              super.visitFile(path, attrs)
-            }
-          }
-        )
-        acc.toSeq
-      } else {
-        Nil
-      }
-
-    def files: Seq[CachingPath] = deepFiles(_ => true, maxDepth = 1)
-
-    def deepDirs(f: CachingPath => Boolean): Seq[CachingPath] =
-      if (path.exists) {
-        val acc = new collection.mutable.ArrayBuffer[CachingPath]
-        Files.walkFileTree(
-          path,
-          new SimpleFileVisitor[Path] {
-            override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
-              val cachingPath = CachingPath(dir)
-              if (f(cachingPath))
-                acc += cachingPath
-              super.preVisitDirectory(path, attrs)
-            }
-          }
-        )
-        acc.toSeq
-      } else {
-        Nil
-      }
+    def stripExtension: String = path.getFileName.toString.stripSuffix("." + extension)
   }
 }

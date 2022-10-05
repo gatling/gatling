@@ -16,31 +16,29 @@
 
 package io.gatling.core.config
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.{ Files, Path, Paths }
 
 import scala.util.Properties.{ envOrElse, propOrElse }
-
-import io.gatling.commons.shared.unstable.util.PathHelper._
 
 object GatlingFiles {
 
   private val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   private[gatling] def resolvePath(path: Path): Path =
-    (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize.toAbsolutePath
+    (if (path.isAbsolute || Files.exists(path)) path else GatlingHome.resolve(path)).normalize.toAbsolutePath
 
   def customResourcesDirectory(configuration: GatlingConfiguration): Option[Path] = configuration.core.directory.customResources.map(resolvePath)
   def binariesDirectory(configuration: GatlingConfiguration): Path =
-    configuration.core.directory.binaries.map(resolvePath).getOrElse(GatlingHome / "target" / "test-classes")
-  def resultDirectory(runUuid: String, configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results) / runUuid
+    configuration.core.directory.binaries.map(resolvePath).getOrElse(GatlingHome.resolve("target").resolve("test-classes"))
+  def resultDirectory(runUuid: String, configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results).resolve(runUuid)
 
   def simulationLogDirectory(runUuid: String, create: Boolean, configuration: GatlingConfiguration): Path = {
     val dir = resultDirectory(runUuid, configuration)
     if (create) {
-      dir.mkdirs()
+      Files.createDirectories(dir)
     } else {
-      require(dir.toFile.exists, s"simulation directory '$dir' doesn't exist")
-      require(dir.toFile.isDirectory, s"simulation directory '$dir' is not a directory")
+      require(Files.exists(dir), s"simulation directory '$dir' doesn't exist")
+      require(Files.isDirectory(dir), s"simulation directory '$dir' is not a directory")
       dir
     }
   }

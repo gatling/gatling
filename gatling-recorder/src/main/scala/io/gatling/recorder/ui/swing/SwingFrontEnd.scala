@@ -21,7 +21,7 @@ import java.nio.file.Paths
 import scala.swing.Dialog
 import scala.swing.Swing._
 
-import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }
@@ -58,7 +58,7 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
         val selector = new DialogFileSelector(configurationFrame, possibleMatches)
         selector.open()
         val parentPath = Paths.get(harFilePath).getParent
-        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString))
+        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => parentPath.resolve(file).toString))
       }
     }
   }
@@ -113,6 +113,6 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
 
   private def lookupFiles(path: String): List[String] = {
     val parent = Paths.get(path).getParent
-    parent.files.filter(_.path.startsWith(path)).map(_.path.filename).toList
+    PathHelper.files(parent).collect { case p if p.path.startsWith(path) => p.filename }.toList
   }
 }

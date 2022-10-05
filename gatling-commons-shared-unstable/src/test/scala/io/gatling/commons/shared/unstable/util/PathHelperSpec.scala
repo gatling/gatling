@@ -32,16 +32,16 @@ class PathHelperSpec extends AnyFlatSpecLike with Matchers {
   }
 
   it should "return the file extension if the specified path has one" in {
-    (root / "foo.json").extension shouldBe "json"
+    root.resolve("foo.json").extension shouldBe "json"
   }
 
   "hasExtension" should "return true if the file has one of the specified extension, ignoring case" in {
-    (root / "foo.json").hasExtension("json") shouldBe true
-    (root / "foo.json").hasExtension("JSON") shouldBe true
+    root.resolve("foo.json").hasExtension("json") shouldBe true
+    root.resolve("foo.json").hasExtension("JSON") shouldBe true
   }
 
   it should "return false if the file has none of the specified extensions" in {
-    (root / "foo.json").hasExtension("sql") shouldBe false
+    root.resolve("foo.json").hasExtension("sql") shouldBe false
   }
 
   "stripExtension" should "not modify the path if it has no extension" in {
