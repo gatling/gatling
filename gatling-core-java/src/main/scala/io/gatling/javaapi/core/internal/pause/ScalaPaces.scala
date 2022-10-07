@@ -29,7 +29,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.pause.Paces
 
 object ScalaPaces {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Paces[T, W],
       duration: Duration,

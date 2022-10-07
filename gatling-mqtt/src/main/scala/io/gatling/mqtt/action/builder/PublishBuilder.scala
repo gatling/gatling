@@ -43,7 +43,6 @@ case class PublishBuilder(
     expectation: Option[MqttExpectation]
 ) extends MqttActionBuilder
     with StrictLogging {
-
   def qosAtMostOnce: PublishBuilder = qos(MqttQoS.AT_MOST_ONCE)
   def qosAtLeastOnce: PublishBuilder = qos(MqttQoS.AT_LEAST_ONCE)
   def qosExactlyOnce: PublishBuilder = qos(MqttQoS.EXACTLY_ONCE)

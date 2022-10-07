@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 import io.gatling.core.config.GatlingConfiguration
 
 object Predef extends CoreDsl {
-
   private[gatling] var _configuration: GatlingConfiguration = _
   implicit def configuration: GatlingConfiguration = {
     if (_configuration == null) {
@@ -38,10 +37,10 @@ object Predef extends CoreDsl {
 
   /**
    * Offers the same implicits conversions as scala.concurrent.duration.DurationInt for java.lang.Integer.
-   * @param i the Java's integer that will converted to scala.concurrent.duration.FiniteDuration
+   * @param i
+   *   the Java's integer that will converted to scala.concurrent.duration.FiniteDuration
    */
   implicit class DurationInteger(val i: Integer) extends AnyVal {
-
     def nanoseconds: FiniteDuration = i.intValue.nanoseconds
     def nanos: FiniteDuration = i.intValue.nanos
     def nanosecond: FiniteDuration = i.intValue.nanosecond
@@ -72,10 +71,10 @@ object Predef extends CoreDsl {
 
   /**
    * Offers the same implicits conversions as scala.concurrent.duration.DurationInt for java.lang.Long.
-   * @param l the Java's Long that will converted to scala.concurrent.duration.FiniteDuration
+   * @param l
+   *   the Java's Long that will converted to scala.concurrent.duration.FiniteDuration
    */
   implicit class DurationJLong(val l: java.lang.Long) extends AnyVal {
-
     def nanoseconds: FiniteDuration = l.longValue.nanoseconds
     def nanos: FiniteDuration = l.longValue.nanos
     def nanosecond: FiniteDuration = l.longValue.nanosecond

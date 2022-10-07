@@ -16,7 +16,7 @@
 
 package io.gatling.commons
 
-import scala.util.{ Try, Failure => TFailure, Success => TSuccess }
+import scala.util.{ Failure => TFailure, Success => TSuccess, Try }
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
@@ -24,7 +24,6 @@ import io.gatling.commons.util.Throwables._
 import com.typesafe.scalalogging.StrictLogging
 
 package object validation extends StrictLogging {
-
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def safely[T](errorMapper: String => String = identity)(f: => Validation[T]): Validation[T] =
     try {

@@ -20,7 +20,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class InjectionSampleScala extends Simulation {
-
   private val httpProtocol = http
   private val scn = scenario("scenario")
 

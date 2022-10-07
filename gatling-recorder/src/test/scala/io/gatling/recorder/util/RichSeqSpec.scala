@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.recorder.util.collection._
 
 class RichSeqSpec extends BaseSpec {
-
   "groupAsLongAs()" should "group elements as long as the predicate applies" in {
     val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)
     val expectedReqs = List(

@@ -23,9 +23,7 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.controller.inject.Injector._
 
 class UserStreamSpec extends BaseSpec {
-
   "UserStream" should "stream users properly over a long period" in {
-
     val expectedTotalUsers = 9000
     val expectedDuration = 9.hours
     val ramp = RampOpenInjection(expectedTotalUsers, expectedDuration)
@@ -58,11 +56,10 @@ class UserStreamSpec extends BaseSpec {
     injectedUsers shouldBe expectedTotalUsers
 
     val lastSchedulingOffset = lastBatchMaxOffset + lastBatchTimeSinceStart.millis
-    lastSchedulingOffset.toMillis shouldBe expectedDuration.toMillis +- (4.seconds).toMillis
+    lastSchedulingOffset.toMillis shouldBe expectedDuration.toMillis +- 4.seconds.toMillis
   }
 
   it should "continue injecting after first batch" in {
-
     val ramp = RampOpenInjection(144000000 / 30, 18000.seconds)
 
     val startTime = new DefaultClock().nowMillis

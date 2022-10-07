@@ -21,7 +21,6 @@ import io.gatling.core.json.JsonParsers
 import com.fasterxml.jackson.databind.JsonNode
 
 trait JsonSample {
-
   def value: String
 
   def jacksonAST(jsonParsers: JsonParsers): JsonNode = jsonParsers.parse(value)

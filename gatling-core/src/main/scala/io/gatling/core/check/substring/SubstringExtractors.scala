@@ -23,7 +23,6 @@ import io.gatling.core.check._
 
 object SubstringExtractors {
   private def extractAll(prepared: String, criterion: String): List[Int] = {
-
     @tailrec
     def loop(fromIndex: Int, is: List[Int]): List[Int] =
       if (fromIndex >= prepared.length)
@@ -43,7 +42,6 @@ object SubstringExtractors {
       pattern,
       occurrence,
       text => {
-
         @tailrec
         def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
           if (fromIndex >= pattern.length)

@@ -27,7 +27,6 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 
 private[structure] trait Loops[B] extends Execs[B] {
-
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
     simpleLoop(
@@ -40,7 +39,6 @@ private[structure] trait Loops[B] extends Execs[B] {
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
-
     val exposeCurrentValue =
       new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)
 

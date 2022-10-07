@@ -29,7 +29,6 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 
 trait TypeCaster[T] {
-
   protected def cceMessage(key: String, value: Any, clazz: Class[_]): String =
     if (key == null) {
       s"Can't cast '$value' of type ${value.getClass} into $clazz"
@@ -49,9 +48,7 @@ trait TypeCaster[T] {
 }
 
 trait LowPriorityTypeCaster {
-
   implicit def genericTypeCaster[T: ClassTag]: TypeCaster[T] = new TypeCaster[T] {
-
     override def cast(key: String, value: Any): T = {
       val valueClass = value.getClass
       val targetClass = implicitly[ClassTag[T]].runtimeClass
@@ -73,7 +70,6 @@ trait LowPriorityTypeCaster {
 }
 
 object TypeCaster extends LowPriorityTypeCaster {
-
   private def parseErrorMessage(key: String, value: String, clazz: Class[_], t: Throwable): String =
     if (key == null) {
       s"Can't parse '$value' into $clazz: ${t.detailedMessage}"
@@ -96,7 +92,6 @@ object TypeCaster extends LowPriorityTypeCaster {
     }
 
   implicit val BooleanCaster: TypeCaster[Boolean] = new TypeCaster[Boolean] {
-
     @throws[ClassCastException]
     override def cast(key: String, value: Any): Boolean =
       value match {
@@ -114,7 +109,6 @@ object TypeCaster extends LowPriorityTypeCaster {
   }
 
   implicit val ByteCaster: TypeCaster[Byte] = new TypeCaster[Byte] {
-
     @throws[ClassCastException]
     override def cast(key: String, value: Any): Byte =
       value match {
@@ -311,7 +305,6 @@ object TypeCaster extends LowPriorityTypeCaster {
 }
 
 object TypeHelper {
-
   private def nullValueMessage(key: String): String =
     if (key == null) "Value is null" else s"Attribute $key's value is null"
 

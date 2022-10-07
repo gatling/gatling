@@ -26,7 +26,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.DoWhile
 
 object ScalaDoWhile {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoWhile[T, W],
       condition: String,
@@ -46,7 +45,6 @@ object ScalaDoWhile {
       condition: Expression[Boolean],
       counterName: String
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.doWhile(condition, counterName)(chain.wrapped))
   }

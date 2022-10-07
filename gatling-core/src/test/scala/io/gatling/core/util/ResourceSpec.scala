@@ -19,7 +19,6 @@ package io.gatling.core.util
 import io.gatling.BaseSpec
 
 class ResourceSpec extends BaseSpec {
-
   "cleanResourcePath" should "leave correct path unchanged" in {
     Resource.cleanResourcePath("data/file.csv") shouldBe "data/file.csv"
   }

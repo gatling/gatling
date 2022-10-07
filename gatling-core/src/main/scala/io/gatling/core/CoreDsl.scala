@@ -39,7 +39,6 @@ trait CoreDsl
     with BodySupport
     with CoreDefaultImplicits
     with ValidationImplicits {
-
   def scenario(name: String): ScenarioBuilder = new ScenarioBuilder(name.replaceAll("[\r\n\t]", " ").trim, Nil)
 
   @deprecated("Will be removed in a future release. Please use AllowList instead.", "3.7.0")

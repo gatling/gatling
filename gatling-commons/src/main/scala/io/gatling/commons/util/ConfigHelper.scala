@@ -21,18 +21,18 @@ import com.typesafe.config.Config
 object ConfigHelper {
 
   /**
-   * Creates a configuration with a series of fallback configurations
-   * in which config keys will be looked up.
-   * @param config the root configuration
-   * @param fallbacks the list of fallback configurations, ordered by their precedence in
-   *                  the fallback chain.
-   * @return the configuration with its fallback configs configured
+   * Creates a configuration with a series of fallback configurations in which config keys will be looked up.
+   * @param config
+   *   the root configuration
+   * @param fallbacks
+   *   the list of fallback configurations, ordered by their precedence in the fallback chain.
+   * @return
+   *   the configuration with its fallback configs configured
    */
   def configChain(config: Config, fallbacks: Config*): Config =
     fallbacks.foldLeft(config)(_ withFallback _).resolve
 
   implicit class PimpedConfig(val config: Config) extends AnyVal {
-
     def withChild[T](path: String)(f: Config => T): T = f(config.getConfig(path))
 
     def getStringOption(path: String): Option[String] =

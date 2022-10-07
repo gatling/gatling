@@ -20,7 +20,6 @@ import io.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
 import io.gatling.core.session.{ Expression, Session }
 
 private[structure] trait Execs[B] {
-
   protected def actionBuilders: List[ActionBuilder]
   protected def chain(newActionBuilders: Seq[ActionBuilder]): B
 

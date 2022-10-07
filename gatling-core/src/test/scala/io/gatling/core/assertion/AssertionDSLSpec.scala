@@ -21,9 +21,7 @@ import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
 class AssertionDSLSpec extends BaseSpec with AssertionSupport {
-
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {
-
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
     global.responseTime.min.is(100) shouldBe Assertion(Global, TimeTarget(ResponseTime, Min), Is(100))

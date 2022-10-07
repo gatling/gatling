@@ -64,11 +64,9 @@ object Tracker {
 }
 
 /**
- * Bookkeeping actor to correlate request and response JMS messages
- * Once a message is correlated, it publishes to the Gatling core DataWriter
+ * Bookkeeping actor to correlate request and response JMS messages Once a message is correlated, it publishes to the Gatling core DataWriter
  */
 class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor with Timers {
-
   private val sentMessages = mutable.HashMap.empty[String, MessageSent]
   private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
   private var periodicTimeoutScanTriggered = false

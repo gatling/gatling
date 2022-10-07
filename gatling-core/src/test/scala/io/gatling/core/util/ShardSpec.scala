@@ -21,7 +21,6 @@ import io.gatling.BaseSpec
 import org.scalacheck.Gen
 
 class ShardSpec extends BaseSpec {
-
   "Shard.shards" should "return the proper count" in {
     forAll(Gen.choose(1, Int.MaxValue)) { total =>
       whenever(total >= 1) {

@@ -22,7 +22,6 @@ import io.gatling.core.stats.StatsEngine
 
 private final class Switch(nextAction: Expression[Action], val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action)
     extends ExitableAction {
-
   override def execute(session: Session): Unit = recover(session) {
     nextAction(session).map(_ ! session)
   }

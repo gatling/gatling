@@ -21,7 +21,6 @@ import java.util.concurrent.ThreadLocalRandom
 import io.gatling.commons.util.Spire._
 
 object Arrays {
-
   private def swap[T](array: Array[T], i: Int, j: Int): Unit = {
     val tmp = array(i)
     array(i) = array(j)

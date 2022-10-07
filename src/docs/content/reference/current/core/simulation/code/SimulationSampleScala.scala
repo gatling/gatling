@@ -29,7 +29,6 @@ import scala.concurrent.duration._
 //#imports
 
 class SimulationSampleScala extends Simulation {
-
   val httpProtocol, httpProtocol1, httpProtocol2 = http
 
 //#setUp

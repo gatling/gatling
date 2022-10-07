@@ -26,7 +26,6 @@ import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaDoIfOrElse {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](context: DoIfOrElse[T, W], condition: String): Then[T, W] =
     new Then(context, condition.el)
 

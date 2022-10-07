@@ -26,7 +26,8 @@ private[structure] trait Feeds[B] extends Execs[B] {
   /**
    * Chain an action that will inject a single data record into the virtual users' Session
    *
-   * @param feederBuilder a factory of a source of records
+   * @param feederBuilder
+   *   a factory of a source of records
    */
   def feed(feederBuilder: FeederBuilder): B =
     feed0(feederBuilder, System.identityHashCode(feederBuilder), None)
@@ -34,8 +35,10 @@ private[structure] trait Feeds[B] extends Execs[B] {
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
    *
-   * @param feederBuilder a factory of a source of records
-   * @param number the number of records to be injected
+   * @param feederBuilder
+   *   a factory of a source of records
+   * @param number
+   *   the number of records to be injected
    */
   def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
     feed0(feederBuilder, System.identityHashCode(feederBuilder), Some(number))
@@ -46,7 +49,8 @@ private[structure] trait Feeds[B] extends Execs[B] {
   /**
    * Chain an action that will inject a single data record into the virtual users' Session
    *
-   * @param feeder a source of records
+   * @param feeder
+   *   a source of records
    */
   def feed(feeder: Feeder[Any]): B =
     feed0(feeder, System.identityHashCode(feeder), None)
@@ -54,8 +58,10 @@ private[structure] trait Feeds[B] extends Execs[B] {
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
    *
-   * @param feeder a source of records
-   * @param number the number of records to be injected
+   * @param feeder
+   *   a source of records
+   * @param number
+   *   the number of records to be injected
    */
   def feed(feeder: Feeder[Any], number: String): B =
     feed0(feeder, System.identityHashCode(feeder), Some(number.el[Int]))
@@ -63,8 +69,10 @@ private[structure] trait Feeds[B] extends Execs[B] {
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
    *
-   * @param feeder a source of records
-   * @param number the number of records to be injected
+   * @param feeder
+   *   a source of records
+   * @param number
+   *   the number of records to be injected
    */
   def feed(feeder: Feeder[Any], number: Expression[Int]): B =
     feed0(feeder, System.identityHashCode(feeder), Some(number))

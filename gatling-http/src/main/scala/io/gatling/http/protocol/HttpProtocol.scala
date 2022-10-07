@@ -42,9 +42,7 @@ import io.gatling.http.fetch.InferredResourceNaming
 import com.typesafe.scalalogging.StrictLogging
 
 object HttpProtocol extends StrictLogging {
-
   val HttpProtocolKey: ProtocolKey[HttpProtocol, HttpComponents] = new ProtocolKey[HttpProtocol, HttpComponents] {
-
     override def protocolClass: Class[Protocol] = classOf[HttpProtocol].asInstanceOf[Class[Protocol]]
 
     override def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
@@ -125,14 +123,22 @@ object HttpProtocol extends StrictLogging {
 /**
  * Class containing the configuration for the HTTP protocol
  *
- * @param baseUrls the radixes of all the URLs that will be used (eg: http://mywebsite.tld)
- * @param warmUpUrl the url used to load the TCP stack
- * @param enginePart the HTTP engine related configuration
- * @param requestPart the request related configuration
- * @param responsePart the response related configuration
- * @param wsPart the WebSocket related configuration
- * @param proxyPart the Proxy related configuration
- * @param dnsPart the DNS related configuration
+ * @param baseUrls
+ *   the radixes of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param warmUpUrl
+ *   the url used to load the TCP stack
+ * @param enginePart
+ *   the HTTP engine related configuration
+ * @param requestPart
+ *   the request related configuration
+ * @param responsePart
+ *   the response related configuration
+ * @param wsPart
+ *   the WebSocket related configuration
+ * @param proxyPart
+ *   the Proxy related configuration
+ * @param dnsPart
+ *   the DNS related configuration
  */
 final case class HttpProtocol(
     baseUrls: List[String],
@@ -144,7 +150,6 @@ final case class HttpProtocol(
     proxyPart: HttpProtocolProxyPart,
     dnsPart: HttpProtocolDnsPart
 ) extends Protocol {
-
   type Components = HttpComponents
 }
 

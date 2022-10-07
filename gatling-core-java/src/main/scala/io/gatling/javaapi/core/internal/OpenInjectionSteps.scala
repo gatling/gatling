@@ -19,11 +19,9 @@ package io.gatling.javaapi.core.internal
 import io.gatling.core.controller.inject.open.OpenInjectionBuilder
 
 /**
- * Helper because IntelliJ doesn't properly interpret deeply nested objects from Java.
- * To be removed if this bug is ever fixed.
+ * Helper because IntelliJ doesn't properly interpret deeply nested objects from Java. To be removed if this bug is ever fixed.
  */
 object OpenInjectionSteps {
-
   def newRampRateTo(from: Double, to: Double): OpenInjectionBuilder.RampRate.During =
     OpenInjectionBuilder.RampRate.To(from).to(to)
 

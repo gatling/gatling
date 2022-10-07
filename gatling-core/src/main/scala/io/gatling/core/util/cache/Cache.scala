@@ -23,7 +23,6 @@ import scala.collection.immutable.Queue
 import com.github.benmanes.caffeine.cache.{ Caffeine, LoadingCache }
 
 object Cache {
-
   def newConcurrentCache[K, V](maxSize: Long): ConcurrentMap[K, V] =
     Caffeine.newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
@@ -41,29 +40,24 @@ object Cache {
 }
 
 class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
-
-  def put(key: K, value: V): Cache[K, V] = {
+  def put(key: K, value: V): Cache[K, V] =
     if (map.get(key).contains(value) || maxCapacity == 0) {
       this
-
     } else if (map.sizeIs == maxCapacity) {
       val (removedKey, newQueue) = queue.dequeue
       val newMap = map - removedKey + (key -> value)
       new Cache(newQueue.enqueue(key), newMap, maxCapacity)
-
     } else {
       val newQueue = queue.enqueue(key)
       val newMap = map + (key -> value)
       new Cache(newQueue, newMap, maxCapacity)
     }
-  }
 
   def remove(key: K): Cache[K, V] =
     if (map.contains(key)) {
       val newQueue = queue.filter(_ != key)
       val newMap = map - key
       new Cache(newQueue, newMap, maxCapacity)
-
     } else {
       this
     }

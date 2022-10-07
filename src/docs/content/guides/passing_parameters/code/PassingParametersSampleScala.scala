@@ -17,7 +17,6 @@
 import io.gatling.core.Predef._
 
 class PassingParametersSampleScala extends Simulation {
-
 val scn = scenario("foo")
 
 //#injection-from-props

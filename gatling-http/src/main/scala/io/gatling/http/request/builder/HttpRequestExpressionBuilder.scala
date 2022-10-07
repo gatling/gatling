@@ -40,7 +40,6 @@ import io.gatling.http.util.HttpHelper
 import io.netty.handler.codec.http.HttpHeaderNames
 
 object HttpRequestExpressionBuilder {
-
   private val bodyPartsToMultipartsZero = List.empty[Part[_]].success
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
@@ -60,7 +59,6 @@ class HttpRequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
-
   import RequestExpressionBuilder._
 
   private def mergeFormParamsAndFormIntoParamJList(
@@ -118,8 +116,8 @@ class HttpRequestExpressionBuilder(
           requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
       case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b, null)))
-      case body: ElBody         => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
-      case InputStreamBody(is)  => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
+      case body: ElBody => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
+      case InputStreamBody(is) => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
     }
 
   private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
@@ -143,7 +141,7 @@ class HttpRequestExpressionBuilder(
     }
   }
 
-  private val configurePriorKnowledge: RequestBuilderConfigure = {
+  private val configurePriorKnowledge: RequestBuilderConfigure =
     if (httpProtocol.enginePart.enableHttp2) { session => requestBuilder =>
       val http2PriorKnowledge = Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
       requestBuilder
@@ -154,7 +152,6 @@ class HttpRequestExpressionBuilder(
     } else {
       ConfigureIdentity
     }
-  }
 
   override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
     requestBuilder.setRequestTimeout(httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis)

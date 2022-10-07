@@ -26,7 +26,6 @@ import akka.actor.ActorRef
 import io.netty.channel.ChannelHandler
 
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
-
   def start(): Unit
 
   def stop(controller: ActorRef, exception: Option[Exception]): Unit

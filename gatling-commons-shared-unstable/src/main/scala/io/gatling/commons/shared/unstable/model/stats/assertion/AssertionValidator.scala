@@ -22,7 +22,6 @@ import io.gatling.commons.stats._
 import io.gatling.commons.stats.assertion._
 
 object AssertionValidator {
-
   type StatsByStatus = Option[Status] => GeneralStats
 
   def validateAssertions(dataReader: GeneralStatsSource): List[AssertionResult] =
@@ -30,7 +29,6 @@ object AssertionValidator {
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def validateAssertion(assertion: Assertion, source: GeneralStatsSource): List[AssertionResult] = {
-
     val printablePath = assertion.path.printable
 
     assertion.path match {
@@ -75,7 +73,6 @@ object AssertionValidator {
     }
 
   private def resolveTarget(assertion: Assertion, stats: StatsByStatus, path: String) = {
-
     val printableTarget = assertion.target.printable
 
     assertion.target match {
@@ -98,7 +95,6 @@ object AssertionValidator {
   }
 
   private def resolveCountTargetActualValue(target: CountTarget, stats: StatsByStatus): Long = {
-
     val resolvedStats = target.metric match {
       case AllRequests        => stats(None)
       case FailedRequests     => stats(Some(KO))
@@ -109,7 +105,6 @@ object AssertionValidator {
   }
 
   private def resolvePercentTargetActualValue(target: PercentTarget, stats: StatsByStatus): Double = {
-
     val allCount = stats(None).count
 
     target.metric match {
@@ -130,7 +125,6 @@ object AssertionValidator {
   }
 
   private def resolveTimeTargetActualValue(target: TimeTarget, stats: StatsByStatus): Int = {
-
     val resolvedStats = target.metric match {
       case ResponseTime => stats(None)
     }
@@ -145,7 +139,6 @@ object AssertionValidator {
   }
 
   private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, actualValue: Double): AssertionResult = {
-
     val (result, expectedValueMessage) =
       assertion.condition match {
         case Lt(upper)                    => (actualValue < upper, upper.toString)

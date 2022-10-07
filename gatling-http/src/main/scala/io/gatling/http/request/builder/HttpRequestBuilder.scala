@@ -79,12 +79,12 @@ object HttpRequestBuilder {
 /**
  * This class serves as model for all HttpRequestBuilders
  *
- * @param httpAttributes the base HTTP attributes
+ * @param httpAttributes
+ *   the base HTTP attributes
  */
 final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes)
     extends RequestBuilder[HttpRequestBuilder]
     with HttpActionBuilder {
-
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
   def check(checks: HttpCheck*): HttpRequestBuilder = {
@@ -110,7 +110,8 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def disableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(false)
 
   /**
-   * @param responseTransformer transforms the response before it's handled to the checks pipeline
+   * @param responseTransformer
+   *   transforms the response before it's handled to the checks pipeline
    */
   def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder =
     this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
@@ -171,7 +172,6 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private[http] def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
-
     val requestChecks = httpAttributes.checks
 
     val requestAndProtocolChecks =

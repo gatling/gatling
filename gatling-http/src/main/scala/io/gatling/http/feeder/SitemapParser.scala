@@ -32,15 +32,15 @@ import net.sf.saxon.s9api.XdmNodeKind
  * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
  */
 object SitemapParser {
-
   val LocationTag = "loc"
 
   /**
-   * Parse file in sitemap format. Returns a Record for each location described
-   * in a sitemap file.
+   * Parse file in sitemap format. Returns a Record for each location described in a sitemap file.
    *
-   * @param resource resource to parse
-   * @return a record for each url described in a sitemap file
+   * @param resource
+   *   resource to parse
+   * @return
+   *   a record for each url described in a sitemap file
    */
   def parse(resource: Resource, charset: Charset): IndexedSeq[Record[String]] =
     Using.resource(resource.inputStream) { stream: InputStream =>
@@ -48,14 +48,14 @@ object SitemapParser {
     }
 
   /**
-   * Parse a file in sitemap format. Returns a Record for each location described
-   * in a sitemap file.
+   * Parse a file in sitemap format. Returns a Record for each location described in a sitemap file.
    *
-   * @param inputStream stream for the file to parse
-   * @return a record for each url described in a sitemap file
+   * @param inputStream
+   *   stream for the file to parse
+   * @return
+   *   a record for each url described in a sitemap file
    */
   private[feeder] def parse(inputStream: InputStream, charset: Charset): IndexedSeq[Record[String]] = {
-
     val root = XmlParsers.parse(inputStream, charset)
 
     (for {

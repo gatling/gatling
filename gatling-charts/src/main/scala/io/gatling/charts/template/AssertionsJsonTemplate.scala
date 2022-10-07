@@ -20,7 +20,6 @@ import io.gatling.charts.stats.RunInfo
 import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 
 private[charts] final class AssertionsJsonTemplate(runInfo: RunInfo, scenarioNames: List[String], assertionResults: List[AssertionResult]) {
-
   private[this] def print(assertionResult: AssertionResult): String = {
     import assertionResult._
     s"""{
@@ -34,7 +33,7 @@ private[charts] final class AssertionsJsonTemplate(runInfo: RunInfo, scenarioNam
 }"""
   }
 
-  def getOutput: String = {
+  def getOutput: String =
     s"""{
   "simulation": "${runInfo.simulationClassName}",
   "simulationId": "${runInfo.simulationId}",
@@ -45,5 +44,4 @@ private[charts] final class AssertionsJsonTemplate(runInfo: RunInfo, scenarioNam
 ${assertionResults.map(print).mkString(",\n")}
   ]
 }"""
-  }
 }

@@ -17,7 +17,6 @@
 import io.gatling.core.Predef._
 
 class ComputerDatabaseSampleScala {
-
   val computerDbScn = scenario("Computer Scenario")
 //#print-session-value
 .exec { session =>

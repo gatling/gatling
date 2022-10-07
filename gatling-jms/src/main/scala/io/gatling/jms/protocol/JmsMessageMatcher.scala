@@ -22,8 +22,7 @@ import javax.jms.Message
 import com.eatthepath.uuid.FastUUID
 
 /**
- * define trait for message matching logic with separate request/response
- * to see how it can be used check JmsDefaultMessageMatcher
+ * define trait for message matching logic with separate request/response to see how it can be used check JmsDefaultMessageMatcher
  */
 trait JmsMessageMatcher {
   def prepareRequest(msg: Message): Unit

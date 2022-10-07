@@ -19,7 +19,6 @@ package io.gatling.core.controller.inject.open
 import scala.math.{ abs, log, sqrt }
 
 private object Erf {
-
   private val invP1 = Vector(
     0.160304955844066229311e2,
     -0.90784959262960326650e2,
@@ -89,7 +88,6 @@ private object Erf {
   )
 
   def erfinv(n: Double): Double = {
-
     def evalPolynom(p: Seq[Double], x: Double) = p.reduceRight((c, v) => v * x + c)
 
     def positiveErfinv(u: Double) =

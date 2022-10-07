@@ -30,7 +30,6 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.buffer.{ ByteBuf, ByteBufInputStream }
 
 object ResponseBody {
-
   def apply(bodyLength: Int, chunks: List[ByteBuf], charset: Charset): ResponseBody =
     chunks match {
       case Nil          => NoResponseBody(bodyLength)
@@ -51,7 +50,6 @@ sealed trait ResponseBody {
 private[gatling] final class ByteBufResponseBody(override val length: Int, chunk: ByteBuf, override val charset: Charset)
     extends ResponseBody
     with LazyLogging {
-
   override lazy val string: String =
     try {
       byteBuf2String(charset, chunk.duplicate)
@@ -74,7 +72,6 @@ private[gatling] final class ByteBufResponseBody(override val length: Int, chunk
 private[gatling] final class ByteBufsResponseBody(override val length: Int, chunks: Seq[ByteBuf], override val charset: Charset)
     extends ResponseBody
     with LazyLogging {
-
   override lazy val string: String =
     try {
       byteBuf2String(charset, chunks.map(_.duplicate): _*)
@@ -111,7 +108,6 @@ final class NoResponseBody(val length: Int) extends ResponseBody {
 
 // for ResponseTransformer
 final class StringResponseBody(val string: String, override val charset: Charset) extends ResponseBody {
-
   override def length: Int = bytes.length
 
   override lazy val chars: Array[Char] = string.toCharArray
@@ -123,7 +119,6 @@ final class StringResponseBody(val string: String, override val charset: Charset
 
 // for ResponseTransformer and PollerActor
 final class ByteArrayResponseBody(val bytes: Array[Byte], override val charset: Charset) extends ResponseBody {
-
   override def length: Int = bytes.length
 
   override lazy val string: String = new String(bytes, charset)

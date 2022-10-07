@@ -23,7 +23,6 @@ import boopickle.Default._
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait AssertionGenerator {
-
   private val doubleGen = Arbitrary.arbitrary[Double]
 
   private val pathGen = {
@@ -78,7 +77,6 @@ trait AssertionGenerator {
 }
 
 class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
-
   override implicit val generatorDrivenConfig = PropertyCheckConfiguration(minSuccessful = 300)
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {

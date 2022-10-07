@@ -20,7 +20,6 @@ import java.{ lang => jl }
 import java.io.Writer
 
 private[util] final class FastStringWriter(initialSize: Int) extends Writer {
-
   private val buf: jl.StringBuilder = new jl.StringBuilder(initialSize)
 
   override def write(c: Int): Unit = buf.append(c.toChar)

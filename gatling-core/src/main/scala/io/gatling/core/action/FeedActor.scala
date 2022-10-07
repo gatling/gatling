@@ -32,7 +32,6 @@ private[core] object FeedActor {
 }
 
 private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[String], controller: ActorRef) extends BaseActor {
-
   private def emptyFeederFailure = s"Feeder ${feederName.getOrElse("unknown")} is now empty, stopping engine".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =

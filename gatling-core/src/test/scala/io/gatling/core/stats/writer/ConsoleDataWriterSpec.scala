@@ -25,7 +25,6 @@ import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends BaseSpec {
-
   private val configuration = GatlingConfiguration.loadForTest()
 
   private val time = LocalDateTime.of(2012, Month.SEPTEMBER, 24, 13, 37, 0)
@@ -39,7 +38,6 @@ class ConsoleDataWriterSpec extends BaseSpec {
   private def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(Eol)
 
   "console summary progress bar" should "handle it correctly when all the users are waiting" in {
-
     val counters = new UserCounters(Some(11))
 
     val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
@@ -48,7 +46,6 @@ class ConsoleDataWriterSpec extends BaseSpec {
   }
 
   it should "handle it correctly when all the users are active" in {
-
     val counters = new UserCounters(Some(11))
     for (_ <- 1 to 11) counters.userStart()
 
@@ -58,7 +55,6 @@ class ConsoleDataWriterSpec extends BaseSpec {
   }
 
   it should "handle it correctly when all the users are done" in {
-
     val counters = new UserCounters(Some(11))
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 11) counters.userDone()
@@ -69,7 +65,6 @@ class ConsoleDataWriterSpec extends BaseSpec {
   }
 
   it should "handle it correctly when there are active and done users" in {
-
     val counters = new UserCounters(Some(11))
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 10) counters.userDone()

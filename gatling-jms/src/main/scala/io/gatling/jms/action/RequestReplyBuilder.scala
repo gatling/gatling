@@ -26,7 +26,6 @@ final case class RequestReplyBuilder(
     setJmsReplyTo: Boolean,
     trackerDestination: Option[JmsDestination]
 ) extends JmsActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val jmsComponents = components(ctx.protocolComponentsRegistry)
     new RequestReply(

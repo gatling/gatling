@@ -19,7 +19,6 @@ package io.gatling
 import scala.collection.mutable
 
 package object app {
-
   type ConfigOverrides = mutable.Map[String, _]
 
   type JavaSimulation = io.gatling.javaapi.core.Simulation

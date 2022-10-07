@@ -19,6 +19,5 @@ package io.gatling.javaapi.core
 import java.util.{ function => juf }
 
 package object internal {
-
   type JavaExpression[T] = juf.Function[Session, T]
 }

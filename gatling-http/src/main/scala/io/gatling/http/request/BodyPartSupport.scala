@@ -21,7 +21,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 
 trait BodyPartSupport {
-
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(None, filePath, configuration.core.charset, elFileBodies)
   def ElFileBodyPart(

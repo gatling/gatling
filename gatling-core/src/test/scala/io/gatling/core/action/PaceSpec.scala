@@ -27,7 +27,6 @@ import akka.testkit._
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class PaceSpec extends AkkaSpec {
-
   private val clock = new DefaultClock
 
   private val interval = 3.seconds

@@ -25,7 +25,7 @@ import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
 
 private[bundle] final class RunCommand(config: CommandArguments, args: List[String], displayHelp: () => Unit) {
-  private[bundle] def run(): Unit = {
+  private[bundle] def run(): Unit =
     config.runMode match {
       case Some(runMode) =>
         runMode match {
@@ -41,12 +41,14 @@ private[bundle] final class RunCommand(config: CommandArguments, args: List[Stri
           println("Generating Gatling reports locally")
           new OpenSourceRunCommand(config, args).run()
         } else if (config.batchMode) {
-          throw new IllegalArgumentException(s"""
-                                                |If you're running Gatling in batch mode, you need to set the runMode option:
-                                                |- '--${RunModeOption.full} ${RunLocal.value}' if you want to start the Simulation locally
-                                                |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to upload the Simulation to Gatling Enterprise Cloud, and run it there
-                                                |- '--${RunModeOption.full} ${RunPackage.value}' if you want to package the Simulation for Gatling Enterprise
-                                                |""".stripMargin)
+          throw new IllegalArgumentException(
+            s"""
+               |If you're running Gatling in batch mode, you need to set the runMode option:
+               |- '--${RunModeOption.full} ${RunLocal.value}' if you want to start the Simulation locally
+               |- '--${RunModeOption.full} ${RunEnterprise.value}' if you want to upload the Simulation to Gatling Enterprise Cloud, and run it there
+               |- '--${RunModeOption.full} ${RunPackage.value}' if you want to package the Simulation for Gatling Enterprise
+               |""".stripMargin
+          )
         } else {
           println("Do you want to run the simulation locally, on Gatling Enterprise, or just package it?")
           val inputChoice = new InputChoice(BundleIO)
@@ -65,7 +67,6 @@ private[bundle] final class RunCommand(config: CommandArguments, args: List[Stri
           }
         }
     }
-  }
 
   private def runPackageCommand(): Unit = {
     // best effort: if API token is configured, fetch the actual max supported version, otherwise fallback to Java 17

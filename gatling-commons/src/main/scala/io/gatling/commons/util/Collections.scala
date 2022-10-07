@@ -17,9 +17,7 @@
 package io.gatling.commons.util
 
 object Collections {
-
   implicit class PimpedIterable[A](val seq: Iterable[A]) extends AnyVal {
-
     def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
       var sum = num.zero
       for (x <- seq) sum = num.plus(sum, f(x))

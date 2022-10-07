@@ -20,7 +20,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ScalaAdvancedSimulationStep04 extends Simulation {
-
   val feeder = csv("search.csv").random()
 
   val search =

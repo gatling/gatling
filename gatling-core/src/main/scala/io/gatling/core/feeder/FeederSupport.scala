@@ -30,7 +30,6 @@ import io.gatling.core.json.JsonParsers
 import io.gatling.core.util.ResourceCache
 
 trait FeederSupport extends ResourceCache {
-
   implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
     SourceFeederBuilder(InMemoryFeederSource(data, "in-memory"), configuration)
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =

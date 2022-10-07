@@ -28,7 +28,6 @@ private[gatling] final class LogFileData(
     resultsHolder: ResultsHolder,
     step: Double
 ) extends GeneralStatsSource {
-
   private val secMillisecRatio: Double = 1000.0
 
   override def assertions: List[Assertion] = runInfo.assertions
@@ -73,7 +72,6 @@ private[gatling] final class LogFileData(
       okBuffers: GeneralStatsBuffer,
       koBuffer: GeneralStatsBuffer
   ): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
-
     // get main and max for request/all status
     val size = allBuffer.stats.count
     val ok = okBuffers.distribution
@@ -87,7 +85,6 @@ private[gatling] final class LogFileData(
       // use exact values
       def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => new PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
       (plotsToPercents(ok), plotsToPercents(ko))
-
     } else {
       // use buckets
       val step = StatsHelper.step(min, max, maxPlots)
@@ -169,7 +166,6 @@ private[gatling] final class LogFileData(
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers): Seq[IntVsTimePlot] = {
-
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
 
     buffer.digests.view.zipWithIndex

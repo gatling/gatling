@@ -31,7 +31,6 @@ object HeaderMatcher extends JmsMessageMatcher {
 }
 
 class JmsCompileTest extends Simulation {
-
   // create JmsProtocol from standard ConnectionFactory
   private val jmsProtocolWithNativeConnectionFactory = jms
     .connectionFactory(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"))

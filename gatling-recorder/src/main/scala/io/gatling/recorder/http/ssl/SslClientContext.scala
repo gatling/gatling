@@ -26,7 +26,6 @@ import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
 private[http] object SslClientContext extends StrictLogging {
-
   private val TheSslContext =
     SslContextBuilder
       .forClient()

@@ -19,14 +19,18 @@ package io.gatling.sbt
 import sbt.testing.{ Event, Fingerprint, OptionalThrowable, Selector, Status }
 
 /**
- * The event fired by the test framework if the simulation was successful,
- * eg. Gatling doesn't prematurely stop and assertions didn't fail.
+ * The event fired by the test framework if the simulation was successful, eg. Gatling doesn't prematurely stop and assertions didn't fail.
  *
- * @param fullyQualifiedName The simulation class' fully qualified name.
- * @param fingerprint The [[GatlingFingerprint]] for this simulation.
- * @param selector The Selector used for this simulation.
- * @param throwable The exception that may have been thrown by Gatling.
- * @param duration The simulation's execution's duration.
+ * @param fullyQualifiedName
+ *   The simulation class' fully qualified name.
+ * @param fingerprint
+ *   The [[GatlingFingerprint]] for this simulation.
+ * @param selector
+ *   The Selector used for this simulation.
+ * @param throwable
+ *   The exception that may have been thrown by Gatling.
+ * @param duration
+ *   The simulation's execution's duration.
  */
 final case class SimulationSuccessful(
     fullyQualifiedName: String,
@@ -35,19 +39,22 @@ final case class SimulationSuccessful(
     throwable: OptionalThrowable,
     duration: Long
 ) extends Event {
-
   override val status: Status = Status.Success
 }
 
 /**
- * The event fired by the test framework if the simulation failed,
- * eg. Gatling exits prematurely or at least one assertion failed.
+ * The event fired by the test framework if the simulation failed, eg. Gatling exits prematurely or at least one assertion failed.
  *
- * @param fullyQualifiedName The simulation class' fully qualified name.
- * @param fingerprint The [[GatlingFingerprint]] for this simulation.
- * @param selector The Selector used for this simulation.
- * @param throwable The exception that may have been thrown by Gatling.
- * @param duration The simulation's execution's duration.
+ * @param fullyQualifiedName
+ *   The simulation class' fully qualified name.
+ * @param fingerprint
+ *   The [[GatlingFingerprint]] for this simulation.
+ * @param selector
+ *   The Selector used for this simulation.
+ * @param throwable
+ *   The exception that may have been thrown by Gatling.
+ * @param duration
+ *   The simulation's execution's duration.
  */
 final case class SimulationFailed(
     fullyQualifiedName: String,
@@ -56,19 +63,22 @@ final case class SimulationFailed(
     throwable: OptionalThrowable,
     duration: Long
 ) extends Event {
-
   override val status: Status = Status.Failure
 }
 
 /**
- * The event fired by the test framework if Gatling couldn't start
- * due to an invalid argument provided to it.
+ * The event fired by the test framework if Gatling couldn't start due to an invalid argument provided to it.
  *
- * @param fullyQualifiedName The simulation class' fully qualified name.
- * @param fingerprint The [[GatlingFingerprint]] for this simulation.
- * @param selector The Selector used for this simulation.
- * @param throwable The exception that may have been thrown by Gatling.
- * @param duration The simulation's execution's duration.
+ * @param fullyQualifiedName
+ *   The simulation class' fully qualified name.
+ * @param fingerprint
+ *   The [[GatlingFingerprint]] for this simulation.
+ * @param selector
+ *   The Selector used for this simulation.
+ * @param throwable
+ *   The exception that may have been thrown by Gatling.
+ * @param duration
+ *   The simulation's execution's duration.
  */
 final case class InvalidArguments(
     fullyQualifiedName: String,
@@ -77,6 +87,5 @@ final case class InvalidArguments(
     throwable: OptionalThrowable,
     duration: Long
 ) extends Event {
-
   override val status: Status = Status.Error
 }

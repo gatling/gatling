@@ -22,7 +22,6 @@ import io.gatling.commons.validation._
 import akka.actor.ActorRef
 
 object CoreTypeCaster {
-
   implicit val ActorRefTypeCaster: TypeCaster[ActorRef] = new TypeCaster[ActorRef] {
     @throws[ClassCastException]
     override def cast(key: String, value: Any): ActorRef =

@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
 sealed trait LowPriorityJsonFilterImplicits {
-
   private def newJsonFilter[T](f: PartialFunction[JsonNode, T]): JsonFilter[T] =
     new JsonFilter[T] {
       override val filter: PartialFunction[JsonNode, T] = f

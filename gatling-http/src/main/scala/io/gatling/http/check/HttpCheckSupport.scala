@@ -48,7 +48,6 @@ import jodd.lagarto.dom.NodeSelector
 import net.sf.saxon.s9api.XdmNode
 
 trait HttpCheckSupport {
-
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
   implicit def checkBuilder2HttpCheck[T, P](
       checkBuilder: CheckBuilder[T, P]

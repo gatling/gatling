@@ -21,7 +21,6 @@ import io.gatling.core.check._
 import com.fasterxml.jackson.databind.JsonNode
 
 object JsonPathExtractors {
-
   def find[X: JsonFilter](name: String, path: String, occurrence: Int, jsonPaths: JsonPaths): FindCriterionExtractor[JsonNode, String, X] =
     new FindCriterionExtractor[JsonNode, String, X](
       name,

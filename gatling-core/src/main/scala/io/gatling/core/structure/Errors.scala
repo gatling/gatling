@@ -22,7 +22,6 @@ import io.gatling.core.action.builder.{ ExitHereBuilder, StopInjectorBuilder, Tr
 import io.gatling.core.session._
 
 private[structure] trait Errors[B] extends Execs[B] {
-
   def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))

@@ -35,7 +35,6 @@ import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
 
 private[gatling] object PebbleExtensions {
-
   private[body] var extensions: Seq[Extension] = Nil
 
   def register(extensions: Seq[Extension]): Unit = {
@@ -47,7 +46,6 @@ private[gatling] object PebbleExtensions {
 }
 
 private[gatling] object Pebble extends StrictLogging {
-
   private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
   private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
 

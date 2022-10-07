@@ -28,7 +28,6 @@ import io.gatling.http.client.body.multipart._
 import com.softwaremill.quicklens._
 
 object BodyPart {
-
   def rawFileBodyPart(
       name: Option[Expression[String]],
       filePath: Expression[String],
@@ -178,7 +177,6 @@ final case class BodyPartAttributes(
     transferEncoding: Option[String],
     customHeaders: List[(Expression[String], Expression[String])]
 ) {
-
   lazy val customHeadersExpression: Expression[Seq[(String, String)]] = expressionSeq2SeqExpression(customHeaders)
 }
 
@@ -196,7 +194,6 @@ final case class BodyPart(
     ) => Expression[Part[_]],
     attributes: BodyPartAttributes
 ) {
-
   def contentType(contentType: Expression[String]): BodyPart = this.modify(_.attributes.contentType).setTo(Some(contentType))
 
   def charset(charset: String): BodyPart = this.modify(_.attributes.charset).setTo(Some(Charset.forName(charset)))
@@ -237,6 +234,5 @@ final case class BodyPart(
         customHeadersAsParams,
         fileName
       )(session)
-
     } yield part
 }

@@ -24,14 +24,12 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 
 object Check {
-
   type PreparedCache = ju.Map[Any, Any]
 
   def newPreparedCache: PreparedCache =
     new ju.HashMap(2)
 
   def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
-
     val preparedCache: PreparedCache =
       if (checks.sizeIs > 1) {
         newPreparedCache
@@ -43,7 +41,6 @@ object Check {
   }
 
   def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: PreparedCache): (Session, Option[Failure]) = {
-
     @tailrec
     def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
       checks match {
@@ -64,7 +61,6 @@ object Check {
   }
 
   abstract class ConditionalCheck[R](condition: Option[(R, Session) => Validation[Boolean]]) extends Check[R] {
-
     override def checkIf(condition: Expression[Boolean]): Check[R] = checkIf((_: R, session: Session) => condition(session))
 
     protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult]
@@ -87,7 +83,6 @@ object Check {
       f: (R, Session, Check.PreparedCache) => Validation[CheckResult],
       condition: Option[(R, Session) => Validation[Boolean]]
   ) extends ConditionalCheck[R](condition) {
-
     override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
 
     override protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
@@ -103,7 +98,6 @@ object Check {
       condition: Option[(R, Session) => Validation[Boolean]],
       saveAs: Option[String]
   ) extends ConditionalCheck[R](condition) {
-
     override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
 
     private val unbuiltName: String = customName.getOrElse("Check")
@@ -137,12 +131,10 @@ trait Check[R] {
 }
 
 object CheckResult {
-
   val NoopCheckResultSuccess: Validation[CheckResult] = new CheckResult(None, None).success
 }
 
 final case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
-
   def update(session: Session): Session = {
     val maybeUpdatedSession =
       for {

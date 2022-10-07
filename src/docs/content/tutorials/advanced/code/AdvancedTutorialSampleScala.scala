@@ -20,7 +20,6 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class AdvancedTutorialSampleScala extends Simulation {
-
   val httpProtocol = http
 
 //#isolate-processes

@@ -17,6 +17,5 @@
 package io.gatling.http.protocol
 
 trait ProxySupport {
-
   def Proxy(host: String, port: Int): ProxyBuilder = ProxyBuilder(host, port)
 }

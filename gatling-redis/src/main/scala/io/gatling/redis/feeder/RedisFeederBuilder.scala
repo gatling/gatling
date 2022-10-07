@@ -21,14 +21,11 @@ import io.gatling.core.feeder.{ Feeder, NamedFeederBuilder }
 import com.redis.{ RedisClient, RedisClientPool }
 
 /**
- * Class for feeding data from Redis DB, using LPOP, SPOP or
- * SRANDMEMBER, RPOPLPUSH commands.
+ * Class for feeding data from Redis DB, using LPOP, SPOP or SRANDMEMBER, RPOPLPUSH commands.
  *
- * Originally contributed by Krishnen Chedambarum.
- * RPOPLPUSH added by Shoaib Khan
+ * Originally contributed by Krishnen Chedambarum. RPOPLPUSH added by Shoaib Khan
  */
 object RedisFeederBuilder {
-
   // Function for executing Redis command
   private type RedisCommand = (RedisClient, String, String) => Option[String]
 

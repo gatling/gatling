@@ -29,7 +29,6 @@ private object RenamedAwareConfig {
 }
 
 private final class RenamedAwareConfig(wrapped: Config, renamedByReplacement: Map[String, Renamed]) extends Config {
-
   private def revolvedPath(path: String): String =
     renamedByReplacement.get(path) match {
       case Some(replaced) if wrapped.hasPath(replaced.path) => replaced.path

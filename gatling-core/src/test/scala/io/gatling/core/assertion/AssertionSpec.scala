@@ -33,13 +33,11 @@ final case class Stats(
     groupPath: List[String] = Nil,
     status: Option[Status] = None
 ) {
-
   def request: Option[String] = requestName.trimToOption
   def group: Option[Group] = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
 }
 
 class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
-
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private type Conditions[T] = List[AssertionWithPathAndTarget[T] => Assertion]
@@ -102,7 +100,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     validateAssertions(source3) shouldBe false
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a meanRequestsPerSec assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestAndGroupStats = modifier(Stats(GeneralStats.NoPlot.copy(meanRequestsPerSec = 5)))
@@ -112,7 +110,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a successfulRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(OK)))
@@ -122,7 +120,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a failedRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(KO)))
@@ -132,7 +130,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a allRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
@@ -142,7 +140,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a successfulRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val successful = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
@@ -153,7 +151,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a failedRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val failed = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
@@ -164,7 +162,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a allRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
@@ -174,7 +172,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.min assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(min = 10)))
@@ -184,7 +182,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.max assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(max = 10)))
@@ -194,7 +192,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.mean assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(mean = 10)))
@@ -204,7 +202,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.stdDev assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(stdDev = 10)))
@@ -214,7 +212,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles1 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
@@ -224,7 +222,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles2 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
@@ -234,7 +232,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles3 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
@@ -244,7 +242,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     }
   }
 
-  //TODO : add test on global and forAll
+  // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles4 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))

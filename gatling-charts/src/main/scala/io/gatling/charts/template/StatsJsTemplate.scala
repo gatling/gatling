@@ -25,11 +25,9 @@ import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.util.JsHelper._
 
 private[charts] final class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
-
   private def fieldName(field: String): String = if (outputJson) s""""$field"""" else field
 
   def getOutput(charset: Charset): String = {
-
     def renderStats(request: RequestStatistics, path: String): String = {
       val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 

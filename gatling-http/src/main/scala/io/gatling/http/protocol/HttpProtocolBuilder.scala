@@ -42,7 +42,6 @@ import io.netty.handler.ssl.SslProvider
 import io.netty.util.internal.PlatformDependent
 
 object HttpProtocolBuilder {
-
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
@@ -50,7 +49,6 @@ object HttpProtocolBuilder {
 }
 
 final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
-
   def baseUrl(url: String): HttpProtocolBuilder = baseUrls(List(url))
   def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)
   def baseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
@@ -149,7 +147,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
         this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
       } else {
         throw new UnsupportedOperationException(s"You can't use HTTP/2: either OpenSSL is not available for ${PlatformDependent
-          .normalizedOs()}_${PlatformDependent.normalizedArch()}, or your Java version ${sys.props("java.version")} is too old.")
+            .normalizedOs()}_${PlatformDependent.normalizedArch()}, or your Java version ${sys.props("java.version")} is too old.")
       }
     } else if (SslProvider.isAlpnSupported(SslProvider.JDK)) {
       this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
@@ -207,7 +205,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsMaxReconnects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.wsPart.maxReconnects).setTo(max)
   def wsAutoReplyTextFrame(f: PartialFunction[String, String]): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f)
-  def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame({ case "2" => "3" })
+  def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

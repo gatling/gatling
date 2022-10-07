@@ -49,7 +49,6 @@ final case class PopulationBuilder(
     children: List[List[PopulationBuilder]],
     shard: Boolean
 ) extends LazyLogging {
-
   def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toList)
   def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
 

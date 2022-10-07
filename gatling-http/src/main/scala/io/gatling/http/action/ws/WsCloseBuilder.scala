@@ -28,7 +28,6 @@ class WsCloseBuilder(
     wsName: Expression[String],
     closeStatus: WebSocketCloseStatus
 ) extends HttpActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsClose(
       requestName,

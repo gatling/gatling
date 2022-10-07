@@ -1,7 +1,6 @@
 import sbt._
 
 object Dependencies {
-
   // Compile dependencies
 
   // format: OFF

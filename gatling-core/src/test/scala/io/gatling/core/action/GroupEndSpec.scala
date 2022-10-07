@@ -29,11 +29,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
-
   private val clock = new DefaultClock
 
   "GroupEnd" should "exit the current group" in {
-
     Given("a GroupEnd Action")
     val statsEngine = mock[StatsEngine]
     val next = mock[Action]

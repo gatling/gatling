@@ -19,12 +19,10 @@ package io.gatling.commons.util
 import java.{ util => ju }
 
 trait LowPriorityEqualityImplicits {
-
   implicit def default[T]: Equality[T] = _ == _
 }
 
 object Equality extends LowPriorityEqualityImplicits {
-
   implicit val IntEquality: Equality[Int] = _ == _
   implicit val StringEquality: Equality[String] = _ == _
   implicit val LongArrayEquality: Equality[Array[Long]] = ju.Arrays.equals(_, _)
@@ -39,6 +37,5 @@ object Equality extends LowPriorityEqualityImplicits {
 }
 
 trait Equality[T] {
-
   def equals(left: T, right: T): Boolean
 }

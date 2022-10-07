@@ -21,7 +21,6 @@ import java.{ lang => jl }
 import io.gatling.commons.util.Equality
 
 object Comparisons {
-
   def equality[T](clazz: Class[_]): Equality[T] =
     if (clazz == classOf[jl.Integer]) {
       Equality.IntEquality.asInstanceOf[Equality[T]]

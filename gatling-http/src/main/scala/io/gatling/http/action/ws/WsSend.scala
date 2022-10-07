@@ -36,7 +36,6 @@ class WsSendTextFrame(
     with WsAction
     with ExitableAction
     with NameGen {
-
   override val name: String = genName("wsSendTextFrame")
 
   override def sendRequest(session: Session): Validation[Unit] =
@@ -64,7 +63,6 @@ class WsSendBinaryFrame(
     with WsAction
     with ExitableAction
     with NameGen {
-
   override val name: String = genName("wsSendBinaryFrame")
 
   override def sendRequest(session: Session): Validation[Unit] =

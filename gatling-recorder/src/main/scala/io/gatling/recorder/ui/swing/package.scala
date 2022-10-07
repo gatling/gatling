@@ -20,6 +20,5 @@ import scala.swing.Component
 import scala.swing.event.{ KeyEvent, KeyReleased }
 
 package object swing {
-
   def keyReleased(c: Component): KeyEvent = KeyReleased(c, null, 0, null)(null)
 }

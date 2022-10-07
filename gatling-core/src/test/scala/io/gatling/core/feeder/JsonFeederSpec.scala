@@ -21,7 +21,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
 class JsonFeederSpec extends BaseSpec with FeederSupport {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val jsonParsers: JsonParsers = new JsonParsers
 

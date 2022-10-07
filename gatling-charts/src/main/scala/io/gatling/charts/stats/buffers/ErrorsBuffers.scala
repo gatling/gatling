@@ -22,7 +22,6 @@ import io.gatling.charts.stats.RequestRecord
 import io.gatling.commons.shared.unstable.model.stats.Group
 
 private[stats] trait ErrorsBuffers {
-
   val errorsBuffers = mutable.Map.empty[BufferKey, mutable.Map[String, Int]]
 
   def getErrorsBuffers(requestName: Option[String], group: Option[Group]): mutable.Map[String, Int] =
@@ -34,13 +33,11 @@ private[stats] trait ErrorsBuffers {
   }
 
   def updateErrorBuffers(record: RequestRecord): Unit = {
-
-    def updateGroupError(errorMessage: String): Unit = {
+    def updateGroupError(errorMessage: String): Unit =
       record.group.foreach { group =>
         val buffer = getErrorsBuffers(None, Some(group))
         buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
       }
-    }
 
     def updateRequestError(errorMessage: String): Unit = {
       val buffer = getErrorsBuffers(Some(record.name), record.group)

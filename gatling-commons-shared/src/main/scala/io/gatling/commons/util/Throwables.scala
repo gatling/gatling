@@ -20,9 +20,7 @@ import io.gatling.commons.util.Classes._
 import io.gatling.jdk.util.StringBuilderPool
 
 object Throwables {
-
   implicit class PimpedException[T <: Throwable](val e: T) extends AnyVal {
-
     def rootCause: Throwable = {
       var t: Throwable = e
       while (t.getCause != null && t.getCause.ne(t)) {

@@ -18,7 +18,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class SseSampleScala {
-
 //#sseName
 sse("Sse").sseName("myCustomName")
 //#sseName

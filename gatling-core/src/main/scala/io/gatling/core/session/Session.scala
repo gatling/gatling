@@ -33,7 +33,6 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.channel.EventLoop
 
 private[gatling] object SessionPrivateAttributes {
-
   private val PrivateAttributePrefix = "gatling."
 
   def isAttributePrivate(attributeName: String): Boolean = attributeName.startsWith(PrivateAttributePrefix)
@@ -44,7 +43,6 @@ private[gatling] object SessionPrivateAttributes {
 }
 
 final case class SessionAttribute(session: Session, key: String) {
-
   def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
     case Some(value) => TypeHelper.cast[T](key, value)
     case _           => throw new NoSuchElementException(ElMessages.undefinedSessionAttribute(key).message)
@@ -92,13 +90,20 @@ object Session {
  *
  * This session stores all needed data between requests
  *
- * @constructor creates a new session
- * @param scenario the name of the current scenario
- * @param userId the id of the current user
- * @param attributes the map that stores all values needed
- * @param baseStatus the status when not in a TryMax blocks hierarchy
- * @param blockStack the block stack
- * @param onExit hook to execute once the user reaches the exit
+ * @constructor
+ *   creates a new session
+ * @param scenario
+ *   the name of the current scenario
+ * @param userId
+ *   the id of the current user
+ * @param attributes
+ *   the map that stores all values needed
+ * @param baseStatus
+ *   the status when not in a TryMax blocks hierarchy
+ * @param blockStack
+ *   the block stack
+ * @param onExit
+ *   hook to execute once the user reaches the exit
  */
 final case class Session(
     scenario: String,
@@ -109,7 +114,6 @@ final case class Session(
     onExit: Session => Unit,
     eventLoop: EventLoop
 ) extends LazyLogging {
-
   import Session._
 
   def apply(name: String): SessionAttribute = SessionAttribute(this, name)

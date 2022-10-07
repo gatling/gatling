@@ -27,7 +27,6 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 
 final class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
-
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pebble.getResourceTemplate)
 

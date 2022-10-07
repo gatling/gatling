@@ -26,7 +26,6 @@ import io.gatling.http.protocol.HttpProtocolBuilder
 import jodd.lagarto.dom.NodeSelector
 
 class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
-
   override val baseUrl: String = "http://example.com"
   override def httpProtocol: HttpProtocolBuilder = super.httpProtocol.header("MyHeader", "MyValue")
 
@@ -38,6 +37,5 @@ class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
 }
 
 object GatlingHttpFunSpecCompileTest {
-
   def h1: CheckBuilder.MultipleFind[CssCheckType, NodeSelector, String] with CssOfType = css("h1")
 }

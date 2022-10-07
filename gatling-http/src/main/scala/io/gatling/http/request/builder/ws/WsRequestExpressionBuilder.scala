@@ -32,7 +32,6 @@ class WsRequestExpressionBuilder(
     configuration: GatlingConfiguration,
     subprotocol: Option[Expression[String]]
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
-
   override protected def protocolBaseUrl: Session => Option[String] =
     BaseUrlSupport.wsBaseUrl(httpProtocol)
 

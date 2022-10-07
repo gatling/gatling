@@ -27,7 +27,6 @@ import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.NodeSelector
 
 final class CssSelectors(cacheMaxCapacity: Long) {
-
   private val domBuilder = Lagarto.newLagartoDomBuilder
   private val selectorCache: LoadingCache[String, ju.List[ju.List[CssSelector]]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, CSSelly.parse)
@@ -35,7 +34,6 @@ final class CssSelectors(cacheMaxCapacity: Long) {
   def parse(chars: Array[Char]): NodeSelector = new NodeSelector(domBuilder.parse(chars))
 
   def extractAll[X: NodeConverter](selector: NodeSelector, criterion: (String, Option[String])): Vector[X] = {
-
     val (query, nodeAttribute) = criterion
     val selectors = selectorCache.get(query)
 

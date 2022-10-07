@@ -23,7 +23,6 @@ import io.gatling.core.session.Session
 import com.typesafe.scalalogging.StrictLogging
 
 final class WsClosingState(fsm: WsFsm, actionName: String, session: Session, next: Action, closeStart: Long) extends WsState(fsm) with StrictLogging {
-
   override def onTimeout(): NextWsState = {
     logger.debug("WebSocket timed out while waiting for close ack")
     val newSession =

@@ -28,7 +28,6 @@ import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
 class ExitHereSpec extends BaseSpec with EmptySession {
-
   "ExitHereIfFailed" should "send the session to the next action if the session was not failed" in {
     val exit = mock[Action]
     val next = mock[Action]

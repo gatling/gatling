@@ -22,7 +22,6 @@ import java.util.ResourceBundle
 import scala.jdk.StreamConverters._
 
 private[bundle] object CommandHelper {
-
   val GatlingVersion: String = ResourceBundle.getBundle("gatling-version").getString("version")
 
   val GatlingHome: Path = optionEnv("GATLING_HOME")

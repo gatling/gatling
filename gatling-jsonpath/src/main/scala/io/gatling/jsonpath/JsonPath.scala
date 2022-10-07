@@ -44,7 +44,6 @@ final class JsonPath(path: List[PathToken]) {
 }
 
 final class JsonPathWalker(rootNode: JsonNode, fullPath: List[PathToken]) {
-
   def walk(): Iterator[JsonNode] = walk(rootNode, fullPath)
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
@@ -118,7 +117,6 @@ final class JsonPathWalker(rootNode: JsonNode, fullPath: List[PathToken]) {
     }
 
   private[this] def applyFilter(currentNode: JsonNode, filterToken: FilterToken): Iterator[JsonNode] = {
-
     def resolveSubQuery(node: JsonNode, subQuery: List[PathToken], nextOp: JsonNode => Boolean): Boolean = {
       val it = walk(node, subQuery)
       it.hasNext && nextOp(it.next())

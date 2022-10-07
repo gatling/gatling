@@ -4,7 +4,6 @@ import wartremover.WartRemover.autoImport._
 import wartremover.Wart
 
 object CodeAnalysis {
-
   lazy val disable = Seq(
     Compile / compile / wartremoverErrors := Seq.empty,
     Test / compile / wartremoverErrors := Seq.empty

@@ -30,13 +30,13 @@ private final class If(
     val next: Action
 ) extends ExitableAction
     with NameGen {
-
   override val name: String = genName("if")
 
   /**
    * Evaluates the condition and decides what to do next
    *
-   * @param session the session of the virtual user
+   * @param session
+   *   the session of the virtual user
    */
   override def execute(session: Session): Unit = recover(session) {
     condition(session).map { condition =>

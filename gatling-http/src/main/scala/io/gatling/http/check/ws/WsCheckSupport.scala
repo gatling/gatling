@@ -28,7 +28,6 @@ import io.gatling.core.json.JsonParsers
 import com.fasterxml.jackson.databind.JsonNode
 
 trait WsCheckSupport {
-
   implicit def checkBuilder2WsTextCheck[T, P](
       checkBuilder: CheckBuilder[T, P]
   )(implicit materializer: CheckMaterializer[T, WsCheck.Text, String, P]): WsCheck.Text =

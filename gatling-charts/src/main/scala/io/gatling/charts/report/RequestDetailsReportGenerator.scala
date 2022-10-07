@@ -32,12 +32,10 @@ private[charts] class RequestDetailsReportGenerator(
 )(implicit
     configuration: GatlingConfiguration
 ) extends ReportGenerator {
-
   def generate(): Unit = {
     import reportsGenerationInputs._
 
     def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
-
       def responseTimeDistributionChartComponent: Component = {
         val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, Some(requestName), group)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
@@ -74,7 +72,6 @@ private[charts] class RequestDetailsReportGenerator(
           dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
           componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
       ): Component = {
-
         val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
         val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
@@ -95,7 +92,6 @@ private[charts] class RequestDetailsReportGenerator(
           dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
           componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
       ): Component = {
-
         val scatterPlotSuccessData = dataSource(OK, requestName, group)
         val scatterPlotFailuresData = dataSource(KO, requestName, group)
         val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(Color.Requests.Ok))

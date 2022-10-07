@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.{ FullHttpRequest, FullHttpResponse }
 sealed trait MitmMessage
 
 object MitmMessage {
-
   case object ServerChannelInactive extends MitmMessage
 
   final case class RequestReceived(request: FullHttpRequest) extends MitmMessage

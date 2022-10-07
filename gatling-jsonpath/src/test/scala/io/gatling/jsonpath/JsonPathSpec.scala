@@ -23,7 +23,6 @@ import org.scalatest.matchers.{ MatchResult, Matcher }
 import org.scalatest.matchers.should.Matchers
 
 class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
-
   private val mapper = new ObjectMapper
 
   private def parseJson(s: String) = mapper.readValue(s, classOf[JsonNode])
@@ -1035,7 +1034,6 @@ class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
   /// Goessner reference examples ///////////////////////////////////////////
 
   "Goessner examples" should "work with finding all the authors" in {
-
     JsonPath.query("$.store.book[*].author", goessnerJson) should findOrderedElements(
       text("Nigel Rees"),
       text("Evelyn Waugh"),
@@ -1123,7 +1121,6 @@ class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
       text("Sword of Honour"),
       text("Moby Dick")
     )
-
   }
 
   "Recursive" should "honor filters directly on root" in {
@@ -1187,7 +1184,6 @@ class OrderedElementsMatcher(expected: Iterable[Any]) extends Matcher[Either[JPE
 }
 
 trait JsonPathMatchers {
-
   def findOrderedElements(expected: Any*): OrderedElementsMatcher = new OrderedElementsMatcher(expected)
 
   class ElementsMatcher(expected: Iterable[Any]) extends Matcher[Either[JPError, Iterator[Any]]] {

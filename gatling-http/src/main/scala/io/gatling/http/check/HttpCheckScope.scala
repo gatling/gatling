@@ -19,7 +19,6 @@ package io.gatling.http.check
 sealed abstract class HttpCheckScope(protected val priority: Int) extends Product with Serializable
 
 object HttpCheckScope {
-
   implicit val ordering: Ordering[HttpCheckScope] =
     (x: HttpCheckScope, y: HttpCheckScope) => Ordering[Int].compare(x.priority, y.priority)
 

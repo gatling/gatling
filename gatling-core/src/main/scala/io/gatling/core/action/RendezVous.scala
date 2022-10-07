@@ -41,7 +41,6 @@ private final class RendezVous private (actor: ActorRef, val statsEngine: StatsE
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
  */
 private final class RendezVousActor(users: Int, val next: Action) extends BaseActor {
-
   private val buffer = mutable.Queue.empty[Session]
 
   private val passThrough: Receive = { case session: Session =>

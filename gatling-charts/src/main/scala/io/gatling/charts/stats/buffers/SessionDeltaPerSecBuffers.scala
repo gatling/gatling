@@ -30,7 +30,6 @@ private[stats] object SessionDeltas {
 private[stats] final case class SessionDeltas(starts: Int, ends: Int)
 
 private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int], runDurationInSeconds: Int) {
-
   private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
   private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
 
@@ -44,7 +43,6 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
   private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, buckets.length - 1)
 
   def distribution: List[IntVsTimePlot] = {
-
     val eachSecondActiveSessions = Array.fill(runDurationInSeconds)(0)
 
     for (second <- 0 until runDurationInSeconds) {
@@ -88,7 +86,7 @@ private[stats] trait SessionDeltaPerSecBuffers {
     (millisOffset / 1000).toInt - includeRightBorderCorrection
   }
 
-  def addSessionBuffers(record: UserRecord): Unit = {
+  def addSessionBuffers(record: UserRecord): Unit =
     record.event match {
       case MessageEvent.Start =>
         val startSecond = timestamp2SecondOffset(record.timestamp)
@@ -102,7 +100,6 @@ private[stats] trait SessionDeltaPerSecBuffers {
         getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(endSecond)
         userCountByScenario.getOrElseUpdate(record.scenario, new LongAdder).decrement()
     }
-  }
 
   def endDandlingStartedUser(): Unit =
     for {

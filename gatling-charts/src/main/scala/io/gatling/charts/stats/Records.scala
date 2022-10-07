@@ -24,11 +24,9 @@ import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }
 
 private object UserRecordParser {
-
   def unapply(array: Array[String]): Option[UserRecord] = RawUserRecord.unapply(array).map(parseUserRecord)
 
   private def parseUserRecord(strings: Array[String]): UserRecord = {
-
     val scenario = strings(1)
     val event = MessageEvent(strings(2))
     val timestamp = strings(3).toLong
@@ -38,11 +36,9 @@ private object UserRecordParser {
 }
 
 private class RequestRecordParser(bucketFunction: Long => Int) {
-
   def unapply(array: Array[String]): Option[RequestRecord] = RawRequestRecord.unapply(array).map(parseRequestRecord)
 
   private def parseRequestRecord(strings: Array[String]): RequestRecord = {
-
     val group = {
       val groupString = strings(1)
       if (groupString.isEmpty) None else Some(GroupRecordParser.parseGroup(groupString))
@@ -66,18 +62,15 @@ private class RequestRecordParser(bucketFunction: Long => Int) {
 }
 
 private object GroupRecordParser {
-
   val GroupCache = mutable.Map.empty[String, Group]
 
   def parseGroup(string: String): Group = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
 private class GroupRecordParser(bucketFunction: Long => Int) {
-
   def unapply(array: Array[String]): Option[GroupRecord] = RawGroupRecord.unapply(array).map(parseGroupRecord)
 
   private def parseGroupRecord(strings: Array[String]): GroupRecord = {
-
     val group = GroupRecordParser.parseGroup(strings(1))
     val start = strings(2).toLong
     val end = strings(3).toLong
@@ -89,11 +82,9 @@ private class GroupRecordParser(bucketFunction: Long => Int) {
 }
 
 private object ErrorRecordParser {
-
   def unapply(array: Array[String]): Option[ErrorRecord] = RawErrorRecord.unapply(array).map(parseErrorRecord)
 
   private def parseErrorRecord(strings: Array[String]): ErrorRecord = {
-
     val message = strings(1)
     val timestamp = strings(2).toLong
 

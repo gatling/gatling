@@ -32,7 +32,6 @@ object HttpStatusCheckBuilder
     )
 
 object HttpStatusCheckMaterializer {
-
   val Instance: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] =
     new HttpCheckMaterializer[HttpStatusCheckType, Response](Status, identityPreparer)
 }

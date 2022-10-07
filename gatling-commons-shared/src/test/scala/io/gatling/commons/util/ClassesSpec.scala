@@ -22,7 +22,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class ClassesSpec extends AnyFlatSpecLike with Matchers {
-
   "toClassShortName" should "shorten String with package" in {
     toClassShortName(classOf[java.util.concurrent.TimeoutException].getName) shouldBe "j.u.c.TimeoutException"
   }

@@ -25,7 +25,6 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 object CheckProcessor {
-
   private[response] def check(session: Session, response: Response, checks: List[HttpCheck]): (Session, Option[Failure]) = {
     val filteredChecks =
       if (HttpHelper.isNotModified(response.status)) {

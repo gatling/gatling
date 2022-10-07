@@ -27,9 +27,7 @@ import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.jms.client.JmsConnectionPool
 
 object JmsProtocol {
-
   val JmsProtocolKey: ProtocolKey[JmsProtocol, JmsComponents] = new ProtocolKey[JmsProtocol, JmsComponents] {
-
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[JmsProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
     def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol =
@@ -53,6 +51,5 @@ final case class JmsProtocol(
     listenerThreadCount: Int,
     messageMatcher: JmsMessageMatcher
 ) extends Protocol {
-
   type Components = JmsComponents
 }

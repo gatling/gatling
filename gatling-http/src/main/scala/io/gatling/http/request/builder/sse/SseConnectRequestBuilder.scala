@@ -27,7 +27,6 @@ import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
 
 object SseConnectRequestBuilder {
-
   private val SseHeaderValueExpression = HttpHeaderValues.TEXT_EVENT_STREAM.toString.expressionSuccess
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
@@ -44,7 +43,6 @@ final case class SseConnectRequestBuilder(
 ) extends RequestBuilder[SseConnectRequestBuilder]
     with HttpActionBuilder
     with SseAwaitActionBuilder[SseConnectRequestBuilder] {
-
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName, checkSequences)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {

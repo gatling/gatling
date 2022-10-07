@@ -23,7 +23,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class ComparisonOperatorsSpec extends AnyFlatSpec with Matchers with ScalaCheckDrivenPropertyChecks {
-
   "comparison operators" should "return false if types aren't compatible" in {
     forAll(arbitrary[String], arbitrary[Int]) { (string, int) =>
       val lhn = new TextNode(string)

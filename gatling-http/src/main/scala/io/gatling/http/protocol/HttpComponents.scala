@@ -28,7 +28,6 @@ final class HttpComponents(
     val httpCaches: HttpCaches,
     val httpTxExecutor: HttpTxExecutor
 ) extends ProtocolComponents {
-
   override lazy val onStart: Session => Session =
     (SslContextSupport.setSslContexts(httpProtocol, httpEngine)
       andThen httpCaches.setNameResolver(httpProtocol.dnsPart, httpEngine)

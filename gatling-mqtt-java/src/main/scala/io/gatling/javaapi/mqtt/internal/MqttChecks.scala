@@ -35,7 +35,6 @@ import io.gatling.mqtt.check.MqttCheck
 import com.fasterxml.jackson.databind.JsonNode
 
 object MqttChecks {
-
   private def toScalaCheck(javaCheck: io.gatling.javaapi.core.CheckBuilder): MqttCheck = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

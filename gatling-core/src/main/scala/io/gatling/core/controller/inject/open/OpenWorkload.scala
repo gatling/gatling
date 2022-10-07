@@ -38,7 +38,6 @@ private[inject] class OpenWorkload(
     statsEngine: StatsEngine,
     clock: Clock
 ) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
-
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
     val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)
     if (!isEmpty) {

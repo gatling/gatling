@@ -20,7 +20,6 @@ import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.json.JsonParsers
 
 class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
-
   private val jsonPaths = new JsonPaths(Long.MaxValue)
   private val jsonParsers = new JsonParsers
 

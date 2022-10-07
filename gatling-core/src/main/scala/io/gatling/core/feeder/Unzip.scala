@@ -26,7 +26,6 @@ import io.gatling.commons.util.Io._
 import io.gatling.core.util.{ FilesystemResource, Resource }
 
 private[feeder] object Unzip {
-
   private object TwoBytesMagicValueInputStream {
     val PkZipMagicValue: (Int, Int) = ('P', 'K')
     val GzipMagicValue: (Int, Int) = (31, 139)

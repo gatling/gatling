@@ -31,7 +31,6 @@ import com.typesafe.scalalogging.StrictLogging
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
  */
 trait Action extends StrictLogging {
-
   def name: String
 
   override def toString: String = name
@@ -48,21 +47,23 @@ trait Action extends StrictLogging {
   /**
    * Core method executed when the Action received a Session message
    *
-   * @param session the session of the virtual user
-   * @return Nothing
+   * @param session
+   *   the session of the virtual user
+   * @return
+   *   Nothing
    */
   protected def execute(session: Session): Unit
 }
 
 /**
- * An Action that is to be chained with another.
- * Almost all Gatling Actions are Chainable.
- * For example, the final Action at the end of a scenario workflow is not.
+ * An Action that is to be chained with another. Almost all Gatling Actions are Chainable. For example, the final Action at the end of a scenario workflow is
+ * not.
  */
 trait ChainableAction extends Action {
 
   /**
-   * @return the next Action in the scenario workflow
+   * @return
+   *   the next Action in the scenario workflow
    */
   def next: Action
 
@@ -89,7 +90,6 @@ trait ChainableAction extends Action {
 }
 
 class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
-
   def execute(session: Session): Unit = actor ! session
 }
 
@@ -97,7 +97,6 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
  * An Action that can trigger a forced exit and bypass regular workflow.
  */
 trait ExitableAction extends ChainableAction {
-
   def statsEngine: StatsEngine
   def clock: Clock
 
@@ -109,7 +108,6 @@ trait ExitableAction extends ChainableAction {
 }
 
 trait RequestAction extends ExitableAction {
-
   def requestName: Expression[String]
   def sendRequest(session: Session): Validation[Unit]
 

@@ -39,7 +39,6 @@ import jodd.lagarto.dom.NodeSelector
 import net.sf.saxon.s9api.XdmNode
 
 trait CheckSupport {
-
   implicit def validate2Final[T, P, X](validatorCheckBuilder: CheckBuilder.Validate[T, P, X]): CheckBuilder.Final[T, P] =
     validatorCheckBuilder.exists
   implicit def find2Validate[T, P, X](findCheckBuilder: CheckBuilder.Find[T, P, X]): CheckBuilder.Validate[T, P, X] =

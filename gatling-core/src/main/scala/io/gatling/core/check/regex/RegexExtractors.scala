@@ -20,7 +20,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 
 object RegexExtractors {
-
   def find[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[String, String, X] =
     new FindCriterionExtractor[String, String, X](
       name,
@@ -36,11 +35,10 @@ object RegexExtractors {
       patterns.findAll(_, pattern).liftSeqOption.success
     )
 
-  def count(name: String, pattern: String, patterns: Patterns): CountCriterionExtractor[String, String] = {
+  def count(name: String, pattern: String, patterns: Patterns): CountCriterionExtractor[String, String] =
     new CountCriterionExtractor[String, String](
       name,
       pattern,
       prepared => Some(patterns.count(prepared, pattern)).success
     )
-  }
 }

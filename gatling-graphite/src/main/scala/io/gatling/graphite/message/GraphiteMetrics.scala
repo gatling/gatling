@@ -26,9 +26,7 @@ import com.typesafe.scalalogging.StrictLogging
 private[graphite] final case class GraphiteMetrics(byteString: ByteString)
 
 private[graphite] object GraphiteMetrics extends StrictLogging {
-
   def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
-
     val sb = StringBuilderPool.DEFAULT.get()
     pathValuePairs.foreach { case (path, value) =>
       sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')

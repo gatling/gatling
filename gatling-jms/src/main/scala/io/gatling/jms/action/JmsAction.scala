@@ -28,7 +28,6 @@ import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
 class Around(before: () => Unit, after: () => Unit) {
-
   def apply(f: => Any): Unit = {
     before()
     f
@@ -44,7 +43,6 @@ abstract class JmsAction(
 ) extends RequestAction
     with JmsLogging
     with NameGen {
-
   override val requestName: Expression[String] = attributes.requestName
 
   protected val jmsConnection: JmsConnection = pool.jmsConnection(protocol.connectionFactory, protocol.credentials)

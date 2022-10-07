@@ -24,7 +24,6 @@ import io.gatling.http.action.sse.fsm.{ ServerSentEvent, SseStreamDecoder }
 import io.netty.buffer.Unpooled
 
 class SseStreamDecoderSpec extends BaseSpec {
-
   private val longString = "x" * 920
 
   private val data =

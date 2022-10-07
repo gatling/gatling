@@ -25,19 +25,16 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http.FullHttpRequest
 
 /**
- * Standard flow:
- * <ul>
- * <li>received request with absolute url</li>
- * <li>connect to remote host</li>
- * <li>propagate request with relative url</li>
- * <li>receive response and propagate it to serverChannel</li>
- * <li>receive new request</li>
- * <li>use existing clientChannel if it's active and connected to the same remote, close it and open a new open otherwise</li>
- * </ul>
+ * Standard flow: <ul> <li>received request with absolute url</li> <li>connect to remote host</li> <li>propagate request with relative url</li> <li>receive
+ * response and propagate it to serverChannel</li> <li>receive new request</li> <li>use existing clientChannel if it's active and connected to the same remote,
+ * close it and open a new open otherwise</li> </ul>
  *
- * @param serverChannel   the server channel connected to the user agent
- * @param clientBootstrap the bootstrap to establish client channels with the remote
- * @param trafficLogger log the traffic
+ * @param serverChannel
+ *   the server channel connected to the user agent
+ * @param clientBootstrap
+ *   the bootstrap to establish client channels with the remote
+ * @param trafficLogger
+ *   log the traffic
  */
 class PlainNoProxyMitmActor(
     serverChannel: Channel,
@@ -45,7 +42,6 @@ class PlainNoProxyMitmActor(
     trafficLogger: TrafficLogger,
     clock: Clock
 ) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
-
   override protected def connectedRemote(requestRemote: Remote): Remote =
     requestRemote
 

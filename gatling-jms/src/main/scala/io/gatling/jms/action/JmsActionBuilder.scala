@@ -21,7 +21,6 @@ import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 
 abstract class JmsActionBuilder extends ActionBuilder {
-
   protected def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
 }

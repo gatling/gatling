@@ -25,7 +25,6 @@ import akka.actor.ActorRef
 
 private final class Feed(feedActor: ActorRef, numberOpt: Option[Expression[Int]], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ExitableAction {
-
   override val name: String = feedActor.path.name
 
   override def execute(session: Session): Unit =

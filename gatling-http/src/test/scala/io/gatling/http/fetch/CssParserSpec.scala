@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 
 class CssParserSpec extends BaseSpec {
-
   private val rootURI = Uri.create("http://gatling.io/")
 
   private def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)

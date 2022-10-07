@@ -20,7 +20,6 @@ import scala.annotation.tailrec
 import scala.concurrent.duration._
 
 sealed trait ThrottleStep extends Product with Serializable {
-
   val durationInSec: Long
   def target(previousLastValue: Int): Int
   def rps(time: Long, previousLastValue: Int): Int
@@ -59,7 +58,6 @@ final case class Throttlings(global: Option[Throttling], perScenario: Map[String
 }
 
 object Throttling {
-
   @tailrec
   private def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
     case Nil => 0
@@ -71,7 +69,6 @@ object Throttling {
   }
 
   def apply(steps: Iterable[ThrottleStep]): Throttling = {
-
     val reversedSteps = steps.toList
     val limit: Long => Int = valueAt(reversedSteps, _, 0)
 

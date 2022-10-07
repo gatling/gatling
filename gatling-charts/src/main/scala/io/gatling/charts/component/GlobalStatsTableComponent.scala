@@ -23,11 +23,9 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] final class GlobalStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
-
   private val MaxRequestNameSize = 22
 
   override val html: String = {
-
     def pctTitle(pct: Double) = pct.toRank + " pct"
 
     val pct1 = pctTitle(configuration.charting.indicators.percentile1)
@@ -59,8 +57,8 @@ private[charts] final class GlobalStatsTableComponent(implicit configuration: Ga
                                           <th id="col-5" class="header sortable"><span>% KO</span></th>
                                           <th id="col-6" class="header sortable"><span><abbr title="Count of events per second">Cnt/s</abbr></span></th>
                                           ${responseTimeFields.zipWithIndex
-      .map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }
-      .mkString(Eol)}
+        .map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }
+        .mkString(Eol)}
                                       </tr>
                                   </thead>
                                   <tbody></tbody>

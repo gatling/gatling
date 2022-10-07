@@ -17,7 +17,6 @@
 package io.gatling.core.check.jsonpath
 
 object Json3 extends JsonSample {
-
   val value = """{
                 |  "object": [
                 |    {

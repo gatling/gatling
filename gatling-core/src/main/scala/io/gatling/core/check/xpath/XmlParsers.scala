@@ -30,7 +30,6 @@ import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmNode, Xd
 import org.xml.sax.InputSource
 
 private final class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: Long) {
-
   private val selectorCache: LoadingCache[String, ThreadLocal[XPathSelector]] =
     Cache.newConcurrentLoadingCache(
       cacheMaxCapacity,
@@ -80,7 +79,6 @@ object XmlParsers {
 }
 
 final class XmlParsers(cacheMaxCapacity: Long) {
-
   private val scopesByNamespacesCache: LoadingCache[Map[String, String], NamespacesScope] =
     Cache.newConcurrentLoadingCache(
       cacheMaxCapacity,

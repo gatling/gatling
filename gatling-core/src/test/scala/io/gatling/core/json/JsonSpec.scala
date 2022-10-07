@@ -30,7 +30,6 @@ import io.gatling.core.json.Json._
 private final case class Foo(bar: String, baz: Int)
 
 class JsonSpec extends BaseSpec {
-
   "stringify" should "be able to stringify strings" in {
     stringify("Foo", isRootObject = true) shouldBe "Foo"
   }

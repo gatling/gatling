@@ -25,7 +25,6 @@ import com.mitchellbosecke.pebble.extension.AbstractExtension
 object TestExtension extends AbstractExtension
 
 class PebbleExtensionsSpec extends BaseSpec with ValidationValues {
-
   "PebbleExtensions" should "should allow registration" in {
     Try(PebbleExtensions.register(Seq(TestExtension))) shouldBe Success(())
   }

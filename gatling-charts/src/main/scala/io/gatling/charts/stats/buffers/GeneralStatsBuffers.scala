@@ -25,7 +25,6 @@ import io.gatling.commons.stats.Status
 import com.tdunning.math.stats.AVLTreeDigest
 
 private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
-
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupCumulatedResponseTimeGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -59,14 +58,12 @@ private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
 }
 
 private[stats] class GeneralStatsBuffer(durationInSec: Long) {
-
   val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)
   var sumOfSquares = 0L
   var sum = 0L
 
   def update(time: Int): Unit = {
-
     val newCount = counts.get(time) match {
       case Some(count) => count + 1
       case None        => 1
@@ -82,7 +79,6 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
     val valuesCount = digest.size
     if (valuesCount == 0) {
       GeneralStats.NoPlot
-
     } else {
       val count = digest.size
       val mean = sum.toDouble / count

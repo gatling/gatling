@@ -28,7 +28,6 @@ import io.gatling.commons.shared.unstable.util.PathHelper
 import io.gatling.commons.util.Io._
 
 private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
-
   private def classNameToPath(name: String): Path =
     if (name.endsWith(".class")) Paths.get(name)
     else Paths.get(name.replace('.', '/') + ".class")
@@ -103,9 +102,8 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
       implVersion: String,
       implVendor: String,
       sealBase: URL
-  ): Package = {
+  ): Package =
     throw new UnsupportedOperationException()
-  }
 
   override def getPackage(name: String): Package = findPath(dirNameToPath(name)) match {
     case None => super.getPackage(name)

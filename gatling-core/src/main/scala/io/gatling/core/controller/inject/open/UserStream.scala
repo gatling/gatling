@@ -36,7 +36,6 @@ private object UserStream {
 }
 
 private class UserStream(users: Iterator[FiniteDuration]) {
-
   private val stream: PushbackIterator[FiniteDuration] = new PushbackIterator(users)
 
   def withStream(batchWindow: FiniteDuration, injectTime: Long, startTime: Long)(f: FiniteDuration => Unit): UserStreamBatchResult =

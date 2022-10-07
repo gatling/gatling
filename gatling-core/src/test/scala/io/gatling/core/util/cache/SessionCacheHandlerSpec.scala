@@ -22,7 +22,6 @@ import io.gatling.core.EmptySession
 import org.scalatest.OptionValues
 
 class SessionCacheHandlerSpec extends BaseSpec with OptionValues with EmptySession {
-
   private val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
 
   "getCache" should "return None if the cache does not exist" in {

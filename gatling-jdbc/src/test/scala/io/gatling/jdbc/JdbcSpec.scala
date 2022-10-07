@@ -21,7 +21,6 @@ import java.sql.DriverManager
 import scala.util.Using
 
 trait JdbcSpec {
-
   protected val Username: String = "sa"
   protected val Password: String = ""
 

@@ -30,7 +30,6 @@ private[headless] object HeadlessFrontEnd {
   private val RecorderPidFile = new File(".gatling-recorder-pid")
 }
 private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
-
   import HeadlessFrontEnd._
 
   private var hasRun = false
@@ -81,10 +80,9 @@ private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration
   }
 
   override def handleMissingHarFile(path: String): Unit = {
-    val errorMessage = {
+    val errorMessage =
       if (path.isEmpty) "The HAR file to convert was not specified, either through recorder.conf or through CLI options."
       else s"Could not find the HAR file (path: $path)"
-    }
     printErr(errorMessage)
   }
 

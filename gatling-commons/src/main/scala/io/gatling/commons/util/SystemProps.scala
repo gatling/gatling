@@ -17,7 +17,6 @@
 package io.gatling.commons.util
 
 object SystemProps {
-
   def setSystemPropertyIfUndefined(name: String, value: Any): Unit =
     if (System.getProperty(name) == null) {
       System.setProperty(name, value.toString)

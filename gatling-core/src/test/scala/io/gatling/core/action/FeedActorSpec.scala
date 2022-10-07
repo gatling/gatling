@@ -24,7 +24,6 @@ import io.gatling.core.session._
 import akka.testkit._
 
 class FeedActorSpec extends AkkaSpec {
-
   private def createFeedActor[T](feeder: Feeder[T], controller: TestProbe) =
     TestActorRef(FeedActor.props(feeder, None, controller.ref))
 

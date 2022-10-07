@@ -42,7 +42,6 @@ final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp:
 final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends StatsEngineMessage
 
 class LoggingStatsEngine extends StatsEngine {
-
   private[test] val msgQueue = new ConcurrentLinkedDeque[Any]
 
   override def start(): Unit = {}

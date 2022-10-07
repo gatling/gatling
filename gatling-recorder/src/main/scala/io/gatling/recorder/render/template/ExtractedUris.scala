@@ -25,7 +25,6 @@ private[render] final case class UrlVal(valName: String, url: String)
 private[render] final case class SchemeHost(scheme: String, host: String)
 
 object ExtractedUris {
-
   private def longestCommonRoot(pathsStrs: List[String]): String = {
     def longestCommonRootRec(sa1: Array[String], sa2: Array[String]): Array[String] = {
       val minLen = math.min(sa1.length, sa2.length)
@@ -75,16 +74,13 @@ object ExtractedUris {
   /**
    * Extracts common URIs parts into vals. The algorithm is the following:
    *
-   * group by (scheme, authority)
-   * inside a group:
-   *    if (count > 1) use the longer common root
-   *    else use the (scheme, authority)
-   * if multiple roots have the same host but different schemes/ports, create a val for the hos
+   * group by (scheme, authority) inside a group: if (count > 1) use the longer common root else use the (scheme, authority) if multiple roots have the same
+   * host but different schemes/ports, create a val for the hos
    *
-   * @param scenarioElements - contains uris to extracts common parts from
+   * @param scenarioElements
+   *   \- contains uris to extracts common parts from
    */
   def apply(scenarioElements: Seq[HttpTrafficElement], format: Format): ExtractedUris = {
-
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
 
     val urisGroupedByHost: Map[String, List[Uri]] =
@@ -107,7 +103,6 @@ object ExtractedUris {
 
           tmpUrls = UrlVal(valName, uris.head.getBaseUrl + longestCommonPath) :: tmpUrls
           extractLongestPathUrls(uris, longestCommonPath, valName, format)
-
         } else {
           tmpUrls = UrlVal(valName, uris.head.getHost) :: tmpUrls
           extractCommonHostUrls(uris, valName, format)

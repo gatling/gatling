@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.charts.util.HtmlHelper._
 
 class HtmlHelperSpec extends BaseSpec {
-
   "htmlEscape" should "escape with entity chars" in {
     "fooYéfoo".htmlEscape shouldBe "fooY&eacute;foo"
   }

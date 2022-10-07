@@ -29,7 +29,6 @@ sealed trait ComparisonOperator extends Product with Serializable {
 
 // Comparison operators
 sealed trait ComparisonWithOrderingOperator extends ComparisonOperator {
-
   protected def compare[T: Ordering](lhs: T, rhs: T): Boolean
 
   private def compareNumbers(lhs: JsonNode, rhs: JsonNode): Boolean =

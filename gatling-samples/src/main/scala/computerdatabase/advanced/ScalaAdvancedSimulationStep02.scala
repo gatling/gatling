@@ -22,7 +22,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ScalaAdvancedSimulationStep02 extends Simulation {
-
   val search =
     exec(http("Home").get("/"))
       .pause(1)

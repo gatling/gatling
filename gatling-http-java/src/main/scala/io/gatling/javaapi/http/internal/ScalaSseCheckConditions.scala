@@ -28,7 +28,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.http.SseMessageCheck
 
 object ScalaSseCheckConditions {
-
   def untyped(context: io.gatling.http.check.sse.SseMessageCheck, condition: String): Untyped =
     new Untyped(context, condition.el)
 

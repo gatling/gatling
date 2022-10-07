@@ -25,7 +25,6 @@ import io.gatling.recorder.config.ConfigKeys._
 import io.gatling.recorder.render.template.Format
 
 class RecorderPropertiesBuilder {
-
   private val props = mutable.Map.empty[String, Any]
 
   def mode(mode: RecorderMode): RecorderPropertiesBuilder = {

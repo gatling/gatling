@@ -36,7 +36,6 @@ private[core] case object DoWhileDuringType extends LoopType("doWhileDuring", tr
 private[core] sealed abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType)
     extends ActionBuilder
     with NameGen {
-
   def continueCondition(ctx: ScenarioContext): Expression[Boolean]
 
   def build(ctx: ScenarioContext, next: Action): Action = {

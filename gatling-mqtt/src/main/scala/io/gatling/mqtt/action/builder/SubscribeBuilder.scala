@@ -38,7 +38,6 @@ case class SubscribeBuilder(
     qosOverride: Option[MqttQoS],
     expectation: Option[MqttExpectation]
 ) extends MqttActionBuilder {
-
   def qosAtMostOnce: SubscribeBuilder = qos(MqttQoS.AT_MOST_ONCE)
   def qosAtLeastOnce: SubscribeBuilder = qos(MqttQoS.AT_LEAST_ONCE)
   def qosExactlyOnce: SubscribeBuilder = qos(MqttQoS.EXACTLY_ONCE)

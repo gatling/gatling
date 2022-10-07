@@ -23,6 +23,5 @@ import io.gatling.core.structure.ScenarioContext
 import com.typesafe.scalalogging.StrictLogging
 
 class ConnectBuilder(requestName: Expression[String]) extends MqttActionBuilder with StrictLogging {
-
   override def build(ctx: ScenarioContext, next: Action): Action = ???
 }

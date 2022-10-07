@@ -21,9 +21,8 @@ import io.gatling.commons.validation._
 package object check {
 
   /**
-   * Transform the raw response into something that will be used as check input,
-   * e.g. building a DOM tree from an HTTP response body.
-   * The result might be cached and reused for other checks of the same kind performed on the same response.
+   * Transform the raw response into something that will be used as check input, e.g. building a DOM tree from an HTTP response body. The result might be cached
+   * and reused for other checks of the same kind performed on the same response.
    */
   type Preparer[R, P] = R => Validation[P]
 

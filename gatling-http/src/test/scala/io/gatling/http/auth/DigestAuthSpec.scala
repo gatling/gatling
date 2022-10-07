@@ -28,7 +28,6 @@ object DigestAuthSpec {
 }
 
 class DigestAuthSpec extends BaseSpec with ValidationValues {
-
   import DigestAuthSpec._
 
   "parse" should "parse a simple well-formed header" in {

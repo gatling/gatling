@@ -23,7 +23,6 @@ import scala.jdk.CollectionConverters._
 import io.gatling.javaapi.core.Session
 
 object Sessions {
-
   def groups(session: Session): ju.List[String] =
     session.asScala.groups.asJava
 }

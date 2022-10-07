@@ -58,7 +58,7 @@ private[swing] object CharsetHelper extends StrictLogging {
 
   val charsetNameToLabel: Map[Name, Label] = labelOrderedPairList.toMap
 
-  val orderedLabelList: List[Label] = labelOrderedPairList.map { _._2 }
+  val orderedLabelList: List[Label] = labelOrderedPairList.map(_._2)
 
   val labelToCharsetName = charsetNameToLabel.map(_.swap)
 }

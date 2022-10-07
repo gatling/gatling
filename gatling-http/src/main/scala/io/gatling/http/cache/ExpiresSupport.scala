@@ -42,7 +42,6 @@ object ExpiresSupport {
 }
 
 private[cache] trait ExpiresSupport {
-
   def clock: Clock
 
   private val MaxAgePrefix = "max-age="
@@ -63,7 +62,6 @@ private[cache] trait ExpiresSupport {
   }
 
   def extractExpiresValue(timestring: String): Option[Long] = {
-
     def removeQuote(s: String) =
       if (s.isEmpty) {
         s
@@ -114,7 +112,6 @@ private[cache] trait ExpiresSupport {
   }
 
   def getResponseExpires(responseHeaders: HttpHeaders): Option[Long] = {
-
     val pragmaHeader = responseHeaders.get(HttpHeaderNames.PRAGMA)
     if (pragmaHeader != null && pragmaHeader.contains(HttpHeaderValues.NO_CACHE.toString)) {
       None

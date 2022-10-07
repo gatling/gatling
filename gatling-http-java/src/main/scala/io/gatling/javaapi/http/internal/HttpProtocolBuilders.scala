@@ -21,7 +21,6 @@ import java.{ util => ju }
 import scala.jdk.CollectionConverters._
 
 object HttpProtocolBuilders {
-
   def toScalaAliases(aliases: ju.Map[String, ju.List[String]]): Map[String, List[String]] =
     aliases.asScala.view.mapValues(_.asScala.toList).toMap
 }

@@ -22,7 +22,6 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.Collections._
 
 class OpenInjectionStepSpec extends BaseSpec {
-
   private def scheduling(steps: OpenInjectionStep*): List[FiniteDuration] =
     steps.reverse
       .foldLeft[Iterator[FiniteDuration]](Iterator.empty) { (it, step) =>
@@ -39,7 +38,6 @@ class OpenInjectionStepSpec extends BaseSpec {
   }
 
   it should "schedule with a correct interval" in {
-
     val ramp = RampOpenInjection(5, 1.second)
     val rampScheduling = scheduling(ramp)
     val interval0 = rampScheduling(1) - rampScheduling.head
@@ -128,7 +126,6 @@ class OpenInjectionStepSpec extends BaseSpec {
   }
 
   it should "return a scheduling of constant step when the acceleration is null" in {
-
     val constantRampScheduling = scheduling(RampRateOpenInjection(1.0, 1.0, 10.seconds))
 
     val steps = constantRampScheduling

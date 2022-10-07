@@ -21,7 +21,6 @@ import io.gatling.core.session.Session
 import io.gatling.http.action.sse.fsm.SseFsm
 
 trait SseAction {
-
   final def fetchFsm(sseName: String, session: Session): Validation[SseFsm] =
     session.attributes.get(sseName) match {
       case Some(sseFsm) => sseFsm.asInstanceOf[SseFsm].success

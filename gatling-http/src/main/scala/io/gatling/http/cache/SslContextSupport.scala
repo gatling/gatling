@@ -29,7 +29,6 @@ import io.gatling.http.util.SslContexts
 import com.typesafe.scalalogging.StrictLogging
 
 private[http] object SslContextSupport extends StrictLogging {
-
   private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.ssl.sslContexts")
 
   private def resolvePerUserKeyManagerFactory(session: Session, perUserKeyManagerFactory: Option[Long => KeyManagerFactory]): Option[KeyManagerFactory] =
@@ -49,11 +48,9 @@ private[http] object SslContextSupport extends StrictLogging {
     if (httpProtocol.enginePart.shareConnections) {
       Session.Identity
     } else { session =>
-      {
-        val perUserKeyManagerFactory = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
-        val sslContexts = httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, perUserKeyManagerFactory)
-        session.set(HttpSslContextsAttributeName, sslContexts)
-      }
+      val perUserKeyManagerFactory = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
+      val sslContexts = httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, perUserKeyManagerFactory)
+      session.set(HttpSslContextsAttributeName, sslContexts)
     }
 
   def sslContexts(session: Session): Option[SslContexts] =

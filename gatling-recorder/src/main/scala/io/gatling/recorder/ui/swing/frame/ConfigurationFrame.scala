@@ -46,7 +46,6 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing
 private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuration: RecorderConfiguration) extends MainFrame {
-
   //////////////////////////////////////
   //           COMPONENTS
   //////////////////////////////////////
@@ -395,7 +394,6 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   )
 
   private def registerValidators(): Unit = {
-
     val keystorePathValidator = (s: String) => selectedHttpsMode != ProvidedKeyStore || isNonEmpty(s)
     val keystorePasswordValidator = (s: String) => selectedHttpsMode != ProvidedKeyStore || isNonEmpty(s)
 
@@ -494,7 +492,6 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */
   private def populateItemsFromConfiguration(): Unit = {
-
     modeSelector.selection.item = configuration.core.mode
     toggleModeSelector(modeSelector.selection.item)
 
@@ -542,8 +539,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   }
 
   /**
-   * Reload configuration from the content of the configuration frame
-   * and start recording
+   * Reload configuration from the content of the configuration frame and start recording
    */
   private def reloadConfigurationAndStart(): Unit = {
     // clean up filters
@@ -558,7 +554,6 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
 
     if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
-
     } else {
       val props = new RecorderPropertiesBuilder
 

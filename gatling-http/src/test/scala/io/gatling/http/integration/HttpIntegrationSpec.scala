@@ -29,13 +29,11 @@ import io.netty.handler.codec.http.{ DefaultFullHttpResponse, HttpHeaderNames =>
 import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
-
   private val regexCheck = super[CoreDsl].regex(_)
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   ignore should "send cookies returned in redirects in subsequent requests" in {
-
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
@@ -99,7 +97,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   }
 
   ignore should "retrieve linked resources, when resource downloading is enabled" in {
-
     val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
       sendFile(path.drop(1)) // Drop leading slash in path
     }
@@ -129,7 +126,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   }
 
   ignore should "fetch resources in conditional comments" in {
-
     val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
       sendFile(path.drop(1)) // Drop leading slash in path
     }

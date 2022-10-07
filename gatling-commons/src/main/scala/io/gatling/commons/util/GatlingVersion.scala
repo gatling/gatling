@@ -31,7 +31,6 @@ import io.gatling.commons.util.Io._
 import com.typesafe.scalalogging.StrictLogging
 
 object GatlingVersion {
-
   val ThisVersion: GatlingVersion = {
     val bundle = ResourceBundle.getBundle("gatling-version")
     GatlingVersion(
@@ -51,7 +50,6 @@ final case class GatlingVersion(fullVersion: String, releaseDate: ZonedDateTime)
 }
 
 private object LatestGatlingRelease extends StrictLogging {
-
   private sealed abstract class FetchResult(val lastCheckTimestamp: Long, maxAgeMillis: Long) extends Product with Serializable {
     def valid(nowMillis: Long): Boolean = nowMillis - lastCheckTimestamp < maxAgeMillis
   }
@@ -122,7 +120,6 @@ private object LatestGatlingRelease extends StrictLogging {
 
         val response = new String(conn.getInputStream.toByteArray(), StandardCharsets.UTF_8)
         parseMavenCentralResponse(response)
-
       } finally {
         conn.disconnect()
       }

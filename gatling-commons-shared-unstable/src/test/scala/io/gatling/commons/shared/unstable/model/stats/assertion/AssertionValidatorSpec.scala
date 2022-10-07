@@ -25,7 +25,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoSugar {
-
   private def validateAssertions[T](
       assertions: List[Assertion],
       mockedMethodCall: GeneralStatsSource => T,
@@ -38,7 +37,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   "global.requestsPerSec.between" should "return a success when actual value is within inclusive" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
@@ -50,7 +48,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a success when actual value is inclusive range higher bound" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
@@ -62,7 +59,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a success when actual value is inclusive range lower bound" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
@@ -74,7 +70,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a failure when actual value is outside inclusive range" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
@@ -86,7 +81,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a success when actual value is within exclusive range" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
@@ -98,7 +92,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a failure when actual value is exclusive range higher bound" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
@@ -110,7 +103,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a failure when actual value is exclusive range lower bound" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
@@ -122,7 +114,6 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
   }
 
   it should "return a failure when actual value is outside exclusive range" in {
-
     val res = validateAssertions(
       List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),

@@ -24,7 +24,6 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.Io._
 
 class CompositeByteArrayInputStreamSpec extends BaseSpec {
-
   "CompositeByteArrayInputStream" should "properly read full bytes" in {
     val bytes1 = "hello".getBytes(UTF_8)
     val bytes2 = " ".getBytes(UTF_8)

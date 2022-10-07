@@ -25,7 +25,6 @@ import io.gatling.core.EmptySession
 import io.gatling.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage with EmptySession {
-
   private val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
     case _               => false

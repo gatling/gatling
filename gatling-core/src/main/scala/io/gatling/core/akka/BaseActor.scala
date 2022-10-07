@@ -23,7 +23,6 @@ import akka.actor.{ Actor, ActorSystem, Scheduler, Terminated }
 import com.typesafe.scalalogging.LazyLogging
 
 private[gatling] abstract class BaseActor extends Actor with LazyLogging {
-
   implicit def system: ActorSystem = context.system
   def scheduler: Scheduler = system.scheduler
   implicit def dispatcher: ExecutionContext = system.dispatcher

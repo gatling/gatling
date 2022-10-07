@@ -26,7 +26,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.Repeat
 
 object ScalaRepeat {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Repeat[T, W],
       times: jl.Integer,
@@ -53,7 +52,6 @@ object ScalaRepeat {
       duration: Expression[Int],
       counterName: String
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.repeat(duration, counterName)(chain.wrapped))
   }

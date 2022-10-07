@@ -25,7 +25,6 @@ private object ArrayBasedMap {
 }
 
 private final class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int) extends AbstractMap[K, V] with Map[K, V] with Serializable {
-
   override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = HashMap.empty[K, V1] ++ this + (key -> value)
 
   override def get(key: K): Option[V] = {
@@ -41,7 +40,6 @@ private final class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], overr
   }
 
   override def iterator: Iterator[(K, V)] = new AbstractIterator[(K, V)] {
-
     private var i = 0
 
     override def hasNext: Boolean =

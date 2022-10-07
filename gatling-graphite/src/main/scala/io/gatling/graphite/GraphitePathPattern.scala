@@ -21,14 +21,12 @@ import io.gatling.core.stats.writer.RunMessage
 import io.gatling.graphite.types._
 
 abstract class GraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) {
-
   def allUsersPath: GraphitePath
   def usersPath(scenario: String): GraphitePath
   def allResponsesPath: GraphitePath
   def responsePath(requestName: String, groups: List[String]): GraphitePath
 
   def metrics(userBreakdowns: Map[GraphitePath, UserBreakdown], responseMetricsByStatus: Map[GraphitePath, MetricByStatus]): Iterator[(String, Long)] = {
-
     val userMetrics = userBreakdowns.iterator.flatMap(byProgress)
 
     val targetResponseMetrics =

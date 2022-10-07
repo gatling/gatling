@@ -23,7 +23,6 @@ import scala.jdk.CollectionConverters._
 import io.netty.handler.codec.http.cookie.Cookie
 
 package object cache {
-
   type Cookies = Map[String, String]
 
   object Cookies {

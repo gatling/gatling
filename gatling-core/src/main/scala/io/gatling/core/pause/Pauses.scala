@@ -36,7 +36,6 @@ object Constant extends PauseType {
 }
 
 object Exponential extends PauseType {
-
   private def nextValue = {
     val rnd = ThreadLocalRandom.current
     var u = 0d
@@ -51,7 +50,6 @@ object Exponential extends PauseType {
 }
 
 final class NormalWithPercentageDuration(stdDev: Double) extends PauseType {
-
   private val stdDevPercent = stdDev / 100.0
 
   override def generator(duration: Expression[FiniteDuration]): Expression[Long] =
@@ -68,7 +66,6 @@ final class Custom(custom: Expression[Long]) extends PauseType {
 }
 
 final class UniformPercentage(plusOrMinus: Double) extends PauseType {
-
   private val plusOrMinusPercent = plusOrMinus / 100.0
 
   override def generator(duration: Expression[FiniteDuration]): Expression[Long] =
@@ -82,7 +79,6 @@ final class UniformPercentage(plusOrMinus: Double) extends PauseType {
 }
 
 final class UniformDuration(plusOrMinus: FiniteDuration) extends PauseType {
-
   private val halfWidth = plusOrMinus.toMillis
 
   override def generator(duration: Expression[FiniteDuration]): Expression[Long] =

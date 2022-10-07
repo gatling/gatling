@@ -22,7 +22,6 @@ import io.gatling.recorder.util.Labelled
 sealed abstract class RecorderMode(val label: String) extends Labelled with ClassSimpleNameToString with Product with Serializable
 
 object RecorderMode {
-
   case object Proxy extends RecorderMode("HTTP Proxy")
   case object Har extends RecorderMode("HAR Converter")
 

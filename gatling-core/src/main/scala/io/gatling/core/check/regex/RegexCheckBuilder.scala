@@ -27,7 +27,6 @@ sealed trait RegexOfType { self: RegexCheckBuilder[String] =>
 }
 
 object RegexCheckBuilder {
-
   def regex(pattern: Expression[String], patterns: Patterns): RegexCheckBuilder[String] with RegexOfType =
     new RegexCheckBuilder[String](pattern, patterns) with RegexOfType
 }
@@ -36,7 +35,6 @@ class RegexCheckBuilder[X: GroupExtractor](
     private[regex] val pattern: Expression[String],
     private[regex] val patterns: Patterns
 ) extends CheckBuilder.MultipleFind.Default[RegexCheckType, String, X](displayActualValue = true) {
-
   override protected def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
     pattern.map(RegexExtractors.find[X]("regex", _, occurrence, patterns))
   override protected def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("regex", _, patterns))

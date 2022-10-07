@@ -36,7 +36,6 @@ private[inject] final class ClosedWorkload(
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine
 ) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
-
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero
 

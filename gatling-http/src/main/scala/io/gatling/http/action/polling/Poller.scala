@@ -42,7 +42,6 @@ private[polling] class Poller(
     httpProtocol: HttpProtocol,
     statsEngine: StatsEngine
 ) extends StrictLogging {
-
   private var session: Session = _
   private var timer: ScheduledFuture[_] = _
 

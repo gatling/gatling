@@ -70,7 +70,6 @@ final case class SourceFeederBuilder[T](
     options: FeederOptions[T]
 ) extends BatchableFeederBuilder[T]
     with NamedFeederBuilder {
-
   def queue: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Queue)
   def random: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Random)
   def shuffle: BatchableFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Shuffle)

@@ -19,7 +19,6 @@ import io.gatling.http.Predef._
 import org.apache.commons.codec.digest.DigestUtils
 
 class HttpProtocolSampleScala extends Simulation {
-
   {
 //#bootstrapping
 val httpProtocol = http.baseUrl("https://gatling.io")

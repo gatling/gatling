@@ -20,7 +20,6 @@ import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage 
 import io.gatling.core.cli.CommandLineConstant
 
 private[bundle] object CommandLineConstants {
-
   val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
   val RunMode = new CommandLineConstant(
     "run-mode",

@@ -17,7 +17,6 @@
 import io.gatling.core.Predef._
 
 class AssertionSampleScala extends Simulation {
-
   val population = scenario("foo").inject(atOnceUsers(1))
 
 //#setUp

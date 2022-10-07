@@ -28,7 +28,6 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "checkIf.true.succeed" should "perform the succeed nested check" in {

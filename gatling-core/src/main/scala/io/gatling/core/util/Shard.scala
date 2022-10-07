@@ -19,7 +19,6 @@ package io.gatling.core.util
 import scala.collection.AbstractIterator
 
 object Shard {
-
   private[this] def sumFromZero(total: Long, buckets: Int, bucketNumber: Int): Long =
     if (bucketNumber == -1) {
       0L

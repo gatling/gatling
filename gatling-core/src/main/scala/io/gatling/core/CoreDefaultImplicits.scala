@@ -26,7 +26,6 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.json.JsonParsers
 
 trait CoreDefaultImplicits {
-
   implicit def configuration: GatlingConfiguration
 
   lazy implicit val defaultPatterns: Patterns = new Patterns(configuration.core.extract.regex.cacheMaxCapacity)

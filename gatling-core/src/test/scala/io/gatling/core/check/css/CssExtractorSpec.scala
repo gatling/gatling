@@ -26,7 +26,6 @@ import io.gatling.commons.util.Io._
 import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorSpec extends BaseSpec with ValidationValues {
-
   private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def prepared(file: String): NodeSelector = Using.resource(getClass.getResourceAsStream(file)) { is =>

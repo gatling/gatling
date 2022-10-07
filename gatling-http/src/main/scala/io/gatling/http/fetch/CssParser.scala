@@ -25,7 +25,6 @@ import io.gatling.http.util.HttpHelper
 import com.typesafe.scalalogging.StrictLogging
 
 private[fetch] object CssParser extends StrictLogging {
-
   private val InlineStyleImageUrls = """url\((.*)\)""".r
   private val StyleImportsUrls = """@import url\((.*)\)""".r
 
@@ -68,7 +67,6 @@ private[fetch] object CssParser extends StrictLogging {
                 case _ =>
                   broken = true
                   cur
-
               }
             case '"' =>
               protectChar match {
@@ -124,7 +122,6 @@ private[fetch] object CssParser extends StrictLogging {
     }
 
   def extractResources(cssURI: Uri, cssContent: String): List[ConcurrentResource] = {
-
     val resources = collection.mutable.ArrayBuffer.empty[ConcurrentResource]
 
     var withinComment = false
@@ -133,9 +130,8 @@ private[fetch] object CssParser extends StrictLogging {
     var urlStart = 0
 
     def charsMatch(i: Int, chars: Array[Char]): Boolean = {
-
       @tailrec
-      def charsMatchRec(j: Int): Boolean = {
+      def charsMatchRec(j: Int): Boolean =
         if (j == chars.length)
           true
         else if (cssContent.charAt(i + j) != chars(j))
@@ -143,14 +139,11 @@ private[fetch] object CssParser extends StrictLogging {
         else
           charsMatchRec(j + 1)
 
-      }
-
       i < cssContent.length - chars.length && charsMatchRec(1)
     }
 
     var i = 0
     while (i < cssContent.length) {
-
       (cssContent.charAt(i): @switch) match {
         case '/' =>
           if (
@@ -159,7 +152,6 @@ private[fetch] object CssParser extends StrictLogging {
           ) {
             withinComment = true
             i += 1
-
           } else if (
             i > 0 &&
             cssContent.charAt(i - 1) == '*'

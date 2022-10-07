@@ -23,7 +23,6 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 
 private[http] object RefererHandling {
-
   private val RefererAttributeName = SessionPrivateAttributes.generatePrivateAttribute("http.referer")
 
   def getStoredReferer(session: Session): Option[String] = session(RefererAttributeName).asOption[String]

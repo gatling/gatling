@@ -23,7 +23,6 @@ import io.gatling.charts.component.GroupedCount
 import io.gatling.charts.component.Stats
 
 class ConsoleTemplateSpec extends BaseSpec {
-
   "console template" should "format the request counters properly" in {
     val numberOfRequestsStatistics = new Stats("numberOfRequestsStatistics", 20L, 19L, 1L)
     val out = ConsoleTemplate.writeRequestCounters(new jl.StringBuilder, numberOfRequestsStatistics).toString

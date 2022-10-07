@@ -25,7 +25,6 @@ import io.gatling.commons.shared.unstable.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
 
 private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
-
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._
 

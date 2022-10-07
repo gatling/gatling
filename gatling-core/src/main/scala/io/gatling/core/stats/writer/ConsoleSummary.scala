@@ -29,7 +29,6 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[gatling] object ConsoleSummary {
-
   private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
   private val Iso8601DateTimeFormat = DateTimeFormatter.ofPattern(Iso8601Format)
   val OutputLength: Int = 80
@@ -47,9 +46,7 @@ private[gatling] object ConsoleSummary {
       configuration: GatlingConfiguration,
       time: TemporalAccessor
   ): ConsoleSummary = {
-
     def writeUsersCounters(sb: jl.StringBuilder, scenarioName: String, userCounters: UserCounters): jl.StringBuilder = {
-
       import userCounters._
       totalUserCount match {
         case Some(tot) if tot >= doneCount + activeCount =>
@@ -88,7 +85,6 @@ private[gatling] object ConsoleSummary {
     }
 
     def writeRequestsCounter(sb: jl.StringBuilder, actionName: String, requestCounters: RequestCounters): jl.StringBuilder = {
-
       import requestCounters._
       val maxActionNameLength = OutputLength - 24
       sb.append("> ")

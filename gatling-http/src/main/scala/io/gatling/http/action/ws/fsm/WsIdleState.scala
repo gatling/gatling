@@ -29,7 +29,6 @@ import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame, WebSocketCloseStatus }
 
 final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, protected val remainingReconnects: Int) extends WsState(fsm) with StrictLogging {
-
   import fsm._
 
   override def onSendTextFrame(
@@ -49,9 +48,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending text frame")
         scheduleTimeout(timeout)
-        //[e]
+        // [e]
         //
-        //[e]
+        // [e]
         NextWsState(
           WsPerformingCheckState(
             fsm,
@@ -89,9 +88,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending binary frame")
         scheduleTimeout(timeout)
-        //[e]
+        // [e]
         //
-        //[e]
+        // [e]
         NextWsState(
           WsPerformingCheckState(
             fsm,
@@ -135,9 +134,9 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     logger.debug("Client requested WebSocket close")
     scheduleTimeout(connectRequest.getRequestTimeout.millis)
     webSocket.sendFrame(new CloseWebSocketFrame(closeStatus))
-    //[e]
+    // [e]
     //
-    //[e]
+    // [e]
     NextWsState(new WsClosingState(fsm, actionName, session, next, clock.nowMillis))
   }
 }

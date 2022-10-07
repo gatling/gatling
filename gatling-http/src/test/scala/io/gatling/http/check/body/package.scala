@@ -25,7 +25,6 @@ import io.gatling.http.response.{ ByteArrayResponseBody, Response, ResponseBody,
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpResponseStatus }
 
 package object body {
-
   def mockResponse(body: String): Response =
     mockResponse(new StringResponseBody(body, UTF_8))
 

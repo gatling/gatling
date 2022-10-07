@@ -21,7 +21,6 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.core.session.Expression
 
 trait PauseSupport {
-
   val disabledPauses: PauseType = Disabled
   val constantPauses: PauseType = Constant
   val exponentialPauses: PauseType = Exponential

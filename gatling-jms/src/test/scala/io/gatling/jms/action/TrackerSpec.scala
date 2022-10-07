@@ -29,7 +29,6 @@ import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 import akka.testkit.TestActorRef
 
 class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
-
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val clock = new DefaultClock

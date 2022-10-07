@@ -31,7 +31,6 @@ private[cache] final case class InferredPageResources(expire: String, requests: 
 private[cache] final case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
 
 private[cache] trait ResourceCacheSupport {
-
   def configuration: GatlingConfiguration
 
   // FIXME should CssContentCache use the same key?
@@ -60,7 +59,7 @@ private[cache] trait ResourceCacheSupport {
     val cacheKey = InferredResourcesCacheKey(httpProtocol, uri)
     Option(inferredResourcesCache.get(cacheKey)) match {
       case Some(InferredPageResources(`lastModifiedOrEtag`, inferredResources)) =>
-        //cache entry didn't expire, use it
+        // cache entry didn't expire, use it
         inferredResources
       case _ =>
         // cache entry missing or expired, update it

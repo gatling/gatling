@@ -26,13 +26,12 @@ private final class Pause(pauseDuration: Expression[Long], val statsEngine: Stat
     extends ExitableAction {
 
   /**
-   * Generates a duration if required or use the one given and defer
-   * next actor execution of this duration
+   * Generates a duration if required or use the one given and defer next actor execution of this duration
    *
-   * @param session the session of the virtual user
+   * @param session
+   *   the session of the virtual user
    */
   override def execute(session: Session): Unit = recover(session) {
-
     def schedule(durationInMillis: Long): Unit = {
       // can make pause
       logger.debug(s"Pausing for ${durationInMillis}ms")

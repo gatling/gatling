@@ -25,7 +25,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remainingReconnects: Int) extends WsState(fsm) with StrictLogging {
-
   override def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): NextWsState = {
     val newSession = (errorMessage match {
       case Some(mess) =>

@@ -25,14 +25,12 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 
 final class Patterns(cacheMaxCapacity: Long) {
-
   private val patternCache: LoadingCache[String, Pattern] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pattern.compile)
 
   private def compilePattern(pattern: String): Pattern = patternCache.get(pattern)
 
   def find[X: GroupExtractor](string: String, pattern: String, n: Int): Option[X] = {
-
     val matcher = compilePattern(pattern).matcher(string)
 
     @tailrec
@@ -45,7 +43,6 @@ final class Patterns(cacheMaxCapacity: Long) {
   }
 
   def findAll[X: GroupExtractor](string: String, pattern: String): Seq[X] = {
-
     val matcher = compilePattern(pattern).matcher(string)
 
     var acc = List.empty[X]

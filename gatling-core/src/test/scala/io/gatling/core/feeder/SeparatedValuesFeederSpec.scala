@@ -28,7 +28,6 @@ import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.feeder.Utf8BomSkipReadableByteChannel._
 
 class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "csv" should "not handle file without quote char" in {

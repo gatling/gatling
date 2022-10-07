@@ -27,7 +27,6 @@ import io.gatling.recorder.util.HttpUtils
 import io.netty.handler.codec.http.HttpHeaderNames
 
 private[render] class ProtocolTemplate(config: RecorderConfiguration) {
-
   private val format = config.core.format
 
   private def renderProxy = {

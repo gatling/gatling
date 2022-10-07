@@ -17,7 +17,6 @@
 package io.gatling.core.stats.message
 
 object ResponseTimings {
-
   def responseTime(startTimestamp: Long, endTimestamp: Long): Int =
     // < 0 means incoming message without duration
     if (endTimestamp < 0)
@@ -27,6 +26,5 @@ object ResponseTimings {
 }
 
 final class ResponseTimings(val startTimestamp: Long, val endTimestamp: Long) {
-
   val responseTime: Int = ResponseTimings.responseTime(startTimestamp, endTimestamp)
 }

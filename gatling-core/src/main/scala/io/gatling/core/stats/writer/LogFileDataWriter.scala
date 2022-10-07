@@ -35,7 +35,6 @@ import io.gatling.core.util.{ Integers, Longs }
 import com.typesafe.scalalogging.StrictLogging
 
 object BufferedFileChannelWriter {
-
   def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
     val encoder = configuration.core.charset.newEncoder
     val simulationLog = simulationLogDirectory(runId, create = true, configuration).resolve("simulation.log")
@@ -47,7 +46,6 @@ object BufferedFileChannelWriter {
 }
 
 final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEncoder, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
-
   def flush(): Unit = {
     bb.flip()
     while (bb.hasRemaining) {
@@ -67,7 +65,6 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
   }
 
   def writeString(string: String): Unit = {
-
     ensureCapacity(string.length * 4)
 
     val coderResult = encoder.encode(CharBuffer.wrap(string), bb, false)
@@ -77,7 +74,6 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
   }
 
   def writePositiveLong(l: Long): Unit = {
-
     val stringSize = Longs.positiveLongStringSize(l)
     ensureCapacity(stringSize)
 
@@ -85,7 +81,6 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
   }
 
   def writePositiveInt(i: Int): Unit = {
-
     val stringSize = Integers.positiveIntStringSize(i)
     ensureCapacity(stringSize)
 
@@ -102,7 +97,6 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
 }
 
 object DataWriterMessageSerializer {
-
   val Separator: String = "\t"
   val GroupSeparatorChar = ','
   val SeparatorBytes: Array[Byte] = Separator.getBytes(US_ASCII)
@@ -118,7 +112,6 @@ object DataWriterMessageSerializer {
 }
 
 abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter, header: String) {
-
   import DataWriterMessageSerializer._
 
   def writeSeparator(): Unit =
@@ -160,7 +153,6 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
 }
 
 class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[RunMessage](writer, RecordHeader.Run.value) {
-
   override protected def serialize0(runMessage: RunMessage): Unit = {
     import runMessage._
     writer.writeString(simulationClassName)
@@ -181,7 +173,6 @@ class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriter
 
 class UserStartMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.UserStart](writer, RecordHeader.User.value) {
-
   override protected def serialize0(user: DataWriterMessage.LoadEvent.UserStart): Unit = {
     import user._
     writer.writeString(scenario)
@@ -194,7 +185,6 @@ class UserStartMessageSerializer(writer: BufferedFileChannelWriter)
 
 class UserEndMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.UserEnd](writer, RecordHeader.User.value) {
-
   override protected def serialize0(user: DataWriterMessage.LoadEvent.UserEnd): Unit = {
     import user._
     writer.writeString(scenario)
@@ -207,7 +197,6 @@ class UserEndMessageSerializer(writer: BufferedFileChannelWriter)
 
 class ResponseMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.Response](writer, RecordHeader.Request.value) {
-
   import DataWriterMessageSerializer._
 
   override protected def serialize0(response: DataWriterMessage.LoadEvent.Response): Unit = {
@@ -231,7 +220,6 @@ class ResponseMessageSerializer(writer: BufferedFileChannelWriter)
 
 class GroupMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.Group](writer, RecordHeader.Group.value) {
-
   override protected def serialize0(group: DataWriterMessage.LoadEvent.Group): Unit = {
     import group._
     writeGroups(groupHierarchy)
@@ -247,7 +235,6 @@ class GroupMessageSerializer(writer: BufferedFileChannelWriter)
 }
 
 class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[Assertion](writer, RecordHeader.Assertion.value) {
-
   import io.gatling.commons.stats.assertion.AssertionPicklers._
 
   override protected def serialize0(assertion: Assertion): Unit = {
@@ -263,7 +250,6 @@ class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterM
 
 class ErrorMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.Error](writer, RecordHeader.Error.value) {
-
   override protected def serialize0(error: DataWriterMessage.LoadEvent.Error): Unit = {
     import error._
     writer.writeString(message)
@@ -282,9 +268,7 @@ final class FileData(
 ) extends DataWriterData
 
 class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
-
   def onInit(init: DataWriterMessage.Init): FileData = {
-
     import init._
 
     val writer = BufferedFileChannelWriter(runMessage.runId, configuration)

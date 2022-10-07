@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.jdbc.JdbcSpec
 
 class JdbcFeederSourceSpec extends BaseSpec with JdbcSpec {
-
   "JdbcFeederSource" should "be able to fetch data into a feeder" in withDatabase("customers", "feeder.sql") { url =>
     val feeder = JdbcFeederSource(url, Username, Password, "SELECT * FROM CUSTOMERS")
     feeder should have size 2

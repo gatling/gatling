@@ -39,7 +39,6 @@ final case class WsPerformingCheckState(
     next: Either[Action, SendFrame]
 ) extends WsState(fsm)
     with StrictLogging {
-
   import fsm._
 
   override def onTimeout(): NextWsState = {
@@ -119,7 +118,6 @@ final case class WsPerformingCheckState(
     }
 
   private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {
-
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
 
@@ -165,9 +163,9 @@ final case class WsPerformingCheckState(
             case nextCheck :: nextRemainingChecks =>
               // perform next check
               logger.debug("Perform next check of current check sequence")
-              //[e]
+              // [e]
               //
-              //[e]
+              // [e]
               NextWsState(this.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession))
 
             case _ =>
@@ -176,9 +174,9 @@ final case class WsPerformingCheckState(
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
-                  //[e]
+                  // [e]
                   //
-                  //[e]
+                  // [e]
                   NextWsState(
                     this.copy(
                       currentCheck = nextCheck,

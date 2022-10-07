@@ -21,7 +21,6 @@ import java.nio.file.{ Files, Path, Paths }
 import scala.util.Properties.{ envOrElse, propOrElse }
 
 object GatlingFiles {
-
   private val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   private[gatling] def resolvePath(path: Path): Path =

@@ -25,7 +25,6 @@ import scala.util.Using
 import io.gatling.core.feeder.Record
 
 object JdbcFeederSource {
-
   def apply(url: String, username: String, password: String, sql: String): Vector[Record[Any]] =
     Using.resource(DriverManager.getConnection(url, username, password)) { connection =>
       val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)

@@ -28,7 +28,6 @@ import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
 private[gatling] object SimulationClassLoader {
-
   def apply(binariesDirectory: Path): SimulationClassLoader =
     new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
 
@@ -43,8 +42,7 @@ private[gatling] object SimulationClassLoader {
 }
 
 private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
-
-  def simulationClasses: List[SimulationClass] = {
+  def simulationClasses: List[SimulationClass] =
     PathHelper
       .deepFiles(binaryDir, _.path.hasExtension("class"))
       .map(file => classLoader.loadClass(pathToClassName(file.path, binaryDir)))
@@ -53,7 +51,6 @@ private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir
         case clazz if isJavaSimulationClass(clazz)  => SimulationClass.Java(clazz.asInstanceOf[Class[JavaSimulation]])
       }
       .toList
-  }
 
   private def isConcreteClass(clazz: Class[_]): Boolean =
     !(clazz.isInterface || Modifier.isAbstract(clazz.getModifiers))

@@ -52,7 +52,6 @@ object CheckBuilder {
 
   object MultipleFind {
     abstract class Default[T, P, X](displayActualValue: Boolean) extends MultipleFind[T, P, X] {
-
       protected def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 
       protected def findAllExtractor: Expression[Extractor[P, Seq[X]]]
@@ -79,10 +78,8 @@ object CheckBuilder {
                 case Some(seq) =>
                   if (failIfLess && seq.sizeIs < num) {
                     s"Failed to collect $num matches".failure
-
                   } else if (seq.isEmpty) {
                     Validation.NoneSuccess
-
                   } else {
                     val randomSeq =
                       if (seq.sizeIs <= num) {
@@ -151,7 +148,6 @@ object CheckBuilder {
     private val TransformOptionArity: String => String = _ + ".transformOption"
 
     final case class Default[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) extends Validate[T, P, X] {
-
       private def mapExtractor[X2](
           extractedF: Validation[Option[X]] => Validation[Option[X2]],
           arityF: String => String

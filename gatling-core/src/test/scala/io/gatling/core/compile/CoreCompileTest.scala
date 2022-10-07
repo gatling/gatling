@@ -23,7 +23,6 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 
 class CoreCompileTest extends Simulation {
-
   // execs
   private val chain1 = exec(session => session)
   private val chain2 = exec(chain1, chain1).exec(chain1)
@@ -128,22 +127,22 @@ class CoreCompileTest extends Simulation {
     .repeat(1, "counterName")(chain1)
     .repeat(session => 1)(chain1)
     .repeat(session => 1, "counterName")(chain1)
-    //during - duration
+    // during - duration
     .during(1)(chain1)
     .during(1.second)(chain1)
     .during("#{duration}")(chain1)
     .during(session => 1.seconds)(chain1)
-    //during - duration + counterName
+    // during - duration + counterName
     .during(1, "counterName")(chain1)
     .during(1.second, "counterName")(chain1)
     .during("#{duration}", "counterName")(chain1)
     .during(session => 1.seconds, "counterName")(chain1)
-    //during - duration + exitASAP
+    // during - duration + exitASAP
     .during(1, exitASAP = true)(chain1)
     .during(1.second, exitASAP = true)(chain1)
     .during("#{duration}", exitASAP = true)(chain1)
     .during(session => 1.seconds, exitASAP = true)(chain1)
-    //during - duration + counterName + exitASAP
+    // during - duration + counterName + exitASAP
     .during(1, "counterName", exitASAP = true)(chain1)
     .during(1.second, "counterName", exitASAP = true)(chain1)
     .during("#{duration}", "counterName", exitASAP = true)(chain1)

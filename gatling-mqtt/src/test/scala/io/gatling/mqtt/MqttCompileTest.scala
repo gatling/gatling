@@ -25,7 +25,6 @@ import io.gatling.core.Predef._
 import io.gatling.mqtt.Predef._
 
 class MqttCompileTest extends Simulation {
-
   private val mqttProtocol = mqtt
     .broker("localhost", 1883)
     .useTls(false)

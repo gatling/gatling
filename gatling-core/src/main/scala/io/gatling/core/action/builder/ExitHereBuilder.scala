@@ -29,7 +29,6 @@ private[core] object ExitHereBuilder {
 }
 
 private[core] final class ExitHereBuilder(condition: Expression[Boolean]) extends ActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new ExitHere(condition, ctx.coreComponents.exit, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

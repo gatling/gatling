@@ -19,11 +19,9 @@ package io.gatling.sbt
 import sbt.testing.{ Fingerprint, Framework }
 
 /**
- * Gatling's test framework.
- * Test classes are filtered to only keep classes matching [[GatlingFingerprint]].
+ * Gatling's test framework. Test classes are filtered to only keep classes matching [[GatlingFingerprint]].
  */
 class GatlingFramework extends Framework {
-
   override val name: String = "gatling"
 
   override val fingerprints: Array[Fingerprint] = Array[Fingerprint](new GatlingFingerprint)

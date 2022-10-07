@@ -49,7 +49,6 @@ class SseStream(
     statsEngine: StatsEngine,
     clock: Clock
 ) extends StrictLogging {
-
   private val groups = originalSession.groups
   private[fsm] var fsm: SseFsm = _
   private var state: SseStreamState = _

@@ -22,11 +22,9 @@ import io.gatling.recorder.cli.CommandLineConstants._
 import io.gatling.recorder.config.{ RecorderMode, RecorderPropertiesBuilder }
 
 private[recorder] class ArgsParser(args: Array[String]) {
-
   private val props = new RecorderPropertiesBuilder
 
   private val cliOptsParser = new GatlingOptionParser[Unit]("recorder") {
-
     opt[Int](LocalPort)
       .foreach(props.localPort)
 

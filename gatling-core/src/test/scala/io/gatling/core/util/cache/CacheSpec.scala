@@ -19,7 +19,6 @@ package io.gatling.core.util.cache
 import io.gatling.BaseSpec
 
 class CacheSpec extends BaseSpec {
-
   "ImmutableCache.get" should "return the value wrapped in an Option if key present in cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
     val cacheWithValue = cache.put("key", "value")

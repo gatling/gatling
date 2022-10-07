@@ -29,7 +29,6 @@ import io.gatling.core.json.JsonParsers
 import com.fasterxml.jackson.databind.JsonNode
 
 object WsCheckMaterializer {
-
   class Binary[T, P](override val preparer: Preparer[Array[Byte], P]) extends CheckMaterializer[T, WsCheck.Binary, Array[Byte], P](new WsCheck.Binary(_))
 
   object Binary {

@@ -19,7 +19,6 @@ package io.gatling.recorder.cli
 import io.gatling.core.cli.CommandLineConstant
 
 private[gatling] object CommandLineConstants {
-
   val Help = new CommandLineConstant("help", "h", "Show help (this message) and exit", None)
   val LocalPort = new CommandLineConstant("local-port", "lp", "Local port used by Gatling Proxy for HTTP/HTTPS", None)
   val ProxyHost = new CommandLineConstant("proxy-host", "ph", "Outgoing proxy host", Some("<host>"))

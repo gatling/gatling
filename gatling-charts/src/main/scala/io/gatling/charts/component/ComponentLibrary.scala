@@ -25,7 +25,6 @@ import io.gatling.charts.stats._
 import com.typesafe.scalalogging.StrictLogging
 
 private[charts] object ComponentLibrary extends StrictLogging {
-
   val Instance: ComponentLibrary =
     ServiceLoader.load(classOf[ComponentLibrary]).iterator().asScala.toList match {
       case Nil         => throw new IllegalStateException("Couldn't find a ComponentLibrary implementation")

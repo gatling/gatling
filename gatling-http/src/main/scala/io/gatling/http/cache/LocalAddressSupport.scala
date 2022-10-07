@@ -23,7 +23,6 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 
 private[http] object LocalAddressSupport {
-
   private val LocalIpV4AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV4Address")
   private val LocalIpV6AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV6Address")
 

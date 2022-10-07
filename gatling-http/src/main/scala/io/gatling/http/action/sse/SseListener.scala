@@ -35,7 +35,6 @@ class SseInvalidContentTypeException(contentType: String) extends IOException(s"
 }
 
 class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
-
   private val decoder = new SseStreamDecoder
   private var channel: Channel = _
   private var closed = false
@@ -59,7 +58,6 @@ class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
         case HttpResponseStatus.OK =>
           if (contentType != null && contentType.startsWith(HttpHeaderValues.TEXT_EVENT_STREAM.toString)) {
             stream.connected()
-
           } else {
             onThrowable(new SseInvalidContentTypeException(contentType))
           }

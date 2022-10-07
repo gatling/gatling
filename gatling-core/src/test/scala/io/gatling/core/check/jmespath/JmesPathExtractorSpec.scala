@@ -21,7 +21,6 @@ import io.gatling.core.check.jsonpath.JsonFilter
 import io.gatling.core.json.JsonParsers
 
 class JmesPathExtractorSpec extends BaseSpec with ValidationValues {
-
   private val jsonParsers = new JsonParsers
   private val jmesPaths = new JmesPaths(Long.MaxValue)
 

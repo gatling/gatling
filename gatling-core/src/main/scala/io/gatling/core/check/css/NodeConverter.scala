@@ -21,7 +21,6 @@ import scala.annotation.implicitNotFound
 import jodd.lagarto.dom.Node
 
 sealed trait LowPriorityNodeConverterImplicits {
-
   implicit val stringNodeConverter: NodeConverter[String] = (node, nodeAttribute) =>
     nodeAttribute match {
       case Some(attr) => Option(node.getAttribute(attr))

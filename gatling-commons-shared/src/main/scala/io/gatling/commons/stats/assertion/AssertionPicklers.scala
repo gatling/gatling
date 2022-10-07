@@ -19,7 +19,6 @@ package io.gatling.commons.stats.assertion
 import boopickle.Default._
 
 object AssertionPicklers {
-
   private object Picklers {
     private implicit val TimeMetricPickler: Pickler[TimeMetric] =
       compositePickler[TimeMetric]

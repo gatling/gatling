@@ -26,7 +26,6 @@ import io.gatling.core.stats.StatsEngine
 import akka.actor.{ ActorRef, ActorSelection, ActorSystem, Props }
 
 private[gatling] object Controller {
-
   val ControllerActorName = "gatling-controller"
 
   def props(
@@ -42,7 +41,6 @@ private[gatling] object Controller {
 }
 
 private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option[Throttler], simulationParams: SimulationParams) extends ControllerFSM {
-
   import ControllerCommand._
   import ControllerData._
   import ControllerState._
@@ -86,12 +84,12 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       cancelTimer(maxDurationTimer)
       stopGracefully(data, None)
 
-    //[e]
+    // [e]
     //
     //
     //
     //
-    //[e]
+    // [e]
   }
 
   private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
@@ -113,11 +111,11 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       logger.error("Injector was forcefully stopped")
       stop(data)
 
-    //[e]
+    // [e]
     //
     //
     //
-    //[e]
+    // [e]
 
     case Event(message, _) =>
       logger.debug(s"Ignore message $message while waiting for resources to stop")

@@ -21,7 +21,6 @@ import scala.collection.mutable
 import io.gatling.core.ConfigKeys._
 
 final class GatlingPropertiesBuilder {
-
   private val props = mutable.Map.empty[String, Any]
 
   def noReports(): GatlingPropertiesBuilder = {

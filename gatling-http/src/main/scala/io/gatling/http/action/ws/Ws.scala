@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 object Ws {
-
   private val DefaultWebSocketName = SessionPrivateAttributes.generatePrivateAttribute("http.webSocket")
 
   def apply(requestName: Expression[String]): Ws = apply(requestName, DefaultWebSocketName.expressionSuccess)
@@ -38,17 +37,19 @@ object Ws {
 }
 
 /**
- * @param requestName The name of this request
- * @param wsName The name of the session attribute used to store the WebSocket
+ * @param requestName
+ *   The name of this request
+ * @param wsName
+ *   The name of the session attribute used to store the WebSocket
  */
 class Ws(requestName: Expression[String], wsName: Expression[String]) {
-
   def wsName(wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
   /**
    * Opens a WebSocket and stores it in the session.
    *
-   * @param url The socket URL
+   * @param url
+   *   The socket URL
    */
   def connect(url: Expression[String]): WsConnectRequestBuilder =
     WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None, None, Nil)
@@ -56,14 +57,16 @@ class Ws(requestName: Expression[String], wsName: Expression[String]) {
   /**
    * Sends a text frame on the given WebSocket.
    *
-   * @param text The message
+   * @param text
+   *   The message
    */
   def sendText(text: Expression[String]): WsSendTextFrameBuilder = WsSendTextFrameBuilder(requestName, wsName, text, Nil)
 
   /**
    * Sends a binary frame on the given WebSocket.
    *
-   * @param bytes The message
+   * @param bytes
+   *   The message
    */
   def sendBytes(bytes: Expression[Array[Byte]]): WsSendBinaryFrameBuilder = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
 

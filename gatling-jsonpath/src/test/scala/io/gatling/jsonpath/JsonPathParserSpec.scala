@@ -24,7 +24,6 @@ import org.scalatest.matchers.{ MatchResult, Matcher }
 import org.scalatest.matchers.should.Matchers
 
 class JsonPathParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
-
   "Fast string replacement" should "work as expected" in {
     fastReplaceAll("foo", "f", "b") shouldBe "boo"
     fastReplaceAll("foobarqix", "bar", "B") shouldBe "fooBqix"
@@ -126,9 +125,8 @@ class JsonPathParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers 
 
   // cf : http://goessner.net/articles/JsonPath
   "Expressions from Goessner specs" should "be correctly parsed" in {
-    def shouldParse(query: String, expected: Any) = {
+    def shouldParse(query: String, expected: Any) =
       new JsonPathParser().parse(query).get should be(expected)
-    }
 
     shouldParse(
       "$.store.book[0].title",
@@ -224,11 +222,9 @@ class JsonPathParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers 
         :: HasFilter(SubQuery(CurrentNode :: Field("foo") :: Field("bar") :: Nil))
         :: Nil
     )
-
   }
 
   it should "work with some predefined comparison operators" in {
-
     // Check all supported ordering operators
     parse(subscriptFilter, "[?(@ == 2)]") should beParsedAs(
       ComparisonFilter(EqOperator, SubQuery(List(CurrentNode)), FilterDirectValue.long(2))
@@ -369,9 +365,8 @@ class JsonPathParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers 
 }
 
 trait ParsingMatchers {
-
   class SuccessBeMatcher[+T <: AstToken](expected: T) extends Matcher[JsonPathParser.ParseResult[AstToken]] {
-    def apply(left: JsonPathParser.ParseResult[AstToken]): MatchResult = {
+    def apply(left: JsonPathParser.ParseResult[AstToken]): MatchResult =
       left match {
         case JsonPathParser.Success(res, _) =>
           MatchResult(
@@ -390,7 +385,6 @@ trait ParsingMatchers {
         case failure: JsonPathParser.Failure =>
           throw new Exception(failure.toString)
       }
-    }
   }
 
   def beParsedAs[T <: AstToken](expected: T): SuccessBeMatcher[T] = new SuccessBeMatcher(expected)

@@ -19,7 +19,6 @@ package io.gatling.recorder.render
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaders }
 
 private[render] object ProtocolDefinition {
-
   // use HttpHeaders because keys are case insensitive
   val BaseHeadersAndProtocolMethods: HttpHeaders = new DefaultHttpHeaders(false)
     .add(HttpHeaderNames.ACCEPT, "acceptHeader")

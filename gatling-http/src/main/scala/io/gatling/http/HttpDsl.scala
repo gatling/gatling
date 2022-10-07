@@ -38,7 +38,6 @@ trait HttpDsl
     with BodyPartSupport
     with CookieSupport
     with ProxySupport {
-
   def http(implicit configuration: GatlingConfiguration): HttpProtocolBuilder = HttpProtocolBuilder(configuration)
 
   def http(requestName: Expression[String]): Http = new Http(requestName)

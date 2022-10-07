@@ -20,7 +20,6 @@ import io.gatling.core.Predef._
 import io.gatling.jdbc.Predef._
 
 class JdbcCompileTest extends Simulation {
-
   private val testData2 = jdbcFeeder(
     "jdbc:postgresql:gatling",
     "gatling",

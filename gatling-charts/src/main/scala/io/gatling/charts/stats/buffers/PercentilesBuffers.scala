@@ -21,11 +21,9 @@ import io.gatling.charts.stats.{ Percentiles, PercentilesVsTimePlot }
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
 private[stats] class PercentilesBuffers(buckets: Array[Int]) {
-
   val digests: Array[Option[TDigest]] = Array.fill(buckets.length)(None)
 
-  def update(bucketNumber: Int, value: Int): Unit = {
-
+  def update(bucketNumber: Int, value: Int): Unit =
     digests(bucketNumber) match {
       case Some(digest) => digest.add(value)
       case None =>
@@ -33,7 +31,6 @@ private[stats] class PercentilesBuffers(buckets: Array[Int]) {
         digest.add(value)
         digests(bucketNumber) = Some(digest)
     }
-  }
 
   def percentiles: Iterable[PercentilesVsTimePlot] =
     digests.view.zipWithIndex

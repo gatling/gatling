@@ -28,7 +28,6 @@ final case class SseMessageCheckSequence(timeout: FiniteDuration, checks: List[S
 }
 
 final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], checks: List[SseCheck]) {
-
   def matching(newMatchConditions: SseCheck*): SseMessageCheck = {
     require(!checks.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
     this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)

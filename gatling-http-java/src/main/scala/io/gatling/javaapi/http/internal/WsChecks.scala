@@ -34,7 +34,6 @@ import io.gatling.javaapi.core.internal.CoreCheckType
 import com.fasterxml.jackson.databind.JsonNode
 
 object WsChecks {
-
   private def toScalaTextCheck(javaCheck: io.gatling.javaapi.core.CheckBuilder): WsCheck.Text = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

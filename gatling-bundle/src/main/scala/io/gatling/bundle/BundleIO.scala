@@ -22,7 +22,7 @@ object BundleIO extends PluginIO {
   private val in = scala.io.Source.stdin.getLines()
 
   override def getLogger: PluginLogger = new PluginLogger {
-    //We use println here as it is a CLI, where log.info is disabled by default
+    // We use println here as it is a CLI, where log.info is disabled by default
     override def info(message: String): Unit = println(message)
     override def error(message: String): Unit = Console.err.println(message)
   }

@@ -27,7 +27,6 @@ import scala.util.{ Failure, Try }
 import io.gatling.commons.util.Throwables._
 
 private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
-
   private val table = new Table {
     override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
       val c = super.rendererComponent(isSelected, focused, row, column)
@@ -65,14 +64,12 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
         s"$str is not a valid regular expression: ${fail.exception.rootMessage}"
       }
 
-  def removeRows(toRemove: Seq[Int]): Unit = {
+  def removeRows(toRemove: Seq[Int]): Unit =
     toRemove.sorted.reverse.foreach(model.removeRow)
-  }
 
-  def stopCellEditing(): Unit = {
+  def stopCellEditing(): Unit =
     if (table.peer.isEditing && table.peer.getSelectedRow != -1)
       table.peer.getCellEditor.stopCellEditing
-  }
 
   def removeDuplicates(): Unit = {
     val toRemove = for {
@@ -100,7 +97,7 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
 
   def removeAllElements(): Unit = removeRows(0 until model.getRowCount)
 
-  def setFocusable(focusable: Boolean): Unit = { table.focusable = focusable }
+  def setFocusable(focusable: Boolean): Unit = table.focusable = focusable
 
   def getRowCount: Int = model.getRowCount
 

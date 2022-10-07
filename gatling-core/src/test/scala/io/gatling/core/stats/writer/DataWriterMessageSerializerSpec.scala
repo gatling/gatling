@@ -19,7 +19,6 @@ package io.gatling.core.stats.writer
 import io.gatling.BaseSpec
 
 class DataWriterMessageSerializerSpec extends BaseSpec {
-
   import DataWriterMessageSerializer._
 
   "sanitize" should "sanitize extra info so that simulation log format is preserved" in {

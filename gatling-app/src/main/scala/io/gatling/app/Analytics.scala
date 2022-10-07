@@ -28,12 +28,10 @@ import io.gatling.commons.util.{ GatlingVersion, Java }
 import io.netty.util.internal.PlatformDependent
 
 object Analytics {
-
   private val ApiKeyDev = "27a3799b1445c6ab08674c6b8fa3b956"
   private val ApiKeyProd = "4ba61bcc5dc0854ac5ee8cafa62e403b"
 
   def send(simulationClass: SimulationClass, explicitLauncher: Option[String], buildToolVersion: Option[String]): Unit = {
-
     val apiKey = if (GatlingVersion.ThisVersion.isDev) ApiKeyDev else ApiKeyProd
     val programmingLanguage = simulationClass match {
       case SimulationClass.Java(_) =>

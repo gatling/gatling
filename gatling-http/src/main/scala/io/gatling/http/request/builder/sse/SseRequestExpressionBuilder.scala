@@ -29,7 +29,6 @@ class SseRequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends HttpRequestExpressionBuilder(commonAttributes, HttpAttributes.Empty, httpCaches, httpProtocol, configuration) {
-
   // disable request timeout for SSE
   override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
     requestBuilder.setRequestTimeout(-1)

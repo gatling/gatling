@@ -26,7 +26,6 @@ import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 object HttpBodyStreamCheckMaterializer {
-
   val Instance: CheckMaterializer[BodyStreamCheckType, HttpCheck, Response, () => InputStream] = {
     val preparer: Preparer[Response, () => InputStream] = response => (() => response.body.stream).success
     new HttpCheckMaterializer[BodyStreamCheckType, () => InputStream](Body, preparer)

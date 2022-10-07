@@ -26,7 +26,6 @@ import io.gatling.http.response.Response
 import com.fasterxml.jackson.databind.JsonNode
 
 object HttpBodyJsonPathCheckMaterializer {
-
   def instance(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = {
     val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.body.charset)
 

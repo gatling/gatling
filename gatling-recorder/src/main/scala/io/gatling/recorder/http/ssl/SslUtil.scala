@@ -48,7 +48,6 @@ private[ssl] final case class Csr(cert: PKCS10CertificationRequest, privKey: Pri
  * Utility class to create SSL server certificate on the fly for the recorder keystore
  */
 private[recorder] object SslUtil extends StrictLogging {
-
   private[ssl] val TheSslProvider =
     if (OpenSsl.isAvailable) {
       logger.info("OpenSSL is not available on your architecture.")
@@ -60,10 +59,10 @@ private[recorder] object SslUtil extends StrictLogging {
   Security.addProvider(new BouncyCastleProvider)
 
   def readPEM(file: InputStream): Any =
-    Using.resource(new PEMParser(new InputStreamReader(file))) { _.readObject }
+    Using.resource(new PEMParser(new InputStreamReader(file)))(_.readObject)
 
   def writePEM(obj: Any, os: OutputStream): Unit =
-    Using.resource(new JcaPEMWriter(new OutputStreamWriter(os))) { _.writeObject(obj) }
+    Using.resource(new JcaPEMWriter(new OutputStreamWriter(os)))(_.writeObject(obj))
 
   def certificateFromHolder(certHolder: X509CertificateHolder): X509Certificate =
     new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME).getCertificate(certHolder)
@@ -89,7 +88,7 @@ private[recorder] object SslUtil extends StrictLogging {
         BigInteger.valueOf(now), // serial
         new Date(now), // notBefore
         new Date(now + 365.days.toMillis), // notAfter
-        new X500Principal(dn), //subject
+        new X500Principal(dn), // subject
         pair.getPublic
       ) // publicKey
 
@@ -146,7 +145,7 @@ private[recorder] object SslUtil extends StrictLogging {
         BigInteger.valueOf(ThreadLocalRandom.current.nextLong), // serial
         new Date(now), // notBefore
         new Date(now + 1.day.toMillis), // notAfter
-        csr.getSubject, //subject
+        csr.getSubject, // subject
         csr.getSubjectPublicKeyInfo
       ) // publicKey
 

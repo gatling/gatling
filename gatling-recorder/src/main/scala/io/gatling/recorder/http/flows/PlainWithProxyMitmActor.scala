@@ -26,18 +26,17 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http._
 
 /**
- * Standard flow:
- * <ul>
- * <li>received request with absolute url</li>
- * <li>connect to proxy</li>
- * <li>propagate request with absolute url (ie original one)</li>
- * <li>receive response and propagate it to serverChannel</li>
- * </ul>
+ * Standard flow: <ul> <li>received request with absolute url</li> <li>connect to proxy</li> <li>propagate request with absolute url (ie original one)</li>
+ * <li>receive response and propagate it to serverChannel</li> </ul>
  *
- * @param serverChannel   the server channel connected to the user agent
- * @param clientBootstrap the bootstrap to establish client channels with the remote
- * @param proxy the outgoing proxy
- * @param trafficLogger log the traffic
+ * @param serverChannel
+ *   the server channel connected to the user agent
+ * @param clientBootstrap
+ *   the bootstrap to establish client channels with the remote
+ * @param proxy
+ *   the outgoing proxy
+ * @param trafficLogger
+ *   log the traffic
  */
 class PlainWithProxyMitmActor(
     serverChannel: Channel,
@@ -46,7 +45,6 @@ class PlainWithProxyMitmActor(
     trafficLogger: TrafficLogger,
     clock: Clock
 ) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
-
   private val proxyRemote = Remote(proxy.host, proxy.port)
   private val proxyBasicAuthHeader = proxy.credentials.map(HttpUtils.basicAuth)
 

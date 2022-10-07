@@ -21,13 +21,16 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 
 /**
- * @constructor create a new IfBuilder
- * @param condition condition of the if
- * @param thenNext chain that will be executed if condition evaluates to true
- * @param elseNext chain that will be executed if condition evaluates to false
+ * @constructor
+ *   create a new IfBuilder
+ * @param condition
+ *   condition of the if
+ * @param thenNext
+ *   chain that will be executed if condition evaluates to true
+ * @param elseNext
+ *   chain that will be executed if condition evaluates to false
  */
 private[core] final class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
-
   def build(ctx: ScenarioContext, next: Action): Action = {
     val safeCondition = condition.safe
     val thenNextAction = thenNext.build(ctx, next)

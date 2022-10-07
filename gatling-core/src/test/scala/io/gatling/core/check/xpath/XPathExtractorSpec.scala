@@ -25,7 +25,6 @@ import io.gatling.{ BaseSpec, ValidationValues }
 import net.sf.saxon.s9api.XdmNode
 
 class XPathExtractorSpec extends BaseSpec with ValidationValues {
-
   private val namespaces = Map("foo" -> "http://foo/foo")
 
   private val xmlParsers = new XmlParsers(Long.MaxValue)

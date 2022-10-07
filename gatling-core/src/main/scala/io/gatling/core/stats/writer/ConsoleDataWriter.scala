@@ -25,7 +25,6 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 
 private[gatling] final class UserCounters(val totalUserCount: Option[Long]) {
-
   private var _activeCount: Long = 0
   private var _doneCount: Long = 0
 
@@ -55,11 +54,9 @@ private[gatling] final class ConsoleData(val startUpTime: Long) extends DataWrit
 }
 
 private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
-
   private val flushTimerName = "flushTimer"
 
   def onInit(init: DataWriterMessage.Init): ConsoleData = {
-
     import init._
 
     val data = new ConsoleData(clock.nowMillis)

@@ -25,7 +25,6 @@ import io.gatling.core.check._
 import net.sf.saxon.s9api.XdmNode
 
 object XPathExtractors {
-
   def find(
       path: String,
       namespaces: Map[String, String],

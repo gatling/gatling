@@ -60,7 +60,6 @@ class HttpEngine(
     configuration: GatlingConfiguration
 ) extends AutoCloseable
     with StrictLogging {
-
   private[this] var warmedUp = false
 
   def warmUp(httpComponents: HttpComponents): Unit =

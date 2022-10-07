@@ -54,12 +54,12 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
 
     val consumer = jmsSession.createConsumer(consumedDestination)
     val producer = jmsSession.createProducer(null)
-    consumer.setMessageListener(request => {
+    consumer.setMessageListener { request =>
       response.lift(request, jmsSession).foreach { response =>
         response.setJMSCorrelationID(request.getJMSCorrelationID)
         producer.send(request.getJMSReplyTo, response)
       }
-    })
+    }
     connection.start()
   })
 
@@ -67,7 +67,6 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
 }
 
 trait JmsSpec extends AkkaSpec with JmsDsl {
-
   override def beforeAll(): Unit = {
     sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
     startBroker()

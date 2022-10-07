@@ -22,9 +22,7 @@ import io.gatling.recorder.cli.CommandLineConstants._
 
 object RecorderCLI {
   def main(args: Array[String]): Unit = {
-
     val parser = new GatlingOptionParser[Unit]("recorder") {
-
       help(Help)
 
       opt[Int](LocalPort)

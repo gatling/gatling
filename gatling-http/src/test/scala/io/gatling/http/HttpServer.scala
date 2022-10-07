@@ -38,8 +38,7 @@ private[http] class ServerHandler(
     requests: ConcurrentLinkedQueue[FullHttpRequest]
 ) extends ChannelInboundHandlerAdapter
     with LazyLogging {
-
-  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
     msg match {
       case request: FullHttpRequest =>
         requests.add(request)
@@ -55,11 +54,9 @@ private[http] class ServerHandler(
         logger.error(s"Unknown message $errorMsg")
         ReferenceCountUtil.release(errorMsg)
     }
-  }
 }
 
 private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int) extends LazyLogging {
-
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 
   InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)

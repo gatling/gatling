@@ -30,12 +30,10 @@ import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
 private[gatling] object Json {
-
   private val stringBuilders = new StringBuilderPool
   private[json] val objectMapper: ObjectMapper = new ObjectMapper
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
-
     val sb = stringBuilders.get()
 
     def appendStringified(node: JsonNode, rootLevel: Boolean): jl.StringBuilder = node.getNodeType match {
@@ -119,7 +117,6 @@ private[gatling] object Json {
   }
 
   def stringify(value: Any, isRootObject: Boolean): String = {
-
     val sb = stringBuilders.get()
 
     def appendStringified(value: Any, rootLevel: Boolean): jl.StringBuilder = value match {

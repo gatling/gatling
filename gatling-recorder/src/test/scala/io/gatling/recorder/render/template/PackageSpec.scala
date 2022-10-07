@@ -19,7 +19,6 @@ package io.gatling.recorder.render.template
 import io.gatling.BaseSpec
 
 class PackageSpec extends BaseSpec {
-
   "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
     val string = "foo\"bar"
     string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"

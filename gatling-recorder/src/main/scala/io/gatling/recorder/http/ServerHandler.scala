@@ -37,7 +37,6 @@ class ServerHandler(
     clock: Clock
 ) extends ChannelInboundHandlerAdapter
     with StrictLogging {
-
   @volatile private var https = false
   @volatile private var remote: Remote = _
   @volatile private var mitmActor: ActorRef = _

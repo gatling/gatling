@@ -21,7 +21,6 @@ import java.time.{ Instant, ZoneOffset, ZonedDateTime }
 import io.gatling.BaseSpec
 
 class LatestGatlingReleaseSpec extends BaseSpec {
-
   "parseMavenCentralResponse" should "successfully extra version" in {
     val response =
       """{"responseHeader":{"status":0,"QTime":8,"params":{"q":"g:io.gatling AND a:gatling-core AND p:jar","core":"gav","indent":"off","fl":"id,g,a,v,p,ec,timestamp,tags","start":"","sort":"score desc,timestamp desc,g asc,a asc,v desc","rows":"1","wt":"json","version":"2.2"}},"response":{"numFound":66,"start":0,"docs":[{"id":"io.gatling:gatling-core:3.7.6","g":"io.gatling","a":"gatling-core","v":"3.7.6","p":"jar","timestamp":1646240604000,"ec":["-sources.jar",".pom","-javadoc.jar",".jar"],"tags":["core","gatling"]}]}}"""

@@ -25,19 +25,18 @@ import io.gatling.core.scenario.Simulation
 import sbt.testing.{ EventHandler, Logger, OptionalThrowable, Task, TaskDef, TestSelector }
 
 /**
- * The main worker of the test framework :
- * <ul>
- *   <li>Loads the simulation from the test ClassLoader.</li>
- *   <li>Run Gatling with the specified simulation.</li>
- *   <li>Fire the appropriate event, depending on the outcome of the run.</li>
- * </ul>
- * @param taskDef the selected simulation metadata
- * @param testClassLoader the test ClassLoader, provided by SBT.
- * @param args the arguments for the new run
- * @param remoteArgs the arguments for the run in a forked JVM
+ * The main worker of the test framework : <ul> <li>Loads the simulation from the test ClassLoader.</li> <li>Run Gatling with the specified simulation.</li>
+ * <li>Fire the appropriate event, depending on the outcome of the run.</li> </ul>
+ * @param taskDef
+ *   the selected simulation metadata
+ * @param testClassLoader
+ *   the test ClassLoader, provided by SBT.
+ * @param args
+ *   the arguments for the new run
+ * @param remoteArgs
+ *   the arguments for the run in a forked JVM
  */
 class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Array[String], remoteArgs: Array[String]) extends Task {
-
   override val tags: Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {

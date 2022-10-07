@@ -24,7 +24,6 @@ import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 object HttpBodyBytesCheckMaterializer {
-
   val Instance: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] =
     new HttpCheckMaterializer[BodyBytesCheckType, Array[Byte]](Body, ResponseBodyBytesPreparer)
 }

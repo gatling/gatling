@@ -35,7 +35,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaderNames, HttpHeaders, HttpResponseStatus }
 
 object GatlingHttpListener extends StrictLogging {
-
   private def resolveCharset(headers: HttpHeaders, defaultCharset: Charset): Charset = {
     val contentTypeHeader = headers.get(HttpHeaderNames.CONTENT_TYPE)
     if (contentTypeHeader == null) {
@@ -54,7 +53,6 @@ object GatlingHttpListener extends StrictLogging {
 }
 
 class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
-
   import GatlingHttpListener._
   import tx.request.requestConfig._
 

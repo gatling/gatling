@@ -39,7 +39,6 @@ private[cache] object HttpContentCacheSupport {
 }
 
 private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
-
   import HttpContentCacheSupport._
 
   def configuration: GatlingConfiguration

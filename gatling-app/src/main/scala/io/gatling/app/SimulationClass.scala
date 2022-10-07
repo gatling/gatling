@@ -31,8 +31,7 @@ object SimulationClass {
       clazz.newInstance().params(configuration)
   }
   final case class Java(clazz: Class[JavaSimulation]) extends SimulationClass(clazz) {
-    override def params(configuration: GatlingConfiguration): SimulationParams = {
+    override def params(configuration: GatlingConfiguration): SimulationParams =
       clazz.newInstance().params(configuration)
-    }
   }
 }

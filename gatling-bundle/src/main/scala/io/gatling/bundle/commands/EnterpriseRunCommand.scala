@@ -33,7 +33,6 @@ private[bundle] object EnterpriseRunCommand {
 }
 
 private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
-
   import EnterpriseRunCommand._
 
   private val logger = BundleIO.getLogger

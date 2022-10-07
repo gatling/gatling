@@ -19,9 +19,7 @@ package io.gatling.commons.util
 import io.gatling.BaseSpec
 
 class CircularIteratorSpec extends BaseSpec {
-
   "CircularIterator" should "work fine with non empty Iterable with threadsafe on" in {
-
     val rr = CircularIterator(IndexedSeq(1, 2, 3), threadSafe = true)
 
     rr.next() shouldBe 1
@@ -33,7 +31,6 @@ class CircularIteratorSpec extends BaseSpec {
   }
 
   it should "work fine with non empty Iterable with threadsafe off" in {
-
     val rr = CircularIterator(IndexedSeq(1, 2, 3), threadSafe = false)
 
     rr.next() shouldBe 1
@@ -56,7 +53,6 @@ class CircularIteratorSpec extends BaseSpec {
   }
 
   it should "throw NoSuchElementException when iterating on an empty Iterable" in {
-
     val rr = CircularIterator(IndexedSeq.empty[Int], threadSafe = false)
 
     a[NoSuchElementException] should be thrownBy rr.next()

@@ -32,7 +32,6 @@ private[config] final case class CommandLineOverrides(
 )
 
 private[config] class ArgsParser(args: Array[String]) {
-
   private class CompilerOptionParser extends OptionParser[CommandLineOverrides]("compiler") {
     override def errorOnUnknownArgument: Boolean = false
 

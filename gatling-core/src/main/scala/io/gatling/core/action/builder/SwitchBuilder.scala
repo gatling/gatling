@@ -24,11 +24,9 @@ import io.gatling.core.util.NameGen
 private[core] final class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder])
     extends ActionBuilder
     with NameGen {
-
   require(possibilities.sizeIs >= 2, "Switch requires at least 2 possibilities")
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-
     val possibleActions: Map[Any, Action] = possibilities.map { case (value, possibility) =>
       val possibilityAction = possibility.build(ctx, next)
       (value, possibilityAction)

@@ -24,7 +24,6 @@ import akka.actor.ActorRef
 import akka.io.{ IO, Udp }
 
 private[graphite] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
-
   import Udp._
 
   IO(Udp) ! SimpleSender

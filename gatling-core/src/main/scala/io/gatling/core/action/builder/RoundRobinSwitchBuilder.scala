@@ -26,11 +26,9 @@ import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
 private[core] final class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder with NameGen {
-
   require(possibilities.sizeIs >= 2, "Round robin switch requires at least 2 possibilities")
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-
     val possibleActions = ArraySeq.unsafeWrapArray(possibilities.map(_.build(ctx, next)).toArray)
     val roundRobin = CircularIterator(possibleActions, threadSafe = true)
 

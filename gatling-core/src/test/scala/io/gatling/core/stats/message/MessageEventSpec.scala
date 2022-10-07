@@ -21,7 +21,6 @@ import io.gatling.BaseSpec
 import org.scalacheck.Gen.alphaStr
 
 class MessageEventSpec extends BaseSpec {
-
   "MessageEvent.apply" should "return Start when passing 'START'" in {
     MessageEvent("START") shouldBe MessageEvent.Start
   }

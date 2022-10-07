@@ -52,7 +52,6 @@ object GatlingCLI {
     )
 
     val parser = new GatlingOptionParser[CommandArguments]("gatling") {
-
       help(Help)
 
       opt[RunMode](RunModeOption).action((x, c) => c.copy(runMode = Some(x)))

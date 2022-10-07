@@ -34,7 +34,6 @@ private[compiler] final case class CompilerConfiguration(
 )
 
 private[compiler] object CompilerConfiguration {
-
   private val encodingKey = "gatling.core.encoding"
   private val simulationsDirectoryKey = "gatling.core.directory.simulations"
   private val binariesDirectoryKey = "gatling.core.directory.binaries"

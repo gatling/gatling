@@ -29,7 +29,6 @@ import com.softwaremill.quicklens._
 import io.netty.handler.codec.mqtt.{ MqttQoS, MqttVersion }
 
 final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
-
   def mqttVersion_3_1: MqttProtocolBuilder =
     this.modify(_.mqttProtocol.version).setTo(MqttVersion.MQTT_3_1)
 
@@ -104,7 +103,6 @@ final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
 }
 
 object MqttProtocolBuilder {
-
   implicit def toMqttProtocol(builder: MqttProtocolBuilder): MqttProtocol = builder.build
 
   val Default: MqttProtocolBuilder = MqttProtocolBuilder(MqttProtocol.Default)

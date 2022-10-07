@@ -37,7 +37,6 @@ class HttpTxExecutor(
     httpProtocol: HttpProtocol
 ) extends NameGen
     with StrictLogging {
-
   import coreComponents._
 
   private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
@@ -159,12 +158,11 @@ class HttpTxExecutor(
             )
           case _ =>
             httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
-
         }
       }
     }
 
-  def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
+  def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeHttp2WithCache(origTxs) { txs =>
       val headTx = txs.head
       txs.foreach(tx =>
@@ -192,7 +190,6 @@ class HttpTxExecutor(
           httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
       }
     }
-  }
 
   private val responseProcessorFactory: HttpTx => ResponseProcessor = tx =>
     tx.resourceTx match {

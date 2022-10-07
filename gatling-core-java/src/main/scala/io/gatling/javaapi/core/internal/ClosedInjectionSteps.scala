@@ -19,11 +19,9 @@ package io.gatling.javaapi.core.internal
 import io.gatling.core.controller.inject.closed.ClosedInjectionBuilder
 
 /**
- * Helper because IntelliJ doesn't properly interpret deeply nested objects from Java.
- * To be removed if this bug is ever fixed.
+ * Helper because IntelliJ doesn't properly interpret deeply nested objects from Java. To be removed if this bug is ever fixed.
  */
 object ClosedInjectionSteps {
-
   def newEachLevelLasting(usersIncrement: Int, levels: Int): ClosedInjectionBuilder.Stairs.EachLevelLasting =
     ClosedInjectionBuilder.Stairs.EachLevelLasting(usersIncrement, levels)
 }

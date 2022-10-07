@@ -35,13 +35,11 @@ private object ThrottlerActorData {
   // mutable state is very ugly and error prone, but we're trying to limit allocations...
   private[throttle] final case class StartedData(throttles: Throttles, buffer: mutable.ArrayBuffer[ThrottledRequest], tickNanos: Long)
       extends ThrottlerActorData {
-
     var count: Int = 0
 
     def incrementCount(): Unit = count += 1
 
     val requestStep: Double = {
-
       val globalLimit = throttles.global.map(_.limit).getOrElse(Int.MaxValue)
       val perScenarioLimit =
         if (throttles.perScenario.isEmpty)

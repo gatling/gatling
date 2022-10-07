@@ -22,7 +22,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 class RandomDistributionSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen {
-
   "uniform" should "work" in {
     val distribution = RandomDistribution.uniform(List("a", "b", "c", "d"))
 

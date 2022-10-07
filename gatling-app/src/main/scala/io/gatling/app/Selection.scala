@@ -29,14 +29,12 @@ import io.gatling.core.scenario.Simulation
 final class Selection(val simulationClass: SimulationClass, val simulationId: String, val description: String)
 
 object Selection {
-
   private val MaxReadSimulationNumberAttempts = 10
 
   def apply(forcedSimulationClass: Option[SimulationClass], configuration: GatlingConfiguration): Selection =
     new Selector(forcedSimulationClass).selection(configuration)
 
   private class Selector(forcedSimulationClass: Option[SimulationClass]) {
-
     def selection(configuration: GatlingConfiguration): Selection = {
       val configDefinedSimulationClassName = configuration.core.simulationClass
 
@@ -68,7 +66,6 @@ object Selection {
         simulationClasses: List[SimulationClass],
         configDefinedSimulationClassName: Option[String]
     ): Option[SimulationClass] = {
-
       def findUserDefinedSimulationAmongstCompiledOnes(className: String): Option[SimulationClass] =
         simulationClasses.find(_.canonicalName == className)
 
@@ -105,7 +102,7 @@ object Selection {
       val validRange = simulationClasses.indices
 
       @tailrec
-      def readSimulationNumber(attempts: Int): Int = {
+      def readSimulationNumber(attempts: Int): Int =
         if (attempts > MaxReadSimulationNumberAttempts) {
           println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
           System.out.flush()
@@ -129,7 +126,6 @@ object Selection {
               readSimulationNumber(attempts + 1)
           }
         }
-      }
 
       if (simulationClasses.isEmpty) {
         println("Couldn't find any Simulation class. Please check that your Simulations are in the correct location.")

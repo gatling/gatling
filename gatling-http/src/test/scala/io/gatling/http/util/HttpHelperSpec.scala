@@ -23,7 +23,6 @@ import io.gatling.BaseSpec
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpResponseStatus }
 
 class HttpHelperSpec extends BaseSpec {
-
   "parseFormBody" should "support unique param" in {
     HttpHelper.parseFormBody("foo=bar") shouldBe List("foo" -> "bar")
   }

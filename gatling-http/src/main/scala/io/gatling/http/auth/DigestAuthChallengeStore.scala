@@ -30,7 +30,6 @@ object DigestAuthChallengeStore {
 }
 
 final class DigestAuthChallengeStore(challenges: Map[DigestAuthChallengeStore.Key, DigestAuthChallengeStore.Entry]) {
-
   import DigestAuthChallengeStore._
 
   def storeChallenges(newChallenges: Seq[DigestAuth.Challenge]): DigestAuthChallengeStore = {

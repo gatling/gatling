@@ -25,9 +25,7 @@ import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory
 
 class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
-
   "jndi connection factory" should "pass all properties to InitialContext" in {
-
     val jndiCf = jmsJndiConnectionFactory
       .connectionFactoryName("DummyConnectionFactory")
       .url("testUrl")

@@ -21,7 +21,6 @@ import io.gatling.commons.stats.assertion.{ Details, ForAll, Global }
 import io.gatling.core.config.GatlingConfiguration
 
 trait AssertionSupport {
-
   implicit def string2PathParts(string: String): AssertionPathParts =
     AssertionPathParts(List(string))
 

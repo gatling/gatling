@@ -36,7 +36,6 @@ package io.gatling.commons.util
 import java.io.{ InputStream, OutputStream }
 
 object FastByteArrayOutputStream {
-
   private[this] val Pool = new ThreadLocal[FastByteArrayOutputStream] {
     override protected def initialValue(): FastByteArrayOutputStream = new FastByteArrayOutputStream(1024)
   }
@@ -49,7 +48,6 @@ object FastByteArrayOutputStream {
 }
 
 final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
-
   private val buffers = collection.mutable.ArrayBuffer.empty[Array[Byte]]
   private var currentBufferIndex = 0
   private var filledBufferSum = 0
@@ -59,7 +57,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
 
   needNewBuffer(initialSize)
 
-  private def needNewBuffer(newcount: Int): Unit = {
+  private def needNewBuffer(newcount: Int): Unit =
     if (currentBufferIndex < buffers.size - 1) {
       // recycling old buffer
       filledBufferSum += currentBuffer.length
@@ -81,9 +79,8 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
       currentBuffer = new Array[Byte](newBufferSize)
       buffers += currentBuffer
     }
-  }
 
-  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
+  override def write(b: Array[Byte], off: Int, len: Int): Unit =
     if (
       (off < 0)
       || (off > b.length)
@@ -92,7 +89,6 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
       || ((off + len) < 0)
     ) {
       throw new IndexOutOfBoundsException()
-
     } else if (len != 0) {
       val newCount = count + len
       var remaining = len
@@ -108,7 +104,6 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
       }
       count = newCount
     }
-  }
 
   def write(b: Int): Unit = {
     var inBufferPos = count - filledBufferSum
@@ -169,7 +164,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
     }
   }
 
-  def toByteArray: Array[Byte] = {
+  def toByteArray: Array[Byte] =
     if (count == 0) {
       Array.emptyByteArray
     } else {
@@ -188,5 +183,4 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
 
       newbuf
     }
-  }
 }

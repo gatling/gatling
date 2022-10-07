@@ -20,7 +20,6 @@ import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
 final class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
-
   def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, ResponseTime, configuration)
   def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, AllRequests)
   def failedRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, FailedRequests)
@@ -29,7 +28,6 @@ final class AssertionWithPath(path: AssertionPath, configuration: GatlingConfigu
 }
 
 final class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
-
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
 
@@ -45,13 +43,11 @@ final class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetr
 }
 
 final class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
-
   def count: AssertionWithPathAndTarget[Long] = new AssertionWithPathAndTarget[Long](path, CountTarget(metric))
   def percent: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, PercentTarget(metric))
 }
 
 final class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target) {
-
   def next(condition: Condition): Assertion =
     Assertion(path, target, condition)
 

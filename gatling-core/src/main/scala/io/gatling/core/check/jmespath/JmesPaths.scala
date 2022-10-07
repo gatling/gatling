@@ -22,11 +22,10 @@ import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.burt.jmespath.{ Expression, RuntimeConfiguration }
-import io.burt.jmespath.function.{ FunctionRegistry, Function => JmesPathFunction }
+import io.burt.jmespath.function.{ Function => JmesPathFunction, FunctionRegistry }
 import io.burt.jmespath.jackson.JacksonRuntime
 
 private[gatling] object JmesPathFunctions {
-
   private[jmespath] var functions: Seq[JmesPathFunction] = Nil
 
   def register(functions: Seq[JmesPathFunction]): Unit = {
@@ -38,7 +37,6 @@ private[gatling] object JmesPathFunctions {
 }
 
 final class JmesPaths(cacheMaxCapacity: Long) {
-
   private val runtime = new JacksonRuntime(
     new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build
   )

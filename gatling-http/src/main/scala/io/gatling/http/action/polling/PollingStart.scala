@@ -41,7 +41,6 @@ class PollingStart(
     val next: Action
 ) extends ExitableAction
     with NameGen {
-
   override val name: String = genName(pollerName)
 
   override def clock: Clock = coreComponents.clock

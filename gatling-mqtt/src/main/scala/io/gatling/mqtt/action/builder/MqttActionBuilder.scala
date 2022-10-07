@@ -21,7 +21,6 @@ import io.gatling.core.body.Body
 import io.gatling.core.session.Expression
 
 class MqttActionBuilderBase(requestName: Expression[String]) {
-
   def connect: ConnectBuilder = new ConnectBuilder(requestName)
 
   def subscribe(topic: Expression[String]): SubscribeBuilder = SubscribeBuilder(requestName, topic, None, None)
@@ -30,7 +29,6 @@ class MqttActionBuilderBase(requestName: Expression[String]) {
 }
 
 class MqttActionPublishBase(requestName: Expression[String], topic: Expression[String]) {
-
   def message(body: Body): PublishBuilder = PublishBuilder(requestName, topic, body, None, None, None)
 }
 

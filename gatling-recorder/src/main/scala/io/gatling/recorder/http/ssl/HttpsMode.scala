@@ -22,7 +22,6 @@ import io.gatling.recorder.util.Labelled
 private[recorder] sealed abstract class HttpsMode(val label: String) extends Labelled with ClassSimpleNameToString with Product with Serializable
 
 private[recorder] case object HttpsMode {
-
   case object CertificateAuthority extends HttpsMode("Certificate Authority")
   case object ProvidedKeyStore extends HttpsMode("Provided Keystore")
   case object SelfSignedCertificate extends HttpsMode("Self-signed Certificate")

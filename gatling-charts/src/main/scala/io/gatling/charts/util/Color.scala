@@ -21,7 +21,6 @@ private[gatling] sealed abstract class Color(val code: String) extends Product w
 }
 
 private[gatling] object Color {
-
   object Requests {
     val All: Color = Blue
     val Ok: Color = Green

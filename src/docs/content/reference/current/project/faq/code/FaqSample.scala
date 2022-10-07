@@ -18,7 +18,6 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ChainBuilder
 
 class FaqSample {
-
   //#chains
   object ChainLibrary1 {
     val chain1: ChainBuilder = ???
@@ -35,7 +34,6 @@ class FaqSample {
   }
 
   class MyVeryBigSimulation {
-
     import ChainLibrary1._
     import ChainLibrary2._
 

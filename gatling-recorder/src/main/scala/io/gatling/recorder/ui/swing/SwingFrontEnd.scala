@@ -29,7 +29,6 @@ import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
 private[ui] class SwingFrontEnd(controller: RecorderController, configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
-
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this, configuration)
 
@@ -37,7 +36,7 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
 
   def harFilePath: String = configurationFrame.harFilePath
 
-  def handleMissingHarFile(harFilePath: String): Unit = {
+  def handleMissingHarFile(harFilePath: String): Unit =
     if (harFilePath.isEmpty) {
       Dialog.showMessage(
         title = "Error",
@@ -61,41 +60,36 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
         configurationFrame.updateHarFilePath(selector.selectedFile.map(file => parentPath.resolve(file).toString))
       }
     }
-  }
 
-  def handleHarExportSuccess(): Unit = {
+  def handleHarExportSuccess(): Unit =
     Dialog.showMessage(
       title = "Conversion complete",
       message = "Successfully converted HAR file to a Gatling simulation",
       messageType = Dialog.Message.Info
     )
-  }
 
-  def handleHarExportFailure(message: String): Unit = {
+  def handleHarExportFailure(message: String): Unit =
     Dialog.showMessage(
       title = "Error",
       message = s"""|Export to HAR File unsuccessful: $message.
                     |See logs for more information""".stripMargin,
       messageType = Dialog.Message.Error
     )
-  }
 
-  def handleFilterValidationFailures(failures: Seq[String]): Unit = {
+  def handleFilterValidationFailures(failures: Seq[String]): Unit =
     Dialog.showMessage(
       title = "Error",
       message = failures.mkString("\n"),
       messageType = Dialog.Message.Error
     )
-  }
 
-  def askSimulationOverwrite: Boolean = {
+  def askSimulationOverwrite: Boolean =
     Dialog.showConfirmation(
       title = "Warning",
       message = "You are about to overwrite an existing simulation.",
       optionType = Dialog.Options.OkCancel,
       messageType = Dialog.Message.Warning
     ) == Dialog.Result.Ok
-  }
 
   def init(): Unit = {
     configurationFrame.visible = true

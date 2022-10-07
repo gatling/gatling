@@ -30,11 +30,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
 class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
-
   private val clock = new DefaultClock
 
   "GroupStart" should "resolve the group name from the session and create a new group" in {
-
     Given("a GroupStart Action with a dynamic name")
     val next = mock[Action]
     val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)

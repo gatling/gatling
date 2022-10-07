@@ -28,7 +28,6 @@ import io.gatling.http.Predef._
 import io.netty.handler.codec.http.HttpMethod
 
 class HttpCompileTest extends Simulation {
-
   registerPebbleExtensions(null: com.mitchellbosecke.pebble.extension.Extension)
   registerJmesPathFunctions(null: io.burt.jmespath.function.Function)
 
@@ -301,7 +300,7 @@ class HttpCompileTest extends Simulation {
     .exec(
       http("Request")
         .get("/foo/bar?baz=qix")
-        .sign((request, session) => {
+        .sign { (request, session) =>
           import java.util.Base64
           import javax.crypto.Mac
           import javax.crypto.spec.SecretKeySpec
@@ -310,7 +309,7 @@ class HttpCompileTest extends Simulation {
           val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
           val authorization = Base64.getEncoder.encodeToString(rawSignature)
           request.getHeaders.add("Authorization", authorization)
-        })
+        }
     )
     // proxy
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))

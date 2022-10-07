@@ -17,7 +17,6 @@
 package io.gatling.graphite.types
 
 private[graphite] class UserBreakdownBuffer(val totalUserEstimate: Long) {
-
   private var previousActive = 0L
   private var previousEnd = 0L
   private var thisStart = 0L
@@ -38,7 +37,6 @@ private[graphite] class UserBreakdownBuffer(val totalUserEstimate: Long) {
     }
 
   def breakDown: UserBreakdown = {
-
     previousActive += thisStart - previousEnd
     previousEnd = thisEnd
     thisStart = 0

@@ -20,7 +20,6 @@ import io.gatling.javaapi.core.{ ChainBuilder, StructureBuilder }
 import io.gatling.javaapi.core.loop.Forever
 
 object ScalaForever {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Forever[T, W],
       counterName: String
@@ -31,7 +30,6 @@ object ScalaForever {
       context: Forever[T, W],
       counterName: String
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.forever(counterName)(chain.wrapped))
   }

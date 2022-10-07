@@ -32,7 +32,6 @@ private[graphite] class TcpSender(
     clock: Clock
 ) extends MetricsSender
     with TcpSenderFSM {
-
   import Tcp._
 
   // Initial ask for a connection to IO manager
@@ -107,7 +106,6 @@ private[graphite] class TcpSender(
 }
 
 private[sender] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long], clock: Clock) {
-
   def this(maxRetryLimit: Int, retryWindow: FiniteDuration, clock: Clock) =
     this(maxRetryLimit, retryWindow, Nil, clock)
 

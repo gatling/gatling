@@ -17,7 +17,6 @@
 package io.gatling.charts.util
 
 object JsHelper {
-
   def escapeJsIllegalChars(string: String): String =
     string
       .replace("\"", "&quot;")

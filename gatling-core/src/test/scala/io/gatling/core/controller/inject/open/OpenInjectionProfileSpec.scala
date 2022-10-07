@@ -27,9 +27,7 @@ import io.gatling.core.scenario.Scenario
 import org.scalacheck.Gen
 
 object OpenInjectionProfileSpec {
-
   private class FakeClock extends Clock {
-
     var value: Long = System.currentTimeMillis()
 
     override def nowMillis: Long = {
@@ -40,7 +38,6 @@ object OpenInjectionProfileSpec {
   }
 
   private def drain(steps: Iterable[OpenInjectionStep]): Int = {
-
     var count = 0
 
     val workload = new OpenWorkload(
@@ -67,18 +64,15 @@ object OpenInjectionProfileSpec {
 }
 
 class OpenInjectionProfileSpec extends BaseSpec {
-
   import OpenInjectionProfileSpec._
 
   "Inserting a pause between steps" should "produce the right number of users" in {
-
     val steps = List(AtOnceOpenInjection(1), NothingForOpenInjection(2.seconds), AtOnceOpenInjection(1))
     val profile = new OpenInjectionProfile(steps)
     profile.totalUserCount shouldBe Some(2)
   }
 
   "RampOpenInjection" should "produce the expected number of total users" in {
-
     val validUsers = Gen.choose(1, 100).suchThat(_ > 0)
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
@@ -91,7 +85,6 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   "ConstantRateOpenInjection" should "produce the expected number of total users" in {
-
     val validRate = Gen.choose(0, 100).suchThat(_ > 0)
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 1)
 
@@ -104,7 +97,6 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   "RampRateOpenInjection" should "produce the expected number of total users" in {
-
     val validStartRate = Gen.choose(0, 100).suchThat(_ > 0)
     val validEndRate = Gen.choose(0, 100).suchThat(_ > 0)
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
@@ -118,7 +110,6 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   "AtOnceOpenInjection" should "produce the expected number of total users" in {
-
     val validUsers = Gen.choose(1, 100).suchThat(_ > 0)
 
     forAll((validUsers, "users")) { users =>
@@ -130,7 +121,6 @@ class OpenInjectionProfileSpec extends BaseSpec {
   }
 
   "HeavisideOpenInjection" should "produce the expected number of total users" in {
-
     val validUsers = Gen.choose(1, 100).suchThat(_ > 0)
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 

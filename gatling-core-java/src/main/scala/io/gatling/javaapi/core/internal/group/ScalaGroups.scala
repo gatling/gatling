@@ -24,7 +24,6 @@ import io.gatling.javaapi.core.internal.Expressions.javaFunctionToExpression
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaGroups {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Groups[T, W],
       name: String

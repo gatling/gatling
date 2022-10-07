@@ -24,7 +24,6 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 
 object GatlingRecorder {
-
   def main(args: Array[String]): Unit = fromArgs(args)
 
   def fromArgs(args: Array[String]): Unit = {

@@ -23,7 +23,6 @@ import io.gatling.http.client.uri.Uri
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 
 class CookieHandlingSpec extends BaseSpec with EmptySession {
-
   private val uri = Uri.create("https://docs.foo.com/accounts")
 
   "getStoredCookies" should "be able to get a cookie from session" in {

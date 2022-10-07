@@ -33,7 +33,6 @@ object CurrentLocationCheckBuilder
     )
 
 object CurrentLocationCheckMaterializer {
-
   val Instance: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] =
     new HttpCheckMaterializer[CurrentLocationCheckType, String](Url, UrlStringPreparer)
 }

@@ -31,7 +31,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
 private[http] trait ResourceAggregator {
-
   def currentSession: Session
 
   def start(session: Session): Unit
@@ -62,7 +61,6 @@ private[fetch] class DefaultResourceAggregator(
     clock: Clock
 ) extends ResourceAggregator
     with StrictLogging {
-
   // immutable state
   private val throttled = rootTx.request.requestConfig.throttled
   private val httpProtocol = rootTx.request.requestConfig.httpProtocol
@@ -103,7 +101,6 @@ private[fetch] class DefaultResourceAggregator(
   }
 
   private def handleCachedResource(resource: HttpRequest): Unit = {
-
     val uri = resource.clientRequest.getUri
 
     logger.debug(s"Fetching resource $uri from cache")
@@ -120,7 +117,6 @@ private[fetch] class DefaultResourceAggregator(
   }
 
   private def fetchOrBufferResources(resources: List[HttpRequest]): Unit = {
-
     def fetchAndBufferWithTokens(remote: Remote, resources: List[HttpRequest], isHttp2PriorKnowledge: Option[Boolean]): Unit = {
       val availableTokens = availableTokensByHost(remote)
       val (immediate, buffered) = resources.splitAt(availableTokens)
@@ -184,7 +180,7 @@ private[fetch] class DefaultResourceAggregator(
     rootTx.next ! newSession
   }
 
-  private def sendBufferedRequest(request: HttpRequest, remote: Remote): Unit = {
+  private def sendBufferedRequest(request: HttpRequest, remote: Remote): Unit =
     httpCaches.contentCacheEntry(session, request.clientRequest) match {
       case None =>
         // recycle token, fetch a buffered resource
@@ -198,9 +194,8 @@ private[fetch] class DefaultResourceAggregator(
       case _ =>
         handleCachedResource(request)
     }
-  }
 
-  private def releaseTokenAndContinue(remote: Remote, isHttp2: Boolean): Unit = {
+  private def releaseTokenAndContinue(remote: Remote, isHttp2: Boolean): Unit =
     bufferedResourcesByHost.get(remote) match {
       case Some(Nil) | None =>
         // nothing to send for this remote for now
@@ -217,10 +212,8 @@ private[fetch] class DefaultResourceAggregator(
           sendBufferedRequest(request, remote)
         }
     }
-  }
 
   private def resourceFetched(remote: Remote, status: Status, silent: Boolean, isHttp2: Boolean): Unit = {
-
     pendingResourcesCount -= 1
 
     if (!silent && status == KO) {

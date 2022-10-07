@@ -24,7 +24,6 @@ import io.gatling.core.EmptySession
 import io.gatling.core.session.Session
 
 class ChainableActionSpec extends BaseSpec with EmptySession {
-
   class ChainableTestAction(val next: Action, fail: Boolean) extends ChainableAction {
     var hasRun = false
 

@@ -24,7 +24,6 @@ import io.gatling.core.config.GatlingConfiguration
 private[charts] class AssertionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) {
-
   import reportsGenerationInputs._
 
   def generate(): Unit = {

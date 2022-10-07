@@ -28,7 +28,6 @@ import io.gatling.core.stats.StatsEngine
 import io.netty.channel.EventLoopGroup
 
 private[core] final class ClosedInjectionProfile(steps: List[ClosedInjectionStep]) extends InjectionProfile {
-
   // doesn't make sense for ClosedInjectionProfile
   override def totalUserCount: Option[Long] = None
 

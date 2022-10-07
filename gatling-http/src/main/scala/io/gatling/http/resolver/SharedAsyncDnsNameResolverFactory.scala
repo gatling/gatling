@@ -30,7 +30,6 @@ import io.netty.resolver.dns.{ DefaultDnsCache, DnsCache }
 import io.netty.util.concurrent.{ Future, Promise }
 
 object SharedAsyncDnsNameResolverFactory {
-
   def apply(httpEngine: HttpEngine, dnsServers: Array[InetSocketAddress], actorSystem: ActorSystem): EventLoop => InetAddressNameResolver = {
     // create shared name resolvers for all the users with this protocol
     val sharedResolverCache = new ConcurrentHashMap[EventLoop, InetAddressNameResolver]
@@ -53,7 +52,6 @@ object SharedAsyncDnsNameResolverFactory {
 
 class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgressResolutions: ConcurrentHashMap[String, Promise[ju.List[InetAddress]]])
     extends InetAddressNameResolver {
-
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] = {
     val earlyPromise = inProgressResolutions.putIfAbsent(inetHost, promise)
     if (earlyPromise != null) {
@@ -78,13 +76,12 @@ class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgre
     promise
   }
 
-  private def transferResult(src: Future[ju.List[InetAddress]], dst: Promise[ju.List[InetAddress]]): Unit = {
+  private def transferResult(src: Future[ju.List[InetAddress]], dst: Promise[ju.List[InetAddress]]): Unit =
     if (src.isSuccess) {
       dst.trySuccess(src.getNow)
     } else {
       dst.tryFailure(src.cause)
     }
-  }
 
   // noop as shared
   override def close(): Unit = {}

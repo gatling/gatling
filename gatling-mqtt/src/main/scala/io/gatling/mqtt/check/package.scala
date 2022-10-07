@@ -21,6 +21,5 @@ import io.gatling.core.check.Check
 import io.netty.buffer.ByteBuf
 
 package object check {
-
   type MqttCheck = Check[ByteBuf]
 }

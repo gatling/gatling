@@ -21,7 +21,6 @@ import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] object Stats {
-
   def printable[T: Numeric](value: T): String =
     value match {
       case GeneralStats.NoPlotMagicValue => "-"
@@ -55,7 +54,6 @@ private[charts] final class RequestStatistics(
 )
 
 private[charts] final class DetailsStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
-
   override def html: String = s"""
                         <div class="infos">
                             <div class="infos-in">

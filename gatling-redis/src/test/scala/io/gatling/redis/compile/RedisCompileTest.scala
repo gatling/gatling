@@ -22,7 +22,6 @@ import io.gatling.redis.Predef._
 import com.redis.RedisClientPool
 
 class RedisCompileTest extends Simulation {
-
   private val redisPool = new RedisClientPool("localhost", 6379)
 
   redisFeeder(redisPool, "key")

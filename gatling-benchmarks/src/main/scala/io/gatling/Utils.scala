@@ -23,7 +23,6 @@ import io.gatling.commons.util.Io._
 import scala.util.Using
 
 object Utils {
-
   def resourceAsString(res: String, charset: Charset): String = {
     Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream(res)) { is =>
       is.toString(charset)

@@ -18,7 +18,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class HttpHelperSampleScala {
-
 //#addCookie
 exec(addCookie(Cookie("name", "value")))
 //#addCookie

@@ -29,7 +29,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.During
 
 object ScalaDuring {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: During[T, W],
       duration: Duration,
@@ -60,7 +59,6 @@ object ScalaDuring {
       counterName: String,
       exitASAP: Boolean
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.during(duration, counterName, exitASAP)(chain.wrapped))
   }

@@ -20,7 +20,6 @@ import io.gatling.jms.Predef._
 //#imprts
 
 class ProtocolSamples {
-
   {
 //#jndi
 val jndiBasedConnectionFactory = jmsJndiConnectionFactory

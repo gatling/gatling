@@ -2,7 +2,6 @@ import sbt._
 import sbt.Keys._
 
 object ConfigFiles {
-
   def copyGatlingDefaults(destProject: Project) =
     destProject / Compile / resourceGenerators += Def.task {
       copyGatlingDefaultConfigFile((destProject / Compile / resourceDirectory).value, (Compile / resourceDirectory).value)

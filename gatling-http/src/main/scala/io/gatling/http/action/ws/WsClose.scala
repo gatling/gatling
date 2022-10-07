@@ -36,7 +36,6 @@ class WsClose(
     with WsAction
     with ExitableAction
     with NameGen {
-
   override val name: String = genName("wsClose")
 
   override def sendRequest(session: Session): Validation[Unit] =

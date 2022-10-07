@@ -20,7 +20,6 @@ import io.gatling.core.body.{ Body => ScalaBody }
 import io.gatling.javaapi.core.Body
 
 object Bodies {
-
   def toJavaBody(scalaBody: ScalaBody): Body = scalaBody match {
     case b: io.gatling.core.body.StringBody      => new Body.WithString(b)
     case b: io.gatling.core.body.RawFileBody     => new Body.WithBytes(b)

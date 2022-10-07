@@ -24,9 +24,7 @@ import io.gatling.jms._
 import io.gatling.jms.request.JmsDestination
 
 class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
-
   "gatling-jms" should "send and receive JMS message" in {
-
     val requestQueue = JmsDestination.Queue("request")
 
     replier(

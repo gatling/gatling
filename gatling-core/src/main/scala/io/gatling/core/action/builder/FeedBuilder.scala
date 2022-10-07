@@ -35,7 +35,6 @@ private[core] object FeedBuilder {
 private[core] final class FeedBuilder(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]])
     extends ActionBuilder
     with NameGen {
-
   private def newFeedActor(ctx: ScenarioContext): ActorRef = {
     val feederName = feederBuilder match {
       case namedFeederBuilder: NamedFeederBuilder => Some(namedFeederBuilder.name)

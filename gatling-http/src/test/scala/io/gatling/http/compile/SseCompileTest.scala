@@ -22,7 +22,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class SseCompileTest extends Simulation {
-
   private val scn = scenario(this.getClass.getSimpleName)
     .exec(
       sse("connect")

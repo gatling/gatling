@@ -19,7 +19,6 @@ package io.gatling.commons.util
 import java.io.InputStream
 
 final class FastByteArrayInputStream(bytes: Array[Byte]) extends InputStream {
-
   private val length: Int = bytes.length
   private var position: Int = _
   private var mark: Int = _
