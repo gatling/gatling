@@ -24,6 +24,7 @@ import scala.util.{ Try, Using }
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.{ GatlingVersion, Java }
+import io.gatling.core.json.Json
 
 import io.netty.util.internal.PlatformDependent
 
@@ -72,8 +73,7 @@ object Analytics {
     val launcherProperties = launcher.fold(Map.empty[String, String])(l => Map("launcher" -> l))
     val buildToolVersionProperties = buildToolVersion.fold(Map.empty[String, String])(btv => Map("build-tool-version" -> btv))
 
-    val jsonUserProperties =
-      (userPropertiesBase ++ launcherProperties ++ buildToolVersionProperties).map { case (key, value) => s""""$key": "$value"""" }.toSeq.sorted.mkString(",\n")
+    val jsonUserProperties = Json.stringify(userPropertiesBase ++ launcherProperties ++ buildToolVersionProperties, isRootObject = false)
 
     val bodyBytes =
       s"""{
@@ -83,9 +83,7 @@ object Analytics {
          |         "device_id":"${UUID.randomUUID()}",
          |         "event_type":"gatling_run",
          |         "ip":"$$remote",
-         |         "user_properties":{
-         |            $jsonUserProperties
-         |         }
+         |         "user_properties": $jsonUserProperties
          |      }
          |   ]
          |}""".stripMargin
