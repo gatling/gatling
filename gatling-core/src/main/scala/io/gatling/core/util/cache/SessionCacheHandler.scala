@@ -19,7 +19,6 @@ package io.gatling.core.util.cache
 import io.gatling.core.session.Session
 
 class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
-
   val enabled: Boolean = maxCapacity > 0
 
   private[cache] def getCache(session: Session): Option[Cache[K, V]] =

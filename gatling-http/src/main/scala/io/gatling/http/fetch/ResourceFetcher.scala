@@ -66,11 +66,9 @@ private[http] class ResourceFetcher(
     httpProtocol: HttpProtocol,
     httpTxExecutor: HttpTxExecutor
 ) extends StrictLogging {
-
   import ResourceFetcher._
 
   private def inferPageResources(request: Request, response: Response, session: Session, throttled: Boolean): List[HttpRequest] = {
-
     val htmlDocumentUri = request.getUri
 
     def inferredResourcesRequests(): List[HttpRequest] = {
@@ -110,7 +108,6 @@ private[http] class ResourceFetcher(
       session: Session,
       throttled: Boolean
   ): List[HttpRequest] = {
-
     def parseCssResources(): List[HttpRequest] = {
       val computer = CssParser.extractResources(_: Uri, content)
       val inferred = httpCaches.computeCssResourcesIfAbsent(uri, computer)
@@ -165,7 +162,6 @@ private[http] class ResourceFetcher(
   }
 
   private def resourceAggregator(tx: HttpTx, inferredResources: List[HttpRequest]): Option[ResourceAggregator] = {
-
     val explicitResources =
       if (tx.request.requestConfig.explicitResources.nonEmpty) {
         buildExplicitResources(tx.request.requestConfig.explicitResources, tx.session)

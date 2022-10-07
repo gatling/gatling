@@ -29,7 +29,6 @@ import io.gatling.javaapi.core.internal.Expressions.javaIntegerFunctionToExpress
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaFeeds {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Feeds[T, W],
       feederBuilder: juf.Supplier[ju.Iterator[ju.Map[String, AnyRef]]]

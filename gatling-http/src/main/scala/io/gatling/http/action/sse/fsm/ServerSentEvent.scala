@@ -25,7 +25,6 @@ final case class ServerSentEvent(
     id: Option[String],
     retry: Option[Int]
 ) {
-
   def asJsonString: String = {
     val sb = StringBuilderPool.DEFAULT.get().append('{')
     name.foreach { value =>

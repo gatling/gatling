@@ -19,7 +19,6 @@ package io.gatling.commons.util
 import java.{ lang => jl }
 
 object Hex {
-
   def fromHexString(hexString: String): Array[Byte] =
     hexString.grouped(2).map(Integer.parseInt(_, 16).toByte).toArray
 

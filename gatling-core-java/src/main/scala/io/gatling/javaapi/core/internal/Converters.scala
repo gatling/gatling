@@ -27,7 +27,6 @@ import scala.jdk.DurationConverters._
 import scala.jdk.FunctionConverters._
 
 object Converters {
-
   def toScalaFunction[T, R](f: juf.Function[T, R]): Function[T, R] = f.asScala
 
   def toScalaDuration(duration: Duration): FiniteDuration = duration.toScala

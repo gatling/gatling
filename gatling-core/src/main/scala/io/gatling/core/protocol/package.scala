@@ -17,6 +17,5 @@
 package io.gatling.core
 
 package object protocol {
-
   type Protocols = Map[Class[_ <: Protocol], Protocol]
 }

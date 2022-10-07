@@ -21,12 +21,10 @@ import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 
 object Io {
-
   val DefaultBufferSize: Int = 8 * 1024
 
   // FIXME drop when switching to Java 9+
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
-
     @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     // FIXME only used for tests and Resource#string (not on hot path): replace with new String(InputStream#readAllBytes) (Java 9+)
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
@@ -57,9 +55,7 @@ object Io {
     @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     // FIXME https://docs.oracle.com/javase/9/docs/api/java/io/InputStream.html#transferTo-java.io.OutputStream- (Java 9+)
     def copyTo(os: OutputStream, bufferSize: Int = DefaultBufferSize): Int = {
-
       def copyLarge(buffer: Array[Byte]): Long = {
-
         var lastReadCount: Int = 0
         def read(): Int = {
           lastReadCount = is.read(buffer)

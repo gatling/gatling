@@ -25,7 +25,6 @@ import io.gatling.jsonpath.AST._
  * Originally contributed by Nicolas Rémond.
  */
 private[jsonpath] object JsonPathParser extends RegexParsers {
-
   private val stringBuilderPool = new StringBuilderPool
 
   private[jsonpath] def fastReplaceAll(text: String, replaced: String, replacement: String): String = {

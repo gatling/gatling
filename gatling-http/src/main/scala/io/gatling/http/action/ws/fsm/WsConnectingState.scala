@@ -34,7 +34,6 @@ object WsConnectingState extends StrictLogging {
   private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 
   def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingReconnects: Int): NextWsState = {
-
     import fsm._
 
     val listener = new WsListener(fsm, clock)
@@ -63,7 +62,6 @@ object WsConnectingState extends StrictLogging {
 final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], connectStart: Long, remainingReconnects: Int)
     extends WsState(fsm)
     with StrictLogging {
-
   import fsm._
 
   override def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], connectEnd: Long): NextWsState = {
@@ -102,9 +100,9 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
           }
 
         fsm.scheduleTimeout(timeout)
-        //[e]
+        // [e]
         //
-        //[e]
+        // [e]
 
         NextWsState(
           WsPerformingCheckState(

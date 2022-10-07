@@ -31,7 +31,6 @@ import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
-
   private def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {

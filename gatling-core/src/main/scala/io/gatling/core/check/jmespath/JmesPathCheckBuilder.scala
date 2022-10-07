@@ -39,7 +39,6 @@ sealed trait JmesPathOfType { self: JmesPathCheckBuilder[String] =>
 }
 
 object JmesPathCheckBuilder {
-
   def jmesPath(path: Expression[String], jmesPaths: JmesPaths): JmesPathCheckBuilder[String] with JmesPathOfType =
     new JmesPathCheckBuilder[String](path, jmesPaths) with JmesPathOfType
 }

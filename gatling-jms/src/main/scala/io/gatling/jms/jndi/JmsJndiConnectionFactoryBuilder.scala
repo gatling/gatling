@@ -27,7 +27,6 @@ import io.gatling.commons.model.Credentials
 import com.typesafe.scalalogging.StrictLogging
 
 object JmsJndiConnectionFactoryBuilder {
-
   object Base {
     def connectionFactoryName(cfn: String): Url = new Url(cfn)
   }
@@ -61,7 +60,6 @@ final class JmsJndiConnectionFactoryBuilder(
     credentials: Option[Credentials],
     jndiProperties: Map[String, String]
 ) extends StrictLogging {
-
   def build(): ConnectionFactory = {
     // create InitialContext
     val properties = new JHashtable[String, String]

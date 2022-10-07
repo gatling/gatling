@@ -42,7 +42,6 @@ private[gatling] object Runner {
 }
 
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
-
   private[app] final def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {
     logger.trace("Running")
 

@@ -21,14 +21,12 @@ import io.gatling.commons.model.Credentials
 import com.softwaremill.quicklens._
 
 object ProxyBuilder {
-
   def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy, None))
 
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }
 
 final class ProxyBuilder(val proxy: Proxy) {
-
   def http: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(HttpProxy))
 

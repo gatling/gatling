@@ -54,13 +54,11 @@ object OpenInjectionBuilder {
 }
 
 object OpenInjectionSupport {
-
   val OpenInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
     (steps: Iterable[OpenInjectionStep]) => new OpenInjectionProfile(steps.toList)
 }
 
 trait OpenInjectionSupport {
-
   implicit def openInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
     OpenInjectionSupport.OpenInjectionProfileFactory
 

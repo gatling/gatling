@@ -26,7 +26,6 @@ import io.gatling.mqtt.protocol.{ LastWillBuilder, MqttProtocolBuilder }
 import com.typesafe.scalalogging.StrictLogging
 
 object Predef extends MqttCheckSupport with StrictLogging {
-
   def LastWill(topic: Expression[String], message: Body): LastWillBuilder = ???
 
   // NB We need this implicit parameter even though it's not used so compiler can tell appart this method and io.gatling.mqtt(requestName)

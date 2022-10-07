@@ -41,7 +41,6 @@ object MockStatsEngine {
 }
 
 class MockStatsEngine extends StatsEngine with StrictLogging {
-
   var messages: List[MockStatsEngine.Message] = Nil
 
   override def start(): Unit = {}

@@ -22,7 +22,6 @@ import io.gatling.core.session.Session
 import akka.actor.ActorRef
 
 private[gatling] final class Exit(injector: ActorRef) extends Action {
-
   override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {

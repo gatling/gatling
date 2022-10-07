@@ -38,10 +38,10 @@ object ChainBuilder {
 /**
  * This class defines chain related methods
  *
- * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
+ * @param actionBuilders
+ *   the builders that represent the chain of actions of a scenario/chain
  */
 final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction {
-
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
     new ChainBuilder(newActionBuilders.toList ::: actionBuilders)
 }
@@ -49,11 +49,12 @@ final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends Struct
 /**
  * The scenario builder is used in the DSL to define the scenario
  *
- * @param name the name of the scenario
- * @param actionBuilders the list of all the actions that compose the scenario
+ * @param name
+ *   the name of the scenario
+ * @param actionBuilders
+ *   the list of all the actions that compose the scenario
  */
 final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ScenarioBuilder] with BuildAction {
-
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
     new ScenarioBuilder(name, actionBuilders = newActionBuilders.toList ::: actionBuilders)
 
@@ -79,7 +80,6 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
 }
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {
-
   override protected def actionBuilders: List[ActionBuilder] = Nil
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =

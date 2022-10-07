@@ -22,7 +22,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class SslSpec extends AnyFlatSpecLike with Matchers {
-
   private val keystore = "testkeystore"
   private val password = "123456"
 

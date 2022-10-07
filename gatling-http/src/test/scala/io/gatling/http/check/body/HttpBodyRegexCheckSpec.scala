@@ -27,7 +27,6 @@ import io.gatling.http.check.{ HttpCheck, HttpCheckSupport }
 import io.gatling.http.response.Response
 
 class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   object RegexSupport extends HttpCheckSupport
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()

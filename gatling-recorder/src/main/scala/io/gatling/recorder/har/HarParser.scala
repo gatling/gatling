@@ -23,7 +23,6 @@ import scala.jdk.CollectionConverters._
 import com.fasterxml.jackson.databind.{ DeserializationFeature, ObjectMapper }
 
 object HarParser {
-
   final case class HarEntry(startedDateTime: String, time: Option[Double], timings: Option[HarTimings], request: HarRequest, response: HarResponse)
 
   final case class HarRequest(httpVersion: String, method: String, url: String, headers: Seq[HarHeader], postData: Option[HarRequestPostData])

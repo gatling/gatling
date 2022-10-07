@@ -21,7 +21,6 @@ import java.util.Locale
 import io.gatling.BaseSpec
 
 class ValidationSpec extends BaseSpec {
-
   "SuccessWrapper" should "wrap a value in a Success" in {
     1.success shouldBe Success(1)
   }

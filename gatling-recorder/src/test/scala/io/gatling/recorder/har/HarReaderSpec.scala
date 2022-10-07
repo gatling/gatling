@@ -26,7 +26,6 @@ import io.gatling.core.filter.Filters
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 
 class HarReaderSpec extends BaseSpec {
-
   private def readHar(file: String, filters: Option[Filters]): Seq[HttpTransaction] =
     Using.resource(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
       HarReader.readStream(is, filters)

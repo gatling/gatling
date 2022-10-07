@@ -25,7 +25,6 @@ import scala.util.Using
 import io.gatling.commons.util.Io._
 
 object GzipHelper {
-
   def gzip(string: String, charset: Charset): Array[Byte] = gzip(string.getBytes(charset))
 
   def gzip(bytes: Array[Byte]): Array[Byte] =

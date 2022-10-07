@@ -25,7 +25,6 @@ import io.gatling.http.check.HttpCheckScope.Time
 import io.gatling.http.response.Response
 
 object HttpResponseTimeCheckMaterializer {
-
   val Instance: CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] = {
     val preparer: Preparer[Response, ResponseTimings] = response => new ResponseTimings(response.startTimestamp, response.endTimestamp).success
     new HttpCheckMaterializer[ResponseTimeCheckType, ResponseTimings](Time, preparer)

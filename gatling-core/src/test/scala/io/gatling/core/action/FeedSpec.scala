@@ -25,7 +25,6 @@ import akka.testkit._
 import org.scalatestplus.mockito.MockitoSugar
 
 class FeedSpec extends AkkaSpec with MockitoSugar {
-
   private val clock = new DefaultClock
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {

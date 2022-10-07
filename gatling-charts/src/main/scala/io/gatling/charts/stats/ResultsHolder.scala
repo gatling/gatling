@@ -39,7 +39,6 @@ private class ResultsHolder(
     with ErrorsBuffers
     with RequestPercentilesBuffers
     with GroupPercentilesBuffers {
-
   def addUserRecord(record: UserRecord): Unit = {
     addSessionBuffers(record)
     addScenarioName(record)
@@ -73,7 +72,6 @@ private class ResultsHolder(
       updateRequestPercentilesBuffers(record)
     }
 
-  def addErrorRecord(record: ErrorRecord): Unit = {
+  def addErrorRecord(record: ErrorRecord): Unit =
     updateGlobalError(record.message)
-  }
 }

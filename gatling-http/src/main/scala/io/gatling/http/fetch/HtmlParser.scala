@@ -84,18 +84,15 @@ ${new String(htmlContent)}
 }
 
 class HtmlParser extends StrictLogging {
-
   import HtmlParser._
 
   var inStyle = false
 
   private def parseHtml(htmlContent: Array[Char]): HtmlResources = {
-
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
 
     val visitor: EmptyTagVisitor = new EmptyTagVisitor {
-
       def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
           rawResources += factory(url.toString)
@@ -109,7 +106,6 @@ class HtmlParser extends StrictLogging {
           rawResources ++= CssParser.extractStyleImportsUrls(text).map(CssRawResource)
 
       override def tag(tag: Tag): Unit = {
-
         def codeBase(): Option[CharSequence] = Option(tag.getAttributeValue(CodeBaseAttribute))
 
         def prependCodeBase(codeBase: CharSequence, url: String): String =
@@ -123,14 +119,11 @@ class HtmlParser extends StrictLogging {
 
         def processTag(): Unit =
           tag.getType match {
-
             case TagType.START | TagType.SELF_CLOSING =>
               if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
                 inStyle = true
-
               } else if (tag.nameEquals(BaseTagName)) {
                 base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
-
               } else if (tag.nameEquals(LinkTagName)) {
                 Option(tag.getAttributeValue(RelAttribute)) match {
                   case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, StylesheetAttributeName) =>
@@ -140,19 +133,15 @@ class HtmlParser extends StrictLogging {
                     addResource(tag, HrefAttribute, RegularRawResource)
                   case _ =>
                 }
-
               } else if (
                 tag.nameEquals(ImgTagName) ||
                 tag.nameEquals(BgsoundTagName) ||
                 tag.nameEquals(EmbedTagName) ||
                 tag.nameEquals(InputTagName)
               ) {
-
                 addResource(tag, SrcAttribute, RegularRawResource)
-
               } else if (tag.nameEquals(BodyTagName)) {
                 addResource(tag, BackgroundAttribute, RegularRawResource)
-
               } else if (tag.nameEquals(AppletTagName)) {
                 val code = tag.getAttributeValue(CodeAttribute).toString
                 val archives = Option(tag.getAttributeValue(ArchiveAttribute)).map(_.toString.split(",").view.map(_.trim).to(Seq))
@@ -163,7 +152,6 @@ class HtmlParser extends StrictLogging {
                   case _        => appletResources
                 }
                 rawResources ++= appletResourcesUrls.map(RegularRawResource)
-
               } else if (tag.nameEquals(ObjectTagName)) {
                 Option(tag.getAttributeValue(DataAttribute)).foreach { data =>
                   val objectResourceUrl = codeBase() match {
@@ -172,7 +160,6 @@ class HtmlParser extends StrictLogging {
                   }
                   rawResources += RegularRawResource(objectResourceUrl)
                 }
-
               } else {
                 Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
                   val styleUrls = CssParser.extractInlineStyleImageUrls(style).map(RegularRawResource)
@@ -198,7 +185,6 @@ class HtmlParser extends StrictLogging {
   }
 
   def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char]): List[ConcurrentResource] = {
-
     val htmlResources = parseHtml(htmlContent)
 
     val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)

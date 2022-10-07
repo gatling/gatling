@@ -17,7 +17,7 @@
 package io.gatling.core
 
 import java.{ util => ju }
-import java.util.{ Timer, TimerTask, concurrent => juc }
+import java.util.{ concurrent => juc, Timer, TimerTask }
 
 import io.netty.channel.{ Channel, ChannelFuture, ChannelPromise, EventLoop, EventLoopGroup }
 import io.netty.util.concurrent.{ EventExecutor, Future => NFuture, ProgressivePromise, Promise, ScheduledFuture }
@@ -33,7 +33,7 @@ class FakeEventLoop extends EventLoop {
   override def schedule(command: Runnable, delay: Long, unit: juc.TimeUnit): ScheduledFuture[_] = {
     timer.schedule(
       new TimerTask {
-        override def run(): Unit = { command.run() }
+        override def run(): Unit = command.run()
       },
       unit.toMillis(delay)
     )

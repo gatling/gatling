@@ -28,7 +28,6 @@ import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Io._
 
 object ScanHelper {
-
   private val Separator = Character.valueOf(28).toString
 
   sealed trait Resource {
@@ -39,7 +38,6 @@ object ScanHelper {
   }
 
   private final case class FileResource(path: Path) extends Resource {
-
     private val file = path.toFile
 
     override def copyTo(target: Path): Unit = {
@@ -53,7 +51,6 @@ object ScanHelper {
   }
 
   private final case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
-
     override def path: Path = Paths.get(jarEntry.getName)
 
     override def copyTo(target: Path): Unit = {
@@ -69,7 +66,6 @@ object ScanHelper {
   }
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
-
     def isResourceInRootDir(resource: Path, rootDir: Path): Boolean =
       if (resource.extension.isEmpty) false
       else if (deep) resource.startsWith(rootDir)
@@ -97,7 +93,6 @@ object ScanHelper {
   }
 
   def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path): Unit = {
-
     def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
       val pathString = path.iterator.asScala.mkString(Separator)
       val pkgString = pkg.iterator.asScala.mkString(Separator)

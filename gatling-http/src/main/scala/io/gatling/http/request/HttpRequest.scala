@@ -44,13 +44,11 @@ final case class HttpRequestDef(
     clientRequest: Expression[Request],
     requestConfig: HttpRequestConfig
 ) {
-
   def build(session: Session): Validation[HttpRequest] =
     clientRequest(session).map(request => HttpRequest(request.getName, request, requestConfig))
 }
 
 final case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
-
   def isSilent(root: Boolean): Boolean =
     requestConfig.silent match {
       case Some(silent) => silent

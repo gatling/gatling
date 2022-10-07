@@ -22,7 +22,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ScalaAdvancedSimulationStep01 extends Simulation {
-
   // Let's split this big scenario into composable business processes, like one would do with the
   // PageObject pattern with Selenium
   val search =

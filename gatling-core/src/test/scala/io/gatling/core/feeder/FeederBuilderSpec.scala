@@ -22,7 +22,6 @@ import io.gatling.BaseSpec
 import io.gatling.core.config._
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "FeederSupport.separatedValues" should "throw an exception when provided with bad resource" in {

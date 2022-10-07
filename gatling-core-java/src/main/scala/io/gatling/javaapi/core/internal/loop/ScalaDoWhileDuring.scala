@@ -30,7 +30,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.DoWhileDuring
 
 object ScalaDoWhileDuring {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoWhileDuring[T, W],
       condition: String,
@@ -83,7 +82,6 @@ object ScalaDoWhileDuring {
       counterName: String,
       exitASAP: Boolean
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.asLongAsDuring(condition, duration, counterName, exitASAP)(chain.wrapped))
   }

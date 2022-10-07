@@ -48,7 +48,6 @@ private[recorder] sealed trait HttpTrafficElement extends Product with Serializa
 private[recorder] final case class PauseElement(duration: FiniteDuration) extends HttpTrafficElement
 private[recorder] final case class TagElement(text: String) extends HttpTrafficElement
 private[recorder] object RequestElement {
-
   private val CacheHeaders =
     Set(
       HttpHeaderNames.CACHE_CONTROL.toString,
@@ -130,7 +129,6 @@ private[recorder] final case class RequestElement(
     embeddedResources: List[ConcurrentResource],
     nonEmbeddedResources: List[RequestElement]
 ) extends HttpTrafficElement {
-
   val (baseUrl, pathQuery) = {
     val uriComponents = Uri.create(uri)
 

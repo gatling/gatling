@@ -28,7 +28,6 @@ import io.gatling.recorder.render.{ RequestBodyParams, RequestElement }
 import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class RequestTemplateSpec extends BaseSpec {
-
   private val config: RecorderConfiguration = fakeConfig(mutable.Map())
   private val url = "http://gatling.io/path1/file1"
   private val simulationClass = "Simulation Class"

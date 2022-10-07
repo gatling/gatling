@@ -30,7 +30,6 @@ object Polling {
 }
 
 final class Polling(pollerName: String) {
-
   def pollerName(pollerName: String): Polling = new Polling(pollerName)
 
   def every(period: FiniteDuration): PollingEveryStep = new PollingEveryStep(pollerName, period)
@@ -39,7 +38,6 @@ final class Polling(pollerName: String) {
 }
 
 final class PollingEveryStep(pollerName: String, period: FiniteDuration) {
-
   def exec(requestBuilder: HttpRequestBuilder): HttpActionBuilder =
     new PollingStartBuilder(pollerName, period, requestBuilder)
 }

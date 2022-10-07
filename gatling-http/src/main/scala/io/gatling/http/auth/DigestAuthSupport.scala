@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
 import io.netty.handler.codec.http.HttpHeaderNames.WWW_AUTHENTICATE
 
 private[http] object DigestAuthSupport extends StrictLogging {
-
   private val DigestAuthChallengesAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.auth.digest")
 
   private def getStore(session: Session): Option[DigestAuthChallengeStore] =

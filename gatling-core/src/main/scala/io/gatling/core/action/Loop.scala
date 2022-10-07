@@ -32,11 +32,9 @@ private final class Loop(
     override val name: String,
     next: Action
 ) extends Action {
-
   private[this] var innerLoop: Action = _
 
   private[core] def initialize(loopNext: Action): Unit = {
-
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName)) {
         session.incrementCounter(counterName)
@@ -63,7 +61,6 @@ class InnerLoop(
     val name: String,
     val next: Action
 ) extends ChainableAction {
-
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())
 
   private[this] def getAndSetLastUserId(session: Session): Long = {
@@ -74,10 +71,10 @@ class InnerLoop(
   }
 
   /**
-   * Evaluates the condition and if true executes the first action of loopNext
-   * else it executes next
+   * Evaluates the condition and if true executes the first action of loopNext else it executes next
    *
-   * @param session the session of the virtual user
+   * @param session
+   *   the session of the virtual user
    */
   def execute(session: Session): Unit = {
     val incrementedSession = counterIncrement(session)
@@ -91,11 +88,9 @@ class InnerLoop(
         if (!eventLoop.isShutdown) {
           eventLoop.execute(() => loopNext ! incrementedSession)
         }
-
       } else {
         loopNext ! incrementedSession
       }
-
     } else {
       val newSession = incrementedSession.blockStack match {
         case LoopBlock(counterName) :: tail => incrementedSession.exitLoop(counterName, tail)

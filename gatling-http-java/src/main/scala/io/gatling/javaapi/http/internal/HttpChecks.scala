@@ -48,7 +48,6 @@ import jodd.lagarto.dom.NodeSelector
 import net.sf.saxon.s9api.XdmNode
 
 object HttpChecks {
-
   private def toScalaCheck(javaCheck: io.gatling.javaapi.core.CheckBuilder): HttpCheck = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

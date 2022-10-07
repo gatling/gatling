@@ -23,7 +23,6 @@ import scala.jdk.CollectionConverters._
 import io.gatling.core.feeder.Feeder
 
 object Feeders {
-
   def toJavaFeeder(scalaFeeder: Feeder[Object]): ju.Iterator[ju.Map[String, Object]] =
     scalaFeeder.map(_.asJava).asJava
 }

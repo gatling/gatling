@@ -34,7 +34,6 @@ private abstract class Workload(
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine
 ) extends StrictLogging {
-
   private var scheduled = 0
   private var stopped = 0
   private var allScheduled = false

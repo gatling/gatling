@@ -24,12 +24,11 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class WsCompileTest extends Simulation {
-
   private val httpProtocol = http
     .wsBaseUrl("ws://localhost:9000")
     .wsReconnect
     .wsMaxReconnects(3)
-    .wsAutoReplyTextFrame({ case "ping" => "pong"; case "1" => "2" })
+    .wsAutoReplyTextFrame { case "ping" => "pong"; case "1" => "2" }
     .wsAutoReplySocketIo4
 
   private val scn = scenario("WebSocket")

@@ -27,7 +27,6 @@ import io.gatling.core.config._
 import akka.actor.{ Props, Stash }
 
 private[graphite] object MetricsSender {
-
   def props(clock: Clock, configuration: GatlingConfiguration): Props = {
     val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
     configuration.data.graphite.protocol match {

@@ -24,7 +24,6 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 import com.typesafe.scalalogging.StrictLogging
 
 class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with StrictLogging {
-
   import fsm._
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
@@ -35,9 +34,9 @@ class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with Str
       case SseMessageCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check")
         scheduleTimeout(timeout)
-        //[e]
+        // [e]
         //
-        //[e]
+        // [e]
         NextSseState(
           SsePerformingCheckState(
             fsm,
@@ -75,9 +74,9 @@ class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with Str
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     logger.debug("Client requested SSE stream close")
-    //[e]
+    // [e]
     //
-    //[e]
+    // [e]
     NextSseState(new SseClosingState(fsm, actionName, session, next, clock.nowMillis), () => stream.requestingCloseByClient())
   }
 }

@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)

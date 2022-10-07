@@ -21,7 +21,6 @@ import scala.jdk.CollectionConverters._
 import io.gatling.BaseSpec
 
 class ListsSpec extends BaseSpec {
-
   "isSameSetAssumingNoDuplicate" should "return false when lists don't have the same size" in {
     Lists.isSameSetAssumingNoDuplicate(List(1, 2).asJava, List(1).asJava) shouldBe false
   }

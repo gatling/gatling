@@ -28,10 +28,9 @@ import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 
 class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLogging {
-
   private var cookies: List[Cookie] = Nil
 
-  //[e]
+  // [e]
   //
   //
   //
@@ -59,7 +58,7 @@ class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLo
   //
   //
   //
-  //[e]
+  // [e]
 
   override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {
     logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")

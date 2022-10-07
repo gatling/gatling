@@ -23,11 +23,9 @@ import scala.annotation.{ implicitNotFound, tailrec }
 import com.typesafe.scalalogging.StrictLogging
 
 sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
-
   implicit val stringGroupExtractor: GroupExtractor[String] = matcher => {
-
     @tailrec
-    def extractFirstNonNullGroupRec(i: Int, max: Int): String = {
+    def extractFirstNonNullGroupRec(i: Int, max: Int): String =
       matcher.group(i) match {
         case null =>
           if (i < max)
@@ -36,7 +34,6 @@ sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
             "" // shouldn't happen, as the regex matched, we should have at least one non null group
         case value => value
       }
-    }
 
     matcher.groupCount match {
       case 0     => safeGetGroupValue(matcher, 0)

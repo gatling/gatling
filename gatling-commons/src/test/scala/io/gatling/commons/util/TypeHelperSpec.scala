@@ -22,7 +22,6 @@ import io.gatling.BaseSpec
 import io.gatling.commons.validation._
 
 class TypeHelperSpec extends BaseSpec {
-
   "asValidation" should "return the string representation of the object when asking for type String" in {
     TypeHelper.validate[String](3.2) shouldBe Success("3.2")
   }

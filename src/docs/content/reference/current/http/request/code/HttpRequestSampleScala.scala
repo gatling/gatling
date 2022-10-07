@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream
 import java.util.Base64
 
 class HttpRequestSampleScala {
-
   {
 //#requestName
 // with a static value

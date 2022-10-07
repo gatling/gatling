@@ -27,12 +27,14 @@ import io.gatling.core.util.NameGen
 /**
  * Builder for the 'pause' action.
  *
- * @constructor create a new PauseBuilder
- * @param duration mean duration of the generated pause
- * @param force if the global pause type has to be overridden
+ * @constructor
+ *   create a new PauseBuilder
+ * @param duration
+ *   mean duration of the generated pause
+ * @param force
+ *   if the global pause type has to be overridden
  */
 private[core] final class PauseBuilder(duration: Expression[FiniteDuration], force: Option[PauseType]) extends ActionBuilder with NameGen {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     force.getOrElse(ctx.pauseType) match {
       case Disabled => next

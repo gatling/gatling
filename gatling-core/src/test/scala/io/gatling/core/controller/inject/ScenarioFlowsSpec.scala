@@ -19,7 +19,6 @@ package io.gatling.core.controller.inject
 import io.gatling.BaseSpec
 
 class ScenarioFlowsSpec extends BaseSpec {
-
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def node(key: String, childrenSequences: List[List[ScenarioFlows.Node[String, String]]] = Nil): ScenarioFlows.Node[String, String] =
     ScenarioFlows.Node(key, key, childrenSequences)

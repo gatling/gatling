@@ -26,7 +26,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
 object SseConnectingState {
-
   private val SseConnectSuccessStatusCode = Some(Integer.toString(HttpResponseStatus.OK.code))
 
   def gotoConnecting(fsm: SseFsm, session: Session, next: Action): NextSseState = {
@@ -36,7 +35,6 @@ object SseConnectingState {
 }
 
 class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectStart: Long) extends SseState(fsm) with StrictLogging {
-
   import fsm._
 
   override def onSseStreamConnected(connectEnd: Long): NextSseState = {
@@ -48,9 +46,9 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectSta
         logger.debug("Connected, performing checks before proceeding")
 
         scheduleTimeout(timeout)
-        //[e]
+        // [e]
         //
-        //[e]
+        // [e]
         NextSseState(
           SsePerformingCheckState(
             fsm,

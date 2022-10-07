@@ -29,7 +29,6 @@ private[charts] class AllSessionsReportGenerator(
 )(implicit
     configuration: GatlingConfiguration
 ) extends ReportGenerator {
-
   def generate(): Unit = {
     import reportsGenerationInputs._
 

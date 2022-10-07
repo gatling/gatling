@@ -31,7 +31,6 @@ import io.netty.handler.ssl.{ SslContext, SslContextBuilder }
 import io.netty.handler.ssl.util.{ InsecureTrustManagerFactory, SelfSignedCertificate }
 
 private[http] sealed trait SslServerContext {
-
   protected def context(alias: String): SslContext
 
   def createSSLEngine(alias: String): SSLEngine = {
@@ -42,11 +41,9 @@ private[http] sealed trait SslServerContext {
 }
 
 private[recorder] object SslServerContext {
-
   private val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 
   def apply(config: RecorderConfiguration): SslServerContext = {
-
     import config.proxy.https._
 
     mode match {
@@ -64,7 +61,6 @@ private[recorder] object SslServerContext {
   }
 
   object SelfSignedCertificate extends SslServerContext {
-
     private lazy val context: SslContext = {
       val ssc = new SelfSignedCertificate
       SslContextBuilder
@@ -78,11 +74,10 @@ private[recorder] object SslServerContext {
   }
 
   final class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends SslServerContext {
-
     private lazy val context = {
       val keyStore = {
         val ks = KeyStore.getInstance(keyStoreType.toString)
-        Using.resource(new BufferedInputStream(new FileInputStream(ksFile))) { ks.load(_, password) }
+        Using.resource(new BufferedInputStream(new FileInputStream(ksFile)))(ks.load(_, password))
         ks
       }
 
@@ -98,7 +93,6 @@ private[recorder] object SslServerContext {
     }
 
     def context(alias: String): SslContext = context
-
   }
 
   object OnTheFly {
@@ -107,7 +101,6 @@ private[recorder] object SslServerContext {
   }
 
   final class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
-
     require(Files.isRegularFile(pemCrtFile), s"$pemCrtFile is not a file")
     require(Files.isRegularFile(pemKeyFile), s"$pemKeyFile is not a file")
 

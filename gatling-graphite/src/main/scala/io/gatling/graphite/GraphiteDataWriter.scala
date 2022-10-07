@@ -38,7 +38,6 @@ final case class GraphiteData(
 ) extends DataWriterData
 
 private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[GraphiteData] with NameGen {
-
   def newResponseMetricsBuffer: RequestMetricsBuffer =
     new HistogramRequestMetricsBuffer(configuration)
 
@@ -109,7 +108,6 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
       requestsMetrics: Map[GraphitePath, MetricByStatus],
       userBreakdowns: Map[GraphitePath, UserBreakdown]
   ): Unit = {
-
     import data._
     metricsSender ! GraphiteMetrics(format.metrics(userBreakdowns, requestsMetrics), epoch)
   }

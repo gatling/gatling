@@ -29,7 +29,6 @@ final case class SseSetCheckBuilder(
     checkSequences: List[SseMessageCheckSequenceBuilder]
 ) extends HttpActionBuilder
     with SseAwaitActionBuilder[SseSetCheckBuilder] {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 
@@ -39,7 +38,6 @@ final case class SseSetCheckBuilder(
 }
 
 final case class SseCloseBuilder(requestName: Expression[String], sseName: Expression[String]) extends HttpActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

@@ -31,16 +31,13 @@ import com.typesafe.scalalogging.StrictLogging
 private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles)(implicit
     configuration: GatlingConfiguration
 ) extends StrictLogging {
-
   import reportsGenerationInputs._
 
   def generate(): Unit = {
-
     def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
       new Stats(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
     def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
-
       val total = logFileData.requestGeneralStats(requestName, group, None)
       val ok = logFileData.requestGeneralStats(requestName, group, Some(OK))
       val ko = logFileData.requestGeneralStats(requestName, group, Some(KO))
@@ -88,7 +85,6 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     }
 
     def computeGroupStats(name: String, group: Group): RequestStatistics = {
-
       def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
         if (configuration.charting.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
@@ -155,8 +151,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
     @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-    def addGroupsRec(hierarchy: List[String]): Unit = {
-
+    def addGroupsRec(hierarchy: List[String]): Unit =
       if (!seenGroups.contains(hierarchy)) {
         seenGroups += hierarchy
 
@@ -169,7 +164,6 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         val stats = computeGroupStats(group.name, group)
         rootContainer.addGroup(group, stats)
       }
-    }
 
     val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
     requestStatsPaths.foreach { case RequestStatsPath(request, group) =>

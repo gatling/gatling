@@ -34,7 +34,6 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 private[gatling] object HttpHelper extends StrictLogging {
-
   val HttpScheme = "http"
   val WsScheme = "ws"
   val OkCodes: BitSet = BitSet(
@@ -154,7 +153,6 @@ private[gatling] object HttpHelper extends StrictLogging {
         if (contentType.regionMatches(true, start, UTF_8.name, 0, 5)) {
           // minor optim, bypass lookup for most common
           Some(UTF_8.name)
-
         } else {
           var end = contentType.indexOf(';', start) match {
             case -1 => contentType.length

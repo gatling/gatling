@@ -30,7 +30,6 @@ import akka.util.ByteString
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class TcpSenderSpec extends AkkaSpec {
-
   private val dummySocketAddress = new InetSocketAddress(9999)
 
   private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock) {

@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder.LAX.encode
 
 class CookieJarSpec extends BaseSpec {
-
   "storeCookies" should "return nothing when it's empty" in {
     new CookieJar(Map.empty).get(Uri.create("http://docs.foo.com")) shouldBe empty
   }
@@ -254,7 +253,6 @@ class CookieJarSpec extends BaseSpec {
   }
 
   it should "properly deal with trailing slashes in paths" in {
-
     val cookie = decode("JSESSIONID=211D17F016132BCBD31D9ABB31D90960; Path=/app/consumer/; HttpOnly")
     val uri = Uri.create("https://vagrant.moolb.com/app/consumer/j_spring_cas_security_check?ticket=ST-5-Q7gzqPpvG3N3Bb02bm3q-llinder-vagrantmgr.moolb.com")
     val cookieStore = CookieJar(uri, List(cookie), System.currentTimeMillis())

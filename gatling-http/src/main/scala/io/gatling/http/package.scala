@@ -21,6 +21,5 @@ import io.gatling.core.session.Session
 import io.gatling.http.response.Response
 
 package object http {
-
   type ResponseTransformer = (Response, Session) => Validation[Response]
 }

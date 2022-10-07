@@ -24,7 +24,6 @@ import io.gatling.core.util.NameGen
 private final class ExitHere(condition: Expression[Boolean], exit: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ChainableAction
     with NameGen {
-
   override val name: String = genName("exitHere")
 
   override def execute(session: Session): Unit = recover(session) {
@@ -39,7 +38,6 @@ private final class ExitHere(condition: Expression[Boolean], exit: Action, val s
           }
 
           exit
-
         } else {
           next
         }

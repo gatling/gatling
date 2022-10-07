@@ -26,7 +26,6 @@ import io.gatling.core.stats.writer.ConsoleErrorsWriter
 import io.gatling.core.stats.writer.ConsoleSummary._
 
 private[charts] object ConsoleTemplate {
-
   private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Stats[T]): jl.StringBuilder = {
     import statistics._
     sb.append("> ")

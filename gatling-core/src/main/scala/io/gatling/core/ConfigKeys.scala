@@ -17,7 +17,6 @@
 package io.gatling.core
 
 object ConfigKeys {
-
   object core {
     val OutputDirectoryBaseName = "gatling.core.outputDirectoryBaseName"
     val RunDescription = "gatling.core.runDescription"

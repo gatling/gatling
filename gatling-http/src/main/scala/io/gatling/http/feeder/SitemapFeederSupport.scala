@@ -25,7 +25,6 @@ import io.gatling.core.util.{ Resource, ResourceCache }
  * Feeder for [[http://www.sitemaps.org/protocol.html sitemap]] file format.
  */
 trait SitemapFeederSupport extends ResourceCache {
-
   def sitemap(filePath: String)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     sitemap(cachedResource(GatlingFiles.customResourcesDirectory(configuration), filePath))
 

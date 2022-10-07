@@ -32,7 +32,6 @@ import com.softwaremill.quicklens._
 import org.mockito.Mockito._
 
 class HttpTxSpec extends BaseSpec {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   trait Context {
@@ -68,7 +67,6 @@ class HttpTxSpec extends BaseSpec {
     )
 
   "HttpTx" should "be silent when using default protocol and containing a request forced to silent" in new Context {
-
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
@@ -77,7 +75,6 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "be non-silent when using default protocol and containing a regular request" in new Context {
-
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
@@ -85,7 +82,6 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "not be silent when using a protocol with a silentUri pattern match the request url" in new Context {
-
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
@@ -96,7 +92,6 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "be silent when passed a protocol silencing resources and a resource (non root) request" in new Context {
-
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
@@ -107,7 +102,6 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "not be silent when passed a protocol silencing resources and a root request" in new Context {
-
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 

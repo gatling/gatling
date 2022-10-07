@@ -33,13 +33,14 @@ final case class VisitedArray(it: ju.Iterator[JsonNode]) extends VisitedIterator
 
 /**
  * Collect all first nodes in a branch with a given name
- * @param root the tree root
- * @param name the searched name
+ * @param root
+ *   the tree root
+ * @param name
+ *   the searched name
  *
- *  Originally contributed by Nicolas Rémond.
+ * Originally contributed by Nicolas Rémond.
  */
 class RecursiveFieldIterator(root: JsonNode, name: String) extends RecursiveIterator[VisitedIterator](root) {
-
   override def visit(t: VisitedIterator): Unit = t match {
     case VisitedObject(it) => visitObject(it)
     case VisitedArray(it)  => visitArray(it)

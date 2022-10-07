@@ -32,7 +32,6 @@ private[charts] class GroupDetailsReportGenerator(
 )(implicit
     configuration: GatlingConfiguration
 ) extends ReportGenerator {
-
   def generate(): Unit = {
     import reportsGenerationInputs._
 

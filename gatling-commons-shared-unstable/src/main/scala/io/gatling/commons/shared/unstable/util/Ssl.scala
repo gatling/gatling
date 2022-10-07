@@ -23,7 +23,6 @@ import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 import scala.util.Using
 
 object Ssl {
-
   private def storeStream(filePath: String): InputStream = {
     val storeFile = new File(filePath)
     if (storeFile.exists)

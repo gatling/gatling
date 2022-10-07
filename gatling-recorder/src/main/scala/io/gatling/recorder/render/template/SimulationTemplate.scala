@@ -61,7 +61,6 @@ private[render] class SimulationTemplate(
     protocolTemplate: ProtocolTemplate,
     requestTemplate: RequestTemplate
 ) {
-
   import SimulationTemplate._
 
   private def renderHeaders(headers: Map[Int, Seq[(String, String)]]) =
@@ -103,8 +102,8 @@ private[render] class SimulationTemplate(
           case _ =>
             s"""Map<CharSequence, String> $headerReference = new HashMap<>();
                |${protectedHeaders
-              .map { case (protectedName, protectedValue) => s"$headerReference.put($protectedName, $protectedValue);" }
-              .mkString(Eol)}""".stripMargin
+                .map { case (protectedName, protectedValue) => s"$headerReference.put($protectedName, $protectedValue);" }
+                .mkString(Eol)}""".stripMargin
         }
       }
       .mkString(Eol, s"$Eol$Eol", "")
@@ -160,7 +159,6 @@ private[render] class SimulationTemplate(
 
       s"""$scenarioReferenceType scn = scenario("$simulationClassName")
          |${s".$scenarioElements".indent(2)}${format.lineTermination}""".stripMargin
-
     } else {
       val chains: Seq[(Int, String)] =
         elements

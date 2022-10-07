@@ -24,7 +24,6 @@ import io.gatling.javaapi.core.{ ChainBuilder, Choice, StructureBuilder }
 import io.gatling.javaapi.core.condition.RandomSwitchOrElse
 
 object ScalaRandomSwitchOrElse {
-
   final class Choices[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: RandomSwitchOrElse[T, W]
   ) {

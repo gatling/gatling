@@ -35,7 +35,6 @@ private[http] class HttpCaches(val coreComponents: CoreComponents)
     with PermanentRedirectCacheSupport
     with DnsCacheSupport
     with ResourceCacheSupport {
-
   override def clock: Clock = coreComponents.clock
 
   override def configuration: GatlingConfiguration = coreComponents.configuration

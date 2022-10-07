@@ -22,7 +22,6 @@ import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.core.config.GatlingPropertiesBuilder
 
 private[app] class ArgsParser(args: Array[String]) {
-
   private val props = new GatlingPropertiesBuilder
 
   private val cliOptsParser = new GatlingOptionParser[Unit]("gatling") {

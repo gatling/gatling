@@ -33,7 +33,6 @@ class SseSetCheck(
 ) extends RequestAction
     with SseAction
     with NameGen {
-
   override val name: String = genName("sseSetCheck")
 
   override def sendRequest(session: Session): Validation[Unit] =

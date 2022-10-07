@@ -22,7 +22,7 @@ object ScenarioFlows {
   final case class Flow[K, T](value: T, blockedBy: Set[K])
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  private def leavesKeys[K, T](node: Node[K, T]): List[K] = {
+  private def leavesKeys[K, T](node: Node[K, T]): List[K] =
     if (node.childrenSequences.isEmpty) {
       node.key :: Nil
     } else {
@@ -31,11 +31,9 @@ object ScenarioFlows {
         key <- leavesKeys(child)
       } yield key
     }
-  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def flows[K, T](node: ScenarioFlows.Node[K, T], parentBlockers: Set[K]): List[Flow[K, T]] = {
-
     val childrenFlows: List[Flow[K, T]] = {
       val it = node.childrenSequences.iterator
       if (it.isEmpty) {
@@ -66,7 +64,6 @@ object ScenarioFlows {
 }
 
 final case class ScenarioFlows[K, T](locks: List[ScenarioFlows.Flow[K, T]]) {
-
   def remove(key: K): ScenarioFlows[K, T] =
     ScenarioFlows(locks.map(lock => lock.copy(blockedBy = lock.blockedBy - key)))
 

@@ -24,7 +24,6 @@ import scala.util.Using
 import io.gatling.commons.util.Spire._
 
 object HtmlHelper {
-
   private val charToHtml: Map[Char, String] =
     Using.resource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
       source
@@ -40,7 +39,6 @@ object HtmlHelper {
     }
 
   implicit class HtmlRichString(val string: String) extends AnyVal {
-
     def htmlEscape: String = {
       val sb = new jl.StringBuilder(string.length)
       cfor(0)(_ < string.length, _ + 1) { i =>

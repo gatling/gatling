@@ -23,14 +23,13 @@ import javax.jms._
 import scala.jdk.CollectionConverters._
 
 class JmsSessionPool(connection: Connection) {
-
   private val registeredJmsSessions = Collections.newSetFromMap(new ConcurrentHashMap[Session, java.lang.Boolean])
 
-  private val jmsSessions = ThreadLocal.withInitial[Session](() => {
+  private val jmsSessions = ThreadLocal.withInitial[Session] { () =>
     val s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     registeredJmsSessions.add(s)
     s
-  })
+  }
 
   def jmsSession(): Session = jmsSessions.get()
 

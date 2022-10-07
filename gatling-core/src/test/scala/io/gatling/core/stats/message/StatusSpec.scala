@@ -22,7 +22,6 @@ import io.gatling.commons.stats.{ KO, OK, Status }
 import org.scalacheck.Gen.alphaStr
 
 class StatusSpec extends BaseSpec {
-
   "Status.apply" should "return OK when passing 'OK'" in {
     Status("OK") shouldBe OK
   }

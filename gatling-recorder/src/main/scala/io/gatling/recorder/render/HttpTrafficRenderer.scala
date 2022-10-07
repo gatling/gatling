@@ -36,7 +36,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http._
 
 private[render] object DumpedBodies {
-
   private[render] def apply(config: RecorderConfiguration): DumpedBodies = {
     val classNameAsFolderName = config.core.className.toLowerCase(Locale.ROOT)
 
@@ -47,7 +46,7 @@ private[render] object DumpedBodies {
 
     val bodiesClassPathLocation: String = {
       val folderPath = config.core.pkg.replace(".", "/")
-      (if (folderPath.isEmpty) "" else (folderPath + "/")) + classNameAsFolderName
+      (if (folderPath.isEmpty) "" else folderPath + "/") + classNameAsFolderName
     }
 
     new DumpedBodies(bodiesFolderPath, bodiesClassPathLocation)
@@ -82,7 +81,6 @@ private[render] class DumpedBody(
 )
 
 private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) extends StrictLogging {
-
   private val simulationFile: Path = {
     val sourcesFolderPath = Files.createDirectories(Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)))
     sourcesFolderPath.resolve(s"${config.core.className}.${config.core.format.fileExtension}")
@@ -90,7 +88,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
 
   def simulationFileExists: Boolean = Files.exists(simulationFile)
 
-  private def dumpBody(body: DumpedBody): Unit = {
+  private def dumpBody(body: DumpedBody): Unit =
     Using.resource(new BufferedOutputStream(Files.newOutputStream(body.filePath))) { fw =>
       try {
         fw.write(body.bytes)
@@ -98,7 +96,6 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
         case e: IOException => logger.error(s"Failed to dump body ${body.filePath}", e)
       }
     }
-  }
 
   // RecorderController
   def renderHarFile(harFile: Path): Validation[Unit] =
@@ -187,7 +184,6 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
     responseBodies.values.foreach(dumpBody)
 
     val headers: Map[Int, Seq[(String, String)]] = {
-
       @tailrec
       def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
         case Nil => headers
@@ -208,7 +204,6 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
           val newHeaders = if (acceptedHeaders.isEmpty) {
             element.filteredHeadersId = None
             headers
-
           } else {
             val headersSeq = headers.toSeq
             headersSeq.indexWhere { case (_, existingHeaders) =>
@@ -233,7 +228,6 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
   }
 
   private def getBaseHeaders(requestElements: Seq[RequestElement]): HttpHeaders = {
-
     def getMostFrequentHeaderValue(headerName: String): Option[String] = {
       val headers = requestElements.flatMap(_.headers.getAll(headerName).asScala)
 

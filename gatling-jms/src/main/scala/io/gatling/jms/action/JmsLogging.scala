@@ -21,7 +21,6 @@ import javax.jms.Message
 import com.typesafe.scalalogging.StrictLogging
 
 trait JmsLogging extends StrictLogging {
-
   def logMessage(text: => String, msg: Message): Unit = {
     logger.debug(text)
     logger.trace(msg.toString)

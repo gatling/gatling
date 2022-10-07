@@ -43,7 +43,6 @@ private[swing] class DisplayedSelectionFileChooser(
     selectionMode: SelectionMode.Value = SelectionMode.FilesAndDirectories,
     fileFilter: FileFilter = new AcceptAllFileFilter
 ) extends BoxPanel(Orientation.Horizontal) {
-
   val selectionDisplay = new TextField(textFieldLength)
   private val fileChooser =
     new FileChooser {

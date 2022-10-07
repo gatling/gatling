@@ -44,9 +44,7 @@ private[charts] final class GroupContainer(
     val requests: mutable.Map[String, RequestContainer],
     val groups: mutable.Map[String, GroupContainer]
 ) extends Container {
-
   private def findGroup(path: List[String]) = {
-
     @tailrec
     def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
       case head :: tail => getGroupRec(g.groups(head), tail)

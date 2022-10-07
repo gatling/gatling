@@ -30,11 +30,9 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders }
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
 class HttpTrafficSpec extends BaseSpec {
-
   private val config: RecorderConfiguration = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
 
   "HttpTraffic" should "remove HTTP redirection " in {
-
     val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
     val r2 = RequestElement("http://gatling.io/rn1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 302, Nil, Nil)
     val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)

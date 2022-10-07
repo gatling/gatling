@@ -24,7 +24,6 @@ import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
 object GetCookieBuilder {
-
   def apply(cookie: GetCookieDsl): GetCookieBuilder =
     new GetCookieBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
@@ -32,11 +31,9 @@ object GetCookieBuilder {
 class GetCookieBuilder(name: Expression[String], domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
     extends HttpActionBuilder
     with NameGen {
-
   import CookieActionBuilder._
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-
     val httpProtocol = lookUpHttpComponents(ctx.protocolComponentsRegistry).httpProtocol
 
     val nonEmptyDomain = domain.getOrElse(defaultDomain(httpProtocol))

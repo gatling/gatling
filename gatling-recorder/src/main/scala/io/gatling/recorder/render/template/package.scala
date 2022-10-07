@@ -21,7 +21,6 @@ import java.{ lang => jl }
 import io.gatling.commons.util.StringHelper.Eol
 
 package object template {
-
   val SimpleQuotes: String = "\""
   val TripleQuotes: String = SimpleQuotes * 3
 

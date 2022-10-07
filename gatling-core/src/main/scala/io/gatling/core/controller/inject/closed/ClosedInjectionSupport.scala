@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 import io.gatling.core.controller.inject.InjectionProfileFactory
 
 object ClosedInjectionBuilder {
-
   def newEachLevelLasting(usersIncrement: Int, nbOfSteps: Int): Stairs.EachLevelLasting =
     Stairs.EachLevelLasting(usersIncrement, nbOfSteps)
 
@@ -52,13 +51,11 @@ object ClosedInjectionBuilder {
 }
 
 object ClosedInjectionSupport {
-
   val ClosedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
     (steps: Iterable[ClosedInjectionStep]) => new ClosedInjectionProfile(steps.toList)
 }
 
 trait ClosedInjectionSupport {
-
   implicit def closedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
     ClosedInjectionSupport.ClosedInjectionProfileFactory
 

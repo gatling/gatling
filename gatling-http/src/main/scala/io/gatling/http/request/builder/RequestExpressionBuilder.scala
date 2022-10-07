@@ -61,18 +61,16 @@ abstract class RequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends LazyLogging {
-
   import RequestExpressionBuilder._
 
   protected val charset: Charset = configuration.core.charset
-  protected val headers: Map[CharSequence, Expression[String]] = {
+  protected val headers: Map[CharSequence, Expression[String]] =
     if (commonAttributes.ignoreProtocolHeaders) {
       mergeCaseInsensitive(Map.empty, commonAttributes.headers)
     } else {
       val deduplicatedProtocolHeaders = mergeCaseInsensitive(Map.empty, httpProtocol.requestPart.headers)
       mergeCaseInsensitive(deduplicatedProtocolHeaders, commonAttributes.headers)
     }
-  }
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)

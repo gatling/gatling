@@ -21,7 +21,6 @@ import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming._
 
 class InferredResourceNamingSpec extends BaseSpec {
-
   "UrlTrailInferredResourceNaming" should "return the url trail, query included" in {
     UrlTailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
   }

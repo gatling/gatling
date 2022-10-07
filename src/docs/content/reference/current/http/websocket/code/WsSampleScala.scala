@@ -19,7 +19,6 @@ import io.gatling.http.Predef._
 import io.gatling.http.check.ws.WsFrameCheck
 
 class WsSampleScala {
-
 //#wsName
 ws("WS Operation").wsName("myCustomName")
 //#wsName

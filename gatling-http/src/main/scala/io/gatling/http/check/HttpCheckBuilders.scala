@@ -21,7 +21,6 @@ import io.gatling.core.check.Preparer
 import io.gatling.http.response._
 
 object HttpCheckBuilders {
-
   val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success
   val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = _.body.bytes.success
   val ResponseBodyLengthPreparer: Preparer[Response, Int] = _.body.length.success

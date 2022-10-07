@@ -39,11 +39,9 @@ import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 import xsbti.compile.analysis.ReadStamps
 
 object ZincCompiler extends ProblemStringFormats {
-
   private val logger = LoggerFactory.getLogger(getClass)
 
   private def manifestClasspath: Array[JFile] = {
-
     val manifests = Thread.currentThread.getContextClassLoader
       .getResources("META-INF/MANIFEST.MF")
       .asScala

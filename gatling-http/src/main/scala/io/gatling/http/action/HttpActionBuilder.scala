@@ -21,7 +21,6 @@ import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 
 trait HttpActionBuilder extends ActionBuilder {
-
   protected def lookUpHttpComponents(protocolComponentsRegistry: ProtocolComponentsRegistry): HttpComponents =
     protocolComponentsRegistry.components(HttpProtocol.HttpProtocolKey)
 }

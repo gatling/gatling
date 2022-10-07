@@ -35,7 +35,6 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 object DataWritersStatsEngine {
-
   def apply(
       simulationParams: SimulationParams,
       runMessage: RunMessage,
@@ -67,11 +66,9 @@ object DataWritersStatsEngine {
 }
 
 class DataWritersStatsEngine(dataWriterInitMessage: DataWriterMessage.Init, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
-
   private val active = new AtomicBoolean(true)
 
   override def start(): Unit = {
-
     implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
     implicit val dispatcher: ExecutionContext = system.dispatcher
 

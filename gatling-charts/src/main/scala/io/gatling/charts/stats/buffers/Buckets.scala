@@ -17,6 +17,5 @@
 package io.gatling.charts.stats.buffers
 
 private[stats] trait Buckets {
-
   def buckets: Array[Int]
 }

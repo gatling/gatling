@@ -25,7 +25,6 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.isCss
 
 trait NextExecutor {
-
   def executeNext(session: Session, status: Status, response: Response): Unit
   def executeNextOnCrash(session: Session): Unit
   def executeFollowUp(redirectTx: HttpTx): Unit
@@ -37,7 +36,6 @@ class RootNextExecutor(
     httpTxExecutor: HttpTxExecutor
 ) extends NextExecutor
     with NameGen {
-
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     resourceFetcher.newResourceAggregatorForFetchedPage(response, tx.copy(session = session), status) match {
       case Some(resourceFetcherActor) => resourceFetcherActor.start(session)
@@ -55,7 +53,6 @@ class ResourceNextExecutor(
     tx: HttpTx,
     resourceTx: ResourceTx
 ) extends NextExecutor {
-
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     if (isCss(response.headers)) {
       resourceTx.aggregator.onCssResourceFetched(

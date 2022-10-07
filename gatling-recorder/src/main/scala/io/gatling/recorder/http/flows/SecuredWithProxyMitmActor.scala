@@ -31,25 +31,23 @@ import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslHandler
 
 /**
- * Standard flow:
- * <ul>
- * <li>received CONNECT request with absolute url but without scheme</li>
- * <li>connect to outgoing proxy</li>
- * <li>if connect is successful, send CONNECT request to proxy</li>
- * <li>if response is 200/OK, install SslHandler on clientChannel and serverChannel</li>
- * <li>propagate response to serverChannel<li>
- * <li>receive request with relative url</li>
- * <li>propagate request to clientChannel</li>
- * <li>receive response</li>
- * <li>propagate response to serverChannel</li>
- * </ul>
+ * Standard flow: <ul> <li>received CONNECT request with absolute url but without scheme</li> <li>connect to outgoing proxy</li> <li>if connect is successful,
+ * send CONNECT request to proxy</li> <li>if response is 200/OK, install SslHandler on clientChannel and serverChannel</li> <li>propagate response to
+ * serverChannel<li> <li>receive request with relative url</li> <li>propagate request to clientChannel</li> <li>receive response</li> <li>propagate response to
+ * serverChannel</li> </ul>
  *
- * @param serverChannel    the server channel connected to the user agent
- * @param clientBootstrap  the bootstrap to establish client channels with the remote
- * @param sslServerContext factory for SSLContexts
- * @param proxy the outgoing proxy
- * @param trafficLogger log the traffic
- * @param httpClientCodecFactory create new HttpClientCodecs
+ * @param serverChannel
+ *   the server channel connected to the user agent
+ * @param clientBootstrap
+ *   the bootstrap to establish client channels with the remote
+ * @param sslServerContext
+ *   factory for SSLContexts
+ * @param proxy
+ *   the outgoing proxy
+ * @param trafficLogger
+ *   log the traffic
+ * @param httpClientCodecFactory
+ *   create new HttpClientCodecs
  */
 class SecuredWithProxyMitmActor(
     serverChannel: Channel,
@@ -60,7 +58,6 @@ class SecuredWithProxyMitmActor(
     httpClientCodecFactory: () => HttpClientCodec,
     clock: Clock
 ) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
-
   private val proxyRemote = Remote(proxy.host, proxy.port)
   private val proxyBasicAuthHeader = proxy.credentials.map(HttpUtils.basicAuth)
 
@@ -118,14 +115,12 @@ class SecuredWithProxyMitmActor(
           val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)
           serverChannel.pipeline.addFirst(SslHandlerName, serverSslHandler)
           serverChannel.writeAndFlush(response)
-
         } else {
           // dealing with client channel reconnect
           clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
         }
 
         goto(Connected) using ConnectedData(remote, clientChannel)
-
       } else {
         serverChannel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
         clientChannel.close()

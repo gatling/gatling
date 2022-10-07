@@ -32,8 +32,7 @@ import io.gatling.jms.request._
 /**
  * Core JMS Action to handle Request-Reply semantics
  *
- * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
- * This implementation then forwards it on to a tracking actor.
+ * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send. This implementation then forwards it on to a tracking actor.
  */
 class RequestReply(
     attributes: JmsAttributes,
@@ -47,7 +46,6 @@ class RequestReply(
     val next: Action,
     throttler: Option[Throttler]
 ) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
-
   override val name: String = genName("jmsRequestReply")
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)

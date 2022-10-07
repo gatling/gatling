@@ -25,7 +25,6 @@ import io.gatling.BaseSpec
 import io.gatling.core.session.SessionPrivateAttributes
 
 class PebbleSpec extends BaseSpec {
-
   "sessionAttributesToJava" should "convert attributes of type immutable.Map" in {
     val input = Map("foo" -> immutable.Map("bar" -> "baz"))
     val output = Pebble.sessionAttributesToJava(input)

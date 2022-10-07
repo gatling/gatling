@@ -18,7 +18,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ConceptSampleScala extends Simulation {
-
 //#dsl-bad
 for (i <- 1 to 5) {
   http("Access Github").get("https://github.com")

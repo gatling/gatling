@@ -22,7 +22,6 @@ import io.gatling.core.check._
 import jodd.lagarto.dom.NodeSelector
 
 private object CssExtractors {
-
   def find[X: NodeConverter](
       query: String,
       nodeAttribute: Option[String],

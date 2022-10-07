@@ -20,7 +20,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.RunMessage
 
 class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) extends GraphitePathPattern(runMessage, configuration) {
-
   private def removeDecimalPart(d: Double): String = {
     val i = d.toInt
     if (d == i.toDouble) String.valueOf(i)

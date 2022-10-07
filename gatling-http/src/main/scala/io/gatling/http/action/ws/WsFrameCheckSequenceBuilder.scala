@@ -24,7 +24,6 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 object WsFrameCheckSequenceBuilder {
-
   def resolve[T <: WsFrameCheck](builders: List[WsFrameCheckSequenceBuilder[T]], session: Session): Validation[List[WsFrameCheckSequence[T]]] = {
     @tailrec
     def resolveRec(builders: List[WsFrameCheckSequenceBuilder[T]], acc: List[WsFrameCheckSequence[T]]): Validation[List[WsFrameCheckSequence[T]]] =

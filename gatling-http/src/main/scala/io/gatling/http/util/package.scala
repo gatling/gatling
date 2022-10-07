@@ -31,9 +31,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaders
 
 package object util extends LazyLogging {
-
   implicit class HttpStringBuilder(val buff: jl.StringBuilder) extends AnyVal {
-
     def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
       headers.asScala.foreach { entry =>
         buff.append('\t').append(entry.getKey).append(": ").append(entry.getValue).append(Eol)

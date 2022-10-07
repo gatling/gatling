@@ -34,13 +34,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 
 class CacheSupportSpec extends BaseSpec with EmptySession {
-
   private val configuration = GatlingConfiguration.loadForTest()
   private val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   class CacheContext {
-
     def getResponseExpire(headers: Seq[(CharSequence, CharSequence)]): Option[Long] = {
       val httpHeaders = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => httpHeaders.add(headerName, headerValue) }
@@ -126,7 +124,6 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
 
     tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling.io/")
     tx.redirectCount shouldBe 1
-
   }
 
   it should "return updated transaction with several redirects" in new RedirectContext {
@@ -139,7 +136,6 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
 
     tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     tx.redirectCount shouldBe 3
-
   }
 
   it should "return updated transaction with several redirects, with redirectCount preset" in new RedirectContext {

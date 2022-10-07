@@ -36,7 +36,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import net.sf.saxon.s9api.XdmNode
 
 object JmsChecks {
-
   private def toScalaCheck(javaCheck: io.gatling.javaapi.core.CheckBuilder): JmsCheck = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

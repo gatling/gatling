@@ -27,7 +27,6 @@ import io.gatling.jms.protocol.{ JmsProtocol, JmsProtocolBuilder, JmsProtocolBui
 import io.gatling.jms.request._
 
 trait JmsDsl extends JmsCheckSupport {
-
   def jms(implicit configuration: GatlingConfiguration): JmsProtocolBuilderBase.type = JmsProtocolBuilderBase
 
   val jmsJndiConnectionFactory: JmsJndiConnectionFactoryBuilder.Base.type = JmsJndiConnectionFactoryBuilder.Base
@@ -35,15 +34,15 @@ trait JmsDsl extends JmsCheckSupport {
   /**
    * DSL text to start the jms builder
    *
-   * @param requestName human readable name of request
-   * @return a JmsDslBuilderBase instance which can be used to build up a JMS action
+   * @param requestName
+   *   human readable name of request
+   * @return
+   *   a JmsDslBuilderBase instance which can be used to build up a JMS action
    */
   def jms(requestName: Expression[String]): JmsDslBuilderBase = new JmsDslBuilderBase(requestName)
 
   /**
-   * Convert a JmsProtocolBuilder to a JmsProtocol
-   * <p>
-   * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
+   * Convert a JmsProtocolBuilder to a JmsProtocol <p> Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
    */
   implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 

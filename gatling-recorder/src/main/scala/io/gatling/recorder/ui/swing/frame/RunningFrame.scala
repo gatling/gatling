@@ -38,7 +38,6 @@ import io.netty.handler.codec.http.HttpHeaders
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing
 private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
-
   //////////////////////////////////////
   //           COMPONENTS
   //////////////////////////////////////
@@ -160,12 +159,11 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   /**
    * Add a new tag to the list of scenario elements
    */
-  private def addTag(): Unit = {
+  private def addTag(): Unit =
     if (!tagField.text.isEmpty) {
       frontend.addTag(tagField.text)
       tagField.clear()
     }
-  }
 
   private def headersToString(headers: HttpHeaders): String =
     headers.entries.asScala
@@ -188,7 +186,8 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
 
   /**
    * Display request going through the Recorder
-   * @param requestInfo The outgoing request info
+   * @param requestInfo
+   *   The outgoing request info
    */
   private def showRequest(requestInfo: RequestFrontEndEvent): Unit = {
     requestHeaders.textArea.text = summary(requestInfo.request)
@@ -200,8 +199,7 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   }
 
   /**
-   * Clear all the panels showing info about scenarios elements
-   * or requests of their content
+   * Clear all the panels showing info about scenarios elements or requests of their content
    */
   def clearState(): Unit = {
     events.clear()
@@ -211,11 +209,11 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   }
 
   /**
-   * Handle Recorder Events sent by the controller,
-   * and display them accordingly
-   * @param event the event sent by the controller
+   * Handle Recorder Events sent by the controller, and display them accordingly
+   * @param event
+   *   the event sent by the controller
    */
-  def receiveEvent(event: FrontEndEvent): Unit = {
+  def receiveEvent(event: FrontEndEvent): Unit =
     event match {
       case pauseInfo: PauseFrontEndEvent                                               => events.add(pauseInfo)
       case requestInfo: RequestFrontEndEvent                                           => events.add(requestInfo)
@@ -223,5 +221,4 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
       case SslFrontEndEvent(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
       case e                                                                           => logger.debug(s"dropping event $e")
     }
-  }
 }

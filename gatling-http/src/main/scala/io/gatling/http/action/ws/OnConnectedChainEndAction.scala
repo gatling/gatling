@@ -23,13 +23,11 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
 object OnConnectedChainEndActionBuilder extends ActionBuilder with NameGen {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new OnConnectedChainEndAction(genName("connectChainEnd"), ctx.coreComponents.exit)
 }
 
 object OnConnectedChainEndAction {
-
   private val OnConnectedChainEndCallback: String = SessionPrivateAttributes.generatePrivateAttribute("onConnectedChainEndCallback")
 
   def setOnConnectedChainEndCallback(session: Session, callback: Session => Unit): Session =
@@ -40,14 +38,14 @@ object OnConnectedChainEndAction {
 }
 
 /**
- * Acts as the last action of a connect sequence.
- * Next action is fetched from the session
+ * Acts as the last action of a connect sequence. Next action is fetched from the session
  *
- * @param name action name
- * @param exit exit action if next was not found in the session
+ * @param name
+ *   action name
+ * @param exit
+ *   exit action if next was not found in the session
  */
 class OnConnectedChainEndAction(override val name: String, exit: Action) extends Action {
-
   import OnConnectedChainEndAction._
 
   override def execute(session: Session): Unit =

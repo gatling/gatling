@@ -31,7 +31,6 @@ private[recorder] final case class HttpTraffic(elements: List[HttpTrafficElement
 }
 
 private[recorder] object HttpTraffic extends StrictLogging {
-
   private val ConsecutiveResourcesMaxIntervalInMillis = 1000
 
   private def isRedirection(t: TimedScenarioElement[RequestElement]) = HttpHelper.isRedirect(HttpResponseStatus.valueOf(t.element.statusCode))
@@ -52,7 +51,6 @@ private[recorder] object HttpTraffic extends StrictLogging {
   }
 
   private def filterInferredResources(requests: List[TimedScenarioElement[RequestElement]]): List[TimedScenarioElement[RequestElement]] = {
-
     val groupChainedRequests: List[List[TimedScenarioElement[RequestElement]]] = {
       var globalAcc = List.empty[List[TimedScenarioElement[RequestElement]]]
       var currentAcc = List.empty[TimedScenarioElement[RequestElement]]
@@ -89,8 +87,7 @@ private[recorder] object HttpTraffic extends StrictLogging {
       sortedRequests: List[TimedScenarioElement[RequestElement]],
       tags: List[TimedScenarioElement[TagElement]],
       thresholdForPauseCreation: Duration
-  ): List[HttpTrafficElement] = {
-
+  ): List[HttpTrafficElement] =
     if (sortedRequests.sizeIs <= 1)
       sortedRequests.map(_.element)
     else {
@@ -126,7 +123,6 @@ private[recorder] object HttpTraffic extends StrictLogging {
         }
         .map(_.element)
     }
-  }
 
   def apply(
       requests: List[TimedScenarioElement[RequestElement]],

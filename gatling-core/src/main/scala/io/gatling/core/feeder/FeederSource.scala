@@ -39,7 +39,6 @@ private[gatling] sealed trait FeederSource[T] {
 }
 
 private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]], override val name: String) extends FeederSource[T] with LazyLogging {
-
   require(records.nonEmpty, "Feeder must not be empty")
 
   override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] =
@@ -50,7 +49,6 @@ private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Re
 }
 
 private[feeder] object ZippedResourceCache {
-
   private val cache = new ConcurrentHashMap[Resource, Resource]()
 
   def unzipped(zippedResource: Resource, options: FeederOptions[_]): Resource =
@@ -58,7 +56,6 @@ private[feeder] object ZippedResourceCache {
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
-
   private def withJsonArrayElements[T](options: FeederOptions[Any])(f: Iterator[JsonNode] => T): T =
     Using.resource(ZippedResourceCache.unzipped(resource, options).inputStream) { is =>
       val node = jsonParsers.parse(is, charset)
@@ -84,9 +81,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
 }
 
 private[gatling] final class SeparatedValuesFeederSource(val resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
-
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
-
     def applyBatch(res: Resource): Feeder[Any] = {
       val charset = configuration.core.charset
       options.loadingMode match {

@@ -20,7 +20,6 @@ import scala.swing._
 import scala.swing.BorderPanel.Position._
 
 private[swing] class TextAreaPanel(title: String, initialSize: Dimension) extends BorderPanel {
-
   preferredSize = initialSize
 
   val textArea = new TextArea { editable = false }

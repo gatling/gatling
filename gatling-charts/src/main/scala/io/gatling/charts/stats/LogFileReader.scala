@@ -35,7 +35,6 @@ import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
 
 private[gatling] object LogFileReader extends StrictLogging {
-
   private val LogStep = 100000
   private val SecMillisecRatio: Double = 1000.0
   private val SimulationFilesNamePattern = """.*\.log"""
@@ -53,7 +52,6 @@ private[gatling] object LogFileReader extends StrictLogging {
 }
 
 private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration: GatlingConfiguration) extends StrictLogging {
-
   import LogFileReader._
 
   def read(): LogFileData = {
@@ -74,7 +72,6 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
   }
 
   private def parseInputFiles[T](f: Iterator[String] => T): T = {
-
     def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
       streams.map(Source.fromInputStream(_)(configuration.core.charset).getLines()).reduce((first, second) => first ++ second)
 
@@ -105,7 +102,6 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
       if (count % LogStep == 0) logger.info(s"First pass, read $count lines")
 
       line.split(DataWriterMessageSerializer.Separator) match {
-
         case RawRequestRecord(array) =>
           updateInjectStart(array(3).toLong)
           updateInjectEnd(array(4).toLong)

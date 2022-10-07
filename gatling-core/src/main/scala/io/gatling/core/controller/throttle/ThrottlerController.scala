@@ -30,13 +30,11 @@ private object ThrottlerControllerCommand {
 }
 
 private final class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
-
   import ThrottlerControllerCommand._
   import ThrottlerControllerData._
   import ThrottlerControllerState._
 
   def notifyThrottler(throttlings: Throttlings, tick: Int): Unit = {
-
     val throttles = Throttles(
       global = throttlings.global.map(p => new Throttle(p.limit(tick))),
       perScenario = throttlings.perScenario.view.mapValues(p => new Throttle(p.limit(tick))).to(Map)
@@ -54,7 +52,6 @@ private final class ThrottlerController(throttler: ActorRef, defaults: Throttlin
   }
 
   when(Started) {
-
     case Event(Tick, StartedData(tick)) =>
       notifyThrottler(defaults, tick)
       stay() using StartedData(tick + 1)
@@ -68,7 +65,6 @@ private final class ThrottlerController(throttler: ActorRef, defaults: Throttlin
   }
 
   when(Overridden) {
-
     case Event(Tick, OverrideData(overrides, tick)) =>
       notifyThrottler(overrides, tick)
       stay() using OverrideData(overrides, tick + 1)

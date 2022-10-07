@@ -31,7 +31,6 @@ private[auth] object DigestWwwAuthenticateHeaderParser {
 }
 
 private[auth] final class DigestWwwAuthenticateHeaderParser extends RegexParsers {
-
   import DigestWwwAuthenticateHeaderParser._
 
   private val attributeName: Parser[String] = AttributeNameRegex

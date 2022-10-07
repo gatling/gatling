@@ -33,7 +33,6 @@ import io.gatling.javaapi.core.Session
 import io.gatling.javaapi.core.internal.Converters.toScalaTuple2Seq
 
 object Expressions {
-
   def expressionToJavaFunction[T](f: Expression[T]): JavaExpression[T] =
     session =>
       f(session.asScala()) match {

@@ -24,7 +24,6 @@ import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.GatlingConfiguration
 
 class RequestMetricsBufferSpec extends BaseSpec {
-
   private val configuration = GatlingConfiguration.loadForTest(
     mutable.Map(
       charting.indicators.Percentile1 -> 95,

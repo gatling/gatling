@@ -28,7 +28,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.http.WsFrameCheck
 
 object ScalaWsFrameCheckTextConditions {
-
   def untyped(context: io.gatling.http.check.ws.WsFrameCheck.Text, condition: String): Untyped =
     new Untyped(context, condition.el)
 

@@ -31,7 +31,6 @@ import io.gatling.mqtt.check.MessageCorrelator
 import com.fasterxml.jackson.databind.JsonNode
 
 object MessageCorrelators {
-
   def toScalaCorrelator(javaCheck: io.gatling.javaapi.core.CheckBuilder): MessageCorrelator = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

@@ -35,7 +35,6 @@ final case class SsePerformingCheckState(
     next: Action
 ) extends SseState(fsm)
     with StrictLogging {
-
   import fsm._
 
   override def onTimeout(): NextSseState = {
@@ -72,7 +71,6 @@ final case class SsePerformingCheckState(
   }
 
   private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
-
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
 
@@ -104,9 +102,9 @@ final case class SsePerformingCheckState(
             case nextCheck :: nextRemainingChecks =>
               // perform next check
               logger.debug("Perform next check of current check sequence")
-              //[e]
+              // [e]
               //
-              //[e]
+              // [e]
               NextSseState(
                 this.copy(
                   currentCheck = nextCheck,
@@ -121,9 +119,9 @@ final case class SsePerformingCheckState(
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
-                  //[e]
+                  // [e]
                   //
-                  //[e]
+                  // [e]
                   NextSseState(
                     this.copy(
                       currentCheck = nextCheck,

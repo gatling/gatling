@@ -25,7 +25,6 @@ import io.gatling.commons.util.Spire.cfor
 import io.gatling.jdk.util.StringBuilderPool
 
 object StringHelper {
-
   val Eol: String = System.lineSeparator
   val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
@@ -36,7 +35,6 @@ object StringHelper {
   }
 
   implicit class RichString(val string: String) extends AnyVal {
-
     def clean: String = {
       val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
       normalized.toLowerCase(Locale.ROOT).replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
@@ -98,18 +96,14 @@ object StringHelper {
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
-
     def indexOf(target: Array[Char], fromIndex: Int): Int = {
-
       val sourceCount = source.length
       val targetCount = target.length
 
       if (fromIndex >= sourceCount) {
         if (targetCount == 0) sourceCount else -1
-
       } else if (targetCount == 0) {
         fromIndex
-
       } else {
         var i = fromIndex
         val first = target(0)

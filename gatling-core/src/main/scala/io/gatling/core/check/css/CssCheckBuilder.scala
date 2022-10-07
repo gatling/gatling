@@ -29,7 +29,6 @@ sealed trait CssOfType { self: CssCheckBuilder[String] =>
 }
 
 object CssCheckBuilder {
-
   def css(expression: Expression[String], nodeAttribute: Option[String], selectors: CssSelectors): CssCheckBuilder[String] with CssOfType =
     new CssCheckBuilder[String](expression, nodeAttribute, selectors) with CssOfType
 }
@@ -39,7 +38,6 @@ class CssCheckBuilder[X: NodeConverter](
     private[css] val nodeAttribute: Option[String],
     private[css] val selectors: CssSelectors
 ) extends CheckBuilder.MultipleFind.Default[CssCheckType, NodeSelector, X](displayActualValue = true) {
-
   override protected def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
     expression.map(CssExtractors.find(_, nodeAttribute, occurrence, selectors))
   override protected def findAllExtractor: Expression[Extractor[NodeSelector, Seq[X]]] = expression.map(CssExtractors.findAll(_, nodeAttribute, selectors))

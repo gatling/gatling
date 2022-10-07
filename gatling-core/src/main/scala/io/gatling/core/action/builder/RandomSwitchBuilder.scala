@@ -28,7 +28,6 @@ private[core] final class RandomSwitchBuilder(possibilities: List[(Double, Chain
     extends ActionBuilder
     with StrictLogging
     with NameGen {
-
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val possibleActions = possibilities.map { case (weight, actionBuilder) => weight -> actionBuilder.build(ctx, next) }
     val fallbackAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
@@ -39,7 +38,6 @@ private[core] final class RandomSwitchBuilder(possibilities: List[(Double, Chain
 }
 
 class UniformRandomSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder with StrictLogging with NameGen {
-
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val possibleActions = possibilities.map(_.build(ctx, next))
     val randomDistribution = RandomDistribution.uniform(possibleActions)

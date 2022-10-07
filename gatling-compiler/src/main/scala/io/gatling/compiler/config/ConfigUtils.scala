@@ -21,7 +21,6 @@ import java.nio.file.{ Files, Path, Paths }
 import scala.util.Properties._
 
 private[compiler] object ConfigUtils {
-
   // WARN copied from io.gatling.core.config.GatlingFiles
   val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 

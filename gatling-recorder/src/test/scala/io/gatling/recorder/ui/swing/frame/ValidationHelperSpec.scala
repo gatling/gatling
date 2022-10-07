@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 
 class ValidationHelperSpec extends BaseSpec {
-
   "isValidPackageName" should "accept lower case" in {
     isValidPackageName("foo.bar") shouldBe true
   }

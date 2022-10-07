@@ -27,7 +27,6 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.util.NetUtil
 
 private[http] object InetAddresses extends LazyLogging {
-
   private def isBindable(localAddress: InetAddress): Boolean = {
     val socket = new Socket
     val socketAddress = new InetSocketAddress(localAddress, 0)

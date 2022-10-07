@@ -33,7 +33,6 @@ abstract class PlainMitmActor(
     trafficLogger: TrafficLogger,
     clock: Clock
 ) extends MitmActor(clientBootstrap) {
-
   protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest
 
   startWith(Init, NoData)

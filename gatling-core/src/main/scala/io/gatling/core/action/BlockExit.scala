@@ -25,12 +25,14 @@ import io.gatling.core.stats.StatsEngine
 /**
  * Describes an interruption to be performed.
  *
- * @param exitAction    the action to execute next, instead of following the regular workflow.
- * @param session       the new Session to be sent to exitAction
- * @param groupsToClose the groups to be closed as we bypass the regular GroupEnd from the regular flow
+ * @param exitAction
+ *   the action to execute next, instead of following the regular workflow.
+ * @param session
+ *   the new Session to be sent to exitAction
+ * @param groupsToClose
+ *   the groups to be closed as we bypass the regular GroupEnd from the regular flow
  */
 private final case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[GroupBlock]) {
-
   def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
     groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session.scenario, _, nowMillis))
     exitAction ! session
@@ -38,9 +40,7 @@ private final case class BlockExit(exitAction: Action, session: Session, groupsT
 }
 
 private object BlockExit {
-
   private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session): BlockExit = {
-
     @tailrec
     def blockExitRec(blocks: List[Block], session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
       case head :: tail =>
@@ -57,14 +57,14 @@ private object BlockExit {
   }
 
   /**
-   * Scan the block stack for ExitAsap loops.
-   * Scan is performed from right to left (right is deeper) = normal.
+   * Scan the block stack for ExitAsap loops. Scan is performed from right to left (right is deeper) = normal.
    *
-   * @param session the session
-   * @return the potential Interruption to process
+   * @param session
+   *   the session
+   * @return
+   *   the potential Interruption to process
    */
   private def exitAsapLoop(session: Session): Option[BlockExit] = {
-
     @tailrec
     def exitAsapLoopRec(leftToRightBlocks: List[Block], rightToLeftBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
       case head :: tail =>
@@ -83,14 +83,14 @@ private object BlockExit {
   }
 
   /**
-   * Scan the block stack for TryMax loops.
-   * Scan is performed from right to left (right is deeper) = normal.
+   * Scan the block stack for TryMax loops. Scan is performed from right to left (right is deeper) = normal.
    *
-   * @param session the session
-   * @return the potential Interruption to process
+   * @param session
+   *   the session
+   * @return
+   *   the potential Interruption to process
    */
   private def exitTryMax(session: Session): Option[BlockExit] = {
-
     @tailrec
     def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
       case head :: tail =>

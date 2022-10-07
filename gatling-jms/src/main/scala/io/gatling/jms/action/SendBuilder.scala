@@ -21,7 +21,6 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.request.JmsAttributes
 
 final class SendBuilder(attributes: JmsAttributes) extends JmsActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val jmsComponents = components(ctx.protocolComponentsRegistry)
 

@@ -27,7 +27,6 @@ import io.gatling.javaapi.core.{ CheckBuilder, Session }
 import io.gatling.javaapi.core.internal.Expressions._
 
 private[core] object CoreCheckBuilders {
-
   def bodyLength(): CheckBuilder.Find[Integer] =
     new CheckBuilder.Find.Default(io.gatling.core.Predef.bodyLength, CoreCheckType.BodyLength, classOf[Integer], (int: Int) => int.asInstanceOf[Integer])
 

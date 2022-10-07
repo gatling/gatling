@@ -34,7 +34,6 @@ class PollerResponseProcessor(
     defaultCharset: Charset
 ) extends LazyLogging
     with NameGen {
-
   def onComplete(result: HttpResult): Session =
     result match {
       case response: Response   => proceed(response, ResponseProcessor.processResponse(tx, sessionProcessor, defaultCharset, response))

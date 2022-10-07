@@ -26,7 +26,6 @@ trait Md5CheckType
 trait Sha1CheckType
 
 object ChecksumCheckBuilder {
-
   private def checksum[T](algorithm: String): CheckBuilder.Find[T, String, String] =
     new CheckBuilder.Find.Default[T, String, String](
       extractor = new FindExtractor[String, String](algorithm.toLowerCase(Locale.ROOT), Some(_).success).expressionSuccess,

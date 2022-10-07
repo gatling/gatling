@@ -27,7 +27,6 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 
 final class ElFileBodies(customResourcesDirectory: Option[Path], charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
-
   private def compileFile(path: String): Validation[List[ElBody.ElBodyPart]] =
     cachedResource(customResourcesDirectory, path).flatMap { resource =>
       safely() {
@@ -53,6 +52,5 @@ final class ElFileBodies(customResourcesDirectory: Option[Path], charset: Charse
             path <- filePath(session)
             expression <- elFileBodyPartsCache.get(path)
           } yield expression
-
     }
 }

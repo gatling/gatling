@@ -38,7 +38,6 @@ class SseConnect(
 ) extends RequestAction
     with SseAction
     with NameGen {
-
   override val name: String = genName("sseConnect")
 
   override def clock: Clock = coreComponents.clock

@@ -21,7 +21,6 @@ import io.gatling.core.session.Session
 import io.gatling.jms.client.JmsConnectionPool
 
 final class JmsComponents(val jmsProtocol: JmsProtocol, val jmsConnectionPool: JmsConnectionPool) extends ProtocolComponents {
-
   override def onStart: Session => Session = Session.Identity
   override def onExit: Session => Unit = ProtocolComponents.NoopOnExit
 }

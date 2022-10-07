@@ -26,7 +26,6 @@ import io.gatling.http.response.Response
 import com.fasterxml.jackson.databind.JsonNode
 
 object HttpBodyJsonpCheckMaterializer {
-
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 

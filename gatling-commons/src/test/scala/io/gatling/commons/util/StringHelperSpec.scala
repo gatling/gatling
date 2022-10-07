@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.StringHelper.RichString
 
 class StringHelperSpec extends BaseSpec {
-
   "truncate" should "truncate the string when its length exceeds the max length" in {
     "hello".truncate(2) shouldBe "he..."
   }

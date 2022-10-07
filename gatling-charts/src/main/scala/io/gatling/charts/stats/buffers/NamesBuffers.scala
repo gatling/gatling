@@ -23,9 +23,7 @@ import io.gatling.commons.shared.unstable.model.stats.{ GroupStatsPath, RequestS
 import io.gatling.core.stats.message.MessageEvent
 
 private[stats] trait NamesBuffers {
-
   class NameBuffer[A] {
-
     val map: mutable.Map[A, Long] = mutable.Map.empty
 
     def update(name: A, time: Long): Unit =

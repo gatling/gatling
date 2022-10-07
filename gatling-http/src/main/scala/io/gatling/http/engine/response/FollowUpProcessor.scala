@@ -33,7 +33,6 @@ import io.netty.handler.codec.http.HttpMethod._
 import io.netty.handler.codec.http.HttpResponseStatus._
 
 object FollowUpProcessor {
-
   def redirectRequest(
       requestName: String,
       originalRequest: Request,
@@ -111,7 +110,6 @@ object FollowUpProcessor {
       digestRealm: DigestRealm,
       defaultCharset: Charset
   ): Request = {
-
     val newHeaders = originalRequest.getHeaders
       .remove(HttpHeaderNames.HOST)
       .remove(HttpHeaderNames.CONTENT_LENGTH)

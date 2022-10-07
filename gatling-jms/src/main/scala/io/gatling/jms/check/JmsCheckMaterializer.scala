@@ -36,7 +36,6 @@ import net.sf.saxon.s9api.XdmNode
 class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)
 
 object JmsCheckMaterializer {
-
   private def toBytes(bytesMessage: BytesMessage): Array[Byte] = {
     val buffer = Array.ofDim[Byte](bytesMessage.getBodyLength.toInt)
     bytesMessage.readBytes(buffer)
@@ -98,7 +97,6 @@ object JmsCheckMaterializer {
     new JmsCheckMaterializer(jsonPreparer(jsonParsers, charset))
 
   val Xpath: CheckMaterializer[XPathCheckType, JmsCheck, Message, XdmNode] = {
-
     val errorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
     val preparer: Preparer[Message, XdmNode] =

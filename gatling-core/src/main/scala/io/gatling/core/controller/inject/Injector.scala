@@ -38,7 +38,6 @@ object InjectorCommand {
 }
 
 private[gatling] object Injector {
-
   private val InjectorActorName = "gatling-injector"
   val TickPeriod: FiniteDuration = 1.second
 
@@ -47,7 +46,6 @@ private[gatling] object Injector {
 }
 
 private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
-
   import Injector._
   import InjectorCommand._
   import InjectorData._
@@ -65,7 +63,6 @@ private[gatling] final class Injector(eventLoopGroup: EventLoopGroup, statsEngin
   }
 
   private def inject(data: StartedData, firstBatch: Boolean): State = {
-
     val newlyInProgressWorkloads = buildWorkloads(data.readyScenarios)
 
     val newInProgressWorkloads = data.inProgressWorkloads ++ newlyInProgressWorkloads

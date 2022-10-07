@@ -21,7 +21,6 @@ import jodd.lagarto.{ LagartoParser, LagartoParserConfig }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig }
 
 private[gatling] object Lagarto extends StrictLogging {
-
   private val ParserConfig =
     new LagartoParserConfig()
       .setEnableConditionalComments(false)

@@ -33,7 +33,6 @@ import io.gatling.javaapi.core.internal.CoreCheckType
 import com.fasterxml.jackson.databind.JsonNode
 
 object SseChecks {
-
   private def toScalaCheck(javaCheck: io.gatling.javaapi.core.CheckBuilder): SseCheck = {
     val scalaCheck = javaCheck.asScala
     javaCheck.`type` match {

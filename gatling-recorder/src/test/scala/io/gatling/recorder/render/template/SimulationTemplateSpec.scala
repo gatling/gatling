@@ -19,7 +19,6 @@ package io.gatling.recorder.render.template
 import io.gatling.BaseSpec
 
 class SimulationTemplateSpec extends BaseSpec {
-
   "renderNonBaseUrls template" should "generate empty string if no variables" in {
     SimulationTemplate.renderNonBaseUrls(Nil, Format.Scala) shouldBe empty
   }

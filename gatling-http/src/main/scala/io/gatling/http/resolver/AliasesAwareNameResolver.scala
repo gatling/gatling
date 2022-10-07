@@ -27,7 +27,7 @@ import io.netty.util.NetUtil
 import io.netty.util.concurrent.{ Future, Promise }
 
 private[http] object AliasesAwareNameResolver {
-  def apply(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver): InetAddressNameResolver = {
+  def apply(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver): InetAddressNameResolver =
     if (aliases.isEmpty) {
       wrapped
     } else {
@@ -35,11 +35,9 @@ private[http] object AliasesAwareNameResolver {
         aliases.view.mapValues(InetAddresses.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred)).to(Map)
       new AliasesAwareNameResolver(shuffledAliases, wrapped)
     }
-  }
 }
 
 private class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
-
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
     aliases.get(inetHost) match {
       case Some(addresses) => promise.setSuccess(addresses)

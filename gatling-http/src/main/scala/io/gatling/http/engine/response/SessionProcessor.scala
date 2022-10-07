@@ -36,7 +36,6 @@ sealed abstract class SessionProcessor(
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol
 ) {
-
   def updateSessionCrashed(session: Session, startTimestamp: Long, endTimestamp: Long): Session =
     updateSessionStats(session, startTimestamp, endTimestamp, KO)
 
@@ -55,7 +54,6 @@ sealed abstract class SessionProcessor(
     }
 
   def updatedSession(session: Session, response: Response): (Session, Option[String]) = {
-
     def updateSessionAfterChecks(s1: Session, status: Status): Session = {
       val s2 = CookieSupport.storeCookies(s1, request.getUri, response.cookies, response.endTimestamp)
       val s3 = updateReferer(s2, response)

@@ -25,7 +25,6 @@ import io.gatling.commons.util.GatlingVersion
 import io.gatling.commons.util.StringHelper._
 
 private[charts] final class SimulationCardComponent(runInfo: RunInfo) extends Component {
-
   override def html: String = {
     val printableRunDateTime = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC")).format(Instant.ofEpochMilli(runInfo.injectStart))
     val printableGatlingReleaseDate = GatlingVersion.ThisVersion.releaseDate.toLocalDate.toString
@@ -68,18 +67,18 @@ private[charts] final class SimulationCardComponent(runInfo: RunInfo) extends Co
        |        <span>$printableDuration</span>
        |      </span>
        |      ${if (runInfo.runDescription.nonEmpty) {
-      s"""<span class="simulation-tooltip simulation-information-item description" title="Description" data-content="${runInfo.runDescription.htmlEscape}">
-       |        <span class="simulation-information-label">Description: </span>
-       |        <span>${runInfo.runDescription.truncate(2300).htmlEscape}</span>
-       |      </span>
-       |""".stripMargin
-    } else {
-      """<span class="simulation-information-item">
-        |        <span class="simulation-information-label">Description: </span>
-        |        <span>&mdash;</span>
-        |      </span>
-        |""".stripMargin
-    }}
+        s"""<span class="simulation-tooltip simulation-information-item description" title="Description" data-content="${runInfo.runDescription.htmlEscape}">
+           |        <span class="simulation-information-label">Description: </span>
+           |        <span>${runInfo.runDescription.truncate(2300).htmlEscape}</span>
+           |      </span>
+           |""".stripMargin
+      } else {
+        """<span class="simulation-information-item">
+          |        <span class="simulation-information-label">Description: </span>
+          |        <span>&mdash;</span>
+          |      </span>
+          |""".stripMargin
+      }}
        |    </div>
        |  </div>
        |</div>""".stripMargin

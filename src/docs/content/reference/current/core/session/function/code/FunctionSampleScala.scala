@@ -20,7 +20,6 @@ import io.gatling.core.session._
 import io.gatling.http.Predef._
 
 class FunctionSampleScala {
-
 //#function
 // inline usage with an anonymous function
 exec(http("name")

@@ -17,7 +17,6 @@
 package io.gatling.core.stats.writer
 
 private[core] object DataWriterType {
-
   private val AllTypes = Seq(Console, File, Graphite)
     .map(t => t.name -> t)
     .toMap

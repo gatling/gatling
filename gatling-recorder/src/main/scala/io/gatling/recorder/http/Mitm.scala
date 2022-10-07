@@ -39,14 +39,12 @@ import io.netty.handler.codec.http._
 import io.netty.util.concurrent.GlobalEventExecutor
 
 object Mitm extends StrictLogging {
-
   val SslHandlerName = "ssl"
   val HttpCodecHandlerName = "http"
   val GatlingClientHandler = "gatling-client"
   val GatlingServerHandler = "gatling-server"
 
   def apply(controller: RecorderController, clock: Clock, config: RecorderConfiguration): Mitm = {
-
     import config.netty._
 
     val serverChannelGroup = new DefaultChannelGroup("Gatling_Recorder", GlobalEventExecutor.INSTANCE)
@@ -125,7 +123,6 @@ class Mitm(
     serverWorkerEventLoopGroup: EventLoopGroup,
     actorSystem: ActorSystem
 ) {
-
   def shutdown(): Unit = {
     clientEventLoopGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
     serverChannelGroup.close.awaitUninterruptibly

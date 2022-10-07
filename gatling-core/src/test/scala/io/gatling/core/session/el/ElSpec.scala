@@ -43,7 +43,6 @@ final case class Primitives(
 )
 
 class ElSpec extends BaseSpec with ValidationValues with EmptySession {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private def newSession(attributes: Map[String, Any]) =

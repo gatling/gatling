@@ -31,7 +31,6 @@ sealed trait JsonpJsonPathOfType { self: JsonpJsonPathCheckBuilder[String] =>
 }
 
 object JsonpJsonPathCheckBuilder {
-
   def jsonpJsonPath(path: Expression[String], jsonPaths: JsonPaths): JsonpJsonPathCheckBuilder[String] with JsonpJsonPathOfType =
     new JsonpJsonPathCheckBuilder[String](path, jsonPaths) with JsonpJsonPathOfType
 }

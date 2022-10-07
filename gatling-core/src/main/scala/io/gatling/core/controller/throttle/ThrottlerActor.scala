@@ -24,7 +24,6 @@ import scala.concurrent.duration._
 private final case class ThrottledRequest(scenarioName: String, request: () => Unit)
 
 private final class ThrottlerActor extends ThrottlerActorFSM {
-
   import ThrottlerActorData._
   import ThrottlerActorState._
 
@@ -53,7 +52,6 @@ private final class ThrottlerActor extends ThrottlerActorFSM {
     import data._
     if (throttles.limitReached(throttledRequest.scenarioName)) {
       buffer += throttledRequest
-
     } else {
       sendRequest(data, throttledRequest.request)
       throttles.increment(throttledRequest.scenarioName)

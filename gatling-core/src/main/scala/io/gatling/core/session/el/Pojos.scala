@@ -23,7 +23,6 @@ import io.gatling.commons.validation._
 import jodd.introspector.ClassIntrospector
 
 object Pojos {
-
   private val UnknownPropertyFailure = "Unknown property".failure
   private val NoGetterForPropertyFailure = "No getter for property".failure
   private val GetterInvocationFailure = "Getter invocationFailure".failure

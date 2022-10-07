@@ -108,7 +108,6 @@ object RequestBuilder {
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
-
   def commonAttributes: CommonAttributes
 
   private[http] def newInstance(commonAttributes: CommonAttributes): B
@@ -127,15 +126,18 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   /**
    * Adds a header to the request
    *
-   * @param name the name of the header
-   * @param value the value of the header
+   * @param name
+   *   the name of the header
+   * @param value
+   *   the value of the header
    */
   def header(name: CharSequence, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers)(_ + (name -> value)))
 
   /**
    * Adds several headers to the request at the same time
    *
-   * @param newHeaders a scala map containing the headers to add
+   * @param newHeaders
+   *   a scala map containing the headers to add
    */
   def headers(newHeaders: Map[_ <: CharSequence, String]): B =
     newInstance(modify(commonAttributes)(_.headers)(_ ++ newHeaders.view.mapValues(_.el[String])))
@@ -160,15 +162,18 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   /**
    * Adds BASIC authentication to the request
    *
-   * @param username the username needed
-   * @param password the password needed
+   * @param username
+   *   the username needed
+   * @param password
+   *   the password needed
    */
   def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   private def authRealm(realm: Expression[Realm]): B = newInstance(modify(commonAttributes)(_.realm).setTo(Some(realm)))
 
   /**
-   * @param virtualHost a virtual host to override default compute one
+   * @param virtualHost
+   *   a virtual host to override default compute one
    */
   def virtualHost(virtualHost: Expression[String]): B = newInstance(modify(commonAttributes)(_.virtualHost).setTo(Some(virtualHost)))
 

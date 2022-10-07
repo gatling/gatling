@@ -29,7 +29,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.ForEach
 
 object ScalaForEach {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: ForEach[T, W],
       seq: ju.List[_],
@@ -51,9 +50,8 @@ object ScalaForEach {
       seq: JavaExpression[ju.List[_]],
       attributeName: String,
       counterName: String
-  ): Loop[T, W] = {
+  ): Loop[T, W] =
     new Loop(context, session => safely()(seq.apply(new Session(session)).asScala.toSeq.success), attributeName, counterName)
-  }
 
   final class Loop[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: ForEach[T, W],
@@ -61,7 +59,6 @@ object ScalaForEach {
       attributeName: String,
       counterName: String
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.foreach(seq, attributeName, counterName)(chain.wrapped))
   }

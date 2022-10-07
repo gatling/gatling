@@ -66,14 +66,15 @@ object Pauses {
 }
 
 private[structure] trait Pauses[B] extends Execs[B] {
-
   import Pauses._
 
   /**
    * Method used to define a pause based on a duration defined in the session
    *
-   * @param duration Expression that when resolved, provides the pause duration
-   * @return a new builder with a pause added to its actions
+   * @param duration
+   *   Expression that when resolved, provides the pause duration
+   * @return
+   *   a new builder with a pause added to its actions
    */
   def pause(duration: FiniteDuration): B = pause(duration, None)
   def pause(duration: FiniteDuration, force: PauseType): B = pause(duration, Some(force))

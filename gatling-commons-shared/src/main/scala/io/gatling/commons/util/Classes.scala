@@ -21,7 +21,6 @@ import java.{ lang => jl }
 import scala.annotation.tailrec
 
 object Classes {
-
   private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
     val lastPosition = className.length - 1
     var bufferedChar: Char = className.charAt(0)

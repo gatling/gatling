@@ -21,6 +21,5 @@ import javax.jms.Message
 import io.gatling.core.check.Check
 
 package object jms {
-
   type JmsCheck = Check[Message]
 }

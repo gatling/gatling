@@ -40,7 +40,6 @@ object WsFrameCheck {
       isSilent: Boolean,
       resolvedName: String
   ) extends WsFrameCheck {
-
     def matching(newMatchConditions: WsCheck.Binary*): Binary = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
       this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)
@@ -68,7 +67,6 @@ object WsFrameCheck {
       isSilent: Boolean,
       resolvedName: String
   ) extends WsFrameCheck {
-
     def matching(newMatchConditions: WsCheck.Text*): Text = {
       require(!newMatchConditions.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
       this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)

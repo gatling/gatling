@@ -21,7 +21,6 @@ import scala.util.control.NoStackTrace
 import io.gatling.BaseSpec
 
 class SafelySpec extends BaseSpec {
-
   "safely" should "returned the provided Validation if it didn't throw exceptions" in {
     safely()(1.success) shouldBe 1.success
   }

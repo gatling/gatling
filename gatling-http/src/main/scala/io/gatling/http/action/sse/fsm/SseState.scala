@@ -32,7 +32,6 @@ object NextSseState {
 final case class NextSseState(state: SseState, afterStateUpdate: () => Unit = NextSseState.DoNothing)
 
 abstract class SseState(fsm: SseFsm) extends StrictLogging {
-
   private val stateName = getClass.getSimpleName
 
   def onSseStreamConnected(timestamp: Long): NextSseState =
@@ -87,10 +86,10 @@ abstract class SseState(fsm: SseFsm) extends StrictLogging {
     newSessionWithMark
   }
 
-  //[e]
+  // [e]
   //
   //
-  //[e]
+  // [e]
 
   protected def setCheckNextAction(session: Session, setCheck: SetCheck): () => Unit =
     () => fsm.onSetCheck(setCheck.actionName, setCheck.checkSequences, session, setCheck.next)

@@ -28,7 +28,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.jms.JmsRequestReplyActionBuilder
 
 object ScalaJmsRequestReplyActionBuilderConditions {
-
   def untyped(context: io.gatling.jms.request.RequestReplyDslBuilder, condition: String): Untyped =
     new Untyped(context, toBooleanExpression(condition))
 

@@ -37,7 +37,6 @@ class JmsConnection(
     clock: Clock,
     configuration: GatlingConfiguration
 ) {
-
   private val sessionPool = new JmsSessionPool(connection)
 
   private val staticQueues = new ConcurrentHashMap[String, Destination]

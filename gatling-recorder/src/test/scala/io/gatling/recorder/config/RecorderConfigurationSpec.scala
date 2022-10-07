@@ -24,7 +24,6 @@ import io.gatling.BaseSpec
 import org.scalatest.BeforeAndAfter
 
 class RecorderConfigurationSpec extends BaseSpec with BeforeAndAfter {
-
   private val nonExistingDir = "nonExistingDir"
   private val existingDir = "existingDir"
   private val fileName = "file"

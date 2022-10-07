@@ -21,11 +21,9 @@ import java.util.Locale.ENGLISH
 
 // can't be moved to gatling-commons because of AssertionModel
 object NumberHelper {
-
   private val Formatter = new DecimalFormat("###.###", DecimalFormatSymbols.getInstance(ENGLISH))
 
   implicit class RichDouble(val double: Double) extends AnyVal {
-
     private def suffix(i: Int) = i    % 10 match {
       case _ if (11 to 13) contains i % 100 => "th"
       case 1 => "st"

@@ -31,7 +31,6 @@ private[recorder] sealed abstract class Format(
 }
 
 private[recorder] object Format {
-
   val AllFormats: List[Format] = List(Java8, Java11, Java17, Kotlin, Scala)
 
   def fromString(configValue: String): Format = configValue match {

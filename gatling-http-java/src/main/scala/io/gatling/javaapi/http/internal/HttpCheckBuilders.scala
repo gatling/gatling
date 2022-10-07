@@ -19,7 +19,6 @@ package io.gatling.javaapi.http.internal
 import io.gatling.javaapi.core.CheckBuilder
 
 object HttpCheckBuilders {
-
   val status: CheckBuilder.Find[Integer] =
     new CheckBuilder.Find.Default(io.gatling.http.Predef.status, HttpCheckType.Status, classOf[Integer], (int: Int) => int.asInstanceOf[Integer])
 }

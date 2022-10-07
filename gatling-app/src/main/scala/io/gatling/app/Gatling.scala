@@ -33,7 +33,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 
 object Gatling extends StrictLogging {
-
   // used by bundle
   def main(args: Array[String]): Unit = {
     System.out.flush()
@@ -64,12 +63,12 @@ object Gatling extends StrictLogging {
 
   private def start(overrides: ConfigOverrides, forcedSimulationClass: Option[SimulationClass]) =
     try {
-      //[e]
+      // [e]
       //
       //
       //
       //
-      //[e]
+      // [e]
 
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
@@ -103,7 +102,7 @@ object Gatling extends StrictLogging {
       try {
         factory.getClass.getMethod("stop").invoke(factory)
       } catch {
-        case _: NoSuchMethodException => //Fail silently if a logging provider other than LogBack is used.
+        case _: NoSuchMethodException => // Fail silently if a logging provider other than LogBack is used.
         case NonFatal(ex)             => logger.warn("Logback failed to shutdown.", ex)
       }
     }

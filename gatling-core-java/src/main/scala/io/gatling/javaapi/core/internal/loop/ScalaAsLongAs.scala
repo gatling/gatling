@@ -26,7 +26,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.AsLongAs
 
 object ScalaAsLongAs {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: AsLongAs[T, W],
       condition: String,
@@ -49,7 +48,6 @@ object ScalaAsLongAs {
       counterName: String,
       exitASAP: Boolean
   ) {
-
     def loop(chain: ChainBuilder): T =
       context.make(_.asLongAs(condition, counterName, exitASAP)(chain.wrapped))
   }

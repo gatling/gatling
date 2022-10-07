@@ -23,7 +23,6 @@ import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.{ KO, Status }
 
 private[stats] trait ResponseTimeRangeBuffers {
-
   protected def lowerBound: Int
   protected def higherBound: Int
 
@@ -42,18 +41,15 @@ private[stats] trait ResponseTimeRangeBuffers {
     getResponseTimeRangeBuffers(None, Some(record.group)).update(record.duration, record.status)
 
   final class ResponseTimeRangeBuffer {
-
     var low: Int = 0
     var middle: Int = 0
     var high: Int = 0
     var ko: Int = 0
 
-    def update(time: Int, status: Status): Unit = {
-
+    def update(time: Int, status: Status): Unit =
       if (status == KO) ko += 1
       else if (time < lowerBound) low += 1
       else if (time > higherBound) high += 1
       else middle += 1
-    }
   }
 }

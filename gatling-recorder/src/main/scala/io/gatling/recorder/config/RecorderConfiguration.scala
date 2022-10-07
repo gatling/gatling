@@ -39,7 +39,6 @@ import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging
 
 private[recorder] object RecorderConfiguration extends StrictLogging {
-
   implicit class IntOption(val value: Int) extends AnyVal {
     def toOption: Option[Int] = if (value != 0) Some(value) else None
   }
@@ -210,7 +209,6 @@ private[recorder] final case class FiltersConfiguration(
     allowList: AllowList,
     denyList: DenyList
 ) {
-
   def filters: Option[Filters] =
     if (enabled) {
       Some(new Filters(denyList, allowList))

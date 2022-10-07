@@ -36,12 +36,10 @@ import akka.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
 
 final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
-
   private[test] val expectations = new ArrayBuffer[PartialFunction[Any, Unit]]
 }
 
 trait ScenarioTestFixture extends BaseSpec {
-
   def configuration: GatlingConfiguration
 
   private def resolve(msgQueue: ConcurrentLinkedDeque[Any], expectations: ArrayBuffer[PartialFunction[Any, Unit]]): Unit = {
@@ -79,7 +77,6 @@ trait ScenarioTestFixture extends BaseSpec {
       f(ctx)
       exitAction.await(2.seconds)
       resolve(statsEngine.msgQueue, ctx.expectations)
-
     } finally {
       Await.ready(system.terminate(), 2.seconds)
     }

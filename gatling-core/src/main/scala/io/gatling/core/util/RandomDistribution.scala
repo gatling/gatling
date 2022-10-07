@@ -23,14 +23,12 @@ import scala.annotation.tailrec
 import io.gatling.commons.util.Collections._
 
 private[core] object RandomDistribution {
-
   def uniform[T](possibilities: List[T]): RandomDistribution[T] =
     new RandomDistribution(possibilities.map(1 -> _), possibilities.size, None)
 
   private val PercentWeightsNormalizingFactor = 1000000 // 100% * 1000000 < Int.MaxValue so no risk of overflowing
 
   def percentWeights[T](possibilities: List[(Double, T)], fallback: T): RandomDistribution[T] = {
-
     val sum = possibilities.sumBy(_._1)
     require(sum <= 100.000001, s"Weights sum $sum mustn't be bigger than 100%")
 
@@ -56,7 +54,6 @@ private[core] object RandomDistribution {
 }
 
 private[core] class RandomDistribution[T](possibilities: List[(Int, T)], max: Int, fallback: Option[T]) {
-
   // visible for tests
   private[util] def next(index: Int): T = {
     @tailrec

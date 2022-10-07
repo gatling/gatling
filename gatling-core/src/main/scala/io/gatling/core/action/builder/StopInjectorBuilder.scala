@@ -21,7 +21,6 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 
 private[core] class StopInjectorBuilder(message: Expression[String]) extends ActionBuilder {
-
   override def build(ctx: ScenarioContext, next: Action): Action =
     new StopInjector(message, ctx.coreComponents.controller, next)
 }

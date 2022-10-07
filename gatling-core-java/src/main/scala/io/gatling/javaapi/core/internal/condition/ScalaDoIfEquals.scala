@@ -24,7 +24,6 @@ import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaDoIfEquals {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: DoIfEquals[T, W],
       actual: String,

@@ -25,7 +25,6 @@ import io.gatling.commons.util.Io._
 import io.gatling.http.client.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
-
   private val htmlContent = Using.resource(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
     _.toString(UTF_8).toCharArray
   }

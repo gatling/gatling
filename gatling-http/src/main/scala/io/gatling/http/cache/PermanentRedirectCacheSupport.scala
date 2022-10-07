@@ -41,7 +41,6 @@ private[cache] object PermanentRedirectCacheSupport {
 }
 
 private[cache] trait PermanentRedirectCacheSupport {
-
   import PermanentRedirectCacheSupport._
 
   def configuration: GatlingConfiguration
@@ -57,7 +56,6 @@ private[cache] trait PermanentRedirectCacheSupport {
     }
 
   private[this] def permanentRedirect(session: Session, request: Request, maxRedirects: Int): Option[(Uri, Int)] = {
-
     @tailrec
     def permanentRedirectRec(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
       httpPermanentRedirectCacheHandler.getEntry(session, from) match {

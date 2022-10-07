@@ -35,7 +35,6 @@ private[charts] abstract class PageTemplate(
     group: Option[Group],
     components: Component*
 ) {
-
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))

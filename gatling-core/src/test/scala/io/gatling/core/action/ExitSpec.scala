@@ -20,7 +20,6 @@ import io.gatling.AkkaSpec
 import io.gatling.core.controller.inject.InjectorCommand
 
 class ExitSpec extends AkkaSpec {
-
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
     val exit = new Exit(self)
 

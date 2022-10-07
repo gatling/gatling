@@ -23,7 +23,6 @@ import io.gatling.core.session._
 import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 
 object SseMessageCheckSequenceBuilder {
-
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def resolve(builders: List[SseMessageCheckSequenceBuilder], session: Session): Validation[List[SseMessageCheckSequence]] =
     builders.foldLeft(List.empty[SseMessageCheckSequence].success) { (acc, builder) =>

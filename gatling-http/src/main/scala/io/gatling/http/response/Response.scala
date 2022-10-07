@@ -48,7 +48,6 @@ final case class Response(
     checksums: Map[String, String],
     isHttp2: Boolean
 ) extends HttpResult {
-
   val isRedirect: Boolean = HttpHelper.isRedirect(status)
 
   def header(name: CharSequence): Option[String] = Option(headers.get(name))

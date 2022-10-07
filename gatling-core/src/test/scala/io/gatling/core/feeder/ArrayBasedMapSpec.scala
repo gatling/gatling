@@ -19,7 +19,6 @@ package io.gatling.core.feeder
 import io.gatling.BaseSpec
 
 class ArrayBasedMapSpec extends BaseSpec {
-
   "ArrayBasedMap" should "generate iterator with proper records" in {
     ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")).iterator.toArray shouldBe Array("col1" -> "val1", "col2" -> "val2")
   }

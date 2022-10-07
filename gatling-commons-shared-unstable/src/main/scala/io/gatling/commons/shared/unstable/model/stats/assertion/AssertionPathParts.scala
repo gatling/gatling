@@ -17,7 +17,6 @@
 package io.gatling.commons.shared.unstable.model.stats.assertion
 
 final case class AssertionPathParts(parts: List[String]) {
-
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def /(part: String): AssertionPathParts = copy(parts = parts :+ part)
 }

@@ -21,7 +21,6 @@ import io.gatling.BaseSpec
 import jodd.lagarto.dom.Node
 
 class FormExtractorSpec extends BaseSpec {
-
   private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def formInputs(html: String): Map[String, Any] = {

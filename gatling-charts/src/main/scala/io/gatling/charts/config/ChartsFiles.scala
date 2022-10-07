@@ -50,7 +50,6 @@ private[charts] object ChartsFiles {
 }
 
 private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfiguration) {
-
   import ChartsFiles._
 
   private val resultDirectory = GatlingFiles.resultDirectory(runUuid, configuration)

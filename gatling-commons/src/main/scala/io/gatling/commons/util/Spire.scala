@@ -19,6 +19,5 @@ package io.gatling.commons.util
 import scala.language.experimental.macros
 
 object Spire {
-
   def cfor[A](init: A)(test: A => Boolean, next: A => A)(body: A => Unit): Unit = macro spire.macros.Syntax.cforMacro[A]
 }

@@ -24,7 +24,6 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.Io._
 
 class HexSpec extends BaseSpec {
-
   private val fileBytes = Using.resource(getClass.getResourceAsStream("/emoticon.png"))(_.toByteArray())
 
   "toHexString" should "correctly compute file sha-1" in {

@@ -25,7 +25,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
-
   private val emptyJavaJession = new Session(emptySession)
 
   "getString" should "be able to return a String previously put in Scala" in {

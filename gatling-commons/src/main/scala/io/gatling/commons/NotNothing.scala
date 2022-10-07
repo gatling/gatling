@@ -22,7 +22,6 @@ import scala.annotation.implicitNotFound
 trait NotNothing[T]
 
 object NotNothing {
-
   private val Evidence: NotNothing[Any] = new Object with NotNothing[Any]
 
   implicit def notNothingEv[T](implicit n: T =:= T): NotNothing[T] = Evidence.asInstanceOf[NotNothing[T]]

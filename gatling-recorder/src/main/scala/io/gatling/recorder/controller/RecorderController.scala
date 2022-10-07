@@ -36,7 +36,6 @@ import io.gatling.recorder.ui._
 import com.typesafe.scalalogging.StrictLogging
 
 private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
-
   private val frontEnd = RecorderFrontEnd.newFrontend(this, RecorderConfiguration.recorderConfiguration)
 
   private var mitm: Mitm = _
@@ -81,7 +80,6 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
         val traffic = HttpTraffic(requests.asScala.toList, tags.asScala.toList, config)
         converter.renderHttpTraffic(traffic)
       }
-
     } finally {
       mitm.shutdown()
       clearRecorderState()
@@ -114,9 +112,8 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
     frontEnd.receiveEvent(TagFrontEndEvent(text))
   }
 
-  def secureConnection(securedHostURI: Uri): Unit = {
+  def secureConnection(securedHostURI: Uri): Unit =
     frontEnd.receiveEvent(SslFrontEndEvent(securedHostURI.toUrl))
-  }
 
   def clearRecorderState(): Unit = {
     requests.clear()

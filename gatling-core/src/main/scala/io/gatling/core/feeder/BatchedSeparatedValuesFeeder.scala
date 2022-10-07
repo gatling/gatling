@@ -23,7 +23,6 @@ import java.nio.charset.Charset
 import io.gatling.commons.util.Arrays
 
 object BatchedSeparatedValuesFeeder {
-
   def apply(
       file: File,
       separator: Char,
@@ -64,7 +63,6 @@ private sealed abstract class BatchedSeparatedValuesFeeder(
     channelFactory: () => ReadableByteChannel,
     feederFactory: ReadableByteChannel => Feeder[String]
 ) extends CloseableFeeder[String] {
-
   private var currentChannel: ReadableByteChannel = _
   protected var feeder: Feeder[String] = _
   reset0()
@@ -84,7 +82,6 @@ private sealed abstract class BatchedSeparatedValuesFeeder(
 
 private final class QueueBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
     extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-
   override def hasNext: Boolean = feeder.hasNext
 
   override def next(): Record[String] = feeder.next()
@@ -95,7 +92,6 @@ private final class RandomBatchedSeparatedValuesFeeder(
     streamer: ReadableByteChannel => Feeder[String],
     bufferSize: Int
 ) extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = Int.MaxValue // so refill is triggered on first access
 
@@ -130,7 +126,6 @@ private final class ShuffleBatchedSeparatedValuesFeeder(
     streamer: ReadableByteChannel => Feeder[String],
     bufferSize: Int
 ) extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = 0
   private var fill = 0
@@ -162,7 +157,6 @@ private final class ShuffleBatchedSeparatedValuesFeeder(
 
 private final class CircularBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
     extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-
   override def hasNext: Boolean = true
 
   override def next(): Record[String] = {

@@ -35,7 +35,6 @@ object NextWsState {
 final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = NextWsState.DoNothing)
 
 abstract class WsState(fsm: WsFsm) extends StrictLogging {
-
   protected val stateName: String = getClass.getSimpleName
   protected def remainingReconnects: Int
 
@@ -91,10 +90,10 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
     NextWsState(new WsCrashedState(fsm, Some(t.rootMessage), remainingReconnects))
   }
 
-  //[e]
+  // [e]
   //
   //
-  //[e]
+  // [e]
 
   protected def logResponse(
       session: Session,

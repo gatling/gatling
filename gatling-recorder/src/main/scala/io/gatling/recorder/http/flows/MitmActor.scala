@@ -55,11 +55,9 @@ object MitmActor {
 }
 
 abstract class MitmActor(clientBootstrap: Bootstrap) extends MitmActorFSM with StrictLogging {
-
   protected def connectedRemote(requestRemote: Remote): Remote
 
   protected def connectClientChannel(requestRemote: Remote, request: FullHttpRequest): State = {
-
     val remote = connectedRemote(requestRemote)
 
     logger.debug(s"Connecting to $remote")

@@ -19,7 +19,6 @@ package io.gatling.recorder.ui.swing
 import scala.swing.Swing.Icon
 
 private[swing] object Commons {
-
   val Logo = Icon(getClass.getResource("images/logo-260x85.png"))
 
   private val AvailableIconsResolutions = List("16x16", "32x32", "128x128", "256x256")

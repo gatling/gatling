@@ -37,7 +37,6 @@ private[bundle] object PackageCommand {
 }
 
 private[bundle] final class PackageCommand(config: CommandArguments, args: List[String], maxJavaVersion: Int, cleanFile: Boolean) {
-
   private[bundle] def run(): File = {
     Compiler.compile(config, args, Some(maxJavaVersion))
     println("Creating the package")
@@ -99,7 +98,6 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
   }
 
   private def addJarsContents(rootPath: Path, writeEntry: WriteEntry): Unit = {
-
     def isExcluded(name: String): Boolean =
       name.equalsIgnoreCase("META-INF/LICENSE") ||
         name.equalsIgnoreCase("META-INF/MANIFEST.MF") ||
@@ -137,7 +135,7 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
     )
   }
 
-  private def addJarEntries(rootPath: Path, writeEntry: WriteEntry): Unit = {
+  private def addJarEntries(rootPath: Path, writeEntry: WriteEntry): Unit =
     Files.walkFileTree(
       rootPath,
       new SimpleFileVisitor[Path] {
@@ -153,7 +151,6 @@ private[bundle] final class PackageCommand(config: CommandArguments, args: List[
         }
       }
     )
-  }
 
   private def copyFromInputStream(inputStream: => InputStream, jos: JarOutputStream): Unit = {
     Using.resource(inputStream)(_.copyTo(jos))

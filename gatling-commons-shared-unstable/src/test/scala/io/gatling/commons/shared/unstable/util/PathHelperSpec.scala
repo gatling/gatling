@@ -24,7 +24,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class PathHelperSpec extends AnyFlatSpecLike with Matchers {
-
   private val root = Paths.get("foo")
 
   "extension" should "return an empty String when the specified path has no extension" in {

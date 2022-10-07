@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
 class RedisFeederSpec extends BaseSpec {
-
   val KEY = "key"
   val KEYDEST = "key2"
 

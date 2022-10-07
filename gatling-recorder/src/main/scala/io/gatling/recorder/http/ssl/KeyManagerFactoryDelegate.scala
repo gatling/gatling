@@ -20,7 +20,6 @@ import java.security.{ KeyStore, Provider }
 import javax.net.ssl._
 
 object KeyManagerFactoryDelegate {
-
   def apply(factory: KeyManagerFactory, alias: String): KeyManagerFactoryDelegate = {
     val spi = new KeyManagerFactorySpi {
       override def engineInit(ks: KeyStore, password: Array[Char]): Unit =

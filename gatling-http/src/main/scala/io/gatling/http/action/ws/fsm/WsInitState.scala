@@ -20,7 +20,6 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 
 final class WsInitState(fsm: WsFsm) extends WsState(fsm) {
-
   override protected def remainingReconnects: Int = fsm.httpProtocol.wsPart.maxReconnects
 
   override def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =

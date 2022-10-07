@@ -30,7 +30,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.mqtt.{ MqttQoS, MqttVersion }
 
 object MqttProtocol extends StrictLogging {
-
   private val DefaultBrokerAddress = new InetSocketAddress("localhost", 1883)
 
   val Default: MqttProtocol =

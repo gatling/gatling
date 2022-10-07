@@ -26,7 +26,6 @@ import io.gatling.http.cookie.CookieSupport.storeCookie
 import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 
 object AddCookieBuilder {
-
   def apply(cookie: AddCookieDsl): AddCookieBuilder =
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
@@ -34,11 +33,9 @@ object AddCookieBuilder {
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
     extends HttpActionBuilder
     with NameGen {
-
   import CookieActionBuilder._
 
   def build(ctx: ScenarioContext, next: Action): Action = {
-
     val clock = ctx.coreComponents.clock
     val httpProtocol = lookUpHttpComponents(ctx.protocolComponentsRegistry).httpProtocol
 

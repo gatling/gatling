@@ -25,11 +25,9 @@ import io.gatling.core.session.Session
 import io.gatling.http.client.Param
 
 package object builder {
-
   private val EmptyParamJListSuccess: Validation[ju.List[Param]] = ju.Collections.emptyList[Param].success
 
   def resolveParamJList(params: List[HttpParam], session: Session): Validation[ju.List[Param]] = {
-
     def update(clientParams: ju.List[Param], param: HttpParam): Validation[ju.List[Param]] = param match {
       case SimpleParam(key, value) =>
         for {

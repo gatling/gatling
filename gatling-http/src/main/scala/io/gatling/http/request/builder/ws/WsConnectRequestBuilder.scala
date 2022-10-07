@@ -35,7 +35,6 @@ final case class WsConnectRequestBuilder(
 ) extends RequestBuilder[WsConnectRequestBuilder]
     with HttpActionBuilder
     with WsAwaitActionBuilder[WsConnectRequestBuilder] {
-
   def subprotocol(sub: Expression[String]): WsConnectRequestBuilder = copy(subprotocol = Some(sub))
 
   def onConnected(chain: ChainBuilder): WsConnectRequestBuilder = copy(onConnectedChain = Some(chain))

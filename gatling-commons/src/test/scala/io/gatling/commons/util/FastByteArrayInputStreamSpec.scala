@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets
 import io.gatling.BaseSpec
 
 class FastByteArrayInputStreamSpec extends BaseSpec {
-
   private val bytes = "test string".getBytes(StandardCharsets.UTF_8)
 
   "FastByteArrayInputStream" should "signal eof when all bytes are read" in {

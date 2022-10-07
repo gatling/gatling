@@ -17,9 +17,7 @@
 package io.gatling.recorder.util
 
 private[recorder] object collection {
-
   implicit class RichSeq[T](val elts: Seq[T]) extends AnyVal {
-
     // See ScenarioSpec for example
     def groupAsLongAs(p: T => Boolean): List[List[T]] =
       elts.foldRight(List[List[T]]()) {
@@ -31,10 +29,10 @@ private[recorder] object collection {
 
     def splitWhen(p: T => Boolean): List[List[T]] =
       elts
-        .foldLeft(List.empty[List[T]])({
+        .foldLeft(List.empty[List[T]]) {
           case (Nil, x)          => List(x) :: Nil
           case (l @ (h :: t), x) => if (p(x)) List(x) :: l else (x :: h) :: t
-        })
+        }
         .map(_.reverse)
         .reverse
   }

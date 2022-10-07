@@ -31,7 +31,8 @@ class SessionHook(
   /**
    * Applies the function to the Session
    *
-   * @param session the session of the virtual user
+   * @param session
+   *   the session of the virtual user
    */
   override def execute(session: Session): Unit = recover(session) {
     sessionFunction(session).map(newSession => next ! newSession)

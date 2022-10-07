@@ -22,7 +22,6 @@ import io.gatling.commons.NotNothing
 import io.gatling.commons.util.TypeCaster
 
 package object el {
-
   implicit class El(val string: String) extends AnyVal {
     def el[T: TypeCaster: ClassTag: NotNothing]: Expression[T] = ElCompiler.compile[T](string)
   }

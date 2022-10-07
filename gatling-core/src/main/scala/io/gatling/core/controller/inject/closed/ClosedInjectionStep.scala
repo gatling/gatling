@@ -20,7 +20,6 @@ import scala.annotation.tailrec
 import scala.concurrent.duration._
 
 sealed trait ClosedInjectionStep extends Product with Serializable {
-
   private[inject] def valueAt(t: FiniteDuration): Int
 
   private[inject] def duration: FiniteDuration
@@ -29,7 +28,6 @@ sealed trait ClosedInjectionStep extends Product with Serializable {
 }
 
 final case class ConstantConcurrentUsersInjection private[inject] (number: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
-
   require(number >= 0, s"Constant number of concurrent users $number must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
 
@@ -42,7 +40,6 @@ final case class ConstantConcurrentUsersInjection private[inject] (number: Int, 
 }
 
 final case class RampConcurrentUsersInjection private[inject] (from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
-
   private val slope = (to - from).toDouble / duration.toSeconds
 
   require(from >= 0, s"Concurrent users ramp from $from must be >= 0")
@@ -68,7 +65,6 @@ final case class StairsConcurrentUsersCompositeStep private[inject] (
     startingUsers: Int,
     rampDuration: FiniteDuration
 ) extends CompositeClosedInjectionStepLike {
-
   def startingFrom(startingUsers: Int): StairsConcurrentUsersCompositeStep = this.copy(startingUsers = startingUsers)
 
   def separatedByRampsLasting(duration: FiniteDuration): StairsConcurrentUsersCompositeStep = this.copy(rampDuration = duration)
@@ -82,7 +78,6 @@ final case class StairsConcurrentUsersCompositeStep private[inject] (
             val rampStartRate = stepIdx * usersIncrement
             val levelRate = (stepIdx + 1) * usersIncrement
             RampConcurrentUsersInjection(rampStartRate, levelRate, rampDuration) :: ConstantConcurrentUsersInjection(levelRate, levelDuration) :: Nil
-
           } else {
             // (level, ramp)* + level
             val levelRate = stepIdx * usersIncrement + startingUsers
@@ -112,9 +107,7 @@ final case class StairsConcurrentUsersCompositeStep private[inject] (
 }
 
 private[inject] final case class CompositeClosedInjectionStep private[inject] (steps: List[ClosedInjectionStep]) extends ClosedInjectionStep {
-
   override private[inject] def valueAt(t: FiniteDuration): Int = {
-
     @tailrec
     def valueAtRec(time: FiniteDuration, steps: List[ClosedInjectionStep]): Int =
       steps match {

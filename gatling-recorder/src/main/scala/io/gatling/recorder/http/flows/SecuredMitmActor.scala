@@ -26,7 +26,6 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http._
 
 abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstrap, sslServerContext: SslServerContext) extends MitmActor(clientBootstrap) {
-
   protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State
 
   startWith(Init, NoData)

@@ -32,7 +32,6 @@ class SseClose(
 ) extends RequestAction
     with SseAction
     with NameGen {
-
   override val name: String = genName("sseClose")
 
   override def sendRequest(session: Session): Validation[Unit] =

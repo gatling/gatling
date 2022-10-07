@@ -30,11 +30,9 @@ import io.gatling.commons.validation._
 import com.typesafe.scalalogging.LazyLogging
 
 object Resource {
-
   private final case class Location(customDirectory: Option[Path], path: String)
 
   private object ClasspathResource extends LazyLogging {
-
     private def urlToFile(url: URL): File =
       try {
         new File(url.toURI)
@@ -118,7 +116,7 @@ sealed trait Resource {
   def name: String
   def file: File
   def inputStream: InputStream = new BufferedInputStream(new FileInputStream(file))
-  def string(charset: Charset): String = Using.resource(inputStream) { _.toString(charset) }
+  def string(charset: Charset): String = Using.resource(inputStream)(_.toString(charset))
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
 

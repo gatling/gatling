@@ -22,7 +22,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class NumberHelperSpec extends AnyFlatSpecLike with Matchers {
-
   "toRank" should "return '1st' for 1" in {
     1.toRank shouldBe "1st"
   }

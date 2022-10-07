@@ -40,7 +40,6 @@ class WsConnect(
 ) extends RequestAction
     with WsAction
     with NameGen {
-
   override val name: String = genName("wsConnect")
 
   override def clock: Clock = coreComponents.clock

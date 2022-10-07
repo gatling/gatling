@@ -20,7 +20,6 @@ import io.gatling.BaseSpec
 import io.gatling.recorder.render.RequestElement.extractCharsetFromContentType
 
 class RequestElementSpec extends BaseSpec {
-
   "extractCharsetFromContentType" should "extract unwrapped charset from Content-Type" in {
     extractCharsetFromContentType("text/html; charset=utf-8") shouldBe Some("utf-8")
   }

@@ -17,7 +17,6 @@
 package io.gatling.commons.shared.unstable.model.stats
 
 object GeneralStats {
-
   val NoPlotMagicValue: Int = -1
 
   val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)

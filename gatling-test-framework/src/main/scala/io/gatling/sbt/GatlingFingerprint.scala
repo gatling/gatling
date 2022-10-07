@@ -21,9 +21,8 @@ import io.gatling.core.scenario.Simulation
 import sbt.testing.SubclassFingerprint
 
 /**
- * Gatling's specific fingerprint, which defines which classes are to be
- * picked up by the test framework from the test ClassLoader as test classes,
- * in this case Gatling simulations.
+ * Gatling's specific fingerprint, which defines which classes are to be picked up by the test framework from the test ClassLoader as test classes, in this case
+ * Gatling simulations.
  */
 class GatlingFingerprint extends SubclassFingerprint {
 

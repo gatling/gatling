@@ -33,7 +33,6 @@ private[swing] object DialogFileSelector {
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed"))
 // error is in scala-swing
 private[swing] class DialogFileSelector(configurationFrame: ConfigurationFrame, possibleFiles: List[String]) extends Dialog(configurationFrame) {
-
   var selectedFile: Option[String] = None
 
   val radioButtons = possibleFiles.map(new RadioButton(_))

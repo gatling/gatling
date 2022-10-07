@@ -29,7 +29,6 @@ sealed trait LoopBlock extends Block {
 }
 
 object LoopBlock extends StrictLogging {
-
   def unapply(block: Block): Option[String] = block match {
     case ExitAsapLoopBlock(counterName, _, _) => Some(counterName)
     case ExitOnCompleteLoopBlock(counterName) => Some(counterName)

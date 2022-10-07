@@ -25,7 +25,6 @@ import io.gatling.core.session.Session
 import org.openjdk.jmh.annotations.Benchmark
 
 object ElCompilerBenchmark extends ValidationImplicits {
-
   private implicit val config = GatlingConfiguration.loadForTest()
   private val charset = config.core.charset
 

@@ -26,7 +26,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.{ JmsCheck, MockMessage }
 
 class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with EmptySession {
-
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val check: JmsCheck = xpath("/ok").find

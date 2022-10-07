@@ -31,7 +31,6 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.ReferenceCountUtil
 
 private[http] object SslContextsFactory {
-
   System.setProperty("io.netty.handler.ssl.openssl.sessionCacheClient", "true")
 
   private val DefaultSslSecureRandom = new SecureRandom
@@ -47,7 +46,6 @@ private[http] object SslContextsFactory {
 }
 
 private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends StrictLogging {
-
   import SslContextsFactory._
 
   private val useOpenSsl =
@@ -73,18 +71,16 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
       val supportedProtocols = DefaultJavaSslParameters.getProtocols.toSet
       sslConfig.enabledProtocols.toArray.filter(supportedProtocols.contains)
     }
-  private val enabledCipherSuites: ju.List[String] = {
+  private val enabledCipherSuites: ju.List[String] =
     if (useOpenSsl) {
       sslConfig.enabledCipherSuites.asJava
     } else {
       val supportedCipherSuites = DefaultJavaSslParameters.getCipherSuites
       sslConfig.enabledCipherSuites.filter(supportedCipherSuites.contains).asJava
     }
-  }
   private val useOpenSslFinalizers = sslConfig.useOpenSslFinalizers
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
-
     val kmf = perUserKeyManagerFactory.orElse(sslConfig.keyManagerFactory)
     val tmf = sslConfig.trustManagerFactory.orElse {
       if (sslConfig.useInsecureTrustManager) {
@@ -127,7 +123,6 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
           None
         }
       new SslContexts(sslContext, alpnSslContext)
-
     } else {
       val jdkSslContext = SSLContext.getInstance("TLS")
       jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)

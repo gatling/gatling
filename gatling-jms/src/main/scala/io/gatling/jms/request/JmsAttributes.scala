@@ -38,13 +38,11 @@ object JmsAttributes {
 }
 
 /**
- * JmsAttributes carries around the JMS settings.
- * <p>
- * As the JmsReqReplyBuilder is building a request from the DSL, it uses this object
- * to represent the in progress request. Once the request is built it can then be used
- * so that the JmsReqReplyAction knows exactly what message to send.
+ * JmsAttributes carries around the JMS settings. <p> As the JmsReqReplyBuilder is building a request from the DSL, it uses this object to represent the in
+ * progress request. Once the request is built it can then be used so that the JmsReqReplyAction knows exactly what message to send.
  *
- * @author jasonk@bluedevel.com
+ * @author
+ *   jasonk@bluedevel.com
  */
 final case class JmsAttributes(
     requestName: Expression[String],

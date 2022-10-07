@@ -29,7 +29,6 @@ object LineCounter {
 }
 
 class LineCounter(charset: Charset, bufferSize: Int) {
-
   protected var lines = 0
   private var inLine = false
 

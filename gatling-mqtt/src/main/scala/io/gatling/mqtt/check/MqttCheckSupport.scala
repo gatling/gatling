@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.netty.buffer.ByteBuf
 
 trait MqttCheckSupport {
-
   // materializers
   implicit def mqttTextJmesPathMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, Check[String], String, JsonNode] = ???
 

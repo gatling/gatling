@@ -23,7 +23,6 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class FastByteArrayOutputStreamSpec extends AnyFlatSpecLike with Matchers {
-
   "toByteArray" should "consume all bytes" in {
     val os = new FastByteArrayOutputStream(10)
 

@@ -23,7 +23,6 @@ import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionResul
 import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
-
   def processRunResult(runResult: RunResult): StatusCode =
     // [e]
     //

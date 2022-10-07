@@ -22,7 +22,6 @@ import io.gatling.charts.util.JsHelper._
 import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
-
   private def group(i: Int) =
     s""""group${i + 1}": {
        |    "name": "${stats.groupedCounts(i).textLabel}",
@@ -32,7 +31,6 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
        |}""".stripMargin
 
   def getOutput: String = {
-
     def style[T: Numeric](value: T) =
       if (raw) {
         // raw mode is used for JSON extract, non-raw for displaying in the reports

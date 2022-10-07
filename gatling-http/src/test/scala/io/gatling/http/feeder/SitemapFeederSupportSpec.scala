@@ -24,7 +24,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
 class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
-
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "create sitemap feeder" should "get file resource" in {

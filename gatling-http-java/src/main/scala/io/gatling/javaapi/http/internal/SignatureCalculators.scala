@@ -24,7 +24,6 @@ import io.gatling.http.client.Request
 import io.gatling.javaapi.core.Session
 
 object SignatureCalculators {
-
   def toScala(calculator: BiConsumer[Request, Session]): (Request, ScalaSession) => Validation[_] =
     (request, session) => calculator.accept(request, new Session(session)).success
 }

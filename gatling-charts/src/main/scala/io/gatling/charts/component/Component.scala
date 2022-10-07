@@ -17,7 +17,6 @@
 package io.gatling.charts.component
 
 private[gatling] trait Component {
-
   def html: String
 
   def js: String

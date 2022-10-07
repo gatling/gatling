@@ -24,7 +24,6 @@ import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 object HttpBodyRegexCheckMaterializer {
-
   val Instance: CheckMaterializer[RegexCheckType, HttpCheck, Response, String] =
     new HttpCheckMaterializer[RegexCheckType, String](Body, ResponseBodyStringPreparer)
 }

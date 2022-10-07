@@ -27,7 +27,6 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] =
     HttpBodySubstringCheckMaterializer.Instance

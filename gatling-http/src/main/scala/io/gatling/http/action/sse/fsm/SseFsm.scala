@@ -34,7 +34,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
 
 object SseFsm {
-
   def apply(
       session: Session,
       sseName: String,

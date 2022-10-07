@@ -26,7 +26,6 @@ import io.gatling.javaapi.core.exec.Execs
 import io.gatling.javaapi.core.internal.JavaExpression
 
 object ScalaExecs {
-
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
       f: JavaExpression[Session]

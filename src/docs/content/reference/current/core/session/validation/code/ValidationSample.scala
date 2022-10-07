@@ -20,7 +20,6 @@ import io.gatling.commons.validation._
 //#import
 
 class ValidationSample {
-
   object Classes {
     //#with-classes
     val foo: Validation[String] = Success("foo")

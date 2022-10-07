@@ -22,7 +22,6 @@ import io.gatling.recorder.util.Labelled
 private[recorder] sealed abstract class KeyStoreType(val label: String) extends Labelled with ClassSimpleNameToString with Product with Serializable
 
 private[recorder] object KeyStoreType {
-
   case object JKS extends KeyStoreType("JKS")
   case object PKCS12 extends KeyStoreType("PKCS#12")
 

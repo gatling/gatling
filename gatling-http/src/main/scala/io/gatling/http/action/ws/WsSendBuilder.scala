@@ -31,7 +31,6 @@ final case class WsSendTextFrameBuilder(
     checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
 ) extends HttpActionBuilder
     with WsAwaitActionBuilder[WsSendTextFrameBuilder] {
-
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): WsSendTextFrameBuilder =
     this.modify(_.checkSequences)(_ :+ checkSequence)
@@ -55,7 +54,6 @@ final case class WsSendBinaryFrameBuilder(
     checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
 ) extends HttpActionBuilder
     with WsAwaitActionBuilder[WsSendBinaryFrameBuilder] {
-
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): WsSendBinaryFrameBuilder =
     this.modify(_.checkSequences)(_ :+ checkSequence)

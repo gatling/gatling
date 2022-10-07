@@ -27,7 +27,6 @@ import io.gatling.plugin.util.{ Fork, JavaLocator }
 import io.gatling.recorder.cli.CommandLineConstants._
 
 private[commands] object Compiler {
-
   private val CompilerMemoryOptions = List("-Xmx1G", "-Xss100M")
 
   def compile(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int]): Unit = {

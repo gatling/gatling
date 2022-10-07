@@ -22,7 +22,6 @@ trait Clock {
 }
 
 class DefaultClock extends Clock {
-
   private val currentTimeMillisReference = System.currentTimeMillis
   private val nanoTimeReference = System.nanoTime
 

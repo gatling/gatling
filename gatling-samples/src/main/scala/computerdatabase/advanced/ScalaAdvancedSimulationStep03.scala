@@ -22,7 +22,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ScalaAdvancedSimulationStep03 extends Simulation {
-
   // We need dynamic data so that all users don't play the same and we end up with a behavior
   // completely different from the live system (caching, JIT...)
   // ==> Feeders!

@@ -21,7 +21,6 @@ import javax.jms.Message
 import io.gatling.javaapi.jms.JmsMessageMatcher
 
 object JmsMessageMatchers {
-
   def toScala(javaMatcher: JmsMessageMatcher): io.gatling.jms.protocol.JmsMessageMatcher =
     new io.gatling.jms.protocol.JmsMessageMatcher() {
       override def prepareRequest(msg: Message): Unit = javaMatcher.prepareRequest(msg)

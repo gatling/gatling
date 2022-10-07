@@ -21,7 +21,6 @@ import io.gatling.core.scenario.SimulationParams
 import akka.actor.{ ActorRef, ActorSystem, Props }
 
 private final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
-
   def limitReached(scenario: String): Boolean =
     global.map(_.limitReached) match {
       case Some(true) => true
@@ -35,7 +34,6 @@ private final case class Throttles(global: Option[Throttle], perScenario: Map[St
 }
 
 class Throttle(val limit: Int) {
-
   private var count: Int = 0
 
   def increment(): Unit = count += 1
@@ -46,7 +44,6 @@ class Throttle(val limit: Int) {
 }
 
 object Throttler {
-
   private val ThrottlerActorName = "gatling-throttler"
   private val ThrottlerControllerActorName = "gatling-throttler-controller"
 
@@ -61,7 +58,6 @@ object Throttler {
 }
 
 class Throttler(throttlerController: ActorRef, throttlerActor: ActorRef) {
-
   def start(): Unit = throttlerController ! ThrottlerControllerCommand.Start
 
   def throttle(scenarioName: String, action: () => Unit): Unit =

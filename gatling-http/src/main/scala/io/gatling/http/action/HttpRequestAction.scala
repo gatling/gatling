@@ -36,7 +36,6 @@ class HttpRequestAction(
     val next: Action
 ) extends RequestAction
     with NameGen {
-
   override def clock: Clock = coreComponents.clock
 
   override val name: String = genName("httpRequest")

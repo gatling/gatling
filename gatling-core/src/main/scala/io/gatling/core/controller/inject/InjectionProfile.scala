@@ -25,12 +25,10 @@ import io.gatling.core.stats.StatsEngine
 import io.netty.channel.EventLoopGroup
 
 trait InjectionProfileFactory[-InjectionStep] {
-
   def profile(steps: Iterable[InjectionStep]): InjectionProfile
 }
 
 trait InjectionProfile {
-
   def totalUserCount: Option[Long]
 
   private[inject] def workload(

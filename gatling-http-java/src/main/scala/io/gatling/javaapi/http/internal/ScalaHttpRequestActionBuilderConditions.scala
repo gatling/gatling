@@ -29,7 +29,6 @@ import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.http.HttpRequestActionBuilder
 
 object ScalaHttpRequestActionBuilderConditions {
-
   def untyped(context: io.gatling.http.request.builder.HttpRequestBuilder, condition: String): Untyped =
     new Untyped(context, condition.el)
 

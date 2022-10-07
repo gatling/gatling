@@ -28,7 +28,6 @@ import io.gatling.http.response.Response
 import jodd.lagarto.dom.NodeSelector
 
 class HttpBodyCssCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
     HttpBodyCssCheckMaterializer.instance(new CssSelectors(1000))

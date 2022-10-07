@@ -34,7 +34,6 @@ private[http] object DnsCacheSupport {
 }
 
 private[http] trait DnsCacheSupport {
-
   import DnsCacheSupport._
 
   def coreComponents: CoreComponents
@@ -50,7 +49,6 @@ private[http] trait DnsCacheSupport {
   }
 
   def setNameResolver(dnsPart: HttpProtocolDnsPart, httpEngine: HttpEngine): Session => Session = {
-
     import dnsPart._
 
     dnsNameResolution match {
@@ -59,10 +57,8 @@ private[http] trait DnsCacheSupport {
         setDecoratedResolver(_, actualResolver, hostNameAliases)
       case AsyncDnsNameResolution(dnsServers) =>
         if (perUserNameResolution) { session =>
-          {
-            val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers, new DefaultDnsCache)
-            setDecoratedResolver(session, actualResolver, hostNameAliases)
-          }
+          val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers, new DefaultDnsCache)
+          setDecoratedResolver(session, actualResolver, hostNameAliases)
         } else {
           val factory = SharedAsyncDnsNameResolverFactory(httpEngine, dnsServers, coreComponents.actorSystem)
           session => {

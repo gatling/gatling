@@ -17,7 +17,6 @@
 package io.gatling.commons.util
 
 class PushbackIterator[T](it: Iterator[T]) extends Iterator[T] {
-
   private var pushedbackValue: Option[T] = None
 
   override def hasNext: Boolean = pushedbackValue.isDefined || it.hasNext

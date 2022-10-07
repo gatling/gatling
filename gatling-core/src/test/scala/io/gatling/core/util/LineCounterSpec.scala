@@ -24,7 +24,6 @@ import scala.util.Using
 import io.gatling.BaseSpec
 
 class LineCounterSpec extends BaseSpec {
-
   private def testCount(text: String, expected: Int): Unit =
     Using.resource(new ByteArrayInputStream(text.getBytes(UTF_8))) { is =>
       new LineCounter(UTF_8, 5).countLines(is) shouldBe expected

@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.JsonNode
 class SseCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, SseCheck, String, P](new SseCheck(_))
 
 object SseCheckMaterializer {
-
   val BodyString: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] =
     new SseCheckMaterializer[BodyStringCheckType, String](identityPreparer)
 

@@ -42,14 +42,12 @@ final case class FollowUp(followUpTx: HttpTx) extends ProcessorResult
 final case class Crash(error: String) extends ProcessorResult
 
 object ResponseProcessor extends StrictLogging {
-
   @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   def processResponse(tx: HttpTx, sessionProcessor: SessionProcessor, defaultCharset: Charset, response: Response): ProcessorResult =
     try {
       if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
         if (tx.redirectCount >= tx.request.requestConfig.httpProtocol.responsePart.maxRedirects) {
           Crash(s"Too many redirects, max is ${tx.request.requestConfig.httpProtocol.responsePart.maxRedirects}")
-
         } else {
           val location = response.headers.get(HttpHeaderNames.LOCATION)
           if (location == null) {
@@ -145,7 +143,6 @@ class DefaultResponseProcessor(
     defaultCharset: Charset
 ) extends ResponseProcessor
     with NameGen {
-
   def onComplete(result: HttpResult): Unit =
     result match {
       case rawResponse: Response =>

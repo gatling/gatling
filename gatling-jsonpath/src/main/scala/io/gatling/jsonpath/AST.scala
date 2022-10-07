@@ -39,9 +39,12 @@ object AST {
   /**
    * Slicing of an array, indices start at zero
    *
-   * @param start is the first item that you want (of course)
-   * @param stop is the first item that you do not want
-   * @param step, being positive or negative, defines whether you are moving
+   * @param start
+   *   is the first item that you want (of course)
+   * @param stop
+   *   is the first item that you do not want
+   * @param step,
+   *   being positive or negative, defines whether you are moving
    */
   final case class ArraySlice(start: Option[Int], stop: Option[Int], step: Int) extends ArrayAccessor
   object ArraySlice {

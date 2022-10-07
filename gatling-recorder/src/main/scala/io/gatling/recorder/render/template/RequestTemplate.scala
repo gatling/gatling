@@ -64,7 +64,6 @@ private[render] class RequestTemplate(
     }
 
   private def renderBodyOrParams(request: RequestElement): String = {
-
     def renderLongString(value: String) =
       if (value.length > RequestTemplate.MaxLiteralSize)
         s"""Seq(${value.grouped(RequestTemplate.MaxLiteralSize).map(_.protect(format)).mkString(", ")}).mkString"""
@@ -98,9 +97,9 @@ private[render] class RequestTemplate(
     if (request.nonEmbeddedResources.nonEmpty) {
       s""".resources(
          |${request.nonEmbeddedResources.zipWithIndex
-        .map { case (resource, _) => render(simulationClass, resource, extractedUri) }
-        .mkString(s",$Eol")
-        .indent(2)}
+          .map { case (resource, _) => render(simulationClass, resource, extractedUri) }
+          .mkString(s",$Eol")
+          .indent(2)}
          |)""".stripMargin
     } else {
       ""

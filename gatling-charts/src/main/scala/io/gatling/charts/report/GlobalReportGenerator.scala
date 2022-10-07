@@ -28,7 +28,6 @@ import io.gatling.core.config.GatlingConfiguration
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) extends ReportGenerator {
-
   def generate(): Unit = {
     import reportsGenerationInputs._
 

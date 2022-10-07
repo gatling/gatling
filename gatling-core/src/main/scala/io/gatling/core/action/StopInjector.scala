@@ -23,7 +23,6 @@ import io.gatling.core.util.NameGen
 import akka.actor.ActorRef
 
 class StopInjector(message: Expression[String], controller: ActorRef, val next: Action) extends ChainableAction with NameGen {
-
   override val name: String = genName("stopInjector")
 
   override def execute(session: Session): Unit = recover(session) {

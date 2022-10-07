@@ -21,7 +21,6 @@ import java.util.Locale
 import jodd.lagarto.dom.Node
 
 private[css] object FormExtractor {
-
   private sealed trait Input { def name: String }
   private sealed trait SelectInput extends Input
   private sealed trait SingleValueInput extends Input { def value: String }
@@ -57,7 +56,6 @@ private[css] object FormExtractor {
   private final case class SelectOption(value: String, selected: Boolean)
 
   private def extractSelect(node: Node): Option[SelectInput] = {
-
     @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def extractOptions(currentNode: Node, values: List[SelectOption]): List[SelectOption] =
       (for {
@@ -132,7 +130,6 @@ private[css] object FormExtractor {
       .to(Map)
 
   def extractFormInputs(node: Node): Map[String, Any] = {
-
     val allInputs = processForm(node)
 
     val nonEmptyMultipleSelectInputs: Map[String, Seq[String]] = allInputs.collect {

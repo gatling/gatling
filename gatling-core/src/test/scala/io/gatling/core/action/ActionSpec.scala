@@ -21,7 +21,6 @@ import io.gatling.core.EmptySession
 import io.gatling.core.session.Session
 
 class ActionSpec extends BaseSpec with EmptySession {
-
   class TestAction extends Action {
     var hasRun = false
 

@@ -33,7 +33,6 @@ private final class TryMax(
     next: Action
 ) extends Action
     with NameGen {
-
   override val name: String = genName("tryMax")
 
   private[this] var innerTryMax: Action = _
@@ -54,7 +53,6 @@ class InnerTryMax(
     val name: String,
     val next: Action
 ) extends ChainableAction {
-
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())
 
   private[this] def getAndSetLastUserId(session: Session): Long = {
@@ -86,13 +84,12 @@ class InnerTryMax(
   private def continue(session: Session): Boolean = blockFailed(session) && maxNotReached(session)
 
   /**
-   * Evaluates the condition and if true executes the first action of loopNext
-   * else it executes next
+   * Evaluates the condition and if true executes the first action of loopNext else it executes next
    *
-   * @param session the session of the virtual user
+   * @param session
+   *   the session of the virtual user
    */
   def execute(session: Session): Unit = {
-
     val lastUserId = getAndSetLastUserId(session)
 
     if (!session.contains(counterName)) {
@@ -101,7 +98,6 @@ class InnerTryMax(
       val incrementedSession = session.incrementCounter(counterName)
 
       if (continue(incrementedSession)) {
-
         // reset status
         val resetSession = incrementedSession.markAsSucceeded
 
@@ -112,11 +108,9 @@ class InnerTryMax(
           if (!eventLoop.isShutdown) {
             eventLoop.execute(() => loopNext ! resetSession)
           }
-
         } else {
           loopNext ! resetSession
         }
-
       } else {
         val newSession =
           session.blockStack match {

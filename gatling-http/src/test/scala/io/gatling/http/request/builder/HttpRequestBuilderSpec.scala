@@ -40,7 +40,6 @@ import io.gatling.http.protocol.HttpProtocol
 import io.netty.handler.codec.http.HttpMethod
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySession {
-
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
@@ -56,7 +55,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
-    httpRequestDef(_.sign { (request, session) => request.getHeaders.add("X-Token", "foo") })
+    httpRequestDef(_.sign((request, session) => request.getHeaders.add("X-Token", "foo")))
       .build(sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
@@ -66,7 +65,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "form" should "work when overriding a value" in {
-
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
     val session = sessionBase.set("form", form).set("formParamToOverride", "bar")
 
@@ -79,7 +77,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   it should "work when passing only formParams" in {
-
     val session = sessionBase.set("formParam", "bar")
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
@@ -176,7 +173,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   it should "work when passing only a form" in {
-
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
     val session = sessionBase.set("form", form)
 
@@ -189,15 +185,14 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "checks" should "respect their scope priority" in {
-
-    val result = httpRequestDef(builder => {
+    val result = httpRequestDef { builder =>
       builder
         .check(bodyString.notNull)
         .check(status.is(200))
         .check(currentLocation.is("current location"))
         .check(header("HEADER").is("VALUE"))
         .check(responseTimeInMillis.lt(300))
-    }).build(sessionBase).map(_.requestConfig.checks).succeeded
+    }.build(sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Url,
@@ -209,7 +204,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "checks" should "respect their provenance priority" in {
-
     val result = httpRequestDef(
       _.check(bodyString.notNull),
       http(configuration)
@@ -228,13 +222,13 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "checks" should "respect user defined order on request" in {
-    val result = httpRequestDef(builder => {
+    val result = httpRequestDef { builder =>
       builder
         .check(bodyString.notNull)
         .check(md5.notNull)
         .check(bodyString.notNull)
         .check()
-    }).build(sessionBase).map(_.requestConfig.checks).succeeded
+    }.build(sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Status,

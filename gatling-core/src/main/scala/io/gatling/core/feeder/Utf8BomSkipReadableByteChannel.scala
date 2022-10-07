@@ -26,7 +26,6 @@ private object Utf8BomSkipReadableByteChannel {
 }
 
 private class Utf8BomSkipReadableByteChannel(channel: ReadableByteChannel) extends ReadableByteChannel {
-
   import Utf8BomSkipReadableByteChannel._
 
   private val first3Bytes = {

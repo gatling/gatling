@@ -23,7 +23,6 @@ import io.gatling.jms._
 import akka.actor.ActorRef
 
 class JmsTracker(actor: ActorRef) {
-
   def track(
       matchId: String,
       sent: Long,

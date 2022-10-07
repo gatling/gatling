@@ -28,7 +28,6 @@ private[gatling] final class HttpClientFactory(
     sslContextsFactory: SslContextsFactory,
     configuration: GatlingConfiguration
 ) extends StrictLogging {
-
   private val httpConfig = configuration.http
   private val socketConfig = configuration.socket
   private val sslConfig = configuration.ssl
@@ -37,7 +36,6 @@ private[gatling] final class HttpClientFactory(
   setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", nettyConfig.maxThreadLocalCharBufferSize)
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
-
     val defaultSslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
     new HttpClientConfig()
       .setDefaultSslContext(defaultSslContexts.sslContext)

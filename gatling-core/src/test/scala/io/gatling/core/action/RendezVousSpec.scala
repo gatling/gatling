@@ -22,7 +22,6 @@ import io.gatling.core.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 class RendezVousSpec extends AkkaSpec {
-
   private val clock = new DefaultClock
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {

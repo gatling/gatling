@@ -21,7 +21,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
 class HttpProtocolBuilderSpec extends BaseSpec {
-
   private val httpProtocolBuilder = HttpProtocolBuilder(GatlingConfiguration.loadForTest())
 
   "http protocol configuration builder" should "set a silent URI regex" in {

@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import io.gatling.BaseSpec
 
 class BatchedSeparatedValuesFeederSpec extends BaseSpec {
-
   private val feederFactory = SeparatedValuesParser.feederFactory(',', '"', UTF_8)
 
   private val csvContent =

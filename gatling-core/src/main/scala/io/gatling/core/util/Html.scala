@@ -19,7 +19,6 @@ package io.gatling.core.util
 import java.{ lang => jl }
 
 object Html {
-
   private val Entities = Map(
     // basic
     "quot" -> "\"",
@@ -321,7 +320,7 @@ object Html {
 
   private def lookupEntity(input: String, begin: Int, end: Int): String =
     if (input.charAt(begin) == '#') {
-      //numeric
+      // numeric
       val hexFlag = input.charAt(begin + 1)
       try {
         val entityValue =
@@ -354,20 +353,17 @@ object Html {
       if (ampersandPos == -1) {
         // no more entities
         pos = length
-
       } else {
         val semiColonPos = input.indexOf(';', ampersandPos + 1)
         if (semiColonPos == -1) {
           // no more entities
           pos = length
-
         } else {
           val entity = lookupEntity(input, ampersandPos + 1, semiColonPos)
           if (entity == null) {
             // not a valid entity, moving forward
             // note: we don't directly jump to semiColonPos + 1 because we could have "&foo &bar;"
             pos = ampersandPos + 1
-
           } else {
             // flush gap since last flushedIndex
             if (sb == null) {

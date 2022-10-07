@@ -21,7 +21,6 @@ import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.NumberHelper._
 
 private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
-
   def js: String = s"""
 	    $$('#container_errors').sortable('#container_errors');
     """
@@ -44,13 +43,13 @@ private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extend
         </thead>
 		<tbody>
 		    ${errors.zipWithIndex.map { case (error, index) =>
-        s"""
+          s"""
 		    <tr>
 		    	<td class="error-col-1 total ko">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total ko">${error.count}</td>
 		    	<td class="value error-col-3 total ko">${error.percentage.toPrintableString} %</td>
 		    </tr>"""
-      }.mkString}
+        }.mkString}
 		</tbody>
     </table>
 </div>

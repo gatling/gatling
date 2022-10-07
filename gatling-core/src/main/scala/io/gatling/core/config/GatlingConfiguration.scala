@@ -40,7 +40,6 @@ final case class Renamed(path: String, replacement: String)
     extends ObsoleteUsage(s"'$path' was renamed into $replacement and will be removed in the next minor release. Please rename.")
 
 object GatlingConfiguration extends StrictLogging {
-
   private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
   private val GatlingCustomConfigFile = "gatling.conf"
   private val GatlingCustomConfigFileOverrideSystemProperty = "gatling.conf.file"
@@ -59,7 +58,6 @@ object GatlingConfiguration extends StrictLogging {
   def loadForTest(): GatlingConfiguration = loadForTest(mutable.Map.empty)
 
   def loadForTest(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
-
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
@@ -67,14 +65,12 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   def load(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
-
     def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Seq[T] = {
       val bundle = ResourceBundle.getBundle(bundleName)
       bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
     }
 
     def warnAboutRemovedProperties(config: Config, removedProperties: Seq[Removed], renamedProperties: Seq[Renamed]): Unit = {
-
       val obsoleteUsages =
         (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
 

@@ -32,7 +32,6 @@ sealed trait BodyWithStringExpression extends Body with Expression[String]
 sealed trait BodyWithBytesExpression extends Body with Expression[Array[Byte]]
 
 final case class StringBody(string: Expression[String], charset: Charset) extends BodyWithStringExpression {
-
   override def apply(session: Session): Validation[String] = string(session)
 }
 
@@ -68,7 +67,6 @@ object ElBody {
 }
 
 final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends BodyWithStringExpression {
-
   override def apply(session: Session): Validation[String] =
     for {
       parts <- partsE(session)

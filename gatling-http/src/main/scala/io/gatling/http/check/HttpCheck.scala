@@ -23,7 +23,6 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.response.Response
 
 final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) extends Check[Response] {
-
   override def check(response: Response, session: Session, preparedCache: PreparedCache): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
 

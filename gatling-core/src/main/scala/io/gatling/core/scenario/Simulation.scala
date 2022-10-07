@@ -41,7 +41,6 @@ object Simulation {
       _after: () => Unit,
       configuration: GatlingConfiguration
   ): SimulationParams = {
-
     require(!_populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
 
     val rootPopulationBuilders = _populationBuilders
@@ -102,7 +101,6 @@ object Simulation {
 }
 
 abstract class Simulation {
-
   private var _populationBuilders: List[PopulationBuilder] = Nil
   private var _globalProtocols: Protocols = Map.empty
   private var _assertions: Seq[Assertion] = Nil
@@ -127,7 +125,6 @@ abstract class Simulation {
   }
 
   class SetUp {
-
     def protocols(ps: Protocol*): SetUp = protocols(ps.toList)
 
     def protocols(ps: Iterable[Protocol]): SetUp = {
@@ -192,7 +189,6 @@ final class SimulationParams(
     val before: () => Unit,
     val after: () => Unit
 ) {
-
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
     populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global)
 

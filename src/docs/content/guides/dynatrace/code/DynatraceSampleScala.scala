@@ -22,7 +22,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class DynatraceSampleScala {
-
 //#dynatrace
 private val Hostname = InetAddress.getLocalHost.getHostName
 

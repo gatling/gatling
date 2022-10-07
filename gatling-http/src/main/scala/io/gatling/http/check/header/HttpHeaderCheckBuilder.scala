@@ -32,7 +32,6 @@ class HttpHeaderCheckBuilder(headerName: Expression[CharSequence])
 }
 
 object HttpHeaderCheckMaterializer {
-
   val Instance: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] =
     new HttpCheckMaterializer[HttpHeaderCheckType, Response](Header, identityPreparer)
 }

@@ -155,7 +155,6 @@ class JmsJsonPathCheckSpec
     }
 
     s"jsonPath.findAll.exists for $messageType" should "fetch all matches" in {
-
       jsonPath("$..book").findAll.exists.check(response, emptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Seq("In store", "On the street")),
         None

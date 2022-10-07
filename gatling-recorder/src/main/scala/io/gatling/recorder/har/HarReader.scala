@@ -36,7 +36,6 @@ import io.netty.util.AsciiString
 final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 
 private[recorder] object HarReader {
-
   def readFile(path: Path, filters: Option[Filters]): List[HttpTransaction] =
     Using.resource(new BufferedInputStream(new FileInputStream(path.toFile)))(readStream(_, filters))
 
@@ -98,7 +97,6 @@ private[recorder] object HarReader {
   }
 
   private def buildRequest(request: HarRequest, timestamp: Long): HttpRequest = {
-
     val headers = buildHeaders(request.headers)
     val body = request.postData.flatMap(buildRequestBody(_, headers)).getOrElse(Array.empty)
 
@@ -126,7 +124,6 @@ private[recorder] object HarReader {
             .exists(AsciiString.contains(_, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED))
         ) {
           Some(postData.params.map(postParam => encode(postParam.name) + "=" + encode(unwrap(postParam.value))).mkString("&").getBytes(UTF_8))
-
         } else {
           None
         }

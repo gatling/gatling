@@ -43,7 +43,6 @@ class Send(
     val next: Action,
     throttler: Option[Throttler]
 ) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
-
   override val name: String = genName("jmsSend")
 
   override protected def aroundSend(requestName: String, session: Session, message: Message): Validation[Around] =

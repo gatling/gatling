@@ -17,7 +17,6 @@
 package io.gatling.core.check.jsonpath
 
 object Json2 extends JsonSample {
-
   val value = """[
                 |    {
                 |        "id":19434,

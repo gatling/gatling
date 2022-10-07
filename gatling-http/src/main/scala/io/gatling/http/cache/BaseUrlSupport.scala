@@ -29,7 +29,6 @@ import io.gatling.http.protocol.HttpProtocol
 import com.typesafe.scalalogging.LazyLogging
 
 private[http] object BaseUrlSupport extends LazyLogging {
-
   private val BaseUrlAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.baseUrl")
 
   private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.wsBaseUrl")

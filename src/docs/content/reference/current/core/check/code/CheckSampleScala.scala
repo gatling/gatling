@@ -22,7 +22,6 @@ import java.util.Base64
 import scala.util.Using
 
 class CheckSampleScala {
-
 //#status-is-200
 http("Gatling").get("https://gatling.io")
   .check(status.is(200))

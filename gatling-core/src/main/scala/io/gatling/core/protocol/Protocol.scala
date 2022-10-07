@@ -37,7 +37,6 @@ trait ProtocolKey[P, C] {
 }
 
 object ProtocolComponents {
-
   val NoopOnExit: Session => Unit = _ => ()
 }
 
@@ -47,7 +46,6 @@ trait ProtocolComponents {
 }
 
 class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
-
   private val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
@@ -59,12 +57,10 @@ class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtoco
 }
 
 class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Any]) {
-
   private val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
   private val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
 
   def components[P, C](key: ProtocolKey[P, C]): C = {
-
     def componentsFactory: P => C = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
     def protocol: P =
       protocolCache.getOrElse(key, protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]

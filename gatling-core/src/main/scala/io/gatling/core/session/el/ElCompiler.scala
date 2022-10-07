@@ -137,7 +137,6 @@ private object IntString {
 
 final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String) extends ElPart[Any] {
   def apply(session: Session): Validation[Any] = {
-
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
       case seq: Seq[_] =>
         if (seq.isDefinedAt(index)) {
@@ -188,7 +187,6 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 }
 
 final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) extends ElPart[Any] {
-
   @SuppressWarnings(Array("org.wartremover.warts.Return"))
   private def lookup(product: Product): Validation[Any] = {
     cfor(0)(_ < product.productArity, _ + 1) { i =>
@@ -243,7 +241,6 @@ case object RandomSecureUUID extends ElPart[UUID] {
 }
 
 case object RandomUUID extends ElPart[UUID] {
-
   private val Version4Mask = 2L << 62
   private val VariantMask = 2L << 62
 
@@ -288,7 +285,6 @@ final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
-
   private val NameRegex = """[^.#{}()]+""".r
   private val DateFormatRegex = """[^#{}()]+""".r
   private val NumberRegex = """\d+""".r
@@ -357,7 +353,6 @@ private[el] case object AccessHtmlUnescape extends AccessFunction { val token: S
 private[el] final case class AccessTuple(index: String, token: String) extends AccessToken
 
 final class ElCompiler private extends RegexParsers {
-
   import ElCompiler._
 
   override def skipWhitespace = false
@@ -445,7 +440,7 @@ final class ElCompiler private extends RegexParsers {
 
   private def sessionObject: Parser[ElPart[Any]] = {
     @tailrec
-    def sessionObjectRec(accessTokens: List[AccessToken], currentPart: ElPart[Any], currentPartName: String): ElPart[Any] = {
+    def sessionObjectRec(accessTokens: List[AccessToken], currentPart: ElPart[Any], currentPartName: String): ElPart[Any] =
       accessTokens match {
         case Nil => currentPart
         case token :: otherTokens =>
@@ -465,7 +460,6 @@ final class ElCompiler private extends RegexParsers {
           val newPartName = currentPartName + token.token
           sessionObjectRec(otherTokens, newPart, newPartName)
       }
-    }
 
     objectName ~ valueAccess.* ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }
   }

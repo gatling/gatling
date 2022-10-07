@@ -23,16 +23,15 @@ import io.gatling.commons.util.Hex.toHexString
 import io.gatling.commons.util.StringHelper._
 
 package object charts {
-
   private[charts] implicit class FileNamingConventions(val string: String) extends AnyVal {
 
     /**
      * Transform a string to a simpler one that can be used safely as file name
      *
-     * @return a simplified string
+     * @return
+     *   a simplified string
      */
     private def toFileName(charset: Charset) = {
-
       val trimmed = string.trim match {
         case "" => "missing_name"
         case s  => s

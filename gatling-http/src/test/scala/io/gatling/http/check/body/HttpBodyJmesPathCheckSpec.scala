@@ -31,7 +31,6 @@ import io.gatling.http.response.Response
 import com.fasterxml.jackson.databind.JsonNode
 
 class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
-
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJmesPathCheckMaterializer.instance(new JsonParsers)

@@ -17,7 +17,6 @@
 package io.gatling.charts.stats.buffers
 
 private[stats] trait RunTimes {
-
   def minTimestamp: Long
 
   def maxTimestamp: Long

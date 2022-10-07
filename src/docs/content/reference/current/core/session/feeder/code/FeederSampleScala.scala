@@ -17,7 +17,6 @@
 import io.gatling.core.Predef._
 
 class FeederSampleScala {
-
   {
 //#random-mail-generator
 import scala.util.Random

@@ -30,7 +30,6 @@ import io.gatling.jdk.util.StringBuilderPool
 import io.netty.handler.codec.http.HttpMethod
 
 object DigestAuth {
-
   private val ParserPool = new ThreadLocal[DigestWwwAuthenticateHeaderParser] {
     override def initialValue: DigestWwwAuthenticateHeaderParser = new DigestWwwAuthenticateHeaderParser
   }
@@ -60,9 +59,8 @@ object DigestAuth {
 
   def hash(s: String, md: MessageDigest): String = toHexString(md.digest(s.getBytes(UTF_8)))
 
-  def generateAuthorization(challenge: Challenge, username: String, password: String, requestMethod: HttpMethod, requestUri: Uri, nc: Int): String = {
+  def generateAuthorization(challenge: Challenge, username: String, password: String, requestMethod: HttpMethod, requestUri: Uri, nc: Int): String =
     generateAuthorization0(challenge, username, password, requestMethod, requestUri, nc, newCnonce())
-  }
 
   // for test only
   private[auth] def generateAuthorization0(

@@ -4,7 +4,6 @@ import sbt.Keys._
 import sbt._
 
 object BuildSettings {
-
   lazy val basicSettings = Seq(
     Test / parallelExecution := false,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),

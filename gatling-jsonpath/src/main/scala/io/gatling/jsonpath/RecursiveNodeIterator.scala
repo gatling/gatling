@@ -22,12 +22,12 @@ import com.fasterxml.jackson.databind.JsonNode
 
 /**
  * Collect all nodes
- * @param root the tree root
+ * @param root
+ *   the tree root
  *
- *  Originally contributed by Nicolas Rémond.
+ * Originally contributed by Nicolas Rémond.
  */
 final class RecursiveNodeIterator(root: JsonNode) extends RecursiveIterator[ju.Iterator[JsonNode]](root) {
-
   override protected def visit(it: ju.Iterator[JsonNode]): Unit = {
     while (it.hasNext && !pause) {
       visitNode(it.next())

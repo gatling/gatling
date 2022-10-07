@@ -23,14 +23,10 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.commons.model.Credentials
 
 /**
- * JmsProtocolBuilder allows building of the JMS protocol
- * <p>
- * This allows multiple scenarios or jms methods to refer to a single protocol configuration.
- * <p>
- * See your JMS provider documentation for information on the values to set here.
+ * JmsProtocolBuilder allows building of the JMS protocol <p> This allows multiple scenarios or jms methods to refer to a single protocol configuration. <p> See
+ * your JMS provider documentation for information on the values to set here.
  */
 case object JmsProtocolBuilderBase {
-
   def connectionFactory(cf: ConnectionFactory): JmsProtocolBuilder = JmsProtocolBuilder(cf, None, DeliveryMode.NON_PERSISTENT, MessageIdMessageMatcher, 1, None)
 }
 

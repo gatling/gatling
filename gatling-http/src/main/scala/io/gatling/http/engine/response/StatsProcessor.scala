@@ -54,7 +54,7 @@ sealed abstract class StatsProcessor extends StrictLogging {
       result: HttpResult,
       errorMessage: Option[String]
   ): Unit = {
-    def dump = {
+    def dump =
       loggingStringBuilderPool
         .get()
         .append(Eol)
@@ -73,7 +73,6 @@ sealed abstract class StatsProcessor extends StrictLogging {
         .appendResponse(result)
         .append("<<<<<<<<<<<<<<<<<<<<<<<<<")
         .toString
-    }
 
     if (status == KO) {
       logger.debug(s"Request '$fullRequestName' failed for user ${session.userId}: ${errorMessage.getOrElse("")}")
@@ -99,7 +98,6 @@ object NoopStatsProcessor extends StatsProcessor {
 final class DefaultStatsProcessor(
     statsEngine: StatsEngine
 ) extends StatsProcessor {
-
   override def reportStats0(
       fullRequestName: String,
       session: Session,

@@ -25,13 +25,11 @@ import io.gatling.commons.validation._
 import com.fasterxml.jackson.databind.JsonNode
 
 object JsonParsers {
-
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
   private val JsonSupportedEncodings = Set(UTF_8, UTF_16, Charset.forName("UTF-32"))
 }
 
 final class JsonParsers {
-
   import JsonParsers._
 
   def parse(is: InputStream, charset: Charset): JsonNode =

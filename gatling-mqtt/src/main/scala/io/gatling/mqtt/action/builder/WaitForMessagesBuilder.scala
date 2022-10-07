@@ -26,7 +26,6 @@ object WaitForMessagesBuilder {
 }
 
 final case class WaitForMessagesBuilder(timeout: FiniteDuration) extends MqttActionBuilder {
-
   def timeout(duration: FiniteDuration): WaitForMessagesBuilder =
     copy(timeout = duration)
 

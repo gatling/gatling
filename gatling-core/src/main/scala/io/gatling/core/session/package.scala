@@ -22,7 +22,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.el._
 
 package object session {
-
   type Expression[T] = Session => Validation[T]
 
   val TrueExpressionSuccess: Expression[Boolean] = true.expressionSuccess
@@ -56,7 +55,6 @@ package object session {
   }
 
   def expressionSeq2SeqExpression[X](iterable: Iterable[(Expression[X], Expression[X])]): Expression[Seq[(String, X)]] = {
-
     @tailrec
     def resolveRec(session: Session, entries: Iterator[(Expression[X], Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] =
       if (entries.isEmpty) {
