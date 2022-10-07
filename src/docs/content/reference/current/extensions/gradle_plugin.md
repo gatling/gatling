@@ -441,55 +441,6 @@ The packaged artifact will be deployed with the `tests` classifier when you publ
 gradle publish
 ```
 
-## Troubleshooting and known issues
-
-### Spring Boot and Netty version
-
-[Original issue](https://github.com/lkishalmi/gradle-gatling-plugin/issues/53)
-
-Caused by `io.spring.dependency-management` plugin and Spring platform BOM files.
-The dependency management plugin ensures that all declared dependencies have
-exactly the same versions as declared in BOM. Since Spring Boot declares own
-Netty version (e.g. `4.1.22.Final`) - this version is applied globally for all
-the configurations of the Gradle project, even if configuration does not use
-Spring.
-
-There are 2 ways of solving the problem, depending on the actual usage of Netty in the project.
-
-* When production code does not rely on `Netty`:
-
-`build.gradle`:
- 
-```groovy
-ext['netty.version'] = '4.0.51.Final'
-```
-
-This declares Netty version globally for all transitive dependencies in your project, including Spring.
-
-* When production code uses `Netty`:
-
-`build.gradle`:
-
-```groovy
-dependencyManagement {
-  gatling {
-    dependencies {
-      dependencySet(group: 'io.netty', version: '4.0.51.Final') {
-         entry 'netty-codec-http'
-         entry 'netty-codec'
-         entry 'netty-handler'
-         entry 'netty-buffer'
-         entry 'netty-transport'
-         entry 'netty-common'
-         entry 'netty-transport-native-epoll'
-      }
-    }
-  }
-}
-```
-
-These options ensure that `4.0.51.Final` will be used only for `gatling` configurations, leaving other dependencies unchanged.
-
 ## Sources
 
 If you're interested in contributing, you can find the [io.gatling.gradle plugin sources](https://github.com/gatling/gatling-gradle-plugin) on GitHub.
