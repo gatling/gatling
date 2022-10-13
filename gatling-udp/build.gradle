@@ -1,0 +1,37 @@
+
+plugins {
+    // https://www.scala-lang.org/download/all.html
+    id 'scala'
+
+    id 'application'
+}
+
+// https://github.com/gatling/gatling/tags
+def gatlingCoreVersion = "3.8.4"
+// https://github.com/scala/scala/releases
+def scalaLibraryVersion = "2.13.9"
+// https://github.com/junit-team/junit5/releases
+def junitJupiterApiVersion = "5.9.1"
+// https://github.com/scalatest/scalatest/releases
+def scalatestVersion = "3.2.14"
+
+// https://gradle.org/releases/
+// edit line below for gradle distribution in ./gradle/wrapper/gradle-wrapper.properties
+// distributionUrl=https\://services.gradle.org/distributions/gradle-0.0.0-bin.zip
+
+dependencies {
+    implementation "org.scala-lang:scala-library:${scalaLibraryVersion}"
+    implementation "io.gatling:gatling-core:${gatlingCoreVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterApiVersion}"
+    testImplementation "org.scalatest:scalatest_3:${scalatestVersion}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'io.github.gatling.udp.Predef'
+}
+
