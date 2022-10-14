@@ -19,6 +19,8 @@ If you run into an issue, please contact their respective owners.
 * [gRPC plugin (Gatling 3.8)](https://github.com/phiSgr/gatling-grpc) by George Leung
 * [JDBC plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
 * [Kafka plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
+* [Sftp plugin (Gatling 3.8)](https://github.com/fherbreteau/gatling-sftp) by François Herbreteau
+* [Ftp plugin (Gatling 3.8)](https://github.com/fherbreteau/gatling-ftp) by François Herbreteau
 
 ### Lagging Gatling Version
 
