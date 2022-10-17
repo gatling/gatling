@@ -22,7 +22,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util._
-import io.gatling.netty.util.StringBuilderPool
+import io.gatling.jdk.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -54,7 +54,7 @@ sealed abstract class StatsProcessor extends StrictLogging {
       result: HttpResult,
       errorMessage: Option[String]
   ): Unit = {
-    def dump = {
+    def dump =
       loggingStringBuilderPool
         .get()
         .append(Eol)
@@ -73,7 +73,6 @@ sealed abstract class StatsProcessor extends StrictLogging {
         .appendResponse(result)
         .append("<<<<<<<<<<<<<<<<<<<<<<<<<")
         .toString
-    }
 
     logger.trace(dump)
   }
