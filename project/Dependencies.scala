@@ -1,6 +1,7 @@
 import sbt._
 
 object Dependencies {
+
   // Compile dependencies
 
   // format: OFF
@@ -8,7 +9,7 @@ object Dependencies {
   private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
-  private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.1.1"
+  private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "1.1.2"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.84.Final"
   private val nettyBuffer                    = netty.withName("netty-buffer")
   private val nettyHandler                   = netty.withName("netty-handler")
@@ -109,7 +110,19 @@ object Dependencies {
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.12.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.15"
 
+  // Circe dependencies
+  private val circeCore                      = "io.circe"                            %% "circe-core"                      % "0.12.3"
+  private val circeGeneric                   = circeCore.organization                %% "circe-generic"                   % circeCore.revision
+  private val circeParser                    = circeCore.organization                %% "circe-parser"                    % circeCore.revision
+
+  // Decoupled response dependencies
+  private val akkaStream                     = akka.organization                     %% "akka-stream"                     % akka.revision
+  private val alpakkaSqs                     = "com.lightbend.akka"                  %% "akka-stream-alpakka-sqs"         % "4.0.0"
+  private val akkaStreamTestKit              = akka.organization                     %% "akka-stream-testkit"             % akka.revision
+
+
   // format: ON
+
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
     scalaTest,
@@ -120,6 +133,7 @@ object Dependencies {
     mockitoCore
   )
   private val parserDeps = Seq(jackson, saxon, lagarto, jmespath)
+  private val circeDeps = Seq(circeCore, circeGeneric, circeParser)
 
   // Dependencies by module
 
@@ -188,8 +202,6 @@ object Dependencies {
     brotli4cOsXArm,
     brotli4jWindows,
     junit,
-    junitEngine,
-    jupiterInterface,
     jetty,
     jettyProxy
   ) ++ loggingDeps
@@ -209,6 +221,8 @@ object Dependencies {
   val benchmarkDependencies = Seq(jmh)
 
   val bundleDependencies = gatlingEnterprisePluginCommons +: testDeps
+
+  val decoupledResponseDependencies = Seq(alpakkaSqs, akkaStream, akkaStreamTestKit) ++ httpDependencies ++ circeDeps
 
   def compilerDependencies(scalaVersion: String) =
     Seq(
