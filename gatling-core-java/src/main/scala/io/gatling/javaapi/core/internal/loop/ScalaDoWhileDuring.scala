@@ -83,6 +83,6 @@ object ScalaDoWhileDuring {
       exitASAP: Boolean
   ) {
     def loop(chain: ChainBuilder): T =
-      context.make(_.asLongAsDuring(condition, duration, counterName, exitASAP)(chain.wrapped))
+      context.make(_.doWhileDuring(condition, duration, counterName, exitASAP)(chain.wrapped))
   }
 }
