@@ -76,7 +76,7 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
       }
 
       if (config.simulationId.isEmpty) {
-        logSimulationConfiguration(simulationStartResult.simulation.id)
+        logSimulationConfiguration(simulationStartResult.simulation.id, simulationStartResult.simulation.className)
       }
 
       val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
@@ -105,7 +105,7 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
           if (e.isCreated) {
             logCreatedSimulation(e.getSimulation)
           }
-          logSimulationConfiguration(e.getSimulation.id)
+          logSimulationConfiguration(e.getSimulation.id, e.getSimulation.className)
           Failure(e.getCause)
       }
       .fold(throw _, _ => ())
@@ -113,10 +113,10 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
   private def logCreatedSimulation(simulation: Simulation): Unit =
     logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")
 
-  private def logSimulationConfiguration(simulationId: UUID): Unit =
+  private def logSimulationConfiguration(simulationId: UUID, classname: String): Unit =
     logger.info(s"""
                    |Specify --${SimulationId.full} $simulationId if you want to start a simulation on Gatling Enterprise,
-                   |or --${SimulationOption.full} $simulationId if you want to create a new simulation on Gatling Enterprise.
+                   |or --${SimulationOption.full} $classname if you want to create a new simulation on Gatling Enterprise.
                    |See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.
                    |""".stripMargin)
 }
