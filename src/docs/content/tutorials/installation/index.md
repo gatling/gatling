@@ -29,7 +29,7 @@ those are not documented and released only for internal use or [Gatling Enterpri
 ## Using the Bundle
 
 You can use Gatling as a standalone bundle.
-Then, you'll just need a text editor, possibly with Java, Kotlin or Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
+Then, you'll just need a text editor, possibly with Java or Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
 
 Check out our [Open Source page](https://gatling.io/open-source/) for the download link.
 
@@ -86,7 +86,7 @@ Check the [gradle plugin documentation]({{< ref "../../reference/current/extensi
 
 ### Sbt
 
-Maven can be used for Gatling projects with Scala only.
+Sbt can be used for Gatling projects with Scala only.
 
 Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
 
