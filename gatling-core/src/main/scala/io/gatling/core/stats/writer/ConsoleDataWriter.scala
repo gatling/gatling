@@ -127,6 +127,23 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
         val errorMessage = message.getOrElse("<no-message>")
         errorsCounters(errorMessage) = errorsCounters.getOrElse(errorMessage, 0) + 1
     }
+
+    val time = System.currentTimeMillis()
+    val duration = (clock.nowMillis - startUpTime) / 1000
+    val build_id = System.getenv("build_id")
+    val lg_id = System.getenv("lg_id")
+    val simulation_name = System.getenv("simulation_name")
+    val test_type = System.getenv("test_type")
+    val env = System.getenv("env")
+    var users_info = s"""$time\tusers\t"""
+    for ((k, v) <- usersCounters) {
+      users_info += v.activeCount
+      users_info += "\t" + v.waitingCount
+      users_info += "\t" + v.doneCount
+      users_info += "\t" + v.totalUserCount.get
+    }
+    users_info += s"""\t$env\t$test_type\t$build_id\t$lg_id\t$simulation_name\t"""
+    logger.debug(users_info)
   }
 
   private def onErrorMessage(error: ErrorMessage, data: ConsoleData): Unit = {
