@@ -39,6 +39,12 @@ private[gatling] object Controller {
   // [e]
   //
   //
+  //
+  //
+  //
+  //
+  //
+  //
   // [e]
 }
 
@@ -110,7 +116,7 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       stop(data)
 
     case Event(StopInjector, data: EndData) =>
-      logger.error("Injector was forcefully stopped")
+      logger.info("Injector was forcefully stopped")
       stop(data)
 
     // [e]
