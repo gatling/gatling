@@ -23,7 +23,7 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.{ ActorRef, ActorSelection, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 private[gatling] object Controller {
   val ControllerActorName = "gatling-controller"
@@ -36,8 +36,10 @@ private[gatling] object Controller {
   ): Props =
     Props(new Controller(statsEngine, injector, throttler, simulationParams))
 
-  def controllerSelection(system: ActorSystem): ActorSelection =
-    system.actorSelection("/user/" + ControllerActorName)
+  // [e]
+  //
+  //
+  // [e]
 }
 
 private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option[Throttler], simulationParams: SimulationParams) extends ControllerFSM {
