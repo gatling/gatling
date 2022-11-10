@@ -119,11 +119,17 @@ You can change the `Host` to something else than the url domain.
 
 #### `localAddress`
 
-You can bind the sockets from specific local addresses instead of the default one:
+It's possible to have multiple IP addresses for your load generators, typically using [IP-aliasing or `iproute2`](https://www.kernel.org/doc/html/v5.8/networking/alias.html).
+
+In this case, you can bind the sockets from specific local addresses instead of the default one:
 
 {{< include-code "localAddress" java kt scala >}}
 
 Note that when setting multiple addresses, each virtual user is assigned to one single local address once and for all in a round-robin fashion.
+
+{{< alert warning >}}
+Some tools have been misnaming this feature as IP spoofing. This is plain wrong. [IP spoofing](https://www.cloudflare.com/en-gb/learning/ddos/glossary/ip-spoofing/) is a way to generate malicious traffic, which is something Gatling will never do. Anyway, if by "IP spoofing" you mean "having the load generator use multiple source IP addresses", this is the feature you're looking for.
+{{< /alert >}}
 
 #### `perUserKeyManagerFactory`
 
