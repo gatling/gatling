@@ -128,7 +128,10 @@ public class ChannelPool {
       long clientId, String domain, List<InetSocketAddress> addresses) {
     Channel channel =
         coalescingChannelPool.getCoalescedChannel(
-            clientId, domain, addresses, ChannelPool::canOpenStream);
+            clientId,
+            domain,
+            addresses,
+            chan -> ChannelPool.isNotGoAway(chan) && ChannelPool.canOpenStream(chan));
     if (channel != null) {
       LOGGER.debug("Retrieved channel from coalescing pool for domain {}", domain);
     }
