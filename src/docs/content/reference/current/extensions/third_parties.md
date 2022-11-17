@@ -28,7 +28,6 @@ Please consider contributing and help the author upgrade to the current version 
 {{< /alert >}}
 
 * [Git plugin (Gatling 3.2)](https://github.com/GerritForge/gatling-git) by GerritForge
-* [Kafka plugin (Gatling 3.5)](https://github.com/mnogu/gatling-kafka) by Muneyuki Noguchi
 * [Radius plugin (Gatling 3.1)](https://github.com/bpabdelkader/gatling-radius) by Bilal Pierre Abdelkader
 * [JDBC plugin (Gatling 3.5)](https://github.com/tmcgrath/gatling-sql) by Todd McGrath
 
