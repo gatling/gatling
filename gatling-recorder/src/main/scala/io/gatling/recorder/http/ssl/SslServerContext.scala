@@ -62,10 +62,14 @@ private[recorder] object SslServerContext {
 
   object SelfSignedCertificate extends SslServerContext {
     private lazy val context: SslContext = {
+      // make sure to load SslUtil that loads BouncyCastle BEFORE calling new SelfSignedCertificate
+      // some JSSE pieces were removed from Java 15 so we need BC
+      // see https://github.com/netty/netty/issues/10317
+      val sslProvider = SslUtil.TheSslProvider
       val ssc = new SelfSignedCertificate
       SslContextBuilder
         .forServer(ssc.certificate, ssc.privateKey)
-        .sslProvider(SslUtil.TheSslProvider)
+        .sslProvider(sslProvider)
         .trustManager(InsecureTrustManagerFactory.INSTANCE)
         .build
     }
