@@ -27,7 +27,7 @@ All the components in this section can be either:
 ### Exec
 
 The `exec` method is used to execute an action.
-Actions are usually requests (HTTP, LDAP, POP, IMAP, etc) that will be sent during the simulation.
+Actions are usually requests (HTTP, WebSocket, JMS, MQTT...) that will be sent during the simulation.
 Any action that will be executed will be called with `exec`.
 
 For example, when using the Gatling HTTP module you would write the following line:
