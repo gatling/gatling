@@ -63,7 +63,7 @@ public interface RequestTimeout {
         if (channel.pipeline().get(DefaultHttpClient.APP_HTTP2_HANDLER) != null) {
           // don't close the channel when HTTP/2
           if (streamId != null) {
-            // the stream is active so it's safe to interrupt it
+            // the stream is active, so it's safe to interrupt it
             channel.pipeline().fireUserEventTriggered(new Http2AppHandler.StreamTimeout(streamId));
           }
         } else {
