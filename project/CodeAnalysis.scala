@@ -20,6 +20,7 @@ object CodeAnalysis {
       Wart.AutoUnboxing,
       Wart.AsInstanceOf,
       Wart.Equals,
+      Wart.IterableOps,
       Wart.ImplicitConversion,
       Wart.ImplicitParameter,
       Wart.JavaSerializable,
@@ -33,7 +34,7 @@ object CodeAnalysis {
       Wart.StringPlusAny, // see https://github.com/wartremover/wartremover/issues/447
       Wart.Throw,
       Wart.ToString,
-      Wart.IterableOps,
+      Wart.TripleQuestionMark,
       Wart.Var,
       Wart.While
     )
