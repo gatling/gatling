@@ -54,7 +54,8 @@
 	min-width: 0;
 }
 
-html, body {
+html,
+body {
 	height: 100%;
 	width: 100%;
 }
@@ -119,7 +120,7 @@ body {
 }
 
 .gatling-logo img {
-  height: 100%;
+	height: 100%;
 }
 
 .container {
@@ -135,6 +136,12 @@ body {
 	background: var(--gatling-light-color);
 	border-right: 1px solid var(--gatling-border-color);
 	overflow-y: auto;
+}
+
+@media print {
+	.nav {
+		display: none;
+	}
 }
 
 @media screen and (min-width: 1920px) {
@@ -192,6 +199,12 @@ body {
 	height: 100%;
 	overflow-y: scroll;
 	scroll-behavior: smooth;
+}
+
+@media print {
+	.cadre {
+		overflow-y: unset;
+	}
 }
 
 .frise {
@@ -349,6 +362,12 @@ h1 span {
 	overflow-x: scroll;
 }
 
+@media print {
+	.content-in {
+		overflow-x: unset;
+	}
+}
+
 .container-article {
 	display: flex;
 	flex-direction: column;
@@ -372,7 +391,6 @@ h1 span {
 	}
 }
 
-
 .content-header {
 	display: flex;
 	flex-direction: column;
@@ -382,7 +400,6 @@ h1 span {
 	border-bottom: 1px solid var(--gatling-border-color);
 	padding: var(--gatling-spacing-layout) var(--gatling-spacing-layout) 0;
 }
-
 
 .onglet {
 	font-size: var(--gatling-font-size-header);
@@ -448,7 +465,7 @@ h1 span {
 	border-top-left-radius: var(--gatling-border-radius);
 	border-top-right-radius: var(--gatling-border-radius);
 	color: var(--gatling-text-color);
-  font-size: var(--gatling-font-size-heading);
+	font-size: var(--gatling-font-size-heading);
 	font-weight: var(--gatling-font-weight-bold);
 	text-align: center;
 	padding: var(--gatling-spacing-small) var(--gatling-spacing);
@@ -651,7 +668,8 @@ h1 span {
 	color: var(--gatling-text-color);
 }
 
-.expand-table, .collapse-table {
+.expand-table,
+.collapse-table {
 	font-size: var(--gatling-font-size-secondary);
 	font-weight: var(--gatling-font-weight-normal);
 }
@@ -816,7 +834,8 @@ h1 span {
 	cursor: default;
 }
 
-.statistics .expand-all-button, .statistics .collapse-all-button {
+.statistics .expand-all-button,
+.statistics .collapse-all-button {
 	cursor: pointer;
 	background-color: var(--gatling-light-color);
 	padding: var(--gatling-spacing-small) var(--gatling-spacing);
@@ -824,7 +843,8 @@ h1 span {
 	border-radius: var(--gatling-border-radius);
 }
 
-.statistics .expand-all-button:hover, .statistics .collapse-all-button:hover {
+.statistics .expand-all-button:hover,
+.statistics .collapse-all-button:hover {
 	background-color: var(--gatling-hover-color);
 }
 
@@ -866,23 +886,29 @@ h1 span {
 	font-size: var(--gatling-font-size-default);
 }
 
-.withTooltip { outline:none; }
-.withTooltip:hover {text-decoration:none;}
+.withTooltip {
+	outline: none;
+}
+
+.withTooltip:hover {
+	text-decoration: none;
+}
+
 .withTooltip .tooltipContent {
 	position: absolute;
 	z-index: 10;
 	display: none;
 
 	background: var(--gatling-orange-color);
-	-webkit-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
-	-moz-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
-	box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+	-webkit-box-shadow: 1px 2px 4px 0px rgba(47, 47, 47, 0.2);
+	-moz-box-shadow: 1px 2px 4px 0px rgba(47, 47, 47, 0.2);
+	box-shadow: 1px 2px 4px 0px rgba(47, 47, 47, 0.2);
 	border-radius: var(--gatling-border-radius);
 	color: var(--gatling-light-color);
 	margin-top: -5px;
 	padding: var(--gatling-spacing-small);
 }
 
-.withTooltip:hover .tooltipContent{
-  display: inline;
+.withTooltip:hover .tooltipContent {
+	display: inline;
 }
