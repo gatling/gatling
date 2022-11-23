@@ -16,6 +16,7 @@ If you run into an issue, please contact their respective owners.
 
 * [AMQP plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-amqp-plugin) by Tinkoff
 * [Cassandra plugin (Gatling 3.8)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
+* [Git plugin (Gatling 3.8)](https://github.com/GerritForge/gatling-git) by GerritForge
 * [gRPC plugin (Gatling 3.8)](https://github.com/phiSgr/gatling-grpc) by George Leung
 * [JDBC plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
 * [Kafka plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
@@ -29,7 +30,6 @@ Even if those projects are still actively maintained, they are seriously lagging
 Please consider contributing and help the author upgrade to the current version of Gatling.
 {{< /alert >}}
 
-* [Git plugin (Gatling 3.2)](https://github.com/GerritForge/gatling-git) by GerritForge
 * [Radius plugin (Gatling 3.1)](https://github.com/bpabdelkader/gatling-radius) by Bilal Pierre Abdelkader
 * [JDBC plugin (Gatling 3.5)](https://github.com/tmcgrath/gatling-sql) by Todd McGrath
 
