@@ -305,7 +305,7 @@ class CoreCompileTest extends Simulation {
     .stopInjector("#{message}")
     .stopInjector(session => "message")
 
-  registerPebbleExtensions(null.asInstanceOf[com.mitchellbosecke.pebble.extension.Extension])
+  registerPebbleExtensions(null.asInstanceOf[io.pebbletemplates.pebble.extension.Extension])
   setUp(
     scn.inject(
       rampUsers(5).during(1),

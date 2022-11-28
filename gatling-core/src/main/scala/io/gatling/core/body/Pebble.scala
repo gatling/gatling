@@ -27,12 +27,12 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.{ ClasspathFileResource, ClasspathPackagedResource, FilesystemResource, Resource }
 
-import com.mitchellbosecke.pebble.PebbleEngine
-import com.mitchellbosecke.pebble.extension.Extension
-import com.mitchellbosecke.pebble.extension.writer.PooledSpecializedStringWriter
-import com.mitchellbosecke.pebble.loader.StringLoader
-import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
+import io.pebbletemplates.pebble.PebbleEngine
+import io.pebbletemplates.pebble.extension.Extension
+import io.pebbletemplates.pebble.extension.writer.PooledSpecializedStringWriter
+import io.pebbletemplates.pebble.loader.StringLoader
+import io.pebbletemplates.pebble.template.PebbleTemplate
 
 private[gatling] object PebbleExtensions {
   private[body] var extensions: Seq[Extension] = Nil

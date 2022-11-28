@@ -20,7 +20,7 @@ import scala.util.{ Success, Try }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 
-import com.mitchellbosecke.pebble.extension.AbstractExtension
+import io.pebbletemplates.pebble.extension.AbstractExtension
 
 object TestExtension extends AbstractExtension
 

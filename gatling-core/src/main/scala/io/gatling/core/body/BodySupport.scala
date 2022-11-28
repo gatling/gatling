@@ -21,7 +21,7 @@ import java.io.InputStream
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 
-import com.mitchellbosecke.pebble.extension.Extension
+import io.pebbletemplates.pebble.extension.Extension
 
 trait BodySupport {
   def gzipBody: Body => Body = BodyProcessors.gzip
