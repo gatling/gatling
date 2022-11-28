@@ -365,7 +365,7 @@ public class CoreJavaCompileTest extends Simulation {
           .stopInjector(session -> "message");
 
   {
-    registerPebbleExtensions((com.mitchellbosecke.pebble.extension.Extension) null);
+    registerPebbleExtensions((io.pebbletemplates.pebble.extension.Extension) null);
     setUp(
             scenario.injectOpen(
                 rampUsers(5).during(1),
