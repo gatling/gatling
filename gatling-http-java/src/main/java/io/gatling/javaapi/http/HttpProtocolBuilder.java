@@ -1139,15 +1139,6 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
     return new HttpProtocolBuilder(wrapped.wsAutoReplySocketIo4());
   }
 
-  /**
-   * Store received message to buffer and print to stdout
-   *
-   * @return a new HttpProtocolBuilder instance
-   */
-  public HttpProtocolBuilder wsLogsPiling() {
-    return new HttpProtocolBuilder(wrapped.wsLogsPiling());
-  }
-
   // proxyPart
   /**
    * Ignore any configured proxy for some hosts

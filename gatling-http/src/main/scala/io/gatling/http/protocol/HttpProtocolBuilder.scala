@@ -206,7 +206,6 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsAutoReplyTextFrame(f: PartialFunction[String, String]): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f)
   def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
-  def wsLogsPiling: HttpProtocolBuilder = this.modify(_.protocol.wsPart.logsPiling).setTo(true)
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

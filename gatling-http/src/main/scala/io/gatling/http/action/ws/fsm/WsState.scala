@@ -37,6 +37,7 @@ final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = Next
 
 abstract class WsState(fsm: WsFsm) extends StrictLogging {
   protected val stateName: String = getClass.getSimpleName
+
   protected def remainingReconnects: Int
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
@@ -134,9 +135,12 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   }
 
   protected def saveStringMessageToBuffer(message: String, timestamp: Long): Unit =
-    if (fsm.httpProtocol.wsPart.logsPiling) fsm.currentMessageBuffer += ((timestamp, message))
+    if (HttpTracing.IS_HTTP_TRACE_ENABLED || HttpTracing.IS_HTTP_DEBUG_ENABLED) {
+      fsm.currentMessageBuffer += ((timestamp, message))
+    }
 
   protected def saveBinaryMessageToBuffer(message: Array[Byte], timestamp: Long): Unit =
-    if (fsm.httpProtocol.wsPart.logsPiling) fsm.currentMessageBuffer += ((timestamp, s"<<<BINARY CONTENT length=${message.length}>>>"))
+    if (HttpTracing.IS_HTTP_TRACE_ENABLED || HttpTracing.IS_HTTP_DEBUG_ENABLED)
+      fsm.currentMessageBuffer += ((timestamp, s"<<<BINARY CONTENT length=${message.length}>>>"))
 
 }

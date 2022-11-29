@@ -33,8 +33,7 @@ public class WsJavaCompileTest extends Simulation {
           .wsReconnect()
           .wsMaxReconnects(1)
           .wsAutoReplyTextFrame(txt -> txt.equals("foo") ? "bar" : null)
-          .wsAutoReplySocketIo4()
-          .wsLogsPiling();
+          .wsAutoReplySocketIo4();
 
   private final ChainBuilder chain =
       exec(ws("Connect WS")
