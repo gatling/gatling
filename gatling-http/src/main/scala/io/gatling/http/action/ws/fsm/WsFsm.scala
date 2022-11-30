@@ -45,11 +45,11 @@ class WsFsm(
     private[fsm] val httpProtocol: HttpProtocol,
     eventLoop: EventLoop,
     private[fsm] val clock: Clock,
-    private[fsm] val wsLog: WsLogger
+    private[fsm] val wsLogger: WsLogger
 ) extends StrictLogging {
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
-  val currentMessageBuffer: ArrayBuffer[(Long, String)] = scala.collection.mutable.ArrayBuffer.empty[(Long, String)]
+  val currentMessageBuffer: ArrayBuffer[(Long, String)] = ArrayBuffer.empty
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {

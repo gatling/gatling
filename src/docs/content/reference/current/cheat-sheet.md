@@ -1506,9 +1506,6 @@ content:
           - keyword: wsAutoReplySocketIo4
             description: Enable partial support for Engine.IO v4 - Gatling will automatically respond to server ping messages (<i>2</i>) with pong (<i>3</i>).
             
-          - keyword: wsLogsPiling
-            description: Enable to store all received messages to buffer and print to stdout
-
   - title: SSE (Server Sent Events)
     description: Define the SSE requests sent in your scenario
     sections:

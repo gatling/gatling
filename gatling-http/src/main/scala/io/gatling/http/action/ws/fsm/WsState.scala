@@ -135,12 +135,12 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   }
 
   protected def saveStringMessageToBuffer(message: String, timestamp: Long): Unit =
-    if (HttpTracing.IS_HTTP_TRACE_ENABLED || HttpTracing.IS_HTTP_DEBUG_ENABLED) {
+    if (HttpTracing.IS_HTTP_DEBUG_ENABLED) {
       fsm.currentMessageBuffer += ((timestamp, message))
     }
 
   protected def saveBinaryMessageToBuffer(message: Array[Byte], timestamp: Long): Unit =
-    if (HttpTracing.IS_HTTP_TRACE_ENABLED || HttpTracing.IS_HTTP_DEBUG_ENABLED)
+    if (HttpTracing.IS_HTTP_DEBUG_ENABLED)
       fsm.currentMessageBuffer += ((timestamp, s"<<<BINARY CONTENT length=${message.length}>>>"))
 
 }

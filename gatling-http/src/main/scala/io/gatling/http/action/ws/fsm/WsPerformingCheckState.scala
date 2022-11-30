@@ -52,12 +52,12 @@ final case class WsPerformingCheckState(
     val nextAction = next match {
       case Left(n) =>
         logger.debug("Check timeout, failing it and performing next action")
-        fsm.wsLog.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check timeout"), Some(currentCheck.resolvedName), requestMessage)
+        fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check timeout"), Some(currentCheck.resolvedName), requestMessage)
         n
       case Right(sendFrame) =>
         // logging crash
         logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
-        fsm.wsLog.logCheck(
+        fsm.wsLogger.logCheck(
           actionName,
           session,
           KO,
@@ -146,7 +146,7 @@ final case class WsPerformingCheckState(
     }
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
-      fsm.wsLog.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
+      fsm.wsLogger.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
       cancelTimeout()
       // matching message, apply checks
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
@@ -159,12 +159,12 @@ final case class WsPerformingCheckState(
           val nextAction = next match {
             case Left(n) =>
               logger.debug("Check failed, performing next action")
-              fsm.wsLog.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check failed"), Some(currentCheck.resolvedName), requestMessage)
+              fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check failed"), Some(currentCheck.resolvedName), requestMessage)
               n
             case Right(sendMessage) =>
               // failed to reconnect, logging crash
               logger.debug("Check failed while trying to reconnect, failing pending send message and performing next action")
-              fsm.wsLog.logCheck(
+              fsm.wsLogger.logCheck(
                 actionName,
                 session,
                 KO,
@@ -231,7 +231,7 @@ final case class WsPerformingCheckState(
       }
     } else {
       logger.debug(s"Received non-matching message $message")
-      fsm.wsLog.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
+      fsm.wsLogger.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextWsState(this)
@@ -252,12 +252,12 @@ final case class WsPerformingCheckState(
       case Left(n) =>
         // failed to connect
         logger.debug("WebSocket crashed, performing next action")
-        fsm.wsLog.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("WebSocket crashed"), Some(currentCheck.resolvedName), requestMessage)
+        fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("WebSocket crashed"), Some(currentCheck.resolvedName), requestMessage)
         n
       case Right(sendTextMessage) =>
         // failed to reconnect, logging crash
         logger.debug("WebSocket crashed while trying to reconnect, failing pending send message and performing next action")
-        fsm.wsLog.logCheck(
+        fsm.wsLogger.logCheck(
           actionName,
           session,
           KO,

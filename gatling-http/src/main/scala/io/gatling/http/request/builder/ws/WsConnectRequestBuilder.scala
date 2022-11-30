@@ -60,7 +60,7 @@ final case class WsConnectRequestBuilder(
       chain.exec(OnConnectedChainEndActionBuilder).build(ctx, next)
     }
 
-    val wsLogger = new WsLogger()
+    val wsLogger = new WsLogger
 
     new WsConnect(
       commonAttributes.requestName,

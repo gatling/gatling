@@ -43,7 +43,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new TextWebSocketFrame(message))
-    fsm.wsLog.logOK(actionName, session, fsm.fetchBuffer(), Some(message))
+    fsm.wsLogger.logOk(actionName, session, fsm.fetchBuffer(), Some(message))
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
@@ -87,8 +87,8 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     val now = clock.nowMillis
     webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
     val requestMessage =
-      if (HttpTracing.IS_HTTP_TRACE_ENABLED || HttpTracing.IS_HTTP_DEBUG_ENABLED) Some(s"<<<BINARY CONTENT length=${message.length}>>>") else None
-    fsm.wsLog.logOK(actionName, session, fsm.fetchBuffer(), requestMessage)
+      if (HttpTracing.IS_HTTP_DEBUG_ENABLED) Some(s"<<<BINARY CONTENT length=${message.length}>>>") else None
+    fsm.wsLogger.logOk(actionName, session, fsm.fetchBuffer(), requestMessage)
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
@@ -120,7 +120,6 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
-//    println(s"Receive message: ${message}")
     saveStringMessageToBuffer(message, timestamp)
     // try to auto reply or log the message
     if (!autoReplyTextFrames(message, webSocket)) {

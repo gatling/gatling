@@ -38,7 +38,6 @@ final class WsLogger extends StrictLogging {
       checkName: Option[String],
       message: Option[String]
   ): Unit = {
-
     def dump = loggingStringBuilderPool
       .get()
       .append(Eol)
@@ -71,13 +70,12 @@ final class WsLogger extends StrictLogging {
     logger.trace(dump)
   }
 
-  def logOK(
+  def logOk(
       requestName: String,
       session: Session,
       messageBuffer: Seq[(Long, String)],
       message: Option[String]
   ): Unit = {
-
     def dump = loggingStringBuilderPool
       .get()
       .append(Eol)
@@ -99,5 +97,4 @@ final class WsLogger extends StrictLogging {
 
     logger.trace(dump)
   }
-
 }
