@@ -748,4 +748,9 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   "randomLongRange" should "throw exception with 'max' less than 'min'" in {
     an[ElParserException] should be thrownBy "#{randomLong(2147483658,2147483648)}".el[Long]
   }
+
+  "randomAlphanumeric" should "generate random alphanum by length" in {
+    val randomAlphanumeric = "#{randomAlphanumeric(10)}".el[String]
+    randomAlphanumeric(emptySession).succeeded.length should be(10)
+  }
 }

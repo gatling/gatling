@@ -282,6 +282,13 @@ final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
   def apply(session: Session): Validation[Long] = (min + ThreadLocalRandom.current().nextLong(length)).success
 }
 
+final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
+  val chars: Seq[Char] = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
+
+  def apply(session: Session): Validation[String] =
+    Seq.fill(length)(chars(ThreadLocalRandom.current.nextInt(chars.length))).mkString.success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
@@ -427,8 +434,11 @@ final class ElCompiler private extends RegexParsers {
     RandomLongRange(min.toLong, max.toLong)
   }
 
+  private def randomAlphanumeric: Parser[ElPart[Any]] =
+    "randomAlphanumeric(" ~> NumberRegex <~ ")" ^^ (length => RandomAlphanumeric(length.toInt))
+
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomAlphanumeric
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

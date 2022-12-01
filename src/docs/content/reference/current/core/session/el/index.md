@@ -99,6 +99,9 @@ Gatling EL provide the following built-in functions:
 
 // generate a random Long with range where 2147483648 is the min and 2147483658 is the max (inclusive)        
 "#{randomLong(2147483648,2147483658)}"
+
+// generate a random alphanumeric with length
+"#{randomAlphanumeric(10)}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:
