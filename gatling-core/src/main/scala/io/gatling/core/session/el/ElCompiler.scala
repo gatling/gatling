@@ -16,7 +16,7 @@
 
 package io.gatling.core.session.el
 
-import java.{ util => ju }
+import java.{ lang => jl, util => ju }
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -293,11 +293,21 @@ final case class RandomDoubleRangeDigits(min: Double, max: Double, fractionalDig
     ((ThreadLocalRandom.current().nextDouble(min, max) * tens).round / tens).success
 }
 
-final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
-  val chars: Seq[Char] = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
+object RandomAlphanumeric {
+  private val AlphanumericChars: Array[Char] = (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).toArray
+}
 
-  def apply(session: Session): Validation[String] =
-    Seq.fill(length)(chars(ThreadLocalRandom.current.nextInt(chars.length))).mkString.success
+final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
+  require(length > 0, s"'length' should be greater than 0")
+
+  def apply(session: Session): Validation[String] = {
+    val sb = new jl.StringBuilder(length)
+    val rng = ThreadLocalRandom.current()
+    cfor(0)(_ < length, _ + 1) { _ =>
+      sb.append(RandomAlphanumeric.AlphanumericChars(rng.nextInt(RandomAlphanumeric.AlphanumericChars.length)))
+    }
+    sb.toString.success
+  }
 }
 
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")

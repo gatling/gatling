@@ -803,6 +803,6 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "randomAlphanumeric" should "generate random alphanum by length" in {
     val randomAlphanumeric = "#{randomAlphanumeric(10)}".el[String]
-    randomAlphanumeric(emptySession).succeeded.length should be(10)
+    randomAlphanumeric(emptySession).succeeded.length shouldBe 10
   }
 }
