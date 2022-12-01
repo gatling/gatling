@@ -113,6 +113,9 @@ Gatling EL provide the following built-in functions:
 
 // generate a random Double, similar to above, but limit to max of 3 decimal places
 "#{randomDouble(-42.42,42.42,3)}"
+
+// generate a random alphanumeric with length
+"#{randomAlphanumeric(10)}"
 ```
 
 You can combine different Gatling EL builtin functions, eg:

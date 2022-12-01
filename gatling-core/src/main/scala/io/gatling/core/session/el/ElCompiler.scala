@@ -293,6 +293,13 @@ final case class RandomDoubleRangeDigits(min: Double, max: Double, fractionalDig
     ((ThreadLocalRandom.current().nextDouble(min, max) * tens).round / tens).success
 }
 
+final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
+  val chars: Seq[Char] = ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
+
+  def apply(session: Session): Validation[String] =
+    Seq.fill(length)(chars(ThreadLocalRandom.current.nextInt(chars.length))).mkString.success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
@@ -448,8 +455,12 @@ final class ElCompiler private extends RegexParsers {
     "randomDouble(" ~> DecimalRegexWithNegative ~ ("," ~> DecimalRegexWithNegative) ~ ("," ~> NumberRegex) <~ ")" ^^ { case min ~ max ~ digit =>
       RandomDoubleRangeDigits(min.toDouble, max.toDouble, digit.toInt)
     }
+
+  private def randomAlphanumeric: Parser[ElPart[Any]] =
+    "randomAlphanumeric(" ~> NumberRegex <~ ")" ^^ (length => RandomAlphanumeric(length.toInt))
+
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

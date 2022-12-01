@@ -800,4 +800,9 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   it should "throw exception when max <= min given a valid fractionalDigits" in {
     a[ElParserException] should be thrownBy "#{randomDouble(42.42,42.42,42)}".el[Double]
   }
+
+  "randomAlphanumeric" should "generate random alphanum by length" in {
+    val randomAlphanumeric = "#{randomAlphanumeric(10)}".el[String]
+    randomAlphanumeric(emptySession).succeeded.length should be(10)
+  }
 }
