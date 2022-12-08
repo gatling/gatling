@@ -17,7 +17,7 @@
 package io.gatling.http
 
 import java.{ lang => jl }
-import java.time.{ Instant, ZoneId }
+import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 import scala.jdk.CollectionConverters._

@@ -44,5 +44,6 @@ private[gatling] object CommandLineConstants {
   val Launcher = new CommandLineConstant("launcher", "l", "The program that launched Gatling", Some(""))
   val BuildToolVersion = new CommandLineConstant("build-tool-version", "btv", "The version of the build tool used to launch Gatling", Some(""))
 
-  val AllOptions = List(NoReports, ReportsOnly, ResultsFolder, ResourcesFolder, BinariesFolder, Simulation, RunDescription, Launcher, BuildToolVersion)
+  val AllOptions: List[CommandLineConstant] =
+    List(NoReports, ReportsOnly, ResultsFolder, ResourcesFolder, BinariesFolder, Simulation, RunDescription, Launcher, BuildToolVersion)
 }

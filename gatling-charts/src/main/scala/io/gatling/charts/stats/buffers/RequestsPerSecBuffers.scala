@@ -31,7 +31,6 @@ private[stats] trait RequestsPerSecBuffers {
 
   def updateRequestsPerSecBuffers(record: RequestRecord): Unit = {
     getRequestsPerSecBuffer(Some(record.name), record.group).update(record.startBucket, record.status)
-
     getRequestsPerSecBuffer(None, None).update(record.startBucket, record.status)
   }
 }

@@ -23,12 +23,6 @@ import scala.collection.mutable
 import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
 import io.gatling.core.stats.message.MessageEvent
 
-private[stats] object SessionDeltas {
-  val Empty: SessionDeltas = SessionDeltas(0, 0)
-}
-
-private[stats] final case class SessionDeltas(starts: Int, ends: Int)
-
 private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int], runDurationInSeconds: Int) {
   private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
   private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)

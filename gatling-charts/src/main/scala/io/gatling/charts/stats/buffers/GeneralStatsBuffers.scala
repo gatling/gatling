@@ -28,7 +28,6 @@ private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupCumulatedResponseTimeGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
-  val requestCounts = mutable.Map.empty[BufferKey, (Int, Int)]
 
   def getRequestGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
     requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
@@ -90,7 +89,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
 
       val percentile: Double => Int = (rank: Double) => math.round(digest.quantile(rank / 100.0)).toInt
 
-      GeneralStats(min.toInt, max.toInt, valuesCount, math.round(mean).toInt, math.round(stdDev).toInt, percentile, meanRequestsPerSec)
+      GeneralStats(min, max, valuesCount, math.round(mean).toInt, math.round(stdDev).toInt, percentile, meanRequestsPerSec)
     }
   }
 

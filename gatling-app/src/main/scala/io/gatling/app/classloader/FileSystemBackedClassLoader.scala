@@ -37,7 +37,7 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
 
   private def findPath(path: Path): Option[Path] = {
     val fullPath = root.resolve(path)
-    if (Files.exists(fullPath)) Some(fullPath) else None
+    Some(fullPath).filter(Files.exists(_))
   }
 
   override def findResource(name: String): URL =
