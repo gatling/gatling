@@ -61,7 +61,7 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
   private val sslSessionTimeoutSeconds = sslConfig.sessionTimeout.toSeconds
   private lazy val DefaultJavaSslParameters = {
     val context = SSLContext.getInstance("TLS")
-    context.init(null, null, null);
+    context.init(null, null, null)
     context.getDefaultSSLParameters
   }
   private val enabledProtocols: Array[String] =
