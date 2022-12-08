@@ -190,7 +190,7 @@ body {
 	background-color: var(--gatling-orange-color);
 }
 
-.nav .on .item {
+.nav .on .item span {
 	color: var(--gatling-light-color);
 }
 
