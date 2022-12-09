@@ -83,7 +83,7 @@ object Dependencies {
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.0"
   private val jsr305                         = "com.google.code.findbugs"             % "jsr305"                            % "3.0.2"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
-  private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.4.10"
+  private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.4.11"
 
   // Test dependencies
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.14"            % Test
