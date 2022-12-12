@@ -611,12 +611,16 @@ h1 span {
 	border-radius: var(--gatling-border-radius);
 	border-collapse: collapse;
 	color: var(--gatling-text-color);
+	max-height: 100%;
 }
 
 .statistics .title {
 	display: flex;
 	text-align: center;
 	justify-content: space-between;
+
+	min-height: 49.5px;
+	box-sizing: border-box;
 
 	border: 1px solid var(--gatling-border-color);
 	color: var(--gatling-text-color);
@@ -725,8 +729,12 @@ h1 span {
 }
 
 .statistics .scrollable {
-	max-height: 785px;
+	max-height: 100%;
 	overflow-y: auto;
+}
+
+#statistics_table_container .statistics .scrollable {
+	max-height: 785px;
 }
 
 .statistics-in a {
@@ -774,11 +782,17 @@ h1 span {
 	background-color: var(--gatling-light-color);
 	border: 1px solid var(--gatling-border-color);
 	padding: var(--gatling-spacing-small);
+	min-width: 50px;
 }
 
 .statistics-in .col-1 {
 	width: 175px;
-	max-width: 175px;
+  max-width: 175px;
+}
+@media screen and (min-width: 1200px) {
+	.statistics-in .col-1 {
+		width: 50%;
+	}
 }
 
 .expandable-container {
@@ -834,17 +848,15 @@ h1 span {
 	cursor: default;
 }
 
-.statistics .expand-all-button,
-.statistics .collapse-all-button {
-	cursor: pointer;
+.statistics-button {
 	background-color: var(--gatling-light-color);
 	padding: var(--gatling-spacing-small) var(--gatling-spacing);
 	border: 1px solid var(--gatling-border-color);
 	border-radius: var(--gatling-border-radius);
 }
 
-.statistics .expand-all-button:hover,
-.statistics .collapse-all-button:hover {
+.statistics-button:hover:not(:disabled) {
+	cursor: pointer;
 	background-color: var(--gatling-hover-color);
 }
 
@@ -911,4 +923,66 @@ h1 span {
 
 .withTooltip:hover .tooltipContent {
 	display: inline;
+}
+
+.statistics-table-modal {
+	height: calc(100% - 60px);
+	width: calc(100% - 60px);
+	border-radius: var(--gatling-border-radius);
+}
+
+.statistics-table-modal::backdrop {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+
+	background-color: rgba(100, 100, 100, 0.9);
+}
+
+.statistics-table-modal-container {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	height: calc(100% - 35px);
+	overflow-x: auto;
+}
+
+.button-modal {
+	cursor: pointer;
+
+	height: 25px;
+	width: 25px;
+
+	border: 1px solid var(--gatling-border-color);
+	background-color: var(--gatling-light-color);
+	border-radius: var(--gatling-border-radius);
+}
+
+.button-modal:hover {
+	background-color: var(--gatling-background-color);
+}
+
+.statistics-table-modal-header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-end;
+
+	padding-bottom: var(--gatling-spacing);
+}
+
+.statistics-table-modal-content {
+	flex: 1;
+	overflow-y: auto;
+	min-width: 1050px;
+}
+
+.statistics-table-modal-footer {
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-end;
+
+	padding-top: var(--gatling-spacing);
 }
