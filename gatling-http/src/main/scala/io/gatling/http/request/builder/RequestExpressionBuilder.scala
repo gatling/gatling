@@ -150,8 +150,8 @@ abstract class RequestExpressionBuilder(
 
   private val configureVirtualHost: RequestBuilderConfigure =
     commonAttributes.virtualHost.orElse(httpProtocol.enginePart.virtualHost) match {
-      case None              => ConfigureIdentity
       case Some(virtualHost) => configureVirtualHost0(virtualHost)
+      case _                 => ConfigureIdentity
     }
 
   private def configureVirtualHost0(virtualHost: Expression[String]): RequestBuilderConfigure =

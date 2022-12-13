@@ -26,7 +26,7 @@ private[stats] class PercentilesBuffers(buckets: Array[Int]) {
   def update(bucketNumber: Int, value: Int): Unit =
     digests(bucketNumber) match {
       case Some(digest) => digest.add(value)
-      case None =>
+      case _ =>
         val digest = new AVLTreeDigest(100.0)
         digest.add(value)
         digests(bucketNumber) = Some(digest)

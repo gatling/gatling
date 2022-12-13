@@ -64,7 +64,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       val path = requestName match {
         case Some(n) => RequestPath.path(n, group)
-        case None    => group.map(RequestPath.path).getOrElse("")
+        case _       => group.map(RequestPath.path).getOrElse("")
       }
 
       new RequestStatistics(

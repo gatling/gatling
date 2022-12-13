@@ -22,10 +22,10 @@ class PushbackIterator[T](it: Iterator[T]) extends Iterator[T] {
   override def hasNext: Boolean = pushedbackValue.isDefined || it.hasNext
 
   override def next(): T = pushedbackValue match {
-    case None => it.next()
     case Some(value) =>
       pushedbackValue = None
       value
+    case _ => it.next()
   }
 
   def pushback(value: T): Unit = pushedbackValue = Some(value)

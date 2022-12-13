@@ -582,7 +582,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
           outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
           outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
 
-        case None =>
+        case _ =>
           props.proxyHost("")
           props.proxyPort(0)
           props.proxySslPort(0)

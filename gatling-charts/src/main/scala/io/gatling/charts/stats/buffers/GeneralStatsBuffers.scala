@@ -65,7 +65,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
   def update(time: Int): Unit = {
     val newCount = counts.get(time) match {
       case Some(count) => count + 1
-      case None        => 1
+      case _           => 1
     }
     counts.put(time, newCount)
 
