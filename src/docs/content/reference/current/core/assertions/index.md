@@ -3,7 +3,7 @@ title: "Assertions"
 description: "How to use assertions to define acceptance criteria and have your test pass or failed based on response time or request status statistics."
 lead: "Learn how to set assertions on metrics like response time or number of failed requests, and export these results to a JUnit compatible format"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2030700
 ---
 

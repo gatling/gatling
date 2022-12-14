@@ -3,7 +3,7 @@ title: "Feeders"
 description: "How to use feeders to inject test data into your virtual users' Session so that they don't all hit the same content and don't wrongfully test your caches."
 lead: "Inject data into your virtual users from an external source, eg a CSV file"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2030504
 ---
 

@@ -1,9 +1,9 @@
 ---
 title: "Configuration"
-description: "Configuration of Gatling"
+description: "How to configure Gatling: configuration file options, bundle command line options, logging."
 lead: "Configure the logs with logback.xml, the configuration with gatling.conf, and the zip bundle command options"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2022-04-12T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2030800
 ---
 

@@ -3,7 +3,7 @@ title: "JMS"
 description: "How to use the Java Message Service (JMS) support in Gatling to connect to a broker and perform checks against inbound messages."
 lead: "DSL for JMS"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2060000
 ---
 

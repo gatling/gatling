@@ -3,7 +3,7 @@ title: "TLS"
 description: "How to configure TLS/HTTPS features, such as SSLContext, SNI, keystore and truststore."
 lead: "Configure the SSLContext, SNI, keystore and truststore"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2050400
 ---
 

@@ -3,7 +3,7 @@ title: "HTTP Checks"
 description: "How to use HTTP specific checks, such as status, header or currentLocation, to validate your HTTP payloads and capture elements and store them in the Session."
 lead: "Checks specific to HTTP requests"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2050300
 ---
 

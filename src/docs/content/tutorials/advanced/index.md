@@ -3,7 +3,7 @@ title: "Advanced Tutorial"
 description: "How to transform a raw recorded test into a dynamic and meaningful load test. Introduce feeders, dynamic parameters, loops, functions and multiple scenarios."
 lead: "Isolate process, configure virtual users, use feeders, checks and looping"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 1030000
 ---
 

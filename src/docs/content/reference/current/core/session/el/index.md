@@ -3,7 +3,7 @@ title: "Expression Language"
 description: "How to use Gatling Expression Language to compute dynamic parameters based on Session data using a simple text templating engine"
 lead: "Use the Gatling Expression Language to generate dynamic parameters"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2030502
 ---
 

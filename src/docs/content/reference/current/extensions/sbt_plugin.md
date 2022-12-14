@@ -3,7 +3,7 @@ title: "SBT Plugin"
 description: "How to use the sbt plugin for Gatling to run tests and deploy them to Gatling Enterprise."
 lead: "The SBT plugin allows you to run Gatling tests from the command line, without the bundle, as well as to package your simulations for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-11-23T09:00:00+02:00
+lastmod: 2022-12-14T21:30:56+02:00
 weight: 2080300
 ---
 
