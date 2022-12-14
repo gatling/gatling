@@ -255,7 +255,7 @@ For example:
 
 {{< include-code "transform" java kt scala >}}
 
-## Loading All Records in Memory {#readRecords}
+## Loading All the Records in Memory {#readRecords}
 
 Sometimes, you just might want to reuse or convenient built-in feeders for custom needs and get your hands on the actual records.
 
@@ -265,8 +265,8 @@ Sometimes, you just might want to reuse or convenient built-in feeders for custo
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.
 {{< /alert >}}
 
-## Count the Number of Records {#recordsCounts}
+## Count the Number of Records {#recordsCount}
 
 Sometimes, you want to know the size of your feeder without having to use `readRecords` and copy all the data in memory.
 
-{{< include-code "readRecords" java kt scala >}}
+{{< include-code "recordsCount" java kt scala >}}
