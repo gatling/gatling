@@ -23,13 +23,13 @@ import scala.util.Using
 
 import io.gatling.commons.util.Spire._
 
-object HtmlHelper {
+private[charts] object HtmlHelper {
   private val charToHtml: Map[Char, String] =
     Using.resource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
       source
         .getLines()
         .collect {
-          case line if !line.startsWith("#") && !line.isEmpty =>
+          case line if !line.startsWith("#") && line.nonEmpty =>
             val Array(entityName, code) = line.split("=", 2)
             val entity = s"&$entityName;"
             val char = code.toInt.toChar
