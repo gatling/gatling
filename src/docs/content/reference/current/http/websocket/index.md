@@ -1,6 +1,6 @@
 ---
 title: "WebSocket"
-description: "WebSocket support is an extension to the HTTP DSL"
+description: "How to use the WebSocket support for connecting and performing checks on inbound frames."
 lead: "Learn the possible WebSocket operations with Gatling: connect, close, send"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

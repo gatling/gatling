@@ -1,6 +1,6 @@
 ---
 title: "Simulation"
-description: "Learn about the structure of the Gatling simulation"
+description: "Learn about the structure of the Gatling simulation, including required imports, protocol configuration and setUp."
 lead: "Learn about the main parts of a Gatling simulation: DSL imports, scenario definitions, simulation definitions, hooks"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

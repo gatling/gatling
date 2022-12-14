@@ -1,6 +1,6 @@
 ---
 title: "HTTP Protocol"
-description: "Configure Gatling's HTTP connection"
+description: "How to configure Gatling HTTP behavior such as baseUrl, common HTTP headers, common HTTP checks and connection pool sharing."
 lead: "Learn about connection, redirect, caching, resource infering and dns resolution"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

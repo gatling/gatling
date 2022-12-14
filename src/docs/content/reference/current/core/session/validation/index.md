@@ -1,6 +1,6 @@
 ---
 title: "Validation"
-description: "Work with Gatling Validation, know more about Success and Failure"
+description: "How to use the Validation monad to handle composable failures in Scala functions. Intended for advanced Scala developers only."
 lead: "Manipulate Session data in a monadic way (advanced Scala only)"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

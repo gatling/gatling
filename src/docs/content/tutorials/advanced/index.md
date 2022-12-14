@@ -1,6 +1,6 @@
 ---
 title: "Advanced Tutorial"
-description: "Craft a Gatling simulation"
+description: "How to transform a raw recorded test into a dynamic and meaningful load test. Introduce feeders, dynamic parameters, loops, functions and multiple scenarios."
 lead: "Isolate process, configure virtual users, use feeders, checks and looping"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

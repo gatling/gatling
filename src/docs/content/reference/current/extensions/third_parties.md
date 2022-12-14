@@ -1,6 +1,6 @@
 ---
 title: "Third Party Plugins"
-description: "Third Party Plugins"
+description: "Active, lagging and inactive third party plugins to using non-offically supported protocols, such as gRPC, Kafka, AMQP, Cassandra and JDBC."
 lead: "Third Party Plugins"
 weight: 2080800
 ---

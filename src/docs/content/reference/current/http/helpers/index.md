@@ -1,6 +1,6 @@
 ---
 title: "HTTP Helpers"
-description: "Learn how to deal with cookies and cache"
+description: "How to use built-in HTTP helpers to manipulate cookies and cache."
 lead: "Helpers for handling cookies and caches"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

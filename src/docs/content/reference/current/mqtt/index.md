@@ -1,6 +1,6 @@
 ---
 title: "MQTT"
-description: "MQTT protocol DSL"
+description: "How to use the MQTT support in Gatling to connect to a broker and perform checks against inbound messages."
 lead: "DSL for MQTT"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

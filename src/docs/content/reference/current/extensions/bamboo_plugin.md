@@ -1,6 +1,6 @@
 ---
 title: "Bamboo Plugin"
-description: "Bamboo plugin for Gatling Enterprise"
+description: "How to use the Bamboo plugin for Gatling Enterprise to set up your load tests in your Continuous Integration pipelines."
 lead: "Bamboo CI plugin for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

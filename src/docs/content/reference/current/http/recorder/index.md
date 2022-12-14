@@ -1,6 +1,6 @@
 ---
 title: "Recorder"
-description: "The recorder creates a basic Gatling Simulation, based on your navigation"
+description: "How to use the recorder and its proxy and HAR modes to capture HTTP traffic from your browser and turn it into a Gatling load test."
 lead: "Learn how to configure your recorder and run it, either as an HTTP proxy or a HAR converter"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00

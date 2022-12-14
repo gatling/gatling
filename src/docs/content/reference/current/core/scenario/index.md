@@ -1,7 +1,6 @@
 ---
 title: "Scenario"
-description: "Learn about the DSL specific to scenarios"
-lead: "Learn how to execute requests, pauses, loops and conditions"
+description: "How to define scenarios that your virtual users will execute. Use exec to attach a chain or execute a request or a function. Use loops such as repeat, during and asLongAs. Use conditions like doIf and randomSwitch. Uses pauses."
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 weight: 2030400

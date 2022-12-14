@@ -1,6 +1,6 @@
 ---
 title: "Concepts"
-description: "Main Gatling concepts"
+description: "Learn the main Gatling concepts such as Virtual Users, Sessions, Scenarios, Injection Profiles and Simulations."
 lead: "Learn more about virtual users, scenarios, simulations, sessions, feeders, checks, assertions, reports"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
@@ -85,6 +85,12 @@ Each HTTP Request is easy to grasp (excluding page resources):
 2. *Search for 'gatling'* is a *GET* request pointing at *https://github.com/search?q=gatling*
 
 For more information, check the [Scenario reference section]({{< ref "../scenario" >}}).
+
+## Injection Profile
+
+An injection profile is the way Virtual Users are started. It's typically either a rate of users started per second over time (open workload) or a current number of users over time (closed workload).
+
+For more information, check the [Injection reference section]({{< ref "../injection" >}}).
 
 ## Simulation
 

@@ -1,6 +1,6 @@
 ---
 title: "Injection"
-description: "Define the load you want to inject to your server"
+description: "How to define the way virtual users are started over time and injected into a scenario. Explain the difference between open and closed workload models and which type suites best your application."
 lead: "Injection profiles, differences between open and closed workload models"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
