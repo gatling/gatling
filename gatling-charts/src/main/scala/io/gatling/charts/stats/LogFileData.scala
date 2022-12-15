@@ -156,8 +156,8 @@ private[gatling] final class LogFileData(
 
     List(
       (s"t < $lowerBound ms", s"t < $lowerBound ms", counts.low),
-      (s"$lowerBound ms <= t < $higherBound ms", s"t ≥ $lowerBound ms <br> t < $higherBound ms", counts.middle),
-      (s"t ≥ $higherBound ms", s"t ≥ $higherBound ms", counts.high),
+      (s"$lowerBound ms <= t < $higherBound ms", s"t >= $lowerBound ms <br> t < $higherBound ms", counts.middle),
+      (s"t >= $higherBound ms", s"t >= $higherBound ms", counts.high),
       ("failed", "failed", counts.ko)
     )
   }
