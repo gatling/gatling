@@ -46,7 +46,7 @@ Gatling provides some converters to use in-memory datastructures as Feeders.
 
 Gatling provides various file based feeders.
 
-When using the bundle distribution, files must be in the `user-files/resources` directory. This location can be overridden, see [configuration`.
+When using the bundle distribution, files must be in the `user-files/resources` directory. This location can be overridden, see [configuration]({{< ref "../../configuration.md#gatling-conf" >}}).
 
 When using a build tool such as maven, gradle or sbt, files must be placed in `src/main/resources` or `src/test/resources`.
 
