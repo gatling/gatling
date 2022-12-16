@@ -53,12 +53,14 @@ final class NormalWithPercentageDuration(stdDev: Double) extends PauseType {
   private val stdDevPercent = stdDev / 100.0
 
   override def generator(duration: Expression[FiniteDuration]): Expression[Long] =
-    duration.map(d => math.max(0L, ((1 + ThreadLocalRandom.current.nextGaussian * stdDevPercent) * d.toMillis).toLong))
+    duration.map(d => math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDevPercent + 1) * d.toMillis).toLong)
 }
 
 final class NormalWithStdDevDuration(stdDev: FiniteDuration) extends PauseType {
+  private val stdDevMillis = stdDev.toMillis
+
   override def generator(duration: Expression[FiniteDuration]): Expression[Long] =
-    duration.map(d => math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDev.toMillis + d.toMillis).toLong))
+    duration.map(d => math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDevMillis).toLong + d.toMillis))
 }
 
 final class Custom(custom: Expression[Long]) extends PauseType {

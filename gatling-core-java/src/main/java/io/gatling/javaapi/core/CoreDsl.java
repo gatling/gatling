@@ -2665,16 +2665,16 @@ public final class CoreDsl {
   /** A shortcut for {@link PauseType#Exponential} */
   public static PauseType exponentialPauses = PauseType.Exponential;
 
-  /** A shortcut for {@link PauseType.NormalWithPercentageDuration(double)} */
-  @Nonnull
-  public static PauseType normalPausesWithPercentageDuration(double stdDev) {
-    return new PauseType.NormalWithPercentageDuration(stdDev);
-  }
-
   /** A shortcut for {@link PauseType.NormalWithStdDevDuration(Duration)} */
   @Nonnull
   public static PauseType normalPausesWithStdDevDuration(@Nonnull Duration stdDev) {
     return new PauseType.NormalWithStdDevDuration(stdDev);
+  }
+
+  /** A shortcut for {@link PauseType.NormalWithPercentageDuration(double)} */
+  @Nonnull
+  public static PauseType normalPausesWithPercentageDuration(double stdDev) {
+    return new PauseType.NormalWithPercentageDuration(stdDev);
   }
 
   /** A shortcut for {@link PauseType.Custom(Function)} */
