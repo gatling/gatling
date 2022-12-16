@@ -78,12 +78,20 @@ setUp(scn.inject(atOnceUsers(1)))
   // the duration of each pause is what's specified
   // in the `pause(duration)` element.
   .constantPauses
-  // the duration of each pause is on average that specified
-  // in the `pause(duration)` element and follows a uniform distribution.
+  // make pauses follow a uniform distribution
+  // where the mean is the value specified in the `pause(duration)` element.
   .uniformPauses(0.5)
   .uniformPauses(2.seconds)
-  // the duration of each pause is on average that specified
-  // in the `pause(duration)` element and follows an exponential distribution.
+  // make pauses follow a normal distribution
+  // where the mean is the value specified in the `pause(duration)` element.
+  // and the standard deviation is the duration configured here.
+  .normalPausesWithStdDevDuration(2.seconds)
+  // make pauses follow a normal distribution
+  // where the mean is the value specified in the `pause(duration)` element.
+  // and the standard deviation is a percentage of the mean.
+  .normalPausesWithPercentageDuration(20.0)
+  // make pauses follow an exponential distribution
+  // where the mean is the value specified in the `pause(duration)` element.
   .exponentialPauses
   // the pause duration is computed by the provided function (in milliseconds).
   // In this case the filled duration is bypassed.

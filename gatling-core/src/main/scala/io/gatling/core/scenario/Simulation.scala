@@ -161,6 +161,8 @@ abstract class Simulation {
       _globalPauseType = pauseType
       this
     }
+    def normalPausesWithStdDevDuration(stdDev: FiniteDuration): SetUp = pauses(new NormalWithStdDevDuration(stdDev))
+    def normalPausesWithPercentageDuration(stdDevPercent: Double): SetUp = pauses(new NormalWithPercentageDuration(stdDevPercent))
   }
 
   private[gatling] def params(configuration: GatlingConfiguration): SimulationParams =

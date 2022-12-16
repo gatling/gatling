@@ -11,7 +11,7 @@ weight: 2030200
 
 {{< alert warning >}}
 We recommend that your Simulation's name does not start with `Test`.
-Some tools such as maven surefire aggressively consider that all classes with such naming patterns are for them to handle and they will try to launch them.
+Some tools such as maven surefire aggressively consider that all classes with such naming patterns are for them to handle, and they will try to launch them.
 {{< /alert >}}
 
 ## DSL imports

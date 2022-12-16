@@ -245,6 +245,30 @@ public abstract class Simulation {
     }
 
     /**
+     * Apply normal distribution pauses with the standard deviation defined as an absolute value,
+     * see {@link PauseType.NormalWithStdDevDuration}
+     *
+     * @param stdDevDuration the standard deviation of the distribution.
+     * @return the same mutated setup instance
+     */
+    @Nonnull
+    public SetUp normalPausesWithStdDevDuration(Duration stdDevDuration) {
+      return pauses(new PauseType.NormalWithStdDevDuration(stdDevDuration));
+    }
+
+    /**
+     * Apply normal distribution pauses with the standard deviation defined as a percentage of the
+     * value defined in the scenario, see {@link PauseType.NormalWithPercentageDuration}
+     *
+     * @param stdDevPercent the standard deviation of the distribution in percents.
+     * @return the same mutated setup instance
+     */
+    @Nonnull
+    public SetUp normalPausesWithPercentageDuration(double stdDevPercent) {
+      return pauses(new PauseType.NormalWithPercentageDuration(stdDevPercent));
+    }
+
+    /**
      * Apply uniform pauses with a given strategy
      *
      * @param pauseType the pause type

@@ -121,6 +121,13 @@ public class CoreJavaCompileTest extends Simulation {
           .pause("#{min}", "#{max}", constantPauses)
           .pause(
               session -> Duration.ofMillis(100), session -> Duration.ofMillis(200), constantPauses)
+          .pause(1, disabledPauses)
+          .pause(1, exponentialPauses)
+          .pause(1, customPauses(session -> 1000L))
+          .pause(1, uniformPausesPlusOrMinusPercentage(30))
+          .pause(1, uniformPausesPlusOrMinusDuration(Duration.ofMillis((50))))
+          .pause(1, normalPausesWithStdDevDuration(Duration.ofMillis(50)))
+          .pause(1, normalPausesWithPercentageDuration(30))
           // pace
           .pace(1)
           .pace(1, "counter")
@@ -438,6 +445,8 @@ public class CoreJavaCompileTest extends Simulation {
         .exponentialPauses()
         .customPauses(session -> 1L)
         .uniformPauses(1)
-        .uniformPauses(Duration.ofSeconds(1));
+        .uniformPauses(Duration.ofSeconds(1))
+        .normalPausesWithStdDevDuration(Duration.ofMillis(50))
+        .normalPausesWithPercentageDuration(30);
   }
 }
