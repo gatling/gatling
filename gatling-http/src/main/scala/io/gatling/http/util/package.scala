@@ -17,7 +17,7 @@
 package io.gatling.http
 
 import java.{ lang => jl }
-import java.time.Instant
+import java.time.{ Instant, ZoneId }
 import java.time.format.DateTimeFormatter
 
 import scala.jdk.CollectionConverters._
@@ -34,7 +34,7 @@ import io.netty.handler.codec.http.HttpHeaders
 
 package object util extends LazyLogging {
 
-  private val bufferFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+  private val bufferFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS").withZone(ZoneId.systemDefault())
 
   implicit class HttpStringBuilder(val buff: jl.StringBuilder) extends AnyVal {
     def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
