@@ -41,12 +41,10 @@ import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.util.AsciiString
 
 object RequestExpressionBuilder {
-  val BuildRequestErrorMapper: String => String = "Failed to build request: " + _
+  private val BuildRequestErrorMapper: String => String = "Failed to build request: " + _
 
-  type RequestBuilderConfigureRaw = Session => ClientRequestBuilder => ClientRequestBuilder
   type RequestBuilderConfigure = Session => ClientRequestBuilder => Validation[ClientRequestBuilder]
 
-  val ConfigureIdentityRaw: RequestBuilderConfigureRaw = _ => identity
   val ConfigureIdentity: RequestBuilderConfigure = _ => _.success
 
   private def mergeCaseInsensitive[T](left: Map[CharSequence, T], right: Map[CharSequence, T]): Map[CharSequence, T] =
@@ -69,11 +67,10 @@ abstract class RequestExpressionBuilder(
     if (commonAttributes.ignoreProtocolHeaders) {
       mergeCaseInsensitive(Map.empty, commonAttributes.headers)
     } else {
-      val deduplicatedProtocolHeaders = mergeCaseInsensitive(Map.empty, httpProtocol.requestPart.headers)
-      mergeCaseInsensitive(deduplicatedProtocolHeaders, commonAttributes.headers)
+      val uniqueProtocolHeaders = mergeCaseInsensitive(Map.empty, httpProtocol.requestPart.headers)
+      mergeCaseInsensitive(uniqueProtocolHeaders, commonAttributes.headers)
     }
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
-  protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
   private val signatureCalculatorExpression: Option[(Request, Session) => Validation[_]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
