@@ -20,8 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder, RequestExpressionBuilder }
-import io.gatling.http.request.builder.RequestExpressionBuilder._
+import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder }
 
 class SseRequestExpressionBuilder(
     commonAttributes: CommonAttributes,

@@ -43,10 +43,6 @@ import io.netty.util.AsciiString
 object RequestExpressionBuilder {
   private val BuildRequestErrorMapper: String => String = "Failed to build request: " + _
 
-  type RequestBuilderConfigure = Session => ClientRequestBuilder => Validation[ClientRequestBuilder]
-
-  val ConfigureIdentity: RequestBuilderConfigure = _ => _.success
-
   private def mergeCaseInsensitive[T](left: Map[CharSequence, T], right: Map[CharSequence, T]): Map[CharSequence, T] =
     right.foldLeft(left) { case (acc, (key, value)) =>
       val targetKey = acc.keySet.find(_.toString.equalsIgnoreCase(key.toString)).getOrElse(key)
@@ -72,8 +68,6 @@ abstract class RequestExpressionBuilder(
     }
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
-  private val signatureCalculatorExpression: Option[(Request, Session) => Validation[_]] =
-    commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
   private val baseUrl: Session => Option[String] = protocolBaseUrl
 
@@ -132,10 +126,9 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val proxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
-
+  private val maybeProxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
   private def configureProxy(requestBuilder: ClientRequestBuilder): Unit =
-    proxy.foreach { proxy =>
+    maybeProxy.foreach { proxy =>
       if (!httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
         requestBuilder.setProxyServer(proxy)
       }
@@ -148,109 +141,78 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val configureVirtualHost: RequestBuilderConfigure =
-    commonAttributes.virtualHost.orElse(httpProtocol.enginePart.virtualHost) match {
-      case Some(virtualHost) => configureVirtualHost0(virtualHost)
-      case _                 => ConfigureIdentity
+  private val maybeVirtualHost = commonAttributes.virtualHost.orElse(httpProtocol.enginePart.virtualHost)
+  private def configureVirtualHost(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+    maybeVirtualHost match {
+      case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
+      case _                 => Validation.unit
     }
 
-  private def configureVirtualHost0(virtualHost: Expression[String]): RequestBuilderConfigure =
-    session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
-
-  private def addDefaultHeaders(session: Session)(requestBuilder: ClientRequestBuilder): ClientRequestBuilder = {
-    if (httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined) {
-      RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
+  private val isAddRefererHeader = httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined
+  private def addRefererHeader(session: Session, requestBuilder: ClientRequestBuilder): Unit =
+    if (isAddRefererHeader) {
+      RefererHandling.getStoredReferer(session).foreach(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
     }
-    requestBuilder
+
+  private val (staticHeaders, dynamicHeaders) = headers.toArray.partitionMap {
+    case (key, StaticValueExpression(value)) => Left(key -> value)
+    case other                               => Right(other)
   }
-
-  private val configureHeaders: RequestBuilderConfigure =
-    if (headers.isEmpty)
-      session => addDefaultHeaders(session)(_).success
-    else {
-      val staticHeaders = headers.collect { case (key, StaticValueExpression(value)) => key -> value }
-
-      if (staticHeaders.sizeIs == headers.size)
-        configureStaticHeaders(staticHeaders)
-      else
-        configureDynamicHeaders
-    }
-
-  private def configureStaticHeaders(staticHeaders: Iterable[(CharSequence, String)]): RequestBuilderConfigure = {
-    val addHeaders: ClientRequestBuilder => Validation[ClientRequestBuilder] = requestBuilder => {
-      staticHeaders.foreach { case (key, value) => requestBuilder.addHeader(key, value) }
-      requestBuilder.success
-    }
-    session => requestBuilder => addHeaders(requestBuilder).map(addDefaultHeaders(session))
-  }
-
-  private def configureDynamicHeaders: RequestBuilderConfigure =
-    session =>
-      requestBuilder => {
-        val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
-          val (key, value) = header
-          for {
-            requestBuilder <- requestBuilder
-            value <- value(session)
-          } yield requestBuilder.addHeader(key, value)
-        }
-
-        requestBuilderWithHeaders.map(addDefaultHeaders(session))
+  private def configureHeaders(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] = {
+    staticHeaders.foreach { case (key, value) => requestBuilder.addHeader(key, value) }
+    addRefererHeader(session, requestBuilder)
+    if (dynamicHeaders.isEmpty) {
+      Validation.unit
+    } else {
+      dynamicHeaders.foldLeft(requestBuilder.success) { case (requestBuilder, (key, value)) =>
+        for {
+          rb <- requestBuilder
+          value <- value(session)
+        } yield rb.addHeader(key, value)
       }
+    }
+  }
 
-  private val configureRealm: RequestBuilderConfigure =
-    commonAttributes.realm.orElse(httpProtocol.requestPart.realm) match {
+  private val maybeRealm = commonAttributes.realm.orElse(httpProtocol.requestPart.realm)
+  private def configureRealm(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+    maybeRealm match {
       case Some(realm) =>
-        session =>
-          requestBuilder =>
-            realm(session).map {
-              case digestRealm: DigestRealm =>
-                requestBuilder.setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
-              case other => requestBuilder.setRealm(other)
-            }
-      case _ => ConfigureIdentity
+        realm(session).map {
+          case digestRealm: DigestRealm =>
+            requestBuilder.setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
+          case other => requestBuilder.setRealm(other)
+        }
+      case _ => Validation.unit
     }
 
+  private val hasIpV4Addresses = httpProtocol.enginePart.localIpV4Addresses.nonEmpty
+  private val hasIpV6Addresses = httpProtocol.enginePart.localIpV6Addresses.nonEmpty
   private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit = {
-    if (httpProtocol.enginePart.localIpV4Addresses.nonEmpty) {
+    if (hasIpV4Addresses) {
       LocalAddressSupport.localIpV4Address(session).foreach(requestBuilder.setLocalIpV4Address)
     }
-    if (httpProtocol.enginePart.localIpV6Addresses.nonEmpty) {
+    if (hasIpV6Addresses) {
       LocalAddressSupport.localIpV6Address(session).foreach(requestBuilder.setLocalIpV6Address)
     }
   }
 
-  private val configureSignatureCalculator: RequestBuilderConfigure =
-    signatureCalculatorExpression match {
+  private val maybeSignatureCalculator: Option[(Request, Session) => Validation[_]] =
+    commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
+  private def configureSignatureCalculator(session: Session, requestBuilder: ClientRequestBuilder): Unit =
+    maybeSignatureCalculator match {
       case Some(signatureCalculator) =>
-        session =>
-          requestBuilder =>
-            requestBuilder.setSignatureCalculator { request =>
-              signatureCalculator(request, session) match {
-                case Failure(message) => throw new IllegalArgumentException(s"Failed to compute signature: $message")
-                case _                =>
-              }
-            }.success
-
-      case _ => ConfigureIdentity
+        requestBuilder.setSignatureCalculator { request =>
+          signatureCalculator(request, session) match {
+            case Failure(message) => throw new IllegalArgumentException(s"Failed to compute signature: $message")
+            case _                =>
+          }
+        }
+      case _ =>
     }
 
   protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit
 
-  protected def configureRequestBuilderForProtocol: RequestBuilderConfigure
-
-  private def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
-    configureProxy(requestBuilder)
-    configureRequestTimeout(requestBuilder)
-    configureCookies(session, requestBuilder)
-    configureLocalAddress(session, requestBuilder)
-
-    configureVirtualHost(session)(requestBuilder)
-      .flatMap(configureHeaders(session))
-      .flatMap(configureRealm(session))
-      .flatMap(configureSignatureCalculator(session))
-      .flatMap(configureRequestBuilderForProtocol(session))
-  }
+  protected def configureRequestBuilderForProtocol(session: Session, requestBuilder: ClientRequestBuilder): Validation[_]
 
   def build: Expression[Request] =
     session =>
@@ -259,10 +221,24 @@ abstract class RequestExpressionBuilder(
           uri <- buildURI(session)
           requestName <- commonAttributes.requestName(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
-          requestBuilder = new ClientRequestBuilder(requestName, commonAttributes.method, uri, nameResolver)
-            .setDefaultCharset(charset)
-            .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
-          rb <- configureRequestBuilder(session, requestBuilder)
-        } yield rb.build
+
+          requestBuilder = {
+            val rb = new ClientRequestBuilder(requestName, commonAttributes.method, uri, nameResolver)
+              .setDefaultCharset(charset)
+              .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
+
+            configureProxy(rb)
+            configureRequestTimeout(rb)
+            configureCookies(session, rb)
+            configureLocalAddress(session, rb)
+            configureSignatureCalculator(session, rb)
+            rb
+          }
+
+          _ <- configureVirtualHost(session, requestBuilder)
+          _ <- configureHeaders(session, requestBuilder)
+          _ <- configureRealm(session, requestBuilder)
+          _ <- configureRequestBuilderForProtocol(session, requestBuilder)
+        } yield requestBuilder.build
       }
 }

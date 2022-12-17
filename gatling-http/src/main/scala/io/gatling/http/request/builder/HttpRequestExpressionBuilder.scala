@@ -26,6 +26,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.client.{ Param, Request, RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.body.RequestBodyBuilder
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
 import io.gatling.http.client.body.file.FileRequestBodyBuilder
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
@@ -59,7 +60,6 @@ class HttpRequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
-  import RequestExpressionBuilder._
 
   private def mergeFormParamsAndFormIntoParamJList(
       params: List[HttpParam],
@@ -92,75 +92,70 @@ class HttpRequestExpressionBuilder(
     }
   }
 
-  private def configureMultipartFormData(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
+  private def configureMultipartFormData(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     for {
       params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
       stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null, null))
       parts <- HttpRequestExpressionBuilder.bodyPartsToMultiparts(httpAttributes.bodyParts, session)
     } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((stringParts ++ parts).asJava))
 
-  private def configureFormUrlEncoded(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
+  private def configureFormUrlEncoded(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     for {
       params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
     } yield requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
 
-  private def setBody(session: Session, requestBuilder: ClientRequestBuilder, body: Body): Validation[ClientRequestBuilder] =
-    body match {
-      case StringBody(string, _) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
+  private val maybeRequestBodyBuilderExpression: Option[Expression[RequestBodyBuilder]] =
+    httpAttributes.body.map {
+      case StringBody(string, _) => string(_).map(new StringRequestBodyBuilder(_))
       case RawFileBody(resourceWithCachedBytes) =>
-        resourceWithCachedBytes(session).map { case ResourceAndCachedBytes(resource, cachedBytes) =>
-          val requestBodyBuilder = cachedBytes match {
+        resourceWithCachedBytes(_).map { case ResourceAndCachedBytes(resource, cachedBytes) =>
+          cachedBytes match {
             case Some(bytes) => new ByteArrayRequestBodyBuilder(bytes, resource.name)
             case _           => new FileRequestBodyBuilder(resource.file)
           }
-          requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
-      case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b, null)))
-      case body: ElBody => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
-      case InputStreamBody(is) => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
+      case ByteArrayBody(bytes) => bytes(_).map(new ByteArrayRequestBodyBuilder(_, null))
+      case body: ElBody         => body.asStringWithCachedBytes(_).map(chunks => new StringChunksRequestBodyBuilder(chunks.asJava))
+      case InputStreamBody(is)  => is(_).map(new InputStreamRequestBodyBuilder(_))
     }
 
-  private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
+  private val hasParts = httpAttributes.bodyParts.nonEmpty
+  private val hasForm = httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty
+  private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] = {
     require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-    httpAttributes.body match {
-      case Some(body) =>
-        setBody(session, requestBuilder, body)
+    maybeRequestBodyBuilderExpression match {
+      case Some(requestBodyBuilderExpression) =>
+        requestBodyBuilderExpression(session).map(requestBuilder.setBodyBuilder)
       case _ =>
-        val hasParts = httpAttributes.bodyParts.nonEmpty
-        val hasForm = httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty
-        val hadExplicitFormDataContentType = HttpHelper.isMultipartFormData(requestBuilder.getContentType)
-
-        if (hasParts || (hasForm && hadExplicitFormDataContentType)) {
+        if (hasParts || (hasForm && HttpHelper.isMultipartFormData(requestBuilder.getContentType))) {
           configureMultipartFormData(session, requestBuilder)
         } else if (hasForm) {
           configureFormUrlEncoded(session, requestBuilder)
         } else {
-          requestBuilder.success
+          Validation.unit
         }
     }
   }
 
-  private val configurePriorKnowledge: RequestBuilderConfigure =
-    if (httpProtocol.enginePart.enableHttp2) { session => requestBuilder =>
+  private val enableHttp2 = httpProtocol.enginePart.enableHttp2
+  private def configurePriorKnowledge(session: Session, requestBuilder: ClientRequestBuilder): Unit =
+    if (enableHttp2) {
       val http2PriorKnowledge = Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
       requestBuilder
         .setHttp2Enabled(true)
         .setAlpnRequired(http2PriorKnowledge.forall(_ == true)) // ALPN is necessary only if we know that this remote is using HTTP/2 or if we still don't know
         .setHttp2PriorKnowledge(http2PriorKnowledge.contains(true))
-        .success
-    } else {
-      ConfigureIdentity
     }
 
+  private val requestTimeout = httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis
   override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
-    requestBuilder.setRequestTimeout(httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis)
+    requestBuilder.setRequestTimeout(requestTimeout)
 
-  override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure =
-    session =>
-      requestBuilder =>
-        configureBody(session, requestBuilder)
-          .flatMap(configurePriorKnowledge(session))
+  override protected def configureRequestBuilderForProtocol(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+    for {
+      _ <- configureBody(session, requestBuilder)
+    } yield configurePriorKnowledge(session, requestBuilder)
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
     httpCaches.contentCacheEntry(session, request).foreach { case ContentCacheEntry(_, etag, lastModified) =>

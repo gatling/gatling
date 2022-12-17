@@ -70,8 +70,8 @@ private[http] object LocalAddressSupport {
     }
   }
 
-  val localIpV4Address: Session => Option[InetAddress] =
-    _.attributes.get(LocalIpV4AddressAttributeName).map(_.asInstanceOf[InetAddress])
-  val localIpV6Address: Session => Option[InetAddress] =
-    _.attributes.get(LocalIpV6AddressAttributeName).map(_.asInstanceOf[InetAddress])
+  def localIpV4Address(session: Session): Option[InetAddress] =
+    session.attributes.get(LocalIpV4AddressAttributeName).map(_.asInstanceOf[InetAddress])
+  def localIpV6Address(session: Session): Option[InetAddress] =
+    session.attributes.get(LocalIpV6AddressAttributeName).map(_.asInstanceOf[InetAddress])
 }
