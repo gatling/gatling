@@ -46,7 +46,7 @@ class WsRequestExpressionBuilder(
   override protected def configureRequestTimeout(requestBuilder: RequestBuilder): Unit =
     requestBuilder.setRequestTimeout(requestTimeout)
 
-  override protected def configureRequestBuilderForProtocol(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+  override protected def configureProtocolSpecific(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     subprotocol match {
       case Some(sub) => sub(session).map(requestBuilder.setWsSubprotocol)
       case _         => Validation.unit

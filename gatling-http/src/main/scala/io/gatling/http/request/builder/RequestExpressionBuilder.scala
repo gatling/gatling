@@ -148,19 +148,16 @@ abstract class RequestExpressionBuilder(
       case _                 => Validation.unit
     }
 
-  private val isAddRefererHeader = httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined
-  private def addRefererHeader(session: Session, requestBuilder: ClientRequestBuilder): Unit =
-    if (isAddRefererHeader) {
-      RefererHandling.getStoredReferer(session).foreach(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
-    }
-
+  private val addRefererHeader = httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined
   private val (staticHeaders, dynamicHeaders) = headers.toArray.partitionMap {
     case (key, StaticValueExpression(value)) => Left(key -> value)
     case other                               => Right(other)
   }
   private def configureHeaders(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] = {
     staticHeaders.foreach { case (key, value) => requestBuilder.addHeader(key, value) }
-    addRefererHeader(session, requestBuilder)
+    if (addRefererHeader) {
+      RefererHandling.getStoredReferer(session).foreach(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
+    }
     if (dynamicHeaders.isEmpty) {
       Validation.unit
     } else {
@@ -212,7 +209,7 @@ abstract class RequestExpressionBuilder(
 
   protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit
 
-  protected def configureRequestBuilderForProtocol(session: Session, requestBuilder: ClientRequestBuilder): Validation[_]
+  protected def configureProtocolSpecific(session: Session, requestBuilder: ClientRequestBuilder): Validation[_]
 
   def build: Expression[Request] =
     session =>
@@ -238,7 +235,7 @@ abstract class RequestExpressionBuilder(
           _ <- configureVirtualHost(session, requestBuilder)
           _ <- configureHeaders(session, requestBuilder)
           _ <- configureRealm(session, requestBuilder)
-          _ <- configureRequestBuilderForProtocol(session, requestBuilder)
+          _ <- configureProtocolSpecific(session, requestBuilder)
         } yield requestBuilder.build
       }
 }

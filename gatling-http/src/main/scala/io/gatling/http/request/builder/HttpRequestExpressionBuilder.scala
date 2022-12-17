@@ -152,7 +152,7 @@ class HttpRequestExpressionBuilder(
   override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
     requestBuilder.setRequestTimeout(requestTimeout)
 
-  override protected def configureRequestBuilderForProtocol(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+  override protected def configureProtocolSpecific(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     for {
       _ <- configureBody(session, requestBuilder)
     } yield configurePriorKnowledge(session, requestBuilder)
