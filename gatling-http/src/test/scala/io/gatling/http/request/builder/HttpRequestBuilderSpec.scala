@@ -48,14 +48,28 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   private val sessionBase = emptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder, httpProtocol: HttpProtocol = HttpProtocol(configuration)) = {
-    val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
+  private def httpRequestDef(
+      f: HttpRequestBuilder => HttpRequestBuilder,
+      httpProtocol: HttpProtocol = HttpProtocol(configuration),
+      urlOrURI: Either[Expression[String], Uri] = Right(Uri.create("http://gatling.io"))
+  ) = {
+    val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, urlOrURI)
     val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes.Empty))
     builder.build(httpCaches, httpProtocol, throttled = false, configuration)
   }
 
+  "urlEncoding" should "work when passing only a full url" in {
+    httpRequestDef(f = identity, urlOrURI = Left("https://postman-echo.com/get?foo=do da"))
+      .build(sessionBase)
+      .map { httpRequest =>
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
+        writableRequest.getRequest.uri
+      }
+      .succeeded shouldBe "/get?foo=do+da"
+  }
+
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
-    httpRequestDef(_.sign((request, session) => request.getHeaders.add("X-Token", "foo")))
+    httpRequestDef(_.sign((request, _) => request.getHeaders.add("X-Token", "foo")))
       .build(sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)

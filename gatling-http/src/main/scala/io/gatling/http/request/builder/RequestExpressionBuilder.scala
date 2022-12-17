@@ -16,6 +16,7 @@
 
 package io.gatling.http.request.builder
 
+import java.{ util => ju }
 import java.nio.charset.Charset
 
 import scala.jdk.CollectionConverters._
@@ -113,9 +114,10 @@ abstract class RequestExpressionBuilder(
     commonAttributes.urlOrURI match {
       case Left(StaticValueExpression(staticUrl)) if protocolBaseUrls.sizeIs <= 1 && queryParams.isEmpty =>
         if (isAbsoluteUrl(staticUrl)) {
-          Uri.create(staticUrl).expressionSuccess
+          UriEncoder.uriEncoder(fixUrlEncoding).encode(Uri.create(staticUrl), ju.Collections.emptyList()).expressionSuccess
         } else {
           val uriV = resolveRelativeAgainstBaseUrl(staticUrl, protocolBaseUrls.headOption)
+            .map(uri => UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, ju.Collections.emptyList()))
           _ => uriV
         }
 
@@ -128,7 +130,8 @@ abstract class RequestExpressionBuilder(
             resolvedQueryParams <- resolveParamJList(queryParams, session)
           } yield UriEncoder.uriEncoder(fixUrlEncoding).encode(absoluteUri, resolvedQueryParams)
 
-      case Right(uri) => uri.expressionSuccess
+      case Right(uri) =>
+        uri.expressionSuccess
     }
   }
 
