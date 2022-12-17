@@ -109,7 +109,7 @@ abstract class RequestExpressionBuilder(
     val queryParams = commonAttributes.queryParams
 
     commonAttributes.urlOrURI match {
-      case Left(StaticValueExpression(staticUrl)) if protocolBaseUrls.sizeIs <= 1 && queryParams.isEmpty =>
+      case Left(StaticValueExpression(staticUrl)) if (protocolBaseUrls.sizeIs <= 1 || isAbsoluteUrl(staticUrl)) && queryParams.isEmpty =>
         if (isAbsoluteUrl(staticUrl)) {
           UriEncoder.uriEncoder(fixUrlEncoding).encode(Uri.create(staticUrl), ju.Collections.emptyList()).expressionSuccess
         } else {
