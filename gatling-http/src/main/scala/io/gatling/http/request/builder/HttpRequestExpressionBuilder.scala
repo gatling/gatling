@@ -63,12 +63,12 @@ class HttpRequestExpressionBuilder(
 
   private def mergeFormParamsAndFormIntoParamJList(
       params: List[HttpParam],
-      formMaybe: Option[Expression[Map[String, Any]]],
+      maybeForm: Option[Expression[Map[String, Any]]],
       session: Session
   ): Validation[ju.List[Param]] = {
     val formParams = resolveParamJList(params, session)
 
-    formMaybe match {
+    maybeForm match {
       case Some(form) =>
         for {
           resolvedFormParams <- formParams
