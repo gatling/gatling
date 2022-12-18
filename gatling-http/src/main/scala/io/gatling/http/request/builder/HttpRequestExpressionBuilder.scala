@@ -155,19 +155,20 @@ class HttpRequestExpressionBuilder(
       _ <- configureBody(session, requestBuilder)
     } yield configurePriorKnowledge(session, requestBuilder)
 
-  private def configureCachingHeaders(session: Session, request: Request): Request = {
+  private def configureCachingHeaders(session: Session, request: Request): Unit =
     httpCaches.contentCacheEntry(session, request).foreach { case ContentCacheEntry(_, etag, lastModified) =>
       etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
       lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
     }
-    request
-  }
 
   // hack because we need the request with the final uri
   override def build: Expression[Request] = {
     val exp = super.build
     if (httpProtocol.requestPart.cache) { session =>
-      exp(session).map(configureCachingHeaders(session, _))
+      exp(session).map { request =>
+        configureCachingHeaders(session, request)
+        request
+      }
     } else {
       exp
     }
