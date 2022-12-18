@@ -29,12 +29,13 @@ final class HttpComponents(
     val httpTxExecutor: HttpTxExecutor
 ) extends ProtocolComponents {
   override lazy val onStart: Session => Session =
-    (SslContextSupport.setSslContexts(httpProtocol, httpEngine)
-      andThen httpCaches.setNameResolver(httpProtocol.dnsPart, httpEngine)
-      andThen LocalAddressSupport.setLocalAddresses(httpProtocol)
-      andThen BaseUrlSupport.setHttpBaseUrl(httpProtocol)
-      andThen BaseUrlSupport.setWsBaseUrl(httpProtocol)
-      andThen Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol))
+    SslContextSupport
+      .setSslContexts(httpProtocol, httpEngine)
+      .andThen(httpCaches.setNameResolver(httpProtocol.dnsPart, httpEngine))
+      .andThen(LocalAddressSupport.setLocalAddresses(httpProtocol))
+      .andThen(BaseUrlSupport.setHttpBaseUrl(httpProtocol))
+      .andThen(BaseUrlSupport.setWsBaseUrl(httpProtocol))
+      .andThen(Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol))
 
   override lazy val onExit: Session => Unit =
     session => {
