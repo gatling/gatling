@@ -60,6 +60,7 @@ class HttpRequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
+  require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
   private def mergeFormParamsAndFormIntoParamJList(
       params: List[HttpParam],
@@ -121,9 +122,7 @@ class HttpRequestExpressionBuilder(
 
   private val hasParts = httpAttributes.bodyParts.nonEmpty
   private val hasForm = httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty
-  private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] = {
-    require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
-
+  private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     maybeRequestBodyBuilderExpression match {
       case Some(requestBodyBuilderExpression) =>
         requestBodyBuilderExpression(session).map(requestBuilder.setBodyBuilder)
@@ -136,7 +135,6 @@ class HttpRequestExpressionBuilder(
           Validation.unit
         }
     }
-  }
 
   private val enableHttp2 = httpProtocol.enginePart.enableHttp2
   private def configurePriorKnowledge(session: Session, requestBuilder: ClientRequestBuilder): Unit =
