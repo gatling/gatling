@@ -41,7 +41,7 @@ import io.gatling.http.util.HttpHelper
 import io.netty.handler.codec.http.HttpHeaderNames
 
 object HttpRequestExpressionBuilder {
-  private val bodyPartsToMultipartsZero = List.empty[Part[_]].success
+  private val bodyPartsToMultipartsZero: Validation[List[Part[_]]] = Nil.success
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private def bodyPartsToMultiparts(bodyParts: List[BodyPart], session: Session): Validation[List[Part[_]]] =

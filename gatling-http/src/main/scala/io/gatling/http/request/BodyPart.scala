@@ -176,9 +176,7 @@ final case class BodyPartAttributes(
     contentId: Option[Expression[String]],
     transferEncoding: Option[String],
     customHeaders: List[(Expression[String], Expression[String])]
-) {
-  lazy val customHeadersExpression: Expression[Seq[(String, String)]] = expressionSeq2SeqExpression(customHeaders)
-}
+)
 
 final case class BodyPart(
     name: Option[Expression[String]],
@@ -208,6 +206,7 @@ final case class BodyPart(
 
   def header(name: Expression[String], value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders)(_ ::: List(name -> value))
 
+  private lazy val customHeadersExpression: Expression[Seq[(String, String)]] = expressionSeq2SeqExpression(attributes.customHeaders)
   def toMultiPart(session: Session): Validation[Part[_]] =
     for {
       name <- resolveOptionalExpression(name, session)
@@ -215,7 +214,7 @@ final case class BodyPart(
       dispositionType <- resolveOptionalExpression(attributes.dispositionType, session)
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
-      customHeaders <- attributes.customHeadersExpression(session)
+      customHeaders <- customHeadersExpression(session)
       customHeadersAsParams =
         if (customHeaders.nonEmpty) {
           val params = new ju.ArrayList[Param](customHeaders.size)
