@@ -407,9 +407,9 @@ public final class Session {
   }
 
   /**
-   * Provide the name of the scenario of the virtual user
+   * Provide the list of groups at the current position for the virtual user
    *
-   * @return the virtual user's scenario name
+   * @return the list of groups, from shallowest to deepest
    */
   public List<String> groups() {
     return Sessions.groups(this);
