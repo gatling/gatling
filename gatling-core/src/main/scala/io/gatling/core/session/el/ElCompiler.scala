@@ -236,11 +236,11 @@ final case class CurrentDateTimePart(format: DateTimeFormatter) extends ElPart[S
   def apply(session: Session): Validation[String] = format.format(ZonedDateTime.now()).success
 }
 
-case object RandomSecureUUID extends ElPart[UUID] {
-  def apply(session: Session): Validation[UUID] = UUID.randomUUID().success
+case object RandomSecureUUID extends ElPart[String] {
+  def apply(session: Session): Validation[String] = UUID.randomUUID().toString.success
 }
 
-case object RandomUUID extends ElPart[UUID] {
+case object RandomUUID extends ElPart[String] {
   private val Version4Mask = 2L << 62
   private val VariantMask = 2L << 62
 
@@ -257,7 +257,7 @@ case object RandomUUID extends ElPart[UUID] {
     new UUID(mostSigBits, leastSigBits)
   }
 
-  def apply(session: Session): Validation[UUID] = version4UUID().success
+  def apply(session: Session): Validation[String] = version4UUID().toString.success
 }
 
 case object RandomInt extends ElPart[Int] {

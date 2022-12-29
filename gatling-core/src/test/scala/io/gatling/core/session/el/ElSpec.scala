@@ -698,13 +698,13 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   }
 
   "randomUuid" should "generate uuid" in {
-    val randomUuid = "#{randomUuid()}".el[UUID]
-    randomUuid(emptySession).succeeded shouldBe a[UUID]
+    val randomUuid = "#{randomUuid()}".el[String]
+    UUID.fromString(randomUuid(emptySession).succeeded)
   }
 
   "randomSecureUuid" should "generate uuid" in {
-    val randomSecureUuid = "#{randomSecureUuid()}".el[UUID]
-    randomSecureUuid(emptySession).succeeded shouldBe a[UUID]
+    val randomSecureUuid = "#{randomSecureUuid()}".el[String]
+    UUID.fromString(randomSecureUuid(emptySession).succeeded)
   }
 
   "randomInt" should "generate random Int full range" in {
