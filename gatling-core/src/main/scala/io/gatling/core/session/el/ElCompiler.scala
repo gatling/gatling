@@ -246,14 +246,8 @@ case object RandomUUID extends ElPart[String] {
 
   def version4UUID(): UUID = {
     val rnd = ThreadLocalRandom.current()
-    var mostSigBits = rnd.nextLong()
-    var leastSigBits = rnd.nextLong()
-
-    mostSigBits &= ~0xf000L
-    mostSigBits |= Version4Mask
-
-    leastSigBits = (leastSigBits << 2) >>> 2
-    leastSigBits |= VariantMask
+    val mostSigBits = (rnd.nextLong() & ~0xf000L) | Version4Mask
+    val leastSigBits = ((rnd.nextLong() << 2) >>> 2) | VariantMask
     new UUID(mostSigBits, leastSigBits)
   }
 
