@@ -56,7 +56,7 @@ gatling.users.(<scenario>|allUsers).(active|waiting|done)"
 
 Please check your tool of choice's documentation, eg:
 * Prometheus' [Graphite Exporter](https://github.com/prometheus/graphite_exporter)
-* InfluxDB Telegraph's [Graphite input](https://docs.influxdata.com/telegraf/v1.20/data_formats/input/graphite/)
+* InfluxDB Telegraph's [Graphite input](https://docs.influxdata.com/telegraf/latest/data_formats/input/graphite/)
 
 {{< alert warning >}}
 As explained in [one of our blog posts](/2018/11/metrics-analysis-part-1-mean-standard-deviation/), Graphite and InfluxDB can't store distributions but only numbers. As a result, only one-second-resolution non-aggregated response time stats are correct.
