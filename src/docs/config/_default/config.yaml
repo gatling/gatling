@@ -79,3 +79,11 @@ module:
       target: assets/js/vendor/flexsearch
     - source: node_modules/@fortawesome/fontawesome-free/webfonts
       target: static/webfonts
+
+security:
+  enableInlineShortcodes: false
+  exec:
+    allow:
+      - ^babel$
+      - ^go$
+      - ^npx$
