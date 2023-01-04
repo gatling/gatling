@@ -22,6 +22,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 class ScalaBasicSimulation extends Simulation {
+
   val httpProtocol =
     http
       // Here is the root for all relative URLs
