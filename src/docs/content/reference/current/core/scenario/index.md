@@ -44,7 +44,7 @@ Those functions are executed in Gatling's shared threads, so you must absolutely
 {{< /alert >}}
 
 {{< alert warning >}}
-Remember that the [Gatling DSL components are merely definitions]({{< ref "../concepts#dsl" >}}). They have absolutely no effect when not chained with other DSL components. **Typically, you can't use them in functions.**
+Remember that the [Gatling DSL components are merely definitions]({{< ref "../concepts#dsl" >}}). They have absolutely no effect when not chained with other DSL components. **In particular, you can't use them in functions.**
 {{< /alert >}}
 
 {{< include-code "session-lambda-bad" java kt scala >}}
