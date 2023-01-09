@@ -22,7 +22,7 @@ object Dependencies {
   private val nettyHttp2                     = netty.withName("netty-codec-http2")
   private val nettyResolverNativeOsXX86      = netty.withName("netty-resolver-dns-native-macos") classifier "osx-x86_64"
   private val nettyResolverNativeOsXArm      = nettyResolverNativeOsXX86                                 classifier "osx-aarch_64"
-  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes"            % "2.0.54.Final"
+  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes"            % "2.0.55.Final"
   private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
   private val nettyTcNativeBoringSslLinuxX86 = nettyTcNativeBoringSsl  classifier "linux-x86_64"
   private val nettyTcNativeBoringSslLinuxArm = nettyTcNativeBoringSsl  classifier "linux-aarch_64"
