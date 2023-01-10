@@ -237,4 +237,50 @@ class OpenInjectionProfileSpec extends BaseSpec {
       1750.milliseconds
     )
   }
+
+  it should "properly chain incrementUsersPerSec and constantUsersPerSec" in {
+
+    val stairs = StairsUsersPerSecCompositeStep(
+      rateIncrement = 800,
+      levels = 5,
+      duration = 12.minutes,
+      startingRate = 0,
+      rampDuration = 1.minute
+    ).composite
+
+    val constant = ConstantRateOpenInjection(4000, 1.seconds)
+
+    val counts =
+      CompositeOpenInjectionStep(
+        stairs.steps ::: List(constant)
+      ).chain(Iterator.empty).foldLeft(Map.empty[FiniteDuration, Int]) { (acc, instant) =>
+        val seconds = instant.toSeconds.seconds
+        acc.updated(seconds, acc.getOrElse(seconds, 0) + 1)
+      }
+
+    // end of ramp 1
+    counts.get(1.minute) shouldBe Some(800)
+    // end of level 1
+    counts.get(13.minutes - 1.second) shouldBe Some(800)
+    // end of ramp 2
+    counts.get(14.minutes) shouldBe Some(1600)
+    // end of level 2
+    counts.get(26.minutes - 1.second) shouldBe Some(1600)
+    // end of ramp 3
+    counts.get(27.minutes) shouldBe Some(2400)
+    // end of level 3
+    counts.get(39.minutes - 1.second) shouldBe Some(2400)
+    // end of ramp 4
+    counts.get(40.minutes) shouldBe Some(3200)
+    // end of level 4
+    counts.get(52.minutes - 1.second) shouldBe Some(3200)
+    // end of ramp 5
+    counts.get(53.minutes) shouldBe Some(4000)
+    // end of level 5
+    counts.get(65.minutes - 1.second) shouldBe Some(4000)
+    // constant
+    counts.get(65.minutes) shouldBe Some(4000)
+    // done
+    counts.get(65.minutes + 1.seconds) shouldBe None
+  }
 }
