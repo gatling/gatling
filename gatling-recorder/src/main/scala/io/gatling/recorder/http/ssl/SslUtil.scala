@@ -40,6 +40,7 @@ import io.gatling.recorder.internal.bouncycastle.pkcs.jcajce.JcaPKCS10Certificat
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }
+import io.netty.handler.ssl.util.SelfSignedCertGenerator
 
 private[ssl] final case class Ca(cert: X509Certificate, privKey: PrivateKey)
 private[ssl] final case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey, hostname: String)
@@ -48,6 +49,9 @@ private[ssl] final case class Csr(cert: PKCS10CertificationRequest, privKey: Pri
  * Utility class to create SSL server certificate on the fly for the recorder keystore
  */
 private[recorder] object SslUtil extends StrictLogging {
+
+  Security.addProvider(SelfSignedCertGenerator.BcProvider)
+
   private[ssl] val TheSslProvider =
     if (OpenSsl.isAvailable) {
       logger.info("OpenSSL is not available on your architecture.")
@@ -56,7 +60,7 @@ private[recorder] object SslUtil extends StrictLogging {
       SslProvider.JDK
     }
 
-  Security.addProvider(new BouncyCastleProvider)
+  def generateSelfSignedCertificate(): (File, File) = SelfSignedCertGenerator.generate()
 
   def readPEM(file: InputStream): Any =
     Using.resource(new PEMParser(new InputStreamReader(file)))(_.readObject)

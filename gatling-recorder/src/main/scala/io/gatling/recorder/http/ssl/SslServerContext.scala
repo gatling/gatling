@@ -28,7 +28,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 
 import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.ssl.{ SslContext, SslContextBuilder }
-import io.netty.handler.ssl.util.{ InsecureTrustManagerFactory, SelfSignedCertificate }
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
 private[http] sealed trait SslServerContext {
   protected def context(alias: String): SslContext
@@ -61,15 +61,13 @@ private[recorder] object SslServerContext {
   }
 
   object SelfSignedCertificate extends SslServerContext {
+
     private lazy val context: SslContext = {
-      // make sure to load SslUtil that loads BouncyCastle BEFORE calling new SelfSignedCertificate
-      // some JSSE pieces were removed from Java 15 so we need BC
-      // see https://github.com/netty/netty/issues/10317
-      val sslProvider = SslUtil.TheSslProvider
-      val ssc = new SelfSignedCertificate
+      val (certificate, privateKey) = SslUtil.generateSelfSignedCertificate()
+
       SslContextBuilder
-        .forServer(ssc.certificate, ssc.privateKey)
-        .sslProvider(sslProvider)
+        .forServer(certificate, privateKey)
+        .sslProvider(SslUtil.TheSslProvider)
         .trustManager(InsecureTrustManagerFactory.INSTANCE)
         .build
     }
