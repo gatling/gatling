@@ -7,6 +7,17 @@ lastmod: 2022-12-14T21:30:56+02:00
 weight: 2050400
 ---
 
+## KeyManager and TrustManager
+
+By default, Gatling uses:
+* the JVM's default KeyManager
+* a fake TrustManager that trust everything. The reason is we want to work out of the box with any server certificate, even when it's issued from a custom Authority. Gatling is a load test tool, not your application managing sensible data to be protected against a man-in-the-middle.
+
+You can override this behavior, typically for forcing your own KeyStore because your server requires mutual TLS.
+You'll have to edit the `ssl` block in [`gatling.conf`](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf#L63-L74).
+
+Gatling accepts files in jks and p12 formats.
+
 ## SSLContext
 
 By default, each virtual user will have its own `SSLContext` and `SSLSession`.
