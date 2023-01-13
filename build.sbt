@@ -48,6 +48,7 @@ lazy val root = Project("gatling-parent", file("."))
     mqttJava,
     charts,
     graphite,
+    datadog,
     app,
     recorder,
     testFramework,
@@ -181,6 +182,11 @@ lazy val graphite = gatlingModule("gatling-graphite")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= graphiteDependencies)
 
+lazy val datadog = gatlingModule("gatling-datadog")
+  .disablePlugins(SbtSpotless)
+  .dependsOn(core % "compile->compile;test->test")
+  .settings(libraryDependencies ++= datadogDependencies)
+
 lazy val compiler = gatlingModule("gatling-compiler")
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
@@ -197,7 +203,7 @@ lazy val decoupledResponse = gatlingModule("gatling-decoupled-response")
 
 lazy val app = gatlingModule("gatling-app")
   .disablePlugins(SbtSpotless)
-  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, charts, decoupledResponse)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, datadog, charts, decoupledResponse)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)

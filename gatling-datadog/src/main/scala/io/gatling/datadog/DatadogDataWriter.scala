@@ -35,7 +35,9 @@ private[gatling] class DatadogDataWriter(
 ) extends DataWriter[DatadogData]
     with NameGen {
 
-  private val client = scaladog.Client()
+  private val client = scaladog.Client(
+    configuration.
+  )
 
   override def onInit(init: DataWriterMessage.Init): DatadogData =
     DatadogData.initialise(init)
