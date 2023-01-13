@@ -21,13 +21,13 @@ import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.core.stats.writer.{ DataWriterData, DataWriterMessage }
 
-case class ErrorLabels(instant: Instant)
+final case class ErrorLabels(instant: Instant)
 
-case class UserLabels(instant: Instant, scenario: String)
+final case class UserLabels(instant: Instant, scenario: String)
 
-case class ResponseLabels(instant: Instant, scenario: String, status: String)
+final case class ResponseLabels(instant: Instant, scenario: String, status: String)
 
-case class DatadogData(
+final case class DatadogData(
     simulation: String,
     run: String,
     startedUsers: ConcurrentHashMap[UserLabels, Int],

@@ -439,9 +439,9 @@ final class GraphiteDataWriterConfiguration(
 )
 
 final class DatadogDataWriterConfiguration(
-  val apiKey: String,
-  val appKey: String,
-  val site: String
+    val apiKey: String,
+    val appKey: String,
+    val site: String
 )
 
 final class GatlingConfiguration(
