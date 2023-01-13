@@ -34,5 +34,7 @@ private[structure] trait Errors[B] extends Execs[B] {
 
   def exitHereIfFailed: B = exec(ExitHereBuilder())
 
-  def stopInjector(message: Expression[String]): B = exec(new StopInjectorBuilder(message))
+  def stopInjector(message: Expression[String]): B = stopInjectorIf(message, TrueExpressionSuccess)
+
+  def stopInjectorIf(message: Expression[String], condition: Expression[Boolean]): B = exec(new StopInjectorBuilder(message, condition))
 }

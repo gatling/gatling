@@ -2632,6 +2632,29 @@ public final class CoreDsl {
     return ChainBuilder.EMPTY.stopInjector(message);
   }
 
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
+   * Errors#stopInjectorIf(Function, Function)}.
+   *
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder stopInjectorIf(
+      Function<Session, String> message, @Nonnull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
+   * Errors#stopInjectorIf(String, String)}.
+   *
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder stopInjectorIf(String message, @Nonnull String condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
   ////////// StructureBuilder.Groups
   /**
    * Bootstrap a new ChainBuilder with a group block, see {@link Groups#group(String)}.

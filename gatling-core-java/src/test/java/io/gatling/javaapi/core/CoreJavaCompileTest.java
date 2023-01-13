@@ -373,7 +373,10 @@ public class CoreJavaCompileTest extends Simulation {
           .exitHereIfFailed()
           // stopInjector
           .stopInjector("#{message}")
-          .stopInjector(session -> "message");
+          .stopInjector(session -> "message")
+          // stopInjectorIf
+          .stopInjectorIf("#{message}", "#{condition}")
+          .stopInjectorIf(session -> "message", session -> true);
 
   {
     registerPebbleExtensions((io.pebbletemplates.pebble.extension.Extension) null);

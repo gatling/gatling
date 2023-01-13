@@ -371,6 +371,11 @@ stopInjector("#{someErrorMessage}")
 stopInjector { session -> "someErrorMessage"}
 //#stopInjector
 
+//#stopInjectorIf
+stopInjectorIf("#{someErrorMessage}", "#{condition}")
+stopInjectorIf( { session -> "someErrorMessage"}, {session -> true })
+//#stopInjectorIf
+
 //#group
 group("foo").on(
   exec(http("name").get("/"))
