@@ -33,8 +33,10 @@ class StopInjector(message: Expression[String], condition: Expression[Boolean], 
       if (condition) {
         logger.error(s"Requested injector to stop: $msg")
         controller ! ControllerCommand.StopInjector
+      } else {
+        println("ELSE")
+        next ! session
       }
-      next ! session
     }
   }
 }

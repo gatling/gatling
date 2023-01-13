@@ -222,7 +222,7 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the injector
+   * Have the virtual user abruptly stop the injector if a condition is met
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition, expressed as a Gatling Expression Language String
@@ -234,7 +234,7 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the injector
+   * Have the virtual user abruptly stop the injector if a condition is met
    *
    * @param message the message, expressed as a function
    * @param condition the condition, expressed as a function
@@ -243,6 +243,30 @@ public interface Errors<
   @Nonnull
   default T stopInjectorIf(
       Function<Session, String> message, @Nonnull Function<Session, Boolean> condition) {
+    return ScalaStopInjectorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly stop the injector if a condition is met
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition, expressed as a function
+   * @return a new {@link StructureBuilder}
+   */
+  @Nonnull
+  default T stopInjectorIf(String message, @Nonnull Function<Session, Boolean> condition) {
+    return ScalaStopInjectorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly stop the injector if a condition is met
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @return a new {@link StructureBuilder}
+   */
+  @Nonnull
+  default T stopInjectorIf(Function<Session, String> message, @Nonnull String condition) {
     return ScalaStopInjectorIf.apply(this, message, condition);
   }
 }

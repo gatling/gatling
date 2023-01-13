@@ -38,4 +38,19 @@ object ScalaStopInjectorIf {
       condition: JavaExpression[jl.Boolean]
   ): T =
     context.make(_.stopInjectorIf(javaFunctionToExpression(message), javaBooleanFunctionToExpression(condition)))
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: Errors[T, W],
+      message: String,
+      condition: JavaExpression[jl.Boolean]
+  ): T =
+    context.make(_.stopInjectorIf(message.el, javaBooleanFunctionToExpression(condition)))
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: Errors[T, W],
+      message: JavaExpression[jl.String],
+      condition: String
+  ): T =
+    context.make(_.stopInjectorIf(javaFunctionToExpression(message), condition.el))
+
 }

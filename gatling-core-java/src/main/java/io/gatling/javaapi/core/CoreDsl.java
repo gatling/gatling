@@ -2633,9 +2633,11 @@ public final class CoreDsl {
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
    * Errors#stopInjectorIf(Function, Function)}.
    *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the stop injector, expressed as a function
    * @return a new ChainBuilder
    */
   @Nonnull
@@ -2645,13 +2647,45 @@ public final class CoreDsl {
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
    * Errors#stopInjectorIf(String, String)}.
    *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
+   *     Language String
    * @return a new ChainBuilder
    */
   @Nonnull
   public static ChainBuilder stopInjectorIf(String message, @Nonnull String condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(String, Function)}.
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the stop injector, expressed as a function
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder stopInjectorIf(
+      String message, @Nonnull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(Function, String)}.
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
+   *     Language String
+   * @return a new ChainBuilder
+   */
+  @Nonnull
+  public static ChainBuilder stopInjectorIf(
+      Function<Session, String> message, @Nonnull String condition) {
     return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
   }
 
