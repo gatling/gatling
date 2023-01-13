@@ -311,6 +311,11 @@ class CoreCompileTest extends Simulation {
     // stopInjector
     .stopInjector("#{message}")
     .stopInjector(session => "message")
+    // stopInjectorIf
+    .stopInjectorIf("#{message}", "#{condition}")
+    .stopInjectorIf(session => "message", session => true)
+    .stopInjectorIf("#{message}", session => true)
+    .stopInjectorIf(session => "message", "#{condition}");
 
   registerPebbleExtensions(null.asInstanceOf[io.pebbletemplates.pebble.extension.Extension])
   setUp(

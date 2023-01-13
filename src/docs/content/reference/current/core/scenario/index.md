@@ -313,7 +313,7 @@ Make the user exit the scenario from this point.
 
 Make the user exit the scenario from this point if the condition holds.
 
-In takes one single parameter:
+It takes one single parameter:
 * `condition`: can be a boolean, a Gatling EL String resolving a boolean or a function
 
 {{< include-code "exitHereIf" java kt scala >}}
@@ -328,10 +328,20 @@ Make the user exit the scenario from this point if it previously had an error.
 
 Make the user exit abruptly stop the injector.
 
-In takes one single parameter:
+It takes one single parameter:
 * `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log an ERROR message
 
 {{< include-code "stopInjector" java kt scala >}}
+
+#### `stopInjectorIf`
+
+Make the user exit abruptly stop the injector.
+
+It takes 2 parameters:
+* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log an ERROR message
+* `condition`: can be a boolean, a Gatling EL String resolving a boolean or a function
+
+{{< include-code "stopInjectorIf" java kt scala >}}
 
 ### Groups
 

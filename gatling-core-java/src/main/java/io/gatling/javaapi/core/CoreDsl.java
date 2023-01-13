@@ -2632,6 +2632,63 @@ public final class CoreDsl {
     return ChainBuilder.EMPTY.stopInjector(message);
   }
 
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(Function, Function)}.
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the stop injector, expressed as a function
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder stopInjectorIf(
+      Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(String, String)}.
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
+   *     Language String
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder stopInjectorIf(String message, @NonNull String condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(String, Function)}.
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the stop injector, expressed as a function
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder stopInjectorIf(
+      String message, @NonNull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
+   * Errors#stopInjectorIf(Function, String)}.
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
+   *     Language String
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder stopInjectorIf(
+      Function<Session, String> message, @NonNull String condition) {
+    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  }
+
   ////////// StructureBuilder.Groups
   /**
    * Bootstrap a new ChainBuilder with a group block, see {@link Groups#group(String)}.
