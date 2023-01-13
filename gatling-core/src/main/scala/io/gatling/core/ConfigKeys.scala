@@ -22,11 +22,16 @@ object ConfigKeys {
     val RunDescription = "gatling.core.runDescription"
     val Encoding = "gatling.core.encoding"
     val SimulationClass = "gatling.core.simulationClass"
-    val ElFileBodiesCacheMaxCapacity = "gatling.core.elFileBodiesCacheMaxCapacity"
-    val RawFileBodiesCacheMaxCapacity = "gatling.core.rawFileBodiesCacheMaxCapacity"
-    val RawFileBodiesInMemoryMaxSize = "gatling.core.rawFileBodiesInMemoryMaxSize"
-    val PebbleFileBodiesCacheMaxCapacity = "gatling.core.pebbleFileBodiesCacheMaxCapacity"
-    val FeederAdaptiveLoadModeThreshold = "gatling.core.feederAdaptiveLoadModeThreshold"
+    val ElFileBodiesCacheMaxCapacity =
+      "gatling.core.elFileBodiesCacheMaxCapacity"
+    val RawFileBodiesCacheMaxCapacity =
+      "gatling.core.rawFileBodiesCacheMaxCapacity"
+    val RawFileBodiesInMemoryMaxSize =
+      "gatling.core.rawFileBodiesInMemoryMaxSize"
+    val PebbleFileBodiesCacheMaxCapacity =
+      "gatling.core.pebbleFileBodiesCacheMaxCapacity"
+    val FeederAdaptiveLoadModeThreshold =
+      "gatling.core.feederAdaptiveLoadModeThreshold"
     val ShutdownTimeout = "gatling.core.shutdownTimeout"
 
     object extract {
@@ -63,7 +68,8 @@ object ConfigKeys {
     val UseNativeTransport = "gatling.netty.useNativeTransport"
     val UseIoUring = "gatling.netty.useIoUring"
     val Allocator = "gatling.netty.allocator"
-    val MaxThreadLocalCharBufferSize = "gatling.netty.maxThreadLocalCharBufferSize"
+    val MaxThreadLocalCharBufferSize =
+      "gatling.netty.maxThreadLocalCharBufferSize"
   }
 
   object ssl {
@@ -148,6 +154,12 @@ object ConfigKeys {
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WritePeriod = "gatling.data.graphite.writePeriod"
     }
+    object datadog {
+      val ApiKey = "gatling.data.datadog.apiKey"
+      val AppKey = "gatling.data.datadog.appKey"
+      val Site = "gatling.data.datadog.site"
+    }
+
     val EnableAnalytics = "gatling.data.enableAnalytics"
     val Launcher = "gatling.data.launcher"
     val BuildToolVersion = "gatling.data.buildToolVersion"
