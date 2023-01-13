@@ -23,11 +23,23 @@ import scala.collection.convert.ImplicitConversions.`map AsScalaConcurrentMap`
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent
-import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{ Error => EventError, Response, UserEnd, UserStart }
-import io.gatling.core.stats.writer.{ DataWriter, DataWriterMessage }
+import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{
+  Response,
+  UserEnd,
+  UserStart,
+  Error => EventError
+}
+import io.gatling.core.stats.writer.{DataWriter, DataWriterMessage}
 import io.gatling.core.util.NameGen
-import io.gatling.datadog.DatadogRequests.{ sendRequestLatencySeconds, sendTotalErrors, sendTotalFinishedUsers, sendTotalStartedUsers }
-import scaladog.api.metrics.{ MetricType, Point, Series }
+import io.gatling.datadog.DatadogRequests.{
+  sendRequestLatencySeconds,
+  sendTotalErrors,
+  sendTotalFinishedUsers,
+  sendTotalStartedUsers
+}
+import scaladog.Client
+import scaladog.api.DatadogSite
+import scaladog.api.metrics.{MetricType, Point, Series}
 
 private[gatling] class DatadogDataWriter(
     clock: Clock,
@@ -36,17 +48,31 @@ private[gatling] class DatadogDataWriter(
     with NameGen {
 
   private val client = scaladog.Client(
-    configuration.
+    configuration.data.datadog.apiKey,
+    configuration.data.datadog.appKey,
+    DatadogSite.withName(configuration.data.datadog.site)
   )
 
   override def onInit(init: DataWriterMessage.Init): DatadogData =
     DatadogData.initialise(init)
 
   override def onFlush(data: DatadogData): Unit = {
-    sendTotalStartedUsers(data.simulation, data.startedUsers.toList)
-    sendTotalFinishedUsers(data.simulation, data.finishedUsers.toList)
-    sendTotalErrors(data.simulation, data.errorCounter.toList)
-    sendRequestLatencySeconds(data.simulation, data.requestLatency.toList)
+    sendTotalStartedUsers(
+      client: Client,
+      data.simulation,
+      data.startedUsers.toList
+    )
+    sendTotalFinishedUsers(
+      client: Client,
+      data.simulation,
+      data.finishedUsers.toList
+    )
+    sendTotalErrors(client: Client, data.simulation, data.errorCounter.toList)
+    sendRequestLatencySeconds(
+      client: Client,
+      data.simulation,
+      data.requestLatency.toList
+    )
   }
 
   override def onCrash(cause: String, data: DatadogData): Unit =
@@ -90,73 +116,72 @@ object DatadogRequests {
   val host = "somehost"
 
   def sendTotalStartedUsers(
+      client: Client,
       simulation: String,
       startedUsers: List[(UserLabels, Int)]
   ): Unit = {
     val groupedByScenario: Map[String, List[(UserLabels, Int)]] =
       startedUsers.groupBy(_._1.scenario)
-    groupedByScenario.foreachEntry { (scenario: String, users: List[(UserLabels, Int)]) =>
-      val points = users.map { case (labels: UserLabels, value: Int) =>
-        Point(labels.instant, BigDecimal.valueOf(value))
-      }
-      val response = scaladog
-        .Client()
-        .metrics
-        .postMetrics(
-          Seq(
-            Series(
-              metric = "total_started_users",
-              points = points,
-              host = host,
-              tags = Seq(s"simulation:$simulation,scenario:$scenario"),
-              metricType = MetricType.Count
+    groupedByScenario.foreachEntry {
+      (scenario: String, users: List[(UserLabels, Int)]) =>
+        val points = users.map { case (labels: UserLabels, value: Int) =>
+          Point(labels.instant, BigDecimal.valueOf(value))
+        }
+        val response = client.metrics
+          .postMetrics(
+            Seq(
+              Series(
+                metric = "total_started_users",
+                points = points,
+                host = host,
+                tags = Seq(s"simulation:$simulation,scenario:$scenario"),
+                metricType = MetricType.Count
+              )
             )
           )
-        )
-      response.status
-      ()
+        response.status
+        ()
     }
   }
 
   def sendTotalFinishedUsers(
+      client: Client,
       simulation: String,
       finishedUsers: List[(UserLabels, Int)]
   ): Unit = {
     val groupedByScenario: Map[String, List[(UserLabels, Int)]] =
       finishedUsers.groupBy(_._1.scenario)
-    groupedByScenario.foreachEntry { (scenario: String, users: List[(UserLabels, Int)]) =>
-      val points = users.map { case (labels: UserLabels, value: Int) =>
-        Point(labels.instant, BigDecimal.valueOf(value))
-      }
-      val response = scaladog
-        .Client()
-        .metrics
-        .postMetrics(
-          Seq(
-            Series(
-              metric = "total_finished_users",
-              points = points,
-              host = host,
-              tags = Seq(s"simulation:$simulation,scenario:$scenario"),
-              metricType = MetricType.Count
+    groupedByScenario.foreachEntry {
+      (scenario: String, users: List[(UserLabels, Int)]) =>
+        val points = users.map { case (labels: UserLabels, value: Int) =>
+          Point(labels.instant, BigDecimal.valueOf(value))
+        }
+        val response = client.metrics
+          .postMetrics(
+            Seq(
+              Series(
+                metric = "total_finished_users",
+                points = points,
+                host = host,
+                tags = Seq(s"simulation:$simulation,scenario:$scenario"),
+                metricType = MetricType.Count
+              )
             )
           )
-        )
-      response.status
-      ()
+        response.status
+        ()
     }
   }
 
   def sendTotalErrors(
+      client: Client,
       simulation: String,
       errors: List[(ErrorLabels, Int)]
   ): Unit = {
     val points = errors.map { case (labels: ErrorLabels, value: Int) =>
       Point(labels.instant, BigDecimal.valueOf(value))
     }
-    val response = scaladog
-      .Client()
-      .metrics
+    val response = client.metrics
       .postMetrics(
         Seq(
           Series(
@@ -173,37 +198,39 @@ object DatadogRequests {
   }
 
   def sendRequestLatencySeconds(
+      client: Client,
       simulation: String,
       requestLatency: List[(ResponseLabels, Double)]
   ): Unit = {
     val groupedByScenario: Map[String, List[(ResponseLabels, Double)]] =
       requestLatency.groupBy(_._1.scenario)
-    groupedByScenario.foreachEntry { (scenario: String, requests: List[(ResponseLabels, Double)]) =>
-      val groupedByStatus =
-        requests.groupBy(_._1.status)
-      groupedByStatus.foreachEntry { (status: String, users: List[(ResponseLabels, Double)]) =>
-        val points = users.map { case (labels: ResponseLabels, value: Double) =>
-          Point(labels.instant, BigDecimal.valueOf(value))
-        }
-        val response = scaladog
-          .Client()
-          .metrics
-          .postMetrics(
-            Seq(
-              Series(
-                metric = "request_latency_seconds",
-                points = points,
-                host = host,
-                tags = Seq(
-                  s"simulation:$simulation,scenario:$scenario,status$status"
-                ),
-                metricType = MetricType.Gauge
+    groupedByScenario.foreachEntry {
+      (scenario: String, requests: List[(ResponseLabels, Double)]) =>
+        val groupedByStatus =
+          requests.groupBy(_._1.status)
+        groupedByStatus.foreachEntry {
+          (status: String, users: List[(ResponseLabels, Double)]) =>
+            val points = users.map {
+              case (labels: ResponseLabels, value: Double) =>
+                Point(labels.instant, BigDecimal.valueOf(value))
+            }
+            val response = client.metrics
+              .postMetrics(
+                Seq(
+                  Series(
+                    metric = "request_latency_seconds",
+                    points = points,
+                    host = host,
+                    tags = Seq(
+                      s"simulation:$simulation,scenario:$scenario,status$status"
+                    ),
+                    metricType = MetricType.Gauge
+                  )
+                )
               )
-            )
-          )
-        response.status
-        ()
-      }
+            response.status
+            ()
+        }
     }
   }
 }
