@@ -26,9 +26,19 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.{DataWriter, DataWriterMessage}
 import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent
-import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{Response, UserEnd, UserStart, Error => EventError}
+import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{
+  Response,
+  UserEnd,
+  UserStart,
+  Error => EventError
+}
 import io.gatling.core.util.NameGen
-import io.gatling.datadog.DatadogRequests.{sendRequestLatencySeconds, sendTotalErrors, sendTotalFinishedUsers, sendTotalStartedUsers}
+import io.gatling.datadog.DatadogRequests.{
+  sendRequestLatencySeconds,
+  sendTotalErrors,
+  sendTotalFinishedUsers,
+  sendTotalStartedUsers
+}
 import scaladog.Client
 import scaladog.api.{DatadogSite, StatusResponse}
 import scaladog.api.metrics.{MetricType, Point, Series}
@@ -39,8 +49,7 @@ private[gatling] class DatadogDataWriter(
                                         ) extends DataWriter[DatadogData]
   with NameGen {
 
-  /**
-   * Datadog recommend instantiating a client for every thread writing to the API
+  /** Datadog recommend instantiating a client for every thread writing to the API
    */
   private def buildClient: Client =
     scaladog.Client(
@@ -235,8 +244,9 @@ object DatadogRequests {
             Seq(
               Series(
                 metric = metricName,
-                points = dataPoints.map { case (labels: ResponseLabels, value: BigDecimal) =>
-                  Point(labels.instant, value)
+                points = dataPoints.map {
+                  case (labels: ResponseLabels, value: BigDecimal) =>
+                    Point(labels.instant, value)
                 },
                 host = host,
                 tags = tags,
