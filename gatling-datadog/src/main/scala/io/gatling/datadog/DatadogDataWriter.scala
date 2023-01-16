@@ -19,7 +19,6 @@ package io.gatling.datadog
 import java.time.Instant
 
 import scala.collection.convert.ImplicitConversions.`map AsScalaConcurrentMap`
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import io.gatling.commons.util.Clock
