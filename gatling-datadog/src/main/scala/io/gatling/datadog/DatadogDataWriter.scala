@@ -20,6 +20,7 @@ import java.time.Instant
 
 import scala.collection.convert.ImplicitConversions.`map AsScalaConcurrentMap`
 import scala.concurrent.{ExecutionContext, Future, blocking}
+import scala.util.{Failure, Success}
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
@@ -81,10 +82,12 @@ private[gatling] class DatadogDataWriter(
     )
 
     val response = Future.sequence(requests)
-    response.onComplete { _ =>
-      logger.info("DatadogDataWriter: Flushed data")
+    response.onComplete {
+      case Success(_) =>
+        logger.info("DatadogDataWriter: Successfully flushed data")
+      case Failure(e) =>
+        logger.error(e.getMessage)
     }
-
   }
 
   override def onCrash(cause: String, data: DatadogData): Unit =
