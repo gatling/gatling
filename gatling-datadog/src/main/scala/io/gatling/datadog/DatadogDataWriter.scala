@@ -80,12 +80,15 @@ private[gatling] class DatadogDataWriter(
       data.requestLatency.asScala.toList
     )
 
-    val response = Future.sequence(requests)
-    response.onComplete {
-      case Success(_) =>
-        logger.info("DatadogDataWriter: Successfully flushed data")
-      case Failure(e) =>
-        logger.error(e.getMessage)
+    for {
+      response <- requests
+    } yield {
+      response.onComplete {
+        case Success(StatusResponse(status)) =>
+          logger.info(s"Flushed data to Datadog with response: $status")
+        case Failure(exception) =>
+          logger.error(s"Failed to flush data to Datadog with error: ${exception.getMessage}")
+      }
     }
   }
 
@@ -135,8 +138,6 @@ private[gatling] class DatadogDataWriter(
 }
 
 object DatadogRequests {
-  val host = "somehost"
-
   def sendTotalStartedUsers(
                              client: Client,
                              simulation: String,
@@ -248,7 +249,6 @@ object DatadogRequests {
                   case (labels: ResponseLabels, value: BigDecimal) =>
                     Point(labels.instant, value)
                 },
-                host = host,
                 tags = tags,
                 metricType = metricType
               )
