@@ -21,19 +21,18 @@ import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.core.stats.writer.{ DataWriterData, DataWriterMessage }
 
-final case class ErrorLabels(instant: Instant)
-
-final case class UserLabels(instant: Instant, scenario: String)
-
-final case class ResponseLabels(instant: Instant, scenario: String, status: String)
+trait DatadogLabels
+final case class ErrorLabels(instant: Instant) extends DatadogLabels
+final case class UserLabels(instant: Instant, scenario: String) extends DatadogLabels
+final case class ResponseLabels(instant: Instant, scenario: String, status: String) extends DatadogLabels
 
 final case class DatadogData(
     simulation: String,
     run: String,
-    startedUsers: ConcurrentHashMap[UserLabels, Int],
-    finishedUsers: ConcurrentHashMap[UserLabels, Int],
-    requestLatency: ConcurrentHashMap[ResponseLabels, Double],
-    errorCounter: ConcurrentHashMap[ErrorLabels, Int]
+    startedUsers: ConcurrentHashMap[UserLabels, BigDecimal],
+    finishedUsers: ConcurrentHashMap[UserLabels, BigDecimal],
+    requestLatency: ConcurrentHashMap[ResponseLabels, BigDecimal],
+    errorCounter: ConcurrentHashMap[ErrorLabels, BigDecimal]
 ) extends DataWriterData
 
 object DatadogData {
@@ -42,9 +41,9 @@ object DatadogData {
     DatadogData(
       simulation = init.runMessage.simulationId,
       run = init.runMessage.runId,
-      startedUsers = new ConcurrentHashMap[UserLabels, Int](),
-      finishedUsers = new ConcurrentHashMap[UserLabels, Int](),
-      requestLatency = new ConcurrentHashMap[ResponseLabels, Double](),
-      errorCounter = new ConcurrentHashMap[ErrorLabels, Int]()
+      startedUsers = new ConcurrentHashMap[UserLabels, BigDecimal](),
+      finishedUsers = new ConcurrentHashMap[UserLabels, BigDecimal](),
+      requestLatency = new ConcurrentHashMap[ResponseLabels, BigDecimal](),
+      errorCounter = new ConcurrentHashMap[ErrorLabels, BigDecimal]()
     )
 }
