@@ -18,46 +18,36 @@ package io.gatling.datadog
 
 import java.time.Instant
 
-import scala.collection.convert.ImplicitConversions.`map AsScalaConcurrentMap`
 import scala.concurrent.{ExecutionContext, Future, blocking}
+import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
 import scala.util.{Failure, Success}
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.{DataWriter, DataWriterMessage}
 import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent
-import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{
-  Response,
-  UserEnd,
-  UserStart,
-  Error => EventError
-}
+import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{Response, UserEnd, UserStart, Error => EventError}
 import io.gatling.core.util.NameGen
-import io.gatling.datadog.DatadogRequests.{
-  sendRequestLatencySeconds,
-  sendTotalErrors,
-  sendTotalFinishedUsers,
-  sendTotalStartedUsers
-}
+import io.gatling.datadog.DatadogRequests.{sendRequestLatencySeconds, sendTotalErrors, sendTotalFinishedUsers, sendTotalStartedUsers}
 import scaladog.Client
 import scaladog.api.{DatadogSite, StatusResponse}
 import scaladog.api.metrics.{MetricType, Point, Series}
 
 private[gatling] class DatadogDataWriter(
-    clock: Clock,
-    configuration: GatlingConfiguration
-) extends DataWriter[DatadogData]
-    with NameGen {
+                                          clock: Clock,
+                                          configuration: GatlingConfiguration
+                                        ) extends DataWriter[DatadogData]
+  with NameGen {
 
-  /** Datadog recommend instantiating a client for every thread writing to the API
-    */
-  private def buildClient: Client = {
+  /**
+   * Datadog recommend instantiating a client for every thread writing to the API
+   */
+  private def buildClient: Client =
     scaladog.Client(
       configuration.data.datadog.apiKey,
       configuration.data.datadog.appKey,
       DatadogSite.withName(configuration.data.datadog.site)
     )
-  }
 
   override def onInit(init: DataWriterMessage.Init): DatadogData =
     DatadogData.initialise(init)
@@ -66,19 +56,19 @@ private[gatling] class DatadogDataWriter(
     val requests = sendTotalStartedUsers(
       buildClient,
       data.simulation,
-      data.startedUsers.toList
+      data.startedUsers.asScala.toList
     ) ++ sendTotalFinishedUsers(
       buildClient,
       data.simulation,
-      data.finishedUsers.toList
+      data.finishedUsers.asScala.toList
     ) ++ sendTotalErrors(
       buildClient,
       data.simulation,
-      data.errorCounter.toList
+      data.errorCounter.asScala.toList
     ) ++ sendRequestLatencySeconds(
       buildClient,
       data.simulation,
-      data.requestLatency.toList
+      data.requestLatency.asScala.toList
     )
 
     val response = Future.sequence(requests)
@@ -139,12 +129,12 @@ object DatadogRequests {
   val host = "somehost"
 
   def sendTotalStartedUsers(
-      client: Client,
-      simulation: String,
-      startedUsers: List[(UserLabels, BigDecimal)]
-  )(implicit
-      ec: ExecutionContext
-  ): Seq[Future[StatusResponse]] = {
+                             client: Client,
+                             simulation: String,
+                             startedUsers: List[(UserLabels, BigDecimal)]
+                           )(implicit
+                             ec: ExecutionContext
+                           ): Seq[Future[StatusResponse]] = {
     val futures = for {
       (scenario, users) <- startedUsers.groupBy(_._1.scenario)
     } yield {
@@ -163,12 +153,12 @@ object DatadogRequests {
   }
 
   def sendTotalFinishedUsers(
-      client: Client,
-      simulation: String,
-      finishedUsers: List[(UserLabels, BigDecimal)]
-  )(implicit
-      ec: ExecutionContext
-  ): Seq[Future[StatusResponse]] = {
+                              client: Client,
+                              simulation: String,
+                              finishedUsers: List[(UserLabels, BigDecimal)]
+                            )(implicit
+                              ec: ExecutionContext
+                            ): Seq[Future[StatusResponse]] = {
     val futures = for {
       (scenario, users) <- finishedUsers.groupBy(_._1.scenario)
     } yield {
@@ -187,10 +177,10 @@ object DatadogRequests {
   }
 
   def sendTotalErrors(
-      client: Client,
-      simulation: String,
-      errors: List[(ErrorLabels, BigDecimal)]
-  )(implicit ec: ExecutionContext): Seq[Future[StatusResponse]] = {
+                       client: Client,
+                       simulation: String,
+                       errors: List[(ErrorLabels, BigDecimal)]
+                     )(implicit ec: ExecutionContext): Seq[Future[StatusResponse]] =
     Seq(
       send(
         client,
@@ -202,15 +192,14 @@ object DatadogRequests {
         )
       )
     )
-  }
 
   def sendRequestLatencySeconds(
-      client: Client,
-      simulation: String,
-      requestLatency: List[(ResponseLabels, BigDecimal)]
-  )(implicit
-      ec: ExecutionContext
-  ): Seq[Future[StatusResponse]] = {
+                                 client: Client,
+                                 simulation: String,
+                                 requestLatency: List[(ResponseLabels, BigDecimal)]
+                               )(implicit
+                                 ec: ExecutionContext
+                               ): Seq[Future[StatusResponse]] = {
     val futures = for {
       (scenario, requestsByScenario) <- requestLatency.groupBy(_._1.scenario)
       (status, requestsByScenarioAndStatus) <- requestsByScenario.groupBy(
@@ -233,12 +222,12 @@ object DatadogRequests {
   }
 
   def send(
-      client: Client,
-      metricName: String,
-      metricType: MetricType,
-      dataPoints: Seq[(DatadogLabels, BigDecimal)],
-      tags: Seq[String]
-  )(implicit ec: ExecutionContext): Future[StatusResponse] = {
+            client: Client,
+            metricName: String,
+            metricType: MetricType,
+            dataPoints: Seq[(DatadogLabels, BigDecimal)],
+            tags: Seq[String]
+          )(implicit ec: ExecutionContext): Future[StatusResponse] =
     Future {
       blocking {
         client.metrics
@@ -246,9 +235,8 @@ object DatadogRequests {
             Seq(
               Series(
                 metric = metricName,
-                points = dataPoints.map {
-                  case (labels: ResponseLabels, value: BigDecimal) =>
-                    Point(labels.instant, value)
+                points = dataPoints.map { case (labels: ResponseLabels, value: BigDecimal) =>
+                  Point(labels.instant, value)
                 },
                 host = host,
                 tags = tags,
@@ -258,5 +246,4 @@ object DatadogRequests {
           )
       }
     }
-  }
 }
