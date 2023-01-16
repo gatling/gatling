@@ -63,22 +63,29 @@ private[gatling] class DatadogDataWriter(
     DatadogData.initialise(init)
 
   override def onFlush(data: DatadogData): Unit = {
-    sendTotalStartedUsers(
+    val requests = sendTotalStartedUsers(
       buildClient,
       data.simulation,
       data.startedUsers.toList
-    )
-    sendTotalFinishedUsers(
+    ) ++ sendTotalFinishedUsers(
       buildClient,
       data.simulation,
       data.finishedUsers.toList
-    )
-    sendTotalErrors(buildClient, data.simulation, data.errorCounter.toList)
-    sendRequestLatencySeconds(
+    ) ++ sendTotalErrors(
+      buildClient,
+      data.simulation,
+      data.errorCounter.toList
+    ) ++ sendRequestLatencySeconds(
       buildClient,
       data.simulation,
       data.requestLatency.toList
     )
+
+    val response = Future.sequence(requests)
+    response.onComplete { _ =>
+      logger.info("DatadogDataWriter: Flushed data")
+    }
+
   }
 
   override def onCrash(cause: String, data: DatadogData): Unit =
@@ -135,8 +142,8 @@ object DatadogRequests {
       startedUsers: List[(UserLabels, BigDecimal)]
   )(implicit
       ec: ExecutionContext
-  ): immutable.Iterable[Future[StatusResponse]] = {
-    for {
+  ): Seq[Future[StatusResponse]] = {
+    val futures = for {
       (scenario, users) <- startedUsers.groupBy(_._1.scenario)
     } yield {
       send(
@@ -150,6 +157,7 @@ object DatadogRequests {
         )
       )
     }
+    futures.toSeq
   }
 
   def sendTotalFinishedUsers(
@@ -158,8 +166,8 @@ object DatadogRequests {
       finishedUsers: List[(UserLabels, BigDecimal)]
   )(implicit
       ec: ExecutionContext
-  ): immutable.Iterable[Future[StatusResponse]] = {
-    for {
+  ): Seq[Future[StatusResponse]] = {
+    val futures = for {
       (scenario, users) <- finishedUsers.groupBy(_._1.scenario)
     } yield {
       send(
@@ -173,20 +181,23 @@ object DatadogRequests {
         )
       )
     }
+    futures.toSeq
   }
 
   def sendTotalErrors(
       client: Client,
       simulation: String,
       errors: List[(ErrorLabels, BigDecimal)]
-  )(implicit ec: ExecutionContext): Future[StatusResponse] = {
-    send(
-      client,
-      "total_errors",
-      MetricType.Count,
-      errors,
-      Seq(
-        s"simulation:$simulation"
+  )(implicit ec: ExecutionContext): Seq[Future[StatusResponse]] = {
+    Seq(
+      send(
+        client,
+        "total_errors",
+        MetricType.Count,
+        errors,
+        Seq(
+          s"simulation:$simulation"
+        )
       )
     )
   }
@@ -197,8 +208,8 @@ object DatadogRequests {
       requestLatency: List[(ResponseLabels, BigDecimal)]
   )(implicit
       ec: ExecutionContext
-  ): immutable.Iterable[Future[StatusResponse]] = {
-    for {
+  ): Seq[Future[StatusResponse]] = {
+    val futures = for {
       (scenario, requestsByScenario) <- requestLatency.groupBy(_._1.scenario)
       (status, requestsByScenarioAndStatus) <- requestsByScenario.groupBy(
         _._1.status
@@ -216,6 +227,7 @@ object DatadogRequests {
         )
       )
     }
+    futures.toSeq
   }
 
   def send(
