@@ -47,7 +47,7 @@ object DataWritersStatsEngine {
         case DataWriterType.Console  => "io.gatling.core.stats.writer.ConsoleDataWriter"
         case DataWriterType.File     => "io.gatling.core.stats.writer.LogFileDataWriter"
         case DataWriterType.Graphite => "io.gatling.graphite.GraphiteDataWriter"
-        case DataWriterType.Datadog  => "io.gatling.graphite.DatadogDataWriter"
+        case DataWriterType.Datadog  => "io.gatling.datadog.DatadogDataWriter"
       }
       .map { className =>
         val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
