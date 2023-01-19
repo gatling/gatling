@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2023 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2022 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,21 @@ package io.gatling.datadog
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future, blocking}
+import scala.concurrent.{ blocking, ExecutionContext, Future }
 import scala.jdk.CollectionConverters.ConcurrentMapHasAsScala
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.writer.{DataWriter, DataWriterMessage}
+import io.gatling.core.stats.writer.{ DataWriter, DataWriterMessage }
 import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent
-import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{
-  Response,
-  UserEnd,
-  UserStart,
-  Error => EventError
-}
+import io.gatling.core.stats.writer.DataWriterMessage.LoadEvent.{ Error => EventError, Response, UserEnd, UserStart }
 import io.gatling.core.util.NameGen
-import io.gatling.datadog.DatadogRequests.{
-  sendRequestLatencySeconds,
-  sendTotalErrors,
-  sendTotalFinishedUsers,
-  sendTotalStartedUsers
-}
+import io.gatling.datadog.DatadogRequests.{ sendRequestLatencySeconds, sendTotalErrors, sendTotalFinishedUsers, sendTotalStartedUsers }
+
 import scaladog.Client
-import scaladog.api.{DatadogSite, StatusResponse}
-import scaladog.api.metrics.{MetricType, Point, Series}
+import scaladog.api.{ DatadogSite, StatusResponse }
+import scaladog.api.metrics.{ MetricType, Point, Series }
 
 private[gatling] class DatadogDataWriter(
                                           clock: Clock,
@@ -49,7 +40,8 @@ private[gatling] class DatadogDataWriter(
                                         ) extends DataWriter[DatadogData]
   with NameGen {
 
-  /** Datadog recommend instantiating a client for every thread writing to the API
+  /**
+   * Datadog recommend instantiating a client for every thread writing to the API
    */
   private def buildClient: Client =
     scaladog.Client(
@@ -58,10 +50,13 @@ private[gatling] class DatadogDataWriter(
       DatadogSite.withName(configuration.data.datadog.site)
     )
 
-  override def onInit(init: DataWriterMessage.Init): DatadogData =
+  override def onInit(init: DataWriterMessage.Init): DatadogData = {
+    logger.info(s"Initialising Datadog DataWriter for run: ${init.runMessage}")
     DatadogData.initialise(init)
+  }
 
   override def onFlush(data: DatadogData): Unit = {
+    logger.info(s"Flushing to Datadog")
     val requests = sendTotalStartedUsers(
       buildClient,
       data.simulation,
@@ -95,8 +90,10 @@ private[gatling] class DatadogDataWriter(
   override def onCrash(cause: String, data: DatadogData): Unit =
     logger.error(cause)
 
-  override def onStop(data: DatadogData): Unit =
+  override def onStop(data: DatadogData): Unit = {
+    logger.info(s"Received Stop message")
     onFlush(data)
+  }
 
   override def onMessage(message: LoadEvent, data: DatadogData): Unit =
     message match {
@@ -107,19 +104,24 @@ private[gatling] class DatadogDataWriter(
       case _                    => ()
     }
 
-  private def onUserStartMessage(user: UserStart, data: DatadogData): Unit =
+  private def onUserStartMessage(user: UserStart, data: DatadogData): Unit = {
+    logger.info(s"Received UserStart message")
     data.startedUsers.put(
       UserLabels(currentInstant, user.scenario),
       BigDecimal.valueOf(1)
     )
+  }
 
-  private def onUserEndMessage(user: UserEnd, data: DatadogData): Unit =
+  private def onUserEndMessage(user: UserEnd, data: DatadogData): Unit = {
+    logger.info(s"Received UserEnd message")
     data.finishedUsers.put(
       UserLabels(currentInstant, user.scenario),
       BigDecimal.valueOf(1)
     )
+  }
 
-  private def onResponseMessage(response: Response, data: DatadogData): Unit =
+  private def onResponseMessage(response: Response, data: DatadogData): Unit = {
+    logger.info(s"Received Response message")
     data.requestLatency.put(
       ResponseLabels(
         currentInstant,
@@ -130,9 +132,12 @@ private[gatling] class DatadogDataWriter(
         (response.endTimestamp - response.startTimestamp) / 1000d
       )
     )
+  }
 
-  private def onErrorMessage(error: EventError, data: DatadogData): Unit =
+  private def onErrorMessage(error: EventError, data: DatadogData): Unit = {
+    logger.info(s"Received EventError message")
     data.errorCounter.put(ErrorLabels(currentInstant), BigDecimal.valueOf(1))
+  }
 
   private def currentInstant = Instant.ofEpochMilli(clock.nowMillis)
 }
@@ -245,9 +250,8 @@ object DatadogRequests {
             Seq(
               Series(
                 metric = metricName,
-                points = dataPoints.map {
-                  case (labels: ResponseLabels, value: BigDecimal) =>
-                    Point(labels.instant, value)
+                points = dataPoints.map { case (labels: ResponseLabels, value: BigDecimal) =>
+                  Point(labels.instant, value)
                 },
                 tags = tags,
                 metricType = metricType
