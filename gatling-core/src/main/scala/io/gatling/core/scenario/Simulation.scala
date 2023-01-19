@@ -44,7 +44,7 @@ object Simulation {
     require(!_populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
 
     val rootPopulationBuilders = _populationBuilders
-    require(rootPopulationBuilders.nonEmpty, "No scenario set up")
+    require(rootPopulationBuilders.nonEmpty, "No scenario configured, make sure to call setUp.")
 
     val allPopulationBuilders = PopulationBuilder.flatten(rootPopulationBuilders)
 

@@ -36,7 +36,7 @@ import scala.Option;
  */
 public abstract class Simulation {
 
-  private List<PopulationBuilder> _populationBuilders;
+  private List<PopulationBuilder> _populationBuilders = new ArrayList<>();
   private Map<Class<? extends Protocol>, Protocol> _globalProtocols = new HashMap<>();
   private List<Assertion> _assertions = new ArrayList<>();
   private Duration _maxDuration;
@@ -71,7 +71,7 @@ public abstract class Simulation {
    */
   @Nonnull
   public SetUp setUp(@Nonnull List<PopulationBuilder> populationBuilders) {
-    if (_populationBuilders != null) {
+    if (!_populationBuilders.isEmpty()) {
       throw new UnsupportedOperationException("Can only call setUp once");
     }
     _populationBuilders = populationBuilders;
