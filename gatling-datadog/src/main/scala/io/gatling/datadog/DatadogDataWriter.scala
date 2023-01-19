@@ -81,6 +81,7 @@ private[gatling] class DatadogDataWriter(
       response.onComplete {
         case Success(StatusResponse(status)) =>
           logger.info(s"Flushed data to Datadog with response: $status")
+          data.flush()
         case Failure(exception) =>
           logger.error(s"Failed to flush data to Datadog with error: ${exception.getMessage}")
       }
@@ -110,6 +111,9 @@ private[gatling] class DatadogDataWriter(
       UserLabels(currentInstant, user.scenario),
       BigDecimal.valueOf(1)
     )
+    if (data.startedUsers.size() > 100) {
+      onFlush(data)
+    }
   }
 
   private def onUserEndMessage(user: UserEnd, data: DatadogData): Unit = {
@@ -118,6 +122,9 @@ private[gatling] class DatadogDataWriter(
       UserLabels(currentInstant, user.scenario),
       BigDecimal.valueOf(1)
     )
+    if (data.finishedUsers.size() > 100) {
+      onFlush(data)
+    }
   }
 
   private def onResponseMessage(response: Response, data: DatadogData): Unit = {
@@ -132,11 +139,17 @@ private[gatling] class DatadogDataWriter(
         (response.endTimestamp - response.startTimestamp) / 1000d
       )
     )
+    if (data.requestLatency.size() > 100) {
+      onFlush(data)
+    }
   }
 
   private def onErrorMessage(error: EventError, data: DatadogData): Unit = {
     logger.info(s"Received EventError message")
     data.errorCounter.put(ErrorLabels(currentInstant), BigDecimal.valueOf(1))
+    if (data.errorCounter.size() > 100) {
+      onFlush(data)
+    }
   }
 
   private def currentInstant = Instant.ofEpochMilli(clock.nowMillis)

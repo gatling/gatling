@@ -33,7 +33,14 @@ final case class DatadogData(
     finishedUsers: ConcurrentHashMap[UserLabels, BigDecimal],
     requestLatency: ConcurrentHashMap[ResponseLabels, BigDecimal],
     errorCounter: ConcurrentHashMap[ErrorLabels, BigDecimal]
-) extends DataWriterData
+) extends DataWriterData {
+  def flush(): Unit = {
+    startedUsers.clear()
+    finishedUsers.clear()
+    requestLatency.clear()
+    errorCounter.clear()
+  }
+}
 
 object DatadogData {
 
