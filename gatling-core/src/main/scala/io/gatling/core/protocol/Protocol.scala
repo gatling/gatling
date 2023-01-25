@@ -37,6 +37,7 @@ trait ProtocolKey[P, C] {
 }
 
 object ProtocolComponents {
+  val NoopOnStart: Session => Session = identity
   val NoopOnExit: Session => Unit = _ => ()
 }
 

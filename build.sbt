@@ -43,7 +43,7 @@ lazy val root = Project("gatling-parent", file("."))
     http,
     httpJava,
     jms,
-    jmsJava,
+    decoupledResponse,
     mqtt,
     mqttJava,
     charts,
@@ -73,7 +73,7 @@ lazy val docSamples = (project in file("src/docs"))
     kotlinVersion := "1.6.21"
   )
   .dependsOn(
-    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
+    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, decoupledResponse).map(
       _ % "compile->compile;test->test"
     ): _*
   )
@@ -172,7 +172,6 @@ lazy val jmsJava = gatlingModule("gatling-jms-java")
   .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val charts = gatlingModule("gatling-charts")
-  .disablePlugins(SbtSpotless)
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= chartsDependencies)
   .settings(chartTestsSettings)
@@ -192,9 +191,13 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .enablePlugins(JmhPlugin)
   .settings(libraryDependencies ++= benchmarkDependencies)
 
+lazy val decoupledResponse = gatlingModule("gatling-decoupled-response")
+  .dependsOn(core % "compile->compile;test->test", http % "compile->compile;test->test")
+  .settings(libraryDependencies ++= decoupledResponseDependencies)
+
 lazy val app = gatlingModule("gatling-app")
   .disablePlugins(SbtSpotless)
-  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, charts, decoupledResponse)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)
@@ -224,3 +227,5 @@ lazy val publicSamples = Project("gatling-samples", file("gatling-samples"))
   .settings(
     skipPublishing
   )
+
+dependencyOverrides += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1"
