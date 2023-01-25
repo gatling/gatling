@@ -452,6 +452,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       """.*\.woff2""",
       """.*\.(t|o)tf""",
       """.*\.png""",
+      """.*\.svg""",
       """.*detectportal\.firefox\.com.*"""
     ).foreach(denyListTable.addRow)
 
