@@ -1,6 +1,7 @@
 import sbt._
 
 object Dependencies {
+
   // Compile dependencies
 
   // format: OFF
@@ -8,7 +9,7 @@ object Dependencies {
   private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
-  private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.1.1"
+  private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "1.1.2"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.84.Final"
   private val nettyBuffer                    = netty.withName("netty-buffer")
   private val nettyHandler                   = netty.withName("netty-handler")
@@ -124,6 +125,7 @@ object Dependencies {
 
 
   // format: ON
+
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
     scalaTest,
@@ -203,8 +205,6 @@ object Dependencies {
     brotli4cOsXArm,
     brotli4jWindows,
     junit,
-    junitEngine,
-    jupiterInterface,
     jetty,
     jettyProxy
   ) ++ loggingDeps
