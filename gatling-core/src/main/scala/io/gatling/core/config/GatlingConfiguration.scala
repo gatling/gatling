@@ -263,6 +263,13 @@ object GatlingConfiguration extends StrictLogging {
         bufferSize = config.getInt(data.graphite.BufferSize),
         writePeriod = config.getInt(data.graphite.WritePeriod).seconds
       ),
+      datadog = new DatadogDataWriterConfiguration(
+        apiKey = config.getString(data.datadog.ApiKey),
+        appKey = config.getString(data.datadog.AppKey),
+        site = config.getString(data.datadog.Site),
+        bufferSize = config.getInt(data.datadog.BufferSize),
+        writePeriod = config.getInt(data.datadog.WritePeriod).seconds
+      ),
       enableAnalytics = config.getBoolean(data.EnableAnalytics),
       launcher = config.getStringOption(data.Launcher),
       buildToolVersion = config.getStringOption(data.BuildToolVersion)
@@ -402,6 +409,7 @@ final class DataConfiguration(
     val leak: LeakDataWriterConfiguration,
     val console: ConsoleDataWriterConfiguration,
     val graphite: GraphiteDataWriterConfiguration,
+    val datadog: DatadogDataWriterConfiguration,
     val enableAnalytics: Boolean,
     val launcher: Option[String],
     val buildToolVersion: Option[String]
@@ -428,6 +436,14 @@ final class GraphiteDataWriterConfiguration(
     val port: Int,
     val protocol: TransportProtocol,
     val rootPathPrefix: String,
+    val bufferSize: Int,
+    val writePeriod: FiniteDuration
+)
+
+final class DatadogDataWriterConfiguration(
+    val apiKey: String,
+    val appKey: String,
+    val site: String,
     val bufferSize: Int,
     val writePeriod: FiniteDuration
 )
