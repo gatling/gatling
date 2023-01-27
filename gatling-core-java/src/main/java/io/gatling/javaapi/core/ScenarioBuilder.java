@@ -44,8 +44,13 @@ public final class ScenarioBuilder
 
   @Nonnull
   public PopulationBuilder injectOpen(@Nonnull OpenInjectionStep... steps) {
+    return injectOpen(Arrays.asList(steps));
+  }
+
+  @Nonnull
+  public PopulationBuilder injectOpen(@Nonnull List<OpenInjectionStep> steps) {
     List<io.gatling.core.controller.inject.open.OpenInjectionStep> scalaSteps =
-        Arrays.stream(steps).map(OpenInjectionStep::asScala).collect(Collectors.toList());
+        steps.stream().map(OpenInjectionStep::asScala).collect(Collectors.toList());
     return new PopulationBuilder(
         wrapped.inject(
             OpenInjectionSupport.OpenInjectionProfileFactory().profile(toScalaSeq(scalaSteps))));
@@ -53,8 +58,13 @@ public final class ScenarioBuilder
 
   @Nonnull
   public PopulationBuilder injectClosed(@Nonnull ClosedInjectionStep... steps) {
+    return injectClosed(Arrays.asList(steps));
+  }
+
+  @Nonnull
+  public PopulationBuilder injectClosed(@Nonnull List<ClosedInjectionStep> steps) {
     List<io.gatling.core.controller.inject.closed.ClosedInjectionStep> scalaSteps =
-        Arrays.stream(steps).map(ClosedInjectionStep::asScala).collect(Collectors.toList());
+        steps.stream().map(ClosedInjectionStep::asScala).collect(Collectors.toList());
     return new PopulationBuilder(
         wrapped.inject(
             ClosedInjectionSupport.ClosedInjectionProfileFactory()
