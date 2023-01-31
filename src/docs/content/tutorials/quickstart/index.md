@@ -48,7 +48,7 @@ This page will guide you through most of Gatling HTTP features. You'll learn abo
 
 ### Sample Application
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: [http://computer-database.gatling.io](http://computer-database.gatling.io).
+In this tutorial, we will use an application named *Computer-Database* deployed at the URL: [https://computer-database.gatling.io](https://computer-database.gatling.io).
 
 ### Scenario
 
@@ -110,7 +110,7 @@ For more information regarding Recorder and browser configuration, please check 
 Now simply browse the application:
 
 1. Enter 'Search' tag.
-2. Go to the website: [http://computer-database.gatling.io](http://computer-database.gatling.io)
+2. Go to the website: [https://computer-database.gatling.io](https://computer-database.gatling.io)
 3. Search for models with 'macbook' in their name.
 4. Select 'Macbook pro'.
 5. Enter 'Browse' tag.
