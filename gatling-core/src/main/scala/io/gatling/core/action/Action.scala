@@ -21,6 +21,7 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
+import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -80,6 +81,9 @@ trait ChainableAction extends Action {
           logger.error(s"'$name' crashed with '${reason.detailedMessage}', forwarding to the next one")
         }
         next ! session.markAsFailed
+      case fatal: Throwable =>
+        logger.error(s"Gatling crashed: ${fatal.detailedMessage}", fatal)
+        sys.exit(1)
     }
 
   def recover(session: Session)(v: Validation[_]): Unit =
