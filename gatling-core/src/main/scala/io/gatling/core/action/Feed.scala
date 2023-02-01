@@ -17,7 +17,6 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.Clock
-import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
