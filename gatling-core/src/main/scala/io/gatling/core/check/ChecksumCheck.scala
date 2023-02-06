@@ -16,10 +16,22 @@
 
 package io.gatling.core.check
 
+import java.security.MessageDigest
+
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
 
-final class ChecksumCheck[R](wrapped: Check[R], val algorithm: String) extends Check[R] {
+final class ChecksumAlgorithm private (val name: String, algorithm: String) {
+  private val template = MessageDigest.getInstance(algorithm)
+  def digest: MessageDigest = template.clone.asInstanceOf[MessageDigest]
+}
+
+object ChecksumAlgorithm {
+  val Md5: ChecksumAlgorithm = new ChecksumAlgorithm("md5", "MD5")
+  val Sha1: ChecksumAlgorithm = new ChecksumAlgorithm("sha1", "SHA-1")
+}
+
+final class ChecksumCheck[R](wrapped: Check[R], val algorithm: ChecksumAlgorithm) extends Check[R] {
   override def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
 

@@ -17,9 +17,9 @@
 package io.gatling.http.request
 
 import java.nio.charset.Charset
-import java.security.MessageDigest
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.check.ChecksumAlgorithm
 import io.gatling.core.session._
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
@@ -32,7 +32,7 @@ final case class HttpRequestConfig(
     throttled: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,
-    digests: Map[String, MessageDigest],
+    checksumAlgorithms: List[ChecksumAlgorithm],
     storeBodyParts: Boolean,
     defaultCharset: Charset,
     explicitResources: List[HttpRequestDef],

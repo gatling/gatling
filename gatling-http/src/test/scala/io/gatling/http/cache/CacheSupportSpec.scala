@@ -172,7 +172,7 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
           throttled = false,
           silent = None,
           followRedirect = true,
-          digests = Map.empty,
+          checksumAlgorithms = Nil,
           storeBodyParts = false,
           defaultCharset = configuration.core.charset,
           httpProtocol = protocol,
