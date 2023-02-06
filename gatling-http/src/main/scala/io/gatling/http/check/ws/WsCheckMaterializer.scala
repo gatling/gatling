@@ -29,7 +29,7 @@ import io.gatling.core.json.JsonParsers
 import com.fasterxml.jackson.databind.JsonNode
 
 object WsCheckMaterializer {
-  class Binary[T, P](override val preparer: Preparer[Array[Byte], P]) extends CheckMaterializer[T, WsCheck.Binary, Array[Byte], P](new WsCheck.Binary(_))
+  final class Binary[T, P](override val preparer: Preparer[Array[Byte], P]) extends CheckMaterializer[T, WsCheck.Binary, Array[Byte], P](new WsCheck.Binary(_))
 
   object Binary {
     val BodyBytes: CheckMaterializer[BodyBytesCheckType, WsCheck.Binary, Array[Byte], Array[Byte]] =
@@ -39,7 +39,7 @@ object WsCheckMaterializer {
       new Binary[BodyBytesCheckType, Int](_.length.success)
   }
 
-  class Text[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, WsCheck.Text, String, P](new WsCheck.Text(_))
+  final class Text[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, WsCheck.Text, String, P](new WsCheck.Text(_))
 
   object Text {
     val BodyString: CheckMaterializer[BodyStringCheckType, WsCheck.Text, String, String] =
