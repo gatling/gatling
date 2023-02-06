@@ -31,5 +31,5 @@ final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) exte
   override def checkIf(condition: Expression[Boolean]): HttpCheck = copy(wrapped.checkIf(condition))
 }
 
-class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
+final class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
     extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))
