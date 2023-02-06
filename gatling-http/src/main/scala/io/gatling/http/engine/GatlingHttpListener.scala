@@ -66,6 +66,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var bodyLength = 0
   private var chunks: List[ByteBuf] = Nil
+  private val digests = checksumAlgorithms.map(algorithm => algorithm -> algorithm.digest).toMap
 
   override def onSend(): Unit =
     if (!init) {

@@ -45,7 +45,7 @@ class HttpTxSpec extends BaseSpec {
       throttled = false,
       silent = None,
       followRedirect = false,
-      digests = Map.empty,
+      checksumAlgorithms = Nil,
       storeBodyParts = false,
       defaultCharset = configuration.core.charset,
       explicitResources = Nil,

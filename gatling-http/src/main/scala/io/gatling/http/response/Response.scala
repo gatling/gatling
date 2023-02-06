@@ -18,6 +18,7 @@ package io.gatling.http.response
 
 import scala.jdk.CollectionConverters._
 
+import io.gatling.core.check.ChecksumAlgorithm
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
@@ -45,7 +46,7 @@ final case class Response(
     status: HttpResponseStatus,
     headers: HttpHeaders,
     body: ResponseBody,
-    checksums: Map[String, String],
+    checksums: Map[ChecksumAlgorithm, String],
     isHttp2: Boolean
 ) extends HttpResult {
   val isRedirect: Boolean = HttpHelper.isRedirect(status)
@@ -54,7 +55,7 @@ final case class Response(
   def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala.toSeq
   val cookies: List[Cookie] = HttpHelper.responseCookies(headers)
 
-  def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
+  def checksum(algorithm: ChecksumAlgorithm): Option[String] = checksums.get(algorithm)
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HttpHeaderNames.LAST_MODIFIED).orElse(header(HttpHeaderNames.ETAG)) else None

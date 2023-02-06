@@ -16,14 +16,12 @@
 
 package io.gatling.http.request.builder
 
-import java.security.MessageDigest
-
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.Action
 import io.gatling.core.body.{ Body, RawFileBodies }
-import io.gatling.core.check.ChecksumCheck
+import io.gatling.core.check.{ ChecksumAlgorithm, ChecksumCheck }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
@@ -202,11 +200,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
-    val digests: Map[String, MessageDigest] =
+    val checksumAlgorithms: List[ChecksumAlgorithm] =
       sortedChecks
         .map(_.wrapped)
-        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }
-        .toMap
+        .collect { case check: ChecksumCheck[_] => check.algorithm }
 
     val storeBodyParts = HttpTracing.IS_HTTP_DEBUG_ENABLED ||
       // we can't assume anything about if and how the response body will be used,
@@ -223,7 +220,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
-        digests = digests,
+        checksumAlgorithms = checksumAlgorithms,
         storeBodyParts = storeBodyParts,
         defaultCharset = configuration.core.charset,
         explicitResources = resolvedResources,
