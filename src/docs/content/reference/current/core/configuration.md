@@ -95,16 +95,17 @@ Options used when running Gatling locally:
 
 Options used when running Gatling on Gatling Enterprise:
 
-| Option (short)     | Option (long)                      | Description                                                                                        |
-| --- | --- | --- |
-| `-bm`              | `--batch-mode`                     | No interactive user input will be asked                                                            |
-| `-at <token>`      | `--api-token <token>`              | Gatling Enterprise's API token with the 'Configure' role                                           |
-| `-sid <id>`        | `--simulation-id <id>`             | Specifies the Gatling Enterprise Simulation, when creating a new Simulation                        |
-|`-pid`              | `--package-id <id>`                | Specifies the Gatling Enterprise Package, when creating a new Simulation                           |
-|`-tid`              | `--team-id <id>`                   | Specifies the Gatling Enterprise Team, when creating a new Simulation                              |
-|`-s`                | `--simulation <className>`         | Runs `<className>` simulation                                                                      |
-|`-ssp`              | `--simulation-system-properties k1=v1,k2=v2` | Optional System Properties used when starting the Gatling Enterprise simulation          |
-|`-sev`              | `--simulation-environment-variables k1=v1,k2=v2` | Optional Environment Variables used when starting the Gatling Enterprise simulation          |
+| Option (short) | Option (long)                                    | Description                                                                         |
+|----------------|--------------------------------------------------|-------------------------------------------------------------------------------------|
+| `-bm`          | `--batch-mode`                                   | No interactive user input will be asked                                             |
+| `-wre`         | `--wait-for-run-end`                             | Wait for the result after starting the simulation on Gatling Enterprise             |
+| `-at <token>`  | `--api-token <token>`                            | Gatling Enterprise's API token with the 'Configure' role                            |
+| `-sid <id>`    | `--simulation-id <id>`                           | Specifies the Gatling Enterprise Simulation, when creating a new Simulation         |
+| `-pid`         | `--package-id <id>`                              | Specifies the Gatling Enterprise Package, when creating a new Simulation            |
+| `-tid`         | `--team-id <id>`                                 | Specifies the Gatling Enterprise Team, when creating a new Simulation               |
+| `-s`           | `--simulation <className>`                       | Runs `<className>` simulation                                                       |
+| `-ssp`         | `--simulation-system-properties k1=v1,k2=v2`     | Optional System Properties used when starting the Gatling Enterprise simulation     |
+| `-sev`         | `--simulation-environment-variables k1=v1,k2=v2` | Optional Environment Variables used when starting the Gatling Enterprise simulation |
 
 ## $JAVA_OPTS
 

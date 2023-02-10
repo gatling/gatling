@@ -22,8 +22,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Try }
 
 import io.gatling.app.cli.CommandLineConstants.{ Simulation => SimulationOption }
-import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
-import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId }
+import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin, RunFailedException }
+import io.gatling.bundle.CommandLineConstants.{ SimulationId, TeamId, WaitForRunEnd }
 import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
@@ -75,12 +75,17 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
         logCreatedSimulation(simulationStartResult.simulation)
       }
 
-      if (config.simulationId.isEmpty) {
-        logSimulationConfiguration(simulationStartResult.simulation.id, simulationStartResult.simulation.className)
-      }
+      logSimulationConfiguration(config, simulationStartResult.simulation.id, simulationStartResult.simulation.className)
 
       val reportsUrl = config.url.toExternalForm + simulationStartResult.runSummary.reportsPath
       logger.info(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+
+      if (config.waitForRunEnd) {
+        val simulationEndResult = enterprisePlugin.waitForRunEnd(simulationStartResult.runSummary)
+        if (!simulationEndResult.status.successful) {
+          throw RunFailedException
+        }
+      }
     }
       .recoverWith {
         case e: UnsupportedJavaVersionException =>
@@ -105,7 +110,7 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
           if (e.isCreated) {
             logCreatedSimulation(e.getSimulation)
           }
-          logSimulationConfiguration(e.getSimulation.id, e.getSimulation.className)
+          logSimulationConfiguration(config, e.getSimulation.id, e.getSimulation.className)
           Failure(e.getCause)
       }
       .fold(throw _, _ => ())
@@ -113,10 +118,20 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
   private def logCreatedSimulation(simulation: Simulation): Unit =
     logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")
 
-  private def logSimulationConfiguration(simulationId: UUID, classname: String): Unit =
-    logger.info(s"""
-                   |Specify --${SimulationId.full} $simulationId if you want to start a simulation on Gatling Enterprise,
-                   |or --${SimulationOption.full} $classname if you want to create a new simulation on Gatling Enterprise.
-                   |See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.
-                   |""".stripMargin)
+  private def logSimulationConfiguration(config: CommandArguments, simulationId: UUID, classname: String): Unit =
+    if (config.simulationId.isEmpty || !config.waitForRunEnd) {
+      val builder = new StringBuilder("\n")
+      if (config.simulationId.isEmpty) {
+        builder.append(
+          s"""Specify --${SimulationId.full} $simulationId if you want to start a simulation on Gatling Enterprise,
+             |or --${SimulationOption.full} $classname if you want to create a new simulation on Gatling Enterprise.
+             |""".stripMargin
+        )
+      }
+      if (!config.waitForRunEnd) {
+        builder.append(s"Specify --${WaitForRunEnd.full} to wait for the end of the run when starting a simulation on Gatling Enterprise.\n")
+      }
+      builder.append("See https://gatling.io/docs/gatling/reference/current/core/configuration/#cli-options/ for more information.\n")
+      logger.info(builder.toString)
+    }
 }
