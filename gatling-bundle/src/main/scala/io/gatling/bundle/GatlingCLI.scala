@@ -76,6 +76,7 @@ object GatlingCLI {
       note("")
       note("Options specific to running on Gatling Cloud:")
       opt[Unit](BatchMode).action((_, c) => c.copy(batchMode = true))
+      opt[Unit](WaitForRunEnd).action((_, c) => c.copy(waitForRunEnd = true))
       opt[String](ApiToken).action((x, c) => c.copy(apiToken = Some(x)))
       opt[UUID](SimulationId).action((x, c) => c.copy(simulationId = Some(x)))
       opt[UUID](PackageId).action((x, c) => c.copy(packageId = Some(x)))
@@ -99,6 +100,8 @@ object GatlingCLI {
             exitWithoutStacktrace(e, 0)
           case e: Fork.ForkException =>
             exitWithoutStacktrace(e, e.exitValue)
+          case RunFailedException =>
+            exitWithoutStacktrace(RunFailedException, 1)
         }
       case _ =>
     }

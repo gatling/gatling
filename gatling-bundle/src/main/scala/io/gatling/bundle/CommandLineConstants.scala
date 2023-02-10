@@ -28,6 +28,12 @@ private[bundle] object CommandLineConstants {
     Some(RunLocal.value)
   )
   val BatchMode = new CommandLineConstant("batch-mode", "bm", "No interactive user input will be asked", None)
+  val WaitForRunEnd = new CommandLineConstant(
+    "wait-for-run-end",
+    "wre",
+    "Wait for the result after starting the simulation on Gatling Enterprise, exit with an error code if the simulation fails",
+    None
+  )
   val ApiToken = new CommandLineConstant("api-token", "at", "Gatling Enterprise's API token with the 'Configure' role", None)
   val PackageId = new CommandLineConstant("package-id", "pid", "Specifies the Gatling Enterprise Package, when creating a new Simulation", None)
   val SimulationId = new CommandLineConstant("simulation-id", "sid", "Specifies the Gatling Enterprise Simulation that needs to be started", None)
