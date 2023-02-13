@@ -78,7 +78,7 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
       val supportedCipherSuites = DefaultJavaSslParameters.getCipherSuites
       sslConfig.enabledCipherSuites.filter(supportedCipherSuites.contains).asJava
     }
-  private val useOpenSslFinalizers = sslConfig.useOpenSslFinalizers
+  private val sslProvider = if (useOpenSsl && sslConfig.useOpenSslFinalizers) SslProvider.OPENSSL else SslProvider.OPENSSL_REFCNT
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
     val kmf = perUserKeyManagerFactory.orElse(sslConfig.keyManagerFactory)
@@ -91,8 +91,7 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
     }
 
     if (useOpenSsl) {
-      val provider = if (useOpenSslFinalizers) SslProvider.OPENSSL else SslProvider.OPENSSL_REFCNT
-      val sslContextBuilder = SslContextBuilder.forClient.sslProvider(provider)
+      val sslContextBuilder = SslContextBuilder.forClient.sslProvider(sslProvider)
 
       if (sslConfig.sessionCacheSize > 0) {
         sslContextBuilder.sessionCacheSize(sslConfig.sessionCacheSize)
