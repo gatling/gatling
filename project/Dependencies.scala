@@ -9,7 +9,7 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.2.0"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.87.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.89.Final"
   private val nettyBuffer                    = netty.withName("netty-buffer")
   private val nettyHandler                   = netty.withName("netty-handler")
   private val nettyMqtt                      = netty.withName("netty-codec-mqtt")
@@ -22,7 +22,7 @@ object Dependencies {
   private val nettyHttp2                     = netty.withName("netty-codec-http2")
   private val nettyResolverNativeOsXX86      = netty.withName("netty-resolver-dns-native-macos") classifier "osx-x86_64"
   private val nettyResolverNativeOsXArm      = nettyResolverNativeOsXX86                                 classifier "osx-aarch_64"
-  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes"            % "2.0.57.Final"
+  private val nettyTcNative                  = netty.organization                     % "netty-tcnative-classes"            % "2.0.58.Final"
   private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
   private val nettyTcNativeBoringSslLinuxX86 = nettyTcNativeBoringSsl  classifier "linux-x86_64"
   private val nettyTcNativeBoringSslLinuxArm = nettyTcNativeBoringSsl  classifier "linux-aarch_64"
