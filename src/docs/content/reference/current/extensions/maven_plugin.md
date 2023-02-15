@@ -18,7 +18,14 @@ Beware that milestones (M versions) are not documented for OSS users and are onl
 
 ## Setup
 
-In your `pom.xml`, add:
+{{< alert tip >}}
+Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
+* [for maven and Java](https://github.com/gatling/gatling-maven-plugin-demo-java)
+* [for maven and Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin)
+* [for maven and Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala)
+{{< /alert >}}
+
+If you prefer to manually configure your Maven project rather than clone one of our samples, you need to add the following to your `pom.xml`:
 
 ```xml
 <dependencies>
@@ -36,13 +43,6 @@ In your `pom.xml`, add:
   <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
 </plugin>
 ```
-
-{{< alert tip >}}
-Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
-* [for maven and Java](https://github.com/gatling/gatling-maven-plugin-demo-java)
-* [for maven and Kotlin](https://github.com/gatling/gatling-maven-plugin-demo-kotlin)
-* [for maven and Scala](https://github.com/gatling/gatling-maven-plugin-demo-scala)
-{{< /alert >}}
 
 {{< alert warning >}}
 **For Scala users only**: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala. Please check the `pom.xml` of the demo project for maven and Scala mentioned above for complete configuration.
@@ -152,6 +152,7 @@ Quick usage:
 - configure and start a new simulation with `mvn gatling:enterpriseStart`, you will be prompted to choose all required
   options. This will also print the simulationId of the newly configured simulation.
 - run the simulation again with `mvn gatling:enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
+- run the simulation and wait for the end of the run (will regularly print out progress information, and exit with an error code if the simulation fails) with `mvn gatling:enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID> -Dgatling.enterprise.waitForRunEnd=true`.
 
 List of configurations used by this task:
 
@@ -178,11 +179,15 @@ List of configurations used by this task:
             <key1>VALUE_1</key1>
             <key2>VALUE_2</key2>
         </simulationSystemProperties>
-      <!-- Additional environment variables used when running the simulation on Gatling Enterprise -->
+        <!-- Additional environment variables used when running the simulation on Gatling Enterprise -->
         <simulationEnvironmentVariables>
             <key1>VALUE_1</key1>
             <key2>VALUE_2</key2>
         </simulationEnvironmentVariables>
+        <!-- Wait for the result after starting the simulation on Gatling Enterprise -->
+        <!-- Will complete with an error if the simulation ends with any error status -->
+        <!-- False by default; you can also use the gatling.enterprise.waitForRunEnd system property -->
+        <waitForRunEnd>true</waitForRunEnd>
     </configuration>
 </plugin>
 ```

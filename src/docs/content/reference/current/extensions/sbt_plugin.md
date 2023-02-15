@@ -29,25 +29,24 @@ This plugin requires using SBT 1 (SBT 0.13 is not supported). All code examples 
 introduced in SBT 1.1.
 {{< /alert >}}
 
+{{< alert tip >}}
+Cloning or downloading our demo project on GitHub is definitely the fastest way to get started:
+* [for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo)
+{{< /alert >}}
 
-In `project/plugins.sbt`, add the Gatling plugin dependency:
+If you prefer to manually configure your SBT project rather than clone our sample, you need to add the Gatling plugin dependency to your `project/plugins.sbt`:
 
 ```scala
 addSbtPlugin("io.gatling" % "gatling-sbt" % "MANUALLY_REPLACE_WITH_LATEST_VERSION")
 ```
 
-In `build.sbt`, add the Gatling library dependencies and enable the Gatling plugin:
+And then add the Gatling library dependencies and enable the Gatling plugin in your `build.sbt`:
 
 ```scala
 enablePlugins(GatlingPlugin)
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 ```
-
-{{< alert tip >}}
-Cloning or downloading our demo project on GitHub is definitely the fastest way to get started:
-* [for sbt and Scala](https://github.com/gatling/gatling-sbt-plugin-demo)
-{{< /alert >}}
 
 ### 'Test' vs 'Integration Tests' configurations
 
@@ -153,8 +152,8 @@ Quick usage:
 
 - configure and start a new simulation with `sbt Gatling/enterpriseStart`, you will be prompted to choose all required
   options. This will also print the simulationId of the newly configured simulation.
-- run the simulation again with `sbt console Gatling/enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
-
+- run the simulation again with `sbt Gatling/enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
+- run the simulation and wait for the end of the run (will regularly print out progress information, and exit with an error code if the simulation fails) with `sbt Gatling/enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID> -Dgatling.enterprise.waitForRunEnd=true`.
 
 List of configurations used by this task:
 
@@ -171,6 +170,9 @@ Gatling / enterpriseSimulationClass := "computerdatabase.BasicSimulation"
 Gatling / enterpriseSimulationSystemProperties := Map.empty
 // Additional environment variables used when running the simulation on Gatling Enterprise
 Gatling / enterpriseSimulationEnvironmentVariables := Map.empty
+// Wait for the result after starting the simulation on Gatling Enterprise; will complete with an error if the simulation ends with any error status
+// False by default; you can also use the gatling.enterprise.waitForRunEnd system property
+Gatling / waitForRunEnd := false
 ```
 
 You can run it with the command:

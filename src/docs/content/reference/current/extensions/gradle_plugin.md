@@ -29,23 +29,22 @@ Any version outside this range is not guaranteed to work.
 
 ## Setup
 
-Install [Gradle](https://gradle.org/install/) or use the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html).
-Our official sample projects come pre-configured with the Gradle Wrapper.
+{{< alert tip >}}
+Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
+* [for gradle and Java](https://github.com/gatling/gatling-gradle-plugin-demo-java)
+* [for gradle and Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
+* [for gradle and Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala)
 
-In `build.gradle`, add:
+They also come pre-configured with the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html), so you don't need to install Gradle yourself. You can simply run `./gradlew` (Mac/Linux) or `gradlew.bat` (Windows) from the project directory instead of the `gradle` command.
+{{< /alert >}}
+
+If you prefer to manually configure your Gradle project rather than clone one of our samples, you need to add the following to your `build.gradle`:
 
 ```groovy
  plugins {
    id 'io.gatling.gradle' version "MANUALLY_REPLACE_WITH_LATEST_VERSION"
  }
 ```
-
-{{< alert tip >}}
-Cloning or downloading one of our demo projects on GitHub is definitely the fastest way to get started:
-* [for gradle and Java](https://github.com/gatling/gatling-gradle-plugin-demo-java)
-* [for gradle and Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
-* [for gradle and Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala)
-{{< /alert >}}
 
 ### Multi-project support
 
@@ -293,7 +292,7 @@ Quick usage:
 - configure and start a new simulation with `gradle gatlingEnterpriseStart`, you will be prompted to choose all required
   options. This will also print the simulationId of the newly configured simulation.
 - run the simulation again with `gradle gatlingEnterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
-
+- run the simulation and wait for the end of the run (will regularly print out progress information, and exit with an error code if the simulation fails) with `gradle gatlingEnterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID> -Dgatling.enterprise.waitForRunEnd=true`.
 
 List of configurations used by this task:
 
@@ -302,18 +301,22 @@ gatling {
   enterprise {
     // Simulation that needs to be started, you will be able to create a new simulation if empty, you can also use the gatling.enterprise.simulationId system property
     simulationId "YOUR_SIMULATION_ID"
-    // default package when creating a new simulation, you can also use the gatling.enterprise.packageId system property
+    // Default package when creating a new simulation, you can also use the gatling.enterprise.packageId system property
     packageId "YOUR_PACKAGE_ID"
-    // default team when creating a new simulation, you can also use the gatling.enterprise.teamId system property
+    // Default team when creating a new simulation, you can also use the gatling.enterprise.teamId system property
     teamId "YOUR_TEAM_ID"
-    // default simulation fully qualified classname used when creating a new simulation, you can also use the gatling.enterprise.simulationClass system property
+    // Default simulation fully qualified classname used when creating a new simulation, you can also use the gatling.enterprise.simulationClass system property
     simulationClass "computerdatabase.BasicSimulation"
-    // custom system properties used when running the simulation on Gatling Enterprise
-    systemProps ["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"]
-    // additional environment variables used when running the simulation on Gatling Enterprise
-    environmentVariables ["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"]
-    //set to true if you don't want any user input, eg in a CI environment, you can also use the gatling.enterprise.batchMode system property
-    batchMode false 
+    // Custom system properties used when running the simulation on Gatling Enterprise
+    systemProps(["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"])
+    // Additional environment variables used when running the simulation on Gatling Enterprise
+    environmentVariables(["KEY_1": "VALUE_1", "KEY_2": "VALUE_2"])
+    // Wait for the result after starting the simulation on Gatling Enterprise; will complete with an error if the simulation ends with any error status
+    // False by default; you can also use the gatling.enterprise.waitForRunEnd system property
+    waitForRunEnd false
+    // Set to true if you don't want any user input, eg in a CI environment
+    // False by default; you can also use the gatling.enterprise.batchMode system property
+    batchMode false
   }
 }
 ```
