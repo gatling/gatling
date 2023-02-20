@@ -118,7 +118,7 @@ trait RequestAction extends ExitableAction {
   private def reportUnbuildableRequest(session: Session, error: String): Unit = {
     val loggedName = requestName(session) match {
       case Success(requestNameValue) =>
-        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, error, requestNameValue)
+        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestNameValue, error)
         requestNameValue
       case _ =>
         name
