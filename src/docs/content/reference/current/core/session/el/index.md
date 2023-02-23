@@ -54,12 +54,9 @@ Gatling EL provide the following built-in functions:
 
 ```java
 // collection size
-// supports arrays, Java List, Scala Seq and Product
+// supports arrays, Java Collection, Java Map, Scala Iterable and Product
 "#{foo.size()}"
 
-// collection size
-// supports arrays, Java Collection, Java Map, Scala Iterable and Product
-  
 // collection random element
 // supports arrays, Java Collection, Java List, Scala Seq and Product
 "#{foo.random()}"
