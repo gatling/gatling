@@ -39,7 +39,9 @@ private[http] class ShufflingNameResolver(wrapped: InetAddressNameResolver, even
           val rawAddresses = future.getNow
           if (rawAddresses.size == 1) {
             // don't bother checking equality or shuffling, directly clear cache and return
-            cache.remove(inetHost)
+            if (!cache.isEmpty) {
+              cache.remove(inetHost)
+            }
             promise.setSuccess(rawAddresses)
           } else {
             val cachedAddresses = cache.get(inetHost)
