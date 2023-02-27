@@ -29,7 +29,7 @@ object Dependencies {
   private val nettyTcNativeBoringSslOsXX86   = nettyTcNativeBoringSsl  classifier "osx-x86_64"
   private val nettyTcNativeBoringSslOsXArm   = nettyTcNativeBoringSsl  classifier "osx-aarch_64"
   private val nettyTcNativeBoringSslWindows  = nettyTcNativeBoringSsl  classifier "windows-x86_64"
-  private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                          % "1.9.0"
+  private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                          % "1.11.0"
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
   private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
