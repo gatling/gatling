@@ -59,7 +59,7 @@ package object builder {
         for {
           map <- map(session)
         } yield {
-          map.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
+          map.foreachEntry((key, value) => clientParams.add(new Param(key, value.toString)))
           clientParams
         }
     }

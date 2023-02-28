@@ -152,7 +152,7 @@ private[fetch] class DefaultResourceAggregator(
     val requestsByRemote = nonCached.groupBy(resource => Remote(resource.clientRequest.getUri))
 
     if (httpProtocol.enginePart.enableHttp2) {
-      requestsByRemote.foreach { case (remote, res) =>
+      requestsByRemote.foreachEntry { (remote, res) =>
         val isHttp2PriorKnowledge = Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, remote)
         if (isHttp2PriorKnowledge.contains(true)) {
           httpTxExecutor.execute(resources.map(createResourceTx(_, isHttp2PriorKnowledge)))
@@ -161,7 +161,7 @@ private[fetch] class DefaultResourceAggregator(
         }
       }
     } else {
-      requestsByRemote.foreach { case (remote, res) =>
+      requestsByRemote.foreachEntry { (remote, res) =>
         fetchAndBufferWithTokens(remote, res, Some(false))
       }
     }

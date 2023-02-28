@@ -187,7 +187,7 @@ private[gatling] object Json {
 
     def appendMap(map: collection.Map[_, _]): jl.StringBuilder = {
       sb.append('{')
-      map.foreach { case (k, v) =>
+      map.foreachEntry { (k, v) =>
         sb.append('"').append(k).append("\":")
         appendStringified(v, rootLevel = false).append(',')
       }

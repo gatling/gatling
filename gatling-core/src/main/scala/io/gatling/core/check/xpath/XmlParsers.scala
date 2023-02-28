@@ -61,7 +61,7 @@ object XmlParsers {
     opt
   }
 
-  def newXPathCompiler: XPathCompiler = processor.newXPathCompiler
+  private def newXPathCompiler: XPathCompiler = processor.newXPathCompiler
 
   def parse(text: String): XdmNode =
     parse(new InputSource(new StringReader(text)))
@@ -84,9 +84,7 @@ final class XmlParsers(cacheMaxCapacity: Long) {
       cacheMaxCapacity,
       namespaces => {
         val compiler = XmlParsers.processor.newXPathCompiler
-        for {
-          (prefix, uri) <- namespaces
-        } compiler.declareNamespace(prefix, uri)
+        namespaces.foreachEntry((prefix, uri) => compiler.declareNamespace(prefix, uri))
         new NamespacesScope(compiler, cacheMaxCapacity)
       }
     )

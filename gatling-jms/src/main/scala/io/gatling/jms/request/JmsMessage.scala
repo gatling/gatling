@@ -39,7 +39,7 @@ final case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMes
   override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
     map(session).map { m =>
       val message = jmsSession.createMapMessage
-      m.foreach { case (key, value) => message.setObject(key, value) }
+      m.foreachEntry((key, value) => message.setObject(key, value))
       message
     }
 }

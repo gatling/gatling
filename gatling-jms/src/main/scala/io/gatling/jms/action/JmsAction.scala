@@ -58,7 +58,7 @@ abstract class JmsAction(
       message <- attributes.message.jmsMessage(session, jmsSession)
       around <- aroundSend(reqName, session, message)
     } yield {
-      props.foreach { case (key, value) => message.setObjectProperty(key, value) }
+      props.foreachEntry((key, value) => message.setObjectProperty(key, value))
       jmsType.foreach(message.setJMSType)
 
       throttler match {

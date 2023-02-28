@@ -67,7 +67,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     val usersBreakdowns = usersByScenario.view.mapValues(_.breakDown).to(Map)
 
     // Reset all metrics
-    requestsByPath.foreach { case (_, buff) => buff.clear() }
+    requestsByPath.foreachEntry((_, buff) => buff.clear())
 
     sendMetricsToGraphite(data, clock.nowSeconds, requestsMetrics, usersBreakdowns)
   }
