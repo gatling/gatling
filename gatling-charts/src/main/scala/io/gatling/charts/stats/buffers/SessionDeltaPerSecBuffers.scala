@@ -95,6 +95,7 @@ private[stats] trait SessionDeltaPerSecBuffers {
         userCountByScenario.getOrElseUpdate(record.scenario, new LongAdder).decrement()
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.ForeachEntry"))
   def endDandlingStartedUser(): Unit =
     for {
       (scenario, count) <- userCountByScenario

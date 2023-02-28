@@ -98,7 +98,7 @@ private[gatling] object ConsoleSummary {
 
     def writeDetailedRequestsCounter(sb: jl.StringBuilder): jl.StringBuilder = {
       if (!configuration.data.console.light) {
-        requestsCounters.foreach { case (actionName, requestCounters) => writeRequestsCounter(sb, actionName, requestCounters).append(Eol) }
+        requestsCounters.foreachEntry((actionName, requestCounters) => writeRequestsCounter(sb, actionName, requestCounters).append(Eol))
         if (requestsCounters.nonEmpty) {
           sb.setLength(sb.length - Eol.length)
         }
@@ -133,7 +133,7 @@ private[gatling] object ConsoleSummary {
     writeDetailedRequestsCounter(sb).append(Eol)
     writeErrors(sb).append(Eol)
 
-    usersCounters.foreach { case (scenarioName, usersStats) =>
+    usersCounters.foreachEntry { (scenarioName, usersStats) =>
       writeUsersCounters(sb, scenarioName, usersStats).append(Eol)
     }
 
