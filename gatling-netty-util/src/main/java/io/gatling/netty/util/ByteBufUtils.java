@@ -48,7 +48,7 @@ public final class ByteBufUtils {
     }
     byte[] bytes = new byte[readable];
     if (buf.hasArray()) {
-      System.arraycopy(buf.array(), buf.readerIndex(), bytes, 0, readable);
+      System.arraycopy(buf.array(), buf.arrayOffset(), bytes, 0, readable);
     } else {
       buf.getBytes(buf.readerIndex(), bytes);
     }
@@ -70,7 +70,7 @@ public final class ByteBufUtils {
     for (ByteBuf buf : bufs) {
       int readable = buf.readableBytes();
       if (buf.hasArray()) {
-        System.arraycopy(buf.array(), buf.readerIndex(), bytes, destPos, readable);
+        System.arraycopy(buf.array(), buf.arrayOffset(), bytes, destPos, readable);
       } else {
         buf.getBytes(buf.readerIndex(), bytes, destPos, readable);
       }
