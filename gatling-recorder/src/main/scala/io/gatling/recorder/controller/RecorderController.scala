@@ -70,22 +70,23 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
     }
   }
 
-  def stopRecording(save: Boolean): Unit = {
-    frontEnd.recordingStopped()
+  def stopRecording(save: Boolean): Unit =
     try {
-      if (requests.isEmpty)
-        logger.info("Nothing was recorded, skipping Simulation generation")
-      else {
-        val config = RecorderConfiguration.recorderConfiguration
-        val traffic = HttpTraffic(requests.asScala.toList, tags.asScala.toList, config)
-        converter.renderHttpTraffic(traffic)
+      frontEnd.recordingStopped()
+      if (save) {
+        if (requests.isEmpty) {
+          logger.info("Nothing was recorded, skipping Simulation generation")
+        } else {
+          val config = RecorderConfiguration.recorderConfiguration
+          val traffic = HttpTraffic(requests.asScala.toList, tags.asScala.toList, config)
+          converter.renderHttpTraffic(traffic)
+        }
       }
     } finally {
       mitm.shutdown()
       clearRecorderState()
       frontEnd.init()
     }
-  }
 
   def receiveResponse(request: HttpRequest, response: HttpResponse): Unit = {
     val config = RecorderConfiguration.recorderConfiguration
