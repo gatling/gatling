@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.HttpHeaders
 import io.netty.util.AsciiString
 
 object HttpUtils {
-  private val SupportedEncodings = Set(GZIP, DEFLATE)
+  private val SupportedEncodings = Set(GZIP, DEFLATE, BR)
 
   def basicAuth(credentials: Credentials): String =
     "Basic " + Base64.getEncoder.encodeToString((credentials.username + ":" + credentials.password).getBytes(UTF_8))
