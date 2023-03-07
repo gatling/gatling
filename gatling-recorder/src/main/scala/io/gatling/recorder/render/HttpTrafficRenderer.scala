@@ -201,22 +201,21 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
             }
             .sortBy(_._1)
 
-          val newHeaders = if (acceptedHeaders.isEmpty) {
-            element.filteredHeadersId = None
-            headers
-          } else {
-            val headersSeq = headers.toSeq
-            headersSeq.indexWhere { case (_, existingHeaders) =>
-              existingHeaders == acceptedHeaders
-            } match {
-              case -1 =>
-                element.filteredHeadersId = Some(element.id)
-                headers + (element.id -> acceptedHeaders)
-              case index =>
-                element.filteredHeadersId = Some(headersSeq(index)._1)
-                headers
+          val newHeaders =
+            if (acceptedHeaders.isEmpty) {
+              element.filteredHeadersId = None
+              headers
+            } else {
+              val headersSeq = headers.toSeq
+              headersSeq.indexWhere { case (_, existingHeaders) => existingHeaders == acceptedHeaders } match {
+                case -1 =>
+                  element.filteredHeadersId = Some(element.id)
+                  headers + (element.id -> acceptedHeaders)
+                case index =>
+                  element.filteredHeadersId = Some(headersSeq(index)._1)
+                  headers
+              }
             }
-          }
 
           generateHeaders(others, newHeaders)
       }
@@ -229,13 +228,13 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
 
   private def getBaseHeaders(requestElements: Seq[RequestElement]): HttpHeaders = {
     def getMostFrequentHeaderValue(headerName: String): Option[String] = {
-      val headers = requestElements.flatMap(_.headers.getAll(headerName).asScala)
+      val headerValues = requestElements.flatMap(_.headers.getAll(headerName).asScala)
 
-      if (headers.isEmpty || headers.length != requestElements.length)
+      if (headerValues.isEmpty || headerValues.length != requestElements.length)
         // a header has to be defined on all requestElements to be turned into a common one
         None
       else {
-        val headersValuesOccurrences = headers.groupBy(identity).view.mapValues(_.size).to(Seq)
+        val headersValuesOccurrences = headerValues.groupBy(identity).view.mapValues(_.size).to(Seq)
         val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
         Some(mostFrequentValue)
       }
