@@ -41,7 +41,7 @@ private[gatling] object LogFileReader extends StrictLogging {
 
   def apply(runUuid: String, configuration: GatlingConfiguration): LogFileReader = {
     val inputFiles = PathHelper
-      .files(simulationLogDirectory(runUuid, create = false, configuration))
+      .deepFiles(simulationLogDirectory(runUuid, create = false, configuration))
       .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
 
     logger.info(s"Collected $inputFiles from $runUuid")
