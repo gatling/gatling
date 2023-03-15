@@ -67,7 +67,10 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private def runStatus(assertionResults: List[AssertionResult]): StatusCode = {
     val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
-      println(s"${assertionResult.message} : ${assertionResult.result}")
+      if (assertionResult.result)
+        println(s"${assertionResult.message} : ${assertionResult.result}")
+      else
+        println(s"${assertionResult.message} : ${assertionResult.result} (actual : ${assertionResult.actualValue.getOrElse(-1.0)})")
       isValid && assertionResult.result
     }
 
