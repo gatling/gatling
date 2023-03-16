@@ -70,7 +70,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       if (assertionResult.result)
         println(s"${assertionResult.message} : ${assertionResult.result}")
       else
-        println(s"${assertionResult.message} : ${assertionResult.result} (actual : ${assertionResult.actualValue.getOrElse(-1.0)})")
+        println(s"${assertionResult.message} : ${assertionResult.result} (actual : ${assertionResult.actualValue.getOrElse("-")})")
       isValid && assertionResult.result
     }
 
