@@ -3,7 +3,7 @@ title: "Third Party Plugins"
 description: "Active, lagging and inactive third party plugins to using non-offically supported protocols, such as gRPC, Kafka, AMQP, Cassandra and JDBC."
 lead: "Third Party Plugins"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2022-12-14T21:30:56+02:00
+lastmod: 2023-03-21T17:00:00+02:00
 weight: 2080800
 ---
 
@@ -16,12 +16,12 @@ If you run into an issue, please contact their respective owners.
 
 ### Active
 
-* [AMQP plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-amqp-plugin) by Tinkoff
-* [Cassandra plugin (Gatling 3.8)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
-* [Git plugin (Gatling 3.8)](https://github.com/GerritForge/gatling-git) by GerritForge
-* [gRPC plugin (Gatling 3.8)](https://github.com/phiSgr/gatling-grpc) by George Leung
-* [JDBC plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
-* [Kafka plugin (Gatling 3.8)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
+* [AMQP plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-amqp-plugin) by Tinkoff
+* [Cassandra plugin (Gatling 3.9)](https://github.com/gatling-cql/GatlingCql) by Mikhail Stepura
+* [Git plugin (Gatling 3.9)](https://github.com/GerritForge/gatling-git) by GerritForge
+* [gRPC plugin (Gatling 3.9)](https://github.com/phiSgr/gatling-grpc) by George Leung
+* [JDBC plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
+* [Kafka plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
 * [Sftp plugin (Gatling 3.8)](https://github.com/fherbreteau/gatling-sftp) by François Herbreteau
 * [Ftp plugin (Gatling 3.8)](https://github.com/fherbreteau/gatling-ftp) by François Herbreteau
 
