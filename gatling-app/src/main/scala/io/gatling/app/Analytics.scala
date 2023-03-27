@@ -16,7 +16,7 @@
 
 package io.gatling.app
 
-import java.net.{ HttpURLConnection, URL }
+import java.net.{ HttpURLConnection, URI }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 
@@ -89,7 +89,7 @@ object Analytics {
          |}""".stripMargin
         .getBytes(UTF_8)
 
-    val url = new URL("https://api.eu.amplitude.com/2/httpapi")
+    val url = URI.create("https://api.eu.amplitude.com/2/httpapi").toURL
 
     val thread = new Thread(() =>
       try {

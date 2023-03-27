@@ -17,7 +17,7 @@
 package io.gatling.compiler
 
 import java.io.{ File => JFile }
-import java.net.{ URL, URLClassLoader }
+import java.net.{ URI, URLClassLoader }
 import java.nio.file.{ Files, Path }
 import java.util.Optional
 import java.util.jar.{ Attributes, Manifest => JManifest }
@@ -59,7 +59,7 @@ object ZincCompiler extends ProblemStringFormats {
         manifest.getMainAttributes
           .getValue(Attributes.Name.CLASS_PATH)
           .split(" ")
-          .map(url => new JFile(new URL(url).toURI))
+          .map(url => new JFile(new URI(url)))
     }
 
     classPathEntries.flatten.toArray

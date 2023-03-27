@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.net.{ HttpURLConnection, URL }
+import java.net.{ HttpURLConnection, URI }
 import java.nio.charset.StandardCharsets
 import java.time.{ Instant, ZoneOffset, ZonedDateTime }
 import java.time.format.DateTimeFormatter
@@ -107,7 +107,7 @@ private object LatestGatlingRelease extends StrictLogging {
 
   private def fetchLatestReleaseFromMavenCentral(): Try[GatlingVersion] =
     Try {
-      val conn = new URL(MavenCentralQuery).openConnection().asInstanceOf[HttpURLConnection]
+      val conn = new URI(MavenCentralQuery).toURL.openConnection().asInstanceOf[HttpURLConnection]
 
       try {
         conn.setReadTimeout(MavenCentralQueryTimeoutMillis)
