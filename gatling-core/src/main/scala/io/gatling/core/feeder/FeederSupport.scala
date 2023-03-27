@@ -17,7 +17,7 @@
 package io.gatling.core.feeder
 
 import java.io.{ BufferedInputStream, BufferedOutputStream, File, FileOutputStream }
-import java.net.URL
+import java.net.URI
 
 import scala.collection.immutable.ArraySeq
 import scala.util.Using
@@ -66,7 +66,7 @@ trait FeederSupport extends ResourceCache {
     val tempFile = File.createTempFile("jsonUrl", null)
     tempFile.deleteOnExit()
 
-    Using.resources(new BufferedInputStream(new URL(url).openStream), new BufferedOutputStream(new FileOutputStream(tempFile))) { (is, os) =>
+    Using.resources(new BufferedInputStream(new URI(url).toURL.openStream), new BufferedOutputStream(new FileOutputStream(tempFile))) { (is, os) =>
       is.copyTo(os)
     }
 

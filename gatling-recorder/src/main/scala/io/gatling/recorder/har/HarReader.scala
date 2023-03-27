@@ -17,7 +17,7 @@
 package io.gatling.recorder.har
 
 import java.io.{ BufferedInputStream, FileInputStream, InputStream }
-import java.net.{ URL, URLEncoder }
+import java.net.{ URI, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
 import java.time.ZonedDateTime
@@ -67,7 +67,7 @@ private[recorder] object HarReader {
       // Chrome can mess up with request order
       .sortBy(_.request.timestamp)
 
-  private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess
+  private def isValidURL(url: String): Boolean = Try(new URI(url)).isSuccess
 
   private def buildHttpTransaction(entry: HarEntry): HttpTransaction = {
     val start = parseMillisFromIso8601DateTime(entry.startedDateTime)

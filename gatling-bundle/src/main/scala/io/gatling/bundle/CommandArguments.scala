@@ -16,7 +16,7 @@
 
 package io.gatling.bundle
 
-import java.net.URL
+import java.net.{ URI, URL }
 import java.nio.file.Path
 import java.util.UUID
 
@@ -35,7 +35,7 @@ object CommandArguments {
     simulationEnvironmentVariables = Map.empty,
     batchMode = false,
     waitForRunEnd = false,
-    url = new URL("https://cloud.gatling.io"),
+    url = new URI("https://cloud.gatling.io").toURL,
     runMode = None,
     reportsOnly = None,
     extraJavaOptionsCompile = Nil,

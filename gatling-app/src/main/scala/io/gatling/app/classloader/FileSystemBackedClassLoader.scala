@@ -17,7 +17,7 @@
 package io.gatling.app.classloader
 
 import java.io.InputStream
-import java.net.{ URL, URLConnection }
+import java.net.{ URI, URL, URLConnection }
 import java.nio.file.{ Files, Path, Paths }
 import java.security.{ CodeSource, ProtectionDomain }
 import java.security.cert.Certificate
@@ -40,6 +40,7 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
     Some(fullPath).filter(Files.exists(_))
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.JavaNetURLConstructors"))
   override def findResource(name: String): URL =
     findPath(Paths.get(name)).map { path =>
       new URL(
@@ -88,7 +89,7 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
       if (n < 0) null
       else {
         val path = s.substring(0, n)
-        new ProtectionDomain(new CodeSource(new URL(path), null.asInstanceOf[Array[Certificate]]), null, this, null)
+        new ProtectionDomain(new CodeSource(new URI(path).toURL, null.asInstanceOf[Array[Certificate]]), null, this, null)
       }
     }
   }
