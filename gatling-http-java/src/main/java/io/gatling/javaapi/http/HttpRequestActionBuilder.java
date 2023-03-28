@@ -21,6 +21,7 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.HttpChecks.toScalaChecks;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.http.response.Response;
 import io.gatling.javaapi.core.Body;
@@ -34,7 +35,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for building HTTP requests configurations
@@ -69,8 +69,8 @@ public final class HttpRequestActionBuilder
    * @param checks the checks
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder check(@Nonnull CheckBuilder... checks) {
+  @NonNull
+  public HttpRequestActionBuilder check(@NonNull CheckBuilder... checks) {
     return check(Arrays.asList(checks));
   }
 
@@ -80,8 +80,8 @@ public final class HttpRequestActionBuilder
    * @param checks the checks
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder check(@Nonnull List<CheckBuilder> checks) {
+  @NonNull
+  public HttpRequestActionBuilder check(@NonNull List<CheckBuilder> checks) {
     return new HttpRequestActionBuilder(wrapped.check(toScalaChecks(checks)));
   }
 
@@ -91,8 +91,8 @@ public final class HttpRequestActionBuilder
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public UntypedCondition checkIf(@Nonnull String condition) {
+  @NonNull
+  public UntypedCondition checkIf(@NonNull String condition) {
     return new UntypedCondition(
         ScalaHttpRequestActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -103,8 +103,8 @@ public final class HttpRequestActionBuilder
    * @param condition the condition, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public UntypedCondition checkIf(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  public UntypedCondition checkIf(@NonNull Function<Session, Boolean> condition) {
     return new UntypedCondition(
         ScalaHttpRequestActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -122,8 +122,8 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @Nonnull
-    public HttpRequestActionBuilder then(@Nonnull CheckBuilder... thenChecks) {
+    @NonNull
+    public HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
       return then(Arrays.asList(thenChecks));
     }
 
@@ -133,8 +133,8 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @Nonnull
-    public HttpRequestActionBuilder then(@Nonnull List<CheckBuilder> thenChecks) {
+    @NonNull
+    public HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
       return wrapped.then_(thenChecks);
     }
   }
@@ -162,8 +162,8 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @Nonnull
-    public HttpRequestActionBuilder then(@Nonnull CheckBuilder... thenChecks) {
+    @NonNull
+    public HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
       return then(Arrays.asList(thenChecks));
     }
 
@@ -173,8 +173,8 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @Nonnull
-    public HttpRequestActionBuilder then(@Nonnull List<CheckBuilder> thenChecks) {
+    @NonNull
+    public HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
       return wrapped.then_(thenChecks);
     }
   }
@@ -184,7 +184,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder ignoreProtocolChecks() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::ignoreProtocolChecks);
   }
@@ -194,7 +194,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder silent() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::silent);
   }
@@ -205,7 +205,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder notSilent() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::notSilent);
   }
@@ -215,7 +215,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder disableFollowRedirect() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::disableFollowRedirect);
   }
@@ -226,9 +226,9 @@ public final class HttpRequestActionBuilder
    * @param f the transformation
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder transformResponse(
-      @Nonnull BiFunction<Response, Session, Response> f) {
+      @NonNull BiFunction<Response, Session, Response> f) {
     return make(wrapped -> wrapped.transformResponse(javaBiFunctionToExpression(f)));
   }
 
@@ -238,7 +238,7 @@ public final class HttpRequestActionBuilder
    * @param body the request body
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder body(Body body) {
     return make(wrapped -> wrapped.body(body.asScala()));
   }
@@ -249,9 +249,9 @@ public final class HttpRequestActionBuilder
    * @param processor the processing function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder processRequestBody(
-      @Nonnull Function<Body, ? extends Body> processor) {
+      @NonNull Function<Body, ? extends Body> processor) {
     return make(
         wrapped ->
             wrapped.processRequestBody(
@@ -264,8 +264,8 @@ public final class HttpRequestActionBuilder
    * @param part the part
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder bodyPart(@Nonnull BodyPart part) {
+  @NonNull
+  public HttpRequestActionBuilder bodyPart(@NonNull BodyPart part) {
     return make(wrapped -> wrapped.bodyPart(part.asScala()));
   }
 
@@ -275,8 +275,8 @@ public final class HttpRequestActionBuilder
    * @param parts the parts
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder bodyParts(@Nonnull BodyPart... parts) {
+  @NonNull
+  public HttpRequestActionBuilder bodyParts(@NonNull BodyPart... parts) {
     return make(
         wrapped ->
             wrapped.bodyParts(
@@ -290,8 +290,8 @@ public final class HttpRequestActionBuilder
    * @param parts the parts
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder bodyParts(@Nonnull List<BodyPart> parts) {
+  @NonNull
+  public HttpRequestActionBuilder bodyParts(@NonNull List<BodyPart> parts) {
     return make(
         wrapped ->
             wrapped.bodyParts(
@@ -305,8 +305,8 @@ public final class HttpRequestActionBuilder
    * @param res the resources
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder resources(@Nonnull HttpRequestActionBuilder... res) {
+  @NonNull
+  public HttpRequestActionBuilder resources(@NonNull HttpRequestActionBuilder... res) {
     return resources(Arrays.asList(res));
   }
 
@@ -317,8 +317,8 @@ public final class HttpRequestActionBuilder
    * @param res the resources
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder resources(@Nonnull List<HttpRequestActionBuilder> res) {
+  @NonNull
+  public HttpRequestActionBuilder resources(@NonNull List<HttpRequestActionBuilder> res) {
     return make(
         wrapped ->
             wrapped.resources(
@@ -330,7 +330,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder asMultipartForm() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::asMultipartForm);
   }
@@ -340,7 +340,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder asFormUrlEncoded() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::asFormUrlEncoded);
   }
@@ -352,8 +352,8 @@ public final class HttpRequestActionBuilder
    * @param value the parameter value, expressed as a Gatling Expression Language String
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder formParam(@Nonnull String key, @Nonnull String value) {
+  @NonNull
+  public HttpRequestActionBuilder formParam(@NonNull String key, @NonNull String value) {
     return make(wrapped -> wrapped.formParam(toStringExpression(key), toAnyExpression(value)));
   }
 
@@ -364,9 +364,9 @@ public final class HttpRequestActionBuilder
    * @param value the parameter value, expressed as a Gatling Expression Language String
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParam(
-      @Nonnull Function<Session, String> key, @Nonnull String value) {
+      @NonNull Function<Session, String> key, @NonNull String value) {
     return make(
         wrapped -> wrapped.formParam(javaFunctionToExpression(key), toAnyExpression(value)));
   }
@@ -378,8 +378,8 @@ public final class HttpRequestActionBuilder
    * @param value the parameter static value
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder formParam(@Nonnull String key, @Nonnull Object value) {
+  @NonNull
+  public HttpRequestActionBuilder formParam(@NonNull String key, @NonNull Object value) {
     return make(
         wrapped -> wrapped.formParam(toStringExpression(key), toStaticValueExpression(value)));
   }
@@ -391,9 +391,9 @@ public final class HttpRequestActionBuilder
    * @param value the parameter static value
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParam(
-      @Nonnull Function<Session, String> key, @Nonnull Object value) {
+      @NonNull Function<Session, String> key, @NonNull Object value) {
     return make(
         wrapped ->
             wrapped.formParam(javaFunctionToExpression(key), toStaticValueExpression(value)));
@@ -406,9 +406,9 @@ public final class HttpRequestActionBuilder
    * @param value the parameter value, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParam(
-      @Nonnull String key, @Nonnull Function<Session, Object> value) {
+      @NonNull String key, @NonNull Function<Session, Object> value) {
     return make(
         wrapped -> wrapped.formParam(toStringExpression(key), javaFunctionToExpression(value)));
   }
@@ -420,9 +420,9 @@ public final class HttpRequestActionBuilder
    * @param value the parameter value, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParam(
-      @Nonnull Function<Session, String> key, @Nonnull Function<Session, Object> value) {
+      @NonNull Function<Session, String> key, @NonNull Function<Session, Object> value) {
     return make(
         wrapped ->
             wrapped.formParam(javaFunctionToExpression(key), javaFunctionToExpression(value)));
@@ -435,9 +435,9 @@ public final class HttpRequestActionBuilder
    * @param values the static parameter values
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder multivaluedFormParam(
-      @Nonnull String key, @Nonnull List<Object> values) {
+      @NonNull String key, @NonNull List<Object> values) {
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
@@ -451,9 +451,9 @@ public final class HttpRequestActionBuilder
    * @param values the parameter values, as a Gatling EL string
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder multivaluedFormParam(
-      @Nonnull String key, @Nonnull String values) {
+      @NonNull String key, @NonNull String values) {
     return make(
         wrapped -> wrapped.multivaluedFormParam(toStringExpression(key), toSeqExpression(values)));
   }
@@ -465,9 +465,9 @@ public final class HttpRequestActionBuilder
    * @param values the static parameter values
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder multivaluedFormParam(
-      @Nonnull Function<Session, String> key, @Nonnull List<Object> values) {
+      @NonNull Function<Session, String> key, @NonNull List<Object> values) {
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
@@ -481,9 +481,9 @@ public final class HttpRequestActionBuilder
    * @param values the parameter values, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder multivaluedFormParam(
-      @Nonnull String key, @Nonnull Function<Session, List<Object>> values) {
+      @NonNull String key, @NonNull Function<Session, List<Object>> values) {
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
@@ -497,9 +497,9 @@ public final class HttpRequestActionBuilder
    * @param values the parameter values, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder multivaluedFormParam(
-      @Nonnull Function<Session, String> key, @Nonnull Function<Session, List<Object>> values) {
+      @NonNull Function<Session, String> key, @NonNull Function<Session, List<Object>> values) {
     return make(
         wrapped ->
             wrapped.multivaluedFormParam(
@@ -512,8 +512,8 @@ public final class HttpRequestActionBuilder
    * @param seq the static parameters
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder formParamSeq(@Nonnull List<Map.Entry<String, Object>> seq) {
+  @NonNull
+  public HttpRequestActionBuilder formParamSeq(@NonNull List<Map.Entry<String, Object>> seq) {
     return make(wrapped -> wrapped.formParamSeq(toScalaTuple2Seq(seq)));
   }
 
@@ -523,9 +523,9 @@ public final class HttpRequestActionBuilder
    * @param seq the parameters, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParamSeq(
-      @Nonnull Function<Session, List<Map.Entry<String, Object>>> seq) {
+      @NonNull Function<Session, List<Map.Entry<String, Object>>> seq) {
     return make(wrapped -> wrapped.formParamSeq(javaPairListFunctionToTuple2SeqExpression(seq)));
   }
 
@@ -535,8 +535,8 @@ public final class HttpRequestActionBuilder
    * @param map the static parameters
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder formParamMap(@Nonnull Map<String, Object> map) {
+  @NonNull
+  public HttpRequestActionBuilder formParamMap(@NonNull Map<String, Object> map) {
     return make(wrapped -> wrapped.formParamMap(toScalaMap(map)));
   }
 
@@ -546,9 +546,9 @@ public final class HttpRequestActionBuilder
    * @param map the parameters, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formParamMap(
-      @Nonnull Function<Session, Map<String, Object>> map) {
+      @NonNull Function<Session, Map<String, Object>> map) {
     return make(wrapped -> wrapped.formParamMap(javaMapFunctionToExpression(map)));
   }
 
@@ -558,8 +558,8 @@ public final class HttpRequestActionBuilder
    * @param form the form inputs, expressed as a Gatling Expression Language String
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder form(@Nonnull String form) {
+  @NonNull
+  public HttpRequestActionBuilder form(@NonNull String form) {
     return make(wrapped -> wrapped.formParamMap(toMapExpression(form)));
   }
 
@@ -569,8 +569,8 @@ public final class HttpRequestActionBuilder
    * @param map the form inputs, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder form(@Nonnull Function<Session, Map<String, Object>> map) {
+  @NonNull
+  public HttpRequestActionBuilder form(@NonNull Function<Session, Map<String, Object>> map) {
     return make(wrapped -> wrapped.form(javaMapFunctionToExpression(map)));
   }
 
@@ -582,8 +582,8 @@ public final class HttpRequestActionBuilder
    *     absolute, expressed as a Gatling Expression Language String
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder formUpload(@Nonnull String name, @Nonnull String filePath) {
+  @NonNull
+  public HttpRequestActionBuilder formUpload(@NonNull String name, @NonNull String filePath) {
     return make(
         wrapped ->
             wrapped.formUpload(
@@ -600,9 +600,9 @@ public final class HttpRequestActionBuilder
    *     absolute, expressed as a Gatling Expression Language String
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formUpload(
-      @Nonnull Function<Session, String> name, @Nonnull String filePath) {
+      @NonNull Function<Session, String> name, @NonNull String filePath) {
     return make(
         wrapped ->
             wrapped.formUpload(
@@ -619,9 +619,9 @@ public final class HttpRequestActionBuilder
    *     absolute, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formUpload(
-      @Nonnull String name, Function<Session, String> filePath) {
+      @NonNull String name, Function<Session, String> filePath) {
     return make(
         wrapped ->
             wrapped.formUpload(
@@ -638,9 +638,9 @@ public final class HttpRequestActionBuilder
    *     absolute, expressed as a function
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder formUpload(
-      @Nonnull Function<Session, String> name, @Nonnull Function<Session, String> filePath) {
+      @NonNull Function<Session, String> name, @NonNull Function<Session, String> filePath) {
     return make(
         wrapped ->
             wrapped.formUpload(
@@ -655,7 +655,7 @@ public final class HttpRequestActionBuilder
    * @param timeout the timeout in seconds
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public HttpRequestActionBuilder requestTimeout(int timeout) {
     return requestTimeout(Duration.ofSeconds(timeout));
   }
@@ -666,8 +666,8 @@ public final class HttpRequestActionBuilder
    * @param timeout the timeout
    * @return a new HttpRequestActionBuilder instance
    */
-  @Nonnull
-  public HttpRequestActionBuilder requestTimeout(@Nonnull Duration timeout) {
+  @NonNull
+  public HttpRequestActionBuilder requestTimeout(@NonNull Duration timeout) {
     return make(wrapped -> wrapped.requestTimeout(toScalaDuration(timeout)));
   }
 }

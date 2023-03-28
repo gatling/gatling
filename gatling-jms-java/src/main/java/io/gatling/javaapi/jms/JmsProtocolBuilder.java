@@ -18,11 +18,11 @@ package io.gatling.javaapi.jms;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.javaapi.core.ProtocolBuilder;
 import io.gatling.javaapi.jms.internal.JmsMessageMatchers;
 import java.time.Duration;
-import javax.annotation.Nonnull;
 import javax.jms.ConnectionFactory;
 
 /**
@@ -45,8 +45,8 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
      * @param cf the ConnectionFactory
      * @return a new DSL instance
      */
-    @Nonnull
-    public JmsProtocolBuilder connectionFactory(@Nonnull ConnectionFactory cf) {
+    @NonNull
+    public JmsProtocolBuilder connectionFactory(@NonNull ConnectionFactory cf) {
       return new JmsProtocolBuilder(
           io.gatling.jms.protocol.JmsProtocolBuilderBase.connectionFactory(cf));
     }
@@ -57,8 +57,8 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
      * @param cfb the ConnectionFactory
      * @return a new DSL instance
      */
-    @Nonnull
-    public JmsProtocolBuilder connectionFactory(@Nonnull JmsJndiConnectionFactoryBuilder cfb) {
+    @NonNull
+    public JmsProtocolBuilder connectionFactory(@NonNull JmsJndiConnectionFactoryBuilder cfb) {
       return new JmsProtocolBuilder(
           io.gatling.jms.protocol.JmsProtocolBuilderBase.connectionFactory(cfb.build()));
     }
@@ -82,8 +82,8 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @param password the password
    * @return a new instance
    */
-  @Nonnull
-  public JmsProtocolBuilder credentials(@Nonnull String user, @Nonnull String password) {
+  @NonNull
+  public JmsProtocolBuilder credentials(@NonNull String user, @NonNull String password) {
     return new JmsProtocolBuilder(wrapped.credentials(user, password));
   }
 
@@ -92,7 +92,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder usePersistentDeliveryMode() {
     return new JmsProtocolBuilder(wrapped.usePersistentDeliveryMode());
   }
@@ -102,7 +102,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder useNonPersistentDeliveryMode() {
     return new JmsProtocolBuilder(wrapped.useNonPersistentDeliveryMode());
   }
@@ -112,7 +112,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder matchByMessageId() {
     return new JmsProtocolBuilder(wrapped.matchByMessageId());
   }
@@ -122,7 +122,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder matchByCorrelationId() {
     return new JmsProtocolBuilder(wrapped.matchByCorrelationId());
   }
@@ -133,8 +133,8 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @param matcher the custom message matcher
    * @return a new instance
    */
-  @Nonnull
-  public JmsProtocolBuilder messageMatcher(@Nonnull JmsMessageMatcher matcher) {
+  @NonNull
+  public JmsProtocolBuilder messageMatcher(@NonNull JmsMessageMatcher matcher) {
     return new JmsProtocolBuilder(wrapped.messageMatcher(JmsMessageMatchers.toScala(matcher)));
   }
 
@@ -144,7 +144,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @param timeout the timeout in seconds
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder replyTimeout(long timeout) {
     return replyTimeout(Duration.ofSeconds(timeout));
   }
@@ -155,7 +155,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @param timeout the timeout
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder replyTimeout(Duration timeout) {
     return new JmsProtocolBuilder(wrapped.replyTimeout(toScalaDuration(timeout)));
   }
@@ -166,7 +166,7 @@ public final class JmsProtocolBuilder implements ProtocolBuilder {
    * @param threadCount the number of threads
    * @return a new instance
    */
-  @Nonnull
+  @NonNull
   public JmsProtocolBuilder listenerThreadCount(int threadCount) {
     return new JmsProtocolBuilder(wrapped.listenerThreadCount(threadCount));
   }

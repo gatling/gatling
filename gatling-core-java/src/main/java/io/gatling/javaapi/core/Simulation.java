@@ -18,6 +18,7 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.config.GatlingConfiguration;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.core.scenario.SimulationParams;
@@ -26,7 +27,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import scala.Option;
 
 /**
@@ -58,8 +58,8 @@ public abstract class Simulation {
    * @param populationBuilders the PopulationBuilder to be executed in this Simulation
    * @return a setup to possibly configure some protocols or assertions
    */
-  @Nonnull
-  public SetUp setUp(@Nonnull PopulationBuilder... populationBuilders) {
+  @NonNull
+  public SetUp setUp(@NonNull PopulationBuilder... populationBuilders) {
     return setUp(Arrays.asList(populationBuilders));
   }
 
@@ -69,8 +69,8 @@ public abstract class Simulation {
    * @param populationBuilders the PopulationBuilder to be executed in this Simulation
    * @return a setup to possibly configure some protocols or assertions
    */
-  @Nonnull
-  public SetUp setUp(@Nonnull List<PopulationBuilder> populationBuilders) {
+  @NonNull
+  public SetUp setUp(@NonNull List<PopulationBuilder> populationBuilders) {
     if (!_populationBuilders.isEmpty()) {
       throw new UnsupportedOperationException("Can only call setUp once");
     }
@@ -93,8 +93,8 @@ public abstract class Simulation {
      * @param protocols the protocols
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp protocols(@Nonnull ProtocolBuilder... protocols) {
+    @NonNull
+    public SetUp protocols(@NonNull ProtocolBuilder... protocols) {
       return protocols(Arrays.asList(protocols));
     }
 
@@ -104,8 +104,8 @@ public abstract class Simulation {
      * @param protocols the protocols
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp protocols(@Nonnull List<ProtocolBuilder> protocols) {
+    @NonNull
+    public SetUp protocols(@NonNull List<ProtocolBuilder> protocols) {
       _globalProtocols =
           protocols.stream()
               .map(ProtocolBuilder::protocol)
@@ -119,8 +119,8 @@ public abstract class Simulation {
      * @param assertions the assertions
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp assertions(@Nonnull Assertion... assertions) {
+    @NonNull
+    public SetUp assertions(@NonNull Assertion... assertions) {
       return assertions(Arrays.asList(assertions));
     }
 
@@ -130,8 +130,8 @@ public abstract class Simulation {
      * @param assertions the assertions
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp assertions(@Nonnull List<Assertion> assertions) {
+    @NonNull
+    public SetUp assertions(@NonNull List<Assertion> assertions) {
       _assertions = assertions;
       return this;
     }
@@ -142,7 +142,7 @@ public abstract class Simulation {
      * @param duration the max duration in seconds
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp maxDuration(long duration) {
       return maxDuration(Duration.ofSeconds(duration));
     }
@@ -153,8 +153,8 @@ public abstract class Simulation {
      * @param duration the max duration
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp maxDuration(@Nonnull Duration duration) {
+    @NonNull
+    public SetUp maxDuration(@NonNull Duration duration) {
       _maxDuration = duration;
       return this;
     }
@@ -165,8 +165,8 @@ public abstract class Simulation {
      * @param throttleSteps the throttling DSL steps
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp throttle(@Nonnull ThrottleStep... throttleSteps) {
+    @NonNull
+    public SetUp throttle(@NonNull ThrottleStep... throttleSteps) {
       return throttle(Arrays.asList(throttleSteps));
     }
 
@@ -176,8 +176,8 @@ public abstract class Simulation {
      * @param throttleSteps the throttling DSL steps
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp throttle(@Nonnull List<ThrottleStep> throttleSteps) {
+    @NonNull
+    public SetUp throttle(@NonNull List<ThrottleStep> throttleSteps) {
       _globalThrottleSteps = throttleSteps;
       return this;
     }
@@ -187,7 +187,7 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp disablePauses() {
       return pauses(PauseType.Disabled);
     }
@@ -197,7 +197,7 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp constantPauses() {
       return pauses(PauseType.Constant);
     }
@@ -207,7 +207,7 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp exponentialPauses() {
       return pauses(PauseType.Exponential);
     }
@@ -217,8 +217,8 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp customPauses(@Nonnull Function<Session, Long> f) {
+    @NonNull
+    public SetUp customPauses(@NonNull Function<Session, Long> f) {
       return pauses(new PauseType.Custom(f));
     }
 
@@ -228,7 +228,7 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp uniformPauses(double plusOrMinus) {
       return pauses(new PauseType.UniformPercentage(plusOrMinus));
     }
@@ -239,8 +239,8 @@ public abstract class Simulation {
      *
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp uniformPauses(@Nonnull Duration plusOrMinus) {
+    @NonNull
+    public SetUp uniformPauses(@NonNull Duration plusOrMinus) {
       return pauses(new PauseType.UniformDuration(plusOrMinus));
     }
 
@@ -251,7 +251,7 @@ public abstract class Simulation {
      * @param stdDevDuration the standard deviation of the distribution.
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp normalPausesWithStdDevDuration(Duration stdDevDuration) {
       return pauses(new PauseType.NormalWithStdDevDuration(stdDevDuration));
     }
@@ -263,7 +263,7 @@ public abstract class Simulation {
      * @param stdDevPercent the standard deviation of the distribution in percents.
      * @return the same mutated setup instance
      */
-    @Nonnull
+    @NonNull
     public SetUp normalPausesWithPercentageDuration(double stdDevPercent) {
       return pauses(new PauseType.NormalWithPercentageDuration(stdDevPercent));
     }
@@ -274,8 +274,8 @@ public abstract class Simulation {
      * @param pauseType the pause type
      * @return the same mutated setup instance
      */
-    @Nonnull
-    public SetUp pauses(@Nonnull PauseType pauseType) {
+    @NonNull
+    public SetUp pauses(@NonNull PauseType pauseType) {
       _globalPauseType = pauseType;
       return this;
     }

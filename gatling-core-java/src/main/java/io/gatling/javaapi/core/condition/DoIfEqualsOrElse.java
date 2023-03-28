@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.condition;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfEqualsOrElse;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "doIfEqualsOrElse" conditional blocks.
@@ -46,8 +46,8 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEqualsOrElse(@Nonnull String actual, @Nonnull String expected) {
+  @NonNull
+  default Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -59,8 +59,8 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEqualsOrElse(@Nonnull String actual, @Nonnull Object expected) {
+  @NonNull
+  default Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull Object expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -72,9 +72,9 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
+  @NonNull
   default Then<T> doIfEqualsOrElse(
-      @Nonnull String actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull String actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -87,9 +87,9 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
+  @NonNull
   default Then<T> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull String expected) {
+      @NonNull Function<Session, Object> actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -101,9 +101,9 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
+  @NonNull
   default Then<T> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull Object expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Object expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -115,9 +115,9 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
+  @NonNull
   default Then<T> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -139,8 +139,8 @@ public interface DoIfEqualsOrElse<
      * @param chain the "then "chain
      * @return the DSL component for defining the "else" block
      */
-    @Nonnull
-    public OrElse<T> then(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public OrElse<T> then(@NonNull ChainBuilder chain) {
       return new OrElse<>(wrapped.then_(chain));
     }
   }
@@ -163,8 +163,8 @@ public interface DoIfEqualsOrElse<
      * @param orElseChain the "then "chain
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T orElse(@Nonnull ChainBuilder orElseChain) {
+    @NonNull
+    public T orElse(@NonNull ChainBuilder orElseChain) {
       return wrapped.orElse(orElseChain);
     }
   }

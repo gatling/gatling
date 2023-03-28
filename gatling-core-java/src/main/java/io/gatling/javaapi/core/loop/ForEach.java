@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.core.loop;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -23,7 +24,6 @@ import io.gatling.javaapi.core.internal.loop.ScalaForEach;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "foreach" loops that iterate over a list of values.
@@ -46,8 +46,8 @@ public interface ForEach<
    * @param attributeName the key to store the current element in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
-  default On<T> foreach(@Nonnull List<?> seq, String attributeName) {
+  @NonNull
+  default On<T> foreach(@NonNull List<?> seq, String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -59,8 +59,8 @@ public interface ForEach<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
-  default On<T> foreach(@Nonnull List<?> seq, String attributeName, @Nonnull String counterName) {
+  @NonNull
+  default On<T> foreach(@NonNull List<?> seq, String attributeName, @NonNull String counterName) {
     return foreach(unused -> seq, attributeName, counterName);
   }
 
@@ -72,8 +72,8 @@ public interface ForEach<
    * @param attributeName the key to store the current element in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
-  default On<T> foreach(@Nonnull String seq, String attributeName) {
+  @NonNull
+  default On<T> foreach(@NonNull String seq, String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -86,8 +86,8 @@ public interface ForEach<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
-  default On<T> foreach(@Nonnull String seq, String attributeName, @Nonnull String counterName) {
+  @NonNull
+  default On<T> foreach(@NonNull String seq, String attributeName, @NonNull String counterName) {
     return new On<>(ScalaForEach.apply(this, seq, attributeName, counterName));
   }
 
@@ -98,8 +98,8 @@ public interface ForEach<
    * @param attributeName the key to store the current element in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
-  default On<T> foreach(@Nonnull Function<Session, List<?>> seq, @Nonnull String attributeName) {
+  @NonNull
+  default On<T> foreach(@NonNull Function<Session, List<?>> seq, @NonNull String attributeName) {
     return foreach(seq, attributeName, UUID.randomUUID().toString());
   }
 
@@ -111,11 +111,11 @@ public interface ForEach<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component to define the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> foreach(
-      @Nonnull Function<Session, List<?>> seq,
-      @Nonnull String attributeName,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, List<?>> seq,
+      @NonNull String attributeName,
+      @NonNull String counterName) {
     return new On<>(ScalaForEach.apply(this, seq, attributeName, counterName));
   }
 
@@ -137,8 +137,8 @@ public interface ForEach<
      * @param chain the loop content
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

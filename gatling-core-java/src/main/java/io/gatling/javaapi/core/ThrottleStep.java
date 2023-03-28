@@ -18,8 +18,8 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
-import javax.annotation.Nonnull;
 
 /**
  * Java wrapper of a Scala ThrottleStep.
@@ -52,7 +52,7 @@ public final class ThrottleStep {
      * @param duration the duration in seconds
      * @return a new ThrottleStep
      */
-    @Nonnull
+    @NonNull
     public ThrottleStep in(long duration) {
       return in(Duration.ofSeconds(duration));
     }
@@ -63,7 +63,7 @@ public final class ThrottleStep {
      * @param duration the duration in seconds
      * @return a new ThrottleStep
      */
-    @Nonnull
+    @NonNull
     public ThrottleStep during(long duration) {
       return in(duration);
     }
@@ -74,8 +74,8 @@ public final class ThrottleStep {
      * @param duration the duration
      * @return a new ThrottleStep
      */
-    @Nonnull
-    public ThrottleStep in(@Nonnull Duration duration) {
+    @NonNull
+    public ThrottleStep in(@NonNull Duration duration) {
       return new ThrottleStep(
           new io.gatling.core.controller.throttle.Reach(target, toScalaDuration(duration)));
     }
@@ -86,8 +86,8 @@ public final class ThrottleStep {
      * @param duration the duration
      * @return a new ThrottleStep
      */
-    @Nonnull
-    public ThrottleStep during(@Nonnull Duration duration) {
+    @NonNull
+    public ThrottleStep during(@NonNull Duration duration) {
       return in(duration);
     }
   }

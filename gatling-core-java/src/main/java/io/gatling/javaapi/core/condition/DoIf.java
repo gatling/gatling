@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.condition;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIf;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "doIf" conditional blocks.
@@ -44,8 +44,8 @@ public interface DoIf<
    *     evaluate to a Boolean
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIf(@Nonnull String condition) {
+  @NonNull
+  default Then<T> doIf(@NonNull String condition) {
     return new Then<>(ScalaDoIf.apply(this, condition));
   }
 
@@ -55,8 +55,8 @@ public interface DoIf<
    * @param condition the condition expressed as function
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIf(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  default Then<T> doIf(@NonNull Function<Session, Boolean> condition) {
     return new Then<>(ScalaDoIf.apply(this, condition));
   }
 
@@ -78,8 +78,8 @@ public interface DoIf<
      * @param chain the chain
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T then(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T then(@NonNull ChainBuilder chain) {
       return wrapped.then_(chain);
     }
   }

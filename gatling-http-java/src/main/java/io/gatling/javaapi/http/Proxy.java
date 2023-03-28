@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.http;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * DSL for bootstrapping Proxies.
@@ -39,7 +39,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @Nonnull
+  @NonNull
   public Proxy http() {
     return new Proxy(wrapped.http());
   }
@@ -49,7 +49,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @Nonnull
+  @NonNull
   public Proxy socks4() {
     return new Proxy(wrapped.socks4());
   }
@@ -59,7 +59,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @Nonnull
+  @NonNull
   public Proxy socks5() {
     return new Proxy(wrapped.socks5());
   }
@@ -70,7 +70,7 @@ public final class Proxy {
    * @param port the https port
    * @return a new Proxy instance
    */
-  @Nonnull
+  @NonNull
   public Proxy httpsPort(int port) {
     return new Proxy(wrapped.httpsPort(port));
   }
@@ -82,8 +82,8 @@ public final class Proxy {
    * @param password the password
    * @return a new Proxy instance
    */
-  @Nonnull
-  public Proxy credentials(@Nonnull String username, @Nonnull String password) {
+  @NonNull
+  public Proxy credentials(@NonNull String username, @NonNull String password) {
     return new Proxy(wrapped.credentials(username, password));
   }
 }

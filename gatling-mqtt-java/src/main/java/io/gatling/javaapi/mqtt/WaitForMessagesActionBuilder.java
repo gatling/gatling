@@ -18,9 +18,9 @@ package io.gatling.javaapi.mqtt;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import java.time.Duration;
-import javax.annotation.Nonnull;
 
 public final class WaitForMessagesActionBuilder implements ActionBuilder {
 
@@ -40,7 +40,7 @@ public final class WaitForMessagesActionBuilder implements ActionBuilder {
    * @param timeout the timeout in seconds
    * @return a new WaitForMessagesActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public WaitForMessagesActionBuilder timeout(long timeout) {
     return timeout(Duration.ofSeconds(timeout));
   }
@@ -51,8 +51,8 @@ public final class WaitForMessagesActionBuilder implements ActionBuilder {
    * @param timeout the timeout
    * @return a new WaitForMessagesActionBuilder instance
    */
-  @Nonnull
-  public WaitForMessagesActionBuilder timeout(@Nonnull Duration timeout) {
+  @NonNull
+  public WaitForMessagesActionBuilder timeout(@NonNull Duration timeout) {
     return new WaitForMessagesActionBuilder(wrapped.timeout(toScalaDuration(timeout)));
   }
 

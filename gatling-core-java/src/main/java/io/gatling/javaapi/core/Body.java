@@ -16,11 +16,11 @@
 
 package io.gatling.javaapi.core;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Failure;
 import io.gatling.commons.validation.Success;
 import io.gatling.commons.validation.Validation;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Java wrapper of a Scala request body. Sealed, must not be extended. Implementations are for
@@ -43,7 +43,7 @@ public abstract class Body {
   public static final class Default extends Body {
     private final io.gatling.core.body.Body wrapped;
 
-    public Default(@Nonnull io.gatling.core.body.Body wrapped) {
+    public Default(@NonNull io.gatling.core.body.Body wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -58,7 +58,7 @@ public abstract class Body {
 
     private final io.gatling.core.body.BodyWithStringExpression wrapped;
 
-    public WithString(@Nonnull io.gatling.core.body.BodyWithStringExpression wrapped) {
+    public WithString(@NonNull io.gatling.core.body.BodyWithStringExpression wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -69,7 +69,7 @@ public abstract class Body {
 
     @Override
     @SuppressWarnings("unchecked")
-    public String apply(@Nonnull Session session) {
+    public String apply(@NonNull Session session) {
       Validation<?> validation = wrapped.apply(session.asScala());
       if (validation instanceof Success) {
         return ((Success<String>) validation).value();
@@ -84,7 +84,7 @@ public abstract class Body {
 
     private final io.gatling.core.body.BodyWithBytesExpression wrapped;
 
-    public WithBytes(@Nonnull io.gatling.core.body.BodyWithBytesExpression wrapped) {
+    public WithBytes(@NonNull io.gatling.core.body.BodyWithBytesExpression wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -95,7 +95,7 @@ public abstract class Body {
 
     @Override
     @SuppressWarnings("unchecked")
-    public byte[] apply(@Nonnull Session session) {
+    public byte[] apply(@NonNull Session session) {
       Validation<?> validation = wrapped.apply(session.asScala());
       if (validation instanceof Success) {
         return ((Success<byte[]>) validation).value();

@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.group;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.group.ScalaGroups;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "groups".
@@ -47,8 +47,8 @@ public interface Groups<
    * @param name the name of the group, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the wrapped block
    */
-  @Nonnull
-  default On<T> group(@Nonnull String name) {
+  @NonNull
+  default On<T> group(@NonNull String name) {
     return new On<>(ScalaGroups.apply(this, name));
   }
 
@@ -58,8 +58,8 @@ public interface Groups<
    * @param name the name of the group, expressed as a function
    * @return a DSL component for defining the wrapped block
    */
-  @Nonnull
-  default On<T> group(@Nonnull Function<Session, String> name) {
+  @NonNull
+  default On<T> group(@NonNull Function<Session, String> name) {
     return new On<>(ScalaGroups.apply(this, name));
   }
 
@@ -81,8 +81,8 @@ public interface Groups<
      * @param chain the wrapped block
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.grouping(chain);
     }
   }

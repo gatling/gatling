@@ -19,6 +19,7 @@ package io.gatling.javaapi.http;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.client.Request;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Base DSL for HTTP, WebSocket and SSE requests
@@ -55,8 +55,8 @@ public abstract class RequestActionBuilder<
    * @param value the value of the parameter, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParam(@Nonnull String name, @Nonnull String value) {
+  @NonNull
+  public T queryParam(@NonNull String name, @NonNull String value) {
     return make(wrapped -> wrapped.queryParam(toStringExpression(name), toAnyExpression(value)));
   }
 
@@ -67,8 +67,8 @@ public abstract class RequestActionBuilder<
    * @param value the value of the parameter, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParam(@Nonnull Function<Session, String> name, @Nonnull String value) {
+  @NonNull
+  public T queryParam(@NonNull Function<Session, String> name, @NonNull String value) {
     return make(
         wrapped -> wrapped.queryParam(javaFunctionToExpression(name), toAnyExpression(value)));
   }
@@ -80,8 +80,8 @@ public abstract class RequestActionBuilder<
    * @param value the static value of the parameter
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParam(@Nonnull String name, @Nonnull Object value) {
+  @NonNull
+  public T queryParam(@NonNull String name, @NonNull Object value) {
     return make(
         wrapped -> wrapped.queryParam(toStringExpression(name), toStaticValueExpression(value)));
   }
@@ -93,8 +93,8 @@ public abstract class RequestActionBuilder<
    * @param value the static value of the parameter
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParam(@Nonnull Function<Session, String> name, @Nonnull Object value) {
+  @NonNull
+  public T queryParam(@NonNull Function<Session, String> name, @NonNull Object value) {
     return make(
         wrapped ->
             wrapped.queryParam(javaFunctionToExpression(name), toStaticValueExpression(value)));
@@ -107,8 +107,8 @@ public abstract class RequestActionBuilder<
    * @param value the value of the parameter, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParam(@Nonnull String name, @Nonnull Function<Session, Object> value) {
+  @NonNull
+  public T queryParam(@NonNull String name, @NonNull Function<Session, Object> value) {
     return make(
         wrapped -> wrapped.queryParam(toStringExpression(name), javaFunctionToExpression(value)));
   }
@@ -120,9 +120,9 @@ public abstract class RequestActionBuilder<
    * @param value the value of the parameter, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T queryParam(
-      @Nonnull Function<Session, String> name, @Nonnull Function<Session, Object> value) {
+      @NonNull Function<Session, String> name, @NonNull Function<Session, Object> value) {
     return make(
         wrapped ->
             wrapped.queryParam(javaFunctionToExpression(name), javaFunctionToExpression(value)));
@@ -135,8 +135,8 @@ public abstract class RequestActionBuilder<
    * @param values the static list of values of the parameter
    * @return a new DSL instance
    */
-  @Nonnull
-  public T multivaluedQueryParam(@Nonnull String name, @Nonnull List<Object> values) {
+  @NonNull
+  public T multivaluedQueryParam(@NonNull String name, @NonNull List<Object> values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
@@ -150,9 +150,9 @@ public abstract class RequestActionBuilder<
    * @param values the static list of values of the parameter
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T multivaluedQueryParam(
-      @Nonnull Function<Session, String> name, @Nonnull List<Object> values) {
+      @NonNull Function<Session, String> name, @NonNull List<Object> values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
@@ -167,8 +167,8 @@ public abstract class RequestActionBuilder<
    *     String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T multivaluedQueryParam(@Nonnull String name, @Nonnull String values) {
+  @NonNull
+  public T multivaluedQueryParam(@NonNull String name, @NonNull String values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(toStringExpression(name), toSeqExpression(values)));
@@ -182,8 +182,8 @@ public abstract class RequestActionBuilder<
    *     String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T multivaluedQueryParam(@Nonnull Function<Session, String> name, @Nonnull String values) {
+  @NonNull
+  public T multivaluedQueryParam(@NonNull Function<Session, String> name, @NonNull String values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(javaFunctionToExpression(name), toSeqExpression(values)));
@@ -196,9 +196,9 @@ public abstract class RequestActionBuilder<
    * @param values the list of values of the parameter, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T multivaluedQueryParam(
-      @Nonnull String name, @Nonnull Function<Session, List<Object>> values) {
+      @NonNull String name, @NonNull Function<Session, List<Object>> values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
@@ -212,9 +212,9 @@ public abstract class RequestActionBuilder<
    * @param values the list of values of the parameter, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T multivaluedQueryParam(
-      @Nonnull Function<Session, String> name, @Nonnull Function<Session, List<Object>> values) {
+      @NonNull Function<Session, String> name, @NonNull Function<Session, List<Object>> values) {
     return make(
         wrapped ->
             wrapped.multivaluedQueryParam(
@@ -227,8 +227,8 @@ public abstract class RequestActionBuilder<
    * @param seq a static List of query params
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamSeq(@Nonnull List<Map.Entry<String, Object>> seq) {
+  @NonNull
+  public T queryParamSeq(@NonNull List<Map.Entry<String, Object>> seq) {
     return make(wrapped -> wrapped.queryParamSeq(toScalaTuple2Seq(seq)));
   }
 
@@ -238,8 +238,8 @@ public abstract class RequestActionBuilder<
    * @param seq a List of query params, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamSeq(@Nonnull String seq) {
+  @NonNull
+  public T queryParamSeq(@NonNull String seq) {
     return make(wrapped -> wrapped.queryParamSeq(toSeqExpression(seq)));
   }
 
@@ -249,8 +249,8 @@ public abstract class RequestActionBuilder<
    * @param seq a List of query params, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamSeq(@Nonnull Function<Session, List<Map.Entry<String, Object>>> seq) {
+  @NonNull
+  public T queryParamSeq(@NonNull Function<Session, List<Map.Entry<String, Object>>> seq) {
     return make(wrapped -> wrapped.queryParamSeq(javaPairListFunctionToTuple2SeqExpression(seq)));
   }
 
@@ -260,8 +260,8 @@ public abstract class RequestActionBuilder<
    * @param map a static Map of query params
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamMap(@Nonnull Map<String, Object> map) {
+  @NonNull
+  public T queryParamMap(@NonNull Map<String, Object> map) {
     return make(wrapped -> wrapped.queryParamMap(toScalaMap(map)));
   }
 
@@ -271,8 +271,8 @@ public abstract class RequestActionBuilder<
    * @param map a Map of query params, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamMap(@Nonnull String map) {
+  @NonNull
+  public T queryParamMap(@NonNull String map) {
     return make(wrapped -> wrapped.queryParamMap(toMapExpression(map)));
   }
 
@@ -282,8 +282,8 @@ public abstract class RequestActionBuilder<
    * @param map a Map of query params, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T queryParamMap(@Nonnull Function<Session, Map<String, Object>> map) {
+  @NonNull
+  public T queryParamMap(@NonNull Function<Session, Map<String, Object>> map) {
     return make(wrapped -> wrapped.queryParamMap(javaMapFunctionToExpression(map)));
   }
 
@@ -294,8 +294,8 @@ public abstract class RequestActionBuilder<
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T header(@Nonnull CharSequence name, @Nonnull String value) {
+  @NonNull
+  public T header(@NonNull CharSequence name, @NonNull String value) {
     return make(wrapped -> wrapped.header(name, toStringExpression(value)));
   }
 
@@ -306,8 +306,8 @@ public abstract class RequestActionBuilder<
    * @param value the header value, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T header(@Nonnull CharSequence name, @Nonnull Function<Session, String> value) {
+  @NonNull
+  public T header(@NonNull CharSequence name, @NonNull Function<Session, String> value) {
     return make(wrapped -> wrapped.header(name, javaFunctionToExpression(value)));
   }
 
@@ -318,8 +318,8 @@ public abstract class RequestActionBuilder<
    *     Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T headers(@Nonnull Map<? extends CharSequence, String> headers) {
+  @NonNull
+  public T headers(@NonNull Map<? extends CharSequence, String> headers) {
     return make(wrapped -> wrapped.headers(toScalaMap(headers)));
   }
 
@@ -328,7 +328,7 @@ public abstract class RequestActionBuilder<
    *
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T ignoreProtocolHeaders() {
     return make(io.gatling.http.request.builder.RequestBuilder::ignoreProtocolHeaders);
   }
@@ -338,7 +338,7 @@ public abstract class RequestActionBuilder<
    *
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T asJson() {
     return make(io.gatling.http.request.builder.RequestBuilder::asJson);
   }
@@ -348,7 +348,7 @@ public abstract class RequestActionBuilder<
    *
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T asXml() {
     return make(io.gatling.http.request.builder.RequestBuilder::asXml);
   }
@@ -360,8 +360,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T basicAuth(@Nonnull String username, @Nonnull String password) {
+  @NonNull
+  public T basicAuth(@NonNull String username, @NonNull String password) {
     return make(
         wrapped -> wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
   }
@@ -373,8 +373,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T basicAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
+  @NonNull
+  public T basicAuth(@NonNull String username, @NonNull Function<Session, String> password) {
     return make(
         wrapped ->
             wrapped.basicAuth(toStringExpression(username), javaFunctionToExpression(password)));
@@ -387,8 +387,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T basicAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
+  @NonNull
+  public T basicAuth(@NonNull Function<Session, String> username, @NonNull String password) {
     return make(
         wrapped ->
             wrapped.basicAuth(javaFunctionToExpression(username), toStringExpression(password)));
@@ -401,9 +401,9 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T basicAuth(
-      @Nonnull Function<Session, String> username, @Nonnull Function<Session, String> password) {
+      @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return make(
         wrapped ->
             wrapped.basicAuth(
@@ -417,8 +417,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T digestAuth(@Nonnull String username, @Nonnull String password) {
+  @NonNull
+  public T digestAuth(@NonNull String username, @NonNull String password) {
     return make(
         wrapped -> wrapped.digestAuth(toStringExpression(username), toStringExpression(password)));
   }
@@ -430,8 +430,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T digestAuth(@Nonnull String username, @Nonnull Function<Session, String> password) {
+  @NonNull
+  public T digestAuth(@NonNull String username, @NonNull Function<Session, String> password) {
     return make(
         wrapped ->
             wrapped.digestAuth(toStringExpression(username), javaFunctionToExpression(password)));
@@ -444,8 +444,8 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T digestAuth(@Nonnull Function<Session, String> username, @Nonnull String password) {
+  @NonNull
+  public T digestAuth(@NonNull Function<Session, String> username, @NonNull String password) {
     return make(
         wrapped ->
             wrapped.digestAuth(javaFunctionToExpression(username), toStringExpression(password)));
@@ -458,9 +458,9 @@ public abstract class RequestActionBuilder<
    * @param password the password, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T digestAuth(
-      @Nonnull Function<Session, String> username, @Nonnull Function<Session, String> password) {
+      @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return make(
         wrapped ->
             wrapped.digestAuth(
@@ -473,8 +473,8 @@ public abstract class RequestActionBuilder<
    * @param virtualHost the virtual host, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
-  public T virtualHost(@Nonnull String virtualHost) {
+  @NonNull
+  public T virtualHost(@NonNull String virtualHost) {
     return make(wrapped -> (wrapped.virtualHost(toStringExpression(virtualHost))));
   }
 
@@ -484,8 +484,8 @@ public abstract class RequestActionBuilder<
    * @param virtualHost the virtual host, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T virtualHost(@Nonnull Function<Session, String> virtualHost) {
+  @NonNull
+  public T virtualHost(@NonNull Function<Session, String> virtualHost) {
     return make(wrapped -> wrapped.virtualHost(javaFunctionToExpression(virtualHost)));
   }
 
@@ -494,7 +494,7 @@ public abstract class RequestActionBuilder<
    *
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T disableUrlEncoding() {
     return make(io.gatling.http.request.builder.RequestBuilder::disableUrlEncoding);
   }
@@ -505,8 +505,8 @@ public abstract class RequestActionBuilder<
    * @param proxy the proxy
    * @return a new DSL instance
    */
-  @Nonnull
-  public T proxy(@Nonnull Proxy proxy) {
+  @NonNull
+  public T proxy(@NonNull Proxy proxy) {
     return make(wrapped -> wrapped.proxy(proxy.asScala()));
   }
 
@@ -516,8 +516,8 @@ public abstract class RequestActionBuilder<
    * @param calculator the signing function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T sign(@Nonnull Consumer<Request> calculator) {
+  @NonNull
+  public T sign(@NonNull Consumer<Request> calculator) {
     return sign((request, session) -> calculator.accept(request));
   }
 
@@ -528,8 +528,8 @@ public abstract class RequestActionBuilder<
    * @param calculator the signing function
    * @return a new DSL instance
    */
-  @Nonnull
-  public T sign(@Nonnull BiConsumer<Request, Session> calculator) {
+  @NonNull
+  public T sign(@NonNull BiConsumer<Request, Session> calculator) {
     return make(wrapped -> wrapped.sign(SignatureCalculators.toScala(calculator)));
   }
 
@@ -543,12 +543,12 @@ public abstract class RequestActionBuilder<
    * @param tokenSecret the tokenSecret, expressed as a Gatling Expression Language String
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T signWithOAuth1(
-      @Nonnull String consumerKey,
-      @Nonnull String clientSharedSecret,
-      @Nonnull String token,
-      @Nonnull String tokenSecret) {
+      @NonNull String consumerKey,
+      @NonNull String clientSharedSecret,
+      @NonNull String token,
+      @NonNull String tokenSecret) {
     return make(
         wrapped ->
             wrapped.signWithOAuth1(
@@ -567,12 +567,12 @@ public abstract class RequestActionBuilder<
    * @param tokenSecret the tokenSecret, expressed as a function
    * @return a new DSL instance
    */
-  @Nonnull
+  @NonNull
   public T signWithOAuth1(
-      @Nonnull Function<Session, String> consumerKey,
-      @Nonnull Function<Session, String> clientSharedSecret,
-      @Nonnull Function<Session, String> token,
-      @Nonnull Function<Session, String> tokenSecret) {
+      @NonNull Function<Session, String> consumerKey,
+      @NonNull Function<Session, String> clientSharedSecret,
+      @NonNull Function<Session, String> token,
+      @NonNull Function<Session, String> tokenSecret) {
     return make(
         wrapped ->
             wrapped.signWithOAuth1(

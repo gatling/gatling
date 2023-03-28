@@ -19,6 +19,7 @@ package io.gatling.javaapi.mqtt;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.ProtocolBuilder;
@@ -26,7 +27,6 @@ import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.mqtt.internal.MessageCorrelators;
 import java.time.Duration;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 
 /**
@@ -46,7 +46,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder mqttVersion_3_1() {
     return new MqttProtocolBuilder(wrapped.mqttVersion_3_1());
   }
@@ -56,7 +56,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder mqttVersion_3_1_1() {
     return new MqttProtocolBuilder(wrapped.mqttVersion_3_1_1());
   }
@@ -68,8 +68,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param port the port
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder broker(@Nonnull String hostname, int port) {
+  @NonNull
+  public MqttProtocolBuilder broker(@NonNull String hostname, int port) {
     return new MqttProtocolBuilder(wrapped.broker(hostname, port));
   }
 
@@ -79,7 +79,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param useTls true to enable TLS
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder useTls(boolean useTls) {
     return new MqttProtocolBuilder(wrapped.useTls(useTls));
   }
@@ -91,9 +91,9 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *     virtual user's unique id.
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder perUserKeyManagerFactory(
-      @Nonnull Function<Long, KeyManagerFactory> f) {
+      @NonNull Function<Long, KeyManagerFactory> f) {
     return new MqttProtocolBuilder(
         wrapped.perUserKeyManagerFactory(untyped -> f.apply((Long) untyped)));
   }
@@ -104,8 +104,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param clientId the clientId, expressed as a Gatling Expression Language String
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder clientId(@Nonnull String clientId) {
+  @NonNull
+  public MqttProtocolBuilder clientId(@NonNull String clientId) {
     return new MqttProtocolBuilder(wrapped.clientId(toStringExpression(clientId)));
   }
 
@@ -115,8 +115,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param clientId the clientId, expressed as a function
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder clientId(@Nonnull Function<Session, String> clientId) {
+  @NonNull
+  public MqttProtocolBuilder clientId(@NonNull Function<Session, String> clientId) {
     return new MqttProtocolBuilder(wrapped.clientId(javaFunctionToExpression(clientId)));
   }
 
@@ -126,7 +126,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param cleanSession true to clean the session
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder cleanSession(boolean cleanSession) {
     return new MqttProtocolBuilder(wrapped.cleanSession(cleanSession));
   }
@@ -137,7 +137,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param timeout the timeout in seconds
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder connectTimeout(long timeout) {
     return connectTimeout(Duration.ofSeconds(timeout));
   }
@@ -148,8 +148,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param timeout the timeout
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder connectTimeout(@Nonnull Duration timeout) {
+  @NonNull
+  public MqttProtocolBuilder connectTimeout(@NonNull Duration timeout) {
     return new MqttProtocolBuilder(wrapped.connectTimeout(toScalaDuration(timeout)));
   }
 
@@ -159,7 +159,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param timeout the keepAlive timeout in seconds
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder keepAlive(long timeout) {
     return keepAlive(Duration.ofSeconds(timeout));
   }
@@ -170,8 +170,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param timeout the keepAlive timeout
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder keepAlive(@Nonnull Duration timeout) {
+  @NonNull
+  public MqttProtocolBuilder keepAlive(@NonNull Duration timeout) {
     return new MqttProtocolBuilder(wrapped.keepAlive(toScalaDuration(timeout)));
   }
 
@@ -180,7 +180,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder qosAtMostOnce() {
     return new MqttProtocolBuilder(wrapped.qosAtMostOnce());
   }
@@ -190,7 +190,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder qosAtLeastOnce() {
     return new MqttProtocolBuilder(wrapped.qosAtLeastOnce());
   }
@@ -200,7 +200,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder qosExactlyOnce() {
     return new MqttProtocolBuilder(wrapped.qosExactlyOnce());
   }
@@ -211,7 +211,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param retain true to retain
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder retain(boolean retain) {
     return new MqttProtocolBuilder(wrapped.retain(retain));
   }
@@ -223,8 +223,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder credentials(@Nonnull String userName, @Nonnull String password) {
+  @NonNull
+  public MqttProtocolBuilder credentials(@NonNull String userName, @NonNull String password) {
     return new MqttProtocolBuilder(
         wrapped.credentials(toStringExpression(userName), toStringExpression(password)));
   }
@@ -236,9 +236,9 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder credentials(
-      @Nonnull Function<Session, String> userName, @Nonnull String password) {
+      @NonNull Function<Session, String> userName, @NonNull String password) {
     return new MqttProtocolBuilder(
         wrapped.credentials(javaFunctionToExpression(userName), toStringExpression(password)));
   }
@@ -250,9 +250,9 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder credentials(
-      @Nonnull String userName, @Nonnull Function<Session, String> password) {
+      @NonNull String userName, @NonNull Function<Session, String> password) {
     return new MqttProtocolBuilder(
         wrapped.credentials(toStringExpression(userName), javaFunctionToExpression(password)));
   }
@@ -264,9 +264,9 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder credentials(
-      @Nonnull Function<Session, String> userName, @Nonnull Function<Session, String> password) {
+      @NonNull Function<Session, String> userName, @NonNull Function<Session, String> password) {
     return new MqttProtocolBuilder(
         wrapped.credentials(
             javaFunctionToExpression(userName), javaFunctionToExpression(password)));
@@ -278,8 +278,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param lw the last will message
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder lastWill(@Nonnull LastWillBuilder lw) {
+  @NonNull
+  public MqttProtocolBuilder lastWill(@NonNull LastWillBuilder lw) {
     return new MqttProtocolBuilder(wrapped.lastWill(lw.asScala()));
   }
 
@@ -289,7 +289,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param reconnectAttemptsMax the maximum number of reconnections
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder reconnectAttemptsMax(int reconnectAttemptsMax) {
     return new MqttProtocolBuilder(wrapped.reconnectAttemptsMax(reconnectAttemptsMax));
   }
@@ -300,7 +300,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param delay the delay in seconds
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder reconnectDelay(long delay) {
     return reconnectDelay(Duration.ofSeconds(delay));
   }
@@ -311,8 +311,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param delay the delay
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder reconnectDelay(@Nonnull Duration delay) {
+  @NonNull
+  public MqttProtocolBuilder reconnectDelay(@NonNull Duration delay) {
     return new MqttProtocolBuilder(wrapped.reconnectDelay(toScalaDuration(delay)));
   }
 
@@ -322,7 +322,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param multiplier the multiplier
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder reconnectBackoffMultiplier(float multiplier) {
     return new MqttProtocolBuilder(wrapped.reconnectBackoffMultiplier(multiplier));
   }
@@ -333,7 +333,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param delay the delay in seconds
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder resendDelay(long delay) {
     return resendDelay(Duration.ofSeconds(delay));
   }
@@ -344,8 +344,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param delay the delay
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder resendDelay(@Nonnull Duration delay) {
+  @NonNull
+  public MqttProtocolBuilder resendDelay(@NonNull Duration delay) {
     return new MqttProtocolBuilder(wrapped.resendDelay(toScalaDuration(delay)));
   }
 
@@ -355,7 +355,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param multiplier the multiplier
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder resendBackoffMultiplier(float multiplier) {
     return new MqttProtocolBuilder(wrapped.resendBackoffMultiplier(multiplier));
   }
@@ -367,8 +367,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param correlator the check to extract the correlationId
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder correlateBy(@Nonnull CheckBuilder correlator) {
+  @NonNull
+  public MqttProtocolBuilder correlateBy(@NonNull CheckBuilder correlator) {
     return new MqttProtocolBuilder(
         wrapped.correlateBy(MessageCorrelators.toScalaCorrelator(correlator)));
   }
@@ -379,7 +379,7 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param interval the interval in seconds
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
+  @NonNull
   public MqttProtocolBuilder timeoutCheckInterval(long interval) {
     return timeoutCheckInterval(Duration.ofSeconds(interval));
   }
@@ -390,8 +390,8 @@ public final class MqttProtocolBuilder implements ProtocolBuilder {
    * @param interval the interval
    * @return a new MqttProtocolBuilder instance
    */
-  @Nonnull
-  public MqttProtocolBuilder timeoutCheckInterval(@Nonnull Duration interval) {
+  @NonNull
+  public MqttProtocolBuilder timeoutCheckInterval(@NonNull Duration interval) {
     return new MqttProtocolBuilder(wrapped.timeoutCheckInterval(toScalaDuration(interval)));
   }
 

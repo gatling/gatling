@@ -18,6 +18,7 @@ package io.gatling.javaapi.core.error;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -25,7 +26,6 @@ import io.gatling.javaapi.core.internal.errors.ScalaExitHereIf;
 import io.gatling.javaapi.core.internal.errors.ScalaTryMax;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining error handling components.
@@ -47,8 +47,8 @@ public interface Errors<
    * @param chain the block to be eventually interrupted
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
-  default T exitBlockOnFail(@Nonnull ChainBuilder chain) {
+  @NonNull
+  default T exitBlockOnFail(@NonNull ChainBuilder chain) {
     return make(wrapped -> wrapped.exitBlockOnFail(chain.wrapped));
   }
 
@@ -59,7 +59,7 @@ public interface Errors<
    * @param times the maximum number of tries, including the first one (hence number of retries + 1)
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
+  @NonNull
   default TryMax<T> tryMax(int times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
@@ -72,8 +72,8 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
-  default TryMax<T> tryMax(int times, @Nonnull String counterName) {
+  @NonNull
+  default TryMax<T> tryMax(int times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -85,7 +85,7 @@ public interface Errors<
    *     1), expressed as a Gatling Expression Language String
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
+  @NonNull
   default TryMax<T> tryMax(String times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
@@ -99,8 +99,8 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
-  default TryMax<T> tryMax(@Nonnull String times, @Nonnull String counterName) {
+  @NonNull
+  default TryMax<T> tryMax(@NonNull String times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -112,8 +112,8 @@ public interface Errors<
    *     1), expressed as function
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
-  default TryMax<T> tryMax(@Nonnull Function<Session, Integer> times) {
+  @NonNull
+  default TryMax<T> tryMax(@NonNull Function<Session, Integer> times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
 
@@ -126,8 +126,8 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @Nonnull
-  default TryMax<T> tryMax(@Nonnull Function<Session, Integer> times, @Nonnull String counterName) {
+  @NonNull
+  default TryMax<T> tryMax(@NonNull Function<Session, Integer> times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -149,8 +149,8 @@ public interface Errors<
      * @param chain the tried block
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.trying(chain);
     }
   }
@@ -161,8 +161,8 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
-  default T exitHereIf(@Nonnull String condition) {
+  @NonNull
+  default T exitHereIf(@NonNull String condition) {
     return ScalaExitHereIf.apply(this, condition);
   }
 
@@ -172,8 +172,8 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
-  default T exitHereIf(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  default T exitHereIf(@NonNull Function<Session, Boolean> condition) {
     return ScalaExitHereIf.apply(this, condition);
   }
 
@@ -182,7 +182,7 @@ public interface Errors<
    *
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
+  @NonNull
   default T exitHere() {
     return make(io.gatling.core.structure.Errors::exitHere);
   }
@@ -193,7 +193,7 @@ public interface Errors<
    *
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
+  @NonNull
   default T exitHereIfFailed() {
     return make(io.gatling.core.structure.Errors::exitHereIfFailed);
   }
@@ -204,7 +204,7 @@ public interface Errors<
    * @param message the message, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
+  @NonNull
   default T stopInjector(String message) {
     return make(wrapped -> wrapped.stopInjector(toStringExpression(message)));
   }
@@ -215,7 +215,7 @@ public interface Errors<
    * @param message the message, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
+  @NonNull
   default T stopInjector(Function<Session, String> message) {
     return make(wrapped -> wrapped.stopInjector(javaFunctionToExpression(message)));
   }

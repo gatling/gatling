@@ -18,8 +18,8 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
-import javax.annotation.Nonnull;
 
 /**
  * Filter. Typically used for filtering HTTP resources.
@@ -45,14 +45,14 @@ public abstract class Filter<W extends io.gatling.core.filter.Filter> {
 
   /** A {@link Filter} to allow based on regex patterns */
   public static final class AllowList extends Filter<io.gatling.core.filter.AllowList> {
-    public AllowList(@Nonnull List<String> patterns) {
+    public AllowList(@NonNull List<String> patterns) {
       super(new io.gatling.core.filter.AllowList(toScalaSeq(patterns)));
     }
   }
 
   /** A {@link Filter} to deny based on regex patterns */
   public static final class DenyList extends Filter<io.gatling.core.filter.DenyList> {
-    public DenyList(@Nonnull List<String> patterns) {
+    public DenyList(@NonNull List<String> patterns) {
       super(new io.gatling.core.filter.DenyList(toScalaSeq(patterns)));
     }
   }

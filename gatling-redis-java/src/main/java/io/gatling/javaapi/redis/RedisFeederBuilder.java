@@ -18,10 +18,10 @@ package io.gatling.javaapi.redis;
 
 import static io.gatling.javaapi.core.internal.Feeders.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
 
 public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, Object>>> {
 
@@ -36,7 +36,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @Nonnull
+  @NonNull
   public RedisFeederBuilder LPOP() {
     return new RedisFeederBuilder(wrapped.LPOP());
   }
@@ -46,7 +46,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @Nonnull
+  @NonNull
   public RedisFeederBuilder SPOP() {
     return new RedisFeederBuilder(wrapped.SPOP());
   }
@@ -56,7 +56,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @Nonnull
+  @NonNull
   public RedisFeederBuilder SRANDMEMBER() {
     return new RedisFeederBuilder(wrapped.SRANDMEMBER());
   }
@@ -66,7 +66,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @Nonnull
+  @NonNull
   public RedisFeederBuilder RPOPLPUSH() {
     return new RedisFeederBuilder(wrapped.RPOPLPUSH());
   }

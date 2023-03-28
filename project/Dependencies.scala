@@ -81,7 +81,7 @@ object Dependencies {
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                         % "1.9.0"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                         % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.0"
-  private val jsr305                         = "com.google.code.findbugs"             % "jsr305"                            % "3.0.2"
+  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.7.3"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
   private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.5.1"
 
@@ -156,7 +156,7 @@ object Dependencies {
       parserDeps ++ testDeps
 
   val defaultJavaDependencies =
-    Seq(jsr305, junit, junitEngine, jupiterInterface) ++ testDeps
+    Seq(spotbugs, junit, junitEngine, jupiterInterface) ++ testDeps
 
   val coreJavaDependencies =
     Seq(typetools) ++ defaultJavaDependencies

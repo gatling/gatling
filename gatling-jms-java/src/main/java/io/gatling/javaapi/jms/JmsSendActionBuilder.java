@@ -19,13 +19,13 @@ package io.gatling.javaapi.jms;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.internal.Converters;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for building send/fire-and-forget actions.
@@ -47,8 +47,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
-  public JmsSendActionBuilder property(@Nonnull String key, @Nonnull String value) {
+  @NonNull
+  public JmsSendActionBuilder property(@NonNull String key, @NonNull String value) {
     return new JmsSendActionBuilder(
         wrapped.property(toStringExpression(key), toAnyExpression(value)));
   }
@@ -60,9 +60,9 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public JmsSendActionBuilder property(
-      @Nonnull Function<Session, String> key, @Nonnull String value) {
+      @NonNull Function<Session, String> key, @NonNull String value) {
     return new JmsSendActionBuilder(
         wrapped.property(javaFunctionToExpression(key), toAnyExpression(value)));
   }
@@ -74,9 +74,9 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public JmsSendActionBuilder property(
-      @Nonnull String key, @Nonnull Function<Session, Object> value) {
+      @NonNull String key, @NonNull Function<Session, Object> value) {
     return new JmsSendActionBuilder(
         wrapped.property(toStringExpression(key), javaFunctionToExpression(value)));
   }
@@ -88,9 +88,9 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public JmsSendActionBuilder property(
-      @Nonnull Function<Session, String> key, @Nonnull Function<Session, Object> value) {
+      @NonNull Function<Session, String> key, @NonNull Function<Session, Object> value) {
     return new JmsSendActionBuilder(
         wrapped.property(javaFunctionToExpression(key), javaFunctionToExpression(value)));
   }
@@ -101,8 +101,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param jmsType the JMS type value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
-  public JmsSendActionBuilder jmsType(@Nonnull String jmsType) {
+  @NonNull
+  public JmsSendActionBuilder jmsType(@NonNull String jmsType) {
     return new JmsSendActionBuilder(wrapped.jmsType(toStringExpression(jmsType)));
   }
 
@@ -112,8 +112,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
    * @param jmsType the JMS type value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @Nonnull
-  public JmsSendActionBuilder jmsType(@Nonnull Function<Session, String> jmsType) {
+  @NonNull
+  public JmsSendActionBuilder jmsType(@NonNull Function<Session, String> jmsType) {
     return new JmsSendActionBuilder(wrapped.jmsType(javaFunctionToExpression(jmsType)));
   }
 
@@ -135,8 +135,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param name the name of the queue, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @Nonnull
-    public Message queue(@Nonnull String name) {
+    @NonNull
+    public Message queue(@NonNull String name) {
       return new Message(wrapped.queue(toStringExpression(name)));
     }
 
@@ -146,8 +146,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param name the name of the queue, expressed as a function
      * @return the next DSL step
      */
-    @Nonnull
-    public Message queue(@Nonnull Function<Session, String> name) {
+    @NonNull
+    public Message queue(@NonNull Function<Session, String> name) {
       return new Message(wrapped.queue(javaFunctionToExpression(name)));
     }
 
@@ -157,8 +157,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param destination the destination
      * @return the next DSL step
      */
-    @Nonnull
-    public Message destination(@Nonnull JmsDestination destination) {
+    @NonNull
+    public Message destination(@NonNull JmsDestination destination) {
       return new Message(wrapped.destination(destination.asScala()));
     }
   }
@@ -176,8 +176,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder textMessage(@Nonnull String msg) {
+    @NonNull
+    public JmsSendActionBuilder textMessage(@NonNull String msg) {
       return new JmsSendActionBuilder(wrapped.textMessage(toStringExpression(msg)));
     }
 
@@ -187,8 +187,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder textMessage(@Nonnull Function<Session, String> msg) {
+    @NonNull
+    public JmsSendActionBuilder textMessage(@NonNull Function<Session, String> msg) {
       return new JmsSendActionBuilder(wrapped.textMessage(javaFunctionToExpression(msg)));
     }
 
@@ -198,8 +198,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder bytesMessage(@Nonnull byte[] msg) {
+    @NonNull
+    public JmsSendActionBuilder bytesMessage(@NonNull byte[] msg) {
       return new JmsSendActionBuilder(wrapped.bytesMessage(toStaticValueExpression(msg)));
     }
 
@@ -209,8 +209,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder bytesMessage(@Nonnull String msg) {
+    @NonNull
+    public JmsSendActionBuilder bytesMessage(@NonNull String msg) {
       return new JmsSendActionBuilder(wrapped.bytesMessage(toBytesExpression(msg)));
     }
 
@@ -220,8 +220,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder bytesMessage(@Nonnull Function<Session, byte[]> msg) {
+    @NonNull
+    public JmsSendActionBuilder bytesMessage(@NonNull Function<Session, byte[]> msg) {
       return new JmsSendActionBuilder(wrapped.bytesMessage(javaFunctionToExpression(msg)));
     }
 
@@ -231,8 +231,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder mapMessage(@Nonnull Map<String, Object> msg) {
+    @NonNull
+    public JmsSendActionBuilder mapMessage(@NonNull Map<String, Object> msg) {
       return new JmsSendActionBuilder(wrapped.mapMessage(toStaticValueExpression(toScalaMap(msg))));
     }
 
@@ -242,8 +242,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder mapMessage(@Nonnull String msg) {
+    @NonNull
+    public JmsSendActionBuilder mapMessage(@NonNull String msg) {
       return new JmsSendActionBuilder(wrapped.mapMessage(toMapExpression(msg)));
     }
 
@@ -253,8 +253,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder mapMessage(@Nonnull Function<Session, Map<String, Object>> msg) {
+    @NonNull
+    public JmsSendActionBuilder mapMessage(@NonNull Function<Session, Map<String, Object>> msg) {
       return new JmsSendActionBuilder(
           wrapped.mapMessage(javaFunctionToExpression(msg.andThen(Converters::toScalaMap))));
     }
@@ -265,8 +265,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder objectMessage(@Nonnull Serializable msg) {
+    @NonNull
+    public JmsSendActionBuilder objectMessage(@NonNull Serializable msg) {
       return new JmsSendActionBuilder(wrapped.objectMessage(toStaticValueExpression(msg)));
     }
 
@@ -276,8 +276,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder objectMessage(@Nonnull String msg) {
+    @NonNull
+    public JmsSendActionBuilder objectMessage(@NonNull String msg) {
       return new JmsSendActionBuilder(wrapped.objectMessage(toExpression(msg, Serializable.class)));
     }
 
@@ -287,8 +287,8 @@ public final class JmsSendActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @Nonnull
-    public JmsSendActionBuilder objectMessage(@Nonnull Function<Session, Serializable> msg) {
+    @NonNull
+    public JmsSendActionBuilder objectMessage(@NonNull Function<Session, Serializable> msg) {
       return new JmsSendActionBuilder(wrapped.objectMessage(javaFunctionToExpression(msg)));
     }
   }

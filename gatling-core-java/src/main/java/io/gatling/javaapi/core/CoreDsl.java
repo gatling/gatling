@@ -19,6 +19,7 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.stats.assertion.Details;
 import io.gatling.commons.stats.assertion.ForAll$;
 import io.gatling.commons.stats.assertion.Global$;
@@ -44,7 +45,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import scala.collection.immutable.Seq;
 
 /** The entrypoint of the Gatling core DSL */
@@ -60,8 +60,8 @@ public final class CoreDsl {
    * @param name the scenario name
    * @return a new Scenario builder
    */
-  @Nonnull
-  public static ScenarioBuilder scenario(@Nonnull String name) {
+  @NonNull
+  public static ScenarioBuilder scenario(@NonNull String name) {
     return new ScenarioBuilder(name);
   }
 
@@ -73,8 +73,8 @@ public final class CoreDsl {
    * @param patterns some Java regex patterns
    * @return a new AllowList
    */
-  @Nonnull
-  public static Filter.AllowList AllowList(@Nonnull String... patterns) {
+  @NonNull
+  public static Filter.AllowList AllowList(@NonNull String... patterns) {
     return AllowList(Arrays.asList(patterns));
   }
 
@@ -86,8 +86,8 @@ public final class CoreDsl {
    * @param patterns some Java regex patterns
    * @return a new AllowList
    */
-  @Nonnull
-  public static Filter.AllowList AllowList(@Nonnull List<String> patterns) {
+  @NonNull
+  public static Filter.AllowList AllowList(@NonNull List<String> patterns) {
     return new Filter.AllowList(patterns);
   }
 
@@ -99,8 +99,8 @@ public final class CoreDsl {
    * @param patterns some Java regex patterns
    * @return a new DenyList
    */
-  @Nonnull
-  public static Filter.DenyList DenyList(@Nonnull String... patterns) {
+  @NonNull
+  public static Filter.DenyList DenyList(@NonNull String... patterns) {
     return DenyList(Arrays.asList(patterns));
   }
 
@@ -112,8 +112,8 @@ public final class CoreDsl {
    * @param patterns some Java regex patterns
    * @return a new DenyList
    */
-  @Nonnull
-  public static Filter.DenyList DenyList(@Nonnull List<String> patterns) {
+  @NonNull
+  public static Filter.DenyList DenyList(@NonNull List<String> patterns) {
     return new Filter.DenyList(patterns);
   }
 
@@ -125,8 +125,8 @@ public final class CoreDsl {
    * @param f the function
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exec(@Nonnull Function<Session, Session> f) {
+  @NonNull
+  public static ChainBuilder exec(@NonNull Function<Session, Session> f) {
     return ChainBuilder.EMPTY.exec(f);
   }
 
@@ -137,8 +137,8 @@ public final class CoreDsl {
    * @param actionBuilder the Action builder
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exec(@Nonnull ActionBuilder actionBuilder) {
+  @NonNull
+  public static ChainBuilder exec(@NonNull ActionBuilder actionBuilder) {
     return ChainBuilder.EMPTY.exec(actionBuilder);
   }
 
@@ -149,8 +149,8 @@ public final class CoreDsl {
    * @param chainBuilders some {@link ChainBuilder}
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exec(@Nonnull ChainBuilder... chainBuilders) {
+  @NonNull
+  public static ChainBuilder exec(@NonNull ChainBuilder... chainBuilders) {
     return exec(Arrays.asList(chainBuilders));
   }
 
@@ -161,8 +161,8 @@ public final class CoreDsl {
    * @param chainBuilders some {@link ChainBuilder}s
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exec(@Nonnull List<ChainBuilder> chainBuilders) {
+  @NonNull
+  public static ChainBuilder exec(@NonNull List<ChainBuilder> chainBuilders) {
     return ChainBuilder.EMPTY.exec(chainBuilders);
   }
 
@@ -173,7 +173,7 @@ public final class CoreDsl {
    * @param duration the pause duration in seconds
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(long duration) {
     return ChainBuilder.EMPTY.pause(duration);
   }
@@ -185,8 +185,8 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(long duration, @Nonnull PauseType pauseType) {
+  @NonNull
+  public static ChainBuilder pause(long duration, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(duration, pauseType);
   }
 
@@ -196,8 +196,8 @@ public final class CoreDsl {
    * @param duration the pause duration
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull Duration duration) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull Duration duration) {
     return ChainBuilder.EMPTY.pause(duration);
   }
 
@@ -208,8 +208,8 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull Duration duration, @Nonnull PauseType pauseType) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull Duration duration, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(duration, pauseType);
   }
 
@@ -220,8 +220,8 @@ public final class CoreDsl {
    * @param duration the pause duration as a Gatling Expression Language string
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull String duration) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull String duration) {
     return ChainBuilder.EMPTY.pause(duration);
   }
 
@@ -233,8 +233,8 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull String duration, @Nonnull PauseType pauseType) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull String duration, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(duration, pauseType);
   }
 
@@ -244,8 +244,8 @@ public final class CoreDsl {
    * @param f the pause duration as a function
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull Function<Session, Duration> f) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull Function<Session, Duration> f) {
     return ChainBuilder.EMPTY.pause(f);
   }
 
@@ -257,9 +257,9 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(
-      @Nonnull Function<Session, Duration> f, @Nonnull PauseType pauseType) {
+      @NonNull Function<Session, Duration> f, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(f, pauseType);
   }
 
@@ -271,7 +271,7 @@ public final class CoreDsl {
    * @param max the pause maximum in seconds
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(long min, long max) {
     return ChainBuilder.EMPTY.pause(min, max);
   }
@@ -284,8 +284,8 @@ public final class CoreDsl {
    * @param max the pause maximum in seconds
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(long min, long max, @Nonnull PauseType pauseType) {
+  @NonNull
+  public static ChainBuilder pause(long min, long max, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(min, max, pauseType);
   }
 
@@ -297,8 +297,8 @@ public final class CoreDsl {
    * @param max the pause maximum
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull Duration min, @Nonnull Duration max) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull Duration min, @NonNull Duration max) {
     return ChainBuilder.EMPTY.pause(min, max);
   }
 
@@ -311,9 +311,9 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(
-      @Nonnull Duration min, @Nonnull Duration max, @Nonnull PauseType pauseType) {
+      @NonNull Duration min, @NonNull Duration max, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(min, max, pauseType);
   }
 
@@ -325,8 +325,8 @@ public final class CoreDsl {
    * @param max the pause maximum
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pause(@Nonnull String min, @Nonnull String max) {
+  @NonNull
+  public static ChainBuilder pause(@NonNull String min, @NonNull String max) {
     return ChainBuilder.EMPTY.pause(min, max);
   }
 
@@ -339,9 +339,9 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(
-      @Nonnull String min, @Nonnull String max, @Nonnull PauseType pauseType) {
+      @NonNull String min, @NonNull String max, @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(min, max, pauseType);
   }
 
@@ -353,9 +353,9 @@ public final class CoreDsl {
    * @param max the pause maximum
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(
-      @Nonnull Function<Session, Duration> min, @Nonnull Function<Session, Duration> max) {
+      @NonNull Function<Session, Duration> min, @NonNull Function<Session, Duration> max) {
     return ChainBuilder.EMPTY.pause(min, max);
   }
 
@@ -368,11 +368,11 @@ public final class CoreDsl {
    * @param pauseType the type of pause
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pause(
-      @Nonnull Function<Session, Duration> min,
-      @Nonnull Function<Session, Duration> max,
-      @Nonnull PauseType pauseType) {
+      @NonNull Function<Session, Duration> min,
+      @NonNull Function<Session, Duration> max,
+      @NonNull PauseType pauseType) {
     return ChainBuilder.EMPTY.pause(min, max, pauseType);
   }
 
@@ -382,7 +382,7 @@ public final class CoreDsl {
    * @param duration the duration of the pace in seconds
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(long duration) {
     return ChainBuilder.EMPTY.pace(duration);
   }
@@ -394,8 +394,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(long duration, @Nonnull String counterName) {
+  @NonNull
+  public static ChainBuilder pace(long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(duration, counterName);
   }
 
@@ -405,8 +405,8 @@ public final class CoreDsl {
    * @param duration the duration of the pace
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull Duration duration) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull Duration duration) {
     return ChainBuilder.EMPTY.pace(duration);
   }
 
@@ -417,8 +417,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull Duration duration, @Nonnull String counterName) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull Duration duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(duration, counterName);
   }
 
@@ -429,8 +429,8 @@ public final class CoreDsl {
    * @param duration the duration of the pace
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull String duration) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull String duration) {
     return ChainBuilder.EMPTY.pace(duration);
   }
 
@@ -442,8 +442,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull String duration, @Nonnull String counterName) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull String duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(duration, counterName);
   }
 
@@ -453,8 +453,8 @@ public final class CoreDsl {
    * @param duration the duration of the pace
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull Function<Session, Duration> duration) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.pace(duration);
   }
 
@@ -465,9 +465,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(
-      @Nonnull Function<Session, Duration> duration, @Nonnull String counterName) {
+      @NonNull Function<Session, Duration> duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(duration, counterName);
   }
 
@@ -479,7 +479,7 @@ public final class CoreDsl {
    * @param max the maximum duration of the pace in seconds
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(long min, long max) {
     return ChainBuilder.EMPTY.pace(min, max);
   }
@@ -493,8 +493,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(long min, long max, @Nonnull String counterName) {
+  @NonNull
+  public static ChainBuilder pace(long min, long max, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(min, max, counterName);
   }
 
@@ -506,8 +506,8 @@ public final class CoreDsl {
    * @param max the maximum duration of the pace
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder pace(@Nonnull Duration min, @Nonnull Duration max) {
+  @NonNull
+  public static ChainBuilder pace(@NonNull Duration min, @NonNull Duration max) {
     return ChainBuilder.EMPTY.pace(min, max);
   }
 
@@ -520,9 +520,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(
-      @Nonnull Duration min, @Nonnull Duration max, @Nonnull String counterName) {
+      @NonNull Duration min, @NonNull Duration max, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(min, max, counterName);
   }
 
@@ -535,9 +535,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(
-      @Nonnull String min, @Nonnull String max, @Nonnull String counterName) {
+      @NonNull String min, @NonNull String max, @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(min, max, counterName);
   }
 
@@ -549,9 +549,9 @@ public final class CoreDsl {
    * @param max the maximum duration of the pace
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(
-      @Nonnull Function<Session, Duration> min, Function<Session, Duration> max) {
+      @NonNull Function<Session, Duration> min, Function<Session, Duration> max) {
     return ChainBuilder.EMPTY.pace(min, max);
   }
 
@@ -564,11 +564,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder pace(
-      @Nonnull Function<Session, Duration> min,
-      @Nonnull Function<Session, Duration> max,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Duration> min,
+      @NonNull Function<Session, Duration> max,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.pace(min, max, counterName);
   }
 
@@ -578,7 +578,7 @@ public final class CoreDsl {
    * @param users the number of users that have to wait
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder rendezVous(int users) {
     return ChainBuilder.EMPTY.rendezVous(users);
   }
@@ -591,8 +591,8 @@ public final class CoreDsl {
    * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded.
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder feed(@Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder) {
+  @NonNull
+  public static ChainBuilder feed(@NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder) {
     return ChainBuilder.EMPTY.feed(feederBuilder);
   }
 
@@ -603,9 +603,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, int numberOfRecords) {
+      @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder, int numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
@@ -616,9 +616,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder, String numberOfRecords) {
+      @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder, String numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
@@ -629,9 +629,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Supplier<Iterator<Map<String, Object>>> feederBuilder,
+      @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder,
       Function<Session, Integer> numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
@@ -642,8 +642,8 @@ public final class CoreDsl {
    * @param feeder a source of records.
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder feed(@Nonnull Iterator<Map<String, Object>> feeder) {
+  @NonNull
+  public static ChainBuilder feed(@NonNull Iterator<Map<String, Object>> feeder) {
     return ChainBuilder.EMPTY.feed(feeder);
   }
 
@@ -654,9 +654,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
+      @NonNull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
   }
 
@@ -667,9 +667,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
+      @NonNull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
   }
 
@@ -680,9 +680,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull Iterator<Map<String, Object>> feeder, Function<Session, Integer> numberOfRecords) {
+      @NonNull Iterator<Map<String, Object>> feeder, Function<Session, Integer> numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feeder, numberOfRecords);
   }
 
@@ -692,8 +692,8 @@ public final class CoreDsl {
    * @param feederBuilder a source of records.
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder) {
+  @NonNull
+  public static ChainBuilder feed(@NonNull FeederBuilder<?> feederBuilder) {
     return ChainBuilder.EMPTY.feed(feederBuilder);
   }
 
@@ -704,8 +704,8 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder, int numberOfRecords) {
+  @NonNull
+  public static ChainBuilder feed(@NonNull FeederBuilder<?> feederBuilder, int numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
@@ -716,8 +716,8 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder feed(@Nonnull FeederBuilder<?> feederBuilder, String numberOfRecords) {
+  @NonNull
+  public static ChainBuilder feed(@NonNull FeederBuilder<?> feederBuilder, String numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
@@ -728,9 +728,9 @@ public final class CoreDsl {
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder feed(
-      @Nonnull FeederBuilder<?> feederBuilder, Function<Session, Integer> numberOfRecords) {
+      @NonNull FeederBuilder<?> feederBuilder, Function<Session, Integer> numberOfRecords) {
     return ChainBuilder.EMPTY.feed(feederBuilder, numberOfRecords);
   }
 
@@ -741,7 +741,7 @@ public final class CoreDsl {
    * @param times the number of iterations
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Repeat.On<ChainBuilder> repeat(int times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
@@ -753,8 +753,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
-  public static Repeat.On<ChainBuilder> repeat(int times, @Nonnull String counterName) {
+  @NonNull
+  public static Repeat.On<ChainBuilder> repeat(int times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
 
@@ -764,8 +764,8 @@ public final class CoreDsl {
    * @param times the number of iterations as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static Repeat.On<ChainBuilder> repeat(@Nonnull String times) {
+  @NonNull
+  public static Repeat.On<ChainBuilder> repeat(@NonNull String times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
 
@@ -776,8 +776,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
-  public static Repeat.On<ChainBuilder> repeat(@Nonnull String times, @Nonnull String counterName) {
+  @NonNull
+  public static Repeat.On<ChainBuilder> repeat(@NonNull String times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
 
@@ -787,8 +787,8 @@ public final class CoreDsl {
    * @param times the number of iterations
    * @return the next DSL step
    */
-  @Nonnull
-  public static Repeat.On<ChainBuilder> repeat(@Nonnull Function<Session, Integer> times) {
+  @NonNull
+  public static Repeat.On<ChainBuilder> repeat(@NonNull Function<Session, Integer> times) {
     return ChainBuilder.EMPTY.repeat(times);
   }
 
@@ -799,9 +799,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Repeat.On<ChainBuilder> repeat(
-      @Nonnull Function<Session, Integer> times, @Nonnull String counterName) {
+      @NonNull Function<Session, Integer> times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.repeat(times, counterName);
   }
 
@@ -812,8 +812,8 @@ public final class CoreDsl {
    * @param attributeName the key to store the current element
    * @return the next DSL step
    */
-  @Nonnull
-  public static ForEach.On<ChainBuilder> foreach(@Nonnull List<?> seq, String attributeName) {
+  @NonNull
+  public static ForEach.On<ChainBuilder> foreach(@NonNull List<?> seq, String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
 
@@ -826,9 +826,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ForEach.On<ChainBuilder> foreach(
-      @Nonnull List<?> seq, String attributeName, @Nonnull String counterName) {
+      @NonNull List<?> seq, String attributeName, @NonNull String counterName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName, counterName);
   }
 
@@ -839,8 +839,8 @@ public final class CoreDsl {
    * @param attributeName the key to store the current element
    * @return the next DSL step
    */
-  @Nonnull
-  public static ForEach.On<ChainBuilder> foreach(@Nonnull String seq, String attributeName) {
+  @NonNull
+  public static ForEach.On<ChainBuilder> foreach(@NonNull String seq, String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
 
@@ -853,9 +853,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ForEach.On<ChainBuilder> foreach(
-      @Nonnull String seq, String attributeName, @Nonnull String counterName) {
+      @NonNull String seq, String attributeName, @NonNull String counterName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName, counterName);
   }
 
@@ -867,9 +867,9 @@ public final class CoreDsl {
    * @param attributeName the key to store the current element
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ForEach.On<ChainBuilder> foreach(
-      @Nonnull Function<Session, List<?>> seq, @Nonnull String attributeName) {
+      @NonNull Function<Session, List<?>> seq, @NonNull String attributeName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName);
   }
 
@@ -882,11 +882,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ForEach.On<ChainBuilder> foreach(
-      @Nonnull Function<Session, List<?>> seq,
-      @Nonnull String attributeName,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, List<?>> seq,
+      @NonNull String attributeName,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.foreach(seq, attributeName, counterName);
   }
 
@@ -896,7 +896,7 @@ public final class CoreDsl {
    * @param duration the loop duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(long duration) {
     return ChainBuilder.EMPTY.during(duration);
   }
@@ -908,7 +908,7 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(long duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, exitASAP);
   }
@@ -920,8 +920,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(long duration, @Nonnull String counterName) {
+  @NonNull
+  public static During.On<ChainBuilder> during(long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.during(duration, counterName);
   }
 
@@ -934,9 +934,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      long duration, @Nonnull String counterName, boolean exitASAP) {
+      long duration, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, counterName, exitASAP);
   }
 
@@ -946,8 +946,8 @@ public final class CoreDsl {
    * @param duration the loop duration
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(@Nonnull Duration duration) {
+  @NonNull
+  public static During.On<ChainBuilder> during(@NonNull Duration duration) {
     return ChainBuilder.EMPTY.during(duration);
   }
 
@@ -958,8 +958,8 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(@Nonnull Duration duration, boolean exitASAP) {
+  @NonNull
+  public static During.On<ChainBuilder> during(@NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, exitASAP);
   }
 
@@ -970,9 +970,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull Duration duration, @Nonnull String counterName) {
+      @NonNull Duration duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.during(duration, counterName);
   }
 
@@ -985,9 +985,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull Duration duration, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull Duration duration, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, counterName, exitASAP);
   }
 
@@ -997,8 +997,8 @@ public final class CoreDsl {
    * @param duration the loop duration as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(@Nonnull String duration) {
+  @NonNull
+  public static During.On<ChainBuilder> during(@NonNull String duration) {
     return ChainBuilder.EMPTY.during(duration);
   }
 
@@ -1009,8 +1009,8 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(@Nonnull String duration, boolean exitASAP) {
+  @NonNull
+  public static During.On<ChainBuilder> during(@NonNull String duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, exitASAP);
   }
 
@@ -1021,9 +1021,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull String duration, @Nonnull String counterName) {
+      @NonNull String duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.during(duration, counterName);
   }
 
@@ -1036,9 +1036,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull String duration, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull String duration, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, counterName, exitASAP);
   }
 
@@ -1048,8 +1048,8 @@ public final class CoreDsl {
    * @param duration the loop duration as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static During.On<ChainBuilder> during(@Nonnull Function<Session, Duration> duration) {
+  @NonNull
+  public static During.On<ChainBuilder> during(@NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.during(duration);
   }
 
@@ -1060,9 +1060,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull Function<Session, Duration> duration, boolean exitASAP) {
+      @NonNull Function<Session, Duration> duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, exitASAP);
   }
 
@@ -1073,9 +1073,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull Function<Session, Duration> duration, @Nonnull String counterName) {
+      @NonNull Function<Session, Duration> duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.during(duration, counterName);
   }
 
@@ -1088,10 +1088,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static During.On<ChainBuilder> during(
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.during(duration, counterName, exitASAP);
   }
@@ -1101,7 +1101,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Forever.On<ChainBuilder> forever() {
     return ChainBuilder.EMPTY.forever();
   }
@@ -1112,8 +1112,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
-  public static Forever.On<ChainBuilder> forever(@Nonnull String counterName) {
+  @NonNull
+  public static Forever.On<ChainBuilder> forever(@NonNull String counterName) {
     return ChainBuilder.EMPTY.forever(counterName);
   }
 
@@ -1123,8 +1123,8 @@ public final class CoreDsl {
    * @param condition the loop condition as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull String condition) {
+  @NonNull
+  public static AsLongAs.On<ChainBuilder> asLongAs(@NonNull String condition) {
     return ChainBuilder.EMPTY.asLongAs(condition);
   }
 
@@ -1136,9 +1136,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAs.On<ChainBuilder> asLongAs(
-      @Nonnull String condition, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName);
   }
 
@@ -1150,8 +1150,8 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
-  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull String condition, boolean exitASAP) {
+  @NonNull
+  public static AsLongAs.On<ChainBuilder> asLongAs(@NonNull String condition, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, exitASAP);
   }
 
@@ -1164,9 +1164,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAs.On<ChainBuilder> asLongAs(
-      @Nonnull String condition, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull String condition, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName, exitASAP);
   }
 
@@ -1176,8 +1176,8 @@ public final class CoreDsl {
    * @param condition the loop condition as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static AsLongAs.On<ChainBuilder> asLongAs(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  public static AsLongAs.On<ChainBuilder> asLongAs(@NonNull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.asLongAs(condition);
   }
 
@@ -1189,9 +1189,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAs.On<ChainBuilder> asLongAs(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName);
   }
 
@@ -1203,9 +1203,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAs.On<ChainBuilder> asLongAs(
-      @Nonnull Function<Session, Boolean> condition, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, exitASAP);
   }
 
@@ -1218,10 +1218,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAs.On<ChainBuilder> asLongAs(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAs(condition, counterName, exitASAP);
   }
@@ -1232,8 +1232,8 @@ public final class CoreDsl {
    * @param condition the loop condition as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoWhile.On<ChainBuilder> doWhile(@Nonnull String condition) {
+  @NonNull
+  public static DoWhile.On<ChainBuilder> doWhile(@NonNull String condition) {
     return ChainBuilder.EMPTY.doWhile(condition);
   }
 
@@ -1244,9 +1244,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhile.On<ChainBuilder> doWhile(
-      @Nonnull String condition, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhile(condition, counterName);
   }
 
@@ -1256,8 +1256,8 @@ public final class CoreDsl {
    * @param condition the loop condition as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoWhile.On<ChainBuilder> doWhile(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  public static DoWhile.On<ChainBuilder> doWhile(@NonNull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.doWhile(condition);
   }
 
@@ -1269,9 +1269,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhile.On<ChainBuilder> doWhile(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhile(condition, counterName);
   }
 
@@ -1283,9 +1283,9 @@ public final class CoreDsl {
    * @param duration the loop max duration as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull String duration) {
+      @NonNull String condition, @NonNull String duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1297,9 +1297,9 @@ public final class CoreDsl {
    * @param duration the loop max duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, long duration) {
+      @NonNull String condition, long duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1311,9 +1311,9 @@ public final class CoreDsl {
    * @param duration the loop max duration
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull Duration duration) {
+      @NonNull String condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1325,9 +1325,9 @@ public final class CoreDsl {
    * @param duration the loop max duration
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull Function<Session, Duration> duration) {
+      @NonNull String condition, @NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1340,9 +1340,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull String duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1355,9 +1355,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName) {
+      @NonNull String condition, long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1370,9 +1370,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull Duration duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull Duration duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1385,11 +1385,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1402,9 +1402,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull String duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1417,9 +1417,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, long duration, boolean exitASAP) {
+      @NonNull String condition, long duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1432,9 +1432,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull Duration duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1447,9 +1447,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, @Nonnull Function<Session, Duration> duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull Function<Session, Duration> duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1463,11 +1463,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition,
-      @Nonnull String duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull String duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1482,9 +1482,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull String condition, long duration, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
 
@@ -1498,11 +1498,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Duration duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1517,11 +1517,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1534,10 +1534,10 @@ public final class CoreDsl {
    * @param duration the loop max duration as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1549,9 +1549,9 @@ public final class CoreDsl {
    * @param duration the loop max duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration) {
+      @NonNull Function<Session, Boolean> condition, long duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1563,9 +1563,9 @@ public final class CoreDsl {
    * @param duration the loop max duration
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
   }
 
@@ -1578,11 +1578,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1595,9 +1595,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1610,11 +1610,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
@@ -1627,10 +1627,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
@@ -1644,9 +1644,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1659,9 +1659,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
   }
 
@@ -1675,11 +1675,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1694,11 +1694,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Boolean> condition,
       long duration,
-      @Nonnull String counterName,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1713,11 +1713,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static AsLongAsDuring.On<ChainBuilder> asLongAsDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
@@ -1730,9 +1730,9 @@ public final class CoreDsl {
    * @param duration the loop max duration as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull String duration) {
+      @NonNull String condition, @NonNull String duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -1744,9 +1744,9 @@ public final class CoreDsl {
    * @param duration the loop max duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, long duration) {
+      @NonNull String condition, long duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -1758,9 +1758,9 @@ public final class CoreDsl {
    * @param duration the loop max duration
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull Duration duration) {
+      @NonNull String condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -1772,9 +1772,9 @@ public final class CoreDsl {
    * @param duration the loop max duration function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull Function<Session, Duration> duration) {
+      @NonNull String condition, @NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -1787,9 +1787,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull String duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -1802,9 +1802,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName) {
+      @NonNull String condition, long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -1817,9 +1817,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull Duration duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull Duration duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -1832,11 +1832,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -1849,9 +1849,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull String duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -1864,9 +1864,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, long duration, boolean exitASAP) {
+      @NonNull String condition, long duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -1879,9 +1879,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull Duration duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -1894,9 +1894,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, @Nonnull Function<Session, Duration> duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull Function<Session, Duration> duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -1910,11 +1910,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull String duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull String duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
   }
@@ -1929,9 +1929,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull String condition, long duration, @NonNull String counterName, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
   }
 
@@ -1945,11 +1945,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Duration duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
   }
@@ -1964,11 +1964,11 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
   }
@@ -1981,10 +1981,10 @@ public final class CoreDsl {
    * @param duration the loop max duration as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -1996,9 +1996,9 @@ public final class CoreDsl {
    * @param duration the loop max duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration) {
+      @NonNull Function<Session, Boolean> condition, long duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -2010,9 +2010,9 @@ public final class CoreDsl {
    * @param duration the loop max duration
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
   }
 
@@ -2025,11 +2025,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -2042,9 +2042,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, long duration, @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -2057,11 +2057,11 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
+      @NonNull String counterName) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
@@ -2074,10 +2074,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
@@ -2091,9 +2091,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -2106,9 +2106,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
   }
 
@@ -2122,10 +2122,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
       String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
@@ -2141,9 +2141,9 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Boolean> condition,
       long duration,
       String counterName,
       boolean exitASAP) {
@@ -2160,10 +2160,10 @@ public final class CoreDsl {
    * @param exitASAP if the loop must be interrupted
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoWhileDuring.On<ChainBuilder> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
       String counterName,
       boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
@@ -2176,8 +2176,8 @@ public final class CoreDsl {
    * @param condition the condition as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoIf.Then<ChainBuilder> doIf(@Nonnull String condition) {
+  @NonNull
+  public static DoIf.Then<ChainBuilder> doIf(@NonNull String condition) {
     return ChainBuilder.EMPTY.doIf(condition);
   }
 
@@ -2187,8 +2187,8 @@ public final class CoreDsl {
    * @param condition the condition as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoIf.Then<ChainBuilder> doIf(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  public static DoIf.Then<ChainBuilder> doIf(@NonNull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.doIf(condition);
   }
 
@@ -2199,8 +2199,8 @@ public final class CoreDsl {
    * @param condition the condition as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoIfOrElse.Then<ChainBuilder> doIfOrElse(@Nonnull String condition) {
+  @NonNull
+  public static DoIfOrElse.Then<ChainBuilder> doIfOrElse(@NonNull String condition) {
     return ChainBuilder.EMPTY.doIfOrElse(condition);
   }
 
@@ -2211,9 +2211,9 @@ public final class CoreDsl {
    * @param condition the condition as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfOrElse.Then<ChainBuilder> doIfOrElse(
-      @Nonnull Function<Session, Boolean> condition) {
+      @NonNull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.doIfOrElse(condition);
   }
 
@@ -2225,9 +2225,9 @@ public final class CoreDsl {
    * @param expected the expected value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull String actual, @Nonnull String expected) {
+      @NonNull String actual, @NonNull String expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2239,9 +2239,9 @@ public final class CoreDsl {
    * @param expected the expected value as a static value
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull String actual, @Nonnull Object expected) {
+      @NonNull String actual, @NonNull Object expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2253,9 +2253,9 @@ public final class CoreDsl {
    * @param expected the expected value as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull String actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull String actual, @NonNull Function<Session, Object> expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2267,9 +2267,9 @@ public final class CoreDsl {
    * @param expected the expected value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull Function<Session, Object> actual, @Nonnull String expected) {
+      @NonNull Function<Session, Object> actual, @NonNull String expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2281,9 +2281,9 @@ public final class CoreDsl {
    * @param expected the expected value as a static value
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull Function<Session, Object> actual, Object expected) {
+      @NonNull Function<Session, Object> actual, Object expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2295,9 +2295,9 @@ public final class CoreDsl {
    * @param expected the expected value as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEquals.Then<ChainBuilder> doIfEquals(
-      @Nonnull Function<Session, Object> actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Function<Session, Object> expected) {
     return ChainBuilder.EMPTY.doIfEquals(actual, expected);
   }
 
@@ -2309,7 +2309,7 @@ public final class CoreDsl {
    * @param expected the expected value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
       String actual, String expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
@@ -2323,9 +2323,9 @@ public final class CoreDsl {
    * @param expected the expected value as a static value
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
-      @Nonnull String actual, @Nonnull Object expected) {
+      @NonNull String actual, @NonNull Object expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
   }
 
@@ -2337,9 +2337,9 @@ public final class CoreDsl {
    * @param expected the expected value as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
-      @Nonnull String actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull String actual, @NonNull Function<Session, Object> expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
   }
 
@@ -2351,9 +2351,9 @@ public final class CoreDsl {
    * @param expected the expected value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull String expected) {
+      @NonNull Function<Session, Object> actual, @NonNull String expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
   }
 
@@ -2365,9 +2365,9 @@ public final class CoreDsl {
    * @param expected the expected value as a static value
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull Object expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Object expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
   }
 
@@ -2379,9 +2379,9 @@ public final class CoreDsl {
    * @param expected the expected value as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoIfEqualsOrElse.Then<ChainBuilder> doIfEqualsOrElse(
-      @Nonnull Function<Session, Object> actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Function<Session, Object> expected) {
     return ChainBuilder.EMPTY.doIfEqualsOrElse(actual, expected);
   }
 
@@ -2391,8 +2391,8 @@ public final class CoreDsl {
    * @param actual the actual value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoSwitch.On<ChainBuilder> doSwitch(@Nonnull String actual) {
+  @NonNull
+  public static DoSwitch.On<ChainBuilder> doSwitch(@NonNull String actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -2402,8 +2402,8 @@ public final class CoreDsl {
    * @param actual the actual value as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoSwitch.On<ChainBuilder> doSwitch(@Nonnull Function<Session, Object> actual) {
+  @NonNull
+  public static DoSwitch.On<ChainBuilder> doSwitch(@NonNull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitch(actual);
   }
 
@@ -2414,8 +2414,8 @@ public final class CoreDsl {
    * @param actual the actual value as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static DoSwitchOrElse.On<ChainBuilder> doSwitchOrElse(@Nonnull String actual) {
+  @NonNull
+  public static DoSwitchOrElse.On<ChainBuilder> doSwitchOrElse(@NonNull String actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
 
@@ -2426,9 +2426,9 @@ public final class CoreDsl {
    * @param actual the actual value as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static DoSwitchOrElse.On<ChainBuilder> doSwitchOrElse(
-      @Nonnull Function<Session, Object> actual) {
+      @NonNull Function<Session, Object> actual) {
     return ChainBuilder.EMPTY.doSwitchOrElse(actual);
   }
 
@@ -2437,7 +2437,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static RandomSwitch.On<ChainBuilder> randomSwitch() {
     return ChainBuilder.EMPTY.randomSwitch();
   }
@@ -2448,7 +2448,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static RandomSwitchOrElse.On<ChainBuilder> randomSwitchOrElse() {
     return ChainBuilder.EMPTY.randomSwitchOrElse();
   }
@@ -2459,7 +2459,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static UniformRandomSwitch.On<ChainBuilder> uniformRandomSwitch() {
     return ChainBuilder.EMPTY.uniformRandomSwitch();
   }
@@ -2470,7 +2470,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static RoundRobinSwitch.On<ChainBuilder> roundRobinSwitch() {
     return ChainBuilder.EMPTY.roundRobinSwitch();
   }
@@ -2483,8 +2483,8 @@ public final class CoreDsl {
    * @param chain the chain to interrupt on error
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exitBlockOnFail(@Nonnull ChainBuilder chain) {
+  @NonNull
+  public static ChainBuilder exitBlockOnFail(@NonNull ChainBuilder chain) {
     return ChainBuilder.EMPTY.exitBlockOnFail(chain);
   }
 
@@ -2495,7 +2495,7 @@ public final class CoreDsl {
    *     a static value
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Errors.TryMax<ChainBuilder> tryMax(int times) {
     return ChainBuilder.EMPTY.tryMax(times);
   }
@@ -2508,8 +2508,8 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
-  public static Errors.TryMax<ChainBuilder> tryMax(int times, @Nonnull String counterName) {
+  @NonNull
+  public static Errors.TryMax<ChainBuilder> tryMax(int times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.tryMax(times, counterName);
   }
 
@@ -2520,8 +2520,8 @@ public final class CoreDsl {
    *     a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static Errors.TryMax<ChainBuilder> tryMax(@Nonnull String times) {
+  @NonNull
+  public static Errors.TryMax<ChainBuilder> tryMax(@NonNull String times) {
     return ChainBuilder.EMPTY.tryMax(times);
   }
 
@@ -2533,9 +2533,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Errors.TryMax<ChainBuilder> tryMax(
-      @Nonnull String times, @Nonnull String counterName) {
+      @NonNull String times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.tryMax(times, counterName);
   }
 
@@ -2546,8 +2546,8 @@ public final class CoreDsl {
    *     a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static Errors.TryMax<ChainBuilder> tryMax(@Nonnull Function<Session, Integer> times) {
+  @NonNull
+  public static Errors.TryMax<ChainBuilder> tryMax(@NonNull Function<Session, Integer> times) {
     return ChainBuilder.EMPTY.tryMax(times);
   }
 
@@ -2559,9 +2559,9 @@ public final class CoreDsl {
    * @param counterName the name of the loop counter
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Errors.TryMax<ChainBuilder> tryMax(
-      @Nonnull Function<Session, Integer> times, @Nonnull String counterName) {
+      @NonNull Function<Session, Integer> times, @NonNull String counterName) {
     return ChainBuilder.EMPTY.tryMax(times, counterName);
   }
 
@@ -2572,8 +2572,8 @@ public final class CoreDsl {
    *     String
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exitHereIf(@Nonnull String condition) {
+  @NonNull
+  public static ChainBuilder exitHereIf(@NonNull String condition) {
     return ChainBuilder.EMPTY.exitHereIf(condition);
   }
 
@@ -2584,8 +2584,8 @@ public final class CoreDsl {
    * @param condition the condition to trigger the exit, expressed as Function
    * @return a new ChainBuilder
    */
-  @Nonnull
-  public static ChainBuilder exitHereIf(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  public static ChainBuilder exitHereIf(@NonNull Function<Session, Boolean> condition) {
     return ChainBuilder.EMPTY.exitHereIf(condition);
   }
 
@@ -2594,7 +2594,7 @@ public final class CoreDsl {
    *
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder exitHere() {
     return ChainBuilder.EMPTY.exitHere();
   }
@@ -2605,7 +2605,7 @@ public final class CoreDsl {
    *
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder exitHereIfFailed() {
     return ChainBuilder.EMPTY.exitHereIfFailed();
   }
@@ -2616,7 +2616,7 @@ public final class CoreDsl {
    *
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder stopInjector(String message) {
     return ChainBuilder.EMPTY.stopInjector(message);
   }
@@ -2627,7 +2627,7 @@ public final class CoreDsl {
    *
    * @return a new ChainBuilder
    */
-  @Nonnull
+  @NonNull
   public static ChainBuilder stopInjector(Function<Session, String> message) {
     return ChainBuilder.EMPTY.stopInjector(message);
   }
@@ -2639,8 +2639,8 @@ public final class CoreDsl {
    * @param name the name of the group, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static Groups.On<ChainBuilder> group(@Nonnull String name) {
+  @NonNull
+  public static Groups.On<ChainBuilder> group(@NonNull String name) {
     return ChainBuilder.EMPTY.group(name);
   }
 
@@ -2650,8 +2650,8 @@ public final class CoreDsl {
    * @param name the name of the group, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static Groups.On<ChainBuilder> group(@Nonnull Function<Session, String> name) {
+  @NonNull
+  public static Groups.On<ChainBuilder> group(@NonNull Function<Session, String> name) {
     return ChainBuilder.EMPTY.group(name);
   }
 
@@ -2666,32 +2666,32 @@ public final class CoreDsl {
   public static PauseType exponentialPauses = PauseType.Exponential;
 
   /** A shortcut for {@link PauseType.NormalWithStdDevDuration(Duration)} */
-  @Nonnull
-  public static PauseType normalPausesWithStdDevDuration(@Nonnull Duration stdDev) {
+  @NonNull
+  public static PauseType normalPausesWithStdDevDuration(@NonNull Duration stdDev) {
     return new PauseType.NormalWithStdDevDuration(stdDev);
   }
 
   /** A shortcut for {@link PauseType.NormalWithPercentageDuration(double)} */
-  @Nonnull
+  @NonNull
   public static PauseType normalPausesWithPercentageDuration(double stdDev) {
     return new PauseType.NormalWithPercentageDuration(stdDev);
   }
 
   /** A shortcut for {@link PauseType.Custom(Function)} */
-  @Nonnull
-  public static PauseType customPauses(@Nonnull Function<Session, Long> f) {
+  @NonNull
+  public static PauseType customPauses(@NonNull Function<Session, Long> f) {
     return new PauseType.Custom(f);
   }
 
   /** A shortcut for {@link PauseType.UniformPercentage(double)} */
-  @Nonnull
+  @NonNull
   public static PauseType uniformPausesPlusOrMinusPercentage(double plusOrMinus) {
     return new PauseType.UniformPercentage(plusOrMinus);
   }
 
   /** A shortcut for {@link PauseType.UniformDuration(Duration)} */
-  @Nonnull
-  public static PauseType uniformPausesPlusOrMinusDuration(@Nonnull Duration plusOrMinus) {
+  @NonNull
+  public static PauseType uniformPausesPlusOrMinusDuration(@NonNull Duration plusOrMinus) {
     return new PauseType.UniformDuration(plusOrMinus);
   }
 
@@ -2708,7 +2708,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<String> bodyString() {
     return new CheckBuilder.Find.Default<>(
         io.gatling.core.Predef.bodyString(), CoreCheckType.BodyString, String.class, null);
@@ -2723,7 +2723,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<byte[]> bodyBytes() {
     return new CheckBuilder.Find.Default<>(
         io.gatling.core.Predef.bodyBytes(), CoreCheckType.BodyBytes, byte[].class, null);
@@ -2738,7 +2738,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<Integer> bodyLength() {
     return CoreCheckBuilders.bodyLength();
   }
@@ -2753,7 +2753,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<InputStream> bodyStream() {
     return new CheckBuilder.Find.Default<>(
         io.gatling.core.Predef.bodyStream(), CoreCheckType.BodyStream, InputStream.class, null);
@@ -2771,8 +2771,8 @@ public final class CoreDsl {
    * @param pattern the searched pattern, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<Integer> substring(@Nonnull String pattern) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<Integer> substring(@NonNull String pattern) {
     return CoreCheckBuilders.substring(pattern);
   }
 
@@ -2788,9 +2788,9 @@ public final class CoreDsl {
    * @param pattern the searched pattern, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.MultipleFind<Integer> substring(
-      @Nonnull Function<Session, String> pattern) {
+      @NonNull Function<Session, String> pattern) {
     return CoreCheckBuilders.substring(pattern);
   }
 
@@ -2807,8 +2807,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<String> xpath(@Nonnull String path) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<String> xpath(@NonNull String path) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.xpath(
             toStringExpression(path), io.gatling.core.Predef.defaultXmlParsers()),
@@ -2830,8 +2830,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<String> xpath(@Nonnull Function<Session, String> path) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<String> xpath(@NonNull Function<Session, String> path) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.xpath(
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultXmlParsers()),
@@ -2855,9 +2855,9 @@ public final class CoreDsl {
    *     used in the document
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.MultipleFind<String> xpath(
-      @Nonnull String path, @Nonnull Map<String, String> namespaces) {
+      @NonNull String path, @NonNull Map<String, String> namespaces) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.xpath(
             toStringExpression(path),
@@ -2883,9 +2883,9 @@ public final class CoreDsl {
    *     used in the document
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.MultipleFind<String> xpath(
-      @Nonnull Function<Session, String> path, @Nonnull Map<String, String> namespaces) {
+      @NonNull Function<Session, String> path, @NonNull Map<String, String> namespaces) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.xpath(
             javaFunctionToExpression(path),
@@ -2909,8 +2909,8 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<String> css(@Nonnull String selector) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<String> css(@NonNull String selector) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.css(
             toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
@@ -2932,8 +2932,8 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<String> css(@Nonnull Function<Session, String> selector) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<String> css(@NonNull Function<Session, String> selector) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.css(
             javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
@@ -2956,9 +2956,9 @@ public final class CoreDsl {
    * @param nodeAttribute the attribute of the selected nodes to capture, if not the node itself
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.CssOfTypeMultipleFind css(
-      @Nonnull String selector, @Nonnull String nodeAttribute) {
+      @NonNull String selector, @NonNull String nodeAttribute) {
     return new CheckBuilder.Css(
         io.gatling.core.Predef.css(
             toStringExpression(selector),
@@ -2980,9 +2980,9 @@ public final class CoreDsl {
    * @param nodeAttribute the attribute of the selected nodes to capture, if not the node itself
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.CssOfTypeMultipleFind css(
-      @Nonnull Function<Session, String> selector, @Nonnull String nodeAttribute) {
+      @NonNull Function<Session, String> selector, @NonNull String nodeAttribute) {
     return new CheckBuilder.Css(
         io.gatling.core.Predef.css(
             javaFunctionToExpression(selector),
@@ -3003,8 +3003,8 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.MultipleFind<Map<String, Object>> form(@Nonnull String selector) {
+  @NonNull
+  public static CheckBuilder.MultipleFind<Map<String, Object>> form(@NonNull String selector) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.form(
             toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
@@ -3026,9 +3026,9 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.MultipleFind<Map<String, Object>> form(
-      @Nonnull Function<Session, String> selector) {
+      @NonNull Function<Session, String> selector) {
     return new CheckBuilder.MultipleFind.Default<>(
         io.gatling.core.Predef.form(
             javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
@@ -3049,8 +3049,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeMultipleFind jsonPath(@Nonnull String path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeMultipleFind jsonPath(@NonNull String path) {
     return new CheckBuilder.JsonPath(
         io.gatling.core.Predef.jsonPath(
             toStringExpression(path), io.gatling.core.Predef.defaultJsonPaths()));
@@ -3068,9 +3068,9 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.JsonOfTypeMultipleFind jsonPath(
-      @Nonnull Function<Session, String> path) {
+      @NonNull Function<Session, String> path) {
     return new CheckBuilder.JsonPath(
         io.gatling.core.Predef.jsonPath(
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultJsonPaths()));
@@ -3087,8 +3087,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeFind jmesPath(@Nonnull String path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeFind jmesPath(@NonNull String path) {
     return new CheckBuilder.JmesPath(
         io.gatling.core.Predef.jmesPath(
             toStringExpression(path), io.gatling.core.Predef.defaultJmesPaths()));
@@ -3105,8 +3105,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeFind jmesPath(@Nonnull Function<Session, String> path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeFind jmesPath(@NonNull Function<Session, String> path) {
     return new CheckBuilder.JmesPath(
         io.gatling.core.Predef.jmesPath(
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultJmesPaths()));
@@ -3124,8 +3124,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeMultipleFind jsonpJsonPath(@Nonnull String path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeMultipleFind jsonpJsonPath(@NonNull String path) {
     return new CheckBuilder.JsonpJsonPath(
         io.gatling.core.Predef.jsonpJsonPath(
             toStringExpression(path), io.gatling.core.Predef.defaultJsonPaths()));
@@ -3143,9 +3143,9 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.JsonOfTypeMultipleFind jsonpJsonPath(
-      @Nonnull Function<Session, String> path) {
+      @NonNull Function<Session, String> path) {
     return new CheckBuilder.JsonpJsonPath(
         io.gatling.core.Predef.jsonpJsonPath(
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultJsonPaths()));
@@ -3163,8 +3163,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeFind jsonpJmesPath(@Nonnull String path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeFind jsonpJmesPath(@NonNull String path) {
     return new CheckBuilder.JsonpJmesPath(
         io.gatling.core.Predef.jsonpJmesPath(
             toStringExpression(path), io.gatling.core.Predef.defaultJmesPaths()));
@@ -3182,8 +3182,8 @@ public final class CoreDsl {
    * @param path the searched path, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.JsonOfTypeFind jsonpJmesPath(@Nonnull Function<Session, String> path) {
+  @NonNull
+  public static CheckBuilder.JsonOfTypeFind jsonpJmesPath(@NonNull Function<Session, String> path) {
     return new CheckBuilder.JsonpJmesPath(
         io.gatling.core.Predef.jsonpJmesPath(
             javaFunctionToExpression(path), io.gatling.core.Predef.defaultJmesPaths()));
@@ -3202,8 +3202,8 @@ public final class CoreDsl {
    * @param pattern the searched pattern, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static CheckBuilder.CaptureGroupCheckBuilder regex(@Nonnull String pattern) {
+  @NonNull
+  public static CheckBuilder.CaptureGroupCheckBuilder regex(@NonNull String pattern) {
     return new CheckBuilder.Regex(
         io.gatling.core.Predef.regex(
             toStringExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
@@ -3222,9 +3222,9 @@ public final class CoreDsl {
    * @param pattern the searched pattern, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.CaptureGroupCheckBuilder regex(
-      @Nonnull Function<Session, String> pattern) {
+      @NonNull Function<Session, String> pattern) {
     return new CheckBuilder.Regex(
         io.gatling.core.Predef.regex(
             javaFunctionToExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
@@ -3237,7 +3237,7 @@ public final class CoreDsl {
    * @param functions the custom functions to register
    */
   public static void registerJmesPathFunctions(
-      @Nonnull io.burt.jmespath.function.Function... functions) {
+      @NonNull io.burt.jmespath.function.Function... functions) {
     io.gatling.core.Predef.registerJmesPathFunctions(toScalaSeq(functions));
   }
 
@@ -3251,7 +3251,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<String> md5() {
     return new CheckBuilder.Find.Default<>(
         io.gatling.core.Predef.md5(), CoreCheckType.Md5, String.class, null);
@@ -3267,7 +3267,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<String> sha1() {
     return new CheckBuilder.Find.Default<>(
         io.gatling.core.Predef.sha1(), CoreCheckType.Sha1, String.class, null);
@@ -3282,7 +3282,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static CheckBuilder.Find<Integer> responseTimeInMillis() {
     return CoreCheckBuilders.responseTimeInMillis();
   }
@@ -3296,8 +3296,8 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> csv(@Nonnull String filePath) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> csv(@NonNull String filePath) {
     return FeederBuilder.Impl.csv(filePath);
   }
 
@@ -3309,8 +3309,8 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> csv(@Nonnull String filePath, char quoteChar) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> csv(@NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.csv(filePath, quoteChar);
   }
 
@@ -3321,8 +3321,8 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> ssv(@Nonnull String filePath) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> ssv(@NonNull String filePath) {
     return FeederBuilder.Impl.ssv(filePath);
   }
 
@@ -3334,8 +3334,8 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> ssv(@Nonnull String filePath, char quoteChar) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> ssv(@NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.ssv(filePath, quoteChar);
   }
 
@@ -3346,8 +3346,8 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> tsv(@Nonnull String filePath) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> tsv(@NonNull String filePath) {
     return FeederBuilder.Impl.tsv(filePath);
   }
 
@@ -3359,8 +3359,8 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.Batchable<String> tsv(@Nonnull String filePath, char quoteChar) {
+  @NonNull
+  public static FeederBuilder.Batchable<String> tsv(@NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.tsv(filePath, quoteChar);
   }
 
@@ -3372,9 +3372,9 @@ public final class CoreDsl {
    * @param separator the provided separator char
    * @return a new feeder
    */
-  @Nonnull
+  @NonNull
   public static FeederBuilder.Batchable<String> separatedValues(
-      @Nonnull String filePath, char separator) {
+      @NonNull String filePath, char separator) {
     return FeederBuilder.Impl.separatedValues(filePath, separator);
   }
 
@@ -3387,9 +3387,9 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  @Nonnull
+  @NonNull
   public static FeederBuilder.Batchable<String> separatedValues(
-      @Nonnull String filePath, char separator, char quoteChar) {
+      @NonNull String filePath, char separator, char quoteChar) {
     return FeederBuilder.Impl.separatedValues(filePath, separator, quoteChar);
   }
 
@@ -3399,8 +3399,8 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder.FileBased<Object> jsonFile(@Nonnull String filePath) {
+  @NonNull
+  public static FeederBuilder.FileBased<Object> jsonFile(@NonNull String filePath) {
     return FeederBuilder.Impl.jsonFile(filePath);
   }
 
@@ -3410,7 +3410,7 @@ public final class CoreDsl {
    * @param url the url of the API
    * @return a new feeder
    */
-  @Nonnull
+  @NonNull
   public static FeederBuilder<Object> jsonUrl(String url) {
     return FeederBuilder.Impl.jsonUrl(url);
   }
@@ -3422,8 +3422,8 @@ public final class CoreDsl {
    * @return a new feeder
    */
   @SuppressWarnings("unchecked")
-  @Nonnull
-  public static FeederBuilder<Object> arrayFeeder(@Nonnull Map<String, Object>[] data) {
+  @NonNull
+  public static FeederBuilder<Object> arrayFeeder(@NonNull Map<String, Object>[] data) {
     scala.collection.immutable.Map<String, Object>[] scalaArray =
         Arrays.stream(data)
             .map(Converters::toScalaMap)
@@ -3439,8 +3439,8 @@ public final class CoreDsl {
    * @param data the in-memory data
    * @return a new feeder
    */
-  @Nonnull
-  public static FeederBuilder<Object> listFeeder(@Nonnull List<Map<String, Object>> data) {
+  @NonNull
+  public static FeederBuilder<Object> listFeeder(@NonNull List<Map<String, Object>> data) {
     scala.collection.immutable.Seq<scala.collection.immutable.Map<String, Object>> seq =
         toScalaSeq(data.stream().map(Converters::toScalaMap).collect(Collectors.toList()));
     return new FeederBuilder.Impl<>(
@@ -3456,7 +3456,7 @@ public final class CoreDsl {
    * @param users the total number of users to inject
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep.Ramp rampUsers(int users) {
     return new OpenInjectionStep.Ramp(users);
   }
@@ -3468,7 +3468,7 @@ public final class CoreDsl {
    * @param users the total number of users to inject
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep.StressPeak stressPeakUsers(int users) {
     return new OpenInjectionStep.StressPeak(users);
   }
@@ -3480,7 +3480,7 @@ public final class CoreDsl {
    * @param users the total number of users to inject
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep atOnceUsers(int users) {
     return OpenInjectionStep.atOnceUsers(users);
   }
@@ -3492,7 +3492,7 @@ public final class CoreDsl {
    * @param rate the users per second rate
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep.ConstantRate constantUsersPerSec(double rate) {
     return new OpenInjectionStep.ConstantRate(rate);
   }
@@ -3504,7 +3504,7 @@ public final class CoreDsl {
    * @param rate the users per second start rate
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep.RampRate rampUsersPerSec(double rate) {
     return new OpenInjectionStep.RampRate(rate);
   }
@@ -3516,7 +3516,7 @@ public final class CoreDsl {
    * @param durationSeconds the duration in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep nothingFor(long durationSeconds) {
     return nothingFor(Duration.ofSeconds(durationSeconds));
   }
@@ -3528,8 +3528,8 @@ public final class CoreDsl {
    * @param duration the duration
    * @return the next DSL step
    */
-  @Nonnull
-  public static OpenInjectionStep nothingFor(@Nonnull Duration duration) {
+  @NonNull
+  public static OpenInjectionStep nothingFor(@NonNull Duration duration) {
     return OpenInjectionStep.nothingFor(duration);
   }
 
@@ -3540,7 +3540,7 @@ public final class CoreDsl {
    * @param rateIncrement the difference of users per second rate between levels of the stairs
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static OpenInjectionStep.Stairs incrementUsersPerSec(double rateIncrement) {
     return new OpenInjectionStep.Stairs(rateIncrement);
   }
@@ -3553,7 +3553,7 @@ public final class CoreDsl {
    * @param users the number of concurrent users
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ClosedInjectionStep.Constant constantConcurrentUsers(int users) {
     return new ClosedInjectionStep.Constant(users);
   }
@@ -3565,7 +3565,7 @@ public final class CoreDsl {
    * @param from the number of concurrent users at the start of the ramp
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ClosedInjectionStep.Ramp rampConcurrentUsers(int from) {
     return new ClosedInjectionStep.Ramp(from);
   }
@@ -3577,7 +3577,7 @@ public final class CoreDsl {
    * @param usersIncrement the difference of concurrent users between levels of the stairs
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ClosedInjectionStep.Stairs incrementConcurrentUsers(int usersIncrement) {
     return new ClosedInjectionStep.Stairs(usersIncrement);
   }
@@ -3590,7 +3590,7 @@ public final class CoreDsl {
    * @param target the target requests per second
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ThrottleStep.ReachIntermediate reachRps(int target) {
     return new ThrottleStep.ReachIntermediate(target);
   }
@@ -3601,7 +3601,7 @@ public final class CoreDsl {
    * @param duration the duration of the plateau in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ThrottleStep holdFor(long duration) {
     return holdFor(Duration.ofSeconds(duration));
   }
@@ -3612,8 +3612,8 @@ public final class CoreDsl {
    * @param duration the duration of the plateau
    * @return the next DSL step
    */
-  @Nonnull
-  public static ThrottleStep holdFor(@Nonnull Duration duration) {
+  @NonNull
+  public static ThrottleStep holdFor(@NonNull Duration duration) {
     return new ThrottleStep(
         new io.gatling.core.controller.throttle.Hold(toScalaDuration(duration)));
   }
@@ -3624,7 +3624,7 @@ public final class CoreDsl {
    * @param target the new limit
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static ThrottleStep jumpToRps(int target) {
     return new ThrottleStep(new io.gatling.core.controller.throttle.Jump(target));
   }
@@ -3636,7 +3636,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Assertion.WithPath global() {
     return new Assertion.WithPath(Global$.MODULE$);
   }
@@ -3646,7 +3646,7 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static Assertion.WithPath forAll() {
     return new Assertion.WithPath(ForAll$.MODULE$);
   }
@@ -3656,8 +3656,8 @@ public final class CoreDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
-  public static Assertion.WithPath details(@Nonnull String... parts) {
+  @NonNull
+  public static Assertion.WithPath details(@NonNull String... parts) {
     Seq<String> stringSeq = toScalaSeq(parts);
     return new Assertion.WithPath(new Details(stringSeq.toList()));
   }
@@ -3679,8 +3679,8 @@ public final class CoreDsl {
    * @param string the body expressed as a gatling Expression Language String
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString StringBody(@Nonnull String string) {
+  @NonNull
+  public static Body.WithString StringBody(@NonNull String string) {
     return new Body.WithString(
         io.gatling.core.Predef.StringBody(string, io.gatling.core.Predef.configuration()));
   }
@@ -3693,8 +3693,8 @@ public final class CoreDsl {
    * @param f the body expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString StringBody(@Nonnull Function<Session, String> f) {
+  @NonNull
+  public static Body.WithString StringBody(@NonNull Function<Session, String> f) {
     return new Body.WithString(
         io.gatling.core.Predef.StringBody(
             javaFunctionToExpression(f), io.gatling.core.Predef.configuration()));
@@ -3709,8 +3709,8 @@ public final class CoreDsl {
    *     absolute, expressed as a Gatling Expression Language String
    * @return a body
    */
-  @Nonnull
-  public static Body.WithBytes RawFileBody(@Nonnull String filePath) {
+  @NonNull
+  public static Body.WithBytes RawFileBody(@NonNull String filePath) {
     return new Body.WithBytes(
         io.gatling.core.Predef.RawFileBody(
             toStringExpression(filePath), io.gatling.core.Predef.rawFileBodies()));
@@ -3725,8 +3725,8 @@ public final class CoreDsl {
    *     absolute, expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body.WithBytes RawFileBody(@Nonnull Function<Session, String> filePath) {
+  @NonNull
+  public static Body.WithBytes RawFileBody(@NonNull Function<Session, String> filePath) {
     return new Body.WithBytes(
         io.gatling.core.Predef.RawFileBody(
             javaFunctionToExpression(filePath), io.gatling.core.Predef.rawFileBodies()));
@@ -3742,8 +3742,8 @@ public final class CoreDsl {
    *     absolute, expressed as a Gatling Expression Language String
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString ElFileBody(@Nonnull String filePath) {
+  @NonNull
+  public static Body.WithString ElFileBody(@NonNull String filePath) {
     return new Body.WithString(
         io.gatling.core.Predef.ElFileBody(
             toStringExpression(filePath), io.gatling.core.Predef.elFileBodies()));
@@ -3759,8 +3759,8 @@ public final class CoreDsl {
    *     absolute, expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString ElFileBody(@Nonnull Function<Session, String> filePath) {
+  @NonNull
+  public static Body.WithString ElFileBody(@NonNull Function<Session, String> filePath) {
     return new Body.WithString(
         io.gatling.core.Predef.ElFileBody(
             javaFunctionToExpression(filePath), io.gatling.core.Predef.elFileBodies()));
@@ -3775,8 +3775,8 @@ public final class CoreDsl {
    * @param string the Pebble string
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString PebbleStringBody(@Nonnull String string) {
+  @NonNull
+  public static Body.WithString PebbleStringBody(@NonNull String string) {
     return new Body.WithString(
         io.gatling.core.Predef.PebbleStringBody(string, io.gatling.core.Predef.configuration()));
   }
@@ -3791,8 +3791,8 @@ public final class CoreDsl {
    *     absolute, expressed as a Gatling Expression Language String
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString PebbleFileBody(@Nonnull String filePath) {
+  @NonNull
+  public static Body.WithString PebbleFileBody(@NonNull String filePath) {
     return new Body.WithString(
         io.gatling.core.Predef.PebbleFileBody(
             toStringExpression(filePath),
@@ -3810,8 +3810,8 @@ public final class CoreDsl {
    *     absolute, expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body.WithString PebbleFileBody(@Nonnull Function<Session, String> filePath) {
+  @NonNull
+  public static Body.WithString PebbleFileBody(@NonNull Function<Session, String> filePath) {
     return new Body.WithString(
         io.gatling.core.Predef.PebbleFileBody(
             javaFunctionToExpression(filePath),
@@ -3827,8 +3827,8 @@ public final class CoreDsl {
    * @param bytes the bytes
    * @return a body
    */
-  @Nonnull
-  public static Body.WithBytes ByteArrayBody(@Nonnull byte[] bytes) {
+  @NonNull
+  public static Body.WithBytes ByteArrayBody(@NonNull byte[] bytes) {
     return new Body.WithBytes(io.gatling.core.Predef.ByteArrayBody(toStaticValueExpression(bytes)));
   }
 
@@ -3840,8 +3840,8 @@ public final class CoreDsl {
    * @param bytes the bytes, expressed as a Gatling Expression Language String
    * @return a body
    */
-  @Nonnull
-  public static Body.WithBytes ByteArrayBody(@Nonnull String bytes) {
+  @NonNull
+  public static Body.WithBytes ByteArrayBody(@NonNull String bytes) {
     return new Body.WithBytes(io.gatling.core.Predef.ByteArrayBody(toBytesExpression(bytes)));
   }
 
@@ -3853,8 +3853,8 @@ public final class CoreDsl {
    * @param bytes the bytes, expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body.WithBytes ByteArrayBody(@Nonnull Function<Session, byte[]> bytes) {
+  @NonNull
+  public static Body.WithBytes ByteArrayBody(@NonNull Function<Session, byte[]> bytes) {
     return new Body.WithBytes(
         io.gatling.core.Predef.ByteArrayBody(javaFunctionToExpression(bytes)));
   }
@@ -3865,8 +3865,8 @@ public final class CoreDsl {
    * @param stream the bytes, expressed as a function
    * @return a body
    */
-  @Nonnull
-  public static Body InputStreamBody(@Nonnull Function<Session, InputStream> stream) {
+  @NonNull
+  public static Body InputStreamBody(@NonNull Function<Session, InputStream> stream) {
     return new Body.Default(
         io.gatling.core.Predef.InputStreamBody(javaFunctionToExpression(stream)));
   }
@@ -3877,7 +3877,7 @@ public final class CoreDsl {
    *
    * @param extensions the custom extensions
    */
-  public static void registerPebbleExtensions(@Nonnull Extension... extensions) {
+  public static void registerPebbleExtensions(@NonNull Extension... extensions) {
     io.gatling.core.Predef.registerPebbleExtensions(toScalaSeq(extensions));
   }
 }

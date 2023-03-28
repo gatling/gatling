@@ -18,10 +18,10 @@ package io.gatling.javaapi.mqtt;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Validation;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 import scala.Function1;
 
 public final class Mqtt {
@@ -37,7 +37,7 @@ public final class Mqtt {
    *
    * @return a new ActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public ConnectActionBuilder connect() {
     return new ConnectActionBuilder(wrapped.connect());
   }
@@ -48,8 +48,8 @@ public final class Mqtt {
    * @param topic the name of the topic, expressed as a Gatling Expression Language String
    * @return a new ActionBuilder instance
    */
-  @Nonnull
-  public SubscribeActionBuilder subscribe(@Nonnull String topic) {
+  @NonNull
+  public SubscribeActionBuilder subscribe(@NonNull String topic) {
     return new SubscribeActionBuilder(wrapped.subscribe(toStringExpression(topic)));
   }
 
@@ -59,8 +59,8 @@ public final class Mqtt {
    * @param topic the name of the topic, expressed as a function
    * @return a new ActionBuilder instance
    */
-  @Nonnull
-  public SubscribeActionBuilder subscribe(@Nonnull Function<Session, String> topic) {
+  @NonNull
+  public SubscribeActionBuilder subscribe(@NonNull Function<Session, String> topic) {
     return new SubscribeActionBuilder(wrapped.subscribe(javaFunctionToExpression(topic)));
   }
 
@@ -70,8 +70,8 @@ public final class Mqtt {
    * @param topic the name of the topic, expressed as a Gatling Expression Language String
    * @return a new ActionBuilder instance
    */
-  @Nonnull
-  public PublishActionBuilder.Base publish(@Nonnull String topic) {
+  @NonNull
+  public PublishActionBuilder.Base publish(@NonNull String topic) {
     return new PublishActionBuilder.Base(wrapped.publish(toStringExpression(topic)));
   }
 
@@ -81,8 +81,8 @@ public final class Mqtt {
    * @param topic the name of the topic, expressed as a function
    * @return a new ActionBuilder instance
    */
-  @Nonnull
-  public PublishActionBuilder.Base publish(@Nonnull Function<Session, String> topic) {
+  @NonNull
+  public PublishActionBuilder.Base publish(@NonNull Function<Session, String> topic) {
     return new PublishActionBuilder.Base(wrapped.publish(javaFunctionToExpression(topic)));
   }
 }

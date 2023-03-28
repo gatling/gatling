@@ -16,9 +16,9 @@
 
 package io.gatling.javaapi.core.pause;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.StructureBuilder;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Rendez-vous methods for defining points that a given number of virtual users before proceeding.
@@ -40,7 +40,7 @@ public interface RendezVous<
    * @param users the number of virtual users that must reach this point
    * @return a new StructureBuilder
    */
-  @Nonnull
+  @NonNull
   default T rendezVous(int users) {
     return make(wrapped -> wrapped.rendezVous(users));
   }

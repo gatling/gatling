@@ -18,11 +18,11 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for building WebSocket connect actions
@@ -45,8 +45,8 @@ public final class WsConnectActionBuilder
    * @param sub the subprotocol, expressed as a Gatling Expression Language String
    * @return a new WsConnectActionBuilder instance
    */
-  @Nonnull
-  public WsConnectActionBuilder subprotocol(@Nonnull String sub) {
+  @NonNull
+  public WsConnectActionBuilder subprotocol(@NonNull String sub) {
     return new WsConnectActionBuilder(wrapped.subprotocol(toStringExpression(sub)));
   }
 
@@ -56,8 +56,8 @@ public final class WsConnectActionBuilder
    * @param sub the subprotocol, expressed as a function
    * @return a new WsConnectActionBuilder instance
    */
-  @Nonnull
-  public WsConnectActionBuilder subprotocol(@Nonnull Function<Session, String> sub) {
+  @NonNull
+  public WsConnectActionBuilder subprotocol(@NonNull Function<Session, String> sub) {
     return new WsConnectActionBuilder(wrapped.subprotocol(javaFunctionToExpression(sub)));
   }
 
@@ -67,8 +67,8 @@ public final class WsConnectActionBuilder
    * @param chain the chain
    * @return a new WsConnectActionBuilder instance
    */
-  @Nonnull
-  public WsConnectActionBuilder onConnected(@Nonnull ChainBuilder chain) {
+  @NonNull
+  public WsConnectActionBuilder onConnected(@NonNull ChainBuilder chain) {
     return new WsConnectActionBuilder(wrapped.onConnected(chain.wrapped));
   }
 

@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.loop.ScalaDoWhile;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "doWhile" loops. Similar to {@link AsLongAs} except the condition is
@@ -47,8 +47,8 @@ public interface DoWhile<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhile(@Nonnull String condition) {
+  @NonNull
+  default On<T> doWhile(@NonNull String condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -60,8 +60,8 @@ public interface DoWhile<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhile(@Nonnull String condition, @Nonnull String counterName) {
+  @NonNull
+  default On<T> doWhile(@NonNull String condition, @NonNull String counterName) {
     return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
 
@@ -73,8 +73,8 @@ public interface DoWhile<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhile(@Nonnull Function<Session, Boolean> condition) {
+  @NonNull
+  default On<T> doWhile(@NonNull Function<Session, Boolean> condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -86,9 +86,9 @@ public interface DoWhile<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhile(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, @NonNull String counterName) {
     return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
 
@@ -110,8 +110,8 @@ public interface DoWhile<
      * @param chain the loop content
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

@@ -18,10 +18,10 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for building <a
@@ -43,8 +43,8 @@ public final class Sse {
    * @param sseName the name, expressed as a Gatling Expression Language String
    * @return a new Sse instance
    */
-  @Nonnull
-  public Sse sseName(@Nonnull String sseName) {
+  @NonNull
+  public Sse sseName(@NonNull String sseName) {
     return new Sse(wrapped.sseName(toStringExpression(sseName)));
   }
 
@@ -54,8 +54,8 @@ public final class Sse {
    * @param sseName the name, expressed as a function
    * @return a new Sse instance
    */
-  @Nonnull
-  public Sse sseName(@Nonnull Function<Session, String> sseName) {
+  @NonNull
+  public Sse sseName(@NonNull Function<Session, String> sseName) {
     return new Sse(wrapped.sseName(javaFunctionToExpression(sseName)));
   }
 
@@ -65,8 +65,8 @@ public final class Sse {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public SseConnectActionBuilder connect(@Nonnull String url) {
+  @NonNull
+  public SseConnectActionBuilder connect(@NonNull String url) {
     return new SseConnectActionBuilder(wrapped.connect(toStringExpression(url)));
   }
 
@@ -76,8 +76,8 @@ public final class Sse {
    * @param url the url to connect to, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public SseConnectActionBuilder connect(@Nonnull Function<Session, String> url) {
+  @NonNull
+  public SseConnectActionBuilder connect(@NonNull Function<Session, String> url) {
     return new SseConnectActionBuilder(wrapped.connect(javaFunctionToExpression(url)));
   }
 
@@ -86,7 +86,7 @@ public final class Sse {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public SseSetCheckActionBuilder setCheck() {
     return new SseSetCheckActionBuilder(wrapped.setCheck());
   }
@@ -96,7 +96,7 @@ public final class Sse {
    *
    * @return an ActionBuilder
    */
-  @Nonnull
+  @NonNull
   public ActionBuilder close() {
     return wrapped::close;
   }
@@ -113,8 +113,8 @@ public final class Sse {
      * @param name
      * @return the next DSL step
      */
-    @Nonnull
-    public SseMessageCheck checkMessage(@Nonnull String name) {
+    @NonNull
+    public SseMessageCheck checkMessage(@NonNull String name) {
       return new SseMessageCheck(io.gatling.http.Predef.sse().checkMessage(name));
     }
   }

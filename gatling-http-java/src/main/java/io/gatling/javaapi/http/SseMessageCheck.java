@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.http;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.internal.ScalaSseCheckConditions;
@@ -24,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for building <a
@@ -51,8 +51,8 @@ public final class SseMessageCheck {
    * @param newMatchConditions the conditions to match
    * @return a new SseMessageCheck instance
    */
-  @Nonnull
-  public SseMessageCheck matching(@Nonnull CheckBuilder... newMatchConditions) {
+  @NonNull
+  public SseMessageCheck matching(@NonNull CheckBuilder... newMatchConditions) {
     return matching(Arrays.asList(newMatchConditions));
   }
 
@@ -62,8 +62,8 @@ public final class SseMessageCheck {
    * @param newMatchConditions the conditions to match
    * @return a new SseMessageCheck instance
    */
-  @Nonnull
-  public SseMessageCheck matching(@Nonnull List<CheckBuilder> newMatchConditions) {
+  @NonNull
+  public SseMessageCheck matching(@NonNull List<CheckBuilder> newMatchConditions) {
     return new SseMessageCheck(wrapped.matching(SseChecks.toScalaChecks(newMatchConditions)));
   }
 
@@ -73,8 +73,8 @@ public final class SseMessageCheck {
    * @param checks the checks
    * @return a new SseMessageCheck instance
    */
-  @Nonnull
-  public SseMessageCheck check(@Nonnull CheckBuilder... checks) {
+  @NonNull
+  public SseMessageCheck check(@NonNull CheckBuilder... checks) {
     return check(Arrays.asList(checks));
   }
 
@@ -84,8 +84,8 @@ public final class SseMessageCheck {
    * @param checks the checks
    * @return a new SseMessageCheck instance
    */
-  @Nonnull
-  public SseMessageCheck check(@Nonnull List<CheckBuilder> checks) {
+  @NonNull
+  public SseMessageCheck check(@NonNull List<CheckBuilder> checks) {
     return new SseMessageCheck(wrapped.check(SseChecks.toScalaChecks(checks)));
   }
 

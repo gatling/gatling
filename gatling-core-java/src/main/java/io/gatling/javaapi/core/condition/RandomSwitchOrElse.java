@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.core.condition;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -23,7 +24,6 @@ import io.gatling.javaapi.core.internal.condition.ScalaRandomSwitchOrElse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "randomSwitchOrElse" conditional blocks.
@@ -45,7 +45,7 @@ public interface RandomSwitchOrElse<
    *
    * @return the DSL component for defining the "else" block
    */
-  @Nonnull
+  @NonNull
   default On<T> randomSwitchOrElse() {
     return new On<>(new ScalaRandomSwitchOrElse.Choices<>(this));
   }
@@ -68,8 +68,8 @@ public interface RandomSwitchOrElse<
      * @param choices the choices
      * @return the DSL component for defining the "else" block
      */
-    @Nonnull
-    public OrElse<T> on(@Nonnull Choice.WithWeight... choices) {
+    @NonNull
+    public OrElse<T> on(@NonNull Choice.WithWeight... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -79,8 +79,8 @@ public interface RandomSwitchOrElse<
      * @param choices the choices
      * @return the DSL component for defining the "else" block
      */
-    @Nonnull
-    public OrElse<T> on(@Nonnull List<Choice.WithWeight> choices) {
+    @NonNull
+    public OrElse<T> on(@NonNull List<Choice.WithWeight> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }
@@ -104,8 +104,8 @@ public interface RandomSwitchOrElse<
      * @param orElseChain the "then "chain
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T orElse(@Nonnull ChainBuilder orElseChain) {
+    @NonNull
+    public T orElse(@NonNull ChainBuilder orElseChain) {
       return wrapped.orElse(orElseChain);
     }
   }

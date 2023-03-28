@@ -18,10 +18,10 @@ package io.gatling.javaapi.mqtt;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Body;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /** The entrypoint of the Gatling MQTT DSL */
 public final class MqttDsl {
@@ -39,8 +39,8 @@ public final class MqttDsl {
    * @param message the last will message
    * @return the next DSL step
    */
-  @Nonnull
-  public static LastWillBuilder LastWill(@Nonnull String topic, @Nonnull Body message) {
+  @NonNull
+  public static LastWillBuilder LastWill(@NonNull String topic, @NonNull Body message) {
     return new LastWillBuilder(
         io.gatling.mqtt.Predef.LastWill(toStringExpression(topic), message.asScala()));
   }
@@ -52,9 +52,9 @@ public final class MqttDsl {
    * @param message the last will message
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static LastWillBuilder LastWill(
-      @Nonnull Function<Session, String> topic, @Nonnull Body message) {
+      @NonNull Function<Session, String> topic, @NonNull Body message) {
     return new LastWillBuilder(
         io.gatling.mqtt.Predef.LastWill(javaFunctionToExpression(topic), message.asScala()));
   }
@@ -65,8 +65,8 @@ public final class MqttDsl {
    * @param name the action name, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @Nonnull
-  public static Mqtt mqtt(@Nonnull String name) {
+  @NonNull
+  public static Mqtt mqtt(@NonNull String name) {
     return new Mqtt(toStringExpression(name));
   }
 
@@ -76,8 +76,8 @@ public final class MqttDsl {
    * @param name the action name, expressed as a function
    * @return the next DSL step
    */
-  @Nonnull
-  public static Mqtt mqtt(@Nonnull Function<Session, String> name) {
+  @NonNull
+  public static Mqtt mqtt(@NonNull Function<Session, String> name) {
     return new Mqtt(javaFunctionToExpression(name));
   }
 
@@ -86,7 +86,7 @@ public final class MqttDsl {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public static WaitForMessagesActionBuilder waitForMessages() {
     return WaitForMessagesActionBuilder.DEFAULT;
   }

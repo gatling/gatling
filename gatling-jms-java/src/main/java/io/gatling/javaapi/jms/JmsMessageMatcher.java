@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.jms;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -32,7 +32,7 @@ public interface JmsMessageMatcher {
    * @param msg the outbound message
    * @throws JMSException
    */
-  void prepareRequest(@Nonnull Message msg) throws JMSException;
+  void prepareRequest(@NonNull Message msg) throws JMSException;
 
   /**
    * Extract the matchId out of a request outbound message
@@ -41,8 +41,8 @@ public interface JmsMessageMatcher {
    * @return the matchId
    * @throws JMSException
    */
-  @Nonnull
-  String requestMatchId(@Nonnull Message msg) throws JMSException;
+  @NonNull
+  String requestMatchId(@NonNull Message msg) throws JMSException;
 
   /**
    * Extract the matchId out of a response inbound message
@@ -51,6 +51,6 @@ public interface JmsMessageMatcher {
    * @return the matchId
    * @throws JMSException
    */
-  @Nonnull
-  String responseMatchId(@Nonnull Message msg) throws JMSException;
+  @NonNull
+  String responseMatchId(@NonNull Message msg) throws JMSException;
 }

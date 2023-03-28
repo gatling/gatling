@@ -16,17 +16,17 @@
 
 package io.gatling.javaapi.core;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /** A holder for choice types */
 public final class Choice {
   private Choice() {}
 
-  public static WithKey withKey(@Nonnull Object key, @Nonnull ChainBuilder chain) {
+  public static WithKey withKey(@NonNull Object key, @NonNull ChainBuilder chain) {
     return new WithKey(key, chain);
   }
 
-  public static WithWeight withWeight(double weight, @Nonnull ChainBuilder chain) {
+  public static WithWeight withWeight(double weight, @NonNull ChainBuilder chain) {
     return new WithWeight(weight, chain);
   }
 
@@ -39,7 +39,7 @@ public final class Choice {
      * @param key the expected key
      * @param chain the chain that will be triggered if the switch matches the expected key
      */
-    public WithKey(@Nonnull Object key, @Nonnull ChainBuilder chain) {
+    public WithKey(@NonNull Object key, @NonNull ChainBuilder chain) {
       this.key = key;
       this.chain = chain;
     }
@@ -55,7 +55,7 @@ public final class Choice {
      * @param chain the chain that will be triggered if the switch randomly falls into the range
      *     computed from the weights
      */
-    public WithWeight(double weight, @Nonnull ChainBuilder chain) {
+    public WithWeight(double weight, @NonNull ChainBuilder chain) {
       this.weight = weight;
       this.chain = chain;
     }

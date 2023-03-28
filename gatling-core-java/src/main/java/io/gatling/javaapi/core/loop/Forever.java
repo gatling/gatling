@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.loop.ScalaForever;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "forever" loops.
@@ -43,7 +43,7 @@ public interface Forever<
    *
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> forever() {
     return forever(UUID.randomUUID().toString());
   }
@@ -54,8 +54,8 @@ public interface Forever<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> forever(@Nonnull String counterName) {
+  @NonNull
+  default On<T> forever(@NonNull String counterName) {
     return new On<>(ScalaForever.apply(this, counterName));
   }
 
@@ -77,8 +77,8 @@ public interface Forever<
      * @param chain the loop content
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.mqtt;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 public final class LastWillBuilder {
 
@@ -31,7 +31,7 @@ public final class LastWillBuilder {
    *
    * @return a new LastWillBuilder instance
    */
-  @Nonnull
+  @NonNull
   public LastWillBuilder qosAtMostOnce() {
     return new LastWillBuilder(wrapped.qosAtMostOnce());
   }
@@ -41,7 +41,7 @@ public final class LastWillBuilder {
    *
    * @return a new LastWillBuilder instance
    */
-  @Nonnull
+  @NonNull
   public LastWillBuilder qosAtLeastOnce() {
     return new LastWillBuilder(wrapped.qosAtLeastOnce());
   }
@@ -51,7 +51,7 @@ public final class LastWillBuilder {
    *
    * @return a new LastWillBuilder instance
    */
-  @Nonnull
+  @NonNull
   public LastWillBuilder qosExactlyOnce() {
     return new LastWillBuilder(wrapped.qosExactlyOnce());
   }
@@ -61,7 +61,7 @@ public final class LastWillBuilder {
    *
    * @return a new LastWillBuilder instance
    */
-  @Nonnull
+  @NonNull
   public LastWillBuilder retain(boolean newRetain) {
     return new LastWillBuilder(wrapped.retain(newRetain));
   }

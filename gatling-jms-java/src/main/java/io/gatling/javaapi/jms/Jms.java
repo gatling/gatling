@@ -16,9 +16,9 @@
 
 package io.gatling.javaapi.jms;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Validation;
 import io.gatling.core.session.Session;
-import javax.annotation.Nonnull;
 import scala.Function1;
 
 public class Jms {
@@ -33,7 +33,7 @@ public class Jms {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public JmsSendActionBuilder.Queue send() {
     return new JmsSendActionBuilder.Queue(wrapped.send());
   }
@@ -43,7 +43,7 @@ public class Jms {
    *
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public JmsRequestReplyActionBuilder.Queue requestReply() {
     return new JmsRequestReplyActionBuilder.Queue(wrapped.requestReply());
   }

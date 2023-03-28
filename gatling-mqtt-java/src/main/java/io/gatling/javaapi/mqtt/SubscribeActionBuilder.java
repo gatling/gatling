@@ -18,13 +18,13 @@ package io.gatling.javaapi.mqtt;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.mqtt.internal.MqttChecks;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for actions that subscribe to MQTT topics
@@ -44,7 +44,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    *
    * @return a new ActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public SubscribeActionBuilder qosAtMostOnce() {
     return new SubscribeActionBuilder(wrapped.qosAtMostOnce());
   }
@@ -54,7 +54,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    *
    * @return a new ActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public SubscribeActionBuilder qosAtLeastOnce() {
     return new SubscribeActionBuilder(wrapped.qosAtLeastOnce());
   }
@@ -64,7 +64,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    *
    * @return a new ActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public SubscribeActionBuilder qosExactlyOnce() {
     return new SubscribeActionBuilder(wrapped.qosExactlyOnce());
   }
@@ -82,7 +82,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
      *
      * @return a new ActionBuilder instance
      */
-    @Nonnull
+    @NonNull
     public SubscribeActionBuilder qosAtMostOnce() {
       return new SubscribeActionBuilder(wrapped.qosAtMostOnce());
     }
@@ -92,7 +92,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
      *
      * @return a new ActionBuilder instance
      */
-    @Nonnull
+    @NonNull
     public SubscribeActionBuilder qosAtLeastOnce() {
       return new SubscribeActionBuilder(wrapped.qosAtLeastOnce());
     }
@@ -102,7 +102,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
      *
      * @return a new ActionBuilder instance
      */
-    @Nonnull
+    @NonNull
     public SubscribeActionBuilder qosExactlyOnce() {
       return new SubscribeActionBuilder(wrapped.qosExactlyOnce());
     }
@@ -113,8 +113,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
      * @param checkBuilders the checks
      * @return a new ActionBuilder instance
      */
-    @Nonnull
-    public Checkable check(@Nonnull CheckBuilder... checkBuilders) {
+    @NonNull
+    public Checkable check(@NonNull CheckBuilder... checkBuilders) {
       return check(Arrays.asList(checkBuilders));
     }
 
@@ -124,8 +124,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
      * @param checkBuilders the checks
      * @return a new ActionBuilder instance
      */
-    @Nonnull
-    public Checkable check(@Nonnull List<CheckBuilder> checkBuilders) {
+    @NonNull
+    public Checkable check(@NonNull List<CheckBuilder> checkBuilders) {
       return new Checkable(
           ((io.gatling.mqtt.action.builder.CheckableSubscribeBuilder) wrapped)
               .check(MqttChecks.toScalaChecks(checkBuilders)));
@@ -143,7 +143,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @param timeout the check timeout in seconds
    * @return a new ActionBuilder instance
    */
-  @Nonnull
+  @NonNull
   public Checkable await(long timeout) {
     return await(Duration.ofSeconds(timeout));
   }
@@ -154,8 +154,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @param timeout the check timeout
    * @return a new ActionBuilder instance
    */
-  @Nonnull
-  public Checkable await(@Nonnull Duration timeout) {
+  @NonNull
+  public Checkable await(@NonNull Duration timeout) {
     return new Checkable(wrapped.await(toScalaDuration(timeout)));
   }
 
@@ -166,7 +166,7 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @param timeout the check timeout in seconds
    * @return the next DSL step
    */
-  @Nonnull
+  @NonNull
   public Checkable expect(long timeout) {
     return expect(Duration.ofSeconds(timeout));
   }
@@ -178,8 +178,8 @@ public final class SubscribeActionBuilder implements ActionBuilder {
    * @param timeout the check timeout
    * @return the next DSL step
    */
-  @Nonnull
-  public Checkable expect(@Nonnull Duration timeout) {
+  @NonNull
+  public Checkable expect(@NonNull Duration timeout) {
     return new Checkable(wrapped.expect(toScalaDuration(timeout)));
   }
 

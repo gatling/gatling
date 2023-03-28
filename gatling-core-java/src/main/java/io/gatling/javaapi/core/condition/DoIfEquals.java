@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.condition;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfEquals;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "doIfEquals" conditional blocks.
@@ -46,8 +46,8 @@ public interface DoIfEquals<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEquals(@Nonnull String actual, @Nonnull String expected) {
+  @NonNull
+  default Then<T> doIfEquals(@NonNull String actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -58,8 +58,8 @@ public interface DoIfEquals<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEquals(@Nonnull String actual, @Nonnull Object expected) {
+  @NonNull
+  default Then<T> doIfEquals(@NonNull String actual, @NonNull Object expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -70,8 +70,8 @@ public interface DoIfEquals<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEquals(@Nonnull String actual, @Nonnull Function<Session, Object> expected) {
+  @NonNull
+  default Then<T> doIfEquals(@NonNull String actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -83,8 +83,8 @@ public interface DoIfEquals<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEquals(@Nonnull Function<Session, Object> actual, @Nonnull String expected) {
+  @NonNull
+  default Then<T> doIfEquals(@NonNull Function<Session, Object> actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -95,8 +95,8 @@ public interface DoIfEquals<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
-  default Then<T> doIfEquals(@Nonnull Function<Session, Object> actual, Object expected) {
+  @NonNull
+  default Then<T> doIfEquals(@NonNull Function<Session, Object> actual, Object expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -107,9 +107,9 @@ public interface DoIfEquals<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @Nonnull
+  @NonNull
   default Then<T> doIfEquals(
-      @Nonnull Function<Session, Object> actual, @Nonnull Function<Session, Object> expected) {
+      @NonNull Function<Session, Object> actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEquals.apply(this, actual, expected));
   }
 
@@ -131,7 +131,7 @@ public interface DoIfEquals<
      * @param chain the "then" chain
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
+    @NonNull
     public T then(ChainBuilder chain) {
       return wrapped.then_(chain);
     }

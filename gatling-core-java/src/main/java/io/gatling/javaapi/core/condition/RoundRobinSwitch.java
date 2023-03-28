@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.condition;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.condition.ScalaRoundRobinSwitch;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "roundRobinSwitch" conditional blocks.
@@ -44,7 +44,7 @@ public interface RoundRobinSwitch<
    *
    * @return a new {@link StructureBuilder}
    */
-  @Nonnull
+  @NonNull
   default On<T> roundRobinSwitch() {
     return new On<>(new ScalaRoundRobinSwitch<>(this));
   }
@@ -67,8 +67,8 @@ public interface RoundRobinSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder... choices) {
+    @NonNull
+    public T on(@NonNull ChainBuilder... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -78,8 +78,8 @@ public interface RoundRobinSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull List<ChainBuilder> choices) {
+    @NonNull
+    public T on(@NonNull List<ChainBuilder> choices) {
       return wrapped.choices(choices);
     }
   }

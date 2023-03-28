@@ -18,9 +18,9 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.internal.ClosedInjectionSteps;
 import java.time.Duration;
-import javax.annotation.Nonnull;
 
 /**
  * An injection profile step for using a closed workload model where you control the concurrent
@@ -34,7 +34,7 @@ public class ClosedInjectionStep {
   private final io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped;
 
   private ClosedInjectionStep(
-      @Nonnull io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
+      @NonNull io.gatling.core.controller.inject.closed.ClosedInjectionStep wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -43,7 +43,7 @@ public class ClosedInjectionStep {
    *
    * @return the wrapped Scala instance
    */
-  @Nonnull
+  @NonNull
   public io.gatling.core.controller.inject.closed.ClosedInjectionStep asScala() {
     return wrapped;
   }
@@ -65,7 +65,7 @@ public class ClosedInjectionStep {
      * @param durationSeconds the duration in seconds
      * @return a new ClosedInjectionStep
      */
-    @Nonnull
+    @NonNull
     public ClosedInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
@@ -76,8 +76,8 @@ public class ClosedInjectionStep {
      * @param duration the duration
      * @return a new ClosedInjectionStep
      */
-    @Nonnull
-    public ClosedInjectionStep during(@Nonnull Duration duration) {
+    @NonNull
+    public ClosedInjectionStep during(@NonNull Duration duration) {
       return new ClosedInjectionStep(
           new io.gatling.core.controller.inject.closed.ConstantConcurrentUsersInjection(
               users, toScalaDuration(duration)));
@@ -101,7 +101,7 @@ public class ClosedInjectionStep {
      * @param t the target number
      * @return a RampConcurrentUsersInjectionTo
      */
-    @Nonnull
+    @NonNull
     public RampTo to(int t) {
       return new RampTo(from, t);
     }
@@ -126,7 +126,7 @@ public class ClosedInjectionStep {
      * @param durationSeconds the duration in seconds
      * @return a complete ClosedInjectionStep
      */
-    @Nonnull
+    @NonNull
     public ClosedInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
@@ -137,8 +137,8 @@ public class ClosedInjectionStep {
      * @param duration the duration
      * @return a complete ClosedInjectionStep
      */
-    @Nonnull
-    public ClosedInjectionStep during(@Nonnull Duration duration) {
+    @NonNull
+    public ClosedInjectionStep during(@NonNull Duration duration) {
       return new ClosedInjectionStep(
           new io.gatling.core.controller.inject.closed.RampConcurrentUsersInjection(
               from, to, toScalaDuration(duration)));
@@ -162,7 +162,7 @@ public class ClosedInjectionStep {
      * @param levels the number of levels in the stairs
      * @return the next DSL step
      */
-    @Nonnull
+    @NonNull
     public StairsWithTime times(int levels) {
       return new StairsWithTime(usersIncrement, levels);
     }
@@ -187,7 +187,7 @@ public class ClosedInjectionStep {
      * @param durationSeconds the duration in seconds
      * @return the next DSL step
      */
-    @Nonnull
+    @NonNull
     public Composite eachLevelLasting(long durationSeconds) {
       return eachLevelLasting(Duration.ofSeconds(durationSeconds));
     }
@@ -198,8 +198,8 @@ public class ClosedInjectionStep {
      * @param duration the duration
      * @return the next DSL step
      */
-    @Nonnull
-    public Composite eachLevelLasting(@Nonnull Duration duration) {
+    @NonNull
+    public Composite eachLevelLasting(@NonNull Duration duration) {
       return new Composite(
           ClosedInjectionSteps.newEachLevelLasting(usersIncrement, levels)
               .eachLevelLasting(toScalaDuration(duration)));
@@ -226,7 +226,7 @@ public class ClosedInjectionStep {
      * @param startingUsers the initial number of concurrent users
      * @return a usable {@link ClosedInjectionStep}
      */
-    @Nonnull
+    @NonNull
     public Composite startingFrom(int startingUsers) {
       return new Composite(wrapped().startingFrom(startingUsers));
     }
@@ -237,7 +237,7 @@ public class ClosedInjectionStep {
      * @param durationSeconds the duration of the ramps in seconds
      * @return a usable {@link ClosedInjectionStep}
      */
-    @Nonnull
+    @NonNull
     public Composite separatedByRampsLasting(long durationSeconds) {
       return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
     }
@@ -248,7 +248,7 @@ public class ClosedInjectionStep {
      * @param duration the duration of the ramps
      * @return a usable {@link ClosedInjectionStep}
      */
-    @Nonnull
+    @NonNull
     public Composite separatedByRampsLasting(Duration duration) {
       return new Composite(wrapped().separatedByRampsLasting(toScalaDuration(duration)));
     }

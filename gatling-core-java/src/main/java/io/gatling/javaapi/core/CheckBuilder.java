@@ -22,6 +22,8 @@ import static io.gatling.javaapi.core.internal.CoreCheckBuilders.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.gatling.core.check.css.CssCheckType;
 import io.gatling.core.check.css.NodeConverter;
 import io.gatling.core.check.jmespath.JmesPathCheckType;
@@ -37,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import jodd.lagarto.dom.Node;
 import jodd.lagarto.dom.NodeSelector;
 import net.jodah.typetools.TypeResolver;
@@ -108,224 +108,224 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<JavaX> find() {
         return new Validate.Default<>(
             convertExtractedValueToJava(wrapped.find(), scalaXToJavaX), type, javaXClass);
       }
 
       @Override
-      @Nonnull
-      public <X2> Validate<X2> transform(@Nonnull Function<JavaX, X2> f) {
+      @NonNull
+      public <X2> Validate<X2> transform(@NonNull Function<JavaX, X2> f) {
         return find().transform(f);
       }
 
       @Override
-      @Nonnull
-      public <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<JavaX, Session, X2> f) {
+      @NonNull
+      public <X2> Validate<X2> transformWithSession(@NonNull BiFunction<JavaX, Session, X2> f) {
         return find().transformWithSession(f);
       }
 
       @Override
-      @Nonnull
-      public Validate<JavaX> withDefault(@Nonnull JavaX value) {
+      @NonNull
+      public Validate<JavaX> withDefault(@NonNull JavaX value) {
         return find().withDefault(value);
       }
 
       @Override
-      @Nonnull
-      public Validate<JavaX> withDefaultEl(@Nonnull String value) {
+      @NonNull
+      public Validate<JavaX> withDefaultEl(@NonNull String value) {
         return find().withDefaultEl(value);
       }
 
       @Override
-      @Nonnull
-      public Validate<JavaX> withDefault(@Nonnull Function<Session, JavaX> defaultValue) {
+      @NonNull
+      public Validate<JavaX> withDefault(@NonNull Function<Session, JavaX> defaultValue) {
         return find().withDefault(defaultValue);
       }
 
       @Override
-      @Nonnull
-      public Final validate(@Nonnull String opName, @Nonnull BiFunction<JavaX, Session, JavaX> f) {
+      @NonNull
+      public Final validate(@NonNull String opName, @NonNull BiFunction<JavaX, Session, JavaX> f) {
         return find().validate(opName, f);
       }
 
       @Override
-      @Nonnull
-      public Final isEL(@Nonnull String expected) {
+      @NonNull
+      public Final isEL(@NonNull String expected) {
         return find().isEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final is(@Nonnull JavaX expected) {
+      @NonNull
+      public Final is(@NonNull JavaX expected) {
         return find().is(expected);
       }
 
       @Override
-      @Nonnull
-      public Final is(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final is(@NonNull Function<Session, JavaX> expected) {
         return find().is(expected);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final isNull() {
         return find().isNull();
       }
 
       @Override
-      @Nonnull
-      public Final notEL(@Nonnull String expected) {
+      @NonNull
+      public Final notEL(@NonNull String expected) {
         return find().notEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final not(@Nonnull JavaX expected) {
+      @NonNull
+      public Final not(@NonNull JavaX expected) {
         return find().not(expected);
       }
 
       @Override
-      @Nonnull
-      public Final not(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final not(@NonNull Function<Session, JavaX> expected) {
         return find().not(expected);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final notNull() {
         return find().notNull();
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull JavaX... expected) {
+      @NonNull
+      public Final in(@NonNull JavaX... expected) {
         return find().in(expected);
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull List<JavaX> expected) {
+      @NonNull
+      public Final in(@NonNull List<JavaX> expected) {
         return find().in(expected);
       }
 
       @Override
-      @Nonnull
-      public Final inEL(@Nonnull String expected) {
+      @NonNull
+      public Final inEL(@NonNull String expected) {
         return find().inEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull Function<Session, List<JavaX>> expected) {
+      @NonNull
+      public Final in(@NonNull Function<Session, List<JavaX>> expected) {
         return find().in(expected);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final exists() {
         return find().exists();
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final notExists() {
         return find().notExists();
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final optional() {
         return find().optional();
       }
 
       @Override
-      @Nonnull
-      public Final lt(@Nonnull JavaX expected) {
+      @NonNull
+      public Final lt(@NonNull JavaX expected) {
         return find().lt(expected);
       }
 
       @Override
-      @Nonnull
-      public Final ltEL(@Nonnull String expected) {
+      @NonNull
+      public Final ltEL(@NonNull String expected) {
         return find().ltEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final lt(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final lt(@NonNull Function<Session, JavaX> expected) {
         return find().lt(expected);
       }
 
       @Override
-      @Nonnull
-      public Final lte(@Nonnull JavaX expected) {
+      @NonNull
+      public Final lte(@NonNull JavaX expected) {
         return find().lte(expected);
       }
 
       @Override
-      @Nonnull
-      public Final lteEL(@Nonnull String expected) {
+      @NonNull
+      public Final lteEL(@NonNull String expected) {
         return find().lteEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final lte(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final lte(@NonNull Function<Session, JavaX> expected) {
         return find().lte(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gt(@Nonnull JavaX expected) {
+      @NonNull
+      public Final gt(@NonNull JavaX expected) {
         return find().gt(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gtEL(@Nonnull String expected) {
+      @NonNull
+      public Final gtEL(@NonNull String expected) {
         return find().gtEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gt(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final gt(@NonNull Function<Session, JavaX> expected) {
         return find().gt(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gte(@Nonnull JavaX expected) {
+      @NonNull
+      public Final gte(@NonNull JavaX expected) {
         return find().gte(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gteEL(@Nonnull String expected) {
+      @NonNull
+      public Final gteEL(@NonNull String expected) {
         return find().gteEL(expected);
       }
 
       @Override
-      @Nonnull
-      public Final gte(@Nonnull Function<Session, JavaX> expected) {
+      @NonNull
+      public Final gte(@NonNull Function<Session, JavaX> expected) {
         return find().gte(expected);
       }
 
       @Override
-      @Nonnull
-      public Final name(@Nonnull String n) {
+      @NonNull
+      public Final name(@NonNull String n) {
         return find().name(n);
       }
 
       @Override
-      @Nonnull
-      public Final saveAs(@Nonnull String key) {
+      @NonNull
+      public Final saveAs(@NonNull String key) {
         return find().saveAs(key);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public CheckType type() {
         return find().type();
       }
@@ -351,7 +351,7 @@ public interface CheckBuilder {
      * @param occurrence the rank of the target value in the extracted values list
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<JavaX> find(int occurrence);
 
     /**
@@ -359,7 +359,7 @@ public interface CheckBuilder {
      *
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<List<JavaX>> findAll();
 
     /**
@@ -367,7 +367,7 @@ public interface CheckBuilder {
      *
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<JavaX> findRandom();
 
     /**
@@ -376,7 +376,7 @@ public interface CheckBuilder {
      * @param num the number of occurrences to collect
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<List<JavaX>> findRandom(int num);
 
     /**
@@ -386,7 +386,7 @@ public interface CheckBuilder {
      * @param failIfLess fail if num is greater than the number of extracted values
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<List<JavaX>> findRandom(int num, boolean failIfLess);
 
     /**
@@ -394,7 +394,7 @@ public interface CheckBuilder {
      *
      * @return the next Check DSL step
      */
-    @Nonnull
+    @NonNull
     Validate<Integer> count();
 
     /**
@@ -410,9 +410,9 @@ public interface CheckBuilder {
       protected final io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped;
 
       public Default(
-          @Nonnull io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped,
-          @Nonnull CheckType type,
-          @Nonnull Class<?> javaXClass,
+          @NonNull io.gatling.core.check.CheckBuilder.MultipleFind<T, P, ScalaX> wrapped,
+          @NonNull CheckType type,
+          @NonNull Class<?> javaXClass,
           @Nullable Function<ScalaX, JavaX> scalaXToJavaX) {
         super(wrapped, type, javaXClass, scalaXToJavaX);
         this.wrapped = wrapped;
@@ -424,40 +424,40 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<JavaX> find() {
         return makeValidate(convertExtractedValueToJava(wrapped.find(), scalaXToJavaX), javaXClass);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<JavaX> find(int occurrence) {
         return makeValidate(
             convertExtractedValueToJava(wrapped.find(occurrence), scalaXToJavaX), javaXClass);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<List<JavaX>> findAll() {
         return makeValidate(
             convertExtractedSeqToJava(wrapped.findAll(), scalaXToJavaX), List.class);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<JavaX> findRandom() {
         return makeValidate(
             convertExtractedValueToJava(wrapped.findRandom(), scalaXToJavaX), javaXClass);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<List<JavaX>> findRandom(int num) {
         return findRandom(num, false);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<List<JavaX>> findRandom(int num, boolean failIfLess) {
         return makeValidate(
             convertExtractedSeqToJava(wrapped.findRandom(num, failIfLess), scalaXToJavaX),
@@ -465,7 +465,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Validate<Integer> count() {
         return makeValidate(toCountCheck(wrapped), Integer.class);
       }
@@ -487,8 +487,8 @@ public interface CheckBuilder {
      * @param <X2> the transformed value
      * @return a new Validate
      */
-    @Nonnull
-    <X2> Validate<X2> transform(@Nonnull Function<X, X2> f);
+    @NonNull
+    <X2> Validate<X2> transform(@NonNull Function<X, X2> f);
 
     /**
      * Transform the extracted value, whith access to the current {@link Session}
@@ -497,8 +497,8 @@ public interface CheckBuilder {
      * @param <X2> the transformed value
      * @return a new Validate
      */
-    @Nonnull
-    <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<X, Session, X2> f);
+    @NonNull
+    <X2> Validate<X2> transformWithSession(@NonNull BiFunction<X, Session, X2> f);
 
     /**
      * Provide a default value if the check wasn't able to extract anything
@@ -506,8 +506,8 @@ public interface CheckBuilder {
      * @param value the default value
      * @return a new Validate
      */
-    @Nonnull
-    Validate<X> withDefault(@Nonnull X value);
+    @NonNull
+    Validate<X> withDefault(@NonNull X value);
 
     /**
      * Provide a default Gatling Expression Language value if the check wasn't able to extract
@@ -516,8 +516,8 @@ public interface CheckBuilder {
      * @param value the default value as a Gatling Expression Language String
      * @return a new Validate
      */
-    @Nonnull
-    Validate<X> withDefaultEl(@Nonnull String value);
+    @NonNull
+    Validate<X> withDefaultEl(@NonNull String value);
 
     /**
      * Provide a default Gatling Expression Language value if the check wasn't able to extract
@@ -526,8 +526,8 @@ public interface CheckBuilder {
      * @param defaultValue the default value as a function
      * @return a new Validate
      */
-    @Nonnull
-    Validate<X> withDefault(@Nonnull Function<Session, X> defaultValue);
+    @NonNull
+    Validate<X> withDefault(@NonNull Function<Session, X> defaultValue);
 
     /**
      * Provide a custom validation strategy
@@ -536,8 +536,8 @@ public interface CheckBuilder {
      * @param f the custom validation function, must throw to trigger a failure
      * @return a new Final
      */
-    @Nonnull
-    Final validate(@Nonnull String name, @Nonnull BiFunction<X, Session, X> f);
+    @NonNull
+    Final validate(@NonNull String name, @NonNull BiFunction<X, Session, X> f);
 
     /**
      * Validate the extracted value is equal to an expected value
@@ -545,7 +545,7 @@ public interface CheckBuilder {
      * @param expected the expected value
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final is(X expected);
 
     /**
@@ -554,7 +554,7 @@ public interface CheckBuilder {
      * @param expected the expected value
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     default Final shouldBe(X expected) {
       return is(expected);
     }
@@ -566,7 +566,7 @@ public interface CheckBuilder {
      * @param expected the expected value as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final isEL(String expected);
 
     /**
@@ -575,7 +575,7 @@ public interface CheckBuilder {
      * @param expected the expected value as a function
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final is(Function<Session, X> expected);
 
     /**
@@ -584,7 +584,7 @@ public interface CheckBuilder {
      * @param expected the expected value
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     default Final shouldBe(Function<Session, X> expected) {
       return is(expected);
     }
@@ -602,8 +602,8 @@ public interface CheckBuilder {
      * @param expected the unexpected value
      * @return a new Final
      */
-    @Nonnull
-    Final not(@Nonnull X expected);
+    @NonNull
+    Final not(@NonNull X expected);
 
     /**
      * Validate the extracted value is not an expected value, passed as a Gatling Expression
@@ -612,8 +612,8 @@ public interface CheckBuilder {
      * @param expected the unexpected value as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final notEL(@Nonnull String expected);
+    @NonNull
+    Final notEL(@NonNull String expected);
 
     /**
      * Validate the extracted value is not an expected value, passed as a function
@@ -621,8 +621,8 @@ public interface CheckBuilder {
      * @param expected the unexpected value as a function
      * @return a new Final
      */
-    @Nonnull
-    Final not(@Nonnull Function<Session, X> expected);
+    @NonNull
+    Final not(@NonNull Function<Session, X> expected);
 
     /**
      * Validate the extracted value is not null
@@ -637,8 +637,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values
      * @return a new Final
      */
-    @Nonnull
-    Final in(@Nonnull X... expected);
+    @NonNull
+    Final in(@NonNull X... expected);
 
     /**
      * Alias for `in` that's a reserved keyword in Kotlin
@@ -646,8 +646,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values
      * @return a new Final
      */
-    @Nonnull
-    default Final within(@Nonnull X... expected) {
+    @NonNull
+    default Final within(@NonNull X... expected) {
       return in(expected);
     }
 
@@ -657,8 +657,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values
      * @return a new Final
      */
-    @Nonnull
-    Final in(@Nonnull List<X> expected);
+    @NonNull
+    Final in(@NonNull List<X> expected);
 
     /**
      * Alias for `in` that's a reserved keyword in Kotlin
@@ -666,8 +666,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values
      * @return a new Final
      */
-    @Nonnull
-    default Final within(@Nonnull List<X> expected) {
+    @NonNull
+    default Final within(@NonNull List<X> expected) {
       return in(expected);
     }
 
@@ -678,8 +678,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final inEL(@Nonnull String expected);
+    @NonNull
+    Final inEL(@NonNull String expected);
 
     /**
      * Alias for `in` that's a reserved keyword in Kotlin
@@ -687,8 +687,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    default Final withinEL(@Nonnull String expected) {
+    @NonNull
+    default Final withinEL(@NonNull String expected) {
       return inEL(expected);
     }
 
@@ -698,8 +698,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values, as a function
      * @return a new Final
      */
-    @Nonnull
-    Final in(@Nonnull Function<Session, List<X>> expected);
+    @NonNull
+    Final in(@NonNull Function<Session, List<X>> expected);
 
     /**
      * Alias for `in` that's a reserved keyword in Kotlin
@@ -707,8 +707,8 @@ public interface CheckBuilder {
      * @param expected the set of possible values, as a function
      * @return a new Final
      */
-    @Nonnull
-    default Final within(@Nonnull Function<Session, List<X>> expected) {
+    @NonNull
+    default Final within(@NonNull Function<Session, List<X>> expected) {
       return in(expected);
     }
 
@@ -717,7 +717,7 @@ public interface CheckBuilder {
      *
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final exists();
 
     /**
@@ -725,7 +725,7 @@ public interface CheckBuilder {
      *
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final notExists();
 
     /**
@@ -733,7 +733,7 @@ public interface CheckBuilder {
      *
      * @return a new Final
      */
-    @Nonnull
+    @NonNull
     Final optional();
 
     /**
@@ -742,8 +742,8 @@ public interface CheckBuilder {
      * @param value the value
      * @return a new Final
      */
-    @Nonnull
-    Final lt(@Nonnull X value);
+    @NonNull
+    Final lt(@NonNull X value);
 
     /**
      * Validate the extracted value is less than a given value, passed as a Gatling Expression
@@ -752,8 +752,8 @@ public interface CheckBuilder {
      * @param value the value, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final ltEL(@Nonnull String value);
+    @NonNull
+    Final ltEL(@NonNull String value);
 
     /**
      * Validate the extracted value is less than a given value, passed as a function
@@ -761,8 +761,8 @@ public interface CheckBuilder {
      * @param value the value, as a function
      * @return a new Final
      */
-    @Nonnull
-    Final lt(@Nonnull Function<Session, X> value);
+    @NonNull
+    Final lt(@NonNull Function<Session, X> value);
 
     /**
      * Validate the extracted value is less than or equal to a given value
@@ -770,8 +770,8 @@ public interface CheckBuilder {
      * @param value the value
      * @return a new Final
      */
-    @Nonnull
-    Final lte(@Nonnull X value);
+    @NonNull
+    Final lte(@NonNull X value);
 
     /**
      * Validate the extracted value is less than or equal to a given value, passed as a Gatling
@@ -780,8 +780,8 @@ public interface CheckBuilder {
      * @param value the value, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final lteEL(@Nonnull String value);
+    @NonNull
+    Final lteEL(@NonNull String value);
 
     /**
      * Validate the extracted value is less than or equal to a given value, passed as a function
@@ -789,8 +789,8 @@ public interface CheckBuilder {
      * @param value the value, as a function
      * @return a new Final
      */
-    @Nonnull
-    Final lte(@Nonnull Function<Session, X> value);
+    @NonNull
+    Final lte(@NonNull Function<Session, X> value);
 
     /**
      * Validate the extracted value is greater than a given value
@@ -798,8 +798,8 @@ public interface CheckBuilder {
      * @param value the value
      * @return a new Final
      */
-    @Nonnull
-    Final gt(@Nonnull X value);
+    @NonNull
+    Final gt(@NonNull X value);
 
     /**
      * Validate the extracted value is greater than a given value, passed as a Gatling Expression
@@ -808,8 +808,8 @@ public interface CheckBuilder {
      * @param value the value, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final gtEL(@Nonnull String value);
+    @NonNull
+    Final gtEL(@NonNull String value);
 
     /**
      * Validate the extracted value is greater than a given value, passed as a function
@@ -817,8 +817,8 @@ public interface CheckBuilder {
      * @param value the value, as a function
      * @return a new Final
      */
-    @Nonnull
-    Final gt(@Nonnull Function<Session, X> value);
+    @NonNull
+    Final gt(@NonNull Function<Session, X> value);
 
     /**
      * Validate the extracted value is greater than or equal to a given value
@@ -826,8 +826,8 @@ public interface CheckBuilder {
      * @param value the value
      * @return a new Final
      */
-    @Nonnull
-    Final gte(@Nonnull X value);
+    @NonNull
+    Final gte(@NonNull X value);
 
     /**
      * Validate the extracted value is greater than or equal to a given value, passed as a Gatling
@@ -836,8 +836,8 @@ public interface CheckBuilder {
      * @param value the value, as a Gatling Expression Language String
      * @return a new Final
      */
-    @Nonnull
-    Final gteEL(@Nonnull String value);
+    @NonNull
+    Final gteEL(@NonNull String value);
 
     /**
      * Validate the extracted value is greater than or equal to a given value, passed as a function
@@ -845,8 +845,8 @@ public interface CheckBuilder {
      * @param value the value, as a function
      * @return a new Final
      */
-    @Nonnull
-    Final gte(@Nonnull Function<Session, X> value);
+    @NonNull
+    Final gte(@NonNull Function<Session, X> value);
 
     /**
      * Default implementation of {@link Validate}
@@ -874,8 +874,8 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
-      public <X2> Validate<X2> transform(@Nonnull Function<X, X2> f) {
+      @NonNull
+      public <X2> Validate<X2> transform(@NonNull Function<X, X2> f) {
         Class<?> x2Class = TypeResolver.resolveRawArguments(Function.class, f.getClass())[1];
         return new Validate.Default<>(
             wrapped.transformOption(
@@ -888,8 +888,8 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
-      public <X2> Validate<X2> transformWithSession(@Nonnull BiFunction<X, Session, X2> f) {
+      @NonNull
+      public <X2> Validate<X2> transformWithSession(@NonNull BiFunction<X, Session, X2> f) {
         Class<?> x2Class = TypeResolver.resolveRawArguments(BiFunction.class, f.getClass())[2];
         return new Validate.Default<>(
             wrapped.transformOptionWithSession(
@@ -902,35 +902,35 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
-      public Validate<X> withDefault(@Nonnull X value) {
+      @NonNull
+      public Validate<X> withDefault(@NonNull X value) {
         return new Validate.Default<>(
             wrapped.withDefault(toStaticValueExpression(value)), type, xClass);
       }
 
       @Override
-      @Nonnull
-      public Validate<X> withDefaultEl(@Nonnull String value) {
+      @NonNull
+      public Validate<X> withDefaultEl(@NonNull String value) {
         return new Validate.Default<>(
             wrapped.withDefault(toExpression(value, xClass)), type, xClass);
       }
 
       @Override
-      @Nonnull
-      public Validate<X> withDefault(@Nonnull Function<Session, X> defaultValue) {
+      @NonNull
+      public Validate<X> withDefault(@NonNull Function<Session, X> defaultValue) {
         return new Validate.Default<>(
             wrapped.withDefault(javaFunctionToExpression(defaultValue)), type, xClass);
       }
 
       @Override
-      @Nonnull
-      public Final is(@Nonnull X expected) {
+      @NonNull
+      public Final is(@NonNull X expected) {
         return makeFinal(wrapped.is(toStaticValueExpression(expected), equality(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final validate(@Nonnull String opName, @Nonnull BiFunction<X, Session, X> f) {
+      @NonNull
+      public Final validate(@NonNull String opName, @NonNull BiFunction<X, Session, X> f) {
         return makeFinal(
             wrapped.validate(
                 opName,
@@ -941,175 +941,175 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
-      public Final isEL(@Nonnull String expected) {
+      @NonNull
+      public Final isEL(@NonNull String expected) {
         return makeFinal(wrapped.is(toExpression(expected, xClass), equality(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final is(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final is(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.is(javaFunctionToExpression(expected), equality(xClass)));
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final isNull() {
         return makeFinal(wrapped.isNull());
       }
 
       @Override
-      @Nonnull
-      public Final not(@Nonnull X expected) {
+      @NonNull
+      public Final not(@NonNull X expected) {
         return makeFinal(wrapped.not(toStaticValueExpression(expected), equality(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final notEL(@Nonnull String expected) {
+      @NonNull
+      public Final notEL(@NonNull String expected) {
         return makeFinal(wrapped.not(toExpression(expected, xClass), equality(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final not(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final not(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.not(javaFunctionToExpression(expected), equality(xClass)));
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final notNull() {
         return makeFinal(wrapped.notNull());
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull X... expected) {
+      @NonNull
+      public Final in(@NonNull X... expected) {
         return makeFinal(wrapped.in(toScalaSeq(expected)));
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull List<X> expected) {
+      @NonNull
+      public Final in(@NonNull List<X> expected) {
         return makeFinal(wrapped.in(toScalaSeq(expected)));
       }
 
       @Override
-      @Nonnull
-      public Final inEL(@Nonnull String expected) {
+      @NonNull
+      public Final inEL(@NonNull String expected) {
         return makeFinal(wrapped.in(toSeqExpression(expected)));
       }
 
       @Override
-      @Nonnull
-      public Final in(@Nonnull Function<Session, List<X>> expected) {
+      @NonNull
+      public Final in(@NonNull Function<Session, List<X>> expected) {
         return makeFinal(wrapped.in(javaListFunctionToExpression(expected)));
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final exists() {
         return makeFinal(wrapped.exists());
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final notExists() {
         return makeFinal(wrapped.notExists());
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Final optional() {
         return makeFinal(wrapped.optional());
       }
 
       @Override
-      @Nonnull
-      public Final lt(@Nonnull X expected) {
+      @NonNull
+      public Final lt(@NonNull X expected) {
         return makeFinal(wrapped.lt(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final ltEL(@Nonnull String expected) {
+      @NonNull
+      public Final ltEL(@NonNull String expected) {
         return makeFinal(wrapped.lt(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final lt(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final lt(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.lt(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final lte(@Nonnull X expected) {
+      @NonNull
+      public Final lte(@NonNull X expected) {
         return makeFinal(wrapped.lte(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final lteEL(@Nonnull String expected) {
+      @NonNull
+      public Final lteEL(@NonNull String expected) {
         return makeFinal(wrapped.lte(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final lte(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final lte(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.lte(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gt(@Nonnull X expected) {
+      @NonNull
+      public Final gt(@NonNull X expected) {
         return makeFinal(wrapped.gt(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gtEL(@Nonnull String expected) {
+      @NonNull
+      public Final gtEL(@NonNull String expected) {
         return makeFinal(wrapped.gt(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gt(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final gt(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.gt(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gte(@Nonnull X expected) {
+      @NonNull
+      public Final gte(@NonNull X expected) {
         return makeFinal(wrapped.gte(toStaticValueExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gteEL(@Nonnull String expected) {
+      @NonNull
+      public Final gteEL(@NonNull String expected) {
         return makeFinal(wrapped.gte(toExpression(expected, xClass), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final gte(@Nonnull Function<Session, X> expected) {
+      @NonNull
+      public Final gte(@NonNull Function<Session, X> expected) {
         return makeFinal(wrapped.gte(javaFunctionToExpression(expected), ordering(xClass)));
       }
 
       @Override
-      @Nonnull
-      public Final name(@Nonnull String n) {
+      @NonNull
+      public Final name(@NonNull String n) {
         return exists().name(n);
       }
 
       @Override
-      @Nonnull
-      public Final saveAs(@Nonnull String key) {
+      @NonNull
+      public Final saveAs(@NonNull String key) {
         return exists().saveAs(key);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public CheckType type() {
         return exists().type();
       }
@@ -1133,8 +1133,8 @@ public interface CheckBuilder {
      * @param n the name
      * @return a new Final
      */
-    @Nonnull
-    Final name(@Nonnull String n);
+    @NonNull
+    Final name(@NonNull String n);
 
     /**
      * Save the extracted value in the virtual user's {@link Session}
@@ -1142,8 +1142,8 @@ public interface CheckBuilder {
      * @param key the key to store the extracted value in the {@link Session}
      * @return a new Final
      */
-    @Nonnull
-    Final saveAs(@Nonnull String key);
+    @NonNull
+    Final saveAs(@NonNull String key);
 
     /**
      * Default implementation of {@link Final}
@@ -1161,19 +1161,19 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
-      public Final name(@Nonnull String n) {
+      @NonNull
+      public Final name(@NonNull String n) {
         return new Default<>(wrapped.name(n), type);
       }
 
       @Override
-      @Nonnull
-      public Final saveAs(@Nonnull String key) {
+      @NonNull
+      public Final saveAs(@NonNull String key) {
         return new Default<>(wrapped.saveAs(key), type);
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public CheckType type() {
         return type;
       }
@@ -1194,7 +1194,7 @@ public interface CheckBuilder {
      * @param count the number of capture groups in the regular expression pattern
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<List<String>> captureGroups(int count);
 
     /**
@@ -1215,7 +1215,7 @@ public interface CheckBuilder {
           io.gatling.core.check.regex.GroupExtractor<X> groupExtractor);
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<List<String>> captureGroups(int count) {
         switch (count) {
           case 2:
@@ -1281,10 +1281,10 @@ public interface CheckBuilder {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected <X>
         io.gatling.core.check.CheckBuilder.MultipleFind<RegexCheckType, String, X> extract(
-            @Nonnull GroupExtractor<X> groupExtractor) {
+            @NonNull GroupExtractor<X> groupExtractor) {
       io.gatling.core.check.regex.RegexCheckBuilder<String> actual =
           (io.gatling.core.check.regex.RegexCheckBuilder<String>) wrapped;
       return new io.gatling.core.check.regex.RegexCheckBuilder<>(
@@ -1300,7 +1300,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<String> ofString();
 
     /**
@@ -1308,7 +1308,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Boolean> ofBoolean();
 
     /**
@@ -1316,7 +1316,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Integer> ofInt();
 
     /**
@@ -1324,7 +1324,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Long> ofLong();
 
     /**
@@ -1332,7 +1332,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Double> ofDouble();
 
     /**
@@ -1340,7 +1340,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<List<Object>> ofList();
 
     /**
@@ -1348,7 +1348,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Map<String, Object>> ofMap();
 
     /**
@@ -1356,7 +1356,7 @@ public interface CheckBuilder {
      *
      * @return a new Find
      */
-    @Nonnull
+    @NonNull
     Find<Object> ofObject();
 
     /**
@@ -1371,12 +1371,12 @@ public interface CheckBuilder {
         super(wrapped, type, String.class, null);
       }
 
-      @Nonnull
+      @NonNull
       protected abstract <X> io.gatling.core.check.CheckBuilder.Find<T, JsonNode, X> ofType(
           io.gatling.core.check.jsonpath.JsonFilter<X> filter);
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<String> ofString() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
@@ -1386,7 +1386,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Boolean> ofBoolean() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
@@ -1396,7 +1396,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Integer> ofInt() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
@@ -1406,7 +1406,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Long> ofLong() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
@@ -1416,7 +1416,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Double> ofDouble() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
@@ -1426,7 +1426,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<List<Object>> ofList() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
@@ -1436,7 +1436,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Map<String, Object>> ofMap() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
@@ -1446,7 +1446,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public Find<Object> ofObject() {
         return new Find.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
@@ -1465,7 +1465,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<String> ofString();
 
     /**
@@ -1473,7 +1473,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Boolean> ofBoolean();
 
     /**
@@ -1481,7 +1481,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Integer> ofInt();
 
     /**
@@ -1489,7 +1489,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Long> ofLong();
 
     /**
@@ -1497,7 +1497,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Double> ofDouble();
 
     /**
@@ -1505,7 +1505,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<List<Object>> ofList();
 
     /**
@@ -1513,7 +1513,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Map<String, Object>> ofMap();
 
     /**
@@ -1521,7 +1521,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Object> ofObject();
 
     /**
@@ -1537,12 +1537,12 @@ public interface CheckBuilder {
         super(wrapped, type, String.class, null);
       }
 
-      @Nonnull
+      @NonNull
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, X> ofType(
           io.gatling.core.check.jsonpath.JsonFilter<X> filter);
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<String> ofString() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
@@ -1552,7 +1552,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Boolean> ofBoolean() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
@@ -1562,7 +1562,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Integer> ofInt() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
@@ -1572,7 +1572,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Long> ofLong() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
@@ -1582,7 +1582,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Double> ofDouble() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
@@ -1592,7 +1592,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<List<Object>> ofList() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
@@ -1602,7 +1602,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Map<String, Object>> ofMap() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
@@ -1612,7 +1612,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Object> ofObject() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
@@ -1639,7 +1639,7 @@ public interface CheckBuilder {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected <X> io.gatling.core.check.CheckBuilder.Find<JmesPathCheckType, JsonNode, X> ofType(
         JsonFilter<X> filter) {
       io.gatling.core.check.jmespath.JmesPathCheckBuilder<String> actual =
@@ -1658,7 +1658,7 @@ public interface CheckBuilder {
       extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JsonpJmesPathCheckType> {
 
     public JsonpJmesPath(
-        @Nonnull
+        @NonNull
             io.gatling.core.check.CheckBuilder.Find<
                     io.gatling.core.check.jmespath.JsonpJmesPathCheckType, JsonNode, String>
                 wrapped) {
@@ -1666,7 +1666,7 @@ public interface CheckBuilder {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected <X>
         io.gatling.core.check.CheckBuilder.Find<JsonpJmesPathCheckType, JsonNode, X> ofType(
             JsonFilter<X> filter) {
@@ -1687,7 +1687,7 @@ public interface CheckBuilder {
       extends JsonOfTypeMultipleFind.Default<io.gatling.core.check.jsonpath.JsonPathCheckType> {
 
     public JsonPath(
-        @Nonnull
+        @NonNull
             io.gatling.core.check.CheckBuilder.MultipleFind<
                     io.gatling.core.check.jsonpath.JsonPathCheckType, JsonNode, String>
                 wrapped) {
@@ -1695,7 +1695,7 @@ public interface CheckBuilder {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected <X>
         io.gatling.core.check.CheckBuilder.MultipleFind<JsonPathCheckType, JsonNode, X> ofType(
             JsonFilter<X> filter) {
@@ -1717,7 +1717,7 @@ public interface CheckBuilder {
           io.gatling.core.check.jsonpath.JsonpJsonPathCheckType> {
 
     public JsonpJsonPath(
-        @Nonnull
+        @NonNull
             io.gatling.core.check.CheckBuilder.MultipleFind<
                     io.gatling.core.check.jsonpath.JsonpJsonPathCheckType, JsonNode, String>
                 wrapped) {
@@ -1725,7 +1725,7 @@ public interface CheckBuilder {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected <X>
         io.gatling.core.check.CheckBuilder.MultipleFind<JsonpJsonPathCheckType, JsonNode, X> ofType(
             JsonFilter<X> filter) {
@@ -1744,7 +1744,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<String> ofString();
 
     /**
@@ -1752,7 +1752,7 @@ public interface CheckBuilder {
      *
      * @return a new MultipleFind
      */
-    @Nonnull
+    @NonNull
     MultipleFind<Node> ofNode();
 
     /**
@@ -1768,13 +1768,13 @@ public interface CheckBuilder {
         super(wrapped, type, String.class, null);
       }
 
-      @Nonnull
+      @NonNull
       protected abstract <X>
           io.gatling.core.check.CheckBuilder.MultipleFind<T, NodeSelector, X> ofType(
               io.gatling.core.check.css.NodeConverter<X> nodeConverter);
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<String> ofString() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.css.NodeConverter.stringNodeConverter()),
@@ -1784,7 +1784,7 @@ public interface CheckBuilder {
       }
 
       @Override
-      @Nonnull
+      @NonNull
       public MultipleFind<Node> ofNode() {
         return new MultipleFind.Default<>(
             ofType(io.gatling.core.check.css.NodeConverter.nodeNodeConverter()),
@@ -1805,7 +1805,7 @@ public interface CheckBuilder {
       super(wrapped, CoreCheckType.Css);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected <X>
         io.gatling.core.check.CheckBuilder.MultipleFind<CssCheckType, NodeSelector, X> ofType(

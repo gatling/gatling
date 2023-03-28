@@ -19,9 +19,9 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 import static io.gatling.javaapi.core.internal.Expressions.javaLongFunctionToExpression;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /** The type of pauses to use on a given Scenario or Simulation. */
 public abstract class PauseType {
@@ -101,7 +101,7 @@ public abstract class PauseType {
      *
      * @param stdDev the standard deviation of the distribution
      */
-    NormalWithStdDevDuration(@Nonnull Duration stdDev) {
+    NormalWithStdDevDuration(@NonNull Duration stdDev) {
       this.stdDev = stdDev;
     }
 
@@ -115,7 +115,7 @@ public abstract class PauseType {
   public static final class Custom extends PauseType {
     private final Function<Session, Long> f;
 
-    Custom(@Nonnull Function<Session, Long> f) {
+    Custom(@NonNull Function<Session, Long> f) {
       this.f = f;
     }
 
@@ -149,7 +149,7 @@ public abstract class PauseType {
   public static final class UniformDuration extends PauseType {
     private final Duration plusOrMinus;
 
-    public UniformDuration(@Nonnull Duration plusOrMinus) {
+    public UniformDuration(@NonNull Duration plusOrMinus) {
       this.plusOrMinus = plusOrMinus;
     }
 

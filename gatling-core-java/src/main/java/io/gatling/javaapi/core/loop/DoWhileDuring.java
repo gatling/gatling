@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.core.loop;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -23,7 +24,6 @@ import io.gatling.javaapi.core.internal.loop.ScalaDoWhileDuring;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Methods for defining "doWhileDuring" loops. Similar to {@link AsLongAsDuring} except the
@@ -50,8 +50,8 @@ public interface DoWhileDuring<
    *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, @Nonnull String duration) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, @NonNull String duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -63,8 +63,8 @@ public interface DoWhileDuring<
    * @param duration the maximum duration in seconds
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, long duration) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, long duration) {
     return doWhileDuring(condition, Duration.ofSeconds(duration));
   }
 
@@ -76,8 +76,8 @@ public interface DoWhileDuring<
    * @param duration the maximum duration
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, Duration duration) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, Duration duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -89,8 +89,8 @@ public interface DoWhileDuring<
    * @param duration the maximum duration function
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, Function<Session, Duration> duration) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, Function<Session, Duration> duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -104,9 +104,9 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, @Nonnull String duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull String duration, @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -119,9 +119,9 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName) {
+      @NonNull String condition, long duration, @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -134,9 +134,9 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, @Nonnull Duration duration, @Nonnull String counterName) {
+      @NonNull String condition, @NonNull Duration duration, @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -149,11 +149,11 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -168,9 +168,9 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, @Nonnull String duration, boolean exitASAP) {
+      @NonNull String condition, @NonNull String duration, boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -184,8 +184,8 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, long duration, boolean exitASAP) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, long duration, boolean exitASAP) {
     return doWhileDuring(condition, Duration.ofSeconds(duration), exitASAP);
   }
 
@@ -199,8 +199,8 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull String condition, Duration duration, boolean exitASAP) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull String condition, Duration duration, boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -214,9 +214,9 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, Function<Session, Duration> duration, boolean exitASAP) {
+      @NonNull String condition, Function<Session, Duration> duration, boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -232,11 +232,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull String duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull String duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
@@ -252,9 +252,9 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition, long duration, @Nonnull String counterName, boolean exitASAP) {
+      @NonNull String condition, long duration, @NonNull String counterName, boolean exitASAP) {
     return doWhileDuring(condition, Duration.ofSeconds(duration), counterName, exitASAP);
   }
 
@@ -269,11 +269,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Duration duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
@@ -289,11 +289,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull String condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull String condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
@@ -307,10 +307,10 @@ public interface DoWhileDuring<
    * @param duration the maximum duration, expressed as a function
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -322,8 +322,8 @@ public interface DoWhileDuring<
    * @param duration the maximum duration in seconds
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
-  default On<T> doWhileDuring(@Nonnull Function<Session, Boolean> condition, long duration) {
+  @NonNull
+  default On<T> doWhileDuring(@NonNull Function<Session, Boolean> condition, long duration) {
     return doWhileDuring(condition, Duration.ofSeconds(duration));
   }
 
@@ -335,9 +335,9 @@ public interface DoWhileDuring<
    * @param duration the maximum duration
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString());
   }
 
@@ -350,11 +350,11 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -367,9 +367,9 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition, long duration, @NonNull String counterName) {
     return doWhileDuring(condition, Duration.ofSeconds(duration), counterName);
   }
 
@@ -382,11 +382,11 @@ public interface DoWhileDuring<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName) {
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
+      @NonNull String counterName) {
     return doWhileDuring(condition, duration, counterName, false);
   }
 
@@ -400,10 +400,10 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
       boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
@@ -418,9 +418,9 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, long duration, boolean exitASAP) {
     return doWhileDuring(condition, Duration.ofSeconds(duration), exitASAP);
   }
 
@@ -434,9 +434,9 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition, @Nonnull Duration duration, boolean exitASAP) {
+      @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -451,11 +451,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Function<Session, Duration> duration,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Duration> duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
@@ -471,11 +471,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
+      @NonNull Function<Session, Boolean> condition,
       long duration,
-      @Nonnull String counterName,
+      @NonNull String counterName,
       boolean exitASAP) {
     return doWhileDuring(condition, Duration.ofSeconds(duration), counterName, exitASAP);
   }
@@ -491,11 +491,11 @@ public interface DoWhileDuring<
    *     duration inside the loop
    * @return a DSL component for defining the loop content
    */
-  @Nonnull
+  @NonNull
   default On<T> doWhileDuring(
-      @Nonnull Function<Session, Boolean> condition,
-      @Nonnull Duration duration,
-      @Nonnull String counterName,
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull Duration duration,
+      @NonNull String counterName,
       boolean exitASAP) {
     return new On<>(ScalaDoWhileDuring.apply(this, condition, duration, counterName, exitASAP));
   }
@@ -518,8 +518,8 @@ public interface DoWhileDuring<
      * @param chain the loop content
      * @return a new {@link StructureBuilder}
      */
-    @Nonnull
-    public T on(@Nonnull ChainBuilder chain) {
+    @NonNull
+    public T on(@NonNull ChainBuilder chain) {
       return wrapped.loop(chain);
     }
   }

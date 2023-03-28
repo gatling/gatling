@@ -16,8 +16,8 @@
 
 package io.gatling.javaapi.jdbc;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.FeederBuilder;
-import javax.annotation.Nonnull;
 
 /** The entrypoint of the Gatling JDBC DSL */
 public final class JdbcDsl {
@@ -33,12 +33,12 @@ public final class JdbcDsl {
    * @param sql the SQL query
    * @return a FeederBuilder
    */
-  @Nonnull
+  @NonNull
   public static FeederBuilder<Object> jdbcFeeder(
-      @Nonnull String url,
-      @Nonnull String username,
-      @Nonnull String password,
-      @Nonnull String sql) {
+      @NonNull String url,
+      @NonNull String username,
+      @NonNull String password,
+      @NonNull String sql) {
     return new FeederBuilder.Impl<>(
         io.gatling.jdbc.Predef.jdbcFeeder(
             url, username, password, sql, io.gatling.core.Predef.configuration()));

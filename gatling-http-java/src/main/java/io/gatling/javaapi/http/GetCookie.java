@@ -18,10 +18,10 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.action.cookie.GetCookieDsl;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * DSL for fetching the value of a <a
@@ -45,8 +45,8 @@ public final class GetCookie {
    * @param domain the cookie domain, expressed as a Gatling Expression Language String
    * @return a new GetCookie
    */
-  @Nonnull
-  public GetCookie withDomain(@Nonnull String domain) {
+  @NonNull
+  public GetCookie withDomain(@NonNull String domain) {
     return new GetCookie(wrapped.withDomain(toStringExpression(domain)));
   }
 
@@ -57,8 +57,8 @@ public final class GetCookie {
    * @param domain the cookie domain, expressed as a function
    * @return a new GetCookie
    */
-  @Nonnull
-  public GetCookie withDomain(@Nonnull Function<Session, String> domain) {
+  @NonNull
+  public GetCookie withDomain(@NonNull Function<Session, String> domain) {
     return new GetCookie(wrapped.withDomain(javaFunctionToExpression(domain)));
   }
 
@@ -68,8 +68,8 @@ public final class GetCookie {
    * @param path the cookie path
    * @return a new GetCookie
    */
-  @Nonnull
-  public GetCookie withPath(@Nonnull String path) {
+  @NonNull
+  public GetCookie withPath(@NonNull String path) {
     return new GetCookie(wrapped.withPath(path));
   }
 
@@ -79,7 +79,7 @@ public final class GetCookie {
    * @param secure the cookie secure attribute
    * @return a new GetCookie
    */
-  @Nonnull
+  @NonNull
   public GetCookie withSecure(boolean secure) {
     return new GetCookie(wrapped.withSecure(secure));
   }
@@ -90,8 +90,8 @@ public final class GetCookie {
    * @param saveAs the key
    * @return a new GetCookie
    */
-  @Nonnull
-  public GetCookie saveAs(@Nonnull String saveAs) {
+  @NonNull
+  public GetCookie saveAs(@NonNull String saveAs) {
     return new GetCookie(wrapped.saveAs(saveAs));
   }
 

@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.jms;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.jms.ConnectionFactory;
 
 /**
@@ -67,8 +67,8 @@ public final class JmsJndiConnectionFactoryBuilder {
      * @param url the url
      * @return the next DSL step
      */
-    @Nonnull
-    public ContextFactory url(@Nonnull String url) {
+    @NonNull
+    public ContextFactory url(@NonNull String url) {
       return new ContextFactory(wrapped.url(url));
     }
   }
@@ -89,8 +89,8 @@ public final class JmsJndiConnectionFactoryBuilder {
      * @param password the password
      * @return a new instance
      */
-    @Nonnull
-    public ContextFactory credentials(@Nonnull String user, @Nonnull String password) {
+    @NonNull
+    public ContextFactory credentials(@NonNull String user, @NonNull String password) {
       return new ContextFactory(wrapped.credentials(user, password));
     }
 
@@ -101,8 +101,8 @@ public final class JmsJndiConnectionFactoryBuilder {
      * @param value the property value
      * @return a new instance
      */
-    @Nonnull
-    public ContextFactory property(@Nonnull String key, @Nonnull String value) {
+    @NonNull
+    public ContextFactory property(@NonNull String key, @NonNull String value) {
       return new ContextFactory(wrapped.property(key, value));
     }
 
@@ -112,8 +112,8 @@ public final class JmsJndiConnectionFactoryBuilder {
      * @param clazz the class
      * @return a usable {@link JmsJndiConnectionFactoryBuilder}
      */
-    @Nonnull
-    public JmsJndiConnectionFactoryBuilder contextFactory(@Nonnull String clazz) {
+    @NonNull
+    public JmsJndiConnectionFactoryBuilder contextFactory(@NonNull String clazz) {
       return new JmsJndiConnectionFactoryBuilder(wrapped.contextFactory(clazz));
     }
   }

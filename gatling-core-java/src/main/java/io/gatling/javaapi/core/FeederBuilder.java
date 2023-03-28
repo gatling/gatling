@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.core;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.feeder.BatchableFeederBuilder;
 import io.gatling.core.feeder.SeparatedValuesParser;
 import io.gatling.javaapi.core.internal.Converters;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /**
  * Builder of feeders, ie sources of data that are shared amongst all virtual users. Typically
@@ -43,7 +43,7 @@ public interface FeederBuilder<T> {
    *
    * @return a new FeederBuilder
    */
-  @Nonnull
+  @NonNull
   FeederBuilder<T> queue();
 
   /**
@@ -53,7 +53,7 @@ public interface FeederBuilder<T> {
    *
    * @return a new FeederBuilder
    */
-  @Nonnull
+  @NonNull
   FeederBuilder<T> random();
 
   /**
@@ -63,7 +63,7 @@ public interface FeederBuilder<T> {
    *
    * @return a new FeederBuilder
    */
-  @Nonnull
+  @NonNull
   FeederBuilder<T> shuffle();
 
   /**
@@ -74,7 +74,7 @@ public interface FeederBuilder<T> {
    *
    * @return a new FeederBuilder
    */
-  @Nonnull
+  @NonNull
   FeederBuilder<T> circular();
 
   /**
@@ -83,15 +83,15 @@ public interface FeederBuilder<T> {
    * @param f the transformation function
    * @return a new FeederBuilder
    */
-  @Nonnull
-  FeederBuilder<Object> transform(@Nonnull BiFunction<String, T, Object> f);
+  @NonNull
+  FeederBuilder<Object> transform(@NonNull BiFunction<String, T, Object> f);
 
   /**
    * Read all the records of the underlying source.
    *
    * @return the whole data
    */
-  @Nonnull
+  @NonNull
   List<Map<String, Object>> readRecords();
 
   /**
@@ -107,7 +107,7 @@ public interface FeederBuilder<T> {
    *
    * @return a new FeederBuilder
    */
-  @Nonnull
+  @NonNull
   FeederBuilder<T> shard();
 
   /**
@@ -125,23 +125,23 @@ public interface FeederBuilder<T> {
    */
   interface FileBased<T> extends FeederBuilder<T> {
     @Override
-    @Nonnull
+    @NonNull
     FileBased<T> queue();
 
     @Override
-    @Nonnull
+    @NonNull
     FileBased<T> random();
 
     @Override
-    @Nonnull
+    @NonNull
     FileBased<T> shuffle();
 
     @Override
-    @Nonnull
+    @NonNull
     FileBased<T> circular();
 
     @Override
-    @Nonnull
+    @NonNull
     FileBased<T> shard();
 
     /**
@@ -149,7 +149,7 @@ public interface FeederBuilder<T> {
      *
      * @return a new FileBased
      */
-    @Nonnull
+    @NonNull
     FileBased<T> unzip();
   }
 
@@ -162,27 +162,27 @@ public interface FeederBuilder<T> {
    */
   interface Batchable<T> extends FileBased<T> {
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> queue();
 
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> random();
 
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> shuffle();
 
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> circular();
 
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> shard();
 
     @Override
-    @Nonnull
+    @NonNull
     Batchable<T> unzip();
 
     /**
@@ -191,7 +191,7 @@ public interface FeederBuilder<T> {
      *
      * @return a new Batchable
      */
-    @Nonnull
+    @NonNull
     Batchable<T> eager();
 
     /**
@@ -200,7 +200,7 @@ public interface FeederBuilder<T> {
      *
      * @return a new Batchable
      */
-    @Nonnull
+    @NonNull
     Batchable<T> batch();
 
     /**
@@ -210,61 +210,61 @@ public interface FeederBuilder<T> {
      * @param lines the number of buffered lines
      * @return a new Batchable
      */
-    @Nonnull
+    @NonNull
     Batchable<T> batch(int lines);
   }
 
   final class Impl<T> implements Batchable<T> {
     private final io.gatling.core.feeder.BatchableFeederBuilder<T> wrapped;
 
-    @Nonnull
-    static Batchable<String> csv(@Nonnull String filePath) {
+    @NonNull
+    static Batchable<String> csv(@NonNull String filePath) {
       return csv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
-    @Nonnull
-    static Batchable<String> csv(@Nonnull String filePath, char quoteChar) {
+    @NonNull
+    static Batchable<String> csv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.csv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
-    @Nonnull
-    static Batchable<String> ssv(@Nonnull String filePath) {
+    @NonNull
+    static Batchable<String> ssv(@NonNull String filePath) {
       return ssv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
-    @Nonnull
-    static Batchable<String> ssv(@Nonnull String filePath, char quoteChar) {
+    @NonNull
+    static Batchable<String> ssv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.ssv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
-    @Nonnull
-    static Batchable<String> tsv(@Nonnull String filePath) {
+    @NonNull
+    static Batchable<String> tsv(@NonNull String filePath) {
       return tsv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
-    @Nonnull
-    static Batchable<String> tsv(@Nonnull String filePath, char quoteChar) {
+    @NonNull
+    static Batchable<String> tsv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.tsv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
-    @Nonnull
-    static Batchable<String> separatedValues(@Nonnull String filePath, char separator) {
+    @NonNull
+    static Batchable<String> separatedValues(@NonNull String filePath, char separator) {
       return separatedValues(filePath, separator, SeparatedValuesParser.DefaultQuoteChar());
     }
 
-    @Nonnull
+    @NonNull
     static Batchable<String> separatedValues(
-        @Nonnull String filePath, char separator, char quoteChar) {
+        @NonNull String filePath, char separator, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.separatedValues(
               filePath, separator, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
-    @Nonnull
-    static FileBased<Object> jsonFile(@Nonnull String filePath) {
+    @NonNull
+    static FileBased<Object> jsonFile(@NonNull String filePath) {
       return new Impl<>(
           io.gatling.core.Predef.jsonFile(
               filePath,
@@ -272,8 +272,8 @@ public interface FeederBuilder<T> {
               io.gatling.core.Predef.configuration()));
     }
 
-    @Nonnull
-    static FeederBuilder<Object> jsonUrl(@Nonnull String url) {
+    @NonNull
+    static FeederBuilder<Object> jsonUrl(@NonNull String url) {
       return new Impl<>(
           io.gatling.core.Predef.jsonUrl(
               url,
@@ -281,7 +281,7 @@ public interface FeederBuilder<T> {
               io.gatling.core.Predef.configuration()));
     }
 
-    public Impl(@Nonnull io.gatling.core.feeder.FeederBuilderBase<T> wrapped) {
+    public Impl(@NonNull io.gatling.core.feeder.FeederBuilderBase<T> wrapped) {
       this.wrapped = (io.gatling.core.feeder.BatchableFeederBuilder<T>) wrapped;
     }
 
@@ -294,32 +294,32 @@ public interface FeederBuilder<T> {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> queue() {
       return make(BatchableFeederBuilder::queue);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> random() {
       return make(BatchableFeederBuilder::random);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> shuffle() {
       return make(BatchableFeederBuilder::shuffle);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> circular() {
       return make(BatchableFeederBuilder::circular);
     }
 
     @Override
-    @Nonnull
-    public FeederBuilder<Object> transform(@Nonnull BiFunction<String, T, Object> f) {
+    @NonNull
+    public FeederBuilder<Object> transform(@NonNull BiFunction<String, T, Object> f) {
       return new Impl<>(
           wrapped.transform(
               new scala.PartialFunction<scala.Tuple2<String, T>, Object>() {
@@ -337,7 +337,7 @@ public interface FeederBuilder<T> {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public List<Map<String, Object>> readRecords() {
       return Converters.toJavaList(wrapped.readRecords()).stream()
           .map(Converters::toJavaMap)
@@ -350,31 +350,31 @@ public interface FeederBuilder<T> {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> shard() {
       return make(BatchableFeederBuilder::shard);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> unzip() {
       return make(BatchableFeederBuilder::unzip);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> eager() {
       return make(BatchableFeederBuilder::eager);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> batch() {
       return make(BatchableFeederBuilder::batch);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Batchable<T> batch(int lines) {
       return make(wrapped -> wrapped.batch(lines));
     }

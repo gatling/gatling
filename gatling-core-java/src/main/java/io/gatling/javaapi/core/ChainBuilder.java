@@ -16,8 +16,8 @@
 
 package io.gatling.javaapi.core;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.function.Function;
-import javax.annotation.Nonnull;
 
 /**
  * Java wrapper of a Scala ChainBuilder. Builder of a detached chain of Actions that can be attached
@@ -36,9 +36,9 @@ public final class ChainBuilder
   }
 
   @Override
-  @Nonnull
+  @NonNull
   public ChainBuilder make(
-      @Nonnull
+      @NonNull
           Function<io.gatling.core.structure.ChainBuilder, io.gatling.core.structure.ChainBuilder>
               f) {
     return new ChainBuilder(f.apply(wrapped));

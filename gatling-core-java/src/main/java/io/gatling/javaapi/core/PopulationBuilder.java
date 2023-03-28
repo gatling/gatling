@@ -19,12 +19,12 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /**
  * A builder for a Population = a Scenario + an injection profile.
@@ -53,8 +53,8 @@ public final class PopulationBuilder {
    * @param protocols the protocols
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder protocols(@Nonnull ProtocolBuilder... protocols) {
+  @NonNull
+  public PopulationBuilder protocols(@NonNull ProtocolBuilder... protocols) {
     return protocols(Arrays.asList(protocols));
   }
 
@@ -64,8 +64,8 @@ public final class PopulationBuilder {
    * @param protocols the protocols
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder protocols(@Nonnull List<ProtocolBuilder> protocols) {
+  @NonNull
+  public PopulationBuilder protocols(@NonNull List<ProtocolBuilder> protocols) {
     return new PopulationBuilder(
         wrapped.protocols(
             toScalaSeq(
@@ -79,8 +79,8 @@ public final class PopulationBuilder {
    * @param children the children PopulationBuilder
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder andThen(@Nonnull PopulationBuilder... children) {
+  @NonNull
+  public PopulationBuilder andThen(@NonNull PopulationBuilder... children) {
     return andThen(Arrays.asList(children));
   }
 
@@ -91,8 +91,8 @@ public final class PopulationBuilder {
    * @param children the children PopulationBuilder
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder andThen(@Nonnull List<PopulationBuilder> children) {
+  @NonNull
+  public PopulationBuilder andThen(@NonNull List<PopulationBuilder> children) {
     return new PopulationBuilder(
         wrapped.andThen(
             toScalaSeq(
@@ -104,7 +104,7 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
+  @NonNull
   public PopulationBuilder disablePauses() {
     return new PopulationBuilder(wrapped.disablePauses());
   }
@@ -114,7 +114,7 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
+  @NonNull
   public PopulationBuilder constantPauses() {
     return new PopulationBuilder(wrapped.constantPauses());
   }
@@ -124,7 +124,7 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
+  @NonNull
   public PopulationBuilder exponentialPauses() {
     return new PopulationBuilder(wrapped.exponentialPauses());
   }
@@ -134,8 +134,8 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder customPauses(@Nonnull Function<Session, Long> custom) {
+  @NonNull
+  public PopulationBuilder customPauses(@NonNull Function<Session, Long> custom) {
     return new PopulationBuilder(wrapped.customPauses(javaLongFunctionToExpression(custom)));
   }
 
@@ -145,7 +145,7 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
+  @NonNull
   public PopulationBuilder uniformPauses(double plusOrMinus) {
     return new PopulationBuilder(wrapped.uniformPauses(plusOrMinus));
   }
@@ -155,8 +155,8 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder uniformPauses(@Nonnull Duration plusOrMinus) {
+  @NonNull
+  public PopulationBuilder uniformPauses(@NonNull Duration plusOrMinus) {
     return new PopulationBuilder(wrapped.uniformPauses(toScalaDuration(plusOrMinus)));
   }
 
@@ -166,8 +166,8 @@ public final class PopulationBuilder {
    * @param pauseType the pause type
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder pauses(@Nonnull PauseType pauseType) {
+  @NonNull
+  public PopulationBuilder pauses(@NonNull PauseType pauseType) {
     return new PopulationBuilder(wrapped.pauses(pauseType.asScala()));
   }
 
@@ -177,8 +177,8 @@ public final class PopulationBuilder {
    * @param throttleSteps the throttling profile steps
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder throttle(@Nonnull ThrottleStep... throttleSteps) {
+  @NonNull
+  public PopulationBuilder throttle(@NonNull ThrottleStep... throttleSteps) {
     return throttle(Arrays.asList(throttleSteps));
   }
 
@@ -188,8 +188,8 @@ public final class PopulationBuilder {
    * @param throttleSteps the throttling profile steps
    * @return a new PopulationBuilder
    */
-  @Nonnull
-  public PopulationBuilder throttle(@Nonnull List<ThrottleStep> throttleSteps) {
+  @NonNull
+  public PopulationBuilder throttle(@NonNull List<ThrottleStep> throttleSteps) {
     return new PopulationBuilder(
         wrapped.throttle(
             toScalaSeq(
@@ -202,7 +202,7 @@ public final class PopulationBuilder {
    *
    * @return a new PopulationBuilder
    */
-  @Nonnull
+  @NonNull
   public PopulationBuilder noShard() {
     return new PopulationBuilder(wrapped.noShard());
   }
