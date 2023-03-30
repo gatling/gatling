@@ -28,8 +28,8 @@ import io.gatling.plugin.exceptions._
 import io.gatling.plugin.model.Simulation
 
 private[bundle] object EnterpriseRunCommand {
-  val GroupId = "gatling"
-  val ArtifactId = "bundle"
+  private val GroupId = "gatling"
+  private val ArtifactId = "bundle"
 }
 
 private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args: List[String]) {
@@ -44,10 +44,7 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
         if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient)
         else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient)
 
-      val serverInformation = enterpriseClient.getServerInformation
-      val maxJavaVersion = serverInformation.versions.java.max.toInt
-
-      val file = new PackageCommand(config, args, maxJavaVersion, cleanFile = true).run()
+      val file = new PackageCommand(config, args, cleanFile = true).run()
 
       val simulationStartResult = config.simulationId match {
         case Some(simulationId) =>
