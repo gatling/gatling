@@ -29,22 +29,12 @@ import io.gatling.recorder.cli.CommandLineConstants._
 private[commands] object Compiler {
   private val CompilerMemoryOptions = List("-Xmx1G", "-Xss100M")
 
-  def compile(config: CommandArguments, args: List[String], maxJavaVersion: Option[Int]): Unit = {
+  def compile(config: CommandArguments, args: List[String]): Unit = {
     // Note: options which come later in the list can override earlier ones (because the java command will use the last
     // occurrence in its arguments list in case of conflict)
     val compilerJavaOptions = GatlingConstants.DEFAULT_JVM_OPTIONS_BASE.asScala ++ CompilerMemoryOptions ++ JavaOptsEnvVar ++ config.extraJavaOptionsCompile
 
     val classPath = GatlingLibs ++ UserLibs ++ GatlingConfFiles
-
-    val extraJavacOptions = maxJavaVersion match {
-      case Some(maxVersion) if GatlingConstants.JAVA_MAJOR_VERSION > maxVersion =>
-        println(
-          s"Currently running on unsupported Java version ${GatlingConstants.JAVA_MAJOR_VERSION}; Java code will be compiled with the '--release $maxVersion' option"
-        )
-        List(s"--${ExtraJavacOptions.full}", s"--release,$maxVersion")
-      case _ =>
-        Nil
-    }
 
     val extraScalacOptions = optionListEnv("EXTRA_SCALAC_OPTIONS")
       .flatMap(options => List(s"--${ExtraScalacOptions.full}", options))
@@ -53,7 +43,7 @@ private[commands] object Compiler {
       "io.gatling.compiler.ZincCompiler",
       classPath.asJava,
       compilerJavaOptions.asJava,
-      (extraJavacOptions ++ extraScalacOptions ++ CLIHelper.filterArgOptions(args, List(SimulationsFolder, BinariesFolder, ExtraScalacOptions))).asJava,
+      (extraScalacOptions ++ CLIHelper.filterArgOptions(args, List(SimulationsFolder, BinariesFolder, ExtraScalacOptions))).asJava,
       JavaLocator.getJavaExecutable,
       true,
       BundleIO.getLogger,

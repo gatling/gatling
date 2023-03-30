@@ -17,9 +17,8 @@
 package io.gatling.bundle.commands
 
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
-import io.gatling.bundle.{ BundleIO, CommandArguments, EnterpriseBundlePlugin }
+import io.gatling.bundle.{ BundleIO, CommandArguments }
 import io.gatling.bundle.CommandArguments.{ RunEnterprise, RunLocal, RunPackage }
 import io.gatling.bundle.CommandLineConstants.{ RunMode => RunModeOption }
 import io.gatling.plugin.io.input.InputChoice
@@ -31,7 +30,7 @@ private[bundle] final class RunCommand(config: CommandArguments, args: List[Stri
         runMode match {
           case RunLocal      => new OpenSourceRunCommand(config, args).run()
           case RunEnterprise => new EnterpriseRunCommand(config, args).run()
-          case RunPackage    => runPackageCommand()
+          case RunPackage    => new PackageCommand(config, args, cleanFile = false).run()
         }
       case _ =>
         if (config.simulationId.nonEmpty) {
@@ -60,22 +59,11 @@ private[bundle] final class RunCommand(config: CommandArguments, args: List[Stri
 
           choice match {
             case RunGatlingOpenSource => new OpenSourceRunCommand(config, args).run()
-            case RunPackage           => runPackageCommand()
+            case RunPackage           => new PackageCommand(config, args, cleanFile = false).run()
             case RunGatlingEnterprise => new EnterpriseRunCommand(config, args).run()
             case RunHelp              => displayHelp()
             case _                    => throw new IllegalArgumentException(s"Couldn't recognize the chosen option $choice")
           }
         }
     }
-
-  private def runPackageCommand(): Unit = {
-    // best effort: if API token is configured, fetch the actual max supported version, otherwise fallback to Java 17
-    val maxJavaVersion =
-      Try {
-        val enterpriseClient = EnterpriseBundlePlugin.getClient(config)
-        val serverInformation = enterpriseClient.getServerInformation
-        serverInformation.versions.java.max.toInt
-      }.getOrElse(17)
-    new PackageCommand(config, args, maxJavaVersion, cleanFile = false).run()
-  }
 }

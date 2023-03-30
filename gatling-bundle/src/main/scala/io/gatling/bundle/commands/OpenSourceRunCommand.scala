@@ -26,7 +26,7 @@ import io.gatling.plugin.util.{ Fork, JavaLocator }
 
 private[bundle] final class OpenSourceRunCommand(config: CommandArguments, args: List[String]) {
   private[bundle] def run(): Unit = {
-    Compiler.compile(config, args, maxJavaVersion = None)
+    Compiler.compile(config, args)
 
     val classPath = GatlingLibs ++ UserLibs ++ List(config.resourcesDirectory.toString) ++ GatlingConfFiles
 
