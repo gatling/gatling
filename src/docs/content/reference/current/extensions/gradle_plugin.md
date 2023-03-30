@@ -98,7 +98,7 @@ The plugin defines the following extension properties in the `gatling` closure:
 | `includeMainOutput` | Boolean | `true` | `true` |
 | `includeTestOutput` | Boolean | `true` | Include test source set output to gatlingImplementation |
 | `scalaVersion`      | String  | `'2.13.8'` | Scala version that fits your Gatling version |
-| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br> '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12',<br> '-XX:-UseBiasedLocking'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
+| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br> '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
 | `systemProperties`  | Map     | `['java.net.preferIPv6Addresses': true]` | Additional systems properties passed to JVM together with caller JVM system properties |
 | `simulations`       | Closure | `include("**/*Simulation*.java", "**/*Simulation*.kt", "**/*Simulation*.scala")` | Simulations filter. [See Gradle docs](https://gatling.io/docs/current/extensions/gradle_plugin/?highlight=gradle%20plugin#id2) for details. |
 
