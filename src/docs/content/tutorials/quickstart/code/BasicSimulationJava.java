@@ -24,7 +24,7 @@ import io.gatling.javaapi.http.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
-class BasicSimulationJava extends Simulation { // 3
+public class BasicSimulationJava extends Simulation { // 3
 
   HttpProtocolBuilder httpProtocol = http // 4
     .baseUrl("http://computer-database.gatling.io") // 5

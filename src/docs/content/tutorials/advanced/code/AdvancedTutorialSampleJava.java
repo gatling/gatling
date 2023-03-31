@@ -24,7 +24,7 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
-class AdvancedTutorialSampleJava {
+public class AdvancedTutorialSampleJava {
 
   public static final class Step1 extends Simulation {
 //#isolate-processes
