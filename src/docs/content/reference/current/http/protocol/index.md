@@ -39,6 +39,11 @@ In order to mimic real web browser, Gatling can run multiple concurrent connecti
 By default, Gatling caps the number of concurrent connections per remote host per virtual user to 6, which makes sense for modern browsers.
 You can change this number with `maxConnectionsPerHost(max: Int)`.
 
+{{< alert warning >}}
+This feature only makes sense when fetching concurrent `resources` over HTTP/1.1 with per virtual user connection pools.
+It doesn't make sense when using HTTP/2 or when using `.shareConnections`.
+{{< /alert >}}
+
 {{< include-code "maxConnectionsPerHost" java kt scala >}}
 
 #### `shareConnections`
