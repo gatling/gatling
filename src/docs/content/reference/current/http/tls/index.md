@@ -53,4 +53,4 @@ meaning that it works out of the box with self-signed certificates.
 
 You can pass your own keystore and truststore in `gatling.conf`.
 
-[perUserKeyManagerFactory]({{< ref "../protocol#keymanagerfactory" >}}) can be used to set the `KeyManagerFactory` for each virtual user.
+[perUserKeyManagerFactory]({{< ref "../protocol#peruserkeymanagerfactory" >}}) can be used to set the `KeyManagerFactory` for each virtual user.
