@@ -25,14 +25,12 @@ import com.github.benmanes.caffeine.cache.{ Caffeine, LoadingCache }
 object Cache {
   def newConcurrentCache[K, V](maxSize: Long): ConcurrentMap[K, V] =
     Caffeine.newBuilder
-      .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
       .build[K, V]
       .asMap
 
   def newConcurrentLoadingCache[K, V](maxSize: Long, f: K => V): LoadingCache[K, V] =
     Caffeine.newBuilder
-      .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
       .build(key => f(key))
 
