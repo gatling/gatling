@@ -20,6 +20,7 @@ import java.io.InputStream
 
 import scala.jdk.CollectionConverters._
 
+import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints }
 import com.fasterxml.jackson.databind.{ DeserializationFeature, ObjectMapper }
 
 object HarParser {
@@ -41,8 +42,14 @@ object HarParser {
     val time: Double = blocked + dns + connect + ssl + send + waitTiming + receive
   }
 
-  private val TheObjectMapper = new ObjectMapper()
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  private val TheObjectMapper = {
+    val jsonFactory = new JsonFactoryBuilder()
+      .streamReadConstraints(StreamReadConstraints.builder.maxStringLength(Int.MaxValue).build)
+      .build
+
+    new ObjectMapper(jsonFactory)
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  }
 
   def parseHarEntries(is: InputStream): List[HarEntry] = {
     val javaModel = TheObjectMapper.readValue(is, classOf[HarJavaModel.HarHttpArchive])
