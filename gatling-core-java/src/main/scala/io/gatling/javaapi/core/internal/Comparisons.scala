@@ -54,7 +54,7 @@ object Comparisons {
     } else if (clazz == classOf[jl.Long]) {
       Ordering.Long.asInstanceOf[Ordering[T]]
     } else if (clazz == classOf[jl.Double]) {
-      Ordering.Double.asInstanceOf[Ordering[T]]
+      Ordering.Double.IeeeOrdering.asInstanceOf[Ordering[T]]
     } else if (clazz == classOf[String]) {
       Ordering.String.asInstanceOf[Ordering[T]]
     } else {
