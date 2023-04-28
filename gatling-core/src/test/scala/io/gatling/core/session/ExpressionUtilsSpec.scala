@@ -30,7 +30,7 @@ class ExpressionUtilsSpec extends BaseSpec with ValidationValues with EmptySessi
 
   it should "return the expression's result wrapped in a Success if the expression wasn't None" in {
     val session = emptySession.set("foo", "bar")
-    val expr = Some("${foo}".el[String])
+    val expr = Some("#{foo}".el[String])
     resolveOptionalExpression(expr, session) shouldBe Success(Some("bar"))
   }
 

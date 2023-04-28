@@ -82,7 +82,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
     val session = sessionBase.set("form", form).set("formParamToOverride", "bar")
 
-    httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
+    httpRequestDef(_.form("#{form}".el).formParam("#{formParamToOverride}".el, "BAZ".el))
       .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
@@ -93,7 +93,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   it should "work when passing only formParams" in {
     val session = sessionBase.set("formParam", "bar")
 
-    httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
+    httpRequestDef(_.formParam("#{formParam}".el, "BAR".el))
       .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
@@ -112,7 +112,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val params = httpRequestDef(
       _.formParamMap(
         Map(
-          "${foo}" -> "${baz}"
+          "#{foo}" -> "#{baz}"
         )
       )
     )
@@ -133,7 +133,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val params = httpRequestDef(
       _.formParamMap(
         Map(
-          "FOO" -> "${baz}"
+          "FOO" -> "#{baz}"
         )
       )
     )
@@ -154,7 +154,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val params = httpRequestDef(
       _.formParamMap(
         Map(
-          "${foo}" -> "BAZ"
+          "#{foo}" -> "BAZ"
         )
       )
     )
@@ -175,7 +175,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val params = httpRequestDef(
       _.formParamMap(
         Map(
-          "${foo}" -> 1
+          "#{foo}" -> 1
         )
       )
     )
@@ -190,7 +190,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
     val session = sessionBase.set("form", form)
 
-    httpRequestDef(_.form("${form}".el))
+    httpRequestDef(_.form("#{form}".el))
       .build(session)
       .map(
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
