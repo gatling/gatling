@@ -1,5 +1,5 @@
 [{
-  "_id": ${id},
+  "_id": #{id},
   "guid": "bfb77e60-00a0-452d-b59e-0317052ff221",
   "isActive": false,
   "balance": "$2,335.16",

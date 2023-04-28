@@ -575,7 +575,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     a[ElParserException] should be thrownBy "foo#{}bar".el[String]
   }
 
-  it should "be handled when ${ is not closed" in {
+  it should "be handled when #{ is not closed" in {
     a[ElParserException] should be thrownBy "#{foo".el[String]
   }
 
@@ -592,7 +592,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   }
 
   it should "be handled correctly when there is a nested attribute definition with string before nested attribute" in {
-    a[ElParserException] should be thrownBy "#{foo${bar}}".el[String]
+    a[ElParserException] should be thrownBy "#{foo#{bar}}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition with string after nested attribute" in {
@@ -608,7 +608,7 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   }
 
   it should "be handled correctly when there are several nested attributes" in {
-    a[ElParserException] should be thrownBy "#{#{bar}${bar}}".el[String]
+    a[ElParserException] should be thrownBy "#{#{bar}#{bar}}".el[String]
   }
 
   "jsonStringify" should "support String value" in {

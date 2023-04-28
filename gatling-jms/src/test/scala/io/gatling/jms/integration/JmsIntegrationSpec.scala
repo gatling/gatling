@@ -44,9 +44,9 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
         .exec(
           jms("toUpperCase").requestReply
             .destination(requestQueue)
-            .textMessage("hi ${sessionMarker}")
-            .property("key", "${sessionMarker} value")
-            .jmsType("${sessionMarker} jmsType")
+            .textMessage("hi #{sessionMarker}")
+            .property("key", "#{sessionMarker} value")
+            .jmsType("#{sessionMarker} jmsType")
             .check(xpath("/response/hello").find.saveAs("content"))
             .check(xpath("/response/property/key").find.saveAs("propertyValue"))
             .check(xpath("/response/jmsType").find.saveAs("jmsType"))

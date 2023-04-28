@@ -35,7 +35,7 @@ class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with Gi
   "GroupStart" should "resolve the group name from the session and create a new group" in {
     Given("a GroupStart Action with a dynamic name")
     val next = mock[Action]
-    val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
+    val groupStart = new GroupStart("#{theGroupName}".el[String], mock[StatsEngine], clock, next)
 
     When("being sent a Session that resolves the group name")
     val session = emptySession.copy(attributes = Map("theGroupName" -> "foo"))
