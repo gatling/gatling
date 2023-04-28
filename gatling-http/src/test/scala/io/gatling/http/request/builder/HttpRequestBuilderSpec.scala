@@ -186,6 +186,24 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     params.head shouldBe new Param("FOO", "1")
   }
 
+  it should "work when passing formParamMap. Map as EL, and key/value also as EL" in {
+    val map = Map(
+      "baz" -> "BAZ",
+      "myMap" -> Map("foo" -> "#{baz}")
+    )
+
+    val session = sessionBase.setAll(map)
+
+    val params = httpRequestDef(
+      _.formParamMap("#{myMap}")
+    )
+      .build(session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded
+
+    params.head shouldBe new Param("foo", "BAZ")
+  }
+
   it should "work when passing only a form" in {
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
     val session = sessionBase.set("form", form)

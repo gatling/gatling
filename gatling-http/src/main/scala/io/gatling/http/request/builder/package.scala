@@ -21,7 +21,7 @@ import java.{ util => ju }
 import scala.annotation.tailrec
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ tupleSeq2SeqExpression, Session }
 import io.gatling.http.client.Param
 
 package object builder {
@@ -49,7 +49,8 @@ package object builder {
 
       case ParamSeq(seq) =>
         for {
-          seq <- seq(session)
+          resolvedSeq <- seq(session)
+          seq <- tupleSeq2SeqExpression(resolvedSeq)(session)
         } yield {
           seq.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
           clientParams
@@ -57,8 +58,10 @@ package object builder {
 
       case ParamMap(map) =>
         for {
-          map <- map(session)
+          resolvedMap <- map(session)
+          resolvedMapKeyValues <- tupleSeq2SeqExpression(resolvedMap.toSeq)(session)
         } yield {
+          val map: Map[String, Any] = resolvedMapKeyValues.toMap
           map.foreachEntry((key, value) => clientParams.add(new Param(key, value.toString)))
           clientParams
         }
