@@ -28,7 +28,7 @@ import org.scalatestplus.mockito.MockitoSugar
 
 class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen with EmptySession {
   private val clock = new DefaultClock
-  private val condition = "${condition}".el[Boolean]
+  private val condition = "#{condition}".el[Boolean]
 
   "If" should "send the session to thenNext when condition evaluates to true" in {
     Given("an If Action")

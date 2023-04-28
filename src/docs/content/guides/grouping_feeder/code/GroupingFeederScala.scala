@@ -34,7 +34,7 @@ val groupedRecordsFeeder =
 val chain =
   feed(groupedRecordsFeeder)
     .foreach("#{userRecords}", "record") {
-      exec(http("request").get("${record.url}"))
+      exec(http("request").get("#{record.url}"))
     }
 //#grouping-feeder
 }
