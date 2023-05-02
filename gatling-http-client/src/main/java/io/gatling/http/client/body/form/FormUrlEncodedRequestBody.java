@@ -63,8 +63,6 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
     }
     if (sb.length() > 0) {
       sb.setLength(sb.length() - 1);
-    } else {
-      sb.setLength(sb.length());
     }
     return sb;
   }
