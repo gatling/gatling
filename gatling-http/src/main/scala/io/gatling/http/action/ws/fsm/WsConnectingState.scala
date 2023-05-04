@@ -52,8 +52,7 @@ object WsConnectingState extends StrictLogging {
           httpProtocol.enginePart.shareConnections,
           session.eventLoop,
           listener,
-          userSslContexts.map(_.sslContext).orNull,
-          userSslContexts.flatMap(_.alpnSslContext).orNull
+          userSslContexts
         )
     )
   }

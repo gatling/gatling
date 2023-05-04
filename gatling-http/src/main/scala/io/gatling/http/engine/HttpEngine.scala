@@ -40,8 +40,7 @@ import io.gatling.netty.util.Transports
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{ EventLoop, EventLoopGroup }
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod, HttpResponseStatus }
-import io.netty.handler.ssl.SslContext
+import io.netty.handler.codec.http._
 import io.netty.resolver.dns._
 
 object HttpEngine {
@@ -102,7 +101,6 @@ class HttpEngine(
                     p.success(())
                   }
               },
-              null,
               null
             )
             Await.result(p.future, 2.seconds)
@@ -142,11 +140,10 @@ class HttpEngine(
       shared: Boolean,
       eventLoop: EventLoop,
       listener: HttpListener,
-      sslContext: SslContext,
-      alpnSslContext: SslContext
+      userSslContexts: Option[SslContexts]
   ): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendRequest(clientRequest, if (shared) -1 else clientId, eventLoop, listener, sslContext, alpnSslContext)
+      httpClient.sendRequest(clientRequest, if (shared) -1 else clientId, eventLoop, listener, userSslContexts.orNull)
     }
 
   def executeHttp2Requests(
@@ -154,11 +151,10 @@ class HttpEngine(
       clientId: Long,
       shared: Boolean,
       eventLoop: EventLoop,
-      sslContext: SslContext,
-      alpnSslContext: SslContext
+      userSslContexts: Option[SslContexts]
   ): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
+      httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, userSslContexts.orNull)
     }
 
   // [e]

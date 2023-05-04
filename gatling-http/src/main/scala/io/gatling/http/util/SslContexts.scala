@@ -24,6 +24,7 @@ import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 
 import io.gatling.core.config.SslConfiguration
+import io.gatling.http.client.SslContextsHolder
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
@@ -114,26 +115,31 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
       kmf.foreach(sslContextBuilder.keyManager)
       tmf.foreach(sslContextBuilder.trustManager)
 
-      val sslContext = sslContextBuilder.build
-      val alpnSslContext =
-        if (http2Enabled) {
-          Some(sslContextBuilder.applicationProtocolConfig(Apn).build)
-        } else {
-          None
-        }
-      new SslContexts(sslContext, alpnSslContext)
+      new SslContexts(() => {
+        val sslContext = sslContextBuilder.build
+        val alpnSslContext =
+          if (http2Enabled) {
+            Some(sslContextBuilder.applicationProtocolConfig(Apn).build)
+          } else {
+            None
+          }
+        (sslContext, alpnSslContext)
+      })
     } else {
-      val jdkSslContext = SSLContext.getInstance("TLS")
-      jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)
+      new SslContexts(() => {
+        val jdkSslContext = SSLContext.getInstance("TLS")
+        jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)
 
-      val sslContext = newJdkSslContext(jdkSslContext, null)
-      val alpnSslContext =
-        if (http2Enabled) {
-          Some(newJdkSslContext(jdkSslContext, Apn))
-        } else {
-          None
-        }
-      new SslContexts(sslContext, alpnSslContext)
+        val sslContext = newJdkSslContext(jdkSslContext, null)
+        val alpnSslContext =
+          if (http2Enabled) {
+            Some(newJdkSslContext(jdkSslContext, Apn))
+          } else {
+            None
+          }
+
+        (sslContext, alpnSslContext)
+      })
     }
   }
 
@@ -150,9 +156,21 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
     )
 }
 
-private[http] final class SslContexts(val sslContext: SslContext, val alpnSslContext: Option[SslContext]) extends AutoCloseable {
-  override def close(): Unit = {
-    ReferenceCountUtil.release(sslContext)
-    alpnSslContext.foreach(ReferenceCountUtil.release)
+private[http] final class SslContexts(sslContextsF: () => (SslContext, Option[SslContext])) extends SslContextsHolder with AutoCloseable {
+
+  private var loaded = false
+  private lazy val (sslContext: SslContext, alpnSslContext: Option[SslContext]) = {
+    loaded = true
+    sslContextsF()
   }
+
+  override def close(): Unit =
+    if (loaded) {
+      ReferenceCountUtil.release(sslContext)
+      alpnSslContext.foreach(ReferenceCountUtil.release)
+    }
+
+  override def getSslContext: SslContext = sslContext
+
+  override def getAlpnSslContext: SslContext = alpnSslContext.orNull
 }

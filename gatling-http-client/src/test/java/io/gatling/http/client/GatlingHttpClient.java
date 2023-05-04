@@ -62,7 +62,11 @@ public class GatlingHttpClient implements AutoCloseable {
 
   public void execute(Request request, long clientId, boolean shared, HttpListener listener) {
     client.sendRequest(
-        request, shared ? -1 : clientId, eventLoopGroup.next(), listener, sslContext, null);
+        request,
+        shared ? -1 : clientId,
+        eventLoopGroup.next(),
+        listener,
+        new SslContextsHolder.Default(sslContext, null));
   }
 
   public RequestBuilder newRequestBuilder(HttpMethod method, Uri uri) {

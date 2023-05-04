@@ -18,6 +18,7 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
+import io.gatling.http.client.SslContextsHolder;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.util.HttpUtils;
@@ -36,8 +37,7 @@ public class HttpTx {
   final HttpListener listener;
   final RequestTimeout requestTimeout;
   final ChannelPoolKey key;
-  private final SslContext sslContext;
-  private final SslContext alpnSslContext;
+  private final SslContextsHolder sslContextsHolder;
 
   // mutable state
   ChannelState channelState;
@@ -49,27 +49,25 @@ public class HttpTx {
       HttpListener listener,
       RequestTimeout requestTimeout,
       ChannelPoolKey key,
-      SslContext sslContext,
-      SslContext alpnSslContext) {
+      SslContextsHolder sslContextsHolder) {
     this.request = request;
     this.listener = listener;
     this.requestTimeout = requestTimeout;
     this.key = key;
     this.channelState = ChannelState.POOLED; // set to NEW in DefaultHttpClient#sendTxWithNewChannel
-    this.sslContext = sslContext;
-    this.alpnSslContext = alpnSslContext;
+    this.sslContextsHolder = sslContextsHolder;
     this.closeConnection = HttpUtils.isConnectionClose(request.getHeaders());
   }
 
   SslContext sslContext() {
     if (request.isAlpnRequired()) {
-      if (alpnSslContext == null) {
+      if (sslContextsHolder.getAlpnSslContext() == null) {
         throw new UnsupportedOperationException(
             "ALPN is not available (this path shouldn't be possible, please report).");
       }
-      return alpnSslContext;
+      return sslContextsHolder.getAlpnSslContext();
     } else {
-      return sslContext;
+      return sslContextsHolder.getSslContext();
     }
   }
 

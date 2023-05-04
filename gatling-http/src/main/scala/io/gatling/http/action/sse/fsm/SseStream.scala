@@ -68,8 +68,7 @@ class SseStream(
       shareConnections,
       originalSession.eventLoop,
       listener,
-      userSslContexts.map(_.sslContext).orNull,
-      userSslContexts.flatMap(_.alpnSslContext).orNull
+      userSslContexts
     )
   }
 

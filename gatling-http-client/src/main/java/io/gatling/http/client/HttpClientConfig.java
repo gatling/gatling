@@ -18,7 +18,6 @@ package io.gatling.http.client;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.netty.handler.ssl.SslContext;
 import java.nio.charset.Charset;
 
 public class HttpClientConfig {
@@ -29,9 +28,7 @@ public class HttpClientConfig {
 
   private long handshakeTimeout = 10_000;
 
-  private SslContext defaultSslContext;
-
-  private SslContext defaultAlpnSslContext;
+  private SslContextsHolder defaultSslContextHolder;
 
   private boolean enableSni;
 
@@ -170,21 +167,12 @@ public class HttpClientConfig {
     return this;
   }
 
-  public SslContext getDefaultSslContext() {
-    return defaultSslContext;
+  public SslContextsHolder getDefaultSslContextsHolder() {
+    return defaultSslContextHolder;
   }
 
-  public HttpClientConfig setDefaultSslContext(SslContext sslContext) {
-    this.defaultSslContext = sslContext;
-    return this;
-  }
-
-  public SslContext getDefaultAlpnSslContext() {
-    return defaultAlpnSslContext;
-  }
-
-  public HttpClientConfig setDefaultAlpnSslContext(SslContext sslContext) {
-    this.defaultAlpnSslContext = sslContext;
+  public HttpClientConfig setDefaultSslContextsHolder(SslContextsHolder sslContextHolder) {
+    this.defaultSslContextHolder = sslContextHolder;
     return this;
   }
 }
