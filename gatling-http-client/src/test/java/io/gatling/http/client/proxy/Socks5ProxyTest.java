@@ -21,6 +21,7 @@ import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
 import io.gatling.http.client.GatlingHttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
+import io.gatling.http.client.SslContextsHolder;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
 import io.gatling.http.client.uri.Uri;
@@ -34,10 +35,12 @@ public class Socks5ProxyTest {
   public static void main(String[] args) throws Exception {
     HttpClientConfig config =
         new HttpClientConfig()
-            .setDefaultSslContext(
-                SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                    .build());
+            .setDefaultSslContextsHolder(
+                new SslContextsHolder.Default(
+                    SslContextBuilder.forClient()
+                        .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                        .build(),
+                    null));
     try (GatlingHttpClient client = new GatlingHttpClient(config)) {
 
       Request request =

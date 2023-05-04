@@ -147,17 +147,15 @@ class HttpTxExecutor(
         val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
         val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
         val userSslContexts = SslContextSupport.sslContexts(tx.session)
-        val sslContext = userSslContexts.map(_.sslContext).orNull
-        val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
         throttler match {
           case Some(th) if tx.request.requestConfig.throttled =>
             th.throttle(
               tx.session.scenario,
-              () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+              () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, userSslContexts)
             )
           case _ =>
-            httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+            httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, userSslContexts)
         }
       }
     }
@@ -177,17 +175,15 @@ class HttpTxExecutor(
       val clientId = headTx.session.userId
       val shared = headTx.request.requestConfig.httpProtocol.enginePart.shareConnections
       val userSslContexts = SslContextSupport.sslContexts(headTx.session)
-      val sslContext = userSslContexts.map(_.sslContext).orNull
-      val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
       throttler match {
         case Some(th) if txs.head.request.requestConfig.throttled =>
           th.throttle(
             headTx.session.scenario,
-            () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
+            () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, userSslContexts)
           )
         case _ =>
-          httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
+          httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, userSslContexts)
       }
     }
 

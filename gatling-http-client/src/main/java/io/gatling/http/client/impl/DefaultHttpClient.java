@@ -18,10 +18,7 @@ package io.gatling.http.client.impl;
 
 import static java.util.Collections.singletonList;
 
-import io.gatling.http.client.HttpClient;
-import io.gatling.http.client.HttpClientConfig;
-import io.gatling.http.client.HttpListener;
-import io.gatling.http.client.Request;
+import io.gatling.http.client.*;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.impl.compression.CustomDelegatingDecompressorFrameListener;
 import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
@@ -44,7 +41,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
-import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
@@ -225,8 +221,11 @@ public class DefaultHttpClient implements HttpClient {
     if (closed.compareAndSet(false, true)) {
       channelGroup.close().awaitUninterruptibly();
       channelGroupEventExecutor.shutdownGracefully(0, 1, TimeUnit.SECONDS);
-      ReferenceCountUtil.release(config.getDefaultSslContext());
-      ReferenceCountUtil.release(config.getDefaultAlpnSslContext());
+      SslContextsHolder defaultSslContextsHolder = config.getDefaultSslContextsHolder();
+      if (defaultSslContextsHolder != null) {
+        ReferenceCountUtil.release(defaultSslContextsHolder.getSslContext());
+        ReferenceCountUtil.release(defaultSslContextsHolder.getAlpnSslContext());
+      }
     }
   }
 
@@ -236,18 +235,16 @@ public class DefaultHttpClient implements HttpClient {
       long clientId,
       EventLoop eventLoop,
       HttpListener listener,
-      SslContext sslContext,
-      SslContext alpnSslContext) {
+      SslContextsHolder sslContextsHolder) {
     if (isClosed()) {
       return;
     }
 
-    if (sslContext == null) {
-      sslContext = config.getDefaultSslContext();
-      alpnSslContext = config.getDefaultAlpnSslContext();
+    if (sslContextsHolder == null) {
+      sslContextsHolder = config.getDefaultSslContextsHolder();
     }
 
-    HttpTx tx = buildTx(request, clientId, listener, sslContext, alpnSslContext);
+    HttpTx tx = buildTx(request, clientId, listener, sslContextsHolder);
 
     if (eventLoop.inEventLoop()) {
       sendTx(tx, eventLoop);
@@ -261,8 +258,7 @@ public class DefaultHttpClient implements HttpClient {
       Pair<Request, HttpListener>[] requestsAndListeners,
       long clientId,
       EventLoop eventLoop,
-      SslContext sslContext,
-      SslContext alpnSslContext) {
+      SslContextsHolder sslContextsHolder) {
     if (isClosed()) {
       return;
     }
@@ -281,16 +277,15 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    if (sslContext == null) {
-      sslContext = config.getDefaultSslContext();
-      alpnSslContext = config.getDefaultAlpnSslContext();
+    if (sslContextsHolder == null) {
+      sslContextsHolder = config.getDefaultSslContextsHolder();
     }
 
     List<HttpTx> txs = new ArrayList<>(requestsAndListeners.length);
     for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
       Request request = requestAndListener.getLeft();
       HttpListener listener = requestAndListener.getRight();
-      txs.add(buildTx(request, clientId, listener, sslContext, alpnSslContext));
+      txs.add(buildTx(request, clientId, listener, sslContextsHolder));
     }
 
     if (eventLoop.inEventLoop()) {
@@ -312,18 +307,14 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private HttpTx buildTx(
-      Request request,
-      long clientId,
-      HttpListener listener,
-      SslContext sslContext,
-      SslContext alpnSslContext) {
+      Request request, long clientId, HttpListener listener, SslContextsHolder sslContextsHolder) {
     RequestTimeout requestTimeout =
         RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
     ChannelPoolKey key =
         new ChannelPoolKey(
             clientId,
             RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
-    return new HttpTx(request, listener, requestTimeout, key, sslContext, alpnSslContext);
+    return new HttpTx(request, listener, requestTimeout, key, sslContextsHolder);
   }
 
   // only retry pooled keep-alive connections = when keep-alive timeout triggered server side while

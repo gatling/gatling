@@ -38,8 +38,7 @@ private[gatling] final class HttpClientFactory(
   private[gatling] def newClientConfig(): HttpClientConfig = {
     val defaultSslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
     new HttpClientConfig()
-      .setDefaultSslContext(defaultSslContexts.sslContext)
-      .setDefaultAlpnSslContext(defaultSslContexts.alpnSslContext.orNull)
+      .setDefaultSslContextsHolder(defaultSslContexts)
       .setDefaultCharset(configuration.core.charset)
       .setEnableHostnameVerification(httpConfig.enableHostnameVerification)
       .setChannelPoolIdleTimeout(httpConfig.pooledConnectionIdleTimeout.toMillis)
