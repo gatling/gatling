@@ -72,6 +72,7 @@ private[bundle] final class EnterprisePackageCommand(config: CommandArguments, a
       addManifest(writeEntry)
       addJarEntries(config.binariesDirectory, writeEntry)
       addJarEntries(config.resourcesDirectory, writeEntry)
+      addJarEntries(config.confDirectory, writeEntry)
       addJarsContents(UserLibDirectory, writeEntry)
 
       println("Package created")

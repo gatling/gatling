@@ -41,7 +41,8 @@ object CommandArguments {
     extraJavaOptionsCompile = Nil,
     extraJavaOptionsRun = Nil,
     binariesDirectory = CommandHelper.DefaultBinariesDirectory,
-    resourcesDirectory = CommandHelper.DefaultResourcesDirectory
+    resourcesDirectory = CommandHelper.DefaultResourcesDirectory,
+    confDirectory = CommandHelper.ConfDirectory
   )
 
   sealed abstract class RunMode(val value: String)
@@ -69,5 +70,6 @@ final case class CommandArguments(
     extraJavaOptionsCompile: List[String],
     extraJavaOptionsRun: List[String],
     binariesDirectory: Path,
-    resourcesDirectory: Path
+    resourcesDirectory: Path,
+    confDirectory: Path
 )
