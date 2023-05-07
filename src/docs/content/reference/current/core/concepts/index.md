@@ -18,7 +18,7 @@ Only when chained with other components so they are ultimately passed to the [se
 {{< /alert >}}
 
 The example below doesn't execute 5 HTTP requests.
-It creates 5 dandling HTTP requests definitions that don't have any effect.
+It creates 5 dangling HTTP requests definitions that don't have any effect.
 
 {{< include-code "dsl-bad" java kt scala >}}
 
