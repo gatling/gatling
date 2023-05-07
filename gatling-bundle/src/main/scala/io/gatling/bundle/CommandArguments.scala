@@ -45,9 +45,11 @@ object CommandArguments {
   )
 
   sealed abstract class RunMode(val value: String)
-  case object RunLocal extends RunMode("local")
-  case object RunEnterprise extends RunMode("enterprise")
-  case object RunPackage extends RunMode("package")
+  object RunMode {
+    case object RunEnterprise extends RunMode("enterprise")
+    case object EnterprisePackage extends RunMode("package")
+    case object RunLocal extends RunMode("local")
+  }
 }
 
 final case class CommandArguments(

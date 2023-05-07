@@ -29,14 +29,14 @@ import scala.util.Using
 
 import io.gatling.bundle.CommandArguments
 import io.gatling.bundle.commands.CommandHelper._
-import io.gatling.bundle.commands.PackageCommand.WriteEntry
+import io.gatling.bundle.commands.EnterprisePackageCommand.WriteEntry
 import io.gatling.commons.util.Io._
 
-private[bundle] object PackageCommand {
+private[bundle] object EnterprisePackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
 }
 
-private[bundle] final class PackageCommand(config: CommandArguments, args: List[String], cleanFile: Boolean) {
+private[bundle] final class EnterprisePackageCommand(config: CommandArguments, args: List[String], cleanFile: Boolean) {
   private[bundle] def run(): File = {
     Compiler.compile(config, args)
     println("Creating the package")

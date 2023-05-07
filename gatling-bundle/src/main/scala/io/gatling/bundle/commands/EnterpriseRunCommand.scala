@@ -44,7 +44,7 @@ private[bundle] final class EnterpriseRunCommand(config: CommandArguments, args:
         if (config.batchMode) EnterpriseBundlePlugin.getBatchEnterprisePlugin(enterpriseClient)
         else EnterpriseBundlePlugin.getInteractiveEnterprisePlugin(enterpriseClient)
 
-      val file = new PackageCommand(config, args, cleanFile = true).run()
+      val file = new EnterprisePackageCommand(config, args, cleanFile = true).run()
 
       val simulationStartResult = config.simulationId match {
         case Some(simulationId) =>
