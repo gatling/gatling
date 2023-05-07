@@ -46,6 +46,7 @@ private[bundle] object CommandHelper {
   val DefaultResourcesDirectory: Path = GatlingHome.resolve("user-files").resolve("resources")
   val TargetDirectory: Path = GatlingHome.resolve("target")
   val DefaultBinariesDirectory: Path = TargetDirectory.resolve("test-classes")
+  val ConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_).toAbsolutePath).getOrElse(GatlingHome.resolve("conf"))
 
   val GatlingLibs: List[String] = {
     val libDirectory: Path = GatlingHome.resolve("lib")
@@ -53,10 +54,7 @@ private[bundle] object CommandHelper {
   }
 
   val UserLibs: List[String] = listFiles(UserLibDirectory)
-  val GatlingConfFiles: List[String] = {
-    val gatlingConfDirectory: Path = optionEnv("GATLING_CONF").map(Paths.get(_).toAbsolutePath).getOrElse(GatlingHome.resolve("conf"))
-    gatlingConfDirectory.toString +: listFiles(gatlingConfDirectory)
-  }
+  val GatlingConfFiles: List[String] = ConfDirectory.toString +: listFiles(ConfDirectory)
 
   private def optionEnv(env: String): Option[String] =
     sys.env.get(env).map(_.trim).filter(_.nonEmpty)
