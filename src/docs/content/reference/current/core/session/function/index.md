@@ -14,6 +14,10 @@ Most Gatling DSL methods can also be passed a function to compute your parameter
 Those functions are executed in Gatling's shared threads, so you must absolutely avoid performing long blocking operations in there, such as remote API calls.
 {{< /alert >}}
 
+{{< alert warning >}}
+Remember that the [Gatling DSL components are merely definitions]({{< ref "../../concepts#dsl" >}}). They only are effective when chained with other DSL components and ultimately passed to the `setUp`. **In particular, they have no effect when used inside functions.**
+{{< /alert >}}
+
 ## Syntax
 
 Those functions always take a `Session` parameter, so you can extract previously stored data.
