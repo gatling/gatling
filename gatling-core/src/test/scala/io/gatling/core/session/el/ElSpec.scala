@@ -114,6 +114,24 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
       }"""
   }
 
+  it should "support Seq" in {
+    val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
+    val expression = "#{bar}".el[Seq[String]]
+    expression(session).succeeded shouldBe Seq("BAR1", "BAR2")
+  }
+
+  it should "support converting an Array[String] into a Seq[Any]" in {
+    val session = newSession(Map("bar" -> Array("BAR1", "BAR2")))
+    val expression = "#{bar}".el[Seq[Any]]
+    expression(session).succeeded shouldBe Seq("BAR1", "BAR2")
+  }
+
+  it should "support converting an Array[Int] into a Seq[Any]" in {
+    val session = newSession(Map("bar" -> Array(1, 2)))
+    val expression = "#{bar}".el[Seq[Any]]
+    expression(session).succeeded shouldBe Seq(1, 2)
+  }
+
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
     val session = newSession(Map("foo" -> "FOO", "bar" -> "BAR"))
     val expression = "#{foo} #{bar}".el[String]

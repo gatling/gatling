@@ -18,6 +18,7 @@ package io.gatling.commons.util
 
 import java.{ time => jt, util => ju }
 
+import scala.collection.immutable.ArraySeq
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.DurationConverters._
@@ -269,6 +270,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case scalaSeq: Seq[_]     => scalaSeq
         case javaList: ju.List[_] => javaList.asScala.toSeq
+        case array: Array[_]      => ArraySeq.unsafeWrapArray(array)
         case _                    => throw new ClassCastException(cceMessage(key, value, classOf[Seq[_]]))
       }
 
@@ -276,6 +278,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case scalaSeq: Seq[_]     => scalaSeq.success
         case javaList: ju.List[_] => javaList.asScala.toSeq.success
+        case array: Array[_]      => ArraySeq.unsafeWrapArray(array).success
         case _                    => cceMessage(key, value, classOf[Seq[_]]).failure
       }
   }
