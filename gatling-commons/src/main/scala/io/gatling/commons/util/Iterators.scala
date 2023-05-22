@@ -24,6 +24,7 @@ final class InfiniteIterator[T](value: T) extends AbstractIterator[T] {
 }
 
 object CircularIterator {
+  @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
   def apply[T](values: IndexedSeq[T], threadSafe: Boolean): Iterator[T] = values.length match {
     case 0 => Iterator.empty
     case 1 => new InfiniteIterator(values(0))

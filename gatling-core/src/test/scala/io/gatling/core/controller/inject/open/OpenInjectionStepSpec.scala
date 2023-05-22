@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Collections._
 
+@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class OpenInjectionStepSpec extends BaseSpec {
   private def scheduling(steps: OpenInjectionStep*): List[FiniteDuration] =
     steps.reverse

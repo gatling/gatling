@@ -184,6 +184,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
     responseBodies.values.foreach(dumpBody)
 
     val headers: Map[Int, Seq[(String, String)]] = {
+      @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
       @tailrec
       def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
         case Nil => headers

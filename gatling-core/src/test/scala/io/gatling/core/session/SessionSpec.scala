@@ -22,6 +22,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.EmptySession
 import io.gatling.core.action.Action
 
+@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class SessionSpec extends BaseSpec with EmptySession {
   private val nextAction = mock[Action]
 
