@@ -205,7 +205,7 @@ default), then start it. If you choose start, you will be able to start an alrea
 Enterprise.
 
 If you are on a CI environment, you don't want to handle interaction with the plugin. You should then run Maven in
-[batch mode](https://maven.apache.org/ref/3.1.0/maven-embedder/cli.html#batch-mode). In batch mode, no input will be
+[batch mode](https://maven.apache.org/ref/current/maven-embedder/cli.html#batch-mode). In batch mode, no input will be
 asked from the user, the new simulation will be created using only the configuration.
 
 #### Package
