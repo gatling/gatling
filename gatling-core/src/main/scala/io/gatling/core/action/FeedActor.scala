@@ -16,8 +16,11 @@
 
 package io.gatling.core.action
 
+import java.{ util => ju }
+
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Spire._
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
@@ -28,10 +31,12 @@ import io.gatling.core.session.Session
 import akka.actor.{ ActorRef, Props }
 
 private[core] object FeedActor {
-  def props[T](feeder: Feeder[T], feederName: Option[String], controller: ActorRef): Props = Props(new FeedActor(feeder, feederName, controller))
+  def props[T](feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef): Props = Props(
+    new FeedActor(feeder, feederName, generateJavaCollection, controller)
+  )
 }
 
-private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[String], controller: ActorRef) extends BaseActor {
+private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef) extends BaseActor {
   private def emptyFeederFailure = s"Feeder ${feederName.getOrElse("unknown")} is now empty, stopping engine".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =
@@ -41,34 +46,43 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
       emptyFeederFailure
     }
 
-  private def pollMultipleRecords(n: Int): Validation[Record[Any]] =
-    if (feeder.hasNext) {
-      val map: Map[String, Array[Any]] = feeder
-        .next()
-        .view
-        .mapValues { value =>
-          val array = new Array[Any](n)
-          array(0) = value
-          array
+  private def toJavaValues(array: Array[Record[Any]], n: Int, key: String): ju.List[Any] = {
+    val values = new ju.ArrayList[Any](n)
+    cfor(0)(_ < n, _ + 1) { j =>
+      values.add(array(j)(key))
+    }
+    values
+  }
+
+  private def toScalaValues(array: Array[Record[Any]], n: Int, key: String): Seq[Any] = {
+    val values = new Array[Any](n)
+    cfor(0)(_ < n, _ + 1) { j =>
+      values(j) = array(j)(key)
+    }
+    values.toSeq
+  }
+
+  private def pollMultipleRecords(n: Int): Validation[Record[Any]] = {
+    val array = new Array[Record[Any]](n)
+    var i = 0
+    while (feeder.hasNext && i < n) {
+      array(i) = feeder.next()
+      i += 1
+    }
+
+    if (i == n) {
+      array(0).keys
+        .map { key =>
+          val values = if (generateJavaCollection) toJavaValues(array, n, key) else toScalaValues(array, n, key)
+          key -> values
         }
         .toMap
+        .success
 
-      var i = 1
-      while (feeder.hasNext && i < n) {
-        for ((key, value) <- feeder.next()) {
-          map.get(key).foreach(array => array(i) = value)
-        }
-        i += 1
-      }
-
-      if (i == n) {
-        map.success
-      } else {
-        emptyFeederFailure
-      }
     } else {
       emptyFeederFailure
     }
+  }
 
   def receive: Receive = { case FeedMessage(session, number, next) =>
     try {

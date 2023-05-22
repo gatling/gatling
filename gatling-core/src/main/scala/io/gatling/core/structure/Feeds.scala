@@ -30,7 +30,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
    *   a factory of a source of records
    */
   def feed(feederBuilder: FeederBuilder): B =
-    feed0(feederBuilder, System.identityHashCode(feederBuilder), None)
+    feed0(feederBuilder, System.identityHashCode(feederBuilder), None, generateJavaCollection = false)
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
@@ -41,10 +41,10 @@ private[structure] trait Feeds[B] extends Execs[B] {
    *   the number of records to be injected
    */
   def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
-    feed0(feederBuilder, System.identityHashCode(feederBuilder), Some(number))
+    feed0(feederBuilder, System.identityHashCode(feederBuilder), Some(number), generateJavaCollection = false)
 
-  private[gatling] def feed0(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]]): B =
-    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number))
+  private[gatling] def feed0(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean): B =
+    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number, generateJavaCollection))
 
   /**
    * Chain an action that will inject a single data record into the virtual users' Session
@@ -53,7 +53,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
    *   a source of records
    */
   def feed(feeder: Feeder[Any]): B =
-    feed0(feeder, System.identityHashCode(feeder), None)
+    feed0(feeder, System.identityHashCode(feeder), None, generateJavaCollection = false)
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
@@ -64,7 +64,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
    *   the number of records to be injected
    */
   def feed(feeder: Feeder[Any], number: String): B =
-    feed0(feeder, System.identityHashCode(feeder), Some(number.el[Int]))
+    feed0(feeder, System.identityHashCode(feeder), Some(number.el[Int]), generateJavaCollection = false)
 
   /**
    * Chain an action that will inject multiple data records into the virtual users' Session
@@ -75,8 +75,8 @@ private[structure] trait Feeds[B] extends Execs[B] {
    *   the number of records to be injected
    */
   def feed(feeder: Feeder[Any], number: Expression[Int]): B =
-    feed0(feeder, System.identityHashCode(feeder), Some(number))
+    feed0(feeder, System.identityHashCode(feeder), Some(number), generateJavaCollection = false)
 
-  private[gatling] def feed0(feeder: Feeder[Any], feederBuilderKey: Long, number: Option[Expression[Int]]): B =
-    feed0(() => feeder, feederBuilderKey, number)
+  private[gatling] def feed0(feeder: Feeder[Any], feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean): B =
+    feed0(() => feeder, feederBuilderKey, number, generateJavaCollection)
 }

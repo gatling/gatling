@@ -25,7 +25,7 @@ import akka.testkit._
 
 class FeedActorSpec extends AkkaSpec {
   private def createFeedActor[T](feeder: Feeder[T], controller: TestProbe) =
-    TestActorRef(FeedActor.props(feeder, None, controller.ref))
+    TestActorRef(FeedActor.props(feeder, None, generateJavaCollection = false, controller.ref))
 
   "FeedActor" should "force the simulation termination if the nb of records to pop is not strictly positive" in {
     val controller = TestProbe()
@@ -65,6 +65,6 @@ class FeedActorSpec extends AkkaSpec {
 
     val newSession = expectMsgType[Session]
     newSession.contains("foo") shouldBe true
-    newSession("foo").as[Array[Any]] shouldBe Array("bar", "bar")
+    newSession("foo").as[Seq[Any]] shouldBe Seq("bar", "bar")
   }
 }
