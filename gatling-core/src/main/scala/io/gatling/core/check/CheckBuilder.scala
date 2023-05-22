@@ -61,6 +61,7 @@ object CheckBuilder {
           override def name: String = fae.name
           override def arity: String = "findRandom"
 
+          @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
           override def apply(prepared: P): Validation[Option[X]] =
             fae(prepared)
               .map(_.collect { case seq if seq.nonEmpty => seq(ThreadLocalRandom.current.nextInt(seq.size)) })
@@ -72,6 +73,7 @@ object CheckBuilder {
           override def name: String = fae.name
           override def arity: String = s"findRandom($num, $failIfLess)"
 
+          @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
           override def apply(prepared: P): Validation[Option[Seq[X]]] =
             fae(prepared)
               .flatMap {

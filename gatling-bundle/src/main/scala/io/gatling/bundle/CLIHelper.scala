@@ -23,13 +23,13 @@ private[bundle] object CLIHelper {
     arg == s"-${option.abbr}" || arg == s"--${option.full}"
 
   def filterArgOptions(args: List[String], options: List[CommandLineConstant]): List[String] = {
-    val argsIndexes = args.toIndexedSeq
+    val argsArrays = args.toArray
     options
       .foldLeft(IndexedSeq[String]()) { case (acc, option) =>
         acc ++ (for {
-          i <- argsIndexes.indices
-          value = argsIndexes(i)
-          if matchOption(value, option) || (option.valueName.nonEmpty && i > 0 && matchOption(argsIndexes(i - 1), option))
+          i <- 0 until argsArrays.length
+          value = argsArrays(i)
+          if matchOption(value, option) || (option.valueName.nonEmpty && i > 0 && matchOption(argsArrays(i - 1), option))
         } yield value)
       }
       .toList

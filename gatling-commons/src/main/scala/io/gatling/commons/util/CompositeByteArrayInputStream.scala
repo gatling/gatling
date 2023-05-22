@@ -20,7 +20,8 @@ import java.io.InputStream
 
 import io.gatling.commons.util.Collections._
 
-class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream {
+@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
+final class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream {
   require(parts.nonEmpty && parts.forall(_.nonEmpty), "Can't create a CompositeByteArrayInputStream with empty parts")
 
   private var currentPos = 0

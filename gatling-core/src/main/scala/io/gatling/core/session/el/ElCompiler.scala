@@ -77,6 +77,7 @@ final case class SizePart(seqPart: ElPart[Any], name: String) extends ElPart[Int
 }
 
 final case class RandomPart(seq: ElPart[Any], name: String) extends ElPart[Any] {
+  @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
   def apply(session: Session): Validation[Any] = {
     def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
@@ -137,6 +138,7 @@ private object IntString {
 
 final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String) extends ElPart[Any] {
   def apply(session: Session): Validation[Any] = {
+    @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
       case seq: Seq[_] =>
         if (seq.isDefinedAt(index)) {

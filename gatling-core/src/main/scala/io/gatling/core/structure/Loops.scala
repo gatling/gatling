@@ -37,7 +37,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       RepeatLoopType
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments", "org.wartremover.warts.SeqApply"))
   def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
     val exposeCurrentValue =
       new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)

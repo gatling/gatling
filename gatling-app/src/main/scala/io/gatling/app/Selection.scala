@@ -98,6 +98,7 @@ object Selection {
         case _ => None
       }
 
+    @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
     private def interactiveSelect(simulationClasses: List[SimulationClass]): SimulationClass = {
       val validRange = simulationClasses.indices
 

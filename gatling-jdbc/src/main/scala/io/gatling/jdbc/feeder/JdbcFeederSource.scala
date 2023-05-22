@@ -34,6 +34,7 @@ object JdbcFeederSource {
 
       val columnLabels = for (i <- 1 to columnCount) yield metadata.getColumnLabel(i)
 
+      @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
       def computeRecord: Record[Any] =
         (1 to columnCount).view.map(i => columnLabels(i - 1) -> resultSet.getObject(i)).to(Map)
 

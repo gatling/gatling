@@ -23,6 +23,7 @@ import io.gatling.charts.stats.LogFileReader
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
+@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class LogFileReaderSpec extends BaseSpec {
   // FIXME re-enable with fresh and SIMPLE samples
   //	"When reading a single log file, LogFileReader" should {
