@@ -299,7 +299,7 @@ Similar to [ByteArrayBody]({{< ref "#byte-array-body" >}}).
 #### `processRequestBody`
 
 You might want to process the request body before it's being sent to the wire.
-Gatling currenlty only provides one single pre-processor: `gzipBody`.
+Gatling currently only provides one single pre-processor: `gzipBody`.
 
 {{< include-code "processRequestBody" java kt scala >}}
 
