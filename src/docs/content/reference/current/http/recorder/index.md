@@ -40,7 +40,7 @@ The Recorder has 3 modes:
 
 In this mode, the Recorder will use a private [Certificate Authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) to generate on-the-fly properly signed certificates for every visited domain.
 
-You can either ask Gatling to generate the CA certificate and private key files for you, or provide your own ones.
+You can either ask the Recorder to generate the CA certificate and private key files for you, or provide your own ones.
 
 {{< alert tip >}}
 You'll have to import the CA certificate into your browser's keystore:
