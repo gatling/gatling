@@ -36,6 +36,9 @@ object Gatling extends StrictLogging {
   // used by bundle
   def main(args: Array[String]): Unit = {
     System.out.flush()
+    // [e]
+    //
+    // [e]
     sys.exit(fromArgs(args, None))
   }
 
