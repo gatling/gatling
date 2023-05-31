@@ -95,7 +95,7 @@ private[charts] class GroupDetailsReportGenerator(
         cumulatedResponseTimeChartComponent
       )
 
-      new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput(configuration.core.charset))
+      new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput)
     }
 
     logFileData.statsPaths.foreach {

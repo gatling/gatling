@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling
+package io.gatling.charts
 
-import io.gatling.commons.util.StringHelper._
+import io.gatling.BaseSpec
 
-package object charts {
-  private[charts] implicit class FileNamingConventions(val string: String) extends AnyVal {
-
-    /**
-     * Transform a string to a simpler one that can be used safely as file name
-     *
-     * @return
-     *   a simplified string
-     */
-    private def toFileName = {
-      val trimmed = string.trim match {
-        case "" => "missing_name"
-        case s  => s
-      }
-
-      trimmed.clean.take(15) + "-" + trimmed.hashCode
-    }
-
-    def toRequestFileName = s"req_$toFileName"
-
-    def toGroupFileName = s"group_$toFileName"
+class FileNamingConventionsSpec extends BaseSpec {
+  "toRequestFileName" should "generate non clashing names" in {
+    val name1 = "Delete / Delete:16d8a886-add8-49ec-a481-1b41579256e9"
+    val name2 = "Delete / Delete:bdfd117c-ee42-4572-b07c-a7e79da131ef"
+    name1.toRequestFileName shouldNot be(name2.toRequestFileName)
   }
 }

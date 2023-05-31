@@ -118,7 +118,7 @@ private[charts] class RequestDetailsReportGenerator(
           responseTimeScatterChartComponent
         )
 
-      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput(configuration.core.charset))
+      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput)
     }
 
     logFileData.statsPaths.foreach {
