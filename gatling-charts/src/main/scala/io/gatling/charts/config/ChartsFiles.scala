@@ -63,10 +63,10 @@ private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfigu
   val globalFile: Path = resultDirectory.resolve("index.html")
 
   def requestFile(requestName: String): Path =
-    resultDirectory.resolve(requestName.toRequestFileName(configuration.core.charset) + ".html")
+    resultDirectory.resolve(requestName.toRequestFileName + ".html")
 
   def groupFile(requestName: String): Path =
-    resultDirectory.resolve(requestName.toGroupFileName(configuration.core.charset) + ".html")
+    resultDirectory.resolve(requestName.toGroupFileName + ".html")
 
   val statsJsFile: Path = jsDirectory.resolve(StatsJsFile)
 

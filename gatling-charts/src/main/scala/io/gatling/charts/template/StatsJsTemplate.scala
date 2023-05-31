@@ -16,8 +16,6 @@
 
 package io.gatling.charts.template
 
-import java.nio.charset.Charset
-
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.Container.{ Group, Request }
@@ -27,7 +25,7 @@ import io.gatling.charts.util.JsHelper._
 private[charts] final class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
   private def fieldName(field: String): String = if (outputJson) s""""$field"""" else field
 
-  def getOutput(charset: Charset): String = {
+  def getOutput: String = {
     def renderStats(request: RequestStatistics, path: String): String = {
       val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 
@@ -39,22 +37,22 @@ ${fieldName("stats")}: $jsonStats"""
 
     def renderSubGroups(group: GroupContainer): Iterable[String] =
       group.groups.values.map { subGroup =>
-        s""""${subGroup.name.toGroupFileName(charset)}": {
+        s""""${subGroup.name.toGroupFileName}": {
           ${renderGroup(subGroup)}
      }"""
       }
 
     def renderSubRequests(group: GroupContainer): Iterable[String] =
       group.requests.values.map { request =>
-        s""""${request.name.toRequestFileName(charset)}": {
+        s""""${request.name.toRequestFileName}": {
         ${fieldName("type")}: "$Request",
-        ${renderStats(request.stats, request.stats.path.toRequestFileName(charset))}
+        ${renderStats(request.stats, request.stats.path.toRequestFileName)}
     }"""
       }
 
     def renderGroup(group: GroupContainer): String =
       s"""${fieldName("type")}: "$Group",
-${renderStats(group.stats, group.stats.path.toGroupFileName(charset))},
+${renderStats(group.stats, group.stats.path.toGroupFileName)},
 ${fieldName("contents")}: {
 ${(renderSubGroups(group) ++ renderSubRequests(group)).mkString(",")}
 }

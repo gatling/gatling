@@ -110,6 +110,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       responsesChartComponent
     )
 
-    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput)
   }
 }

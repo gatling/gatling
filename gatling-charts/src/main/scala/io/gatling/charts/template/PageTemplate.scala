@@ -16,7 +16,6 @@
 
 package io.gatling.charts.template
 
-import java.nio.charset.Charset
 import java.time.{ ZoneOffset, ZonedDateTime }
 
 import io.gatling.charts.FileNamingConventions
@@ -38,7 +37,7 @@ private[charts] abstract class PageTemplate(
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def getOutput(charset: Charset): String = {
+  def getOutput: String = {
     val simulationClassSimpleName = runInfo.simulationClassName.lastIndexOf(".") match {
       case -1 => runInfo.simulationClassName
       case i  => runInfo.simulationClassName.substring(i + 1)
@@ -46,10 +45,10 @@ private[charts] abstract class PageTemplate(
 
     val pageStats =
       if (isDetails) {
-        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil).map(_.toGroupFileName(charset))
+        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil).map(_.toGroupFileName)
 
         val groupAndRequestHierarchy = requestName match {
-          case Some(req) => groupHierarchy :+ req.toRequestFileName(charset)
+          case Some(req) => groupHierarchy :+ req.toRequestFileName
           case _         => groupHierarchy
         }
 
