@@ -125,8 +125,8 @@ http("name").get("/")
 //#headers
 // Extracting a map of headers allows you to reuse these in several requests
 Map<String, String> sentHeaders = new HashMap<>();
-    params.put("content-type", "application/javascript");
-    params.put("accept", "text/html");
+    sentHeaders.put("content-type", "application/javascript");
+    sentHeaders.put("accept", "text/html");
 
 http("name").get("/")
   // Adds several headers at once
