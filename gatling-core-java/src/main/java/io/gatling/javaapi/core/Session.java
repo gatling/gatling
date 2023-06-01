@@ -310,11 +310,11 @@ public final class Session {
   }
 
   /**
-   * Store (possibly override existing value) a value under a key
+   * Create a new instance updated with a given attribute, possibly overriding an existing one
    *
-   * @param key the key
-   * @param value the value to store
-   * @return the new instance with the new stored value
+   * @param key the attribute key
+   * @param value the attribute value
+   * @return a new instance with the new stored attribute
    */
   @NonNull
   public Session set(@NonNull String key, Object value) {
@@ -322,10 +322,10 @@ public final class Session {
   }
 
   /**
-   * Store (possibly override existing values) some key value pairs
+   * Create a new instance updated with multiple attributes, possibly overriding existing ones
    *
    * @param newAttributes the new attributes
-   * @return the new instance with the new stored value
+   * @return a new instance with the new stored attributes
    */
   @NonNull
   public Session setAll(@NonNull Map<String, Object> newAttributes) {
@@ -333,10 +333,10 @@ public final class Session {
   }
 
   /**
-   * Remove an existing attribute
+   * Create a new instance updated with an attribute removed
    *
-   * @param key the key to remove
-   * @return the new instance with the removed key
+   * @param key the key of the attribute to remove
+   * @return a new instance with the attribute removed
    */
   @NonNull
   public Session remove(@NonNull String key) {
@@ -344,9 +344,9 @@ public final class Session {
   }
 
   /**
-   * Remove all attributes but Gatling's internal ones
+   * Create a new instance updated with all attributes removed except Gatling internal ones
    *
-   * @return the new instance with a reset user state
+   * @return a new instance with a reset user state
    */
   @NonNull
   public Session reset() {
@@ -354,10 +354,10 @@ public final class Session {
   }
 
   /**
-   * Remove multiple existing attributes
+   * Create a new instance updated with multiple attributes removed
    *
-   * @param keys the keys to remove
-   * @return the new instance with the removed keys
+   * @param keys the keys of the attributes to remove
+   * @return a new instance with the attributes removed
    */
   @NonNull
   public Session removeAll(@NonNull String... keys) {
@@ -365,7 +365,9 @@ public final class Session {
   }
 
   /**
-   * @param key the key
+   * Check if the Session contains a given attribute key
+   *
+   * @param key the attribute key
    * @return true is the key is defined
    */
   public boolean contains(@NonNull String key) {
@@ -378,9 +380,9 @@ public final class Session {
   }
 
   /**
-   * Force status to success
+   * Create a new instance with the status forced to "succeeded"
    *
-   * @return the new instance with the new status
+   * @return a new instance with the new status
    */
   @NonNull
   public Session markAsSucceeded() {
@@ -388,9 +390,9 @@ public final class Session {
   }
 
   /**
-   * Force status to failure
+   * Create a new instance with the status forced to "failed"
    *
-   * @return the new instance with the new status
+   * @return a new instance with the new status
    */
   @NonNull
   public Session markAsFailed() {
