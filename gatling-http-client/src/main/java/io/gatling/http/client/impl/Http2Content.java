@@ -19,19 +19,14 @@ package io.gatling.http.client.impl;
 import io.netty.handler.codec.http.HttpContent;
 
 public class Http2Content {
-  private final HttpContent httpContent;
-  private final int streamId;
+  public final HttpContent httpContent;
+  public final int streamId;
 
-  public Http2Content(HttpContent httpContent, int streamId) {
+  public final boolean last;
+
+  public Http2Content(HttpContent httpContent, int streamId, boolean last) {
     this.httpContent = httpContent;
     this.streamId = streamId;
-  }
-
-  public HttpContent getHttpContent() {
-    return httpContent;
-  }
-
-  public int getStreamId() {
-    return streamId;
+    this.last = last;
   }
 }

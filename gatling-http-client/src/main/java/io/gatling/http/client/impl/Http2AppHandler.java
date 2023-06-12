@@ -140,65 +140,76 @@ public class Http2AppHandler extends ChannelDuplexHandler {
     }
   }
 
+  private void channelReadHttpResponse(ChannelHandlerContext ctx, HttpResponse response) {
+    Integer streamId =
+        response.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
+    HttpTx tx = txByStreamId.get(streamId);
+
+    if (tx.requestTimeout.isDone()) {
+      tx.releasePendingRequestExpectingContinue();
+      resetStream(ctx, streamId, Http2Error.CANCEL);
+      return;
+    }
+
+    HttpResponseStatus status = response.status();
+
+    if (tx.pendingRequestExpectingContinue != null) {
+      if (status.equals(HttpResponseStatus.CONTINUE)) {
+        LOGGER.debug("Received 100-Continue");
+        return;
+
+      } else {
+        // TODO implement 417 support
+        LOGGER.debug(
+            "Request was sent with Expect:100-Continue but received response with status {}, dropping",
+            status);
+        tx.releasePendingRequestExpectingContinue();
+      }
+    }
+
+    tx.listener.onHttpResponse(status, response.headers());
+  }
+
+  private void channelReadHttp2Content(ChannelHandlerContext ctx, Http2Content content) {
+    int streamId = content.streamId;
+    HttpTx tx = txByStreamId.get(streamId);
+
+    if (tx.requestTimeout.isDone()) {
+      resetStream(ctx, streamId, Http2Error.CANCEL);
+      return;
+    }
+
+    boolean last = content.last;
+
+    if (tx.pendingRequestExpectingContinue != null) {
+      if (last) {
+        LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
+        tx.pendingRequestExpectingContinue.writeContent(ctx);
+        tx.pendingRequestExpectingContinue = null;
+      }
+      return;
+    }
+
+    tx.listener.onHttpResponseBodyChunk(content.httpContent.content(), last);
+    if (last) {
+      tx.requestTimeout.cancel();
+      closeStream(ctx, streamId);
+    }
+  }
+
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    if (msg instanceof HttpResponse) {
-      HttpResponse response = (HttpResponse) msg;
-      Integer streamId =
-          response.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
-      HttpTx tx = txByStreamId.get(streamId);
-
-      if (tx.requestTimeout.isDone()) {
-        tx.releasePendingRequestExpectingContinue();
-        resetStream(ctx, streamId, Http2Error.CANCEL);
-        return;
-      }
-
-      HttpResponseStatus status = response.status();
-
-      if (tx.pendingRequestExpectingContinue != null) {
-        if (status.equals(HttpResponseStatus.CONTINUE)) {
-          LOGGER.debug("Received 100-Continue");
-          return;
-
-        } else {
-          // TODO implement 417 support
-          LOGGER.debug(
-              "Request was sent with Expect:100-Continue but received response with status {}, dropping",
-              status);
-          tx.releasePendingRequestExpectingContinue();
-        }
-      }
-
-      tx.listener.onHttpResponse(status, response.headers());
+    if (msg instanceof DefaultHttpResponse) {
+      // fast path
+      channelReadHttpResponse(ctx, (DefaultHttpResponse) msg);
 
     } else if (msg instanceof Http2Content) {
-      Http2Content content = (Http2Content) msg;
-      int streamId = content.getStreamId();
-      HttpTx tx = txByStreamId.get(streamId);
+      // fast path
+      channelReadHttp2Content(ctx, (Http2Content) msg);
 
-      if (tx.requestTimeout.isDone()) {
-        resetStream(ctx, streamId, Http2Error.CANCEL);
-        return;
-      }
-
-      HttpContent httpContent = content.getHttpContent();
-      boolean last = httpContent instanceof LastHttpContent;
-
-      if (tx.pendingRequestExpectingContinue != null) {
-        if (last) {
-          LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
-          tx.pendingRequestExpectingContinue.writeContent(ctx);
-          tx.pendingRequestExpectingContinue = null;
-        }
-        return;
-      }
-
-      tx.listener.onHttpResponseBodyChunk(httpContent.content(), last);
-      if (last) {
-        tx.requestTimeout.cancel();
-        closeStream(ctx, streamId);
-      }
+    } else if (msg instanceof HttpResponse) {
+      // slow path
+      channelReadHttpResponse(ctx, (HttpResponse) msg);
     }
   }
 
