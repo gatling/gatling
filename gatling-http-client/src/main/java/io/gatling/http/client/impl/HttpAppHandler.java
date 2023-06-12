@@ -135,6 +135,68 @@ class HttpAppHandler extends ChannelDuplexHandler {
     return false;
   }
 
+  private void channelReadHttpResponse(ChannelHandlerContext ctx, HttpResponse response) {
+    HttpResponseStatus status = response.status();
+
+    if (tx.pendingRequestExpectingContinue != null) {
+      if (status.equals(HttpResponseStatus.CONTINUE)) {
+        LOGGER.debug("Received 100-Continue");
+        return;
+
+      } else {
+        // TODO implement 417 support
+        LOGGER.debug(
+            "Request was sent with Expect:100-Continue but received response with status {}, dropping",
+            status);
+        tx.releasePendingRequestExpectingContinue();
+      }
+    }
+
+    httpResponseReceived = true;
+    if (exitOnDecodingFailure(ctx, response)) {
+      return;
+    }
+    tx.listener.onHttpResponse(status, response.headers());
+    tx.closeConnection = tx.closeConnection || HttpUtils.isConnectionClose(response.headers());
+  }
+
+  private void channelReadHttpContent(ChannelHandlerContext ctx, HttpContent chunk, boolean last) {
+    if (exitOnDecodingFailure(ctx, chunk)) {
+      return;
+    }
+
+    if (tx.pendingRequestExpectingContinue != null) {
+      if (last) {
+        LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
+        tx.pendingRequestExpectingContinue.writeContent(ctx);
+        tx.pendingRequestExpectingContinue = null;
+      }
+      return;
+    }
+
+    // making a local copy because setInactive might be called (on last)
+    HttpTx tx = this.tx;
+
+    if (last) {
+      tx.requestTimeout.cancel();
+      setInactive();
+      if (tx.closeConnection) {
+        ctx.channel().close();
+      } else {
+        channelPool.offer(ctx.channel());
+      }
+    }
+
+    try {
+      tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
+    } catch (Throwable e) {
+      // can't let exceptionCaught handle this because setInactive might have been called (on
+      // last)
+      crash(ctx, e, true, tx);
+      throw e;
+    }
+  }
+
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (isInactive()) {
@@ -143,72 +205,47 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
     LOGGER.debug("Read msg='{}'", msg);
 
-    try {
-      if (msg instanceof HttpResponse) {
-        HttpResponse response = (HttpResponse) msg;
-        HttpResponseStatus status = response.status();
+    if (msg instanceof DefaultHttpResponse) {
+      // fast path
+      channelReadHttpResponse(ctx, (DefaultHttpResponse) msg);
 
-        if (tx.pendingRequestExpectingContinue != null) {
-          if (status.equals(HttpResponseStatus.CONTINUE)) {
-            LOGGER.debug("Received 100-Continue");
-            return;
+    } else if (msg == LastHttpContent.EMPTY_LAST_CONTENT) {
+      // fast path
+      channelReadHttpContent(ctx, LastHttpContent.EMPTY_LAST_CONTENT, true);
 
-          } else {
-            // TODO implement 417 support
-            LOGGER.debug(
-                "Request was sent with Expect:100-Continue but received response with status {}, dropping",
-                status);
-            tx.releasePendingRequestExpectingContinue();
-          }
-        }
-
-        httpResponseReceived = true;
-        if (exitOnDecodingFailure(ctx, response)) {
-          return;
-        }
-        tx.listener.onHttpResponse(status, response.headers());
-        tx.closeConnection = tx.closeConnection || HttpUtils.isConnectionClose(response.headers());
-
-      } else if (msg instanceof HttpContent) {
-        HttpContent chunk = (HttpContent) msg;
-        if (exitOnDecodingFailure(ctx, chunk)) {
-          return;
-        }
-        boolean last = chunk instanceof LastHttpContent;
-
-        if (tx.pendingRequestExpectingContinue != null) {
-          if (last) {
-            LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
-            tx.pendingRequestExpectingContinue.writeContent(ctx);
-            tx.pendingRequestExpectingContinue = null;
-          }
-          return;
-        }
-
-        // making a local copy because setInactive might be called (on last)
-        HttpTx tx = this.tx;
-
-        if (last) {
-          tx.requestTimeout.cancel();
-          setInactive();
-          if (tx.closeConnection) {
-            ctx.channel().close();
-          } else {
-            channelPool.offer(ctx.channel());
-          }
-        }
-
-        try {
-          tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
-        } catch (Throwable e) {
-          // can't let exceptionCaught handle this because setInactive might have been called (on
-          // last)
-          crash(ctx, e, true, tx);
-          throw e;
-        }
+    } else if (msg instanceof DefaultLastHttpContent) {
+      // fast path
+      DefaultLastHttpContent chunk = (DefaultLastHttpContent) msg;
+      try {
+        channelReadHttpContent(ctx, chunk, true);
+      } finally {
+        chunk.release();
       }
-    } finally {
-      ReferenceCountUtil.release(msg);
+
+    } else if (msg instanceof DefaultHttpContent) {
+      // fast path
+      DefaultHttpContent chunk = (DefaultHttpContent) msg;
+      try {
+        channelReadHttpContent(ctx, chunk, false);
+      } finally {
+        chunk.release();
+      }
+
+    } else if (msg instanceof HttpResponse) {
+      // slow path
+      try {
+        channelReadHttpResponse(ctx, (HttpResponse) msg);
+      } finally {
+        ReferenceCountUtil.release(msg);
+      }
+
+    } else if (msg instanceof HttpContent) {
+      // slow path
+      try {
+        channelReadHttpContent(ctx, (HttpContent) msg, msg instanceof LastHttpContent);
+      } finally {
+        ReferenceCountUtil.release(msg);
+      }
     }
   }
 

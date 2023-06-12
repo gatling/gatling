@@ -55,9 +55,7 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
     final int processedBytes = data.readableBytes();
 
-    HttpContent content =
-        endOfStream ? new DefaultLastHttpContent(data) : new DefaultHttpContent(data);
-    ctx.fireChannelRead(new Http2Content(content, streamId));
+    ctx.fireChannelRead(new Http2Content(new DefaultHttpContent(data), streamId, endOfStream));
     return processedBytes + padding;
   }
 
@@ -68,7 +66,7 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
         HttpConversionUtil.toHttpResponse(streamId, headers, validateHttpHeaders);
     ctx.fireChannelRead(response);
     if (endOfStream) {
-      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId));
+      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId, true));
     }
   }
 
