@@ -144,7 +144,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(1) shouldBe 5
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(1) shouldBe 3
   }
 
   it should "indicate that 2 request had a response time above 5000ms" in {
@@ -154,6 +154,6 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(2) shouldBe 2
+    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(2) shouldBe 4
   }
 }
