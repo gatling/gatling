@@ -80,6 +80,8 @@ package object util extends LazyLogging {
     def appendResponse(result: HttpResult): jl.StringBuilder =
       result match {
         case response: Response =>
+          buff.append("version:").append(Eol).append('\t').append(if (response.isHttp2) "HTTP/2" else "HTTP/1.1").append(Eol)
+
           buff.append("status:").append(Eol).append('\t').append(response.status).append(Eol)
 
           if (!response.headers.isEmpty) {
