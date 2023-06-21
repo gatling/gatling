@@ -62,8 +62,7 @@ public class RequestBuilder {
   private ProxyServer proxyServer;
   private Consumer<Request> signatureCalculator;
   private boolean http2Enabled;
-  private boolean alpnRequired;
-  private boolean http2PriorKnowledge;
+  private Http2PriorKnowledge http2PriorKnowledge = Http2PriorKnowledge.HTTP1_ONLY;
   private String wsSubprotocol;
   private Charset defaultCharset = UTF_8;
 
@@ -144,12 +143,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setAlpnRequired(boolean alpnRequired) {
-    this.alpnRequired = alpnRequired;
-    return this;
-  }
-
-  public RequestBuilder setHttp2PriorKnowledge(boolean http2PriorKnowledge) {
+  public RequestBuilder setHttp2PriorKnowledge(Http2PriorKnowledge http2PriorKnowledge) {
     this.http2PriorKnowledge = http2PriorKnowledge;
     return this;
   }
@@ -248,7 +242,6 @@ public class RequestBuilder {
         signatureCalculator,
         nameResolver,
         http2Enabled,
-        alpnRequired,
         http2PriorKnowledge,
         wsSubprotocol);
   }

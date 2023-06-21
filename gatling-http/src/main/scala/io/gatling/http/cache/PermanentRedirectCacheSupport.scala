@@ -92,8 +92,7 @@ private[cache] trait PermanentRedirectCacheSupport {
       .setProxyServer(request.getProxyServer)
       .setSignatureCalculator(request.getSignatureCalculator)
       .setHttp2Enabled(request.isHttp2Enabled)
-      .setAlpnRequired(request.isAlpnRequired)
-      .setHttp2PriorKnowledge(request.isHttp2PriorKnowledge)
+      .setHttp2PriorKnowledge(request.getHttp2PriorKnowledge)
       .setWsSubprotocol(request.getWsSubprotocol)
       .setDefaultCharset(configuration.core.charset)
       .build

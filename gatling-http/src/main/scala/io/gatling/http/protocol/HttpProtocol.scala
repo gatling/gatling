@@ -30,7 +30,7 @@ import io.gatling.core.session._
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.Request
+import io.gatling.http.client.{ Http2PriorKnowledge, Request }
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
@@ -160,7 +160,7 @@ final case class HttpProtocolEnginePart(
     localIpV4Addresses: List[InetAddress],
     localIpV6Addresses: List[InetAddress],
     enableHttp2: Boolean,
-    http2PriorKnowledge: Map[Remote, Boolean],
+    http2PriorKnowledge: Map[Remote, Http2PriorKnowledge],
     perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 

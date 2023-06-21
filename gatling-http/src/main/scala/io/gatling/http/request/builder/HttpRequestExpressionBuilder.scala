@@ -139,11 +139,10 @@ class HttpRequestExpressionBuilder(
   private val enableHttp2 = httpProtocol.enginePart.enableHttp2
   private def configurePriorKnowledge(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     if (enableHttp2) {
-      val http2PriorKnowledge = Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
+      val http2PriorKnowledge = Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
       requestBuilder
         .setHttp2Enabled(true)
-        .setAlpnRequired(http2PriorKnowledge.forall(_ == true)) // ALPN is necessary only if we know that this remote is using HTTP/2 or if we still don't know
-        .setHttp2PriorKnowledge(http2PriorKnowledge.contains(true))
+        .setHttp2PriorKnowledge(http2PriorKnowledge.orNull)
     }
 
   private val requestTimeout = httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis
