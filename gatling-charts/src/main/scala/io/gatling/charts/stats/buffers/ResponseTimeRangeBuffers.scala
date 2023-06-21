@@ -49,7 +49,7 @@ private[stats] trait ResponseTimeRangeBuffers {
     def update(time: Int, status: Status): Unit =
       if (status == KO) ko += 1
       else if (time < lowerBound) low += 1
-      else if (time > higherBound) high += 1
+      else if (time >= higherBound) high += 1
       else middle += 1
   }
 }
