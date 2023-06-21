@@ -28,7 +28,7 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.Request
+import io.gatling.http.client.{ Http2PriorKnowledge, Request }
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming
@@ -164,7 +164,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
           case Array(hostname)       => new Remote(hostname, 443)
           case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
         }
-        remote -> isHttp2
+        remote -> (if (isHttp2) Http2PriorKnowledge.HTTP2_SUPPORTED else Http2PriorKnowledge.HTTP1_ONLY)
       })
 
   // responsePart

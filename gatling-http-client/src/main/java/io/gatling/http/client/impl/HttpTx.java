@@ -16,6 +16,7 @@
 
 package io.gatling.http.client.impl;
 
+import io.gatling.http.client.Http2PriorKnowledge;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.SslContextsHolder;
@@ -60,14 +61,14 @@ public class HttpTx {
   }
 
   SslContext sslContext() {
-    if (request.isAlpnRequired()) {
+    if (request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP1_ONLY) {
+      return sslContextsHolder.getSslContext();
+    } else {
       if (sslContextsHolder.getAlpnSslContext() == null) {
         throw new UnsupportedOperationException(
             "ALPN is not available (this path shouldn't be possible, please report).");
       }
       return sslContextsHolder.getAlpnSslContext();
-    } else {
-      return sslContextsHolder.getSslContext();
     }
   }
 

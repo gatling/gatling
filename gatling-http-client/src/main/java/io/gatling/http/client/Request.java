@@ -46,8 +46,7 @@ public class Request {
   private final Consumer<Request> signatureCalculator;
   private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
-  private final boolean alpnRequired;
-  private final boolean http2PriorKnowledge;
+  private final Http2PriorKnowledge http2PriorKnowledge;
   private final String wsSubprotocol;
 
   public Request(
@@ -67,8 +66,7 @@ public class Request {
       Consumer<Request> signatureCalculator,
       InetAddressNameResolver nameResolver,
       boolean http2Enabled,
-      boolean alpnRequired,
-      boolean http2PriorKnowledge,
+      Http2PriorKnowledge http2PriorKnowledge,
       String wsSubprotocol) {
     this.name = name;
     this.method = method;
@@ -86,13 +84,11 @@ public class Request {
     this.signatureCalculator = signatureCalculator;
     this.nameResolver = nameResolver;
     this.http2Enabled = http2Enabled;
-    this.alpnRequired = alpnRequired;
     this.http2PriorKnowledge = http2PriorKnowledge;
     this.wsSubprotocol = wsSubprotocol;
   }
 
-  public Request copyWithAlpnRequiredAndPriorKnowledge(
-      boolean isAlpnRequired, boolean isHttp2PriorKnowledge) {
+  public Request copyWithHttp2PriorKnowledge(Http2PriorKnowledge http2PriorKnowledge) {
     return new Request(
         this.name,
         this.method,
@@ -110,8 +106,7 @@ public class Request {
         this.signatureCalculator,
         this.nameResolver,
         this.http2Enabled,
-        isAlpnRequired,
-        isHttp2PriorKnowledge,
+        http2PriorKnowledge,
         this.wsSubprotocol);
   }
 
@@ -179,11 +174,7 @@ public class Request {
     return http2Enabled;
   }
 
-  public boolean isAlpnRequired() {
-    return alpnRequired;
-  }
-
-  public boolean isHttp2PriorKnowledge() {
+  public Http2PriorKnowledge getHttp2PriorKnowledge() {
     return http2PriorKnowledge;
   }
 
@@ -223,8 +214,6 @@ public class Request {
         + nameResolver
         + ", http2Enabled="
         + http2Enabled
-        + ", alpnRequired="
-        + alpnRequired
         + ", http2PriorKnowledge="
         + http2PriorKnowledge
         + ", wsSubprotocol="

@@ -17,6 +17,7 @@
 package io.gatling.http.cache
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.client.Http2PriorKnowledge
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.response.Response
 
@@ -27,31 +28,24 @@ private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
 
   def setHttp2PriorKnowledge(httpProtocol: HttpProtocol): Session => Session =
     if (httpProtocol.enginePart.enableHttp2) {
-      _.set(Http2PriorKnowledgeAttributeName, httpProtocol.enginePart.http2PriorKnowledge)
+      _.set(Http2PriorKnowledgeAttributeName, Map.empty)
     } else {
-      logger.debug("HTTP/2 disabled")
-      if (httpProtocol.enginePart.http2PriorKnowledge.nonEmpty) {
-        logger.debug("Ignoring configured HTTP/2 prior knowledge")
-      }
       Session.Identity
     }
 
   def updateSessionHttp2PriorKnowledge(session: Session, response: Response): Session = {
+    val priorKnowledgeMap = session.attributes(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asInstanceOf[Map[Remote, Http2PriorKnowledge]]
     val remote = Remote(response.request.getUri)
-    session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]] match {
-      case Some(priorKnowledgeMap) =>
-        if (priorKnowledgeMap.contains(remote)) {
-          session
-        } else {
-          session.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> response.isHttp2))
-        }
-      case _ => session
+    if (priorKnowledgeMap.contains(remote)) {
+      session
+    } else {
+      val http2Support = if (response.isHttp2) Http2PriorKnowledge.HTTP2_SUPPORTED else Http2PriorKnowledge.HTTP1_ONLY
+      session.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> http2Support))
     }
   }
 
-  def isHttp2PriorKnowledge(session: Session, remote: Remote): Option[Boolean] =
-    session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]] match {
-      case Some(priorKnowledgeMap) => priorKnowledgeMap.get(remote)
-      case _                       => None
-    }
+  def getHttp2PriorKnowledge(session: Session, remote: Remote): Option[Http2PriorKnowledge] = {
+    val priorKnowledgeMap = session.attributes(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asInstanceOf[Map[Remote, Http2PriorKnowledge]]
+    priorKnowledgeMap.get(remote)
+  }
 }
