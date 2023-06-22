@@ -28,7 +28,9 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
     val data = jsonFile("test.json").readRecords
 
     data.length shouldBe 2
-    data.head("id") shouldBe 19434
+    val head = data.head
+    head("id") shouldBe 19434
+    head("company") shouldBe Map("id" -> 18971)
   }
 
   "jsonUrl" should "retrieve and handle proper JSON file" in {
