@@ -147,13 +147,13 @@ final case class WsPerformingCheckState(
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
       fsm.wsLogger.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
-      cancelTimeout()
       // matching message, apply checks
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
           logger.debug("Check failure")
+          cancelTimeout()
           val newSession = logCheckResult(sessionWithCheckUpdate, timestamp, KO, None, Some(errorMessage))
 
           val nextAction = next match {
@@ -196,6 +196,8 @@ final case class WsPerformingCheckState(
               NextWsState(this.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession))
 
             case _ =>
+              logger.debug("Current check sequence complete")
+              cancelTimeout()
               remainingCheckSequences match {
                 case WsFrameCheckSequence(timeout, nextCheck :: nextRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
