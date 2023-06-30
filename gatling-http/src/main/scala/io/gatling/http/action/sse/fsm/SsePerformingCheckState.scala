@@ -83,13 +83,13 @@ final case class SsePerformingCheckState(
     }
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
-      cancelTimeout()
       // matching message, apply checks
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
           logger.debug("Check failed, performing next action")
+          cancelTimeout()
           val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, KO, None, Some(errorMessage))
 
           NextSseState(new SseIdleState(fsm, newSession), () => next ! newSession)
@@ -114,6 +114,8 @@ final case class SsePerformingCheckState(
               )
 
             case _ =>
+              logger.debug("Current check sequence complete")
+              cancelTimeout()
               remainingCheckSequences match {
                 case SseMessageCheckSequence(timeout, nextCheck :: nextRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
