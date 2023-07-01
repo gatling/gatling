@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
 import io.gatling.http.client.pool.ChannelPool;
@@ -45,14 +44,12 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
   private final DefaultHttpClient client;
   private final ChannelPool channelPool;
-  private final HttpClientConfig config;
   private HttpTx tx;
   private boolean httpResponseReceived;
 
-  HttpAppHandler(DefaultHttpClient client, ChannelPool channelPool, HttpClientConfig config) {
+  HttpAppHandler(DefaultHttpClient client, ChannelPool channelPool) {
     this.client = client;
     this.channelPool = channelPool;
-    this.config = config;
   }
 
   @Override
@@ -108,8 +105,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
     }
 
     try {
-      WritableRequest request =
-          WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
+      WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false);
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());

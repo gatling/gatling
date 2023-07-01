@@ -18,7 +18,6 @@ package io.gatling.http.client.impl;
 
 import static io.gatling.http.client.impl.HttpAppHandler.PREMATURE_CLOSE;
 
-import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.WebSocketListener;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
@@ -36,15 +35,12 @@ public class WebSocketHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
 
-  private final HttpClientConfig config;
   private HttpTx tx;
   private WebSocketListener wsListener;
   private WebSocketClientHandshaker handshaker;
   private boolean remotelyClosed;
 
-  WebSocketHandler(HttpClientConfig config) {
-    this.config = config;
-  }
+  WebSocketHandler() {}
 
   @Override
   public boolean isSharable() {
@@ -84,7 +80,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
 
       try {
         WritableRequest request =
-            WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
+            WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false);
 
         boolean absoluteUpgradeUrl =
             !tx.request.getUri().isSecured()

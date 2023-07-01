@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
@@ -65,7 +64,6 @@ public class Http2AppHandler extends ChannelDuplexHandler {
   private final DefaultHttpClient client;
   private final Http2ConnectionHandler http2ConnectionHandler;
   private final ChannelPool channelPool;
-  private final HttpClientConfig config;
 
   // mutable state
   private boolean writeReached = false;
@@ -75,12 +73,10 @@ public class Http2AppHandler extends ChannelDuplexHandler {
   Http2AppHandler(
       DefaultHttpClient client,
       Http2ConnectionHandler http2ConnectionHandler,
-      ChannelPool channelPool,
-      HttpClientConfig config) {
+      ChannelPool channelPool) {
     this.client = client;
     this.http2ConnectionHandler = http2ConnectionHandler;
     this.channelPool = channelPool;
-    this.config = config;
   }
 
   @Override
@@ -102,8 +98,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
     txByStreamId.put(thisStreamId, tx);
 
     try {
-      WritableRequest request =
-          WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, true);
+      WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), true);
       LOGGER.debug("Write request {}", request);
       tx.listener.onWrite(ctx.channel());
 
@@ -125,7 +120,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
           f -> {
             if (f.isSuccess()) {
               if (tx.requestTimeout.isDone()) {
-                resetStream(ctx, thisStreamId, Http2Error.CANCEL);
+                resetStream(ctx, thisStreamId);
               } else {
                 tx.requestTimeout.setStreamId(thisStreamId);
               }
@@ -147,7 +142,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
     if (tx.requestTimeout.isDone()) {
       tx.releasePendingRequestExpectingContinue();
-      resetStream(ctx, streamId, Http2Error.CANCEL);
+      resetStream(ctx, streamId);
       return;
     }
 
@@ -175,7 +170,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
     HttpTx tx = txByStreamId.get(streamId);
 
     if (tx.requestTimeout.isDone()) {
-      resetStream(ctx, streamId, Http2Error.CANCEL);
+      resetStream(ctx, streamId);
       return;
     }
 
@@ -283,7 +278,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       }
 
     } else if (evt instanceof StreamTimeout) {
-      resetStream(ctx, ((StreamTimeout) evt).streamId, Http2Error.CANCEL);
+      resetStream(ctx, ((StreamTimeout) evt).streamId);
     }
   }
 
@@ -293,10 +288,10 @@ public class Http2AppHandler extends ChannelDuplexHandler {
     channelPool.offer(ctx.channel());
   }
 
-  private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error error) {
+  private void resetStream(ChannelHandlerContext ctx, int streamId) {
     txByStreamId.remove(streamId);
     http2ConnectionHandler
-        .resetStream(ctx, streamId, error.code(), ctx.newPromise())
+        .resetStream(ctx, streamId, Http2Error.CANCEL.code(), ctx.newPromise())
         .addListener((ChannelFutureListener) future -> channelPool.offer(ctx.channel()));
   }
 }

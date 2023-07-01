@@ -62,7 +62,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     httpRequestDef(f = identity, urlOrURI = Left("https://postman-echo.com/get?foo=do da"))
       .build(sessionBase)
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false)
         writableRequest.getRequest.uri
       }
       .succeeded shouldBe "/get?foo=do+da"
@@ -72,7 +72,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     httpRequestDef(_.sign((request, _) => request.getHeaders.add("X-Token", "foo")))
       .build(sessionBase)
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false)
         writableRequest.getRequest.headers.get("X-Token")
       }
       .succeeded shouldBe "foo"
