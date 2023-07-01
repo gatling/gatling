@@ -46,7 +46,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -56,10 +55,6 @@ import javax.crypto.spec.SecretKeySpec;
  * encoding.
  */
 public class OAuthSignatureCalculatorInstance {
-
-  private static final Pattern STAR_CHAR_PATTERN = Pattern.compile("*", Pattern.LITERAL);
-  private static final Pattern PLUS_CHAR_PATTERN = Pattern.compile("+", Pattern.LITERAL);
-  private static final Pattern ENCODED_TILDE_PATTERN = Pattern.compile("%7E", Pattern.LITERAL);
   private static final String KEY_OAUTH_CONSUMER_KEY = "oauth_consumer_key";
   private static final String KEY_OAUTH_NONCE = "oauth_nonce";
   private static final String KEY_OAUTH_SIGNATURE = "oauth_signature";
@@ -214,10 +209,7 @@ public class OAuthSignatureCalculatorInstance {
   }
 
   private String percentEncodeAlreadyFormUrlEncoded(String s) {
-    s = STAR_CHAR_PATTERN.matcher(s).replaceAll("%2A");
-    s = PLUS_CHAR_PATTERN.matcher(s).replaceAll("%20");
-    s = ENCODED_TILDE_PATTERN.matcher(s).replaceAll("~");
-    return s;
+    return s.replace("*", "%2A").replace("+", "%20").replace("%7E", "~");
   }
 
   private byte[] digest(ConsumerKey consumerAuth, RequestToken userAuth, ByteBuffer message)
