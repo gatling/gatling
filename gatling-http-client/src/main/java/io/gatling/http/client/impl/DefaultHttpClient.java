@@ -105,8 +105,7 @@ public class DefaultHttpClient implements HttpClient {
           .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
           .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
           .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
-          .addLast(
-              APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+          .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool));
     }
 
     private void addWsHandlers(Channel channel) {
@@ -116,7 +115,7 @@ public class DefaultHttpClient implements HttpClient {
           .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
           .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
           .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
-          .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
+          .addLast(APP_WS_HANDLER, new WebSocketHandler());
     }
 
     private EventLoopResources(EventLoop eventLoop) {
@@ -934,8 +933,7 @@ public class DefaultHttpClient implements HttpClient {
                         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
                         .addLast(
                             APP_HTTP2_HANDLER,
-                            new Http2AppHandler(
-                                DefaultHttpClient.this, http2Handler, channelPool, config));
+                            new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool));
 
                     channelPool.offer(channel);
 
@@ -977,7 +975,7 @@ public class DefaultHttpClient implements HttpClient {
                         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
                         .addLast(
                             APP_HTTP_HANDLER,
-                            new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+                            new HttpAppHandler(DefaultHttpClient.this, channelPool));
                     whenAlpn.setSuccess(null);
                     break;
 

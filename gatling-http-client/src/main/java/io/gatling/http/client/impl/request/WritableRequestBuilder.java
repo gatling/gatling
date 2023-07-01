@@ -19,7 +19,6 @@ package io.gatling.http.client.impl.request;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpMethod.*;
 
-import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.WritableContent;
@@ -94,8 +93,7 @@ public class WritableRequestBuilder {
     }
   }
 
-  public static WritableRequest buildRequest(
-      Request request, ByteBufAllocator alloc, HttpClientConfig config, boolean http2)
+  public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, boolean http2)
       throws Exception {
     Uri uri = request.getUri();
     HttpHeaders headers = request.getHeaders();
