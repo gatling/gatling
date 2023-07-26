@@ -3,7 +3,7 @@ title: "SBT Plugin"
 description: "How to use the sbt plugin for Gatling to run tests and deploy them to Gatling Enterprise."
 lead: "The SBT plugin allows you to run Gatling tests from the command line, without the bundle, as well as to package your simulations for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2023-03-09T17:00:00+00:00
+lastmod: 2023-07-26T13:50:00+00:00
 weight: 2080300
 ---
 
@@ -12,7 +12,7 @@ package your Gatling project to run it on [Gatling Enterprise](https://gatling.i
 
 ## Versions
 
-Check out available versions on [Maven Central](https://central.sonatype.com/search?q=g%253Aio.gatling%2520a%253Agatling-sbt).
+Check out available versions on [Maven Central](https://central.sonatype.com/search?q=gatling-sbt&namespace=io.gatling).
 
 Beware that milestones (M versions) are not documented for OSS users and are only released for [Gatling Enterprise](https://gatling.io/enterprise/) customers.
 
