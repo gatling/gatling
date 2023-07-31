@@ -17,7 +17,6 @@
 package io.gatling.commons.util
 
 import java.io._
-import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 
 object Io {
