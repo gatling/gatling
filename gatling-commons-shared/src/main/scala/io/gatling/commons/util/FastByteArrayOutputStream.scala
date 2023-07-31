@@ -33,6 +33,7 @@
 // this is a for from commons-io
 package io.gatling.commons.util
 
+import java.{ util => ju }
 import java.io.{ InputStream, OutputStream }
 
 object FastByteArrayOutputStream {
@@ -47,9 +48,8 @@ object FastByteArrayOutputStream {
   }
 }
 
-@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
-  private val buffers = collection.mutable.ArrayBuffer.empty[Array[Byte]]
+  private val buffers = new ju.ArrayList[Array[Byte]]
   private var currentBufferIndex = 0
   private var filledBufferSum = 0
   private var currentBuffer: Array[Byte] = _
@@ -64,7 +64,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
       filledBufferSum += currentBuffer.length
 
       currentBufferIndex += 1
-      currentBuffer = buffers(currentBufferIndex)
+      currentBuffer = buffers.get(currentBufferIndex)
     } else {
       // creating new buffer
       var newBufferSize = 0
@@ -78,7 +78,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
 
       currentBufferIndex += 1
       currentBuffer = new Array[Byte](newBufferSize)
-      buffers += currentBuffer
+      buffers.add(currentBuffer)
     }
 
   override def write(b: Array[Byte], off: Int, len: Int): Unit =
@@ -142,11 +142,11 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
     filledBufferSum = 0
     currentBufferIndex = 0
     if (reuseBuffers) {
-      currentBuffer = buffers(currentBufferIndex)
+      currentBuffer = buffers.get(currentBufferIndex)
     } else {
       // throw away old buffers
       currentBuffer = null
-      val size = buffers(0).length
+      val size = buffers.get(0).length
       buffers.clear()
       needNewBuffer(size)
       reuseBuffers = true
@@ -157,7 +157,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
     var remaining = count
     var buffersIndex = 0
     while (remaining > 0 && buffersIndex < buffers.size) {
-      val buf = buffers(buffersIndex)
+      val buf = buffers.get(buffersIndex)
       val c = Math.min(buf.length, remaining)
       out.write(buf, 0, c)
       remaining -= c
@@ -174,7 +174,7 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
       var pos = 0
       var buffersIndex = 0
       while (remaining > 0 && buffersIndex < buffers.size) {
-        val buf = buffers(buffersIndex)
+        val buf = buffers.get(buffersIndex)
         val c = Math.min(buf.length, remaining)
         System.arraycopy(buf, 0, newbuf, pos, c)
         pos += c
