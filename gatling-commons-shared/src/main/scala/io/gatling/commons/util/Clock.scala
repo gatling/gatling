@@ -21,7 +21,7 @@ trait Clock {
   def nowSeconds: Long = nowMillis / 1000
 }
 
-class DefaultClock extends Clock {
+final class DefaultClock extends Clock {
   private val currentTimeMillisReference = System.currentTimeMillis
   private val nanoTimeReference = System.nanoTime
 
