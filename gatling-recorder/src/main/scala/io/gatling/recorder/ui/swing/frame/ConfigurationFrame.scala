@@ -548,7 +548,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     allowListTable.cleanUp()
 
     val filterValidationFailures =
-      if (enableFilters.enabled)
+      if (enableFilters.selected)
         Nil
       else
         allowListTable.verify ::: denyListTable.verify
@@ -592,7 +592,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       }
 
       // Filters
-      props.enableFilters(enableFilters.enabled)
+      props.enableFilters(enableFilters.selected)
       props.allowList(allowListTable.getRegexs.asJava)
       props.denyList(denyListTable.getRegexs.asJava)
 
