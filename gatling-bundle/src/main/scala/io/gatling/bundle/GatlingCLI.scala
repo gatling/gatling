@@ -82,6 +82,7 @@ object GatlingCLI {
       opt[UUID](PackageId).action((x, c) => c.copy(packageId = Some(x)))
       opt[UUID](TeamId).action((x, c) => c.copy(teamId = Some(x)))
       opt[URL](Url).action((x, c) => c.copy(url = x)).hidden()
+      opt[URL](controlPlaneUrl).action((x, c) => c.copy(controlPlaneUrl = Some(x)))
       opt[Map[String, String]](SimulationSystemProperties).action((x, c) => c.copy(simulationSystemProperties = x))
       opt[Map[String, String]](SimulationEnvironmentVariables).action((x, c) => c.copy(simulationEnvironmentVariables = x))
     }
