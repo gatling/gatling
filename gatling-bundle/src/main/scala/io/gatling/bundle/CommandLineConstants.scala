@@ -39,6 +39,12 @@ private[bundle] object CommandLineConstants {
   val SimulationId = new CommandLineConstant("simulation-id", "sid", "Specifies the Gatling Enterprise Simulation that needs to be started", None)
   val TeamId = new CommandLineConstant("team-id", "tid", "Specifies the Gatling Enterprise Team, when creating a new Simulation", None)
   val Url = new CommandLineConstant("url", "url", "Overrides https://cloud.gatling.io when connecting to Gatling Enterprise", None)
+  val controlPlaneUrl = new CommandLineConstant(
+    "controlPlaneUrl",
+    "cp",
+    "Optional URL of a control plane for Gatling Enterprise providing a private repository. If this parameter is provided, packages will be registered as private packages and uploaded through this control plane.",
+    None
+  )
   val SimulationSystemProperties =
     new CommandLineConstant(
       "simulation-system-properties",
