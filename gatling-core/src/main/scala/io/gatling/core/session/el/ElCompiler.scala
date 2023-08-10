@@ -306,7 +306,7 @@ final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
   }
 }
 
-class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
+final class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
   private val NameRegex = """[^.#{}()]+""".r
