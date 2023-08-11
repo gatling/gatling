@@ -317,6 +317,12 @@ gatling {
     // Set to true if you don't want any user input, eg in a CI environment
     // False by default; you can also use the gatling.enterprise.batchMode system property
     batchMode false
+    // If this URL is configured, newly created packages and uploaded ones are considered as private.
+    // Private packages are uploaded and managed through this control plane.
+    // Null by default; you can also use the gatling.enterprise.controlPlaneUrl system property
+    // See Private Packages on Gatling Cloud documentation for details :
+    // https://gatling.io/docs/enterprise/cloud/reference/admin/private_locations/private_packages/
+    controlPlaneUrl "YOUR_CONTROL_PLANE_URL"
   }
 }
 ```

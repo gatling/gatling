@@ -173,6 +173,11 @@ Gatling / enterpriseSimulationEnvironmentVariables := Map.empty
 // Wait for the result after starting the simulation on Gatling Enterprise; will complete with an error if the simulation ends with any error status
 // False by default; you can also use the gatling.enterprise.waitForRunEnd system property
 Gatling / waitForRunEnd := false
+// If this URL is configured, newly created packages and uploaded ones are considered as private.
+// Private packages are uploaded and managed through this control plane.
+// See Private Packages on Gatling Cloud documentation for details :
+// https://gatling.io/docs/enterprise/cloud/reference/admin/private_locations/private_packages/
+Gatling / enterpriseControlPlaneUrl := Some(new URL("YOUR_CONTROL_PLANE_URL"))
 ```
 
 You can run it with the command:
