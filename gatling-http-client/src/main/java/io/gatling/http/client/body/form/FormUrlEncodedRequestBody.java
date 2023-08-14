@@ -82,7 +82,6 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
       Utf8UrlEncoder.encodeAndAppendFormElement(sb, field);
     } else {
       try {
-        // TODO there's probably room for perf improvements
         sb.append(URLEncoder.encode(field, charset.name()));
       } catch (UnsupportedEncodingException e) {
         // can't happen, as Charset was already resolved
