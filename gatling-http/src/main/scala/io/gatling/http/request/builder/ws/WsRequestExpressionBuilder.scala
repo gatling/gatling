@@ -26,7 +26,7 @@ import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 import io.gatling.http.util.HttpHelper
 
-class WsRequestExpressionBuilder(
+final class WsRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
