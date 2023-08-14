@@ -22,7 +22,7 @@ import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder }
 
-class SseRequestExpressionBuilder(
+final class SseRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
