@@ -132,6 +132,7 @@ http("name").post("/")
 // is a shortcut for:
 http("name").post("/")
   .header("accept", "application/json")
+  // only for requests that have a body
   .header("content-type", "application/json")
 
 // asXml
@@ -140,6 +141,7 @@ http("name").post("/")
 // is a shortcut for:
 http("name").post("/")
   .header("accept", "application/xhtml+xml")
+  // only for requests that have a body
   .header("content-type", "application/xhtml+xml")
 
 // asFormUrlEncoded
@@ -147,6 +149,7 @@ http("name").post("/")
   .asFormUrlEncoded
 // is a shortcut for:
 http("name").post("/")
+  // only for requests that have a body
   .header("content-type", "application/application/x-www-form-urlencoded")
 
 // asMultipartForm
@@ -154,6 +157,7 @@ http("name").post("/")
   .asMultipartForm
 // is a shortcut for:
 http("name").post("/")
+  // only for requests that have a body
   .header("content-type", "multipart/form-data")
 //#asXXX
 
