@@ -155,9 +155,9 @@ object BodyPart {
             resource.file,
             charset.orNull,
             transferEncoding.orNull,
-            contentType.orNull,
-            dispositionType.orNull,
             contentId.orNull,
+            dispositionType.orNull,
+            contentType.orNull,
             customHeaders,
             fileName.getOrElse(resource.name)
           )
