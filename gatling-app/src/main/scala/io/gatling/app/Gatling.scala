@@ -95,8 +95,8 @@ object Gatling extends StrictLogging {
                 logger.error("Run crashed", e)
                 throw e
             } finally {
-              eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
               terminateActorSystem(system, configuration.core.shutdownTimeout.milliseconds)
+              eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
             }
         }
       new RunResultProcessor(configuration).processRunResult(runResult).code
