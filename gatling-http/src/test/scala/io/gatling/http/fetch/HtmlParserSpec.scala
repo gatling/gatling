@@ -88,4 +88,26 @@ class HtmlParserSpec extends BaseSpec {
 
     embeddedResources("http://example.com/", html) shouldBe empty
   }
+
+  it should "extract prefetch links" in {
+    val html =
+      s"""<!DOCTYPE html>
+      <html>
+        <head>
+          <title>Test page</title>
+          <link href="/resources/test-prefetch.js" rel="prefetch">
+          <link href="/resources/test-prefetch2.css" rel="prefetch">
+        </head>
+        <body>
+          <script src="/resources/app.js"></script>
+        </body>
+      </html>
+      """.toCharArray
+
+    embeddedResources("http://example.com/", html) shouldBe List(
+      BasicResource("http://example.com/resources/test-prefetch.js"),
+      CssResource("http://example.com/resources/test-prefetch2.css"),
+      BasicResource("http://example.com/resources/app.js")
+    )
+  }
 }

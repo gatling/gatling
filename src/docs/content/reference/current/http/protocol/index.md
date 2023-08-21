@@ -301,7 +301,7 @@ The supported resources are:
 
 * `<script>`
 * `<base>`
-* `<link>`
+* `<link>` (stylesheet, icon and prefetch resources)
 * `<bgsound>`
 * `<frame>`
 * `<iframe>`

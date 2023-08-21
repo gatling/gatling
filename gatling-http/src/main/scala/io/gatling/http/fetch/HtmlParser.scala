@@ -16,6 +16,8 @@
 
 package io.gatling.http.fetch
 
+import java.util.Locale
+
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
@@ -60,12 +62,13 @@ private[gatling] object HtmlParser extends StrictLogging {
   private val CodeBaseAttribute = "codebase"
   private val DataAttribute = "data"
   private val HrefAttribute = "href"
-  private val IconAttributeName = "icon"
-  private val ShortcutIconAttributeName = "shortcut icon"
   private val RelAttribute = "rel"
   private val SrcAttribute = "src"
   private val StyleAttribute = StyleTagName
-  private val StylesheetAttributeName = "stylesheet"
+  private val StylesheetRelValue = "stylesheet"
+  private val PrefetchRelValue = "prefetch"
+  private val IconRelValue = "icon"
+  private val ShortcutIconRelValue = "shortcut icon"
 
   def logException(htmlContent: Array[Char], e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
@@ -125,11 +128,12 @@ class HtmlParser extends StrictLogging {
               } else if (tag.nameEquals(BaseTagName)) {
                 base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
               } else if (tag.nameEquals(LinkTagName)) {
-                Option(tag.getAttributeValue(RelAttribute)) match {
-                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, StylesheetAttributeName) =>
+                Option(tag.getAttributeValue(RelAttribute)).map(_.toString.toLowerCase(Locale.ROOT)) match {
+                  case Some(StylesheetRelValue) =>
                     addResource(tag, HrefAttribute, CssRawResource)
-                  case Some(rel)
-                      if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
+                  case Some(PrefetchRelValue) if tag.getAttributeValue(HrefAttribute).toString.contains(".css") =>
+                    addResource(tag, HrefAttribute, CssRawResource)
+                  case Some(IconRelValue) | Some(ShortcutIconRelValue) | Some(PrefetchRelValue) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
                   case _ =>
                 }
