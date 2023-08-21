@@ -62,6 +62,7 @@ private[gatling] object HtmlParser extends StrictLogging {
   private val HrefAttribute = "href"
   private val IconAttributeName = "icon"
   private val ShortcutIconAttributeName = "shortcut icon"
+  private val PrefetchAttributeName = "prefetch"
   private val RelAttribute = "rel"
   private val SrcAttribute = "src"
   private val StyleAttribute = StyleTagName
@@ -130,6 +131,11 @@ class HtmlParser extends StrictLogging {
                     addResource(tag, HrefAttribute, CssRawResource)
                   case Some(rel)
                       if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
+                    addResource(tag, HrefAttribute, RegularRawResource)
+                  case Some(rel)
+                      if CharSequenceUtil.equalsIgnoreCase(rel, PrefetchAttributeName) && tag.getAttributeValue(HrefAttribute).toString.endsWith(".css") =>
+                    addResource(tag, HrefAttribute, CssRawResource)
+                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, PrefetchAttributeName) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
                   case _ =>
                 }
