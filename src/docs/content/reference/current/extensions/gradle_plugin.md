@@ -4,7 +4,7 @@ description: "How to use the gradle plugin for Gatling to run tests and deploy t
 lead: "The Gradle plugin allows you to run Gatling tests from the command line, without the bundle, as well as to package your simulations for Gatling Enterprise"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
-weight: 2080200
+weight: 2090200
 ---
 
 This Gradle plugin was initially contributed by [Ievgenii Shepeliuk](https://github.com/eshepelyuk) and

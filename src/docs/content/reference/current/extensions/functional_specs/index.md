@@ -4,7 +4,7 @@ description: "Functional testing with Gatling"
 lead: "Write functional tests with Gatling, API test"
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 2080700
+weight: 2090700
 ---
 
 Functional specs support was initially contributed by [Constantijn Visinescu](https://github.com/constantijn).

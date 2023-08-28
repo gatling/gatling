@@ -1,13 +1,15 @@
 ---
-title: "Licenses"
+title: "Project licenses"
 description: "Gatling projects licenses"
-lead: "Gatling is licensed under the Apache License v2.0"
+lead: "Gatling is licensed under the Apache License v2.0 and other specific licenses"
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2021-04-20T18:30:56+02:00
-weight: 2100400
+lastmod: 2023-01-18T09:00:00+02:00
+weight: 2110410
 ---
 
 ## Developer motivations
+
+**TODO reword this since we also use a proprietary license for some modules now?**
 
 We try as much as possible to distribute Gatling and its side projects under Apache License v2.0.
 As much as possible means that we sometimes have to cope with some dependencies that are not Apache License v2.0 compatible or even not open source friendly.
@@ -32,4 +34,9 @@ Making it short, we distribute this module for free with the following restricti
 * one can not edit the source code without buying a Highcharts license for working on Gatling
 * the shipped Highcharts or Highstock copies cannot be used outside of Gatling standard usage
 
-For more information, please refer to the [gatling-highcharts license](https://github.com/gatling/gatling-highcharts/blob/main/LICENSE) or feel free to [ask](https://community.gatling.io).
+For more information, please refer to the [gatling-highcharts license]({{< ref "./highcharts" >}}) or feel free to [ask](https://community.gatling.io).
+
+## Gatling Enterprise Component License
+
+Certain components meant to be used with Gatling Enterprise are licensed under the
+[Gatling Enterprise Component License]({{< ref "./enterprise-component" >}}).
