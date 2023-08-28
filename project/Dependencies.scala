@@ -9,7 +9,7 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.96.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.97.Final"
   private val nettyBuffer                    = netty.withName("netty-buffer")
   private val nettyHandler                   = netty.withName("netty-handler")
   private val nettyMqtt                      = netty.withName("netty-codec-mqtt")
