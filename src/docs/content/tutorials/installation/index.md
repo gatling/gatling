@@ -1,7 +1,7 @@
 ---
 title: "Installation"
 description: "How to install Gatling: prerequisites, different available distributions including the bundle, maven, gradle and sbt, and IDE integration for IntelliJ idea and Visual Studio Code (VS Code)."
-lead: "Learn about the Java, Kotlin and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle "
+lead: "Learn about the Java, Kotlin and Scala requirements, install Gatling with the Bundle or build tool: maven, sbt, gradle"
 date: 2021-04-20T18:58:06+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 weight: 1010000

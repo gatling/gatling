@@ -2,7 +2,7 @@
 title: "Extensions"
 description: "Extensions"
 lead: "Extra official and community modules"
-weight: 2080000
+weight: 2090000
 ordering:
   - maven_plugin
   - gradle_plugin

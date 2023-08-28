@@ -10,6 +10,7 @@ ordering:
   - core
   - stats
   - http
+  - grpc
   - jms
   - mqtt
   - extensions
