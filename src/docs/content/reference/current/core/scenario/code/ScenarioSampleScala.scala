@@ -38,7 +38,10 @@ exec(http("Home").get("https://gatling.io"))
 
 //#session-lambda
 exec { session =>
-  // displays the content of the session in the console (debugging only)
+  // displays the content of the session in the console
+  // WARNING: DEBUGGING ONLY, NOT UNDER LOAD
+  // sysout is a slow blocking output,
+  // massively writing in here will freeze Gatling's engine
   println(session)
   // return the original session
   session
@@ -132,32 +135,26 @@ repeat(session => 5) {
 }
 // with a counter name
 repeat(5, "counter") {
-  exec { session =>
-    System.out.println(session("counter").as[Int])
-    session
-  }
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#repeat
 
 //#foreach
 // with a static Seq
 foreach(Seq("elt1", "elt2"), "elt") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?elt=#{elt}"))
 }
 // with a Gatling EL string
 foreach("#{elts}", "elt") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?elt=#{elt}"))
 }
 // with a function
 foreach(session => Seq("elt1", "elt2"), "elt") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?elt=#{elt}"))
 }
 // with a counter name
 foreach(Seq("elt1", "elt2"), "elt", "counter") {
-  exec { session =>
-    System.out.println(session("elt2").as[String])
-    session
-  }
+  exec(http("name").get("/?elt=#{elt}&counter=#{counter}"))
 }
 //#foreach
 
@@ -180,11 +177,11 @@ during(session => 10.minutes) {
 }
 // with a counter name
 during(5, "counter") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 // with exitASAP
 during(5, "counter", false) {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#during
 
@@ -199,7 +196,7 @@ asLongAs(session => session("condition").as[Boolean]) {
 }
 // with a counter name and exitASAP
 asLongAs("#{condition}", "counter", false) {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#asLongAs
 
@@ -214,7 +211,7 @@ doWhile(session => session("condition").as[Boolean]) {
 }
 // with a counter name
 doWhile("#{condition}", "counter") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#doWhile
 
@@ -225,7 +222,7 @@ asLongAsDuring("#{condition}", 5) {
 }
 // with a counter name and exitASAP
 asLongAsDuring(session => true, 10.minutes, "counter", false) {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#asLongAsDuring
 
@@ -236,7 +233,7 @@ doWhileDuring("#{condition}", 5) {
 }
 // with a counter name and exitASAP
 doWhileDuring(session => true, 10.minutes, "counter", false) {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#doWhileDuring
 
@@ -246,7 +243,7 @@ forever {
 }
 // with a counter name
 forever("counter") {
-  exec(http("name").get("/"))
+  exec(http("name").get("/?counter=#{counter}"))
 }
 //#forever
 

@@ -28,14 +28,12 @@ class SessionSampleKotlin {
 // wrong usage: result from Session#set is discarded
 exec { session ->
   session.set("foo", "bar")
-  println(session)
   session
 }
 
 // correct usage
 exec { session ->
   val newSession = session.set("foo", "bar")
-  println(newSession)
   newSession
 }
 //#sessions-are-immutable
