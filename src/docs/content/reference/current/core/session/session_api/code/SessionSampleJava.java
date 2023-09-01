@@ -31,14 +31,12 @@ class SessionSampleJava {
 // wrong usage: result from Session#set is discarded
 exec(session -> {
   session.set("foo", "bar");
-  System.out.println(session);
   return session;
 });
 
 // correct usage
 exec(session -> {
   Session newSession = session.set("foo", "bar");
-  System.out.println(newSession);
   return newSession;
 });
 //#sessions-are-immutable

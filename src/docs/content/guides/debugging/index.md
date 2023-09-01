@@ -9,9 +9,12 @@ weight: 3010000
 
 ## Printing Session Values
 
-Print all the values within a session with this function literal.
+Print a session value.
 
-Print a session value
+{{< alert warning >}}
+// Only use `println` for debugging, not under load.
+// sysout is a slow blocking output, massively writing in here will freeze Gatling's engine and break your test.
+{{< /alert >}}
 
 {{< include-code "print-session-value" java kt scala >}}
 
