@@ -21,7 +21,6 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
-import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -36,12 +35,13 @@ trait Action extends StrictLogging {
 
   override def toString: String = name
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def !(session: Session): Unit = {
     val eventLoop = session.eventLoop
     if (eventLoop.inEventLoop) {
       execute(session)
     } else if (!eventLoop.isShutdown) {
-      eventLoop.execute(() => execute(session))
+      eventLoop.execute(() => this ! session)
     }
   }
 
