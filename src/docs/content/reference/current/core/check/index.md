@@ -385,7 +385,8 @@ You can either protect it with backticks `` `in` `` or use the `within` alias in
 
 #### `optional`
 
-Never fail. Used for capturing an optional value.
+Allows for the target to be missing. In this case, the check won't fail, the following
+steps won't trigger, including saveAs, meaning possibly existing value won't be replaced nor removed.
 
 #### `validate`
 
