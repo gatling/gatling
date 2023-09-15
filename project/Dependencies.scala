@@ -53,7 +53,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.5.1"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                              % "1.9.3")
+  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                              % "1.9.4")
     .exclude("org.jline", "jline")
     .exclude("org.scala-sbt.jline3", "jline-terminal")
     .exclude("org.jline", "jline-terminal-jna")
