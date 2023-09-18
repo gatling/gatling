@@ -229,7 +229,6 @@ object ZincCompiler extends ProblemStringFormats {
       Array(
         "-encoding",
         configuration.encoding,
-        "-target:jvm-1.8",
         "-deprecation",
         "-feature",
         "-unchecked",
