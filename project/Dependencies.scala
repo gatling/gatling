@@ -7,6 +7,7 @@ object Dependencies {
   private def scalaReflect(version: String)  = "org.scala-lang"                       % "scala-reflect"                     % version
   private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
     .exclude("org.jline", "jline")
+  private def scalaCompilerBridge(version: String) = "org.scala-lang"                 % "scala2-sbt-bridge"                 % version
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.97.Final"
@@ -54,6 +55,7 @@ object Dependencies {
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                              % "1.9.5")
+    .exclude("org.scala-sbt", "compiler-bridge_2.13")
     .exclude("org.jline", "jline")
     .exclude("org.scala-sbt.jline3", "jline-terminal")
     .exclude("org.jline", "jline-terminal-jna")
@@ -70,7 +72,6 @@ object Dependencies {
     .exclude("com.lmax", "disruptor")
     .exclude("org.apache.logging.log4j", "log4j-api")
     .exclude("org.apache.logging.log4j", "log4j-core")
-  private val compilerBridge                 = zinc.withName("compiler-bridge")
   private val testInterface                  = zinc.organization                      % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.2.12"
@@ -213,12 +214,12 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(
       scalaCompiler(scalaVersion),
+      scalaCompilerBridge(scalaVersion),
       scalaReflect(scalaVersion),
       config,
       slf4jApi,
       logback,
       zinc,
-      compilerBridge,
       scopt
     )
 
