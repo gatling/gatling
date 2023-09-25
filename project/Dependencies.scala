@@ -95,7 +95,7 @@ object Dependencies {
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "4.11.0"             % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.16.6"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
-  private val h2                             = "com.h2database"                       % "h2"                                % "2.2.222"           % Test
+  private val h2                             = "com.h2database"                       % "h2"                                % "2.2.224"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.27"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.10.0"             % Test
