@@ -36,8 +36,7 @@ class WsConnect(
     onConnected: Option[Action],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
-    val next: Action,
-    wsLogger: WsLogger
+    val next: Action
 ) extends RequestAction
     with WsAction
     with NameGen {
@@ -68,7 +67,7 @@ class WsConnect(
               httpComponents.httpProtocol,
               session.eventLoop,
               clock,
-              wsLogger
+              new WsLogger
             )
 
             fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)

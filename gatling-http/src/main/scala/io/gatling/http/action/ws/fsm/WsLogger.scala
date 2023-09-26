@@ -25,15 +25,14 @@ import io.gatling.jdk.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 
-final class WsLogger extends StrictLogging {
-
+object WsLogger extends StrictLogging {
   private val loggingStringBuilderPool = new StringBuilderPool
 
-  def logCheck(
+  private def logCheck(
       requestName: String,
       session: Session,
       status: Status,
-      messageBuffer: Seq[(Long, String)],
+      inboundMessages: Seq[(Long, String)],
       errorMessage: Option[String],
       checkName: Option[String],
       message: Option[String]
@@ -56,7 +55,7 @@ final class WsLogger extends StrictLogging {
       .appendWithEol(message.getOrElse(""))
       .appendWithEol("=========================")
       .appendWithEol("WebSocket received messages:")
-      .appendWebsocketInboundMessages(messageBuffer)
+      .appendWebsocketInboundMessages(inboundMessages)
       .append("<<<<<<<<<<<<<<<<<<<<<<<<<")
       .toString
 
@@ -70,10 +69,10 @@ final class WsLogger extends StrictLogging {
     logger.trace(dump)
   }
 
-  def logOk(
+  private def logOk(
       requestName: String,
       session: Session,
-      messageBuffer: Seq[(Long, String)],
+      inboundMessages: Seq[(Long, String)],
       message: Option[String]
   ): Unit = {
     def dump = loggingStringBuilderPool
@@ -91,10 +90,59 @@ final class WsLogger extends StrictLogging {
       .appendWithEol(message.getOrElse(""))
       .appendWithEol("=========================")
       .appendWithEol("WebSocket received messages:")
-      .appendWebsocketInboundMessages(messageBuffer)
+      .appendWebsocketInboundMessages(inboundMessages)
       .append("<<<<<<<<<<<<<<<<<<<<<<<<<")
       .toString
 
     logger.trace(dump)
+  }
+}
+
+final class WsLogger {
+
+  private var inboundMessages: List[(Long, String)] = Nil
+
+  def registerInboundMessage(message: String, timestamp: Long): Unit =
+    if (HttpTracing.IS_HTTP_DEBUG_ENABLED) {
+      inboundMessages = (timestamp, message) :: inboundMessages
+    }
+
+  def registerInboundMessage(message: Array[Byte], timestamp: Long): Unit =
+    if (HttpTracing.IS_HTTP_DEBUG_ENABLED) {
+      inboundMessages = (timestamp, s"<<<BINARY CONTENT length=${message.length}>>>") :: inboundMessages
+    }
+
+  def logCheck(
+      requestName: String,
+      session: Session,
+      status: Status,
+      errorMessage: Option[String],
+      checkName: Option[String],
+      message: Option[String]
+  ): Unit = {
+    WsLogger.logCheck(
+      requestName,
+      session,
+      status: Status,
+      inboundMessages.reverse,
+      errorMessage,
+      checkName,
+      message
+    )
+    inboundMessages = Nil
+  }
+
+  def logOk(
+      requestName: String,
+      session: Session,
+      message: Option[String]
+  ): Unit = {
+    WsLogger.logOk(
+      requestName,
+      session,
+      inboundMessages.reverse,
+      message
+    )
+    inboundMessages = Nil
   }
 }
