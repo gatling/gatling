@@ -244,6 +244,8 @@ final case class WsPerformingCheckState(
       code: Option[String],
       errorMessage: String
   ): NextWsState = {
+    // copy the buffer before it gets cleared by cancelTimeout
+    val fetchBuffer = fsm.fetchBuffer()
     cancelTimeout()
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
@@ -252,7 +254,7 @@ final case class WsPerformingCheckState(
       case Left(n) =>
         // failed to connect
         logger.debug("WebSocket crashed, performing next action")
-        fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("WebSocket crashed"), Some(currentCheck.resolvedName), requestMessage)
+        fsm.wsLogger.logCheck(actionName, session, KO, fetchBuffer, Some("WebSocket crashed"), Some(currentCheck.resolvedName), requestMessage)
         n
       case Right(sendTextMessage) =>
         // failed to reconnect, logging crash
@@ -261,7 +263,7 @@ final case class WsPerformingCheckState(
           actionName,
           session,
           KO,
-          fsm.fetchBuffer(),
+          fetchBuffer,
           Some("WebSocket crashed while trying to reconnect"),
           Some(currentCheck.resolvedName),
           requestMessage
