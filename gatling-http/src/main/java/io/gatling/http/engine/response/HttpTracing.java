@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpTracing {
-  private static final Logger LOGGER =
+  public static final Logger LOGGER =
       LoggerFactory.getLogger(HttpTracing.class.getPackage().getName());
   public static final boolean IS_HTTP_DEBUG_ENABLED = LOGGER.isDebugEnabled();
   public static final boolean IS_HTTP_TRACE_ENABLED = LOGGER.isTraceEnabled();
