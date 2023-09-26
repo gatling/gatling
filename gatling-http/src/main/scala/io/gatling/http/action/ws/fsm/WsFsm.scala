@@ -18,7 +18,6 @@ package io.gatling.http.action.ws.fsm
 
 import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
-import scala.collection.mutable.{ ArrayBuffer, ListBuffer }
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
@@ -35,7 +34,7 @@ import io.netty.channel.EventLoop
 import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
-class WsFsm(
+final class WsFsm(
     private[fsm] val wsName: String,
     private[fsm] val connectRequest: Request,
     private[fsm] val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
@@ -49,14 +48,13 @@ class WsFsm(
 ) extends StrictLogging {
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
-  val currentMessageBuffer: ArrayBuffer[(Long, String)] = ArrayBuffer.empty
+
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {
         logger.debug(s"Timeout ${currentTimeout.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
-        currentMessageBuffer.clear()
       },
       dur.toMillis,
       TimeUnit.MILLISECONDS
@@ -74,10 +72,7 @@ class WsFsm(
         logger.debug(s"Failed to cancel timeout ${currentTimeout.hashCode}")
       }
       currentTimeout = null
-      currentMessageBuffer.clear()
     }
-
-  def fetchBuffer(): Seq[(Long, String)] = currentMessageBuffer.toSeq
 
   private def execute(f: => NextWsState): Unit = {
     val NextWsState(nextState, afterStateUpdate) = f

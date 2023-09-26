@@ -52,7 +52,14 @@ final case class WsPerformingCheckState(
     val nextAction = next match {
       case Left(n) =>
         logger.debug("Check timeout, failing it and performing next action")
-        fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check timeout"), Some(currentCheck.resolvedName), requestMessage)
+        fsm.wsLogger.logCheck(
+          actionName,
+          session,
+          KO,
+          Some("Check timeout"),
+          Some(currentCheck.resolvedName),
+          requestMessage
+        )
         n
       case Right(sendFrame) =>
         // logging crash
@@ -61,7 +68,6 @@ final case class WsPerformingCheckState(
           actionName,
           session,
           KO,
-          fsm.fetchBuffer(),
           Some(s"Couldn't reconnect: $errorMessage"),
           Some(currentCheck.resolvedName),
           requestMessage
@@ -82,7 +88,7 @@ final case class WsPerformingCheckState(
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
-    saveStringMessageToBuffer(message, timestamp)
+    wsLogger.registerInboundMessage(message, timestamp)
     if (autoReplyTextFrames(message, webSocket)) {
       NextWsState(this)
     } else {
@@ -100,7 +106,7 @@ final case class WsPerformingCheckState(
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
-    saveBinaryMessageToBuffer(message, timestamp)
+    wsLogger.registerInboundMessage(message, timestamp)
     currentCheck match {
       case WsFrameCheck.Binary(_, matchConditions, checks, _, _) =>
         tryApplyingChecks(message, timestamp, matchConditions, checks)
@@ -144,7 +150,7 @@ final case class WsPerformingCheckState(
     }
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
-      fsm.wsLogger.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
+      fsm.wsLogger.logCheck(actionName, session, OK, None, Some(currentCheck.resolvedName), requestMessage)
       // matching message, apply checks
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
 
@@ -157,7 +163,14 @@ final case class WsPerformingCheckState(
           val nextAction = next match {
             case Left(n) =>
               logger.debug("Check failed, performing next action")
-              fsm.wsLogger.logCheck(actionName, session, KO, fsm.fetchBuffer(), Some("Check failed"), Some(currentCheck.resolvedName), requestMessage)
+              fsm.wsLogger.logCheck(
+                actionName,
+                session,
+                KO,
+                Some("Check failed"),
+                Some(currentCheck.resolvedName),
+                requestMessage
+              )
               n
             case Right(sendMessage) =>
               // failed to reconnect, logging crash
@@ -166,7 +179,6 @@ final case class WsPerformingCheckState(
                 actionName,
                 session,
                 KO,
-                fsm.fetchBuffer(),
                 Some("Check failed while trying to reconnect"),
                 Some(currentCheck.resolvedName),
                 requestMessage
@@ -231,7 +243,7 @@ final case class WsPerformingCheckState(
       }
     } else {
       logger.debug(s"Received non-matching message $message")
-      fsm.wsLogger.logCheck(actionName, session, OK, fsm.fetchBuffer(), None, Some(currentCheck.resolvedName), requestMessage)
+      fsm.wsLogger.logCheck(actionName, session, OK, None, Some(currentCheck.resolvedName), requestMessage)
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextWsState(this)
@@ -244,8 +256,6 @@ final case class WsPerformingCheckState(
       code: Option[String],
       errorMessage: String
   ): NextWsState = {
-    // copy the buffer before it gets cleared by cancelTimeout
-    val fetchBuffer = fsm.fetchBuffer()
     cancelTimeout()
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
@@ -254,7 +264,14 @@ final case class WsPerformingCheckState(
       case Left(n) =>
         // failed to connect
         logger.debug("WebSocket crashed, performing next action")
-        fsm.wsLogger.logCheck(actionName, session, KO, fetchBuffer, Some("WebSocket crashed"), Some(currentCheck.resolvedName), requestMessage)
+        fsm.wsLogger.logCheck(
+          actionName,
+          session,
+          KO,
+          Some("WebSocket crashed"),
+          Some(currentCheck.resolvedName),
+          requestMessage
+        )
         n
       case Right(sendTextMessage) =>
         // failed to reconnect, logging crash
@@ -263,7 +280,6 @@ final case class WsPerformingCheckState(
           actionName,
           session,
           KO,
-          fetchBuffer,
           Some("WebSocket crashed while trying to reconnect"),
           Some(currentCheck.resolvedName),
           requestMessage
