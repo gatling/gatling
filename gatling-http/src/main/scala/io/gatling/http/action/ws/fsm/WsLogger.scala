@@ -23,10 +23,11 @@ import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.util._
 import io.gatling.jdk.util.StringBuilderPool
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.Logger
 
-object WsLogger extends StrictLogging {
+object WsLogger {
   private val loggingStringBuilderPool = new StringBuilderPool
+  private val logger = Logger(HttpTracing.LOGGER)
 
   private def logCheck(
       requestName: String,
