@@ -25,13 +25,20 @@ import io.gatling.commons.util.Hex
 import io.gatling.commons.util.Spire._
 import io.gatling.jdk.util.StringBuilderPool
 
+import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints }
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
 private[gatling] object Json {
   private val stringBuilders = new StringBuilderPool
-  private[json] val objectMapper: ObjectMapper = new ObjectMapper
+  private[json] val objectMapper: ObjectMapper = {
+    val jsonFactory = new JsonFactoryBuilder()
+      .streamReadConstraints(StreamReadConstraints.builder.maxStringLength(Int.MaxValue).build)
+      .build
+
+    new ObjectMapper(jsonFactory)
+  }
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
     val sb = stringBuilders.get()
