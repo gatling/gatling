@@ -47,7 +47,7 @@ private[swing] class DisplayedSelectionFileChooser(
   private val fileChooser =
     new FileChooser {
       fileSelectionMode = selectionMode
-      fileFilter = fileFilter
+      this.fileFilter = DisplayedSelectionFileChooser.this.fileFilter
     }
   private val openChooserButton = Button(buttonText)(fileChooserSelection().foreach(setAndPublish))
 
