@@ -167,7 +167,7 @@ final case class WsPerformingCheckState(
                 actionName,
                 session,
                 KO,
-                Some("Check failed"),
+                Some(s"Check failed: $errorMessage"),
                 Some(currentCheck.resolvedName),
                 requestMessage
               )
@@ -268,7 +268,7 @@ final case class WsPerformingCheckState(
           actionName,
           session,
           KO,
-          Some("WebSocket crashed"),
+          Some(s"WebSocket crashed: $errorMessage"),
           Some(currentCheck.resolvedName),
           requestMessage
         )
