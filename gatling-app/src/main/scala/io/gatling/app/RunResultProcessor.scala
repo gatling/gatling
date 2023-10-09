@@ -32,12 +32,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     initLogFileData(runResult) match {
       case Some(logFileData) =>
         val assertionResults = AssertionValidator.validateAssertions(logFileData)
-
-        if (reportsGenerationEnabled) {
-          val reportsGenerationInputs = new ReportsGenerationInputs(runResult.runId, logFileData, assertionResults)
-          generateReports(reportsGenerationInputs)
-        }
-
+        generateReports(runResult.runId, logFileData, assertionResults)
         runStatus(assertionResults)
 
       case _ =>
@@ -46,9 +41,10 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private def initLogFileData(runResult: RunResult): Option[LogFileData] =
     if (reportsGenerationEnabled || runResult.hasAssertions) {
+      val start = System.currentTimeMillis()
       println("Parsing log file(s)...")
       val logFileData = LogFileReader(runResult.runId, configuration).read()
-      println("Parsing log file(s) done")
+      println(s"Parsing log file(s) done in ${(System.currentTimeMillis() - start) / 1000}s.")
       Some(logFileData)
     } else {
       None
@@ -57,13 +53,13 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
   private def reportsGenerationEnabled: Boolean =
     configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
 
-  private def generateReports(reportsGenerationInputs: ReportsGenerationInputs): Unit = {
-    println("Generating reports...")
-    val start = System.currentTimeMillis()
-    val indexFile = new ReportsGenerator()(configuration).generateFor(reportsGenerationInputs)
-    println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
-    println(s"Please open the following file: ${indexFile.toUri}")
-  }
+  private def generateReports(runId: String, logFileData: LogFileData, assertionResults: List[AssertionResult]): Unit =
+    if (reportsGenerationEnabled) {
+      println("Generating reports...")
+      val reportsGenerationInputs = new ReportsGenerationInputs(runId, logFileData, assertionResults)
+      val indexFile = new ReportsGenerator()(configuration).generateFor(reportsGenerationInputs)
+      println(s"Reports generated, please open the following file: ${indexFile.toUri}")
+    }
 
   private def runStatus(assertionResults: List[AssertionResult]): StatusCode = {
     val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
