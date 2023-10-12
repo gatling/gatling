@@ -48,7 +48,7 @@ public class WritableRequestBuilder {
             HttpVersion.HTTP_1_1,
             method,
             url,
-            Unpooled.buffer(0),
+            Unpooled.EMPTY_BUFFER,
             headers,
             EmptyHttpHeaders.INSTANCE);
 
