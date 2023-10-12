@@ -173,11 +173,11 @@ class HttpRequestExpressionBuilder(
       lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
     }
 
-  // hack because we need the request with the final uri
   override def build: Expression[Request] = {
     val exp = super.build
     if (httpProtocol.requestPart.cache) { session =>
       exp(session).map { request =>
+        // perform here as we need the computed absolute uri
         configureCachingHeaders(session, request)
         request
       }
