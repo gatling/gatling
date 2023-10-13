@@ -134,6 +134,7 @@ ChainBuilder edit =
     .pause(1)
     .exec(http("Post")
       .post("/computers")
+      .formParam("name", "computer xyz")
       .check(status().is(session ->
         200 + java.util.concurrent.ThreadLocalRandom.current().nextInt(2) // 2
       ))
