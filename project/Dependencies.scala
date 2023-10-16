@@ -82,7 +82,7 @@ object Dependencies {
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                         % "1.9.6"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                         % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.1"
-  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.7.3"
+  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.0"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
   private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.7.0"
 
