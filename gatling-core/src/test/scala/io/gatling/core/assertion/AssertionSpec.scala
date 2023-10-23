@@ -46,20 +46,15 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   private val SetRequestThenGroupModifiers: StatsModifiers =
     List(_.copy(requestName = "foo"), _.copy(groupPath = List("foo")))
 
-  private def generalStatsSource[T: Numeric](
-      metric: AssertionWithPathAndTarget[T],
-      conditions: Conditions[T],
-      stats: Stats*
-  ): GeneralStatsSource = {
-    def mockAssertion(source: GeneralStatsSource): Unit =
-      when(source.assertions) thenReturn conditions.map(_(metric))
-
+  private def generalStatsSource[T: Numeric](stats: Stats*): GeneralStatsSource = {
     def mockStats(stat: Stats, source: GeneralStatsSource): Unit = {
       when(source.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
       stat.group.foreach { group =>
         when(source.groupCumulatedResponseTimeGeneralStats(group, stat.status)) thenReturn stat.generalStats
       }
     }
+
+    // conditions.map(_(metric)
 
     def statsPaths: List[StatsPath] =
       stats
@@ -76,28 +71,27 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
 
     val mockedGeneralStatsSource = mock[GeneralStatsSource]
 
-    mockAssertion(mockedGeneralStatsSource)
     stats.foreach(mockStats(_, mockedGeneralStatsSource))
     mockStatsPath(mockedGeneralStatsSource)
 
     mockedGeneralStatsSource
   }
 
-  private def validateAssertions(source: GeneralStatsSource) =
-    AssertionValidator.validateAssertions(source).map(_.result).forall(identity)
+  private def validateAssertions(source: GeneralStatsSource, assertions: Assertion*): Boolean =
+    new AssertionValidator(source).validateAssertions(assertions.toList).forall(_.success)
 
   "AssertionValidator" should "fail the assertion when the request path does not exist" in {
     val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")
-    val source1 = generalStatsSource[Double](details("foo").requestsPerSec, List(_.is(100)), requestStats)
-    validateAssertions(source1) shouldBe false
+    val source1 = generalStatsSource[Double](requestStats)
+    validateAssertions(source1, details("foo").requestsPerSec.is(100)) shouldBe false
 
     val groupStats = Stats(GeneralStats.NoPlot, groupPath = List("bar"))
-    val source2 = generalStatsSource[Double](details("foo").requestsPerSec, List(_.is(100)), groupStats)
-    validateAssertions(source2) shouldBe false
+    val source2 = generalStatsSource[Double](groupStats)
+    validateAssertions(source2, details("foo").requestsPerSec.is(100)) shouldBe false
 
     val requestAndGroupStats = Stats(GeneralStats.NoPlot, requestName = "baz", groupPath = List("bar"))
-    val source3 = generalStatsSource[Double](details("baz").requestsPerSec, List(_.is(100)), requestAndGroupStats)
-    validateAssertions(source3) shouldBe false
+    val source3 = generalStatsSource[Double](requestAndGroupStats)
+    validateAssertions(source3, details("baz").requestsPerSec.is(100)) shouldBe false
   }
 
   // TODO : add test on global and forAll
@@ -105,8 +99,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestAndGroupStats = modifier(Stats(GeneralStats.NoPlot.copy(meanRequestsPerSec = 5)))
       val conditions: Conditions[Double] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
-      val source3 = generalStatsSource(details("foo").requestsPerSec, conditions, requestAndGroupStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").requestsPerSec))
+      val source = generalStatsSource[Double](requestAndGroupStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -115,8 +110,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(OK)))
       val conditions: Conditions[Long] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
-      val source3 = generalStatsSource(details("foo").successfulRequests.count, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").successfulRequests.count))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -125,8 +121,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(KO)))
       val conditions: Conditions[Long] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
-      val source3 = generalStatsSource(details("foo").failedRequests.count, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").failedRequests.count))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -135,8 +132,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
       val conditions: Conditions[Long] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").allRequests.count, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").allRequests.count))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -146,8 +144,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
       val successful = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
       val failed = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(OK)))
       val conditions: Conditions[Double] = List(_.lte(60), _.gte(30), _.is(50), _.between(40, 60), _.in(20, 40, 50, 80))
-      val source3 = generalStatsSource(details("foo").successfulRequests.percent, conditions, successful, failed)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").successfulRequests.percent))
+      val source = generalStatsSource[Long](successful, failed)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -157,8 +156,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
       val failed = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
       val successful = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(KO)))
       val conditions: Conditions[Double] = List(_.lte(60), _.gte(30), _.is(50), _.between(40, 60), _.in(20, 40, 50, 80))
-      val source3 = generalStatsSource(details("foo").failedRequests.percent, conditions, failed, successful)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").failedRequests.percent))
+      val source = generalStatsSource[Long](failed, successful)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -167,8 +167,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
       val conditions: Conditions[Double] = List(_.lte(110), _.gte(90), _.is(100), _.between(80, 120), _.in(90, 100, 130))
-      val source3 = generalStatsSource(details("foo").allRequests.percent, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").allRequests.percent))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -177,8 +178,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(min = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.min, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.min))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -187,8 +189,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(max = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.max, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.max))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -197,8 +200,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(mean = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.mean, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.mean))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -207,8 +211,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(stdDev = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.stdDev, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.stdDev))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -217,8 +222,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.percentile1, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.percentile1))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -227,8 +233,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.percentile2, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.percentile2))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -237,8 +244,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.percentile3, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.percentile3))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 
@@ -247,8 +255,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
-      val source3 = generalStatsSource(details("foo").responseTime.percentile4, conditions, requestStats)
-      validateAssertions(source3) shouldBe true
+      val assertions = conditions.map(_.apply(details("foo").responseTime.percentile4))
+      val source = generalStatsSource[Long](requestStats)
+      validateAssertions(source, assertions: _*) shouldBe true
     }
   }
 }

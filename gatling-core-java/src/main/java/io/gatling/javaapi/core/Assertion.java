@@ -64,7 +64,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTimeMetric responseTime() {
-      return new WithPathAndTimeMetric(path, ResponseTime$.MODULE$);
+      return new WithPathAndTimeMetric(path, TimeMetric.ResponseTime$.MODULE$);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndCountMetric allRequests() {
-      return new WithPathAndCountMetric(path, AllRequests$.MODULE$);
+      return new WithPathAndCountMetric(path, CountMetric.AllRequests$.MODULE$);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndCountMetric failedRequests() {
-      return new WithPathAndCountMetric(path, FailedRequests$.MODULE$);
+      return new WithPathAndCountMetric(path, CountMetric.FailedRequests$.MODULE$);
     }
 
     /**
@@ -94,7 +94,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndCountMetric successfulRequests() {
-      return new WithPathAndCountMetric(path, SuccessfulRequests$.MODULE$);
+      return new WithPathAndCountMetric(path, CountMetric.SuccessfulRequests$.MODULE$);
     }
 
     /**
@@ -104,7 +104,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Double> requestsPerSec() {
-      return new WithPathAndTarget<>(path, MeanRequestsPerSecondTarget$.MODULE$);
+      return new WithPathAndTarget<>(path, Target.MeanRequestsPerSecond$.MODULE$);
     }
   }
 
@@ -121,8 +121,8 @@ public final class Assertion {
       this.metric = metric;
     }
 
-    private WithPathAndTarget<Integer> next(TimeSelection selection) {
-      return new WithPathAndTarget<>(path, new TimeTarget(metric, selection));
+    private WithPathAndTarget<Integer> next(Stat selection) {
+      return new WithPathAndTarget<>(path, new Target.Time(metric, selection));
     }
 
     /**
@@ -132,7 +132,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Integer> min() {
-      return next(Min$.MODULE$);
+      return next(Stat.Min$.MODULE$);
     }
 
     /**
@@ -142,7 +142,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Integer> max() {
-      return next(Max$.MODULE$);
+      return next(Stat.Max$.MODULE$);
     }
 
     /**
@@ -152,7 +152,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Integer> mean() {
-      return next(Mean$.MODULE$);
+      return next(Stat.Mean$.MODULE$);
     }
 
     /**
@@ -162,7 +162,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Integer> stdDev() {
-      return next(StandardDeviation$.MODULE$);
+      return next(Stat.StandardDeviation$.MODULE$);
     }
 
     /**
@@ -217,7 +217,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Integer> percentile(double value) {
-      return next(new Percentiles(value));
+      return next(new Stat.Percentile(value));
     }
   }
 
@@ -241,7 +241,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Long> count() {
-      return new WithPathAndTarget<>(path, new CountTarget(metric));
+      return new WithPathAndTarget<>(path, new Target.Count(metric));
     }
 
     /**
@@ -251,7 +251,7 @@ public final class Assertion {
      */
     @NonNull
     public WithPathAndTarget<Double> percent() {
-      return new WithPathAndTarget<>(path, new PercentTarget(metric));
+      return new WithPathAndTarget<>(path, new Target.Percent(metric));
     }
   }
 
@@ -281,7 +281,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion lt(T value) {
-      return next(new Lt(value.doubleValue()));
+      return next(new Condition.Lt(value.doubleValue()));
     }
 
     /**
@@ -292,7 +292,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion lte(T value) {
-      return next(new Lte(value.doubleValue()));
+      return next(new Condition.Lte(value.doubleValue()));
     }
 
     /**
@@ -303,7 +303,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion gt(T value) {
-      return next(new Gt(value.doubleValue()));
+      return next(new Condition.Gt(value.doubleValue()));
     }
 
     /**
@@ -314,7 +314,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion gte(T value) {
-      return next(new Gte(value.doubleValue()));
+      return next(new Condition.Gte(value.doubleValue()));
     }
 
     /**
@@ -339,7 +339,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion between(T min, T max, boolean inclusive) {
-      return next(new Between(min.doubleValue(), max.doubleValue(), inclusive));
+      return next(new Condition.Between(min.doubleValue(), max.doubleValue(), inclusive));
     }
 
     /**
@@ -367,7 +367,7 @@ public final class Assertion {
     @NonNull
     public Assertion around(T mean, T plusOrMinus, boolean inclusive) {
       return next(
-          new Between(
+          new Condition.Between(
               mean.doubleValue() - plusOrMinus.doubleValue(),
               mean.doubleValue() + plusOrMinus.doubleValue(),
               inclusive));
@@ -375,7 +375,7 @@ public final class Assertion {
 
     /**
      * Specify the metric must be included in a range defined around a mean value with a half range
-     * expressed as an percentage of the mean value, bounds included
+     * expressed as a percentage of the mean value, bounds included
      *
      * @param mean the mean of the range
      * @param percentDeviation the range half width expressed as a percent of the mean
@@ -396,7 +396,9 @@ public final class Assertion {
      */
     public Assertion deviatesAround(T mean, double percentDeviation, boolean inclusive) {
       double margin = Math.floor(mean.doubleValue() * percentDeviation);
-      return next(new Between(mean.doubleValue() - margin, mean.doubleValue() + margin, inclusive));
+      return next(
+          new Condition.Between(
+              mean.doubleValue() - margin, mean.doubleValue() + margin, inclusive));
     }
 
     /**
@@ -407,7 +409,7 @@ public final class Assertion {
      */
     @NonNull
     public Assertion is(T value) {
-      return next(new Is(value.doubleValue()));
+      return next(new Condition.Is(value.doubleValue()));
     }
 
     /**
@@ -452,7 +454,7 @@ public final class Assertion {
     @NonNull
     public Assertion in(Set<T> values) {
       return next(
-          new In(
+          new Condition.In(
               toScalaSeq(
                       values.stream()
                           .map(value -> (Object) value.doubleValue())

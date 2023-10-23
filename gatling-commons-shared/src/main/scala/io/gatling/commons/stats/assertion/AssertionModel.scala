@@ -16,85 +16,60 @@
 
 package io.gatling.commons.stats.assertion
 
-import io.gatling.commons.util.NumberHelper._
-
-trait Printable {
-  def printable: String
-}
-
-// ------------------- //
-// -- Assertion ADT -- //
-// ------------------- //
-
 final case class Assertion(path: AssertionPath, target: Target, condition: Condition)
 
-// -------------- //
-// -- Path ADT -- //
-// -------------- //
+sealed trait AssertionPath extends Product with Serializable
 
-sealed abstract class AssertionPath(val printable: String) extends Printable with Product with Serializable
-case object Global extends AssertionPath("Global")
-case object ForAll extends AssertionPath("For all requests")
-final case class Details(parts: List[String]) extends AssertionPath(if (parts.isEmpty) Global.printable else parts.mkString(" / "))
+object AssertionPath {
+  case object Global extends AssertionPath
 
-// ---------------- //
-// -- Metric ADT -- //
-// ---------------- //
+  case object ForAll extends AssertionPath
 
-sealed abstract class TimeMetric(val printable: String) extends Printable with Product with Serializable
-sealed abstract class CountMetric(val printable: String) extends Printable with Product with Serializable
-
-case object AllRequests extends CountMetric("all events")
-case object FailedRequests extends CountMetric("failed events")
-case object SuccessfulRequests extends CountMetric("successful events")
-case object ResponseTime extends TimeMetric("response time")
-
-// ------------------- //
-// -- Selection ADT -- //
-// ------------------- //
-
-sealed abstract class TimeSelection(val printable: String) extends Printable with Product with Serializable
-
-case object Min extends TimeSelection("min")
-case object Max extends TimeSelection("max")
-case object Mean extends TimeSelection("mean")
-case object StandardDeviation extends TimeSelection("standard deviation")
-final case class Percentiles(value: Double) extends TimeSelection(s"${value.toRank} percentile")
-
-// ---------------- //
-// -- Target ADT -- //
-// ---------------- //
-
-sealed abstract class Target(val printable: String) extends Printable with Product with Serializable
-final case class CountTarget(metric: CountMetric) extends Target(s"count of ${metric.printable}")
-final case class PercentTarget(metric: CountMetric) extends Target(s"percentage of ${metric.printable}")
-final case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
-case object MeanRequestsPerSecondTarget extends Target("mean requests per second")
-
-// ------------------- //
-// -- Condition ADT -- //
-// ------------------- //
-sealed abstract class Condition(val printable: String) extends Printable with Product with Serializable {
-  def values: List[Double]
+  final case class Details(parts: List[String]) extends AssertionPath
 }
-final case class Lte(value: Double) extends Condition("is less than or equal to") {
-  override def values: List[Double] = List(value)
+
+sealed trait TimeMetric extends Product with Serializable
+
+object TimeMetric {
+  case object ResponseTime extends TimeMetric
 }
-final case class Gte(value: Double) extends Condition("is greater than or equal to") {
-  override def values = List(value)
+
+sealed trait CountMetric extends Product with Serializable
+
+object CountMetric {
+  case object AllRequests extends CountMetric
+
+  case object FailedRequests extends CountMetric
+
+  case object SuccessfulRequests extends CountMetric
 }
-final case class Lt(value: Double) extends Condition("is less than") {
-  override def values: List[Double] = List(value)
+
+sealed trait Stat extends Product with Serializable
+
+object Stat {
+  case object Min extends Stat
+  case object Max extends Stat
+  case object Mean extends Stat
+  case object StandardDeviation extends Stat
+  final case class Percentile(value: Double) extends Stat
 }
-final case class Gt(value: Double) extends Condition("is greater than") {
-  override def values = List(value)
+
+sealed trait Target extends Product with Serializable
+
+object Target {
+  final case class Count(metric: CountMetric) extends Target
+  final case class Percent(metric: CountMetric) extends Target
+  final case class Time(metric: TimeMetric, stat: Stat) extends Target
+  case object MeanRequestsPerSecond extends Target
 }
-final case class Is(value: Double) extends Condition("is") {
-  override def values = List(value)
-}
-final case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition("is between" + (if (inclusive) " inclusive" else "")) {
-  override def values = List(lowerBound, upperBound)
-}
-final case class In(elements: List[Double]) extends Condition("is in") {
-  override def values: List[Double] = elements
+sealed trait Condition extends Product with Serializable
+
+object Condition {
+  final case class Lte(value: Double) extends Condition
+  final case class Gte(value: Double) extends Condition
+  final case class Lt(value: Double) extends Condition
+  final case class Gt(value: Double) extends Condition
+  final case class Is(value: Double) extends Condition
+  final case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition
+  final case class In(elements: List[Double]) extends Condition
 }

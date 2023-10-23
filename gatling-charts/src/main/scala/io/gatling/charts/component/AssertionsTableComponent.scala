@@ -17,19 +17,36 @@
 package io.gatling.charts.component
 
 import io.gatling.charts.util.HtmlHelper.HtmlRichString
-import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
+import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionMessage, AssertionResult }
 
 private[charts] final class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
   def js: String = s"""
 	    $$('#container_exceptions').sortable('#container_exceptions');
     """
 
-  private def resultStyle(assertionResult: AssertionResult) = if (assertionResult.result) "ok" else "ko"
+  private def line(assertionResult: AssertionResult, index: Int): String = {
+    val message = assertionResult match {
+      case AssertionResult.Resolved(assertion, _, _) =>
+        AssertionMessage.message(assertion)
+      case AssertionResult.ResolutionError(_, error) => error
+    }
+
+    val resultStyle = if (assertionResult.success) "ok" else "ko"
+
+    s"""
+       |<tr>
+       |  <td class="error-col-1 $resultStyle total">
+       |    ${message.htmlEscape}
+       |    <span class="value" style="display:none">$index</span>
+       |  </td>
+       |  <td class="error-col-2 value $resultStyle total">${if (assertionResult.success) "OK" else "KO"}</td>
+       |</tr>""".stripMargin
+  }
 
   def html: String =
-    if (assertionResults.isEmpty)
+    if (assertionResults.isEmpty) {
       ""
-    else
+    } else {
       s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         Assertions
@@ -42,19 +59,12 @@ private[charts] final class AssertionsTableComponent(assertionResults: List[Asse
             </tr>
         </thead>
 		<tbody>
-		    ${assertionResults.zipWithIndex.map { case (assertionResult, index) =>
-          s"""
-		    <tr>
-		    	<td class="error-col-1 ${resultStyle(
-              assertionResult
-            )} total">${assertionResult.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
-		    	<td class="error-col-2 value ${resultStyle(assertionResult)} total">${if (assertionResult.result) "OK" else "KO"}</td>
-		    </tr>"""
-        }.mkString}
+		    ${assertionResults.zipWithIndex.map { case (assertionResult, index) => line(assertionResult, index) }.mkString}
 		</tbody>
     </table>
 </div>
 """
+    }
 
   def jsFiles: Seq[String] = Seq.empty
 }

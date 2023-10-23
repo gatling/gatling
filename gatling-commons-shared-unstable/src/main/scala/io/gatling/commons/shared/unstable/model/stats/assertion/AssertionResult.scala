@@ -18,4 +18,15 @@ package io.gatling.commons.shared.unstable.model.stats.assertion
 
 import io.gatling.commons.stats.assertion.Assertion
 
-final case class AssertionResult(assertion: Assertion, result: Boolean, message: String, actualValue: Option[Double])
+sealed trait AssertionResult {
+  def success: Boolean
+  def assertion: Assertion
+}
+
+object AssertionResult {
+  final case class Resolved(assertion: Assertion, success: Boolean, actualValue: Double) extends AssertionResult
+
+  final case class ResolutionError(assertion: Assertion, error: String) extends AssertionResult {
+    override def success: Boolean = false
+  }
+}

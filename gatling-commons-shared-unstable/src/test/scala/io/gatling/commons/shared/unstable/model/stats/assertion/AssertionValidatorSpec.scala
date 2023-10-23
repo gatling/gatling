@@ -17,7 +17,7 @@
 package io.gatling.commons.shared.unstable.model.stats.assertion
 
 import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, GeneralStatsSource }
-import io.gatling.commons.stats.assertion.{ Assertion, Between, Global, MeanRequestsPerSecondTarget }
+import io.gatling.commons.stats.assertion._
 
 import org.mockito.Mockito._
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -31,96 +31,95 @@ class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoS
       mockedMethodCallResult: T
   ): List[AssertionResult] = {
     val source = mock[GeneralStatsSource]
-    when(source.assertions) thenReturn assertions
     when(mockedMethodCall(source)) thenReturn mockedMethodCallResult
-    AssertionValidator.validateAssertions(source)
+    new AssertionValidator(source).validateAssertions(assertions)
   }
 
   "global.requestsPerSec.between" should "return a success when actual value is within inclusive" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 0.1)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe true
+    res.head.success shouldBe true
   }
 
   it should "return a success when actual value is inclusive range higher bound" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 1.0)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe true
+    res.head.success shouldBe true
   }
 
   it should "return a success when actual value is inclusive range lower bound" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 0.0)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe true
+    res.head.success shouldBe true
   }
 
   it should "return a failure when actual value is outside inclusive range" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = true))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = true))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 1.1)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe false
+    res.head.success shouldBe false
   }
 
   it should "return a success when actual value is within exclusive range" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 0.1)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe true
+    res.head.success shouldBe true
   }
 
   it should "return a failure when actual value is exclusive range higher bound" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 1.0)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe false
+    res.head.success shouldBe false
   }
 
   it should "return a failure when actual value is exclusive range lower bound" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 0.0)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe false
+    res.head.success shouldBe false
   }
 
   it should "return a failure when actual value is outside exclusive range" in {
     val res = validateAssertions(
-      List(Assertion(path = Global, target = MeanRequestsPerSecondTarget, condition = Between(0.0, 1.0, inclusive = false))),
+      List(Assertion(path = AssertionPath.Global, target = Target.MeanRequestsPerSecond, condition = Condition.Between(0.0, 1.0, inclusive = false))),
       _.requestGeneralStats(None, None, None),
       GeneralStats.NoPlot.copy(meanRequestsPerSec = 1.1)
     )
 
     res.size shouldBe 1
-    res.head.result shouldBe false
+    res.head.success shouldBe false
   }
 }

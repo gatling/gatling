@@ -26,14 +26,14 @@ trait AssertionGenerator {
   private val doubleGen = Arbitrary.arbitrary[Double]
 
   private val pathGen = {
-    val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.length > 0))) yield Details(parts)
-    Gen.frequency(33 -> Gen.const(Global), 33 -> Gen.const(ForAll), 33 -> detailsGen)
+    val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.nonEmpty))) yield AssertionPath.Details(parts)
+    Gen.frequency(33 -> Gen.const(AssertionPath.Global), 33 -> Gen.const(AssertionPath.ForAll), 33 -> detailsGen)
   }
 
   private val targetGen = {
     val countTargetGen = {
-      val countMetricGen = Gen.oneOf(AllRequests, FailedRequests, SuccessfulRequests)
-      val countSelectionGen = Gen.oneOf(CountTarget.apply _, PercentTarget.apply _)
+      val countMetricGen = Gen.oneOf(CountMetric.AllRequests, CountMetric.FailedRequests, CountMetric.SuccessfulRequests)
+      val countSelectionGen = Gen.oneOf(Target.Count(_), Target.Percent(_))
 
       for {
         metric <- countMetricGen
@@ -42,28 +42,28 @@ trait AssertionGenerator {
     }
 
     val timeTargetGen = {
-      val timeMetricGen = Gen.const(ResponseTime)
-      val percentiles = (0 until 100).map(Percentiles(_))
-      val timeSelectionGen = Gen.oneOf(Seq(Min, Max, Mean, StandardDeviation) ++ percentiles)
+      val timeMetricGen = Gen.const(TimeMetric.ResponseTime)
+      val percentiles = (0 until 100).map(Stat.Percentile(_))
+      val statGen = Gen.oneOf(Seq(Stat.Min, Stat.Max, Stat.Mean, Stat.StandardDeviation) ++ percentiles)
 
       for {
         metric <- timeMetricGen
-        selection <- timeSelectionGen
-      } yield TimeTarget(metric, selection)
+        stat <- statGen
+      } yield Target.Time(metric, stat)
     }
 
-    Gen.oneOf(countTargetGen, timeTargetGen, Gen.const(MeanRequestsPerSecondTarget))
+    Gen.oneOf(countTargetGen, timeTargetGen, Gen.const(Target.MeanRequestsPerSecond))
   }
 
   private val conditionGen = {
-    val lessThan = for (d <- doubleGen) yield Lt(d)
-    val greaterThan = for (d <- doubleGen) yield Gt(d)
-    val is = for (d <- doubleGen) yield Is(d)
+    val lessThan = for (d <- doubleGen) yield Condition.Lt(d)
+    val greaterThan = for (d <- doubleGen) yield Condition.Gt(d)
+    val is = for (d <- doubleGen) yield Condition.Is(d)
     val between = for {
       d1 <- doubleGen
       d2 <- doubleGen
-    } yield Between(d1, d2, inclusive = true)
-    val in = for (doubleList <- Gen.nonEmptyListOf(doubleGen)) yield In(doubleList)
+    } yield Condition.Between(d1, d2, inclusive = true)
+    val in = for (doubleList <- Gen.nonEmptyListOf(doubleGen)) yield Condition.In(doubleList)
 
     Gen.oneOf(lessThan, greaterThan, is, between, in)
   }
@@ -77,7 +77,7 @@ trait AssertionGenerator {
 }
 
 class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
-  override implicit val generatorDrivenConfig = PropertyCheckConfiguration(minSuccessful = 300)
+  override implicit val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 300)
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {
     forAll(assertionGen) { assertion =>

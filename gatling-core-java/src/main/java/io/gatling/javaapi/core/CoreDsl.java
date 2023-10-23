@@ -20,9 +20,7 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.commons.stats.assertion.Details;
-import io.gatling.commons.stats.assertion.ForAll$;
-import io.gatling.commons.stats.assertion.Global$;
+import io.gatling.commons.stats.assertion.AssertionPath;
 import io.gatling.javaapi.core.condition.*;
 import io.gatling.javaapi.core.error.Errors;
 import io.gatling.javaapi.core.exec.Execs;
@@ -3695,7 +3693,7 @@ public final class CoreDsl {
    */
   @NonNull
   public static Assertion.WithPath global() {
-    return new Assertion.WithPath(Global$.MODULE$);
+    return new Assertion.WithPath(AssertionPath.Global$.MODULE$);
   }
 
   /**
@@ -3705,7 +3703,7 @@ public final class CoreDsl {
    */
   @NonNull
   public static Assertion.WithPath forAll() {
-    return new Assertion.WithPath(ForAll$.MODULE$);
+    return new Assertion.WithPath(AssertionPath.ForAll$.MODULE$);
   }
 
   /**
@@ -3716,7 +3714,7 @@ public final class CoreDsl {
   @NonNull
   public static Assertion.WithPath details(@NonNull String... parts) {
     Seq<String> stringSeq = toScalaSeq(parts);
-    return new Assertion.WithPath(new Details(stringSeq.toList()));
+    return new Assertion.WithPath(new AssertionPath.Details(stringSeq.toList()));
   }
 
   ////////// BodySupport

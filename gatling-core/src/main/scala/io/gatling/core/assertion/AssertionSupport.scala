@@ -17,17 +17,17 @@
 package io.gatling.core.assertion
 
 import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionPathParts
-import io.gatling.commons.stats.assertion.{ Details, ForAll, Global }
+import io.gatling.commons.stats.assertion.AssertionPath
 import io.gatling.core.config.GatlingConfiguration
 
 trait AssertionSupport {
   implicit def string2PathParts(string: String): AssertionPathParts =
     AssertionPathParts(List(string))
 
-  def global(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(Global, configuration)
+  def global(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(AssertionPath.Global, configuration)
 
-  def forAll(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(ForAll, configuration)
+  def forAll(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(AssertionPath.ForAll, configuration)
 
   def details(pathParts: AssertionPathParts)(implicit configuration: GatlingConfiguration): AssertionWithPath =
-    new AssertionWithPath(Details(pathParts.parts), configuration)
+    new AssertionWithPath(AssertionPath.Details(pathParts.parts), configuration)
 }

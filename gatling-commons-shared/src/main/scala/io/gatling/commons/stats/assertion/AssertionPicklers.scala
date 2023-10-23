@@ -22,44 +22,44 @@ object AssertionPicklers {
   private object Picklers {
     private implicit val TimeMetricPickler: Pickler[TimeMetric] =
       compositePickler[TimeMetric]
-        .addConcreteType[ResponseTime.type]
+        .addConcreteType[TimeMetric.ResponseTime.type]
 
     private implicit val CountMetricPickler: Pickler[CountMetric] =
       compositePickler[CountMetric]
-        .addConcreteType[AllRequests.type]
-        .addConcreteType[SuccessfulRequests.type]
-        .addConcreteType[FailedRequests.type]
+        .addConcreteType[CountMetric.AllRequests.type]
+        .addConcreteType[CountMetric.SuccessfulRequests.type]
+        .addConcreteType[CountMetric.FailedRequests.type]
 
-    private implicit val TimeSelectionPickler: Pickler[TimeSelection] =
-      compositePickler[TimeSelection]
-        .addConcreteType[Min.type]
-        .addConcreteType[Max.type]
-        .addConcreteType[Mean.type]
-        .addConcreteType[StandardDeviation.type]
-        .addConcreteType[Percentiles]
+    private implicit val StatPickler: Pickler[Stat] =
+      compositePickler[Stat]
+        .addConcreteType[Stat.Min.type]
+        .addConcreteType[Stat.Max.type]
+        .addConcreteType[Stat.Mean.type]
+        .addConcreteType[Stat.StandardDeviation.type]
+        .addConcreteType[Stat.Percentile]
 
     private implicit val AssertionPathPickler: Pickler[AssertionPath] =
       compositePickler[AssertionPath]
-        .addConcreteType[Global.type]
-        .addConcreteType[ForAll.type]
-        .addConcreteType[Details]
+        .addConcreteType[AssertionPath.Global.type]
+        .addConcreteType[AssertionPath.ForAll.type]
+        .addConcreteType[AssertionPath.Details]
 
     private implicit val TargetPickler: Pickler[Target] =
       compositePickler[Target]
-        .addConcreteType[CountTarget]
-        .addConcreteType[PercentTarget]
-        .addConcreteType[TimeTarget]
-        .addConcreteType[MeanRequestsPerSecondTarget.type]
+        .addConcreteType[Target.Count]
+        .addConcreteType[Target.Percent]
+        .addConcreteType[Target.Time]
+        .addConcreteType[Target.MeanRequestsPerSecond.type]
 
     private implicit val ConditionPickler: Pickler[Condition] =
       compositePickler[Condition]
-        .addConcreteType[Lte]
-        .addConcreteType[Gte]
-        .addConcreteType[Lt]
-        .addConcreteType[Gt]
-        .addConcreteType[Is]
-        .addConcreteType[Between]
-        .addConcreteType[In]
+        .addConcreteType[Condition.Lte]
+        .addConcreteType[Condition.Gte]
+        .addConcreteType[Condition.Lt]
+        .addConcreteType[Condition.Gt]
+        .addConcreteType[Condition.Is]
+        .addConcreteType[Condition.Between]
+        .addConcreteType[Condition.In]
 
     val AssertionPickler: Pickler[Assertion] = implicitly[Pickler[Assertion]]
   }

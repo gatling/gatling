@@ -19,7 +19,7 @@ package io.gatling.app
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.{ LogFileData, LogFileReader }
-import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionResult, AssertionValidator }
+import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionMessage, AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
@@ -31,7 +31,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     // [e]
     initLogFileData(runResult) match {
       case Some(logFileData) =>
-        val assertionResults = AssertionValidator.validateAssertions(logFileData)
+        val assertionResults = new AssertionValidator(logFileData).validateAssertions(logFileData.assertions)
         generateReports(runResult.runId, logFileData, assertionResults)
         runStatus(assertionResults)
 
@@ -63,11 +63,18 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private def runStatus(assertionResults: List[AssertionResult]): StatusCode = {
     val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
-      if (assertionResult.result)
-        println(s"${assertionResult.message} : ${assertionResult.result}")
-      else
-        println(s"${assertionResult.message} : ${assertionResult.result} (actual : ${assertionResult.actualValue.getOrElse("-")})")
-      isValid && assertionResult.result
+      val message = AssertionMessage.message(assertionResult.assertion)
+      assertionResult match {
+        case AssertionResult.Resolved(_, success, actualValue) =>
+          if (success) {
+            println(s"$message : true")
+          } else {
+            println(s"$message : false (actual : $actualValue)")
+          }
+        case AssertionResult.ResolutionError(_, error) =>
+          println(s"$message : false ($error)")
+      }
+      isValid && assertionResult.success
     }
 
     if (consolidatedAssertionResult) StatusCode.Success else StatusCode.AssertionsFailed

@@ -17,10 +17,8 @@
 package io.gatling.commons.shared.unstable.model.stats
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.stats.assertion.Assertion
 
 trait GeneralStatsSource {
-  def assertions: List[Assertion]
   def statsPaths: List[StatsPath]
   def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats
   def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats

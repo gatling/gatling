@@ -30,7 +30,7 @@ private[gatling] final class LogFileData(
 ) extends GeneralStatsSource {
   private val secMillisecRatio: Double = 1000.0
 
-  override def assertions: List[Assertion] = runInfo.assertions
+  def assertions: List[Assertion] = runInfo.assertions
 
   override val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList

@@ -20,31 +20,31 @@ import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
 final class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
-  def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, ResponseTime, configuration)
-  def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, AllRequests)
-  def failedRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, FailedRequests)
-  def successfulRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, SuccessfulRequests)
-  def requestsPerSec: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, MeanRequestsPerSecondTarget)
+  def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, TimeMetric.ResponseTime, configuration)
+  def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, CountMetric.AllRequests)
+  def failedRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, CountMetric.FailedRequests)
+  def successfulRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, CountMetric.SuccessfulRequests)
+  def requestsPerSec: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, Target.MeanRequestsPerSecond)
 }
 
 final class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
-  private def next(selection: TimeSelection) =
-    new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
+  private def next(selection: Stat) =
+    new AssertionWithPathAndTarget[Int](path, Target.Time(metric, selection))
 
-  def min: AssertionWithPathAndTarget[Int] = next(Min)
-  def max: AssertionWithPathAndTarget[Int] = next(Max)
-  def mean: AssertionWithPathAndTarget[Int] = next(Mean)
-  def stdDev: AssertionWithPathAndTarget[Int] = next(StandardDeviation)
+  def min: AssertionWithPathAndTarget[Int] = next(Stat.Min)
+  def max: AssertionWithPathAndTarget[Int] = next(Stat.Max)
+  def mean: AssertionWithPathAndTarget[Int] = next(Stat.Mean)
+  def stdDev: AssertionWithPathAndTarget[Int] = next(Stat.StandardDeviation)
   def percentile1: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile1)
   def percentile2: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile2)
   def percentile3: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile3)
   def percentile4: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile4)
-  def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Percentiles(value))
+  def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Stat.Percentile(value))
 }
 
 final class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
-  def count: AssertionWithPathAndTarget[Long] = new AssertionWithPathAndTarget[Long](path, CountTarget(metric))
-  def percent: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, PercentTarget(metric))
+  def count: AssertionWithPathAndTarget[Long] = new AssertionWithPathAndTarget[Long](path, Target.Count(metric))
+  def percent: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, Target.Percent(metric))
 }
 
 final class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target) {
@@ -53,12 +53,12 @@ final class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: 
 
   private val numeric = implicitly[Numeric[T]]
 
-  def lt(threshold: T): Assertion = next(Lt(numeric.toDouble(threshold)))
-  def lte(threshold: T): Assertion = next(Lte(numeric.toDouble(threshold)))
-  def gt(threshold: T): Assertion = next(Gt(numeric.toDouble(threshold)))
-  def gte(threshold: T): Assertion = next(Gte(numeric.toDouble(threshold)))
+  def lt(threshold: T): Assertion = next(Condition.Lt(numeric.toDouble(threshold)))
+  def lte(threshold: T): Assertion = next(Condition.Lte(numeric.toDouble(threshold)))
+  def gt(threshold: T): Assertion = next(Condition.Gt(numeric.toDouble(threshold)))
+  def gte(threshold: T): Assertion = next(Condition.Gte(numeric.toDouble(threshold)))
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Between(numeric.toDouble(min), numeric.toDouble(max), inclusive))
+  def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Condition.Between(numeric.toDouble(min), numeric.toDouble(max), inclusive))
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def around(mean: T, plusOrMinus: T, inclusive: Boolean = true): Assertion =
     between(numeric.minus(mean, plusOrMinus), numeric.plus(mean, plusOrMinus), inclusive)
@@ -67,7 +67,7 @@ final class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: 
     val plusOrMinus = numeric.fromInt((numeric.toDouble(mean) * percentDeviation).floor.toInt)
     around(mean, plusOrMinus, inclusive)
   }
-  def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
-  def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
+  def is(value: T): Assertion = next(Condition.Is(numeric.toDouble(value)))
+  def in(set: Set[T]): Assertion = next(Condition.In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)
 }

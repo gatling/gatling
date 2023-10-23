@@ -35,7 +35,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
     def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
 
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
 
     def copyAssets(): Unit = {
       deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
