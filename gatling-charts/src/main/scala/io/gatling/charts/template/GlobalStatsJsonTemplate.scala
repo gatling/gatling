@@ -23,15 +23,20 @@ import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
-  private def group(i: Int) =
-    s""""group${i + 1}": {
-       |    "name": "${stats.groupedCounts(i).textLabel}",
-       |    "htmlName": "${stats.groupedCounts(i).htmlLabel}",
-       |    "count": ${stats.groupedCounts(i).count},
-       |    "percentage": ${stats.groupedCounts(i).percentage}
+
+  private def group(index: Int, label: String, count: Int, percentage: Int): String =
+    group(index, label, label, count, percentage)
+
+  private def group(index: Int, textLabel: String, htmlLabel: String, count: Int, percentage: Int): String =
+    s""""group${index + 1}": {
+       |    "name": "$textLabel",
+       |    "htmlName": "$htmlLabel",
+       |    "count": $count,
+       |    "percentage": $percentage
        |}""".stripMargin
 
   def getOutput: String = {
+    import stats._
     def style[T: Numeric](value: T) =
       if (raw) {
         // raw mode is used for JSON extract, non-raw for displaying in the reports
@@ -41,56 +46,77 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
         s""""${printable(value)}""""
 
     s"""{
-    "name": "${escapeJsIllegalChars(stats.name)}",
+    "name": "${escapeJsIllegalChars(name)}",
     "numberOfRequests": {
-        "total": ${style(stats.numberOfRequestsStatistics.total)},
-        "ok": ${style(stats.numberOfRequestsStatistics.success)},
-        "ko": ${style(stats.numberOfRequestsStatistics.failure)}
+        "total": ${style(numberOfRequestsStatistics.total)},
+        "ok": ${style(numberOfRequestsStatistics.success)},
+        "ko": ${style(numberOfRequestsStatistics.failure)}
     },
     "minResponseTime": {
-        "total": ${style(stats.minResponseTimeStatistics.total)},
-        "ok": ${style(stats.minResponseTimeStatistics.success)},
-        "ko": ${style(stats.minResponseTimeStatistics.failure)}
+        "total": ${style(minResponseTimeStatistics.total)},
+        "ok": ${style(minResponseTimeStatistics.success)},
+        "ko": ${style(minResponseTimeStatistics.failure)}
     },
     "maxResponseTime": {
-        "total": ${style(stats.maxResponseTimeStatistics.total)},
-        "ok": ${style(stats.maxResponseTimeStatistics.success)},
-        "ko": ${style(stats.maxResponseTimeStatistics.failure)}
+        "total": ${style(maxResponseTimeStatistics.total)},
+        "ok": ${style(maxResponseTimeStatistics.success)},
+        "ko": ${style(maxResponseTimeStatistics.failure)}
     },
     "meanResponseTime": {
-        "total": ${style(stats.meanStatistics.total)},
-        "ok": ${style(stats.meanStatistics.success)},
-        "ko": ${style(stats.meanStatistics.failure)}
+        "total": ${style(meanResponseTimeStatistics.total)},
+        "ok": ${style(meanResponseTimeStatistics.success)},
+        "ko": ${style(meanResponseTimeStatistics.failure)}
     },
     "standardDeviation": {
-        "total": ${style(stats.stdDeviationStatistics.total)},
-        "ok": ${style(stats.stdDeviationStatistics.success)},
-        "ko": ${style(stats.stdDeviationStatistics.failure)}
+        "total": ${style(stdDeviationStatistics.total)},
+        "ok": ${style(stdDeviationStatistics.success)},
+        "ko": ${style(stdDeviationStatistics.failure)}
     },
     "percentiles1": {
-        "total": ${style(stats.percentiles1.total)},
-        "ok": ${style(stats.percentiles1.success)},
-        "ko": ${style(stats.percentiles1.failure)}
+        "total": ${style(percentiles1.total)},
+        "ok": ${style(percentiles1.success)},
+        "ko": ${style(percentiles1.failure)}
     },
     "percentiles2": {
-        "total": ${style(stats.percentiles2.total)},
-        "ok": ${style(stats.percentiles2.success)},
-        "ko": ${style(stats.percentiles2.failure)}
+        "total": ${style(percentiles2.total)},
+        "ok": ${style(percentiles2.success)},
+        "ko": ${style(percentiles2.failure)}
     },
     "percentiles3": {
-        "total": ${style(stats.percentiles3.total)},
-        "ok": ${style(stats.percentiles3.success)},
-        "ko": ${style(stats.percentiles3.failure)}
+        "total": ${style(percentiles3.total)},
+        "ok": ${style(percentiles3.success)},
+        "ko": ${style(percentiles3.failure)}
     },
     "percentiles4": {
-        "total": ${style(stats.percentiles4.total)},
-        "ok": ${style(stats.percentiles4.success)},
-        "ko": ${style(stats.percentiles4.failure)}
+        "total": ${style(percentiles4.total)},
+        "ok": ${style(percentiles4.success)},
+        "ko": ${style(percentiles4.failure)}
     },
-    ${group(0)},
-    ${group(1)},
-    ${group(2)},
-    ${group(3)},
+    ${group(
+        0,
+        s"t < ${ranges.lowerBound} ms",
+        ranges.lowCount,
+        ranges.lowPercentage
+      )},
+    ${group(
+        1,
+        s"${ranges.lowerBound} ms <= t < ${ranges.higherBound} ms",
+        s"t >= ${ranges.lowerBound} ms <br> t < ${ranges.higherBound} ms",
+        ranges.middleCount,
+        ranges.middlePercentage
+      )},
+    ${group(
+        2,
+        s"t >= ${ranges.higherBound} ms",
+        ranges.highCount,
+        ranges.highPercentage
+      )},
+    ${group(
+        3,
+        "failed",
+        ranges.koCount,
+        ranges.koPercentage
+      )},
     "meanNumberOfRequestsPerSecond": {
         "total": ${style(stats.meanNumberOfRequestsPerSecondStatistics.total)},
         "ok": ${style(stats.meanNumberOfRequestsPerSecondStatistics.success)},

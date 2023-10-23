@@ -16,6 +16,7 @@
 
 package io.gatling.charts.component
 
+import io.gatling.charts.stats.Ranges
 import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
@@ -29,13 +30,7 @@ private[charts] object Stats {
     }
 }
 
-private[charts] final class Stats[T: Numeric](val name: String, val total: T, val success: T, val failure: T) {
-  def all: List[T] = List(total, success, failure)
-}
-
-private[charts] final case class GroupedCount(textLabel: String, htmlLabel: String, count: Long, total: Long) {
-  val percentage: Int = if (total == 0) 0 else (count.toDouble / total * 100).round.toInt
-}
+private[charts] final class Stats[T: Numeric](val name: String, val total: T, val success: T, val failure: T)
 
 private[charts] final class RequestStatistics(
     val name: String,
@@ -43,13 +38,13 @@ private[charts] final class RequestStatistics(
     val numberOfRequestsStatistics: Stats[Long],
     val minResponseTimeStatistics: Stats[Int],
     val maxResponseTimeStatistics: Stats[Int],
-    val meanStatistics: Stats[Int],
+    val meanResponseTimeStatistics: Stats[Int],
     val stdDeviationStatistics: Stats[Int],
     val percentiles1: Stats[Int],
     val percentiles2: Stats[Int],
     val percentiles3: Stats[Int],
     val percentiles4: Stats[Int],
-    val groupedCounts: Seq[GroupedCount],
+    val ranges: Ranges,
     val meanNumberOfRequestsPerSecondStatistics: Stats[Double]
 )
 

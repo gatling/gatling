@@ -149,16 +149,15 @@ private[gatling] final class LogFileData(
       .getGroupDurationGeneralStatsBuffers(group, status)
       .stats
 
-  def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, String, Int)] = {
+  def numberOfRequestInResponseTimeRanges(requestName: Option[String], group: Option[Group]): Ranges = {
     val counts = resultsHolder.getResponseTimeRangeBuffers(requestName, group)
-    val lowerBound = resultsHolder.lowerBound
-    val higherBound = resultsHolder.higherBound
-
-    List(
-      (s"t < $lowerBound ms", s"t < $lowerBound ms", counts.low),
-      (s"$lowerBound ms <= t < $higherBound ms", s"t >= $lowerBound ms <br> t < $higherBound ms", counts.middle),
-      (s"t >= $higherBound ms", s"t >= $higherBound ms", counts.high),
-      ("failed", "failed", counts.ko)
+    Ranges(
+      lowerBound = resultsHolder.lowerBound,
+      higherBound = resultsHolder.higherBound,
+      lowCount = counts.low,
+      middleCount = counts.middle,
+      highCount = counts.high,
+      koCount = counts.ko
     )
   }
 

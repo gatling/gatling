@@ -124,7 +124,11 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3) shouldBe List(0, 8, 0, 0)
+    val ranges = fileData.numberOfRequestInResponseTimeRanges(None, None)
+    ranges.lowCount shouldBe 0
+    ranges.middleCount shouldBe 8
+    ranges.highCount shouldBe 0
+    ranges.koCount shouldBe 0
   }
 
   it should "indicate that 1 request had a response time below 2500ms" in {
@@ -134,7 +138,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3).head shouldBe 1
+    fileData.numberOfRequestInResponseTimeRanges(None, None).lowCount shouldBe 1
   }
 
   it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
@@ -144,7 +148,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(1) shouldBe 3
+    fileData.numberOfRequestInResponseTimeRanges(None, None).middleCount shouldBe 3
   }
 
   it should "indicate that 2 request had a response time above 5000ms" in {
@@ -154,6 +158,6 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     val configuration = GatlingConfiguration.loadForTest(props)
     val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.numberOfRequestInResponseTimeRange(None, None).map(_._3)(2) shouldBe 4
+    fileData.numberOfRequestInResponseTimeRanges(None, None).highCount shouldBe 4
   }
 }

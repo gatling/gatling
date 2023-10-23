@@ -19,7 +19,6 @@ package io.gatling.charts.template
 import java.{ lang => jl }
 
 import io.gatling.BaseSpec
-import io.gatling.charts.component.GroupedCount
 import io.gatling.charts.component.Stats
 
 class ConsoleTemplateSpec extends BaseSpec {
@@ -30,7 +29,7 @@ class ConsoleTemplateSpec extends BaseSpec {
   }
 
   it should "format the grouped counts properly" in {
-    val out = ConsoleTemplate.writeGroupedCounters(new jl.StringBuilder, GroupedCount("t < 42 ms", "t < 42 ms", 90, (90 / 0.42d).round.toInt)).toString
+    val out = ConsoleTemplate.writeRange(new jl.StringBuilder, "t < 42 ms", 90, 42).toString
     out shouldBe "> t < 42 ms                                             90 ( 42%)"
   }
 }

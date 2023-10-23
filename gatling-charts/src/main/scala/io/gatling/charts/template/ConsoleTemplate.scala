@@ -18,7 +18,7 @@ package io.gatling.charts.template
 
 import java.{ lang => jl }
 
-import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Stats }
+import io.gatling.charts.component.{ RequestStatistics, Stats }
 import io.gatling.charts.component.Stats.printable
 import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
@@ -39,8 +39,7 @@ private[charts] object ConsoleTemplate {
       .append(')')
   }
 
-  private[template] def writeGroupedCounters(sb: jl.StringBuilder, groupedCount: GroupedCount): jl.StringBuilder = {
-    import groupedCount._
+  private[template] def writeRange(sb: jl.StringBuilder, textLabel: String, count: Int, percentage: Int): jl.StringBuilder =
     sb.append("> ")
       .append(textLabel.rightPad(OutputLength - 32))
       .append(' ')
@@ -48,7 +47,6 @@ private[charts] object ConsoleTemplate {
       .append(" (")
       .append(percentage.toString.leftPad(3))
       .append("%)")
-  }
 
   private[template] def writeErrorsAndEndBlock(sb: jl.StringBuilder, errors: Seq[ErrorStats]): jl.StringBuilder = {
     if (errors.nonEmpty) {
@@ -70,7 +68,7 @@ private[charts] object ConsoleTemplate {
     writeRequestCounters(sb, numberOfRequestsStatistics).append(Eol)
     writeRequestCounters(sb, minResponseTimeStatistics).append(Eol)
     writeRequestCounters(sb, maxResponseTimeStatistics).append(Eol)
-    writeRequestCounters(sb, meanStatistics).append(Eol)
+    writeRequestCounters(sb, meanResponseTimeStatistics).append(Eol)
     writeRequestCounters(sb, stdDeviationStatistics).append(Eol)
     writeRequestCounters(sb, percentiles1).append(Eol)
     writeRequestCounters(sb, percentiles2).append(Eol)
@@ -78,7 +76,10 @@ private[charts] object ConsoleTemplate {
     writeRequestCounters(sb, percentiles4).append(Eol)
     writeRequestCounters(sb, meanNumberOfRequestsPerSecondStatistics).append(Eol)
     writeSubTitle(sb, "Response Time Distribution").append(Eol)
-    groupedCounts.foreach(writeGroupedCounters(sb, _).append(Eol))
+    writeRange(sb, s"t < ${ranges.lowerBound} ms", ranges.lowCount, ranges.lowPercentage).append(Eol)
+    writeRange(sb, s"${ranges.lowerBound} ms <= t < ${ranges.higherBound} ms", ranges.middleCount, ranges.middlePercentage).append(Eol)
+    writeRange(sb, s"t >= ${ranges.higherBound} ms", ranges.highCount, ranges.highPercentage).append(Eol)
+    writeRange(sb, "failed", ranges.koCount, ranges.koPercentage).append(Eol)
     writeErrorsAndEndBlock(sb, errors).append(Eol).toString
   }
 }
