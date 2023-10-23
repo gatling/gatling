@@ -38,7 +38,7 @@ object Dependencies {
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                        % "2.6.20"
   private val akkaSlf4j                      = akka.withName("akka-slf4j")
-  private val config                         = "com.typesafe"                         % "config"                            % "1.4.2"
+  private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "1.7.36"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                      % "0.17.0")
