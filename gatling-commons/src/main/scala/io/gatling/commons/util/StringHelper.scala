@@ -28,8 +28,6 @@ object StringHelper {
   val Eol: String = System.lineSeparator
   val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
-  val Crlf: String = "\r\n"
-
   object RichString {
     private val SbPool = new StringBuilderPool
   }
