@@ -21,8 +21,9 @@ import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 import java.util.Locale
 
-import io.gatling.commons.util.Spire.cfor
 import io.gatling.jdk.util.StringBuilderPool
+
+import io.github.metarank.cfor._
 
 object StringHelper {
   val Eol: String = System.lineSeparator
@@ -70,7 +71,7 @@ object StringHelper {
         var matchFound = false
         var sb: jl.StringBuilder = null
 
-        cfor(0)(_ < string.length, _ + 1) { i =>
+        cfor(0 until string.length) { i =>
           val c = string.charAt(i)
           if (replaced(c)) {
             if (!matchFound) {

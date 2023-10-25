@@ -22,7 +22,8 @@ import java.nio.charset.Charset
 import scala.util.Using
 
 import io.gatling.commons.util.Io
-import io.gatling.commons.util.Spire._
+
+import io.github.metarank.cfor._
 
 object LineCounter {
   def apply(charset: Charset): LineCounter = new LineCounter(charset, Io.DefaultBufferSize)
@@ -46,7 +47,7 @@ class LineCounter(charset: Charset, bufferSize: Int) {
   def countLines(is: InputStream): Int =
     Using.resource(new InputStreamReader(new BufferedInputStream(is, bufferSize), charset)) { reader =>
       while (read != -1 && continueReading) {
-        cfor(0)(_ < read, _ + 1) { i =>
+        cfor(0 until read) { i =>
           val c = readCharBuffer(i)
           if (c == '\r' || c == '\n') {
             if (inLine) {

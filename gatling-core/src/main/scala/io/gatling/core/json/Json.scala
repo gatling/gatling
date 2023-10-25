@@ -22,13 +22,13 @@ import scala.annotation.switch
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
-import io.gatling.commons.util.Spire._
 import io.gatling.jdk.util.StringBuilderPool
 
 import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints }
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
+import io.github.metarank.cfor._
 
 private[gatling] object Json {
   private val stringBuilders = new StringBuilderPool
@@ -70,7 +70,7 @@ private[gatling] object Json {
       }
 
     def appendString0(s: String): jl.StringBuilder = {
-      cfor(0)(_ < s.length, _ + 1) { i =>
+      cfor(0 until s.length) { i =>
         val c = s.charAt(i)
         c match {
           case '"'  => sb.append("\\\"")
@@ -84,7 +84,7 @@ private[gatling] object Json {
             if (Character.isISOControl(c)) {
               sb.append("\\u")
               var n: Int = c
-              cfor(0)(_ < 4, _ + 1) { _ =>
+              cfor(0 until 4) { _ =>
                 val digit = (n & 0xf000) >> 12
                 sb.append(Hex.toHexChar(digit))
                 n <<= 4
@@ -154,7 +154,7 @@ private[gatling] object Json {
       }
 
     def appendString0(s: String): jl.StringBuilder = {
-      cfor(0)(_ < s.length, _ + 1) { i =>
+      cfor(0 until s.length) { i =>
         val c = s.charAt(i)
         c match {
           case '"'  => sb.append("\\\"")
@@ -168,7 +168,7 @@ private[gatling] object Json {
             if (Character.isISOControl(c)) {
               sb.append("\\u")
               var n: Int = c
-              cfor(0)(_ < 4, _ + 1) { _ =>
+              cfor(0 until 4) { _ =>
                 val digit = (n & 0xf000) >> 12
                 sb.append(Hex.toHexChar(digit))
                 n <<= 4
@@ -206,7 +206,7 @@ private[gatling] object Json {
 
     def appendProduct(product: Product): jl.StringBuilder = {
       sb.append('{')
-      cfor(0)(_ < product.productArity, _ + 1) { i =>
+      cfor(0 until product.productArity) { i =>
         if (i > 0) {
           sb.append(',')
         }

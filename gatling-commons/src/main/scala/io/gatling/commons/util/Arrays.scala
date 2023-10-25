@@ -18,7 +18,7 @@ package io.gatling.commons.util
 
 import java.util.concurrent.ThreadLocalRandom
 
-import io.gatling.commons.util.Spire._
+import io.github.metarank.cfor._
 
 object Arrays {
   private def swap[T](array: Array[T], i: Int, j: Int): Unit = {
@@ -32,7 +32,7 @@ object Arrays {
 
   def shuffle[T](array: Array[T], length: Int): Array[T] = {
     val rnd = ThreadLocalRandom.current()
-    cfor(length)(_ > 1, _ - 1) { i =>
+    cfor(length until 1 by -1) { i =>
       swap(array, i - 1, rnd.nextInt(i))
     }
     array

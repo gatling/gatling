@@ -20,7 +20,6 @@ import java.{ util => ju }
 
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Spire._
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
@@ -29,6 +28,7 @@ import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.Session
 
 import akka.actor.{ ActorRef, Props }
+import io.github.metarank.cfor._
 
 private[core] object FeedActor {
   def props[T](feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef): Props = Props(
@@ -48,7 +48,7 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
 
   private def toJavaValues(array: Array[Record[Any]], n: Int, key: String): ju.List[Any] = {
     val values = new ju.ArrayList[Any](n)
-    cfor(0)(_ < n, _ + 1) { j =>
+    cfor(0 until n) { j =>
       values.add(array(j)(key))
     }
     values
@@ -56,7 +56,7 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
 
   private def toScalaValues(array: Array[Record[Any]], n: Int, key: String): Seq[Any] = {
     val values = new Array[Any](n)
-    cfor(0)(_ < n, _ + 1) { j =>
+    cfor(0 until n) { j =>
       values(j) = array(j)(key)
     }
     values.toSeq

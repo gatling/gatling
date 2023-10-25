@@ -41,10 +41,7 @@ object Dependencies {
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "1.7.36"
-  private val spire                          = ("org.typelevel"                      %% "spire-macros"                      % "0.17.0")
-    .exclude("org.typelevel", "machinist_2.13")
-    .exclude("org.typelevel", "algebra_2.13")
-    .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
+  private val cfor                          = "io.github.metarank"                   %% "cfor"                              % "0.3"
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                     % "3.9.5"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                  % "2.15.3"
@@ -136,7 +133,7 @@ object Dependencies {
   val commonsSharedUnstableDependencies = testDeps
 
   val commonsDependencies =
-    Seq(config, spire) ++ loggingDeps ++ testDeps
+    Seq(config, cfor) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
     Seq(scalaParserCombinators, jackson) ++ testDeps

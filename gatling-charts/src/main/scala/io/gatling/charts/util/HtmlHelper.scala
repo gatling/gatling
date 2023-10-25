@@ -21,7 +21,7 @@ import java.{ lang => jl }
 import scala.io.{ Codec, Source }
 import scala.util.Using
 
-import io.gatling.commons.util.Spire._
+import io.github.metarank.cfor._
 
 private[charts] object HtmlHelper {
   private val charToHtml: Map[Char, String] =
@@ -41,7 +41,7 @@ private[charts] object HtmlHelper {
   implicit class HtmlRichString(val string: String) extends AnyVal {
     def htmlEscape: String = {
       val sb = new jl.StringBuilder(string.length)
-      cfor(0)(_ < string.length, _ + 1) { i =>
+      cfor(0 until string.length) { i =>
         val char = string.charAt(i)
         charToHtml.get(char) match {
           case Some(entity) => sb.append(entity)

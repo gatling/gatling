@@ -29,7 +29,6 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.util.Spire._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper
@@ -40,6 +39,7 @@ import io.gatling.core.util.Html
 import io.gatling.jdk.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
+import io.github.metarank.cfor._
 
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
@@ -191,7 +191,7 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) extends ElPart[Any] {
   @SuppressWarnings(Array("org.wartremover.warts.Return"))
   private def lookup(product: Product): Validation[Any] = {
-    cfor(0)(_ < product.productArity, _ + 1) { i =>
+    cfor(0 until product.productArity) { i =>
       if (product.productElementName(i) == key) {
         return product.productElement(i).success
       }
@@ -299,7 +299,7 @@ final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
   def apply(session: Session): Validation[String] = {
     val sb = new jl.StringBuilder(length)
     val rng = ThreadLocalRandom.current()
-    cfor(0)(_ < length, _ + 1) { _ =>
+    cfor(0 until length) { _ =>
       sb.append(RandomAlphanumeric.AlphanumericChars(rng.nextInt(RandomAlphanumeric.AlphanumericChars.length)))
     }
     sb.toString.success
