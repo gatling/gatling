@@ -18,8 +18,8 @@ package io.gatling.core.stats.writer
 
 import java.{ lang => jl }
 
-import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
+import io.gatling.core.stats.ErrorStats
 
 /**
  * Object for writing errors statistics to the console.

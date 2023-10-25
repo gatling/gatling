@@ -18,14 +18,13 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.GroupRecord
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, GroupRecord }
 import io.gatling.commons.stats.Status
 
 private[stats] trait GroupPercentilesBuffers {
   this: Buckets =>
 
-  val groupPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
+  private val groupPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
 
   private def percentilesBufferPair(group: Group, status: Status): (PercentilesBuffers, PercentilesBuffers) =
     groupPercentilesBuffers.getOrElseUpdate(BufferKey(None, Some(group), Some(status)), (new PercentilesBuffers(buckets), new PercentilesBuffers(buckets)))

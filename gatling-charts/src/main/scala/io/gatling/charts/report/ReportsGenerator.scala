@@ -20,7 +20,7 @@ import java.nio.file.Path
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.commons.shared.unstable.model.stats.RequestStatsPath
+import io.gatling.charts.stats.RequestStatsPath
 import io.gatling.commons.shared.unstable.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
 

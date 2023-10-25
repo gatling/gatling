@@ -19,20 +19,58 @@ package io.gatling.charts.stats
 import scala.collection.immutable.ArraySeq
 
 import io.gatling.charts.stats.buffers.{ CountsBuffer, GeneralStatsBuffer, PercentilesBuffers }
-import io.gatling.commons.shared.unstable.model.stats._
+import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionStatsRepository
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.stats.assertion.Assertion
+import io.gatling.core.stats.ErrorStats
 
 private[gatling] final class LogFileData(
     val runInfo: RunInfo,
     resultsHolder: ResultsHolder,
     step: Double
-) extends GeneralStatsSource {
+) extends AssertionStatsRepository {
   private val secMillisecRatio: Double = 1000.0
+
+  //// BEGIN AssertionStatsRepository
+  override def allRequestPaths(): List[AssertionStatsRepository.StatsPath.Request] =
+    resultsHolder.groupAndRequestsNameBuffer.map.toList
+      .collect { case (RequestStatsPath(request, group), time) =>
+        val path = AssertionStatsRepository.StatsPath.Request(group.map(_.hierarchy).getOrElse(Nil), request)
+        val depth = group.map(_.hierarchy.size + 1).getOrElse(0)
+        (path, (time, depth))
+      }
+      .sortBy(_._2)
+      .map(_._1)
+
+  override def findPathByParts(parts: List[String]): Option[AssertionStatsRepository.StatsPath] =
+    resultsHolder.groupAndRequestsNameBuffer.map.keys.collectFirst {
+      case RequestStatsPath(request, group) if group.map(_.hierarchy).getOrElse(Nil) ::: request :: Nil == parts =>
+        AssertionStatsRepository.StatsPath.Request(group.map(_.hierarchy).getOrElse(Nil), request)
+      case GroupStatsPath(group) if group.hierarchy == parts => AssertionStatsRepository.StatsPath.Group(group.hierarchy)
+    }
+
+  private def toAssertionStats(generalStats: GeneralStats): AssertionStatsRepository.Stats =
+    AssertionStatsRepository.Stats(
+      min = generalStats.min,
+      max = generalStats.max,
+      count = generalStats.count,
+      mean = generalStats.mean,
+      stdDev = generalStats.stdDev,
+      percentile = generalStats.percentile,
+      meanRequestsPerSec = generalStats.meanRequestsPerSec
+    )
+
+  override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): AssertionStatsRepository.Stats =
+    toAssertionStats(requestGeneralStats(request, if (group.nonEmpty) Some(Group(group)) else None, status))
+
+  override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): AssertionStatsRepository.Stats =
+    toAssertionStats(groupCumulatedResponseTimeGeneralStats(Group(group), status))
+
+  //// END AssertionStatsRepository
 
   def assertions: List[Assertion] = runInfo.assertions
 
-  override val statsPaths: List[StatsPath] =
+  val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList
       .map {
         case (path @ RequestStatsPath(_, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))

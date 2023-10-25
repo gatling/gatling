@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.shared.unstable.model.stats
+package io.gatling.commons.shared.unstable.model.stats.assertion
 
-object GeneralStats {
-  val NoPlotMagicValue: Int = -1
-
-  val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
+// FIXME only used for DSL, but can't move package in older versions because of compat
+final case class AssertionPathParts(parts: List[String]) {
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  def /(part: String): AssertionPathParts = copy(parts = parts :+ part)
 }
-
-final case class GeneralStats(min: Int, max: Int, count: Long, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)

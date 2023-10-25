@@ -17,247 +17,234 @@
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
-import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, GeneralStatsSource, Group, GroupStatsPath, RequestStatsPath, StatsPath }
-import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionValidator
+import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionStatsRepository, AssertionValidator }
 import io.gatling.commons.stats._
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
-
-import org.mockito.Mockito.when
 
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class Stats(
-    generalStats: GeneralStats,
-    requestName: String = "",
-    groupPath: List[String] = Nil,
+    stats: AssertionStatsRepository.Stats,
+    group: List[String] = Nil,
+    request: Option[String] = None,
     status: Option[Status] = None
-) {
-  def request: Option[String] = requestName.trimToOption
-  def group: Option[Group] = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
-}
+)
 
-class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
+class AssertionSpec extends BaseSpec with AssertionSupport {
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private type Conditions[T] = List[AssertionWithPathAndTarget[T] => Assertion]
   private type StatsModifiers = List[Stats => Stats]
 
   private val SetRequestThenGroupModifiers: StatsModifiers =
-    List(_.copy(requestName = "foo"), _.copy(groupPath = List("foo")))
+    List(_.copy(request = Some("foo")), _.copy(group = "foo" :: Nil))
 
-  private def generalStatsSource[T: Numeric](stats: Stats*): GeneralStatsSource = {
-    def mockStats(stat: Stats, source: GeneralStatsSource): Unit = {
-      when(source.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
-      stat.group.foreach { group =>
-        when(source.groupCumulatedResponseTimeGeneralStats(group, stat.status)) thenReturn stat.generalStats
-      }
+  private def statsRepository[T: Numeric](stats: Stats*): AssertionStatsRepository =
+    new AssertionStatsRepository() {
+
+      override def allRequestPaths(): List[AssertionStatsRepository.StatsPath.Request] =
+        stats.collect { case Stats(_, group, Some(request), _) =>
+          AssertionStatsRepository.StatsPath.Request(group, request)
+        }.toList
+
+      override def findPathByParts(parts: List[String]): Option[AssertionStatsRepository.StatsPath] =
+        stats.collectFirst {
+          case Stats(_, group, Some(request), _) if group ::: request :: Nil == parts => AssertionStatsRepository.StatsPath.Request(group, request)
+          case Stats(_, group, None, _) if group == parts                             => AssertionStatsRepository.StatsPath.Group(group)
+        }
+
+      override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): AssertionStatsRepository.Stats =
+        stats
+          .collectFirst { case Stats(stats, `group`, `request`, `status`) => stats }
+          .getOrElse(AssertionStatsRepository.Stats.NoData)
+
+      override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): AssertionStatsRepository.Stats =
+        stats
+          .collectFirst { case Stats(stats, `group`, None, `status`) => stats }
+          .getOrElse(AssertionStatsRepository.Stats.NoData)
     }
 
-    // conditions.map(_(metric)
+  private def validateAssertions(repository: AssertionStatsRepository, assertions: Assertion*): Boolean =
+    new AssertionValidator(repository).validateAssertions(assertions.toList).forall(_.success)
 
-    def statsPaths: List[StatsPath] =
-      stats
-        .map(stat => (stat.request, stat.group))
-        .map {
-          case (Some(request), group) => RequestStatsPath(request, group)
-          case (None, Some(group))    => GroupStatsPath(group)
-          case _                      => throw new AssertionError("Can't have neither a request or group stats path")
-        }
-        .toList
+  "Assertion" should "fail the assertion when the request path does not exist" in {
+    val requestStats = Stats(AssertionStatsRepository.Stats.NoData, request = Some("bar"))
+    val repository1 = statsRepository[Double](requestStats)
+    validateAssertions(repository1, details("foo").requestsPerSec.is(100)) shouldBe false
 
-    def mockStatsPath(source: GeneralStatsSource) =
-      when(source.statsPaths) thenReturn statsPaths
+    val groupStats = Stats(AssertionStatsRepository.Stats.NoData, group = List("bar"))
+    val repository2 = statsRepository[Double](groupStats)
+    validateAssertions(repository2, details("foo").requestsPerSec.is(100)) shouldBe false
 
-    val mockedGeneralStatsSource = mock[GeneralStatsSource]
-
-    stats.foreach(mockStats(_, mockedGeneralStatsSource))
-    mockStatsPath(mockedGeneralStatsSource)
-
-    mockedGeneralStatsSource
-  }
-
-  private def validateAssertions(source: GeneralStatsSource, assertions: Assertion*): Boolean =
-    new AssertionValidator(source).validateAssertions(assertions.toList).forall(_.success)
-
-  "AssertionValidator" should "fail the assertion when the request path does not exist" in {
-    val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")
-    val source1 = generalStatsSource[Double](requestStats)
-    validateAssertions(source1, details("foo").requestsPerSec.is(100)) shouldBe false
-
-    val groupStats = Stats(GeneralStats.NoPlot, groupPath = List("bar"))
-    val source2 = generalStatsSource[Double](groupStats)
-    validateAssertions(source2, details("foo").requestsPerSec.is(100)) shouldBe false
-
-    val requestAndGroupStats = Stats(GeneralStats.NoPlot, requestName = "baz", groupPath = List("bar"))
-    val source3 = generalStatsSource[Double](requestAndGroupStats)
-    validateAssertions(source3, details("baz").requestsPerSec.is(100)) shouldBe false
+    val requestAndGroupStats = Stats(AssertionStatsRepository.Stats.NoData, request = Some("baz"), group = List("bar"))
+    val repository3 = statsRepository[Double](requestAndGroupStats)
+    validateAssertions(repository3, details("baz").requestsPerSec.is(100)) shouldBe false
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a meanRequestsPerSec assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestAndGroupStats = modifier(Stats(GeneralStats.NoPlot.copy(meanRequestsPerSec = 5)))
+      val requestAndGroupStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(meanRequestsPerSec = 5)))
       val conditions: Conditions[Double] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
       val assertions = conditions.map(_.apply(details("foo").requestsPerSec))
-      val source = generalStatsSource[Double](requestAndGroupStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Double](requestAndGroupStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a successfulRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(OK)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 5), status = Some(OK)))
       val conditions: Conditions[Long] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
       val assertions = conditions.map(_.apply(details("foo").successfulRequests.count))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a failedRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(KO)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 5), status = Some(KO)))
       val conditions: Conditions[Long] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
       val assertions = conditions.map(_.apply(details("foo").failedRequests.count))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a allRequests.count assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 10)))
       val conditions: Conditions[Long] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").allRequests.count))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a successfulRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val successful = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
-      val failed = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(OK)))
+      val successful = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 10)))
+      val failed = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 5), status = Some(OK)))
       val conditions: Conditions[Double] = List(_.lte(60), _.gte(30), _.is(50), _.between(40, 60), _.in(20, 40, 50, 80))
       val assertions = conditions.map(_.apply(details("foo").successfulRequests.percent))
-      val source = generalStatsSource[Long](successful, failed)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](successful, failed)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a failedRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val failed = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
-      val successful = modifier(Stats(GeneralStats.NoPlot.copy(count = 5), status = Some(KO)))
+      val failed = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 10)))
+      val successful = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 5), status = Some(KO)))
       val conditions: Conditions[Double] = List(_.lte(60), _.gte(30), _.is(50), _.between(40, 60), _.in(20, 40, 50, 80))
       val assertions = conditions.map(_.apply(details("foo").failedRequests.percent))
-      val source = generalStatsSource[Long](failed, successful)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](failed, successful)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a allRequests.percent assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(count = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(count = 10)))
       val conditions: Conditions[Double] = List(_.lte(110), _.gte(90), _.is(100), _.between(80, 120), _.in(90, 100, 130))
       val assertions = conditions.map(_.apply(details("foo").allRequests.percent))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.min assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(min = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(min = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.min))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.max assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(max = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(max = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.max))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.mean assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(mean = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(mean = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.mean))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.stdDev assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(stdDev = 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(stdDev = 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.stdDev))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles1 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.percentile1))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles2 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.percentile2))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles3 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.percentile3))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 
   // TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles4 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
+      val requestStats = modifier(Stats(AssertionStatsRepository.Stats.NoData.copy(percentile = _ => 10)))
       val conditions: Conditions[Int] = List(_.lte(15), _.gte(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val assertions = conditions.map(_.apply(details("foo").responseTime.percentile4))
-      val source = generalStatsSource[Long](requestStats)
-      validateAssertions(source, assertions: _*) shouldBe true
+      val repository = statsRepository[Long](requestStats)
+      validateAssertions(repository, assertions: _*) shouldBe true
     }
   }
 }

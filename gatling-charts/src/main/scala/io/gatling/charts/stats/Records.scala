@@ -18,7 +18,6 @@ package io.gatling.charts.stats
 
 import scala.collection.mutable
 
-import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.{ KO, Status }
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }

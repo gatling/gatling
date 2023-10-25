@@ -18,7 +18,7 @@ package io.gatling.commons.shared.unstable.model.stats.assertion
 
 import io.gatling.commons.stats.assertion.Assertion
 
-sealed trait AssertionResult {
+sealed trait AssertionResult extends Product with Serializable {
   def success: Boolean
   def assertion: Assertion
 }

@@ -21,7 +21,6 @@ import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Color
-import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 

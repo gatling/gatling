@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.commons.shared.unstable.util
 
-import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.shared.unstable.util.NumberHelper._
 
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers

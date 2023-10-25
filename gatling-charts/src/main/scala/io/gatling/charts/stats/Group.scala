@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.shared.unstable.model.stats
+package io.gatling.charts.stats
 
-final class ErrorStats(val message: String, val count: Int, val totalCount: Int) {
-  def percentage: Double = count * 100.0 / totalCount
+// FIXME move in charts
+final case class Group(hierarchy: List[String]) {
+  val name: String = hierarchy.last
 }

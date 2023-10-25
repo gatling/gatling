@@ -16,9 +16,8 @@
 
 package io.gatling.charts.component
 
-import io.gatling.charts.stats.Ranges
-import io.gatling.commons.shared.unstable.model.stats.GeneralStats
-import io.gatling.commons.util.NumberHelper._
+import io.gatling.charts.stats.{ GeneralStats, Ranges }
+import io.gatling.commons.shared.unstable.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] object Stats {

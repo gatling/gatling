@@ -19,7 +19,6 @@ package io.gatling.charts.stats
 import scala.annotation.tailrec
 
 import io.gatling.charts.stats.buffers._
-import io.gatling.commons.shared.unstable.model.stats.Group
 import io.gatling.commons.stats.OK
 
 private class ResultsHolder(

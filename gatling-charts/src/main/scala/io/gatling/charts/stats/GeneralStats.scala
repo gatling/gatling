@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.shared.unstable.model.stats
+package io.gatling.charts.stats
 
-import io.gatling.commons.stats.Status
+object GeneralStats {
+  val NoPlotMagicValue: Int = -1
 
-trait GeneralStatsSource {
-  def statsPaths: List[StatsPath]
-  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats
-  def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats
+  val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
 }
+
+final case class GeneralStats(min: Int, max: Int, count: Long, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)

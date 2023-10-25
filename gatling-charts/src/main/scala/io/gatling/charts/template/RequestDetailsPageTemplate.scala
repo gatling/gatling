@@ -17,8 +17,7 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
-import io.gatling.charts.stats.RunInfo
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, RunInfo }
 
 private[charts] final class RequestDetailsPageTemplate(runInfo: RunInfo, title: String, requestName: String, group: Option[Group], components: Component*)
     extends PageTemplate(runInfo, title, true, Some(requestName), group, components: _*)

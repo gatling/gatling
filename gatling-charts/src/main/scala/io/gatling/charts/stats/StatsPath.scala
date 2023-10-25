@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.shared.unstable.model.stats
+package io.gatling.charts.stats
 
 sealed trait StatsPath extends Product with Serializable
 final case class RequestStatsPath(request: String, group: Option[Group]) extends StatsPath

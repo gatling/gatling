@@ -18,10 +18,9 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent }
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.{ PercentilesVsTimePlot, RequestPath, Series }
+import io.gatling.charts.stats.{ Group, GroupStatsPath, PercentilesVsTimePlot, RequestPath, Series }
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Color
-import io.gatling.commons.shared.unstable.model.stats.{ Group, GroupStatsPath }
 import io.gatling.commons.stats.OK
 import io.gatling.core.config.GatlingConfiguration
 

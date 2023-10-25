@@ -18,7 +18,7 @@ package io.gatling.charts.component
 
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.report.Container.{ Group, Request }
-import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.shared.unstable.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 

@@ -16,92 +16,92 @@
 
 package io.gatling.commons.shared.unstable.model.stats.assertion
 
-import io.gatling.commons.shared.unstable.model.stats._
-import io.gatling.commons.stats._
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.stats.assertion._
 
-final class AssertionValidator(statsSource: GeneralStatsSource) {
+object AssertionValidator {
 
-  private type StatsByStatus = Option[Status] => GeneralStats
+  private type StatsByStatus = Option[Status] => AssertionStatsRepository.Stats
+  private final case class PathResolution(unfoldedAssertion: Assertion, statsByStatus: StatsByStatus)
+}
+
+final class AssertionValidator(repository: AssertionStatsRepository) {
 
   def validateAssertions(assertions: List[Assertion]): List[AssertionResult] =
     for {
       rawAssertion <- assertions
-      unfoldedAssertion <- unfold(rawAssertion, statsSource)
-    } yield {
-      resolvePath(unfoldedAssertion, statsSource) match {
+      result <- resolvePath(rawAssertion, repository) match {
         case Left(error) =>
-          AssertionResult.ResolutionError(unfoldedAssertion, error)
+          AssertionResult.ResolutionError(rawAssertion, error) :: Nil
 
-        case Right(statsByStatus) =>
-          val (actualValue, success) = resolveTarget(unfoldedAssertion, statsByStatus)
-          AssertionResult.Resolved(unfoldedAssertion, success = success, actualValue)
+        case Right(pathResolutions) =>
+          pathResolutions.map { case AssertionValidator.PathResolution(unfoldedAssertion, statsByStatus) =>
+            val (actualValue, success) = resolveTarget(unfoldedAssertion, statsByStatus)
+            AssertionResult.Resolved(unfoldedAssertion, success = success, actualValue)
+          }
       }
-    }
+    } yield result
 
-  private def unfold(assertion: Assertion, source: GeneralStatsSource): List[Assertion] =
+  private def resolvePath(assertion: Assertion, statsSource: AssertionStatsRepository): Either[String, List[AssertionValidator.PathResolution]] =
     assertion.path match {
+      case AssertionPath.Global | AssertionPath.Details(Nil) =>
+        Right(
+          AssertionValidator.PathResolution(
+            unfoldedAssertion = assertion,
+            statsByStatus = statsSource.requestGeneralStats(Nil, None, _)
+          ) :: Nil
+        )
+
       case AssertionPath.ForAll =>
-        source.statsPaths.collect { case RequestStatsPath(request, group) =>
-          assertion.copy(path = AssertionPath.Details(group.map(_.hierarchy).getOrElse(Nil) ::: List(request)))
-        }
-      case _ =>
-        assertion :: Nil
-    }
-
-  private def resolvePath(assertion: Assertion, statsSource: GeneralStatsSource): Either[String, StatsByStatus] =
-    assertion.path match {
-      case AssertionPath.Global =>
-        Right(statsSource.requestGeneralStats(None, None, _))
-
-      case AssertionPath.Details(Nil) =>
-        Right(statsSource.requestGeneralStats(None, None, _))
+        Right(
+          statsSource.allRequestPaths().map { case AssertionStatsRepository.StatsPath.Request(group, request) =>
+            AssertionValidator.PathResolution(
+              unfoldedAssertion = assertion.copy(path = AssertionPath.Details(group ::: request :: Nil)),
+              statsByStatus = statsSource.requestGeneralStats(group, Some(request), _)
+            )
+          }
+        )
 
       case AssertionPath.Details(parts) =>
-        findPath(parts, statsSource) match {
-          case Some(RequestStatsPath(request, group)) =>
-            Right(statsSource.requestGeneralStats(Some(request), group, _))
+        statsSource.findPathByParts(parts) match {
+          case Some(AssertionStatsRepository.StatsPath.Request(group, request)) =>
+            Right(
+              AssertionValidator.PathResolution(
+                unfoldedAssertion = assertion,
+                statsByStatus = statsSource.requestGeneralStats(group, Some(request), _)
+              ) :: Nil
+            )
 
-          case Some(GroupStatsPath(group)) =>
-            Right(statsSource.groupCumulatedResponseTimeGeneralStats(group, _))
+          case Some(AssertionStatsRepository.StatsPath.Group(group)) =>
+            Right(
+              AssertionValidator.PathResolution(
+                unfoldedAssertion = assertion,
+                // FIXME we need an Assertions API overhaul to be able to target the group duration metric as well
+                statsByStatus = statsSource.groupCumulatedResponseTimeGeneralStats(group, _)
+              ) :: Nil
+            )
 
           case _ =>
             Left(s"Could not find stats matching assertion path $parts")
         }
-
-      case unsupported =>
-        throw new IllegalStateException(s"Unsupported assertion path $unsupported")
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  private def findPath(parts: List[String], statsSource: GeneralStatsSource): Option[StatsPath] =
-    statsSource.statsPaths.find { statsPath =>
-      val path = statsPath match {
-        case RequestStatsPath(request, group) =>
-          group.map(_.hierarchy :+ request).getOrElse(List(request))
-
-        case GroupStatsPath(group) =>
-          group.hierarchy
-      }
-      path == parts
-    }
-
-  private def resolveTarget(assertion: Assertion, stats: StatsByStatus): (Double, Boolean) = {
+  private def resolveTarget(assertion: Assertion, stats: AssertionValidator.StatsByStatus): (Double, Boolean) = {
     val actualValue = assertion.target match {
       case Target.MeanRequestsPerSecond => stats(None).meanRequestsPerSec
 
-      case target: Target.Count => resolveCountTargetActualValue(target, stats).toDouble
+      case Target.Count(metric) => resolveCountTargetActualValue(metric, stats).toDouble
 
-      case target: Target.Percent => resolvePercentTargetActualValue(target, stats)
+      case Target.Percent(metric) => resolvePercentTargetActualValue(metric, stats)
 
-      case target: Target.Time => resolveTimeTargetActualValue(target, stats).toDouble
+      case Target.Time(metric, stat) => resolveTimeTargetActualValue(metric, stat, stats).toDouble
     }
 
     (actualValue, resolveCondition(assertion, actualValue))
   }
 
-  private def resolveCountTargetActualValue(target: Target.Count, stats: StatsByStatus): Long = {
-    val resolvedStats = target.metric match {
+  private def resolveCountTargetActualValue(metric: CountMetric, stats: AssertionValidator.StatsByStatus): Long = {
+    val resolvedStats = metric match {
       case CountMetric.AllRequests        => stats(None)
       case CountMetric.FailedRequests     => stats(Some(KO))
       case CountMetric.SuccessfulRequests => stats(Some(OK))
@@ -110,10 +110,10 @@ final class AssertionValidator(statsSource: GeneralStatsSource) {
     resolvedStats.count
   }
 
-  private def resolvePercentTargetActualValue(target: Target.Percent, stats: StatsByStatus): Double = {
+  private def resolvePercentTargetActualValue(metric: CountMetric, stats: AssertionValidator.StatsByStatus): Double = {
     val allCount = stats(None).count
 
-    target.metric match {
+    metric match {
       case CountMetric.SuccessfulRequests =>
         if (allCount == 0) {
           0
@@ -130,12 +130,12 @@ final class AssertionValidator(statsSource: GeneralStatsSource) {
     }
   }
 
-  private def resolveTimeTargetActualValue(target: Target.Time, stats: StatsByStatus): Int = {
-    val resolvedStats = target.metric match {
+  private def resolveTimeTargetActualValue(metric: TimeMetric, stat: Stat, stats: AssertionValidator.StatsByStatus): Int = {
+    val resolvedStats = metric match {
       case TimeMetric.ResponseTime => stats(None)
     }
 
-    target.stat match {
+    stat match {
       case Stat.Min               => resolvedStats.min
       case Stat.Max               => resolvedStats.max
       case Stat.Mean              => resolvedStats.mean

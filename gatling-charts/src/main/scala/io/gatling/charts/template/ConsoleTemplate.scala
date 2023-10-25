@@ -20,8 +20,8 @@ import java.{ lang => jl }
 
 import io.gatling.charts.component.{ RequestStatistics, Stats }
 import io.gatling.charts.component.Stats.printable
-import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
+import io.gatling.core.stats.ErrorStats
 import io.gatling.core.stats.writer.ConsoleErrorsWriter
 import io.gatling.core.stats.writer.ConsoleSummary._
 

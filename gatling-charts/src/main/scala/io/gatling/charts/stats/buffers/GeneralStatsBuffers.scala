@@ -18,16 +18,15 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.{ GroupRecord, IntVsTimePlot, RequestRecord }
-import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group }
+import io.gatling.charts.stats.{ GeneralStats, Group, GroupRecord, IntVsTimePlot, RequestRecord }
 import io.gatling.commons.stats.Status
 
 import com.tdunning.math.stats.AVLTreeDigest
 
 private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
-  val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
-  val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
-  val groupCumulatedResponseTimeGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
+  private val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
+  private val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
+  private val groupCumulatedResponseTimeGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
 
   def getRequestGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
     requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
@@ -59,7 +58,7 @@ private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
 private[stats] class GeneralStatsBuffer(durationInSec: Long) {
   val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)
-  var sumOfSquares = 0L
+  private var sumOfSquares = 0L
   var sum = 0L
 
   def update(time: Int): Unit = {

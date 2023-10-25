@@ -16,8 +16,6 @@
 
 package io.gatling.charts.stats
 
-import io.gatling.commons.shared.unstable.model.stats.Group
-
 private[charts] object RequestPath {
   val Separator = " / "
   def path(group: Group): String = group.hierarchy.mkString(Separator)

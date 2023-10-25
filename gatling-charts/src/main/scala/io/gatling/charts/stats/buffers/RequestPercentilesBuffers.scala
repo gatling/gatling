@@ -18,14 +18,13 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.RequestRecord
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, RequestRecord }
 import io.gatling.commons.stats.Status
 
 private[stats] trait RequestPercentilesBuffers {
   this: Buckets =>
 
-  val responseTimePercentilesBuffers = mutable.Map.empty[BufferKey, PercentilesBuffers]
+  private val responseTimePercentilesBuffers = mutable.Map.empty[BufferKey, PercentilesBuffers]
 
   def getResponseTimePercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
     responseTimePercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), new PercentilesBuffers(buckets))

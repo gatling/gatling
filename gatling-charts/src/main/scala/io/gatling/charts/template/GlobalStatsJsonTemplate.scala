@@ -18,8 +18,8 @@ package io.gatling.charts.template
 
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Stats.printable
+import io.gatling.charts.stats.GeneralStats
 import io.gatling.charts.util.JsHelper._
-import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {

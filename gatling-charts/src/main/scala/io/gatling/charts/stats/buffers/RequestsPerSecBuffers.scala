@@ -18,13 +18,12 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.RequestRecord
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, RequestRecord }
 
 private[stats] trait RequestsPerSecBuffers {
   this: Buckets =>
 
-  val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountsBuffer]
+  private val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountsBuffer]
 
   def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group]): CountsBuffer =
     requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new CountsBuffer(buckets))

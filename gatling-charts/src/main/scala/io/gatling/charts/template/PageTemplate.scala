@@ -21,8 +21,7 @@ import java.time.{ ZoneOffset, ZonedDateTime }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
-import io.gatling.charts.stats.RunInfo
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, RunInfo }
 import io.gatling.commons.util.GatlingVersion
 import io.gatling.commons.util.StringHelper._
 

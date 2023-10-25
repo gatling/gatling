@@ -19,11 +19,10 @@ package io.gatling.charts.report
 import io.gatling.charts.component.{ RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
-import io.gatling.charts.stats.RequestPath
+import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, RequestPath, RequestStatsPath }
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
-import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group, GroupStatsPath, RequestStatsPath }
+import io.gatling.commons.shared.unstable.util.NumberHelper._
 import io.gatling.commons.stats._
-import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 import com.typesafe.scalalogging.StrictLogging

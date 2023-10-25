@@ -18,15 +18,14 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.{ GroupRecord, RequestRecord }
-import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.charts.stats.{ Group, GroupRecord, RequestRecord }
 import io.gatling.commons.stats.{ KO, Status }
 
 private[stats] trait ResponseTimeRangeBuffers {
   protected def lowerBound: Int
   protected def higherBound: Int
 
-  val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.Map.empty
+  private val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.Map.empty
 
   def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)

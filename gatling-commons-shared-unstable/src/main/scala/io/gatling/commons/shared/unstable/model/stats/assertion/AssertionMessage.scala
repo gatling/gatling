@@ -16,8 +16,8 @@
 
 package io.gatling.commons.shared.unstable.model.stats.assertion
 
+import io.gatling.commons.shared.unstable.util.NumberHelper._
 import io.gatling.commons.stats.assertion._
-import io.gatling.commons.util.NumberHelper._
 
 private[gatling] object AssertionMessage {
 

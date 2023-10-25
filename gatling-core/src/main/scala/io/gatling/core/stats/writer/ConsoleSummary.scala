@@ -23,10 +23,10 @@ import java.time.temporal.TemporalAccessor
 import scala.collection.mutable
 import scala.math.{ ceil, floor }
 
-import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.ErrorStats
 
 private[gatling] object ConsoleSummary {
   private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
