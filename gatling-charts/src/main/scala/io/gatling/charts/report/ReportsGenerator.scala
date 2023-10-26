@@ -21,8 +21,8 @@ import java.nio.file.Path
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestStatsPath
-import io.gatling.commons.shared.unstable.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.util.ScanHelper
 
 private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
@@ -38,8 +38,8 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
 
     def copyAssets(): Unit = {
-      deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
-      deepCopyPackageContent(ChartsFiles.GatlingAssetsJsPackage, chartsFiles.jsDirectory)
+      ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
+      ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsJsPackage, chartsFiles.jsDirectory)
     }
 
     if (!hasAtLeastOneRequestReported)

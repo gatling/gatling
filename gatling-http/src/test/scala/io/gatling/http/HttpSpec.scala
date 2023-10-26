@@ -18,15 +18,13 @@ package io.gatling.http
 
 import java.io.RandomAccessFile
 import java.net.ServerSocket
-import javax.activation.FileTypeMap
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.util.{ Try, Using }
+import scala.util.Using
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.config.GatlingConfiguration
@@ -40,6 +38,7 @@ import io.gatling.http.protocol.HttpProtocolBuilder
 import io.netty.channel._
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
+import jakarta.activation.FileTypeMap
 import org.scalatest.BeforeAndAfter
 
 abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {

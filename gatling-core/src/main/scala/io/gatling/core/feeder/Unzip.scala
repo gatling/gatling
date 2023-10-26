@@ -22,7 +22,6 @@ import java.util.zip.{ GZIPInputStream, ZipInputStream }
 import scala.annotation.switch
 import scala.util.Using
 
-import io.gatling.commons.util.Io._
 import io.gatling.core.util.{ FilesystemResource, Resource }
 
 private[feeder] object Unzip {
@@ -63,7 +62,7 @@ private[feeder] object Unzip {
             throw new IllegalArgumentException("ZIP Archive is empty")
           }
 
-          zis.copyTo(os)
+          zis.transferTo(os)
 
           val nextZipEntry = zis.getNextEntry()
           if (nextZipEntry != null) {
@@ -71,7 +70,7 @@ private[feeder] object Unzip {
           }
 
         case TwoBytesMagicValueInputStream.GzipMagicValue =>
-          new GZIPInputStream(is).copyTo(os): Unit
+          new GZIPInputStream(is).transferTo(os): Unit
 
         case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
       }

@@ -25,8 +25,9 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
+
+import Throwables._
 
 trait TypeCaster[T] {
   protected def cceMessage(key: String, value: Any, clazz: Class[_]): String =

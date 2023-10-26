@@ -17,8 +17,8 @@
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
-import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.model.assertion._
 
 class AssertionDSLSpec extends BaseSpec with AssertionSupport {
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {

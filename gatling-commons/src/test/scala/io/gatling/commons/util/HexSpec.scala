@@ -21,10 +21,9 @@ import java.security.MessageDigest
 import scala.util.Using
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io._
 
 class HexSpec extends BaseSpec {
-  private val fileBytes = Using.resource(getClass.getResourceAsStream("/emoticon.png"))(_.toByteArray())
+  private val fileBytes = Using.resource(getClass.getResourceAsStream("/emoticon.png"))(_.readAllBytes())
 
   "toHexString" should "correctly compute file sha-1" in {
     val md = MessageDigest.getInstance("SHA-1")

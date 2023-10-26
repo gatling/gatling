@@ -36,7 +36,7 @@ import static io.gatling.http.client.util.MiscUtils.isEmpty;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 import io.gatling.http.client.Param;
-import io.gatling.jdk.util.StringBuilderPool;
+import io.gatling.shared.util.StringBuilderPool;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;

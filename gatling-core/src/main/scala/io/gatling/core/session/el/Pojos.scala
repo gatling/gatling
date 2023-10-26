@@ -27,21 +27,24 @@ object Pojos {
   private val NoGetterForPropertyFailure = "No getter for property".failure
   private val GetterInvocationFailure = "Getter invocationFailure".failure
 
-  def getProperty(bean: Any, name: String): Validation[Any] = {
-    val propertyDescriptor = ClassIntrospector.get.lookup(bean.getClass).getPropertyDescriptor(name, true)
-    if (propertyDescriptor == null) {
+  def getProperty(bean: Any, name: String): Validation[Any] =
+    if (bean.getClass.getName.startsWith("java.")) {
       UnknownPropertyFailure
     } else {
-      val getter = propertyDescriptor.getGetter(true)
-      if (getter == null) {
-        NoGetterForPropertyFailure
+      val propertyDescriptor = ClassIntrospector.get.lookup(bean.getClass).getPropertyDescriptor(name, true)
+      if (propertyDescriptor == null) {
+        UnknownPropertyFailure
       } else {
-        try {
-          getter.invokeGetter(bean).success
-        } catch {
-          case NonFatal(_) => GetterInvocationFailure
+        val getter = propertyDescriptor.getGetter(true)
+        if (getter == null) {
+          NoGetterForPropertyFailure
+        } else {
+          try {
+            getter.invokeGetter(bean).success
+          } catch {
+            case NonFatal(_) => GetterInvocationFailure
+          }
         }
       }
     }
-  }
 }

@@ -26,10 +26,10 @@ lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
   .disablePlugins(SbtSpotless)
   .aggregate(
-    jdkUtil,
     nettyUtil,
-    commonsShared,
-    commonsSharedUnstable,
+    sharedUtil,
+    sharedModel,
+    sharedEnterprise,
     commons,
     docSamples,
     jsonpath,
@@ -85,37 +85,35 @@ def gatlingModule(id: String) =
     .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
-lazy val jdkUtil = gatlingModule("gatling-jdk-util")
+lazy val sharedUtil = gatlingModule("gatling-shared-util")
+  .settings(libraryDependencies ++= sharedUtilDependencies)
+
+lazy val sharedModel = gatlingModule("gatling-shared-model")
+  .dependsOn(sharedUtil)
+  .settings(libraryDependencies ++= sharedModelDependencies)
+
+lazy val sharedEnterprise = gatlingModule("gatling-shared-enterprise")
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
-  .dependsOn(jdkUtil)
+  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= nettyUtilDependencies)
-
-lazy val commonsShared = gatlingModule("gatling-commons-shared")
-  .disablePlugins(SbtSpotless)
-  .dependsOn(jdkUtil)
-  .settings(libraryDependencies ++= commonsSharedDependencies(scalaVersion.value))
-
-lazy val commonsSharedUnstable = gatlingModule("gatling-commons-shared-unstable")
-  .disablePlugins(SbtSpotless)
-  .dependsOn(commonsShared)
-  .settings(libraryDependencies ++= commonsSharedUnstableDependencies)
 
 lazy val commons = gatlingModule("gatling-commons")
   .disablePlugins(SbtSpotless)
-  .dependsOn(commonsShared % "compile->compile;test->test")
-  .dependsOn(commonsSharedUnstable)
+  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= commonsDependencies)
   .settings(generateVersionFileSettings)
 
 lazy val jsonpath = gatlingModule("gatling-jsonpath")
-  .dependsOn(jdkUtil)
+  .dependsOn(sharedUtil)
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 
 lazy val core = gatlingModule("gatling-core")
   .dependsOn(nettyUtil)
   .dependsOn(commons % "compile->compile;test->test")
+  .dependsOn(sharedModel)
+  .dependsOn(sharedEnterprise)
   .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
   .settings(copyGatlingDefaults(compiler))
@@ -152,6 +150,7 @@ lazy val redisJava = gatlingModule("gatling-redis-java")
 
 lazy val httpClient = gatlingModule("gatling-http-client")
   .dependsOn(nettyUtil % "compile->compile;test->test")
+  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= httpClientDependencies)
 
 lazy val http = gatlingModule("gatling-http")

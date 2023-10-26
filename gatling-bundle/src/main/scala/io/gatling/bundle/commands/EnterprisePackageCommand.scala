@@ -30,7 +30,6 @@ import scala.util.Using
 import io.gatling.bundle.CommandArguments
 import io.gatling.bundle.commands.CommandHelper._
 import io.gatling.bundle.commands.EnterprisePackageCommand.WriteEntry
-import io.gatling.commons.util.Io._
 
 private[bundle] object EnterprisePackageCommand {
   private type WriteEntry = (String, JarOutputStream => Unit) => Unit
@@ -154,7 +153,7 @@ private[bundle] final class EnterprisePackageCommand(config: CommandArguments, a
     )
 
   private def copyFromInputStream(inputStream: => InputStream, jos: JarOutputStream): Unit = {
-    Using.resource(inputStream)(_.copyTo(jos))
+    Using.resource(inputStream)(_.transferTo(jos))
     jos.flush()
   }
 }

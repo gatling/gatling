@@ -16,7 +16,7 @@
 
 package io.gatling.charts.stats
 
-import io.gatling.commons.stats.assertion.Assertion
+import io.gatling.shared.model.assertion.Assertion
 
 private[charts] final case class RunInfo(
     injectStart: Long,

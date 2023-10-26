@@ -17,7 +17,7 @@
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
-import io.gatling.commons.stats.assertion._
+import io.gatling.shared.model.assertion._
 
 import boopickle.Default._
 import org.scalacheck.{ Arbitrary, Gen }

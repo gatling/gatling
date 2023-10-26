@@ -18,7 +18,7 @@ package io.gatling.graphite.message
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.jdk.util.StringBuilderPool
+import io.gatling.shared.util.StringBuilderPool
 
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging

@@ -24,8 +24,7 @@ import java.security.cert.Certificate
 
 import scala.collection.mutable
 
-import io.gatling.commons.shared.unstable.util.PathHelper
-import io.gatling.commons.util.Io._
+import io.gatling.shared.util.PathHelper
 
 private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
   private def classNameToPath(name: String): Path =
@@ -66,7 +65,7 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
     case Some(path) => Files.readAllBytes(path)
     case _ =>
       classAsStream(name) match {
-        case Some(stream) => stream.toByteArray()
+        case Some(stream) => stream.readAllBytes()
         case _            => Array.empty
       }
   }

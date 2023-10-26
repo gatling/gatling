@@ -18,8 +18,6 @@ package io.gatling
 
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.Io._
-
 import scala.util.Using
 
 object Utils {

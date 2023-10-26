@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 import scala.util.Using
 
-import io.gatling.commons.util.Io._
 import io.gatling.commons.validation._
 
 import com.typesafe.scalalogging.LazyLogging
@@ -116,7 +115,7 @@ sealed trait Resource {
   def name: String
   def file: File
   def inputStream: InputStream = new BufferedInputStream(new FileInputStream(file))
-  def string(charset: Charset): String = Using.resource(inputStream)(_.toString(charset))
+  def string(charset: Charset): String = new String(bytes, charset)
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
 
@@ -134,7 +133,7 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     tempFile.deleteOnExit()
 
     Using.resources(url.openStream(), new BufferedOutputStream(new FileOutputStream(tempFile, false))) { (is, os) =>
-      is.copyTo(os)
+      is.transferTo(os)
     }
     tempFile
   }

@@ -18,7 +18,6 @@ package io.gatling.core.scenario
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.ScenarioFlows
@@ -27,6 +26,7 @@ import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
+import io.gatling.shared.model.assertion.Assertion
 
 object Simulation {
   private[gatling] def params(

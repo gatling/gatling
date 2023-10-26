@@ -17,8 +17,8 @@
 package io.gatling.charts.component
 
 import io.gatling.charts.stats.{ GeneralStats, Ranges }
-import io.gatling.commons.shared.unstable.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.util.NumberHelper._
 
 private[charts] object Stats {
   def printable[T: Numeric](value: T): String =

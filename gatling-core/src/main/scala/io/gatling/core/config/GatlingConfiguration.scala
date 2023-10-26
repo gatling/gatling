@@ -25,11 +25,11 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.shared.unstable.util.Ssl
 import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.stats.writer._
+import io.gatling.shared.util.Ssl
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging

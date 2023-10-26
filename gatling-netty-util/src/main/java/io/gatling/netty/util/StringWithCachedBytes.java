@@ -16,7 +16,7 @@
 
 package io.gatling.netty.util;
 
-import io.gatling.jdk.util.StringBuilderPool;
+import io.gatling.shared.util.StringBuilderPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;

@@ -16,11 +16,11 @@
 
 package io.gatling.core.stats.writer
 
-import java.time.{ Instant, ZoneId, ZoneOffset, ZonedDateTime }
+import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.stats.assertion.Assertion
+import io.gatling.shared.model.assertion.Assertion
 
 private[stats] final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 

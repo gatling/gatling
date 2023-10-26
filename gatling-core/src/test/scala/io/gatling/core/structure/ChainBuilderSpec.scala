@@ -17,7 +17,7 @@
 package io.gatling.core.structure
 
 import io.gatling.BaseSpec
-import io.gatling.commons.stats._
+import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation._
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
@@ -62,7 +62,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture wi
     scenarioTest { implicit ctx =>
       val chain = buildChain {
         group("group") {
-          exec(session => "Forced failure".failure)
+          exec(_ => "Forced failure".failure)
             .exec { session =>
               logMsg(session)
               session

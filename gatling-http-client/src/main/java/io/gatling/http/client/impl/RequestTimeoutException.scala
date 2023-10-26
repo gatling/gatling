@@ -19,7 +19,7 @@ package io.gatling.http.client.impl
 import java.net.InetSocketAddress
 import java.util.concurrent.TimeoutException
 
-import io.gatling.jdk.util.StringBuilderPool
+import io.gatling.shared.util.StringBuilderPool
 
 object RequestTimeoutException {
   private def message(timeout: Long, remoteAddress: InetSocketAddress) = {

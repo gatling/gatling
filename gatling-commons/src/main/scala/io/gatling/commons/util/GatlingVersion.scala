@@ -26,8 +26,6 @@ import java.util.prefs.Preferences
 import scala.util.{ Success, Try }
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Io._
-
 import com.typesafe.scalalogging.StrictLogging
 
 object GatlingVersion {
@@ -118,7 +116,7 @@ private object LatestGatlingRelease extends StrictLogging {
         conn.setRequestMethod("GET")
         conn.setRequestProperty("Connection", "close")
 
-        val response = new String(conn.getInputStream.toByteArray(), StandardCharsets.UTF_8)
+        val response = new String(conn.getInputStream.readAllBytes(), StandardCharsets.UTF_8)
         parseMavenCentralResponse(response)
       } finally {
         conn.disconnect()

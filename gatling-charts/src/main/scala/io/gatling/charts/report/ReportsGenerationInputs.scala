@@ -17,7 +17,7 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.stats.LogFileData
-import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
+import io.gatling.shared.model.assertion.AssertionResult
 
 private[gatling] final class ReportsGenerationInputs(
     val reportFolderName: String,

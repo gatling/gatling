@@ -21,9 +21,9 @@ import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, RequestPath, RequestStatsPath }
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
-import io.gatling.commons.shared.unstable.util.NumberHelper._
-import io.gatling.commons.stats._
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.util.NumberHelper._
 
 import com.typesafe.scalalogging.StrictLogging
 

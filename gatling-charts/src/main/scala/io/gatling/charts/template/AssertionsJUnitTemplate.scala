@@ -17,8 +17,8 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.stats.RunInfo
-import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionMessage, AssertionResult }
 import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult }
 
 private[charts] final class AssertionsJUnitTemplate(runInfo: RunInfo, assertionResults: List[AssertionResult]) {
 

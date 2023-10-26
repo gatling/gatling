@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Using
 
 import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.commons.util.Io._
 
 import jodd.lagarto.dom.NodeSelector
 
@@ -29,7 +28,7 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
   private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def prepared(file: String): NodeSelector = Using.resource(getClass.getResourceAsStream(file)) { is =>
-    val string = is.toString(UTF_8)
+    val string = new String(is.readAllBytes(), UTF_8)
     cssSelectors.parse(string.toCharArray)
   }
 

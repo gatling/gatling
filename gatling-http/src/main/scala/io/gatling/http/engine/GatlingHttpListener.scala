@@ -21,8 +21,7 @@ import java.nio.charset.Charset
 import scala.math.max
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Clock
-import io.gatling.commons.util.Hex
+import io.gatling.commons.util.{ Clock, Hex }
 import io.gatling.commons.util.Throwables._
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor

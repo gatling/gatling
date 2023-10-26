@@ -20,7 +20,6 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.commons.stats.assertion.AssertionPath;
 import io.gatling.javaapi.core.condition.*;
 import io.gatling.javaapi.core.error.Errors;
 import io.gatling.javaapi.core.exec.Execs;
@@ -33,6 +32,7 @@ import io.gatling.javaapi.core.loop.*;
 import io.gatling.javaapi.core.pause.Paces;
 import io.gatling.javaapi.core.pause.Pauses;
 import io.gatling.javaapi.core.pause.RendezVous;
+import io.gatling.shared.model.assertion.AssertionPath;
 import io.pebbletemplates.pebble.extension.Extension;
 import java.io.InputStream;
 import java.time.Duration;

@@ -23,7 +23,7 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.http.client.util.Utf8UrlEncoder;
-import io.gatling.jdk.util.StringBuilderPool;
+import io.gatling.shared.util.StringBuilderPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;

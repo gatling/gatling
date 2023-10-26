@@ -24,12 +24,12 @@ import java.util.Base64
 import scala.collection.mutable
 import scala.io.Source
 
-import io.gatling.commons.shared.unstable.util.PathHelper
-import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer._
+import io.gatling.shared.model.assertion.Assertion
+import io.gatling.shared.util.PathHelper
 
 import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
@@ -123,7 +123,7 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {
             // WARN: don't believe IntelliJ here, this import is absolutely mandatory, see
-            import io.gatling.commons.stats.assertion.AssertionPicklers._
+            import io.gatling.shared.model.assertion.AssertionPicklers._
             val base64String = array(1)
             val bytes = Base64.getDecoder.decode(base64String)
             Unpickle[Assertion].fromBytes(ByteBuffer.wrap(bytes))

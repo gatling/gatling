@@ -21,7 +21,7 @@ import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.session.Session
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.util._
-import io.gatling.jdk.util.StringBuilderPool
+import io.gatling.shared.util.StringBuilderPool
 
 import com.typesafe.scalalogging.Logger
 

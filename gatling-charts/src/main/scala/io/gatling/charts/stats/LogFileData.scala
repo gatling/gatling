@@ -19,10 +19,9 @@ package io.gatling.charts.stats
 import scala.collection.immutable.ArraySeq
 
 import io.gatling.charts.stats.buffers.{ CountsBuffer, GeneralStatsBuffer, PercentilesBuffers }
-import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionStatsRepository
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.stats.ErrorStats
+import io.gatling.shared.model.assertion.{ Assertion, AssertionStatsRepository }
 
 private[gatling] final class LogFileData(
     val runInfo: RunInfo,

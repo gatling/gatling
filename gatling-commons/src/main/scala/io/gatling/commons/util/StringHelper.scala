@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 import java.util.Locale
 
-import io.gatling.jdk.util.StringBuilderPool
+import io.gatling.shared.util.StringBuilderPool
 
 import io.github.metarank.cfor._
 

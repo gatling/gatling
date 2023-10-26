@@ -22,7 +22,6 @@ import java.net.URI
 import scala.collection.immutable.ArraySeq
 import scala.util.Using
 
-import io.gatling.commons.util.Io.RichInputStream
 import io.gatling.commons.validation._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.SeparatedValuesParser._
@@ -67,7 +66,7 @@ trait FeederSupport extends ResourceCache {
     tempFile.deleteOnExit()
 
     Using.resources(new BufferedInputStream(new URI(url).toURL.openStream), new BufferedOutputStream(new FileOutputStream(tempFile))) { (is, os) =>
-      is.copyTo(os)
+      is.transferTo(os)
     }
 
     jsonFile(tempFile.getPath)

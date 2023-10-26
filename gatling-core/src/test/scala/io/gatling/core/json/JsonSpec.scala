@@ -24,7 +24,6 @@ import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io
 import io.gatling.core.json.Json._
 
 private final case class Foo(bar: String, baz: Int)

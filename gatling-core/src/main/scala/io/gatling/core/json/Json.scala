@@ -22,7 +22,7 @@ import scala.annotation.switch
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
-import io.gatling.jdk.util.StringBuilderPool
+import io.gatling.shared.util.StringBuilderPool
 
 import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints }
 import com.fasterxml.jackson.core.JsonParser.NumberType._

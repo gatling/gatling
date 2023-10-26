@@ -35,7 +35,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import io.gatling.http.client.uri.Uri;
-import io.gatling.jdk.util.StringBuilderPool;
+import io.gatling.shared.util.StringBuilderPool;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;

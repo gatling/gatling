@@ -18,8 +18,8 @@ package io.gatling.jsonpath
 
 import scala.util.parsing.combinator.RegexParsers
 
-import io.gatling.jdk.util.StringBuilderPool
 import io.gatling.jsonpath.AST._
+import io.gatling.shared.util.StringBuilderPool
 
 /**
  * Originally contributed by Nicolas Rémond.

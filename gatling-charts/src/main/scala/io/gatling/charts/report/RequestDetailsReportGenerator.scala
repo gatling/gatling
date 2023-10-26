@@ -21,7 +21,7 @@ import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Color
-import io.gatling.commons.stats._
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class RequestDetailsReportGenerator(

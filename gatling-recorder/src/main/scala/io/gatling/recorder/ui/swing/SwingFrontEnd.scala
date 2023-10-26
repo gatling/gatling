@@ -21,12 +21,12 @@ import java.nio.file.Paths
 import scala.swing.Dialog
 import scala.swing.Swing._
 
-import io.gatling.commons.shared.unstable.util.PathHelper
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
+import io.gatling.shared.util.PathHelper
 
 private[ui] class SwingFrontEnd(controller: RecorderController, configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
   private lazy val runningFrame = new RunningFrame(this)

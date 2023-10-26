@@ -21,15 +21,14 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Using
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io._
 
 class CompositeByteArrayInputStreamSpec extends BaseSpec {
   "CompositeByteArrayInputStream" should "properly read full bytes" in {
     val bytes1 = "hello".getBytes(UTF_8)
     val bytes2 = " ".getBytes(UTF_8)
     val bytes3 = "world".getBytes(UTF_8)
-    val concat = Using.resource(new CompositeByteArrayInputStream(Seq(bytes1, bytes2, bytes3))) {
-      _.toString(UTF_8)
+    val concat = Using.resource(new CompositeByteArrayInputStream(Seq(bytes1, bytes2, bytes3))) { is =>
+      new String(is.readAllBytes(), UTF_8)
     }
 
     concat shouldBe "hello world"

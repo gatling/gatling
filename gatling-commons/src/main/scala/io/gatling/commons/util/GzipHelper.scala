@@ -22,8 +22,6 @@ import java.util.zip.GZIPOutputStream
 
 import scala.util.Using
 
-import io.gatling.commons.util.Io._
-
 object GzipHelper {
   def gzip(string: String, charset: Charset): Array[Byte] = gzip(string.getBytes(charset))
 
@@ -33,7 +31,7 @@ object GzipHelper {
   def gzip(in: InputStream): Array[Byte] =
     Using.resource(in) { is =>
       val out = FastByteArrayOutputStream.pooled()
-      Using.resource(new GZIPOutputStream(out))(is.copyTo(_))
+      Using.resource(new GZIPOutputStream(out))(is.transferTo)
       out.toByteArray
     }
 }

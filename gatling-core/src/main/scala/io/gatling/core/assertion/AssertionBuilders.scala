@@ -16,8 +16,8 @@
 
 package io.gatling.core.assertion
 
-import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.model.assertion._
 
 final class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
   def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, TimeMetric.ResponseTime, configuration)

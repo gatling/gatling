@@ -48,6 +48,7 @@ object Dependencies {
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                     % "8.2.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val lagarto                        = "org.jodd"                             % "jodd-lagarto"                      % "6.0.6"
+  private val joddUtil                       = "org.jodd"                             % "jodd-util"                         % "6.2.1"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.5.1"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
@@ -88,14 +89,15 @@ object Dependencies {
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-16"                   % "3.2.14.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                       % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.17.0"            % Test
-  private val akkaTestKit                    = akka.withName("akka-testkit")                                                              % Test
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "4.11.0"             % Test
+  private val akkaTestKit                    = akka.withName("akka-testkit")                                                               % Test
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "4.11.0"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.16.6"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                                % "2.2.224"           % Test
-  private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.27"
+  private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.27"              % Test
+  private val activation                     = "jakarta.activation"                   % "jakarta.activation-api"            % "2.1.2"             % Test
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.10.0"             % Test
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.10.0"            % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
   private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"                 % "0.11.1"            % Test
 
@@ -117,7 +119,7 @@ object Dependencies {
     akkaTestKit,
     mockitoCore
   )
-  private val parserDeps = Seq(jackson, saxon, lagarto, jmespath)
+  private val parserDeps = Seq(jackson, saxon, lagarto, joddUtil, jmespath)
 
   // Dependencies by module
 
@@ -127,8 +129,10 @@ object Dependencies {
   val nettyUtilDependencies =
     Seq(nettyBuffer, nettyEpollLinuxX86, nettyEpollLinuxArm, nettyIoUringLinuxX86, nettyIoUringLinuxArm, junit, junitEngine, jupiterInterface)
 
-  def commonsSharedDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
+  def sharedUtilDependencies = testDeps
+
+  def sharedModelDependencies =
+    Seq(boopickle) ++ testDeps
 
   val commonsSharedUnstableDependencies = testDeps
 
@@ -189,7 +193,8 @@ object Dependencies {
     junitEngine,
     jupiterInterface,
     jetty,
-    jettyProxy
+    jettyProxy,
+    activation
   ) ++ loggingDeps
 
   val httpDependencies = Seq(saxon) ++ testDeps

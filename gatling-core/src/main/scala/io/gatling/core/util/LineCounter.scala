@@ -21,12 +21,12 @@ import java.nio.charset.Charset
 
 import scala.util.Using
 
-import io.gatling.commons.util.Io
-
 import io.github.metarank.cfor._
 
 object LineCounter {
-  def apply(charset: Charset): LineCounter = new LineCounter(charset, Io.DefaultBufferSize)
+
+  val DefaultBufferSize: Int = 8 * 1024
+  def apply(charset: Charset): LineCounter = new LineCounter(charset, DefaultBufferSize)
 }
 
 class LineCounter(charset: Charset, bufferSize: Int) {

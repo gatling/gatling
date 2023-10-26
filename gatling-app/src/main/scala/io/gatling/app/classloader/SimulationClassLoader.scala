@@ -23,9 +23,9 @@ import java.nio.file.Path
 import scala.util.Properties
 
 import io.gatling.app.{ JavaSimulation, SimulationClass }
-import io.gatling.commons.shared.unstable.util.PathHelper
-import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.scenario.Simulation
+import io.gatling.shared.util.PathHelper
+import io.gatling.shared.util.PathHelper._
 
 private[gatling] object SimulationClassLoader {
   def apply(binariesDirectory: Path): SimulationClassLoader =

@@ -19,8 +19,8 @@ package io.gatling.app
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.{ LogFileData, LogFileReader }
-import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionMessage, AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult, AssertionValidator }
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
   def processRunResult(runResult: RunResult): StatusCode =
