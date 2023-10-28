@@ -84,7 +84,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     val resource = getClass.getClassLoader.getResource(name)
     val fileUri = resource.getFile
     val raf = new RandomAccessFile(fileUri, "r")
-    val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
+    val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers
       .set(HttpHeaderNames.CONTENT_TYPE, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
