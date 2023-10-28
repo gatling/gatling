@@ -95,8 +95,6 @@ object Dependencies {
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                                % "2.2.224"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.27"              % Test
-  private val activation                     = "jakarta.activation"                   % "jakarta.activation-api"            % "2.1.2"             % Test
-  private val angus                          = "org.eclipse.angus"                    % "angus-activation"                  % "2.0.1"             % Test
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.10.0"            % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
@@ -194,9 +192,7 @@ object Dependencies {
     junitEngine,
     jupiterInterface,
     jetty,
-    jettyProxy,
-    activation,
-    angus
+    jettyProxy
   ) ++ loggingDeps
 
   val httpDependencies = Seq(saxon) ++ testDeps

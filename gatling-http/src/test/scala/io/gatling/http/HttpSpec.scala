@@ -33,12 +33,12 @@ import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
+import io.gatling.http.client.util.MimeTypes
 import io.gatling.http.protocol.HttpProtocolBuilder
 
 import io.netty.channel._
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
-import jakarta.activation.FileTypeMap
 import org.scalatest.BeforeAndAfter
 
 abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
@@ -76,8 +76,6 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     expectMsgClass(timeout, classOf[Session])
   }
 
-  // NOTE : Content Type setting through MimetypesFileTypeMap is buggy until JDK8.
-  // In case Content Type setting fails under JDK < 8, amend mime.types to add the necessary mappings.
   def sendFile(name: String): ChannelProcessor = ctx => {
     val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
 
@@ -87,7 +85,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers
-      .set(HttpHeaderNames.CONTENT_TYPE, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
+      .set(HttpHeaderNames.CONTENT_TYPE, MimeTypes.getMimeType(name))
       .set(HttpHeaderNames.CONTENT_LENGTH, raf.length)
 
     ctx.write(response)
