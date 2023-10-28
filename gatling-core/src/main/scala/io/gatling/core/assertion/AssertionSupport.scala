@@ -16,7 +16,6 @@
 
 package io.gatling.core.assertion
 
-import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionPathParts
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.shared.model.assertion.AssertionPath
 
