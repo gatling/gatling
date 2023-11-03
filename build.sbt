@@ -27,7 +27,6 @@ lazy val root = Project("gatling-parent", file("."))
   .disablePlugins(SbtSpotless)
   .aggregate(
     nettyUtil,
-    sharedUtil,
     sharedModel,
     sharedEnterprise,
     commons,
@@ -85,27 +84,20 @@ def gatlingModule(id: String) =
     .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
-lazy val sharedUtil = gatlingModule("gatling-shared-util")
-  .settings(libraryDependencies ++= sharedUtilDependencies)
-
 lazy val sharedModel = gatlingModule("gatling-shared-model")
-  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= sharedModelDependencies)
 
 lazy val sharedEnterprise = gatlingModule("gatling-shared-enterprise")
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
-  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= nettyUtilDependencies)
 
 lazy val commons = gatlingModule("gatling-commons")
   .disablePlugins(SbtSpotless)
-  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= commonsDependencies)
   .settings(generateVersionFileSettings)
 
 lazy val jsonpath = gatlingModule("gatling-jsonpath")
-  .dependsOn(sharedUtil)
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 
@@ -150,7 +142,6 @@ lazy val redisJava = gatlingModule("gatling-redis-java")
 
 lazy val httpClient = gatlingModule("gatling-http-client")
   .dependsOn(nettyUtil % "compile->compile;test->test")
-  .dependsOn(sharedUtil)
   .settings(libraryDependencies ++= httpClientDependencies)
 
 lazy val http = gatlingModule("gatling-http")

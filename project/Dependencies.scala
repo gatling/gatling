@@ -8,6 +8,7 @@ object Dependencies {
   private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
     .exclude("org.jline", "jline")
   private def scalaCompilerBridge(version: String) = "org.scala-lang"                 % "scala2-sbt-bridge"                 % version
+  private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.4"
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.100.Final"
@@ -41,7 +42,7 @@ object Dependencies {
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "1.7.36"
-  private val cfor                          = "io.github.metarank"                   %% "cfor"                              % "0.3"
+  private val cfor                           = "io.github.metarank"                  %% "cfor"                              % "0.3"
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                     % "3.9.5"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                  % "2.15.3"
@@ -126,20 +127,28 @@ object Dependencies {
     Seq(commonsIo, commonsLang, commonsCodec)
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpollLinuxX86, nettyEpollLinuxArm, nettyIoUringLinuxX86, nettyIoUringLinuxArm, junit, junitEngine, jupiterInterface)
+    Seq(
+      gatlingSharedUtil,
+      nettyBuffer,
+      nettyEpollLinuxX86,
+      nettyEpollLinuxArm,
+      nettyIoUringLinuxX86,
+      nettyIoUringLinuxArm,
+      junit,
+      junitEngine,
+      jupiterInterface
+    )
 
-  def sharedUtilDependencies = testDeps
-
-  def sharedModelDependencies =
-    Seq(boopickle) ++ testDeps
+  val sharedModelDependencies =
+    Seq(gatlingSharedUtil, boopickle) ++ testDeps
 
   val commonsSharedUnstableDependencies = testDeps
 
   val commonsDependencies =
-    Seq(config, cfor) ++ loggingDeps ++ testDeps
+    Seq(gatlingSharedUtil, config, cfor) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
-    Seq(scalaParserCombinators, jackson) ++ testDeps
+    Seq(gatlingSharedUtil, scalaParserCombinators, jackson) ++ testDeps
 
   val coreDependencies =
     Seq(
@@ -165,6 +174,7 @@ object Dependencies {
   val redisDependencies = redisClient +: testDeps
 
   val httpClientDependencies = Seq(
+    gatlingSharedUtil,
     netty,
     nettyBuffer,
     nettyHandler,
