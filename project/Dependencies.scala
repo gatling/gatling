@@ -9,6 +9,7 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private def scalaCompilerBridge(version: String) = "org.scala-lang"                 % "scala2-sbt-bridge"                 % version
   private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.4"
+  private val gatlingSharedModel             = "io.gatling"                          %% "gatling-shared-model"              % "0.0.2"
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.100.Final"
@@ -152,6 +153,7 @@ object Dependencies {
 
   val coreDependencies =
     Seq(
+      gatlingSharedModel,
       akka,
       akkaSlf4j,
       sfm,
