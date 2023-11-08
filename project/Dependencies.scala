@@ -42,7 +42,7 @@ object Dependencies {
   private val akkaSlf4j                      = akka.withName("akka-slf4j")
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
-  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "1.7.36"
+  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "2.0.9"
   private val cfor                           = "io.github.metarank"                  %% "cfor"                              % "0.3"
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                     % "3.9.5"
@@ -74,7 +74,7 @@ object Dependencies {
     .exclude("org.apache.logging.log4j", "log4j-core")
   private val testInterface                  = zinc.organization                      % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.2.12"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.4.11"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.1.12"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
