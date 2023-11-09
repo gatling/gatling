@@ -31,10 +31,9 @@ private[recorder] sealed abstract class Format(
 }
 
 private[recorder] object Format {
-  val AllFormats: List[Format] = List(Java8, Java11, Java17, Kotlin, Scala)
+  val AllFormats: List[Format] = List(Java11, Java17, Kotlin, Scala)
 
   def fromString(configValue: String): Format = configValue match {
-    case Java8.configValue  => Java8
     case Java11.configValue => Java11
     case Java17.configValue => Java17
     case Kotlin.configValue => Kotlin
@@ -42,7 +41,6 @@ private[recorder] object Format {
     case _                  => throw new IllegalArgumentException(s"Unknown Format $configValue")
   }
 
-  private[recorder] case object Java8 extends Format("Java 8", "java8", "java", ";", "()")
   private[recorder] case object Java11 extends Format("Java 11", "java11", "java", ";", "()")
   private[recorder] case object Java17 extends Format("Java 17", "java17", "java", ";", "()")
   private[recorder] case object Kotlin extends Format("Kotlin", "kotlin", "kt", "", "()")

@@ -61,15 +61,10 @@ class RecorderPropertiesBuilder {
     simulationFormat(
       if (Java.MajorVersion >= 17) {
         Format.Java17
-      } else if (Java.MajorVersion >= 11) {
-        Format.Java11
       } else {
-        Format.Java8
+        Format.Java11
       }
     )
-
-  def simulationFormatJava8: RecorderPropertiesBuilder =
-    simulationFormat(Format.Java8)
 
   def simulationFormatJava11: RecorderPropertiesBuilder =
     simulationFormat(Format.Java11)

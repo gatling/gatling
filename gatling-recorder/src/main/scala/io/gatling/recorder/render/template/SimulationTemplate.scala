@@ -34,9 +34,8 @@ private[render] object SimulationTemplate {
 
   private[template] def renderNonBaseUrls(values: Seq[UrlVal], format: Format): String = {
     val referenceType = format match {
-      case Format.Scala | Format.Kotlin  => "private val"
-      case Format.Java11 | Format.Java17 => "private String"
-      case Format.Java8                  => "String"
+      case Format.Scala | Format.Kotlin  => "val"
+      case Format.Java11 | Format.Java17 => "String"
     }
 
     if (values.isEmpty) {
@@ -44,7 +43,7 @@ private[render] object SimulationTemplate {
     } else {
       values
         .sortBy(_.valName)
-        .map(value => s"$referenceType ${value.valName} = ${value.url.protect(format)}${format.lineTermination}")
+        .map(value => s"private $referenceType ${value.valName} = ${value.url.protect(format)}${format.lineTermination}")
         .mkString(Eol, s"$Eol$Eol", "")
     }
   }
@@ -149,15 +148,14 @@ private[render] class SimulationTemplate(
 
   private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
     val scenarioReferenceType = format match {
-      case Format.Scala | Format.Kotlin  => "private val"
-      case Format.Java11 | Format.Java17 => "private ScenarioBuilder"
-      case Format.Java8                  => "ScenarioBuilder"
+      case Format.Scala | Format.Kotlin  => "val"
+      case Format.Java11 | Format.Java17 => "ScenarioBuilder"
     }
 
     if (elements.sizeIs <= MaxElementPerChain) {
       val scenarioElements = chainElements(extractedUris, elements)
 
-      s"""$scenarioReferenceType scn = scenario("$simulationClassName")
+      s"""private $scenarioReferenceType scn = scenario("$simulationClassName")
          |${s".$scenarioElements".indent(2)}${format.lineTermination}""".stripMargin
     } else {
       val chains: Seq[(Int, String)] =
@@ -170,12 +168,13 @@ private[render] class SimulationTemplate(
           }
 
       val chainReferenceType = format match {
-        case Format.Scala | Format.Kotlin  => "private val"
-        case Format.Java11 | Format.Java17 => "private ChainBuilder"
-        case Format.Java8                  => "ChainBuilder"
+        case Format.Scala | Format.Kotlin  => "val"
+        case Format.Java11 | Format.Java17 => "ChainBuilder"
       }
 
-      s"""${chains.map { case (i, content) => s"$chainReferenceType chain_$i =$Eol${content.indent(2)}" }.mkString(s"${format.lineTermination}$Eol$Eol")}
+      s"""${chains
+          .map { case (i, content) => s"private $chainReferenceType chain_$i =$Eol${content.indent(2)}" }
+          .mkString(s"${format.lineTermination}$Eol$Eol")}
          |
          |$scenarioReferenceType scn = scenario("$simulationClassName")
          |  .exec(${chains.map { case (i, _) => s"chain_$i" }.mkString(", ")})${format.lineTermination}""".stripMargin
@@ -259,33 +258,6 @@ private[render] class SimulationTemplate(
            |${renderScenario(extractedUris, scenarioElements).indent(2)}
            |
            |  {
-           |	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
-           |  }
-           |}
-           |""".stripMargin
-
-      case Format.Java8 =>
-        s"""${if (packageName.nonEmpty) s"package $packageName;$Eol" else ""}
-           |import java.time.Duration;
-           |import java.util.*;
-           |
-           |import io.gatling.javaapi.core.*;
-           |import io.gatling.javaapi.http.*;
-           |import io.gatling.javaapi.jdbc.*;
-           |
-           |import static io.gatling.javaapi.core.CoreDsl.*;
-           |import static io.gatling.javaapi.http.HttpDsl.*;
-           |import static io.gatling.javaapi.jdbc.JdbcDsl.*;
-           |
-           |public class $simulationClassName extends Simulation {
-           |
-           |  {
-           |${protocolTemplate.render(protocol).indent(4)}
-           |${renderHeaders(headers).indent(4)}
-           |${renderNonBaseUrls(nonBaseUrls, format).indent(4)}
-           |
-           |${renderScenario(extractedUris, scenarioElements).indent(4)}
-           |
            |	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
            |  }
            |}
