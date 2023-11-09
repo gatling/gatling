@@ -18,7 +18,7 @@ package io.gatling.http.client.impl.compression;
 
 import io.netty.handler.codec.http.HttpContentDecompressor;
 
-public class CustomHttpContentDecompressor extends HttpContentDecompressor {
+public final class CustomHttpContentDecompressor extends HttpContentDecompressor {
 
   @Override
   protected String getTargetContentEncoding(String contentEncoding) {
