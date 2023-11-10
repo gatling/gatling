@@ -27,7 +27,6 @@ import io.gatling.shared.util.StringBuilderPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -81,11 +80,7 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
     if (charset.equals(UTF_8)) {
       Utf8UrlEncoder.encodeAndAppendFormElement(sb, field);
     } else {
-      try {
-        sb.append(URLEncoder.encode(field, charset.name()));
-      } catch (UnsupportedEncodingException e) {
-        // can't happen, as Charset was already resolved
-      }
+      sb.append(URLEncoder.encode(field, charset));
     }
   }
 
