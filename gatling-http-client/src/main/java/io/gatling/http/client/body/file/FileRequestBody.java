@@ -40,9 +40,7 @@ public final class FileRequestBody extends RequestBody.Base<File> {
 
     long contentLength = content.length();
 
-    Object file = new ChunkedFile(content);
-
-    return new WritableContent(file, contentLength);
+    return new WritableContent(new ChunkedFile(content), contentLength);
   }
 
   @Override

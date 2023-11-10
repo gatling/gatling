@@ -16,7 +16,7 @@
 
 package io.gatling.http.client.body;
 
-public class WritableContent {
+public final class WritableContent {
 
   private final Object content;
 
