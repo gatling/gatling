@@ -10,7 +10,6 @@ Global / githubPath := "gatling/gatling"
 Global / gatlingDevelopers := Seq(
   GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", isGatlingCorp = true),
   GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", isGatlingCorp = true),
-  GatlingDeveloper("ccousseran@gatling.io", "Cédric Cousseran", isGatlingCorp = true),
   GatlingDeveloper("tpetillot@gatling.io", "Thomas Petillot", isGatlingCorp = true)
 )
 // [e]
