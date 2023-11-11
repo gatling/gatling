@@ -26,6 +26,7 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
+import io.gatling.core.body.StringBody
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
@@ -68,67 +69,67 @@ class HttpEngine(
 
       import httpComponents._
 
-      httpProtocol.warmUpUrl match {
-        case Some(url) =>
-          val requestBuilder = new RequestBuilder("warmUp", HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
-            .setHeaders(
-              new DefaultHttpHeaders()
-                .add(HttpHeaderNames.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .add(HttpHeaderNames.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-                .add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
-                .add(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
-                .add(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-            )
-            .setRequestTimeout(1000)
-            .setDefaultCharset(configuration.core.charset)
+      // classloading
+      val expression = "foo".expressionSuccess
 
-          httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
-          val eventLoop = eventLoopGroup.next()
+      new Http(expression)
+        .get(expression)
+        .header("bar", expression)
+        .queryParam(expression, expression)
+        .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
 
-          try {
-            val p = Promise[Unit]()
-            httpClient.sendRequest(
-              requestBuilder.build,
-              0,
-              eventLoop,
-              new HttpListener {
-                override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
+      new Http(expression)
+        .post(expression)
+        .body(StringBody(expression, configuration.core.charset))
+        .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
 
-                override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
+      // load ciphers
+      val url = httpProtocol.warmUpUrl.orElse(httpProtocol.baseUrls.headOption).getOrElse("https://gatling.io")
+      val requestBuilder = new RequestBuilder("warmUp", HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
+        .setHeaders(
+          new DefaultHttpHeaders()
+            .add(HttpHeaderNames.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+            .add(HttpHeaderNames.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+            .add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
+            .add(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
+            .add(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+        )
+        .setRequestTimeout(1000)
+        .setDefaultCharset(configuration.core.charset)
 
-                override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
-                  if (last) {
-                    p.success(())
-                  }
-              },
-              null
-            )
-            Await.result(p.future, 2.seconds)
-            logger.debug(s"Warm up request $url successful")
-          } catch {
-            case NonFatal(e) =>
-              if (logger.underlying.isDebugEnabled)
-                logger.debug(s"Couldn't execute warm up request $url", e)
-              else
-                logger.debug(s"Couldn't execute warm up request $url: ${e.rootMessage}")
-          } finally {
-            httpClient.flushClientIdChannels(0, eventLoop)
-          }
+      httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
+      val eventLoop = eventLoopGroup.next()
+      val sslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
 
-        case _ =>
-          val expression = "foo".expressionSuccess
+      try {
+        val p = Promise[Unit]()
+        httpClient.sendRequest(
+          requestBuilder.build,
+          0,
+          eventLoop,
+          new HttpListener {
+            override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
-          new Http(expression)
-            .get(expression)
-            .header("bar", expression)
-            .queryParam(expression, expression)
-            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
+            override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
 
-          new Http(expression)
-            .post(expression)
-            .header("bar", expression)
-            .formParam(expression, expression)
-            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
+            override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
+              if (last) {
+                p.success(())
+              }
+          },
+          sslContexts
+        )
+        Await.result(p.future, 2.seconds)
+        logger.debug(s"Warm up request $url successful")
+      } catch {
+        case NonFatal(e) =>
+          if (logger.underlying.isDebugEnabled)
+            logger.debug(s"Couldn't execute warm up request $url", e)
+          else
+            logger.debug(s"Couldn't execute warm up request $url: ${e.rootMessage}")
+      } finally {
+        httpClient.flushClientIdChannels(0, eventLoop)
+        sslContexts.close()
       }
 
       logger.debug("Warm up done")
