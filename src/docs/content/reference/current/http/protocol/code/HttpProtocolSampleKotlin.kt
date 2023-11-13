@@ -206,8 +206,17 @@ http.signWithOAuth1(
 http.signWithOAuth1(
   { session -> session.getString("consumerKey") },
   { session -> session.getString("clientSharedSecret") },
-  { session -> session.getString("token") }
-) { session -> session.getString("tokenSecret") }
+  { session -> session.getString("token") },
+  { session -> session.getString("tokenSecret") }
+)
+// pass signature as form params or query params instead of an Authorization header
+http.signWithOAuth1(
+  "consumerKey",
+  "clientSharedSecret",
+  "token",
+  "tokenSecret",
+  false
+)
 //#sign-oauth1
 
 //#authorization

@@ -24,10 +24,9 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
 import io.gatling.http.client.Request
-import io.gatling.http.client.oauth.{ ConsumerKey, RequestToken }
+import io.gatling.http.client.oauth.{ ConsumerKey, OAuthSignatureCalculator, RequestToken }
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
-import io.gatling.http.client.sign.OAuthSignatureCalculator
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
@@ -92,11 +91,12 @@ object RequestBuilder {
   val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
-  def oauth1SignatureCalculator(
+  private[http] def oauth1SignatureCalculator(
       consumerKey: Expression[String],
       clientSharedSecret: Expression[String],
       token: Expression[String],
-      tokenSecret: Expression[String]
+      tokenSecret: Expression[String],
+      useAuthorizationHeader: Boolean
   ): (Request, Session) => Validation[Request] =
     (request, session) =>
       for {
@@ -104,7 +104,7 @@ object RequestBuilder {
         css <- clientSharedSecret(session)
         tk <- token(session)
         tks <- tokenSecret(session)
-      } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks)).apply(request)
+      } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks), useAuthorizationHeader).apply(request)
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
@@ -184,5 +184,14 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def sign(calculator: (Request, Session) => Validation[Request]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
 
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
-    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
+    signWithOAuth1(consumerKey, clientSharedSecret, token, tokenSecret, useAuthoriationHeader = true)
+
+  def signWithOAuth1(
+      consumerKey: Expression[String],
+      clientSharedSecret: Expression[String],
+      token: Expression[String],
+      tokenSecret: Expression[String],
+      useAuthoriationHeader: Boolean
+  ): B =
+    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret, useAuthoriationHeader))
 }

@@ -715,7 +715,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Instruct sign the requests with OAuth1 before writing them on the wire
+   * Instruct sign the requests with an OAuth1 Authorization header before writing them on the wire
    *
    * @param consumerKey the consumerKey, expressed as a Gatling Expression Language String
    * @param clientSharedSecret the clientSharedSecret, expressed as a Gatling Expression Language
@@ -730,16 +730,39 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
       @NonNull String clientSharedSecret,
       @NonNull String token,
       @NonNull String tokenSecret) {
+    return signWithOAuth1(consumerKey, clientSharedSecret, token, tokenSecret, true);
+  }
+
+  /**
+   * Instruct sign the requests with OAuth1 before writing them on the wire
+   *
+   * @param consumerKey the consumerKey, expressed as a Gatling Expression Language String
+   * @param clientSharedSecret the clientSharedSecret, expressed as a Gatling Expression Language
+   *     String
+   * @param token the token, expressed as a Gatling Expression Language String
+   * @param tokenSecret the tokenSecret, expressed as a Gatling Expression Language String
+   * @param useAuthorizationHeader if true, sign with an Authorization header, otherwise sign forms
+   *     with extra parameters and other requests with extra query params
+   * @return a new HttpProtocolBuilder instance
+   */
+  @NonNull
+  public HttpProtocolBuilder signWithOAuth1(
+      @NonNull String consumerKey,
+      @NonNull String clientSharedSecret,
+      @NonNull String token,
+      @NonNull String tokenSecret,
+      boolean useAuthorizationHeader) {
     return new HttpProtocolBuilder(
         wrapped.signWithOAuth1(
             toStringExpression(consumerKey),
             toStringExpression(clientSharedSecret),
             toStringExpression(token),
-            toStringExpression(tokenSecret)));
+            toStringExpression(tokenSecret),
+            useAuthorizationHeader));
   }
 
   /**
-   * Instruct sign the requests with OAuth1 before writing them on the wire
+   * Instruct sign the requests with an OAuth1 Authorization before writing them on the wire
    *
    * @param consumerKey the consumerKey, expressed as a function
    * @param clientSharedSecret the clientSharedSecret, expressed as a function
@@ -753,12 +776,34 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
       @NonNull Function<Session, String> clientSharedSecret,
       @NonNull Function<Session, String> token,
       @NonNull Function<Session, String> tokenSecret) {
+    return signWithOAuth1(consumerKey, clientSharedSecret, token, tokenSecret, true);
+  }
+
+  /**
+   * Instruct sign the requests with OAuth1 before writing them on the wire
+   *
+   * @param consumerKey the consumerKey, expressed as a function
+   * @param clientSharedSecret the clientSharedSecret, expressed as a function
+   * @param token the token, expressed as a function
+   * @param tokenSecret the tokenSecret, expressed as a function
+   * @param useAuthorizationHeader if true, sign with an Authorization header, otherwise sign forms
+   *     with extra parameters and other requests with extra query params
+   * @return a new HttpProtocolBuilder instance
+   */
+  @NonNull
+  public HttpProtocolBuilder signWithOAuth1(
+      @NonNull Function<Session, String> consumerKey,
+      @NonNull Function<Session, String> clientSharedSecret,
+      @NonNull Function<Session, String> token,
+      @NonNull Function<Session, String> tokenSecret,
+      boolean useAuthorizationHeader) {
     return new HttpProtocolBuilder(
         wrapped.signWithOAuth1(
             javaFunctionToExpression(consumerKey),
             javaFunctionToExpression(clientSharedSecret),
             javaFunctionToExpression(token),
-            javaFunctionToExpression(tokenSecret)));
+            javaFunctionToExpression(tokenSecret),
+            useAuthorizationHeader));
   }
 
   /**

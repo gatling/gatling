@@ -43,6 +43,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -54,7 +55,80 @@ import javax.crypto.spec.SecretKeySpec;
  * Header inclusion as inclusion method. Nonce generation uses simple random numbers with base64
  * encoding.
  */
-public class OAuthSignatureCalculatorInstance {
+class OAuthSignatureCalculatorInstance {
+
+  public static final class Signature {
+
+    private final ConsumerKey consumerAuth;
+    private final RequestToken requestToken;
+    private final long timestamp;
+    private final String nonce;
+    final String signature;
+
+    public Signature(
+        ConsumerKey consumerAuth,
+        RequestToken requestToken,
+        long timestamp,
+        String nonce,
+        String signature) {
+      this.consumerAuth = consumerAuth;
+      this.requestToken = requestToken;
+      this.timestamp = timestamp;
+      this.nonce = nonce;
+      this.signature = signature;
+    }
+
+    String computeAuthorizationHeader() {
+      StringBuilder sb = StringBuilderPool.DEFAULT.get();
+      sb.append("OAuth ");
+      sb.append(KEY_OAUTH_CONSUMER_KEY)
+          .append("=\"")
+          .append(consumerAuth.percentEncodedKey)
+          .append("\", ");
+      if (requestToken.key != null) {
+        sb.append(KEY_OAUTH_TOKEN)
+            .append("=\"")
+            .append(requestToken.percentEncodedKey)
+            .append("\", ");
+      }
+      sb.append(KEY_OAUTH_SIGNATURE_METHOD)
+          .append("=\"")
+          .append(OAUTH_SIGNATURE_METHOD)
+          .append("\", ");
+
+      // careful: base64 has chars that need URL encoding:
+      sb.append(KEY_OAUTH_SIGNATURE).append("=\"");
+      Utf8UrlEncoder.encodeAndAppendPercentEncoded(sb, signature).append("\", ");
+      sb.append(KEY_OAUTH_TIMESTAMP)
+          .append("=\"")
+          .append(timestamp)
+          .append("\", ")
+          .append(KEY_OAUTH_NONCE)
+          .append("=\"")
+          .append(Utf8UrlEncoder.percentEncodeQueryElement(nonce))
+          .append("\", ")
+          .append(KEY_OAUTH_VERSION)
+          .append("=\"")
+          .append(OAUTH_VERSION_1_0)
+          .append("\"");
+      return sb.toString();
+    }
+
+    List<Param> computeParams() {
+      List<Param> params = new ArrayList<>(7);
+      params.add(new Param(KEY_OAUTH_CONSUMER_KEY, consumerAuth.key));
+      if (requestToken.key != null) {
+        params.add(new Param(KEY_OAUTH_TOKEN, requestToken.key));
+      }
+      params.add(new Param(KEY_OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD));
+      params.add(new Param(KEY_OAUTH_SIGNATURE, signature));
+      params.add(new Param(KEY_OAUTH_TIMESTAMP, String.valueOf(timestamp)));
+      params.add(new Param(KEY_OAUTH_NONCE, nonce));
+      params.add(new Param(KEY_OAUTH_VERSION, OAUTH_VERSION_1_0));
+      return params;
+    }
+  }
+
   private static final String KEY_OAUTH_CONSUMER_KEY = "oauth_consumer_key";
   private static final String KEY_OAUTH_NONCE = "oauth_nonce";
   private static final String KEY_OAUTH_SIGNATURE = "oauth_signature";
@@ -70,87 +144,72 @@ public class OAuthSignatureCalculatorInstance {
   private final byte[] nonceBuffer = new byte[16];
   private final Params params = new Params();
 
-  public OAuthSignatureCalculatorInstance() throws NoSuchAlgorithmException {
-    mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+  public OAuthSignatureCalculatorInstance() {
+    try {
+      mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+    } catch (NoSuchAlgorithmException e) {
+      throw new UnsupportedOperationException(
+          HMAC_SHA1_ALGORITHM + " is not supported, really?", e);
+    }
   }
 
-  public String computeAuthorizationHeader(
+  public Signature computeSignature(
       ConsumerKey consumerAuth,
-      RequestToken userAuth,
+      RequestToken requestToken,
       HttpMethod method,
       Uri uri,
-      List<Param> formParams)
-      throws InvalidKeyException {
+      List<Param> formParams) {
     String nonce = generateNonce();
     long timestamp = generateTimestamp();
-    return computeAuthorizationHeader(
-        consumerAuth, userAuth, method, uri, formParams, timestamp, nonce);
+    return computeSignature(consumerAuth, requestToken, method, uri, formParams, timestamp, nonce);
   }
 
-  private String generateNonce() {
+  protected String generateNonce() {
     ThreadLocalRandom.current().nextBytes(nonceBuffer);
     // let's use base64 encoding over hex, slightly more compact than hex or decimals
     return Base64.getEncoder().encodeToString(nonceBuffer);
   }
 
-  private static long generateTimestamp() {
+  protected long generateTimestamp() {
     return System.currentTimeMillis() / 1000L;
   }
 
-  String computeAuthorizationHeader(
+  Signature computeSignature(
       ConsumerKey consumerAuth,
-      RequestToken userAuth,
+      RequestToken requestToken,
       HttpMethod method,
       Uri uri,
       List<Param> formParams,
       long timestamp,
-      String nonce)
-      throws InvalidKeyException {
-    String percentEncodedNonce = Utf8UrlEncoder.percentEncodeQueryElement(nonce);
-    String signature =
-        computeSignature(
-            consumerAuth, userAuth, method, uri, formParams, timestamp, percentEncodedNonce);
-    return computeAuthorizationHeader(
-        consumerAuth, userAuth, signature, timestamp, percentEncodedNonce);
-  }
-
-  String computeSignature(
-      ConsumerKey consumerAuth,
-      RequestToken userAuth,
-      HttpMethod method,
-      Uri uri,
-      List<Param> formParams,
-      long oauthTimestamp,
-      String percentEncodedNonce)
-      throws InvalidKeyException {
-
+      String nonce) {
     StringBuilder sb =
-        signatureBaseString(
-            consumerAuth, userAuth, method, uri, formParams, oauthTimestamp, percentEncodedNonce);
+        signatureBaseString(consumerAuth, requestToken, method, uri, formParams, timestamp, nonce);
 
     ByteBuffer rawBase = StringUtils.charSequence2ByteBuffer(sb, UTF_8);
-    byte[] rawSignature = digest(consumerAuth, userAuth, rawBase);
+    byte[] rawSignature = digest(consumerAuth, requestToken, rawBase);
     // and finally, base64 encoded... phew!
-    return Base64.getEncoder().encodeToString(rawSignature);
+    String signature = Base64.getEncoder().encodeToString(rawSignature);
+
+    return new Signature(consumerAuth, requestToken, timestamp, nonce, signature);
   }
 
   StringBuilder signatureBaseString(
       ConsumerKey consumerAuth,
-      RequestToken userAuth,
+      RequestToken requestToken,
       HttpMethod method,
       Uri uri,
       List<Param> formParams,
       long oauthTimestamp,
-      String percentEncodedNonce) {
+      String nonce) {
 
     // beware: must generate first as we're using pooled StringBuilder
     String baseUrl = uri.toUrlWithoutQuery();
     String encodedParams =
         encodedParams(
             consumerAuth,
-            userAuth,
+            requestToken,
             oauthTimestamp,
-            percentEncodedNonce,
+            Utf8UrlEncoder.percentEncodeQueryElement(nonce),
             uri.getEncodedQueryParams(),
             formParams);
 
@@ -167,7 +226,7 @@ public class OAuthSignatureCalculatorInstance {
 
   private String encodedParams(
       ConsumerKey consumerAuth,
-      RequestToken userAuth,
+      RequestToken requestToken,
       long oauthTimestamp,
       String percentEncodedNonce,
       List<Param> queryParams,
@@ -183,8 +242,8 @@ public class OAuthSignatureCalculatorInstance {
         .add(KEY_OAUTH_NONCE, percentEncodedNonce)
         .add(KEY_OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD)
         .add(KEY_OAUTH_TIMESTAMP, String.valueOf(oauthTimestamp));
-    if (userAuth.key != null) {
-      params.add(KEY_OAUTH_TOKEN, userAuth.percentEncodedKey);
+    if (requestToken.key != null) {
+      params.add(KEY_OAUTH_TOKEN, requestToken.percentEncodedKey);
     }
     params.add(KEY_OAUTH_VERSION, OAUTH_VERSION_1_0);
 
@@ -212,50 +271,22 @@ public class OAuthSignatureCalculatorInstance {
     return s.replace("*", "%2A").replace("+", "%20").replace("%7E", "~");
   }
 
-  private byte[] digest(ConsumerKey consumerAuth, RequestToken userAuth, ByteBuffer message)
-      throws InvalidKeyException {
+  private byte[] digest(ConsumerKey consumerAuth, RequestToken requestToken, ByteBuffer message) {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
     Utf8UrlEncoder.encodeAndAppendQueryElement(sb, consumerAuth.secret);
     sb.append('&');
-    if (userAuth != null && userAuth.secret != null) {
-      Utf8UrlEncoder.encodeAndAppendQueryElement(sb, userAuth.secret);
+    if (requestToken != null && requestToken.secret != null) {
+      Utf8UrlEncoder.encodeAndAppendQueryElement(sb, requestToken.secret);
     }
     byte[] keyBytes = StringUtils.charSequence2Bytes(sb, UTF_8);
     SecretKeySpec signingKey = new SecretKeySpec(keyBytes, HMAC_SHA1_ALGORITHM);
 
-    mac.init(signingKey);
+    try {
+      mac.init(signingKey);
+    } catch (InvalidKeyException e) {
+      throw new IllegalArgumentException("Failed to init Mac", e);
+    }
     mac.update(message);
     return mac.doFinal();
-  }
-
-  String computeAuthorizationHeader(
-      ConsumerKey consumerAuth,
-      RequestToken userAuth,
-      String signature,
-      long oauthTimestamp,
-      String percentEncodedNonce) {
-    StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    sb.append("OAuth ");
-    sb.append(KEY_OAUTH_CONSUMER_KEY)
-        .append("=\"")
-        .append(consumerAuth.percentEncodedKey)
-        .append("\", ");
-    if (userAuth.key != null) {
-      sb.append(KEY_OAUTH_TOKEN).append("=\"").append(userAuth.percentEncodedKey).append("\", ");
-    }
-    sb.append(KEY_OAUTH_SIGNATURE_METHOD)
-        .append("=\"")
-        .append(OAUTH_SIGNATURE_METHOD)
-        .append("\", ");
-
-    // careful: base64 has chars that need URL encoding:
-    sb.append(KEY_OAUTH_SIGNATURE).append("=\"");
-    Utf8UrlEncoder.encodeAndAppendPercentEncoded(sb, signature).append("\", ");
-    sb.append(KEY_OAUTH_TIMESTAMP).append("=\"").append(oauthTimestamp).append("\", ");
-
-    sb.append(KEY_OAUTH_NONCE).append("=\"").append(percentEncodedNonce).append("\", ");
-
-    sb.append(KEY_OAUTH_VERSION).append("=\"").append(OAUTH_VERSION_1_0).append("\"");
-    return sb.toString();
   }
 }

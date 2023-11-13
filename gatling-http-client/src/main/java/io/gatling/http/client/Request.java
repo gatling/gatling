@@ -110,6 +110,50 @@ public class Request {
         this.wsSubprotocol);
   }
 
+  public Request copyWithNewUri(Uri uri) {
+    return new Request(
+        this.name,
+        this.method,
+        uri,
+        this.headers,
+        this.cookies,
+        this.body,
+        this.requestTimeout,
+        this.virtualHost,
+        this.autoOrigin,
+        this.localIpV4Address,
+        this.localIpV6Address,
+        this.realm,
+        this.proxyServer,
+        this.signatureCalculator,
+        this.nameResolver,
+        this.http2Enabled,
+        this.http2PriorKnowledge,
+        this.wsSubprotocol);
+  }
+
+  public Request copyWithNewBody(RequestBody body) {
+    return new Request(
+        this.name,
+        this.method,
+        this.uri,
+        this.headers,
+        this.cookies,
+        body,
+        this.requestTimeout,
+        this.virtualHost,
+        this.autoOrigin,
+        this.localIpV4Address,
+        this.localIpV6Address,
+        this.realm,
+        this.proxyServer,
+        this.signatureCalculator,
+        this.nameResolver,
+        this.http2Enabled,
+        this.http2PriorKnowledge,
+        this.wsSubprotocol);
+  }
+
   public Request copyWithHttp2PriorKnowledge(Http2PriorKnowledge http2PriorKnowledge) {
     return new Request(
         this.name,

@@ -140,7 +140,15 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
       token: Expression[String],
       tokenSecret: Expression[String]
   ): HttpProtocolBuilder =
-    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
+    signWithOAuth1(consumerKey, clientSharedSecret, token, tokenSecret, useAuthorizationHeader = true)
+  def signWithOAuth1(
+      consumerKey: Expression[String],
+      clientSharedSecret: Expression[String],
+      token: Expression[String],
+      tokenSecret: Expression[String],
+      useAuthorizationHeader: Boolean
+  ): HttpProtocolBuilder =
+    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret, useAuthorizationHeader = useAuthorizationHeader))
   def enableHttp2: HttpProtocolBuilder =
     if (useOpenSsl) {
       if (SslProvider.isAlpnSupported(SslProvider.OPENSSL_REFCNT)) {

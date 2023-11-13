@@ -99,6 +99,10 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
     return patchedContentType;
   }
 
+  public Charset getCharset() {
+    return charset;
+  }
+
   @Override
   public String toString() {
     return "FormUrlEncodedRequestBody{"
