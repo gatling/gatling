@@ -309,6 +309,7 @@ class HttpCompileTest extends Simulation {
           val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
           val authorization = Base64.getEncoder.encodeToString(rawSignature)
           request.getHeaders.add("Authorization", authorization)
+          request
         }
     )
     // proxy

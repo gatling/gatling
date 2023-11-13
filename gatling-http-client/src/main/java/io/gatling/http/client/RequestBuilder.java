@@ -40,7 +40,7 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class RequestBuilder {
 
@@ -60,7 +60,7 @@ public class RequestBuilder {
   private InetAddress localIpV6Address;
   private Realm realm;
   private ProxyServer proxyServer;
-  private Consumer<Request> signatureCalculator;
+  private Function<Request, Request> signatureCalculator;
   private boolean http2Enabled;
   private Http2PriorKnowledge http2PriorKnowledge = Http2PriorKnowledge.HTTP1_ONLY;
   private String wsSubprotocol;
@@ -133,7 +133,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setSignatureCalculator(Consumer<Request> signatureCalculator) {
+  public RequestBuilder setSignatureCalculator(Function<Request, Request> signatureCalculator) {
     this.signatureCalculator = signatureCalculator;
     return this;
   }

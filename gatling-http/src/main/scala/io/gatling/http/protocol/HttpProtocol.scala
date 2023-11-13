@@ -173,7 +173,7 @@ final case class HttpProtocolRequestPart(
     disableUrlEncoding: Boolean,
     silentUri: Option[Pattern],
     silentResources: Boolean,
-    signatureCalculator: Option[(Request, Session) => Validation[_]]
+    signatureCalculator: Option[(Request, Session) => Validation[Request]]
 )
 
 final case class HttpProtocolResponsePart(

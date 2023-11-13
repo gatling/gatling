@@ -396,7 +396,7 @@ class OAuthSignatureCalculatorTest {
   }
 
   @Test
-  void testPercentEncodeKeyValues() throws Exception {
+  void testPercentEncodeKeyValues() {
     // see https://github.com/AsyncHttpClient/async-http-client/issues/1415
     String keyValue = "\u3b05\u000c\u375b";
 
@@ -413,6 +413,6 @@ class OAuthSignatureCalculatorTest {
                 null)
             .build();
 
-    calc.accept(request);
+    calc.apply(request);
   }
 }

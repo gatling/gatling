@@ -69,7 +69,10 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
-    httpRequestDef(_.sign((request, _) => request.getHeaders.add("X-Token", "foo")))
+    httpRequestDef(_.sign { (request, _) =>
+      request.getHeaders.add("X-Token", "foo")
+      request
+    })
       .build(sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false)

@@ -187,10 +187,11 @@ http.sign { request ->
   // import org.apache.commons.codec.digest.DigestUtils
   val md5 = DigestUtils.md5Hex(request.body.bytes)
   request.headers.add("X-MD5", md5)
+  request
 }
 
 // or with access to the Session
-http.sign { request, session -> }
+http.sign { request, session -> request }
 //#sign
 
 //#sign-oauth1

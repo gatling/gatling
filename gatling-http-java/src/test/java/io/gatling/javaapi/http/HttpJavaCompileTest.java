@@ -95,8 +95,8 @@ public class HttpJavaCompileTest extends Simulation {
           .silentResources()
           .silentUri("regex")
           .disableUrlEncoding()
-          .sign(request -> {})
-          .sign((request, session) -> {})
+          .sign(request -> request)
+          .sign((request, session) -> request)
           .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret")
           .signWithOAuth1(
               session -> "consumerKey",
@@ -267,8 +267,8 @@ public class HttpJavaCompileTest extends Simulation {
                   .virtualHost("virtualHost")
                   .virtualHost(session -> "virtualHost")
                   .disableUrlEncoding()
-                  .sign(request -> {})
-                  .sign((request, session) -> {})
+                  .sign(request -> request)
+                  .sign((request, session) -> request)
                   .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret")
                   .signWithOAuth1(
                       session -> "consumerKey",

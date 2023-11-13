@@ -35,9 +35,7 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
@@ -700,8 +698,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @return a new HttpProtocolBuilder instance
    */
   @NonNull
-  public HttpProtocolBuilder sign(@NonNull Consumer<Request> calculator) {
-    return sign((request, session) -> calculator.accept(request));
+  public HttpProtocolBuilder sign(@NonNull Function<Request, Request> calculator) {
+    return sign((request, session) -> calculator.apply(request));
   }
 
   /**
@@ -712,7 +710,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @return a new HttpProtocolBuilder instance
    */
   @NonNull
-  public HttpProtocolBuilder sign(@NonNull BiConsumer<Request, Session> calculator) {
+  public HttpProtocolBuilder sign(@NonNull BiFunction<Request, Session, Request> calculator) {
     return new HttpProtocolBuilder(wrapped.sign(SignatureCalculators.toScala(calculator)));
   }
 

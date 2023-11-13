@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.Cookie;
 import java.net.InetAddress;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Request {
 
@@ -43,7 +43,7 @@ public class Request {
   private final InetAddress localIpV6Address;
   private final Realm realm;
   private final ProxyServer proxyServer;
-  private final Consumer<Request> signatureCalculator;
+  private final Function<Request, Request> signatureCalculator;
   private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
   private final Http2PriorKnowledge http2PriorKnowledge;
@@ -63,7 +63,7 @@ public class Request {
       InetAddress localIpV6Address,
       Realm realm,
       ProxyServer proxyServer,
-      Consumer<Request> signatureCalculator,
+      Function<Request, Request> signatureCalculator,
       InetAddressNameResolver nameResolver,
       boolean http2Enabled,
       Http2PriorKnowledge http2PriorKnowledge,
@@ -86,6 +86,28 @@ public class Request {
     this.http2Enabled = http2Enabled;
     this.http2PriorKnowledge = http2PriorKnowledge;
     this.wsSubprotocol = wsSubprotocol;
+  }
+
+  public Request copyWithCopiedHeaders() {
+    return new Request(
+        this.name,
+        this.method,
+        this.uri,
+        this.headers.copy(),
+        this.cookies,
+        this.body,
+        this.requestTimeout,
+        this.virtualHost,
+        this.autoOrigin,
+        this.localIpV4Address,
+        this.localIpV6Address,
+        this.realm,
+        this.proxyServer,
+        this.signatureCalculator,
+        this.nameResolver,
+        this.http2Enabled,
+        this.http2PriorKnowledge,
+        this.wsSubprotocol);
   }
 
   public Request copyWithHttp2PriorKnowledge(Http2PriorKnowledge http2PriorKnowledge) {
@@ -162,7 +184,7 @@ public class Request {
     return proxyServer;
   }
 
-  public Consumer<Request> getSignatureCalculator() {
+  public Function<Request, Request> getSignatureCalculator() {
     return signatureCalculator;
   }
 

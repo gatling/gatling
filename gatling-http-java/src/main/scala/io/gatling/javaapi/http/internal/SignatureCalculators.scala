@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.http.internal
 
-import java.util.function.BiConsumer
+import java.util.function.BiFunction
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session => ScalaSession }
@@ -24,6 +24,6 @@ import io.gatling.http.client.Request
 import io.gatling.javaapi.core.Session
 
 object SignatureCalculators {
-  def toScala(calculator: BiConsumer[Request, Session]): (Request, ScalaSession) => Validation[_] =
-    (request, session) => calculator.accept(request, new Session(session)).success
+  def toScala(calculator: BiFunction[Request, Session, Request]): (Request, ScalaSession) => Validation[Request] =
+    (request, session) => calculator.apply(request, new Session(session)).success
 }

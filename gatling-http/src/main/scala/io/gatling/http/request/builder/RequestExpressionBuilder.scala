@@ -201,7 +201,7 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val maybeSignatureCalculator: Option[(Request, Session) => Validation[_]] =
+  private val maybeSignatureCalculator: Option[(Request, Session) => Validation[Request]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
   private def configureSignatureCalculator(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     maybeSignatureCalculator match {
@@ -209,7 +209,7 @@ abstract class RequestExpressionBuilder(
         requestBuilder.setSignatureCalculator { request =>
           signatureCalculator(request, session) match {
             case Failure(message) => throw new IllegalArgumentException(s"Failed to compute signature: $message")
-            case _                =>
+            case Success(signed)  => signed
           }
         }
       case _ =>

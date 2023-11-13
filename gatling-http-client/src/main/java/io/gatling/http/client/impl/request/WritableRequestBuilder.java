@@ -29,7 +29,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class WritableRequestBuilder {
 
@@ -88,11 +88,18 @@ public class WritableRequestBuilder {
 
   public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, boolean http2)
       throws Exception {
+    return buildRequest0(signRequest(request), alloc, http2);
+  }
 
-    Consumer<Request> signatureCalculator = request.getSignatureCalculator();
-    if (signatureCalculator != null) {
-      signatureCalculator.accept(request);
-    }
+  private static Request signRequest(Request request) {
+    Function<Request, Request> signatureCalculator = request.getSignatureCalculator();
+    return signatureCalculator != null
+        ? signatureCalculator.apply(request.copyWithCopiedHeaders())
+        : request;
+  }
+
+  private static WritableRequest buildRequest0(
+      Request request, ByteBufAllocator alloc, boolean http2) throws Exception {
 
     HttpMethod method = request.getMethod();
     String url = requestUrl(request.getUri(), request.getProxyServer(), http2);

@@ -193,10 +193,11 @@ http.sign(request -> {
   // import org.apache.commons.codec.digest.DigestUtils
   String md5 = DigestUtils.md5Hex(request.getBody().getBytes());
   request.getHeaders().add("X-MD5", md5);
+  return request;
 });
 
 // or with access to the Session
-http.sign((request, session) -> {});
+http.sign((request, session) -> request);
 //#sign
 
 //#sign-oauth1

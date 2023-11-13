@@ -48,6 +48,8 @@ HttpProtocolBuilder httpProtocol = http
           "x-dynaTrace",
           "VU=" + VU + ";SI=" + SI + ";TSN=" + TSN + ";LSN=" + LSN + ";LTN=" + LTN + ";PC=" + PC
         );
+
+      return request;
     }
   );
 //#dynatrace

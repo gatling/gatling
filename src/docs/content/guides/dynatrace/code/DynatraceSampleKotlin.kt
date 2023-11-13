@@ -35,6 +35,8 @@ val httpProtocol = http
 
     request.headers["x-dynaTrace"] =
       "VU=$VU;SI=$SI;TSN=$TSN;LSN=$LSN;LTN=$LTN;PC=$PC"
+
+    request
   }
 //#dynatrace
 }

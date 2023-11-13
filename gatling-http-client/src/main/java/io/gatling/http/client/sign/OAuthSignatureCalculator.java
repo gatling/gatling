@@ -29,9 +29,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
-public class OAuthSignatureCalculator implements Consumer<Request> {
+public class OAuthSignatureCalculator implements Function<Request, Request> {
 
   private static final ThreadLocal<OAuthSignatureCalculatorInstance> INSTANCES =
       ThreadLocal.withInitial(
@@ -52,7 +52,7 @@ public class OAuthSignatureCalculator implements Consumer<Request> {
   }
 
   @Override
-  public void accept(Request request) {
+  public Request apply(Request request) {
 
     RequestBody body = request.getBody();
     List<Param> formParams =
@@ -68,6 +68,7 @@ public class OAuthSignatureCalculator implements Consumer<Request> {
                   consumerAuth, requestToken, request.getMethod(), request.getUri(), formParams);
 
       request.getHeaders().set(AUTHORIZATION, authorization);
+      return request;
 
     } catch (InvalidKeyException e) {
       throw new IllegalArgumentException("Failed to compute OAuth signature", e);
