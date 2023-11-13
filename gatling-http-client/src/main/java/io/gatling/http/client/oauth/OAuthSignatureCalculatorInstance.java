@@ -161,7 +161,16 @@ class OAuthSignatureCalculatorInstance {
       List<Param> formParams) {
     String nonce = generateNonce();
     long timestamp = generateTimestamp();
-    return computeSignature(consumerAuth, requestToken, method, uri, formParams, timestamp, nonce);
+
+    StringBuilder sb =
+        signatureBaseString(consumerAuth, requestToken, method, uri, formParams, timestamp, nonce);
+
+    ByteBuffer rawBase = StringUtils.charSequence2ByteBuffer(sb, UTF_8);
+    byte[] rawSignature = digest(consumerAuth, requestToken, rawBase);
+    // and finally, base64 encoded... phew!
+    String signature = Base64.getEncoder().encodeToString(rawSignature);
+
+    return new Signature(consumerAuth, requestToken, timestamp, nonce, signature);
   }
 
   protected String generateNonce() {
@@ -172,25 +181,6 @@ class OAuthSignatureCalculatorInstance {
 
   protected long generateTimestamp() {
     return System.currentTimeMillis() / 1000L;
-  }
-
-  Signature computeSignature(
-      ConsumerKey consumerAuth,
-      RequestToken requestToken,
-      HttpMethod method,
-      Uri uri,
-      List<Param> formParams,
-      long timestamp,
-      String nonce) {
-    StringBuilder sb =
-        signatureBaseString(consumerAuth, requestToken, method, uri, formParams, timestamp, nonce);
-
-    ByteBuffer rawBase = StringUtils.charSequence2ByteBuffer(sb, UTF_8);
-    byte[] rawSignature = digest(consumerAuth, requestToken, rawBase);
-    // and finally, base64 encoded... phew!
-    String signature = Base64.getEncoder().encodeToString(rawSignature);
-
-    return new Signature(consumerAuth, requestToken, timestamp, nonce, signature);
   }
 
   StringBuilder signatureBaseString(
