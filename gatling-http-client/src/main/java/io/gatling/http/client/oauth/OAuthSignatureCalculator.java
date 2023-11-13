@@ -74,12 +74,12 @@ public class OAuthSignatureCalculator implements Function<Request, Request> {
     }
   }
 
-  private Request signWithAuthorizationHeader(Request request, Signature signature) {
+  private static Request signWithAuthorizationHeader(Request request, Signature signature) {
     request.getHeaders().set(AUTHORIZATION, signature.computeAuthorizationHeader());
     return request;
   }
 
-  private Request signWithFormParams(Request request, Signature signature) {
+  private static Request signWithFormParams(Request request, Signature signature) {
     FormUrlEncodedRequestBody originalBody = (FormUrlEncodedRequestBody) request.getBody();
     List<Param> newParams = new ArrayList<>(originalBody.getContent());
     newParams.addAll(signature.computeParams());
@@ -90,7 +90,7 @@ public class OAuthSignatureCalculator implements Function<Request, Request> {
     return request.copyWithNewBody(newBody);
   }
 
-  private Request signWithQueryParams(Request request, Signature signature) {
+  private static Request signWithQueryParams(Request request, Signature signature) {
     Uri newUri = UriEncoder.RAW.encode(request.getUri(), signature.computeParams());
     return request.copyWithNewUri(newUri);
   }
