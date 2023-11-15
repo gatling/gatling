@@ -88,8 +88,9 @@ What `throttle` do is that it:
 Throttling is currently only supported for HTTP requests and JMS.
 
 {{< alert warning >}}
-* Gatling will automatically interrupt your test at the end of the throttle, just like it does with [`maxDuration`]({{< ref "#maximum-duration" >}}).
+* Throttling should only be used with single request scenarios. Otherwise, distribution between multiple requests is likely to be unbalanced.
 * Beware that all excess traffic gets pushed into an unbounded queue, possibly resulting in an OutOfMemoryError if your normal throughput is way higher than the normal one.
+* Gatling will automatically interrupt your test at the end of the throttle, just like it does with [`maxDuration`]({{< ref "#maximum-duration" >}}).
 {{< /alert >}}
 
 {{< include-code "throttling" java kt scala >}}
