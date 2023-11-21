@@ -124,7 +124,7 @@ If you're looking for path based engine for parsing HTML documents, please have 
 
 {{< alert tip >}}
 It lacks a proper specification, so behavior can differ depending on the implementation. Typically, some weird expressions supported in lax implementations in online evaluators might not work in Gatling.
-You might want to consider using our [JMESPath support]({{< ref "#jmesPath" >}}) instead.
+You might want to consider using our [JMESPath support]({{< ref "#jmespath" >}}) instead.
 {{< /alert >}}
 
 It takes one single parameter:
@@ -152,14 +152,14 @@ For example, considering the following JSON payload:
 
 #### `jsonpJsonPath`
 
-Same as [`jsonPath`]({{< ref "#jsonPath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as [`jsonPath`]({{< ref "#jsonpath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
 
 #### `jmesPath`
 
 [JMESPath](http://jmespath.org/) is a query language for JSON.
 
 {{< alert tip >}}
-It has the great advantage over [`jsonPath`]({{< ref "#jsonPath" >}}) that it comes with a full grammar and a Test Compliance Kit to validate implementations.
+It has the great advantage over [`jsonPath`]({{< ref "#jsonpath" >}}) that it comes with a full grammar and a Test Compliance Kit to validate implementations.
 As a result, an expression tested with the online evaluator is guaranteed to work in Gatling too.
 {{< /alert >}}
 
@@ -192,7 +192,7 @@ You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to 
 
 #### `jsonpJmesPath`
 
-Same as [`jmesPath`]({{< ref "#jmesPath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
+Same as [`jmesPath`]({{< ref "#jmespath" >}}) but for [JSONP](http://en.wikipedia.org/wiki/JSONP).
 
 #### `css`
 
