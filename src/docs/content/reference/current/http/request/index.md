@@ -268,31 +268,31 @@ Like in the rest of the DSL, almost every parameter can be a plain `String`, a G
 
 #### `StringBodyPart`
 
-Similar to [StringBody]({{< ref "#string-body" >}}).
+Similar to [StringBody]({{< ref "#stringbody" >}}).
 
 #### `RawFileBodyPart`
 
 where path is the location of a file that will be uploaded as is.
 
-Similar to [RawFileBody]({{< ref "#raw-file-body" >}}).
+Similar to [RawFileBody]({{< ref "#rawfilebody" >}}).
 
 #### `ElFileBodyPart`
 
 where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
 
-Similar to [ElFileBody]({{< ref "#el-file-body" >}}).
+Similar to [ElFileBody]({{< ref "#elfilebody" >}}).
 
 #### `PebbleStringBodyPart`
 
-Similar to [PebbleStringBody]({{< ref "#pebble-body" >}}).
+Similar to [PebbleStringBody]({{< ref "#pebblestringbody" >}}).
 
 #### `PebbleFileBodyPart`
 
-Similar to [PebbleFileBody]({{< ref "#pebble-body" >}}).
+Similar to [PebbleFileBody]({{< ref "#pebblefilebody" >}}).
 
 #### `ByteArrayBodyPart`
 
-Similar to [ByteArrayBody]({{< ref "#byte-array-body" >}}).
+Similar to [ByteArrayBody]({{< ref "#bytearraybody" >}}).
 
 ### Pre-Processing
 
