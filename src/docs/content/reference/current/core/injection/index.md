@@ -59,7 +59,8 @@ The building blocks for open model profile injection are:
 8. `stressPeakUsers(nbUsers).during(duration)`: Injects a given number of users following a smooth approximation of the [heaviside step function](http://en.wikipedia.org/wiki/Heaviside_step_function) stretched to a given duration.
 
 {{< alert tip >}}
-Fractional user injection rates are allowed. A common usecase is if you want to express the injection in terms of requests per second and not users per second.   
+Fractional user injection rates are allowed. A common usecase is if you want to express the injection in terms of requests per second and not users per second.  
+{{< include-code "fractional-user" java kt scala >}}
 {{< /alert >}}
 
 ## Closed Model
