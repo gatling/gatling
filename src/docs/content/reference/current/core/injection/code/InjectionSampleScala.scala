@@ -38,6 +38,15 @@ setUp(
 )
 //#open-injection
 
+//#fractional-user
+//Injects 1 user every 2 seconds for 60 seconds
+setUp(
+  scn.inject(
+    constantUsersPerSec(0.5).during(60)
+  ).protocols(httpProtocol)
+);
+//#fractional-user
+  
 //#closed-injection
 setUp(
   scn.inject(
