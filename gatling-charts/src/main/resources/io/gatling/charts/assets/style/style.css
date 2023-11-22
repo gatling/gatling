@@ -26,6 +26,7 @@
 	--gatling-enterprise-light-color: #c4c4ed;
 	--gatling-gray-medium-color: #bbb;
 	--gatling-hover-color: #e6e6e6;
+	--gatling-hover-background-color: #e6e6e6;
 	--gatling-light-color: #ffffff;
 	--gatling-orange-color: #f78557;
 	--gatling-success-color: #68b65c;
@@ -47,6 +48,26 @@
 	--gatling-font-size-header: 34px;
 
 	--gatling-media-desktop-large: 1920px;
+}
+
+html[data-theme="dark"] {
+	--gatling-background-color: #212529;
+	--gatling-background-light-color: #30363b;
+	--gatling-border-color: #555555;
+	--gatling-blue-color: #1188ff;
+	--gatling-dark-blue-color: #17223B;
+	--gatling-danger-color: #d9534f;
+	--gatling-danger-light-color: #c9302c;
+	--gatling-enterprise-color: #6161d6;
+	--gatling-enterprise-light-color: #343479;
+	--gatling-gray-medium-color: #999;
+	--gatling-hover-color: #e6e6e6;
+	--gatling-hover-background-color: #2c2c2c;
+	--gatling-light-color: #292929;
+	--gatling-orange-color: #f78557;
+	--gatling-success-color: #5cb85c;
+	--gatling-text-color: #dee2e6;
+	--gatling-total-color: #ffa900;
 }
 
 * {
@@ -89,6 +110,42 @@ body {
 	padding: 0 var(--gatling-spacing-layout);
 }
 
+.head .spacer {
+	flex-grow: 1;
+}
+
+.head .theme-toggle {
+	margin-left: 20px;
+	background: none;
+	color: var(--gatling-text-color);
+	border: none;
+}
+
+.head .theme-toggle:hover {
+	color: var(--gatling-hover-color);
+	cursor: pointer;
+}
+
+body .toggle-dark, body .toggle-light {
+	display: block;
+}
+
+[data-theme="dark"] body .toggle-dark {
+	display: none;
+}
+
+[data-theme="light"] body .toggle-light {
+	display: none;
+}
+
+[data-theme="dark"] body .logo-enterprise-light {
+	display: none;
+}
+
+[data-theme="light"] body .logo-enterprise-dark {
+	display: none;
+}
+
 .gatling-open-source {
 	display: flex;
 	align-items: center;
@@ -121,6 +178,14 @@ body {
 
 .gatling-logo img {
 	height: 100%;
+}
+
+[data-theme="dark"] .gatling-logo-light {
+	display: none;
+}
+
+[data-theme="light"] .gatling-logo-dark {
+	display: none;
 }
 
 .container {
@@ -601,6 +666,37 @@ h1 span {
 	font-weight: var(--gatling-font-weight-bold);
 	font-size: var(--gatling-font-size-heading);
 	padding: 2px var(--gatling-spacing);
+}
+
+html[data-theme="dark"] .chart_title {
+	color: var(--gatling-text-color);
+	font-weight: var(--gatling-font-weight-bold);
+	font-size: var(--gatling-font-size-heading);
+	padding: 2px var(--gatling-spacing);
+}
+
+html[data-theme="dark"] .highcharts-background {
+	fill: var(--gatling-background-light-color);
+}
+
+html[data-theme="dark"] .highcharts-button-normal rect {
+	fill: var(--gatling-background-color) !important;
+}
+
+html[data-theme="dark"] .highcharts-button-disabled rect {
+	fill: var(--gatling-background-light-color) !important;
+}
+
+html[data-theme="dark"] .highcharts-button-pressed rect {
+	fill: var(--gatling-orange-color) !important;
+}
+
+html[data-theme="dark"] .highcharts-axis text,
+html[data-theme="dark"] .highcharts-axis-labels text,
+html[data-theme="dark"] .highcharts-button text,
+html[data-theme="dark"] .highcharts-legend-item text,
+html[data-theme="dark"] .highcharts-range-selector-buttons text {
+	fill: var(--gatling-text-color) !important;
 }
 
 .statistics {
