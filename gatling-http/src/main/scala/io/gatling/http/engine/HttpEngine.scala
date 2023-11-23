@@ -92,7 +92,7 @@ class HttpEngine(
             .add(HttpHeaderNames.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
             .add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
             .add(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
-            .add(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+            .add(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0")
         )
         .setRequestTimeout(1000)
         .setDefaultCharset(configuration.core.charset)
