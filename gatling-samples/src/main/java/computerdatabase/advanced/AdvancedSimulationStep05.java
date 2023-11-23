@@ -32,7 +32,7 @@ public class AdvancedSimulationStep05 extends Simulation {
           .acceptLanguageHeader("en-US,en;q=0.5")
           .acceptEncodingHeader("gzip, deflate")
           .userAgentHeader(
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
           );
 
   FeederBuilder<String> feeder = csv("search.csv").random();
