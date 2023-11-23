@@ -24,6 +24,7 @@ If you run into an issue, please contact their respective owners.
 * [Kafka plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
 * [Sftp plugin (Gatling 3.9)](https://github.com/fherbreteau/gatling-sftp) by François Herbreteau
 * [Ftp plugin (Gatling 3.9)](https://github.com/fherbreteau/gatling-ftp) by François Herbreteau
+* [Kafka plugin (Gatling 3.9)](https://github.com/Amerousful/gatling-kafka) by Amerousful (Bairov Pavel)
 
 ### Lagging Gatling Version
 
