@@ -107,7 +107,7 @@ object Dependencies {
 
   // Docs dependencies
   private val commonsIo                      = "commons-io"                           % "commons-io"                        % "2.15.0"
-  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.13.0"
+  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.0"
 
   // format: ON
