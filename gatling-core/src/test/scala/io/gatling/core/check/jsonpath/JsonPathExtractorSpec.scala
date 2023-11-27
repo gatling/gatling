@@ -116,6 +116,10 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     testFind("$.number", 0, new JsonSample { val value = s"""{"number": ${Long.MaxValue}}""" }, Some(Long.MaxValue))
   }
 
+  it should "extract unescaped String" in {
+    testFind("$.string", 0, new JsonSample { val value = """{"string": "foo \"bar\""}""" }, Some("""foo "bar""""))
+  }
+
   "findAll" should "return expected result with anywhere expression" in {
     testFindAll("$..author", Json1, Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
