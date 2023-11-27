@@ -36,6 +36,8 @@ package object util extends LazyLogging {
 
   private val bufferFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS").withZone(ZoneId.systemDefault())
 
+  private val BodyMaxPrintableLength = 500_000
+
   implicit class HttpStringBuilder(val buff: jl.StringBuilder) extends AnyVal {
     def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
       headers.asScala.foreach { entry =>
@@ -60,7 +62,7 @@ package object util extends LazyLogging {
       }
 
       Option(request.getBody).foreach { requestBody =>
-        buff.append("body:").append(requestBody).append(Eol)
+        buff.append("body:").append(requestBody.toString.substring(0, BodyMaxPrintableLength)).append(Eol)
       }
 
       if (request.getProxyServer != null) {
@@ -96,7 +98,7 @@ package object util extends LazyLogging {
             buff.append("body:").append(Eol)
             if (isText(response.headers)) {
               try {
-                buff.append(response.body.string)
+                buff.append(response.body.string.substring(0, BodyMaxPrintableLength))
               } catch {
                 case NonFatal(t) =>
                   val message = "Could not decode response body"
