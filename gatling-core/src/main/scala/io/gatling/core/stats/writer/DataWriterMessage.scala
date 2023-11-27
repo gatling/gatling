@@ -20,7 +20,7 @@ import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 
 import io.gatling.commons.stats.Status
-import io.gatling.shared.model.assertion.Assertion
+import io.gatling.commons.stats.assertion.Assertion
 
 private[stats] final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 

@@ -32,7 +32,7 @@ object Predef extends CoreDsl {
   type Session = io.gatling.core.session.Session
   type Status = io.gatling.commons.stats.Status
   type Simulation = io.gatling.core.scenario.Simulation
-  type Assertion = io.gatling.shared.model.assertion.Assertion
+  type Assertion = io.gatling.commons.stats.assertion.Assertion
   type Node = _root_.jodd.lagarto.dom.Node
 
   /**

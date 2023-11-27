@@ -23,6 +23,7 @@ import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.Base64
 
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.StringHelper.EolBytes
@@ -30,7 +31,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.util.{ Integers, Longs }
-import io.gatling.shared.model.assertion.Assertion
 
 import com.typesafe.scalalogging.StrictLogging
 

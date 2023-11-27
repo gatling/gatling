@@ -19,7 +19,7 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.toScalaSeq;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.shared.model.assertion.*;
+import io.gatling.commons.stats.assertion.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
  */
 public final class Assertion {
 
-  private final io.gatling.shared.model.assertion.Assertion wrapped;
+  private final io.gatling.commons.stats.assertion.Assertion wrapped;
 
-  Assertion(io.gatling.shared.model.assertion.Assertion wrapped) {
+  Assertion(io.gatling.commons.stats.assertion.Assertion wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -42,7 +42,7 @@ public final class Assertion {
    *
    * @return the wrapped Scala instance
    */
-  public io.gatling.shared.model.assertion.Assertion asScala() {
+  public io.gatling.commons.stats.assertion.Assertion asScala() {
     return wrapped;
   }
 
@@ -270,7 +270,7 @@ public final class Assertion {
 
     private Assertion next(Condition condition) {
       return new Assertion(
-          new io.gatling.shared.model.assertion.Assertion(path, target, condition));
+          new io.gatling.commons.stats.assertion.Assertion(path, target, condition));
     }
 
     /**

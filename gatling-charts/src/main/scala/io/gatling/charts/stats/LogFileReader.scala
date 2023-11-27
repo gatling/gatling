@@ -24,11 +24,11 @@ import java.util.Base64
 import scala.collection.mutable
 import scala.io.Source
 
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer._
-import io.gatling.shared.model.assertion.Assertion
 import io.gatling.shared.util.PathHelper
 
 import boopickle.Default._

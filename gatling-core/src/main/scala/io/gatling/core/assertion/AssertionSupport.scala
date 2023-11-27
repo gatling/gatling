@@ -16,8 +16,8 @@
 
 package io.gatling.core.assertion
 
+import io.gatling.commons.stats.assertion.AssertionPath
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.shared.model.assertion.AssertionPath
 
 trait AssertionSupport {
   implicit def string2PathParts(string: String): AssertionPathParts =

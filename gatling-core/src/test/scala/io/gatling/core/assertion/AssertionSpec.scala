@@ -18,8 +18,9 @@ package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.shared.model.assertion.{ Assertion, AssertionStatsRepository, AssertionValidator }
+import io.gatling.shared.model.assertion.{ AssertionStatsRepository, AssertionValidator }
 
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class Stats(
