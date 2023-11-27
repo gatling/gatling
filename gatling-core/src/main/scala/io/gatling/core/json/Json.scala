@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.util.Hex
 import io.gatling.shared.util.StringBuilderPool
 
-import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints }
+import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints, StreamReadFeature }
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
@@ -33,11 +33,20 @@ import io.github.metarank.cfor._
 private[gatling] object Json {
   private val stringBuilders = new StringBuilderPool
   private[json] val objectMapper: ObjectMapper = {
-    val jsonFactory = new JsonFactoryBuilder()
+    val jsonFactoryBuilder = new JsonFactoryBuilder()
       .streamReadConstraints(StreamReadConstraints.builder.maxStringLength(Int.MaxValue).build)
-      .build
+      .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+      .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
 
-    new ObjectMapper(jsonFactory)
+    try {
+      jsonFactoryBuilder
+        .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER) // introduced in 2.14
+        .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER) // introduced in 2.15
+    } catch {
+      case _: NoSuchFieldError =>
+    }
+
+    new ObjectMapper(jsonFactoryBuilder.build)
   }
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
