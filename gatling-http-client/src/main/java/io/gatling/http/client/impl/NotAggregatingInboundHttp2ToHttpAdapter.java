@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http2.Http2Error.PROTOCOL_ERROR;
 import static io.netty.handler.codec.http2.Http2Exception.connectionError;
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
@@ -27,18 +26,20 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
 import io.netty.util.concurrent.Promise;
 
-public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
+/**
+ * Standard {@link InboundHttp2ToHttpAdapter} generates {@link FullHttpResponse}.
+ * This is not what we want.
+ */
+public class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
   private final Http2Connection connection;
-  private final boolean validateHttpHeaders;
   private final Promise<Void> whenAlpn;
 
-  ChunkedInboundHttp2ToHttpAdapter(
-      Http2Connection connection, boolean validateHttpHeaders, Promise<Void> whenAlpn) {
+  NotAggregatingInboundHttp2ToHttpAdapter(
+      Http2Connection connection, Promise<Void> whenAlpn) {
 
     checkNotNull(connection, "connection");
     this.connection = connection;
-    this.validateHttpHeaders = validateHttpHeaders;
     this.whenAlpn = whenAlpn;
   }
 
@@ -59,17 +60,6 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
     return processedBytes + padding;
   }
 
-  private void convertAndFire(
-      ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream)
-      throws Http2Exception {
-    HttpResponse response =
-        HttpConversionUtil.toHttpResponse(streamId, headers, validateHttpHeaders);
-    ctx.fireChannelRead(response);
-    if (endOfStream) {
-      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId, true));
-    }
-  }
-
   @Override
   public void onHeadersRead(
       ChannelHandlerContext ctx,
@@ -78,7 +68,11 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
       int padding,
       boolean endOfStream)
       throws Http2Exception {
-    convertAndFire(ctx, streamId, headers, endOfStream);
+    HttpResponse response = HttpConversionUtil.toHttpResponse(streamId, headers, false);
+    ctx.fireChannelRead(response);
+    if (endOfStream) {
+      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId, true));
+    }
   }
 
   @Override
@@ -93,25 +87,6 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
       boolean endOfStream)
       throws Http2Exception {
     onHeadersRead(ctx, streamId, headers, padding, endOfStream);
-  }
-
-  @Override
-  public void onPushPromiseRead(
-      ChannelHandlerContext ctx,
-      int streamId,
-      int promisedStreamId,
-      Http2Headers headers,
-      int padding)
-      throws Http2Exception {
-    if (connection.stream(promisedStreamId) != null)
-      throw connectionError(
-          PROTOCOL_ERROR,
-          "Push Promise Frame received for pre-existing stream id %d",
-          promisedStreamId);
-
-    if (headers.status() == null) headers.status(OK.codeAsText());
-
-    convertAndFire(ctx, streamId, headers, true);
   }
 
   @Override

@@ -20,6 +20,9 @@ import io.netty.handler.codec.http2.DelegatingDecompressorFrameListener;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2FrameListener;
 
+/**
+ * Extend {@link DelegatingDecompressorFrameListener} in order to retain the content-encoding header
+ */
 public final class CustomDelegatingDecompressorFrameListener
     extends DelegatingDecompressorFrameListener {
 

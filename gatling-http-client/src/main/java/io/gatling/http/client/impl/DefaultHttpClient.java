@@ -924,8 +924,7 @@ public class DefaultHttpClient implements HttpClient {
                             .frameListener(
                                 new CustomDelegatingDecompressorFrameListener(
                                     connection,
-                                    new ChunkedInboundHttp2ToHttpAdapter(
-                                        connection, false, whenAlpn)))
+                                    new NotAggregatingInboundHttp2ToHttpAdapter(connection, whenAlpn)))
                             .build();
 
                     ctx.pipeline()
