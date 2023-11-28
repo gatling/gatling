@@ -34,7 +34,7 @@ sealed trait LowPriorityJsonFilterImplicits {
   implicit val stringJsonFilter: JsonFilter[String] = newJsonFilter { case node =>
     node.getNodeType match {
       case NULL   => null
-      case STRING => node.asText
+      case STRING => node.textValue
       case _      => Json.stringifyNode(node, isRootObject = true)
     }
   }
