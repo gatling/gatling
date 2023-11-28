@@ -132,7 +132,7 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     val tempFile = File.createTempFile("gatling-" + name, null)
     tempFile.deleteOnExit()
 
-    Using.resources(url.openStream(), new BufferedOutputStream(new FileOutputStream(tempFile, false))) { (is, os) =>
+    Using.resources(url.openStream(), new BufferedOutputStream(new FileOutputStream(tempFile))) { (is, os) =>
       is.transferTo(os)
     }
     tempFile
