@@ -20,6 +20,7 @@ import static java.util.Collections.singletonList;
 
 import io.gatling.http.client.*;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
+import io.gatling.http.client.impl.chunk.ForkedChunkedWriteHandler;
 import io.gatling.http.client.impl.compression.CustomDelegatingDecompressorFrameListener;
 import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
 import io.gatling.http.client.pool.ChannelPool;
@@ -924,12 +925,13 @@ public class DefaultHttpClient implements HttpClient {
                             .frameListener(
                                 new CustomDelegatingDecompressorFrameListener(
                                     connection,
-                                    new NotAggregatingInboundHttp2ToHttpAdapter(connection, whenAlpn)))
+                                    new NotAggregatingInboundHttp2ToHttpAdapter(
+                                        connection, whenAlpn)))
                             .build();
 
                     ctx.pipeline()
                         .addLast(HTTP2_HANDLER, http2Handler)
-                        .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
+                        .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
                         .addLast(
                             APP_HTTP2_HANDLER,
                             new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool));
@@ -971,7 +973,7 @@ public class DefaultHttpClient implements HttpClient {
                     ctx.pipeline()
                         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
                         .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
-                        .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
+                        .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
                         .addLast(
                             APP_HTTP_HANDLER,
                             new HttpAppHandler(DefaultHttpClient.this, channelPool));

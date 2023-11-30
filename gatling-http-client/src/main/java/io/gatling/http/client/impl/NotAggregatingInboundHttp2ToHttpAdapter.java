@@ -27,16 +27,15 @@ import io.netty.handler.codec.http2.*;
 import io.netty.util.concurrent.Promise;
 
 /**
- * Standard {@link InboundHttp2ToHttpAdapter} generates {@link FullHttpResponse}.
- * This is not what we want.
+ * Standard {@link InboundHttp2ToHttpAdapter} generates {@link FullHttpResponse}. This is not what
+ * we want.
  */
 public class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
   private final Http2Connection connection;
   private final Promise<Void> whenAlpn;
 
-  NotAggregatingInboundHttp2ToHttpAdapter(
-      Http2Connection connection, Promise<Void> whenAlpn) {
+  NotAggregatingInboundHttp2ToHttpAdapter(Http2Connection connection, Promise<Void> whenAlpn) {
 
     checkNotNull(connection, "connection");
     this.connection = connection;
