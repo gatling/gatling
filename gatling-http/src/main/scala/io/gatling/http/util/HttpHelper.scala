@@ -177,7 +177,7 @@ private[gatling] object HttpHelper extends StrictLogging {
     if (setCookieValues.isEmpty) {
       Nil
     } else {
-      setCookieValues.asScala.view.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)).toList).to(List)
+      setCookieValues.asScala.view.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)).toList).toList
     }
   }
 }
