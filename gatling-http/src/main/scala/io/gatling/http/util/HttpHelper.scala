@@ -51,20 +51,17 @@ private[gatling] object HttpHelper extends StrictLogging {
   )
   private val RedirectStatusCodes = BitSet(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
 
-  def parseFormBody(body: String): List[(String, String)] = {
-    def utf8Decode(s: String) = URLDecoder.decode(s, UTF_8.name)
-
+  def parseFormBody(body: String): List[(String, String)] =
     body
       .split("&")
       .view
       .map(_.split("=", 2))
       .map { pair =>
-        val paramName = utf8Decode(pair(0))
-        val paramValue = if (pair.length > 1) utf8Decode(pair(1)) else ""
+        val paramName = URLDecoder.decode(pair(0), UTF_8)
+        val paramValue = if (pair.length > 1) URLDecoder.decode(pair(1), UTF_8) else ""
         paramName -> paramValue
       }
       .to(List)
-  }
 
   def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
     (session: Session) =>
