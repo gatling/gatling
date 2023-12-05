@@ -20,7 +20,6 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.collection.BitSet
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
@@ -29,27 +28,13 @@ import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.client.uri.Uri
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus, HttpStatusClass }
 import io.netty.handler.codec.http.HttpResponseStatus._
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 private[gatling] object HttpHelper extends StrictLogging {
-  val HttpScheme = "http"
-  val WsScheme = "ws"
-  val OkCodes: BitSet = BitSet(
-    OK.code,
-    CREATED.code,
-    ACCEPTED.code,
-    NON_AUTHORITATIVE_INFORMATION.code,
-    NO_CONTENT.code,
-    RESET_CONTENT.code,
-    PARTIAL_CONTENT.code,
-    MULTI_STATUS.code,
-    208,
-    209,
-    NOT_MODIFIED.code
-  )
-  private val RedirectStatusCodes = BitSet(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
+  private val HttpScheme = "http"
+  private val WsScheme = "ws"
 
   def parseFormBody(body: String): List[(String, String)] =
     body
@@ -121,8 +106,9 @@ private[gatling] object HttpHelper extends StrictLogging {
         None
     }
 
-  def isOk(statusCode: Int): Boolean = OkCodes.contains(statusCode)
-  def isRedirect(status: HttpResponseStatus): Boolean = RedirectStatusCodes.contains(status.code)
+  def isOk(statusCode: Int): Boolean = HttpStatusClass.valueOf(statusCode) == HttpStatusClass.SUCCESS || statusCode == HttpResponseStatus.NOT_MODIFIED.code
+  def isRedirect(status: HttpResponseStatus): Boolean =
+    HttpStatusClass.valueOf(status.code) == HttpStatusClass.REDIRECTION && status != HttpResponseStatus.NOT_MODIFIED
   def isPermanentRedirect(status: HttpResponseStatus): Boolean = status == MOVED_PERMANENTLY || status == PERMANENT_REDIRECT
   def isNotModified(status: HttpResponseStatus): Boolean = status == NOT_MODIFIED
 
