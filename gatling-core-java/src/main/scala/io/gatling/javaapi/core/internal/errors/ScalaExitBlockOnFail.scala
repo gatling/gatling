@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.core.structure
+package io.gatling.javaapi.core.internal.errors
 
-import io.gatling.core.action.builder.{ Executable, GroupBuilder }
-import io.gatling.core.session.Expression
-
-private[structure] trait Groups[B] extends Execs[B] {
-  def group(name: Expression[String])(chain: Executable, chains: Executable*): B =
-    exec(new ChainBuilder(List(GroupBuilder.start(name))).exec(Executable.toChainBuilder(chain, chains)).exec(GroupBuilder.End))
+import io.gatling.javaapi.core.{ ChainBuilder, StructureBuilder }
+import io.gatling.javaapi.core.error.Errors
+final class ScalaExitBlockOnFail[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+    context: Errors[T, W]
+) {
+  def exitBlockOnFail(chain: ChainBuilder): T = context.make(_.exitBlockOnFail(chain.wrapped))
 }

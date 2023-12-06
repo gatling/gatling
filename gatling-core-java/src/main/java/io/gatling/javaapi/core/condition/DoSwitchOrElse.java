@@ -17,10 +17,11 @@
 package io.gatling.javaapi.core.condition;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoSwitchOrElse;
 import java.util.Arrays;
 import java.util.List;
@@ -114,13 +115,13 @@ public interface DoSwitchOrElse<
     /**
      * Define the "else" block
      *
-     * @param chain the chain to execute if the actual value doesn't match any of the choices
-     * @param chains other chains
+     * @param executable the chain to execute if the actual value doesn't match any of the choices
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.orElse(chain.exec(chains));
+    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }
 }

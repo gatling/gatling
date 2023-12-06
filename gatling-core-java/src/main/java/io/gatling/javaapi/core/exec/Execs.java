@@ -22,8 +22,8 @@ import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.exec.ScalaExecs;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -66,21 +66,6 @@ public interface Execs<
   }
 
   /**
-   * Attach a new action.
-   *
-   * <pre>{@code
-   * exec(http("name").get("url"))
-   * }</pre>
-   *
-   * @param actionBuilder the Action builder
-   * @return a new StructureBuilder
-   */
-  @NonNull
-  default T exec(@NonNull ActionBuilder actionBuilder) {
-    return make(wrapped -> wrapped.exec(actionBuilder.asScala()));
-  }
-
-  /**
    * Attach some {@link ChainBuilder}s. Chains will be attached sequentially.
    *
    * <pre>{@code
@@ -89,12 +74,13 @@ public interface Execs<
    * ChainBuilder chain1ThenChain2 = exec(chain1, chain2);
    * }</pre>
    *
-   * @param chainBuilders some {@link ChainBuilder}s
+   * @param executable some {@link ChainBuilder} or {@link ActionBuilder}
+   * @param executables other {@link ChainBuilder}s or {@link ActionBuilder}s
    * @return a new StructureBuilder
    */
   @NonNull
-  default T exec(@NonNull ChainBuilder... chainBuilders) {
-    return exec(Arrays.asList(chainBuilders));
+  default T exec(@NonNull Executable executable, @NonNull Executable... executables) {
+    return exec(Executables.toChainBuilders(executable, executables));
   }
 
   /**

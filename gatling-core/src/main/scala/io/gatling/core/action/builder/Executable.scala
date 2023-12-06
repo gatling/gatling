@@ -16,23 +16,12 @@
 
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.Action
-import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
+import io.gatling.core.structure.ChainBuilder
 
-/**
- * Top level abstraction for components in charge of building Actions. ActionBuilder is what is passed to the DSL exec() method.
- */
-trait ActionBuilder extends Executable {
-
-  /**
-   * @param ctx
-   *   the scenario context
-   * @param next
-   *   the action that will be chained with the Action build by this builder
-   * @return
-   *   the resulting action
-   */
-  def build(ctx: ScenarioContext, next: Action): Action
-
-  override private[core] final def toChainBuilder: ChainBuilder = new ChainBuilder(this :: Nil)
+private[core] object Executable {
+  def toChainBuilder(executable: Executable, executables: Iterable[Executable]): ChainBuilder =
+    executable.toChainBuilder.exec(executables)
+}
+trait Executable {
+  private[core] def toChainBuilder: ChainBuilder
 }

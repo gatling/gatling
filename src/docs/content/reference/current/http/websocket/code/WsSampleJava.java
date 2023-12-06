@@ -199,23 +199,24 @@ HttpProtocolBuilder httpProtocol = http
   .wsBaseUrl("ws://localhost:9000");
 
 ScenarioBuilder scn = scenario("WebSocket")
-  .exec(http("Home").get("/"))
-  .pause(1)
-  .exec(session -> session.set("id", "Gatling" + session.userId()))
-  .exec(http("Login").get("/room?username=#{id}"))
-  .pause(1)
-  .exec(ws("Connect WS").connect("/room/chat?username=#{id}"))
-  .pause(1)
-  .repeat(2, "i").on(
-    exec(
-      ws("Say Hello WS")
-        .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
-        .await(30).on(
-          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
-        )
-    ).pause(1)
-  )
-.exec(ws("Close WS").close());
+  .exec(
+    http("Home").get("/"),
+    pause(1),
+    exec(session -> session.set("id", "Gatling" + session.userId())),
+    http("Login").get("/room?username=#{id}"),
+    pause(1),
+    ws("Connect WS").connect("/room/chat?username=#{id}"),
+    pause(1),
+    repeat(2, "i").on(
+    ws("Say Hello WS")
+      .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
+      .await(30).on(
+        ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+      ),
+      pause(1)
+    ),
+    ws("Close WS").close()
+  );
 //#chatroom-example
   }
 }

@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.condition;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfEquals;
 import java.util.function.Function;
 
@@ -128,13 +129,13 @@ public interface DoIfEquals<
     /**
      * Define the chain to be executed when the actual and expected values are equal
      *
-     * @param chain the "then" chain
-     * @param chains other chains
+     * @param executable the "then" chain
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T then(ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.then_(chain.exec(chains));
+    public T then(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.then_(Executables.toChainBuilder(executable, executables));
     }
   }
 }

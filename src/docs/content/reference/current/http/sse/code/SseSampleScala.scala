@@ -91,9 +91,9 @@ val scn = scenario("ServerSentEvents")
     sse("Stocks").connect("/stocks/prices")
       .await(10)(
         sse.checkMessage("checkName").check(regex("event: snapshot(.*)"))
-      )
+      ),
+    pause(15),
+    sse("Close").close
   )
-  .pause(15)
-  .exec(sse("Close").close)
 //#stock-market-sample
 }

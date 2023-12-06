@@ -31,6 +31,12 @@ scenario("Scenario")
 // directly created and stored in a reference
 val chain = exec(http("Home").get("https://gatling.io"))
 
+// executed sequentially
+exec(
+  http("Home").get("https://gatling.io"),
+  http("Enterprise").get("https://gatling.io/enterprise")
+)
+
 // attached to another
 exec(http("Home").get("https://gatling.io"))
   .exec(http("Enterprise").get("https://gatling.io/enterprise"))
@@ -123,187 +129,187 @@ rendezVous(100)
 //#repeat
 // with an Int times
 repeat(5)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a Gatling EL string resolving an Int
 repeat("#{times}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a function times
 repeat(session => 5)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name
 repeat(5, "counter")(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 // iterating over multiple actions
 repeat(5)(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 )
 //#repeat
 
 //#foreach
 // with a static Seq
 foreach(Seq("elt1", "elt2"), "elt")(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 )
 // with a Gatling EL string
 foreach("#{elts}", "elt")(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 )
 // with a function
 foreach(session => Seq("elt1", "elt2"), "elt")(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 )
 // with a counter name
 foreach(Seq("elt1", "elt2"), "elt", "counter")(
-  exec(http("name").get("/?elt=#{elt}&counter=#{counter}"))
+  http("name").get("/?elt=#{elt}&counter=#{counter}")
 )
 // iterating over multiple actions
 foreach(Seq("elt1", "elt2"), "elt")(
-  exec(http("name1").get("/?elt=#{elt}")),
-  exec(http("name2").get("/?elt=#{elt}"))
+  http("name1").get("/?elt=#{elt}"),
+  http("name2").get("/?elt=#{elt}")
 )
 //#foreach
 
 //#during
 // with a duration in seconds
 during(5)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a java.time.Duration
 during(10.minutes)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a Gatling EL string resolving a duration
 during("#{times}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a function times
 during(session => 10.minutes)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name
 during(5, "counter")(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 // with exitASAP
 during(5, "counter", false)(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#during
 
 //#asLongAs
 // with a Gatling EL string resolving a boolean
 asLongAs("#{condition}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a function
 asLongAs(session => session("condition").as[Boolean])(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name and exitASAP
 asLongAs("#{condition}", "counter", false)(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#asLongAs
 
 //#doWhile
 // with a Gatling EL string resolving to a boolean
 doWhile("#{condition}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a function
 doWhile(session => session("condition").as[Boolean])(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name
 doWhile("#{condition}", "counter")(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#doWhile
 
 //#asLongAsDuring
 // with a Gatling EL string resolving to a boolean and an int duration
 asLongAsDuring("#{condition}", 5)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name and exitASAP
 asLongAsDuring(session => true, 10.minutes, "counter", false)(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#asLongAsDuring
 
 //#doWhileDuring
 // with a Gatling EL string resolving to a boolean and an int duration
 doWhileDuring("#{condition}", 5)(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name and exitASAP
 doWhileDuring(session => true, 10.minutes, "counter", false)(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#doWhileDuring
 
 //#forever
 forever(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a counter name
 forever("counter")(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 )
 //#forever
 
 //#doIf
 // with a Gatling EL string resolving to a boolean
 doIf("#{condition}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 // with a function
 doIf(session => session("condition").as[Boolean])(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 //#doIf
 
 //#doIfEquals
 doIfEquals("#{actual}", "expectedValue")(
   // executed if the session value stored in "actual" is equal to "expectedValue"
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 //#doIfEquals
 
 //#doIfOrElse
 doIfOrElse("#{condition}")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )(
-  exec(http("else").get("/"))
+  http("else").get("/")
 )
 //#doIfOrElse
 
 //#doIfEqualsOrElse
 doIfEqualsOrElse("#{actual}", "expectedValue")(
   // executed if the session value stored in "actual" equals to "expectedValue"
-  exec(http("name").get("/"))
+  http("name").get("/")
 )(
   // executed if the session value stored in "actual" is not equal to "expectedValue"
-  exec(http("else").get("/"))
+  http("else").get("/")
 )
 //#doIfEqualsOrElse
 
 //#doSwitch
 doSwitch("#{myKey}")( // beware: use parentheses, not curly braces!
   "foo" -> exec(http("name1").get("/foo")),
-  "bar" -> exec(http("name2").get("/bar"))
+  "bar" -> http("name2").get("/bar")
 )
 //#doSwitch
 
 //#doSwitchOrElse
 doSwitchOrElse("#{myKey}")( // beware: use parentheses, not curly braces!
-  "foo" -> exec(http("name1").get("/foo")),
-  "bar" -> exec(http("name2").get("/bar"))
+  "foo" -> http("name1").get("/foo"),
+  "bar" -> http("name2").get("/bar")
 )(
   exec(http("name3").get("/baz"))
 )
@@ -311,49 +317,49 @@ doSwitchOrElse("#{myKey}")( // beware: use parentheses, not curly braces!
 
 //#randomSwitch
 randomSwitch( // beware: use parentheses, not curly braces!
-  60.0 -> exec(http("name1").get("/foo")),
-  40.0 -> exec(http("name2").get("/bar"))
+  60.0 -> http("name1").get("/foo"),
+  40.0 -> http("name2").get("/bar")
 )
 //#randomSwitch
 
 //#randomSwitchOrElse
 randomSwitchOrElse( // beware: use parentheses, not curly braces!
-  60.0 -> exec(http("name1").get("/foo")),
-  20.0 -> exec(http("name2").get("/bar"))
+  60.0 -> http("name1").get("/foo"),
+  20.0 -> http("name2").get("/bar")
 )(
-  exec(http("name3").get("/baz"))
+  http("name3").get("/baz")
 )
 //#randomSwitchOrElse
 
 //#uniformRandomSwitch
 uniformRandomSwitch( // beware: use parentheses, not curly braces!
-  exec(http("name1").get("/foo")),
-  exec(http("name2").get("/bar"))
+  http("name1").get("/foo"),
+  http("name2").get("/bar")
 )
 //#uniformRandomSwitch
 
 //#roundRobinSwitch
 roundRobinSwitch( // beware: use parentheses, not curly braces!
-  exec(http("name1").get("/foo")),
-  exec(http("name2").get("/bar"))
+  http("name1").get("/foo"),
+  http("name2").get("/bar")
 )
 //#roundRobinSwitch
 
 //#tryMax
 tryMax(5)(
-  exec(http("name").get("/")),
-  exec(http("name").get("/"))
+  http("name").get("/"),
+  http("name").get("/")
 )
 
 // with a counter name
 tryMax(5, "counter")(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 //#tryMax
 
 //#exitBlockOnFail
 exitBlockOnFail(
-  exec(http("name").get("/"))
+  http("name").get("/")
 )
 //#exitBlockOnFail
 

@@ -17,19 +17,21 @@
 package io.gatling.javaapi.core;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 
 /** A holder for choice types */
 public final class Choice {
   private Choice() {}
 
   public static WithKey withKey(
-      @NonNull Object key, @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-    return new WithKey(key, chain.exec(chains));
+      @NonNull Object key, @NonNull Executable executable, @NonNull Executable... executables) {
+    return new WithKey(key, Executables.toChainBuilder(executable, executables));
   }
 
   public static WithWeight withWeight(
-      double weight, @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-    return new WithWeight(weight, chain.exec(chains));
+      double weight, @NonNull Executable executable, @NonNull Executable... executables) {
+    return new WithWeight(weight, Executables.toChainBuilder(executable, executables));
   }
 
   /** A choice with an expected key */

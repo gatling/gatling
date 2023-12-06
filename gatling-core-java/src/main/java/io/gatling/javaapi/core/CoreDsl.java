@@ -24,11 +24,13 @@ import io.gatling.commons.stats.assertion.AssertionPath;
 import io.gatling.javaapi.core.condition.*;
 import io.gatling.javaapi.core.error.Errors;
 import io.gatling.javaapi.core.exec.Execs;
+import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.feed.Feeds;
 import io.gatling.javaapi.core.group.Groups;
 import io.gatling.javaapi.core.internal.Converters;
 import io.gatling.javaapi.core.internal.CoreCheckBuilders;
 import io.gatling.javaapi.core.internal.CoreCheckType;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.loop.*;
 import io.gatling.javaapi.core.pause.Paces;
 import io.gatling.javaapi.core.pause.Pauses;
@@ -129,27 +131,17 @@ public final class CoreDsl {
   }
 
   /**
-   * Bootstrap a new ChainBuilder from an {@link ActionBuilder}, see {@link
-   * Execs#exec(ActionBuilder)}.
-   *
-   * @param actionBuilder the Action builder
-   * @return a new ChainBuilder
-   */
-  @NonNull
-  public static ChainBuilder exec(@NonNull ActionBuilder actionBuilder) {
-    return ChainBuilder.EMPTY.exec(actionBuilder);
-  }
-
-  /**
    * Bootstrap a new {@link ChainBuilder} from some {@link ChainBuilder}s, see {@link
-   * Execs#exec(ChainBuilder[])}.
+   * Execs#exec(Executable, Executable[])}.
    *
-   * @param chainBuilders some {@link ChainBuilder}
+   * @param executable some {@link ChainBuilder} or {@link ActionBuilder}
+   * @param executables other {@link ChainBuilder}s or {@link ActionBuilder}s
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder exec(@NonNull ChainBuilder... chainBuilders) {
-    return exec(Arrays.asList(chainBuilders));
+  public static ChainBuilder exec(
+      @NonNull Executable executable, @NonNull Executable... executables) {
+    return exec(Executables.toChainBuilders(executable, executables));
   }
 
   /**
@@ -2476,16 +2468,16 @@ public final class CoreDsl {
   ////////// StructureBuilder.Errors
   /**
    * Bootstrap a new ChainBuilder with a exitBlockOnFail block, see {@link
-   * Errors#exitBlockOnFail(ChainBuilder)}.
+   * Errors#exitBlockOnFail(Executable, Executable[])}.
    *
-   * @param chain the chain to interrupt on error
-   * @param chains other chains
+   * @param executable the chain to interrupt on error
+   * @param executables other chains
    * @return a new ChainBuilder
    */
   @NonNull
   public static ChainBuilder exitBlockOnFail(
-      @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-    return ChainBuilder.EMPTY.exitBlockOnFail(chain.exec(chains));
+      @NonNull Executable executable, @NonNull Executable... executables) {
+    return ChainBuilder.EMPTY.exitBlockOnFail(Executables.toChainBuilder(executable, executables));
   }
 
   /**

@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.condition;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIf;
 import java.util.function.Function;
 
@@ -75,13 +76,13 @@ public interface DoIf<
     /**
      * Define the chain to be executed when the condition is true
      *
-     * @param chain the chain
-     * @param chains other chains
+     * @param executable the chain
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T then(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.then_(chain.exec(chains));
+    public T then(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.then_(Executables.toChainBuilder(executable, executables));
     }
   }
 }

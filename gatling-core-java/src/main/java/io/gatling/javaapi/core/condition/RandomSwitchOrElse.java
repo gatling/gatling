@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.condition;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaRandomSwitchOrElse;
 import java.util.Arrays;
 import java.util.List;
@@ -101,13 +102,13 @@ public interface RandomSwitchOrElse<
      * Define the chain to be executed when the random number falls into the gap between 100% and
      * the sum of the weights of the choices.
      *
-     * @param chain the "then "chain
-     * @param chains other chains
+     * @param executable the "then "chain
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.orElse(chain.exec(chains));
+    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }
 }

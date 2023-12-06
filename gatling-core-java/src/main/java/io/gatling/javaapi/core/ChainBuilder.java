@@ -17,6 +17,7 @@
 package io.gatling.javaapi.core;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.gatling.javaapi.core.exec.Executable;
 import java.util.function.Function;
 
 /**
@@ -26,7 +27,8 @@ import java.util.function.Function;
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
 public final class ChainBuilder
-    extends StructureBuilder<ChainBuilder, io.gatling.core.structure.ChainBuilder> {
+    extends StructureBuilder<ChainBuilder, io.gatling.core.structure.ChainBuilder>
+    implements Executable {
 
   public static final ChainBuilder EMPTY =
       new ChainBuilder(io.gatling.core.structure.ChainBuilder.Empty());
@@ -42,5 +44,10 @@ public final class ChainBuilder
           Function<io.gatling.core.structure.ChainBuilder, io.gatling.core.structure.ChainBuilder>
               f) {
     return new ChainBuilder(f.apply(wrapped));
+  }
+
+  @Override
+  public ChainBuilder toChainBuilder() {
+    return this;
   }
 }

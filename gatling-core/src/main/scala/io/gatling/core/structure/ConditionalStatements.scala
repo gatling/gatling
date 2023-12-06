@@ -33,7 +33,8 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIf(condition: Expression[Boolean])(thenChain: ChainBuilder, thenChains: ChainBuilder*): B = doIf(condition, thenChain.exec(thenChains), None)
+  def doIf(condition: Expression[Boolean])(thenChain: Executable, thenChains: Executable*): B =
+    doIf(condition, Executable.toChainBuilder(thenChain, thenChains), None)
 
   private def equalityCondition(actual: Expression[Any], expected: Expression[Any]): Expression[Boolean] =
     (session: Session) =>
@@ -56,8 +57,8 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfEquals(actual: Expression[Any], expected: Expression[Any])(thenChain: ChainBuilder, thenChains: ChainBuilder*): B =
-    doIf(equalityCondition(actual, expected), thenChain.exec(thenChains), None)
+  def doIfEquals(actual: Expression[Any], expected: Expression[Any])(thenChain: Executable, thenChains: Executable*): B =
+    doIf(equalityCondition(actual, expected), Executable.toChainBuilder(thenChain, thenChains), None)
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back action if condition is not satisfied
@@ -75,8 +76,8 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfOrElse(condition: Expression[Boolean])(thenChain: ChainBuilder, thenChains: ChainBuilder*)(elseChain: ChainBuilder, elseChains: ChainBuilder*): B =
-    doIf(condition, thenChain.exec(thenChains), Some(elseChain.exec(elseChains)))
+  def doIfOrElse(condition: Expression[Boolean])(thenChain: Executable, thenChains: Executable*)(elseChain: Executable, elseChains: Executable*): B =
+    doIf(condition, Executable.toChainBuilder(thenChain, thenChains), Some(Executable.toChainBuilder(elseChain, elseChains)))
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back action if condition is not satisfied
@@ -96,8 +97,11 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfEqualsOrElse(actual: Expression[Any], expected: Expression[Any])(thenChain: ChainBuilder, thenChains: ChainBuilder*)(elseChain: ChainBuilder, elseChains: ChainBuilder*): B =
-    doIf(equalityCondition(actual, expected), thenChain.exec(thenChains), Some(elseChain.exec(elseChains)))
+  def doIfEqualsOrElse(actual: Expression[Any], expected: Expression[Any])(thenChain: Executable, thenChains: Executable*)(
+      elseChain: Executable,
+      elseChains: Executable*
+  ): B =
+    doIf(equalityCondition(actual, expected), Executable.toChainBuilder(thenChain, thenChains), Some(Executable.toChainBuilder(elseChain, elseChains)))
 
   /**
    * Private method that actually adds the If Action to the scenario
@@ -125,7 +129,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a switch added to its actions
    */
-  def doSwitch(value: Expression[Any])(possibilities: (Any, ChainBuilder)*): B = {
+  def doSwitch(value: Expression[Any])(possibilities: (Any, Executable)*): B = {
     require(possibilities.sizeIs >= 2, "doSwitch()() requires at least 2 possibilities")
     doSwitch(value, possibilities.toList, None)
   }
@@ -145,13 +149,13 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a switch added to its actions
    */
-  def doSwitchOrElse(value: Expression[Any])(possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B = {
+  def doSwitchOrElse(value: Expression[Any])(possibilities: (Any, Executable)*)(elseChain: Executable, elseChains: Executable*): B = {
     require(possibilities.sizeIs >= 2, "doSwitchOrElse()()() requires at least 2 possibilities")
-    doSwitch(value, possibilities.toList, Some(elseNext))
+    doSwitch(value, possibilities.toList, Some(Executable.toChainBuilder(elseChain, elseChains)))
   }
 
-  private def doSwitch(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-    exec(new SwitchBuilder(value, possibilities, elseNext))
+  private def doSwitch(value: Expression[Any], possibilities: List[(Any, Executable)], elseNext: Option[ChainBuilder]): B =
+    exec(new SwitchBuilder(value, possibilities.map { case (key, executable) => key -> executable.toChainBuilder }, elseNext))
 
   /**
    * Add a switch in the chain. Every possible subchain is defined with a percentage. Switch is selected randomly. If no switch is selected (ie: random number
@@ -162,7 +166,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a random switch added to its actions
    */
-  def randomSwitch(possibilities: (Double, ChainBuilder)*): B = {
+  def randomSwitch(possibilities: (Double, Executable)*): B = {
     require(possibilities.nonEmpty, "randomSwitch() requires at least 1 possibility")
     randomSwitch(possibilities.toList, None)
   }
@@ -173,18 +177,20 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *
    * @param possibilities
    *   the possible subchains
-   * @param elseNext
-   *   fallback subchain
+   * @param elseChain
+   *   first fallback subchain
+   * @param elseChains
+   *   other fallback subchains
    * @return
    *   a new builder with a random switch added to its actions
    */
-  def randomSwitchOrElse(possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B = {
+  def randomSwitchOrElse(possibilities: (Double, Executable)*)(elseChain: Executable, otherChains: Executable*): B = {
     require(possibilities.nonEmpty, "randomSwitchOrElse() requires at least 1 possibility")
-    randomSwitch(possibilities.toList, Some(elseNext))
+    randomSwitch(possibilities.toList, Some(Executable.toChainBuilder(elseChain, otherChains)))
   }
 
-  private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-    exec(new RandomSwitchBuilder(possibilities, elseNext))
+  private def randomSwitch(possibilities: List[(Double, Executable)], elseNext: Option[Executable]): B =
+    exec(new RandomSwitchBuilder(possibilities.map { case (weight, executable) => weight -> executable.toChainBuilder }, elseNext.map(_.toChainBuilder)))
 
   /**
    * Add a switch in the chain. Selection uses a uniformly distributed random strategy
@@ -194,9 +200,9 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a random switch added to its actions
    */
-  def uniformRandomSwitch(possibilities: ChainBuilder*): B = {
+  def uniformRandomSwitch(possibilities: Executable*): B = {
     require(possibilities.sizeIs >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
-    exec(new UniformRandomSwitchBuilder(possibilities.toList))
+    exec(new UniformRandomSwitchBuilder(possibilities.map(_.toChainBuilder).toList))
   }
 
   /**
@@ -207,8 +213,8 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    * @return
    *   a new builder with a random switch added to its actions
    */
-  def roundRobinSwitch(possibilities: ChainBuilder*): B = {
+  def roundRobinSwitch(possibilities: Executable*): B = {
     require(possibilities.nonEmpty, "roundRobinSwitch() requires at least 1 possibility")
-    exec(new RoundRobinSwitchBuilder(possibilities.toList))
+    exec(new RoundRobinSwitchBuilder(possibilities.map(_.toChainBuilder).toList))
   }
 }

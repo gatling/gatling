@@ -16,7 +16,7 @@
 
 package io.gatling.core.structure
 
-import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.action.builder.{ ActionBuilder, Executable }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory }
 
 /**
@@ -41,9 +41,11 @@ object ChainBuilder {
  * @param actionBuilders
  *   the builders that represent the chain of actions of a scenario/chain
  */
-final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction {
+final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction with Executable {
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
     new ChainBuilder(newActionBuilders.toList ::: actionBuilders)
+
+  override def toChainBuilder: ChainBuilder = this
 }
 
 /**
@@ -54,7 +56,10 @@ final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends Struct
  * @param actionBuilders
  *   the list of all the actions that compose the scenario
  */
-final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ScenarioBuilder] with BuildAction {
+final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBuilder])
+    extends StructureBuilder[ScenarioBuilder]
+    with BuildAction
+    with Executable {
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
     new ScenarioBuilder(name, actionBuilders = newActionBuilders.toList ::: actionBuilders)
 
@@ -75,6 +80,8 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
       children = Nil,
       shard = true
     )
+
+  override private[core] def toChainBuilder = new ChainBuilder(actionBuilders)
 
   override def toString = s"ScenarioBuilder($name)"
 }

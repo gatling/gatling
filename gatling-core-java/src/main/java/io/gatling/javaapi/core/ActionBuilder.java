@@ -16,12 +16,16 @@
 
 package io.gatling.javaapi.core;
 
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Converters;
+import java.util.Collections;
+
 /**
  * Java wrapper of a Scala ActionBuilder. Builder of an Action in a Gatling scenario.
  *
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
-public interface ActionBuilder {
+public interface ActionBuilder extends Executable {
 
   /**
    * For internal use only
@@ -29,4 +33,16 @@ public interface ActionBuilder {
    * @return the wrapped Scala instance
    */
   io.gatling.core.action.builder.ActionBuilder asScala();
+
+  /**
+   * For internal use only
+   *
+   * @return a ChainBuilder
+   */
+  @Override
+  default ChainBuilder toChainBuilder() {
+    return new ChainBuilder(
+        io.gatling.core.structure.ChainBuilder.Empty()
+            .chain(Converters.toScalaSeq(Collections.singletonList(asScala()))));
+  }
 }

@@ -35,10 +35,12 @@ val request2 = request1.header("accept-encoding", "gzip")
 
 //#simple-scenario
 scenario("Standard User")
-  .exec(http("Access Github").get("https://github.com"))
-  .pause(2, 3)
-  .exec(http("Search for 'gatling'").get("https://github.com/search?q=gatling"))
-  .pause(2)
+  .exec(
+    http("Access Github").get("https://github.com"),
+    pause(2, 3),
+    http("Search for 'gatling'").get("https://github.com/search?q=gatling"),
+    pause(2)
+  )
 //#simple-scenario
 
 //#example-definition

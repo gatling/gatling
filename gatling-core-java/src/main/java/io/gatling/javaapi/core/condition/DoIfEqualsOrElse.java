@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.condition;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfEqualsOrElse;
 import java.util.function.Function;
 
@@ -136,13 +137,13 @@ public interface DoIfEqualsOrElse<
     /**
      * Define the chain to be executed when the actual and expected values are equal
      *
-     * @param chain the "then "chain
-     * @param chains other chains
+     * @param executable the "then "chain
+     * @param executables other chains
      * @return the DSL component for defining the "else" block
      */
     @NonNull
-    public OrElse<T> then(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return new OrElse<>(wrapped.then_(chain.exec(chains)));
+    public OrElse<T> then(@NonNull Executable executable, @NonNull Executable... executables) {
+      return new OrElse<>(wrapped.then_(Executables.toChainBuilder(executable, executables)));
     }
   }
 
@@ -161,13 +162,13 @@ public interface DoIfEqualsOrElse<
     /**
      * Define the chain to be executed when the actual and expected values are not equal
      *
-     * @param chain the "then "chain
-     * @param chains other chains
+     * @param executable the "then "chain
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.orElse(chain.exec(chains));
+    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }
 }

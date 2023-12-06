@@ -36,6 +36,12 @@ scenario("Scenario")
 // directly created and stored in a reference
 ChainBuilder chain = exec(http("Home").get("https://gatling.io"));
 
+// executed sequentially
+exec(
+  http("Home").get("https://gatling.io"),
+  http("Enterprise").get("https://gatling.io/enterprise")
+);
+
 // attached to another
 exec(http("Home").get("https://gatling.io"))
   .exec(http("Enterprise").get("https://gatling.io/enterprise"));
@@ -128,271 +134,271 @@ rendezVous(100);
 //#repeat
 // with an Int times
 repeat(5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a Gatling EL string resolving an Int
 repeat("#{times}").on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a function times
 repeat(session -> 5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name
 repeat(5, "counter").on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 repeat(5).on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#repeat
 
 //#foreach
 // with a static List
 foreach(Arrays.asList("elt1", "elt2"), "elt").on(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 );
 // with a Gatling EL string
 foreach("#{elts}", "elt").on(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 );
 // with a function
 foreach(session -> Arrays.asList("elt1", "elt2"), "elt").on(
-  exec(http("name").get("/?elt=#{elt}"))
+  http("name").get("/?elt=#{elt}")
 );
 // with a counter name
 foreach(Arrays.asList("elt1", "elt2"), "elt", "counter").on(
-  exec(http("name").get("/?elt=#{elt}&counter=#{counter}"))
+  http("name").get("/?elt=#{elt}&counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 foreach(Arrays.asList("elt1", "elt2"), "elt").on(
-  exec(http("name1").get("/?elt=#{elt}")),
-  exec(http("name2").get("/?elt=#{elt}"))
+  http("name1").get("/?elt=#{elt}"),
+  http("name2").get("/?elt=#{elt}")
 );
 //#foreach
 
 //#during
 // with a duration in seconds
 during(5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a java.time.Duration
 during(Duration.ofMinutes(10)).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a Gatling EL string resolving a duration
 during("#{times}").on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a function times
 during(session -> Duration.ofMinutes(10)).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name
 during(5, "counter").on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
 // with exitASAP
 during(5, "counter", false).on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 during(5).on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#during
 
 //#asLongAs
 // with a Gatling EL string resolving to a boolean
 asLongAs("#{condition}").on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a function
 asLongAs(session -> session.getBoolean("condition")).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name and exitASAP
 asLongAs("#{condition}", "counter", false).on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 asLongAs("#{condition}").on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#asLongAs
 
 //#doWhile
 // with a Gatling EL string resolving to a boolean
 doWhile("#{condition}").on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a function
 doWhile(session -> session.getBoolean("condition")).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name
 doWhile("#{condition}", "counter").on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
 // iterating over multiple actions
 doWhile("#{condition}").on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#doWhile
 
 //#asLongAsDuring
 // with a Gatling EL string resolving to a boolean and an int duration
 asLongAsDuring("#{condition}", 5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name and exitASAP
 asLongAsDuring(session -> true, Duration.ofMinutes(10), "counter", false).on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
 // iterating over multiple actions
 asLongAsDuring("#{condition}", 5).on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#asLongAsDuring
 
 //#doWhileDuring
 // with a Gatling EL string resolving to a boolean and an int duration
 doWhileDuring("#{condition}", 5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name and exitASAP
 doWhileDuring(session -> true, Duration.ofMinutes(10), "counter", false).on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 doWhileDuring("#{condition}", 5).on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#doWhileDuring
 
 //#forever
 forever().on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a counter name
 forever("counter").on(
-  exec(http("name").get("/?counter=#{counter}"))
+  http("name").get("/?counter=#{counter}")
 );
-// iterating over multiple actions
+// iterating over multiple actions sequentially
 forever().on(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#forever
 
 //#doIf
 // with a Gatling EL string resolving to a boolean
 doIf("#{condition}").then(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // with a function
 doIf(session -> session.getBoolean("condition")).then(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 // executing multiple actions
 doIf("#{condition}").then(
-  exec(http("name1").get("/")),
-  exec(http("name2").get("/"))
+  http("name1").get("/"),
+  http("name2").get("/")
 );
 //#doIf
 
 //#doIfEquals
 doIfEquals("#{actual}", "expectedValue").then(
   // executed if the session value stored in "actual" is equal to "expectedValue"
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 //#doIfEquals
 
 //#doIfOrElse
 doIfOrElse("#{condition}").then(
-  exec(http("name").get("/"))
+  http("name").get("/")
 ).orElse(
-  exec(http("else").get("/"))
+  http("else").get("/")
 );
 //#doIfOrElse
 
 //#doIfEqualsOrElse
 doIfEqualsOrElse("#{actual}", "expectedValue").then(
   // executed if the session value stored in "actual" equals to "expectedValue"
-  exec(http("name").get("/"))
+  http("name").get("/")
 ).orElse(
   // executed if the session value stored in "actual" is not equal to "expectedValue"
-  exec(http("else").get("/"))
+  http("else").get("/")
 );
 //#doIfEqualsOrElse
 
 //#doSwitch
 doSwitch("#{myKey}").on(
-  Choice.withKey("foo", exec(http("name1").get("/foo"))),
-  Choice.withKey("bar", exec(http("name2").get("/bar")))
+  Choice.withKey("foo", http("name1").get("/foo")),
+  Choice.withKey("bar", http("name2").get("/bar"))
 );
 //#doSwitch
 
 //#doSwitchOrElse
 doSwitchOrElse("#{myKey}").on(
-  Choice.withKey("foo", exec(http("name1").get("/foo"))),
-  Choice.withKey("bar", exec(http("name2").get("/bar")))
+  Choice.withKey("foo", http("name1").get("/foo")),
+  Choice.withKey("bar", http("name2").get("/bar"))
 ).orElse(
-  exec(http("name3").get("/baz"))
+  http("name3").get("/baz")
 );
 //#doSwitchOrElse
 
 //#randomSwitch
 randomSwitch().on(
-  Choice.withWeight(60.0, exec(http("name1").get("/foo"))),
-  Choice.withWeight(40.0, exec(http("name2").get("/bar")))
+  Choice.withWeight(60.0, http("name1").get("/foo")),
+  Choice.withWeight(40.0, http("name2").get("/bar"))
 );
 //#randomSwitch
 
 //#randomSwitchOrElse
 randomSwitchOrElse().on(
-  Choice.withWeight(60.0, exec(http("name1").get("/foo"))),
-  Choice.withWeight(20.0, exec(http("name2").get("/bar")))
+  Choice.withWeight(60.0, http("name1").get("/foo")),
+  Choice.withWeight(20.0, http("name2").get("/bar"))
 ).orElse(
-  exec(http("name3").get("/baz"))
+  http("name3").get("/baz")
 );
 //#randomSwitchOrElse
 
 //#uniformRandomSwitch
 uniformRandomSwitch().on(
-  exec(http("name1").get("/foo")),
-  exec(http("name2").get("/bar"))
+  http("name1").get("/foo"),
+  http("name2").get("/bar")
 );
 //#uniformRandomSwitch
 
 //#roundRobinSwitch
 roundRobinSwitch().on(
-  exec(http("name1").get("/foo")),
-  exec(http("name2").get("/bar"))
+  http("name1").get("/foo"),
+  http("name2").get("/bar")
 );
 //#roundRobinSwitch
 
 //#tryMax
 tryMax(5).on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 
 // with a counter name
 tryMax(5, "counter").on(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 //#tryMax
 
 //#exitBlockOnFail
 exitBlockOnFail(
-  exec(http("name").get("/"))
+  http("name").get("/")
 );
 //#exitBlockOnFail
 

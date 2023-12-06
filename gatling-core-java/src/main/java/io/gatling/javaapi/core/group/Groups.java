@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.group;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.group.ScalaGroups;
 import java.util.function.Function;
 
@@ -78,13 +79,13 @@ public interface Groups<
     /**
      * Define the wrapped block
      *
-     * @param chain the wrapped block
-     * @param chains other chains
+     * @param executable the wrapped block
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.grouping(chain.exec(chains));
+    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.grouping(Executables.toChainBuilder(executable, executables));
     }
   }
 }

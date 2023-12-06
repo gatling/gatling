@@ -19,8 +19,9 @@ package io.gatling.javaapi.core.condition;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaRoundRobinSwitch;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -64,12 +65,13 @@ public interface RoundRobinSwitch<
     /**
      * Define the "choices"
      *
-     * @param choices the choices
+     * @param executable the first choice
+     * @param executables the other choices
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder... choices) {
-      return on(Arrays.asList(choices));
+    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+      return on(Executables.toChainBuilder(executable, executables));
     }
 
     /**

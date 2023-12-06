@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.core.structure
+package io.gatling.javaapi.core.exec;
 
-import io.gatling.core.action.builder.{ Executable, GroupBuilder }
-import io.gatling.core.session.Expression
+import io.gatling.javaapi.core.ChainBuilder;
 
-private[structure] trait Groups[B] extends Execs[B] {
-  def group(name: Expression[String])(chain: Executable, chains: Executable*): B =
-    exec(new ChainBuilder(List(GroupBuilder.start(name))).exec(Executable.toChainBuilder(chain, chains)).exec(GroupBuilder.End))
+public interface Executable {
+
+  ChainBuilder toChainBuilder();
 }

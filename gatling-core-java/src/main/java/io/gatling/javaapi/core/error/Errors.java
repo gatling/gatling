@@ -19,9 +19,11 @@ package io.gatling.javaapi.core.error;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
+import io.gatling.javaapi.core.internal.errors.ScalaExitBlockOnFail;
 import io.gatling.javaapi.core.internal.errors.ScalaExitHereIf;
 import io.gatling.javaapi.core.internal.errors.ScalaStopInjectorIf;
 import io.gatling.javaapi.core.internal.errors.ScalaTryMax;
@@ -45,13 +47,14 @@ public interface Errors<
   /**
    * Define a block that is interrupted for a given virtual user if it experiences a failure.
    *
-   * @param chain the chain to interrupt on error
-   * @param chains other chains
+   * @param executable the chain to interrupt on error
+   * @param executables other chains
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T exitBlockOnFail(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-    return make(wrapped -> wrapped.exitBlockOnFail(chain.exec(chains).wrapped));
+  default T exitBlockOnFail(@NonNull Executable executable, @NonNull Executable... executables) {
+    return new ScalaExitBlockOnFail<>(this)
+        .exitBlockOnFail(Executables.toChainBuilder(executable, executables));
   }
 
   /**
@@ -148,13 +151,13 @@ public interface Errors<
     /**
      * Define the tried block
      *
-     * @param chain the loop content
-     * @param chains other chains
+     * @param executable the loop content
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.trying(chain.exec(chains));
+    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.trying(Executables.toChainBuilder(executable, executables));
     }
   }
 

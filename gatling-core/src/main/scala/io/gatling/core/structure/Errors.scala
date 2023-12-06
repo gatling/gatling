@@ -18,15 +18,15 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import io.gatling.core.action.builder.{ ExitHereBuilder, StopInjectorBuilder, TryMaxBuilder }
+import io.gatling.core.action.builder.{ Executable, ExitHereBuilder, StopInjectorBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
 private[structure] trait Errors[B] extends Execs[B] {
-  def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
+  def exitBlockOnFail(chain: Executable, chains: Executable*): B = tryMax(1.expressionSuccess)(chain, chains: _*)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder, chains: ChainBuilder*): B =
-    exec(new TryMaxBuilder(times, counterName, chain.exec(chains)))
+  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: Executable, chains: Executable*): B =
+    exec(new TryMaxBuilder(times, counterName, Executable.toChainBuilder(chain, chains)))
 
   def exitHereIf(condition: Expression[Boolean]): B = exec(new ExitHereBuilder(condition))
 

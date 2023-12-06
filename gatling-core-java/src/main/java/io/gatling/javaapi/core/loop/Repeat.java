@@ -17,9 +17,10 @@
 package io.gatling.javaapi.core.loop;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
+import io.gatling.javaapi.core.exec.Executable;
+import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaRepeat;
 import java.util.UUID;
 import java.util.function.Function;
@@ -127,13 +128,13 @@ public interface Repeat<
     /**
      * Define the loop content
      *
-     * @param chain the loop content
-     * @param chains other chains
+     * @param executable the loop content
+     * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
-      return wrapped.loop(chain.exec(chains));
+    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+      return wrapped.loop(Executables.toChainBuilder(executable, executables));
     }
   }
 }

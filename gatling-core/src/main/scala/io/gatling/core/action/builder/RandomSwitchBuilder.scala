@@ -29,7 +29,7 @@ private[core] final class RandomSwitchBuilder(possibilities: List[(Double, Chain
     with StrictLogging
     with NameGen {
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    val possibleActions = possibilities.map { case (weight, actionBuilder) => weight -> actionBuilder.build(ctx, next) }
+    val possibleActions = possibilities.map { case (weight, chainBuilder) => weight -> chainBuilder.build(ctx, next) }
     val fallbackAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
     val randomDistribution = RandomDistribution.percentWeights(possibleActions, fallbackAction)
     val nextAction: Expression[Action] = _ => randomDistribution.next().success
