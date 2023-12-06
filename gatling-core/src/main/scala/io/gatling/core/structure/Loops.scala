@@ -47,7 +47,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       new ChainBuilder(List(exposeCurrentValue)).exec(chain).exec(chains),
       counterName,
       exitASAP = false,
-      RepeatLoopType
+      ForeachLoopType
     )
   }
 

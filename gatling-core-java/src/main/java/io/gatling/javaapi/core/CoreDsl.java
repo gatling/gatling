@@ -2483,7 +2483,8 @@ public final class CoreDsl {
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder exitBlockOnFail(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+  public static ChainBuilder exitBlockOnFail(
+      @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
     return ChainBuilder.EMPTY.exitBlockOnFail(chain.exec(chains));
   }
 
