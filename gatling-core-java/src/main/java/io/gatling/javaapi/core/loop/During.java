@@ -273,11 +273,12 @@ public interface During<
      * Define the loop content
      *
      * @param chain the loop content
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain) {
-      return wrapped.loop(chain);
+    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.loop(chain.exec(chains));
     }
   }
 }

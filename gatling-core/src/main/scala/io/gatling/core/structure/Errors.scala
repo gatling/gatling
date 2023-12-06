@@ -25,8 +25,8 @@ private[structure] trait Errors[B] extends Execs[B] {
   def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
-    exec(new TryMaxBuilder(times, counterName, chain))
+  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder, chains: ChainBuilder*): B =
+    exec(new TryMaxBuilder(times, counterName, chain.exec(chains)))
 
   def exitHereIf(condition: Expression[Boolean]): B = exec(new ExitHereBuilder(condition))
 

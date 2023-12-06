@@ -76,11 +76,12 @@ public interface DoIf<
      * Define the chain to be executed when the condition is true
      *
      * @param chain the chain
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T then(@NonNull ChainBuilder chain) {
-      return wrapped.then_(chain);
+    public T then(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.then_(chain.exec(chains));
     }
   }
 }

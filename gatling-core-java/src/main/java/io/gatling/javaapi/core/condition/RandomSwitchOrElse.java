@@ -101,12 +101,13 @@ public interface RandomSwitchOrElse<
      * Define the chain to be executed when the random number falls into the gap between 100% and
      * the sum of the weights of the choices.
      *
-     * @param orElseChain the "then "chain
+     * @param chain the "then "chain
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder orElseChain) {
-      return wrapped.orElse(orElseChain);
+    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.orElse(chain.exec(chains));
     }
   }
 }

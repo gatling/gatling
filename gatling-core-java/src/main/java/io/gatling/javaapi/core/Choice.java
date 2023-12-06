@@ -22,12 +22,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 public final class Choice {
   private Choice() {}
 
-  public static WithKey withKey(@NonNull Object key, @NonNull ChainBuilder chain) {
-    return new WithKey(key, chain);
+  public static WithKey withKey(
+      @NonNull Object key, @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+    return new WithKey(key, chain.exec(chains));
   }
 
-  public static WithWeight withWeight(double weight, @NonNull ChainBuilder chain) {
-    return new WithWeight(weight, chain);
+  public static WithWeight withWeight(
+      double weight, @NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+    return new WithWeight(weight, chain.exec(chains));
   }
 
   /** A choice with an expected key */
@@ -39,7 +41,7 @@ public final class Choice {
      * @param key the expected key
      * @param chain the chain that will be triggered if the switch matches the expected key
      */
-    public WithKey(@NonNull Object key, @NonNull ChainBuilder chain) {
+    private WithKey(@NonNull Object key, @NonNull ChainBuilder chain) {
       this.key = key;
       this.chain = chain;
     }

@@ -2479,11 +2479,12 @@ public final class CoreDsl {
    * Errors#exitBlockOnFail(ChainBuilder)}.
    *
    * @param chain the chain to interrupt on error
+   * @param chains other chains
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder exitBlockOnFail(@NonNull ChainBuilder chain) {
-    return ChainBuilder.EMPTY.exitBlockOnFail(chain);
+  public static ChainBuilder exitBlockOnFail(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+    return ChainBuilder.EMPTY.exitBlockOnFail(chain.exec(chains));
   }
 
   /**

@@ -79,11 +79,12 @@ public interface Groups<
      * Define the wrapped block
      *
      * @param chain the wrapped block
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain) {
-      return wrapped.grouping(chain);
+    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.grouping(chain.exec(chains));
     }
   }
 }

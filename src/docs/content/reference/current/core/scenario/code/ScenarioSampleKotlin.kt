@@ -140,6 +140,11 @@ repeat { session -> 5 }.on(
 repeat(5, "counter").on(
   exec(http("name").get("/?counter=#{counter}"))
 )
+// iterating over multiple actions
+repeat(5).on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#repeat
 
 //#foreach
@@ -158,6 +163,11 @@ foreach({ session -> listOf("elt1", "elt2") }, "elt").on(
 // with a counter name
 foreach(listOf("elt1", "elt2"), "elt", "counter").on(
   exec(http("name").get("/?elt=#{elt}&counter=#{counter}"))
+)
+// iterating over multiple actions
+foreach(listOf("elt1", "elt2"), "elt").on(
+  exec(http("name1").get("/?elt=#{elt}")),
+  exec(http("name2").get("/?elt=#{elt}"))
 )
 //#foreach
 
@@ -186,6 +196,11 @@ during(5, "counter").on(
 during(5, "counter", false).on(
   exec(http("name").get("/?counter=#{counter}"))
 )
+// iterating over multiple actions
+during(5).on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#during
 
 //#asLongAs
@@ -200,6 +215,11 @@ asLongAs { session -> session.getBoolean("condition") }.on(
 // with a counter name and exitASAP
 asLongAs("#{condition}", "counter", false).on(
   exec(http("name").get("/?counter=#{counter}"))
+)
+// iterating over multiple actions
+asLongAs("#{condition}").on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
 )
 //#asLongAs
 
@@ -216,6 +236,11 @@ doWhile { session -> session.getBoolean("condition") }.on(
 doWhile("#{condition}", "counter").on(
   exec(http("name").get("/?counter=#{counter}"))
 )
+// iterating over multiple actions
+doWhile("#{condition}").on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#doWhile
 
 //#asLongAsDuring
@@ -226,6 +251,11 @@ asLongAsDuring("#{condition}", 5).on(
 // with a counter name and exitASAP
 asLongAsDuring({ session -> true }, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/?counter=#{counter}"))
+)
+// iterating over multiple actions
+asLongAsDuring("#{condition}", 5).on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
 )
 //#asLongAsDuring
 
@@ -238,6 +268,11 @@ doWhileDuring("#{condition}", 5).on(
 doWhileDuring({ session -> true }, Duration.ofMinutes(10), "counter", false).on(
   exec(http("name").get("/?counter=#{counter}"))
 )
+// iterating over multiple actions
+doWhileDuring("#{condition}", 5).on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#doWhileDuring
 
 //#forever
@@ -248,6 +283,11 @@ forever().on(
 forever("counter").on(
   exec(http("name").get("/"))
 )
+// iterating over multiple actions
+forever().on(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#forever
 
 //#doIf
@@ -255,10 +295,14 @@ forever("counter").on(
 doIf("#{condition}").then(
   exec(http("name").get("/"))
 )
-
 // with a function
 doIf { session -> session.getBoolean("condition") }.then(
   exec(http("name").get("/"))
+)
+// executing multiple actions
+doIf("#{condition}").then(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
 )
 //#doIf
 

@@ -26,12 +26,14 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *
    * @param condition
    *   the function that will determine if the condition is satisfied or not
-   * @param thenNext
-   *   the chain to be executed if the condition is satisfied
+   * @param thenChain
+   *   the first chain to be executed if the condition is satisfied
+   * @param thenChains
+   *   the other chains to be executed if the condition is satisfied
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIf(condition: Expression[Boolean])(thenNext: ChainBuilder): B = doIf(condition, thenNext, None)
+  def doIf(condition: Expression[Boolean])(thenChain: ChainBuilder, thenChains: ChainBuilder*): B = doIf(condition, thenChain.exec(thenChains), None)
 
   private def equalityCondition(actual: Expression[Any], expected: Expression[Any]): Expression[Boolean] =
     (session: Session) =>
@@ -47,28 +49,34 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *   the real value
    * @param expected
    *   the expected value
-   * @param thenNext
-   *   the chain to be executed if the condition is satisfied
+   * @param thenChain
+   *   the first chain to be executed if the condition is satisfied
+   * @param thenChains
+   *   the other chains to be executed if the condition is satisfied
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfEquals(actual: Expression[Any], expected: Expression[Any])(thenNext: ChainBuilder): B =
-    doIf(equalityCondition(actual, expected), thenNext, None)
+  def doIfEquals(actual: Expression[Any], expected: Expression[Any])(thenChain: ChainBuilder, thenChains: ChainBuilder*): B =
+    doIf(equalityCondition(actual, expected), thenChain.exec(thenChains), None)
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back action if condition is not satisfied
    *
    * @param condition
    *   the function that will determine if the condition is satisfied or not
-   * @param thenNext
-   *   the chain to be executed if the condition is satisfied
-   * @param elseNext
-   *   the chain to be executed if the condition is not satisfied
+   * @param thenChain
+   *   the first chain to be executed if the condition is satisfied
+   * @param thenChains
+   *   the other chains to be executed if the condition is satisfied
+   * @param elseChain
+   *   the first chain to be executed if the condition is not satisfied
+   * @param elseChains
+   *   the other chains to be executed if the condition is not satisfied
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfOrElse(condition: Expression[Boolean])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B =
-    doIf(condition, thenNext, Some(elseNext))
+  def doIfOrElse(condition: Expression[Boolean])(thenChain: ChainBuilder, thenChains: ChainBuilder*)(elseChain: ChainBuilder, elseChains: ChainBuilder*): B =
+    doIf(condition, thenChain.exec(thenChains), Some(elseChain.exec(elseChains)))
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back action if condition is not satisfied
@@ -77,15 +85,19 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *   the real value
    * @param expected
    *   the expected value
-   * @param thenNext
-   *   the chain to be executed if the condition is satisfied
-   * @param elseNext
-   *   the chain to be executed if the condition is not satisfied
+   * @param thenChain
+   *   the first chain to be executed if the actual and expected values are equal
+   * @param thenChains
+   *   the other chains to be executed if the actual and expected values are equal
+   * @param elseChain
+   *   the first chain to be executed if the actual and expected values are not equal
+   * @param elseChains
+   *   the other chains to be executed if the actual and expected values are not equal
    * @return
    *   a new builder with a conditional execution added to its actions
    */
-  def doIfEqualsOrElse(actual: Expression[Any], expected: Expression[Any])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B =
-    doIf(equalityCondition(actual, expected), thenNext, Some(elseNext))
+  def doIfEqualsOrElse(actual: Expression[Any], expected: Expression[Any])(thenChain: ChainBuilder, thenChains: ChainBuilder*)(elseChain: ChainBuilder, elseChains: ChainBuilder*): B =
+    doIf(equalityCondition(actual, expected), thenChain.exec(thenChains), Some(elseChain.exec(elseChains)))
 
   /**
    * Private method that actually adds the If Action to the scenario
@@ -126,8 +138,10 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *   expression to evaluate and match to find the right subchain
    * @param possibilities
    *   tuples of key and subchain
-   * @param elseNext
-   *   fallback subchain
+   * @param elseChain
+   *   the first chain to be executed if the actual and expected values are not equal
+   * @param elseChains
+   *   the other chains to be executed if the actual and expected values are not equal
    * @return
    *   a new builder with a switch added to its actions
    */

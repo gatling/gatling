@@ -114,12 +114,13 @@ public interface DoSwitchOrElse<
     /**
      * Define the "else" block
      *
-     * @param orElseChain the chain to execute if the actual value doesn't match any of the choices
+     * @param chain the chain to execute if the actual value doesn't match any of the choices
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder orElseChain) {
-      return wrapped.orElse(orElseChain);
+    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.orElse(chain.exec(chains));
     }
   }
 }

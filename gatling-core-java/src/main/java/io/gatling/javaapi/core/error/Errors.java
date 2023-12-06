@@ -45,12 +45,13 @@ public interface Errors<
   /**
    * Define a block that is interrupted for a given virtual user if it experiences a failure.
    *
-   * @param chain the block to be eventually interrupted
+   * @param chain the chain to interrupt on error
+   * @param chains other chains
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T exitBlockOnFail(@NonNull ChainBuilder chain) {
-    return make(wrapped -> wrapped.exitBlockOnFail(chain.wrapped));
+  default T exitBlockOnFail(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+    return make(wrapped -> wrapped.exitBlockOnFail(chain.exec(chains).wrapped));
   }
 
   /**
@@ -147,12 +148,13 @@ public interface Errors<
     /**
      * Define the tried block
      *
-     * @param chain the tried block
+     * @param chain the loop content
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T on(@NonNull ChainBuilder chain) {
-      return wrapped.trying(chain);
+    public T on(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.trying(chain.exec(chains));
     }
   }
 

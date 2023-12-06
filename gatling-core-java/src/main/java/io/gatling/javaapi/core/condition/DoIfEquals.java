@@ -129,11 +129,12 @@ public interface DoIfEquals<
      * Define the chain to be executed when the actual and expected values are equal
      *
      * @param chain the "then" chain
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T then(ChainBuilder chain) {
-      return wrapped.then_(chain);
+    public T then(ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.then_(chain.exec(chains));
     }
   }
 }

@@ -137,11 +137,12 @@ public interface DoIfEqualsOrElse<
      * Define the chain to be executed when the actual and expected values are equal
      *
      * @param chain the "then "chain
+     * @param chains other chains
      * @return the DSL component for defining the "else" block
      */
     @NonNull
-    public OrElse<T> then(@NonNull ChainBuilder chain) {
-      return new OrElse<>(wrapped.then_(chain));
+    public OrElse<T> then(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return new OrElse<>(wrapped.then_(chain.exec(chains)));
     }
   }
 
@@ -160,12 +161,13 @@ public interface DoIfEqualsOrElse<
     /**
      * Define the chain to be executed when the actual and expected values are not equal
      *
-     * @param orElseChain the "then "chain
+     * @param chain the "then "chain
+     * @param chains other chains
      * @return a new {@link StructureBuilder}
      */
     @NonNull
-    public T orElse(@NonNull ChainBuilder orElseChain) {
-      return wrapped.orElse(orElseChain);
+    public T orElse(@NonNull ChainBuilder chain, @NonNull ChainBuilder... chains) {
+      return wrapped.orElse(chain.exec(chains));
     }
   }
 }

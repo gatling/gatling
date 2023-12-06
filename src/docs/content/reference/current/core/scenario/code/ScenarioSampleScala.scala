@@ -122,166 +122,175 @@ rendezVous(100)
 
 //#repeat
 // with an Int times
-repeat(5) {
+repeat(5)(
   exec(http("name").get("/"))
-}
+)
 // with a Gatling EL string resolving an Int
-repeat("#{times}") {
+repeat("#{times}")(
   exec(http("name").get("/"))
-}
+)
 // with a function times
-repeat(session => 5) {
+repeat(session => 5)(
   exec(http("name").get("/"))
-}
+)
 // with a counter name
-repeat(5, "counter") {
+repeat(5, "counter")(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
+// iterating over multiple actions
+repeat(5)(
+  exec(http("name1").get("/")),
+  exec(http("name2").get("/"))
+)
 //#repeat
 
 //#foreach
 // with a static Seq
-foreach(Seq("elt1", "elt2"), "elt") {
+foreach(Seq("elt1", "elt2"), "elt")(
   exec(http("name").get("/?elt=#{elt}"))
-}
+)
 // with a Gatling EL string
-foreach("#{elts}", "elt") {
+foreach("#{elts}", "elt")(
   exec(http("name").get("/?elt=#{elt}"))
-}
+)
 // with a function
-foreach(session => Seq("elt1", "elt2"), "elt") {
+foreach(session => Seq("elt1", "elt2"), "elt")(
   exec(http("name").get("/?elt=#{elt}"))
-}
+)
 // with a counter name
-foreach(Seq("elt1", "elt2"), "elt", "counter") {
+foreach(Seq("elt1", "elt2"), "elt", "counter")(
   exec(http("name").get("/?elt=#{elt}&counter=#{counter}"))
-}
+)
+// iterating over multiple actions
+foreach(Seq("elt1", "elt2"), "elt")(
+  exec(http("name1").get("/?elt=#{elt}")),
+  exec(http("name2").get("/?elt=#{elt}"))
+)
 //#foreach
 
 //#during
 // with a duration in seconds
-during(5) {
+during(5)(
   exec(http("name").get("/"))
-}
+)
 // with a java.time.Duration
-during(10.minutes) {
+during(10.minutes)(
   exec(http("name").get("/"))
-}
+)
 // with a Gatling EL string resolving a duration
-during("#{times}") {
+during("#{times}")(
   exec(http("name").get("/"))
-}
+)
 // with a function times
-during(session => 10.minutes) {
+during(session => 10.minutes)(
   exec(http("name").get("/"))
-}
+)
 // with a counter name
-during(5, "counter") {
+during(5, "counter")(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 // with exitASAP
-during(5, "counter", false) {
+during(5, "counter", false)(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#during
 
 //#asLongAs
 // with a Gatling EL string resolving a boolean
-asLongAs("#{condition}") {
+asLongAs("#{condition}")(
   exec(http("name").get("/"))
-}
+)
 // with a function
-asLongAs(session => session("condition").as[Boolean]) {
+asLongAs(session => session("condition").as[Boolean])(
   exec(http("name").get("/"))
-}
+)
 // with a counter name and exitASAP
-asLongAs("#{condition}", "counter", false) {
+asLongAs("#{condition}", "counter", false)(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#asLongAs
 
 //#doWhile
 // with a Gatling EL string resolving to a boolean
-doWhile("#{condition}") {
+doWhile("#{condition}")(
   exec(http("name").get("/"))
-}
+)
 // with a function
-doWhile(session => session("condition").as[Boolean]) {
+doWhile(session => session("condition").as[Boolean])(
   exec(http("name").get("/"))
-}
+)
 // with a counter name
-doWhile("#{condition}", "counter") {
+doWhile("#{condition}", "counter")(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#doWhile
 
 //#asLongAsDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-asLongAsDuring("#{condition}", 5) {
+asLongAsDuring("#{condition}", 5)(
   exec(http("name").get("/"))
-}
+)
 // with a counter name and exitASAP
-asLongAsDuring(session => true, 10.minutes, "counter", false) {
+asLongAsDuring(session => true, 10.minutes, "counter", false)(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#asLongAsDuring
 
 //#doWhileDuring
 // with a Gatling EL string resolving to a boolean and an int duration
-doWhileDuring("#{condition}", 5) {
+doWhileDuring("#{condition}", 5)(
   exec(http("name").get("/"))
-}
+)
 // with a counter name and exitASAP
-doWhileDuring(session => true, 10.minutes, "counter", false) {
+doWhileDuring(session => true, 10.minutes, "counter", false)(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#doWhileDuring
 
 //#forever
-forever {
+forever(
   exec(http("name").get("/"))
-}
+)
 // with a counter name
-forever("counter") {
+forever("counter")(
   exec(http("name").get("/?counter=#{counter}"))
-}
+)
 //#forever
 
 //#doIf
 // with a Gatling EL string resolving to a boolean
-doIf("#{condition}") {
+doIf("#{condition}")(
   exec(http("name").get("/"))
-}
-
+)
 // with a function
-doIf(session => session("condition").as[Boolean]) {
+doIf(session => session("condition").as[Boolean])(
   exec(http("name").get("/"))
-}
+)
 //#doIf
 
 //#doIfEquals
-doIfEquals("#{actual}", "expectedValue") {
+doIfEquals("#{actual}", "expectedValue")(
   // executed if the session value stored in "actual" is equal to "expectedValue"
   exec(http("name").get("/"))
-}
+)
 //#doIfEquals
 
 //#doIfOrElse
-doIfOrElse("#{condition}") {
+doIfOrElse("#{condition}")(
   exec(http("name").get("/"))
-} {
+)(
   exec(http("else").get("/"))
-}
+)
 //#doIfOrElse
 
 //#doIfEqualsOrElse
-doIfEqualsOrElse("#{actual}", "expectedValue") {
+doIfEqualsOrElse("#{actual}", "expectedValue")(
   // executed if the session value stored in "actual" equals to "expectedValue"
   exec(http("name").get("/"))
-} {
+)(
   // executed if the session value stored in "actual" is not equal to "expectedValue"
   exec(http("else").get("/"))
-}
+)
 //#doIfEqualsOrElse
 
 //#doSwitch
@@ -331,20 +340,21 @@ roundRobinSwitch( // beware: use parentheses, not curly braces!
 //#roundRobinSwitch
 
 //#tryMax
-tryMax(5) {
+tryMax(5)(
+  exec(http("name").get("/")),
   exec(http("name").get("/"))
-}
+)
 
 // with a counter name
-tryMax(5, "counter") {
+tryMax(5, "counter")(
   exec(http("name").get("/"))
-}
+)
 //#tryMax
 
 //#exitBlockOnFail
-exitBlockOnFail {
+exitBlockOnFail(
   exec(http("name").get("/"))
-}
+)
 //#exitBlockOnFail
 
 //#exitHere
@@ -371,8 +381,8 @@ stopInjectorIf(session => "someErrorMessage", session => true)
 //#stopInjectorIf
 
 //#group
-group("foo") {
+group("foo")(
   exec(http("name").get("/"))
-}
+)
 //#group
 }
