@@ -27,6 +27,7 @@ import scala.util.Using
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ConfigHelper.configChain
+import io.gatling.commons.util.Java
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
@@ -155,7 +156,13 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         saveConfig = config.getBoolean(core.SaveConfig),
         headless = config.getBoolean(core.Headless),
         harFilePath = config.getString(core.HarFilePath).trimToOption,
-        format = Format.fromString(config.getString(core.Format).trim)
+        format = if (config.hasPath(core.Format)) {
+          Format.fromString(config.getString(core.Format).trim)
+        } else if (Java.MajorVersion >= 17) {
+          Format.Java17
+        } else {
+          Format.Java11
+        }
       ),
       filters = FiltersConfiguration(
         enabled = config.getBoolean(filters.Enable),
