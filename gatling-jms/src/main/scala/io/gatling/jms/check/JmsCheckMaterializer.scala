@@ -16,7 +16,8 @@
 
 package io.gatling.jms.check
 
-import java.nio.charset.{ Charset, StandardCharsets }
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
 import javax.jms.{ BytesMessage, Message, TextMessage }
 
 import io.gatling.commons.validation._
@@ -29,6 +30,7 @@ import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.xpath.{ XPathCheckType, XmlParsers }
 import io.gatling.core.json.JsonParsers
 import io.gatling.jms.JmsCheck
+import io.gatling.jms.client.CachingMessage
 
 import com.fasterxml.jackson.databind.JsonNode
 import net.sf.saxon.s9api.XdmNode
@@ -36,22 +38,11 @@ import net.sf.saxon.s9api.XdmNode
 class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)
 
 object JmsCheckMaterializer {
-  private def toBytes(bytesMessage: BytesMessage): Array[Byte] = {
-    val buffer = Array.ofDim[Byte](bytesMessage.getBodyLength.toInt)
-    bytesMessage.readBytes(buffer)
-    buffer
-  }
-
-  private def getBodyAsString(bytesMessage: BytesMessage, charset: Charset): String =
-    if (charset == StandardCharsets.UTF_8)
-      bytesMessage.readUTF()
-    else
-      new String(toBytes(bytesMessage), charset)
 
   private def bodyBytesPreparer(charset: Charset): Preparer[Message, Array[Byte]] = {
-    case tm: TextMessage  => tm.getText.getBytes(charset).success
-    case bm: BytesMessage => toBytes(bm).success
-    case _                => "Unsupported message type".failure
+    case tm: TextMessage          => tm.getText.getBytes(charset).success
+    case bm: CachingMessage.Bytes => bm.bytes.success
+    case _                        => "Unsupported message type".failure
   }
 
   private def bodyLengthPreparer(charset: Charset): Preparer[Message, Int] = {
@@ -66,16 +57,16 @@ object JmsCheckMaterializer {
     replyMessage =>
       safely(JsonPreparerErrorMapper) {
         replyMessage match {
-          case tm: TextMessage  => jsonParsers.safeParse(tm.getText)
-          case bm: BytesMessage => jsonParsers.safeParse(getBodyAsString(bm, charset))
-          case _                => "Unsupported message type".failure
+          case tm: TextMessage          => jsonParsers.safeParse(tm.getText)
+          case bm: CachingMessage.Bytes => jsonParsers.safeParse(new ByteArrayInputStream(bm.bytes), charset)
+          case _                        => "Unsupported message type".failure
         }
       }
 
   private def stringBodyPreparer(charset: Charset): Preparer[Message, String] = {
-    case tm: TextMessage  => tm.getText.success
-    case bm: BytesMessage => getBodyAsString(bm, charset).success
-    case _                => "Unsupported message type".failure
+    case tm: TextMessage          => tm.getText.success
+    case bm: CachingMessage.Bytes => new String(bm.bytes, charset).success
+    case _                        => "Unsupported message type".failure
   }
 
   def bodyString(charset: Charset): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =

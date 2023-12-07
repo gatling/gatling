@@ -18,18 +18,22 @@ package io.gatling.jms
 
 import javax.jms.{ BytesMessage, Message, TextMessage }
 
+import io.gatling.jms.client.CachingMessage
+
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 
 trait MockMessage extends MockitoSugar {
-  def textMessage(text: String): TextMessage = {
+  def textMessage(text: String): Message = {
     val msg = mock[TextMessage]
     when(msg.getText) thenReturn text
-    msg
+    CachingMessage(msg)
   }
 
-  def bytesMessage(bytes: Array[Byte]): BytesMessage =
-    mock[BytesMessage](new BytesMessageAnswer(bytes))
+  def bytesMessage(bytes: Array[Byte]): Message = {
+    val msg = mock[BytesMessage](new BytesMessageAnswer(bytes))
+    CachingMessage(msg)
+  }
 
   def message: Message = mock[Message]
 }
