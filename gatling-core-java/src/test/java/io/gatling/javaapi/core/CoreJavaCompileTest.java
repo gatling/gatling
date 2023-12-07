@@ -350,7 +350,8 @@ public class CoreJavaCompileTest extends Simulation {
           .roundRobinSwitch()
           .on(Arrays.asList(chain1))
           // exitBlockOnFail
-          .exitBlockOnFail(chain1)
+          .exitBlockOnFail()
+          .on(chain1)
           // tryMax
           .tryMax(1)
           .on(chain1)

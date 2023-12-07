@@ -395,7 +395,7 @@ tryMax(5, "counter").on(
 //#tryMax
 
 //#exitBlockOnFail
-exitBlockOnFail(
+exitBlockOnFail().on(
   http("name").get("/")
 )
 //#exitBlockOnFail

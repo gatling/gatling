@@ -47,14 +47,37 @@ public interface Errors<
   /**
    * Define a block that is interrupted for a given virtual user if it experiences a failure.
    *
-   * @param executable the chain to interrupt on error
-   * @param executables other chains
-   * @return a new {@link StructureBuilder}
+   * @return a DSL component for defining the tried block
    */
   @NonNull
-  default T exitBlockOnFail(@NonNull Executable executable, @NonNull Executable... executables) {
-    return new ScalaExitBlockOnFail<>(this)
-        .exitBlockOnFail(Executables.toChainBuilder(executable, executables));
+  default ExitBlockOnFail<T> exitBlockOnFail() {
+    return new ExitBlockOnFail<>(new ScalaExitBlockOnFail<>(this));
+  }
+
+  /**
+   * Define a block that is interrupted for a given virtual user if it experiences a failure.
+   *
+   * @param <T> the type of {@link StructureBuilder} to attach to and to return
+   */
+  final class ExitBlockOnFail<T extends StructureBuilder<T, ?>> {
+
+    private final ScalaExitBlockOnFail<T, ?> context;
+
+    private ExitBlockOnFail(ScalaExitBlockOnFail<T, ?> context) {
+      this.context = context;
+    }
+
+    /**
+     * Define the tried block
+     *
+     * @param executable the chain to interrupt on error
+     * @param executables other chains
+     * @return a new {@link StructureBuilder}
+     */
+    @NonNull
+    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+      return context.exitBlockOnFail(Executables.toChainBuilder(executable, executables));
+    }
   }
 
   /**

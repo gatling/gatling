@@ -2468,16 +2468,13 @@ public final class CoreDsl {
   ////////// StructureBuilder.Errors
   /**
    * Bootstrap a new ChainBuilder with a exitBlockOnFail block, see {@link
-   * Errors#exitBlockOnFail(Executable, Executable[])}.
+   * Errors#exitBlockOnFail()}.
    *
-   * @param executable the chain to interrupt on error
-   * @param executables other chains
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder exitBlockOnFail(
-      @NonNull Executable executable, @NonNull Executable... executables) {
-    return ChainBuilder.EMPTY.exitBlockOnFail(Executables.toChainBuilder(executable, executables));
+  public static Errors.ExitBlockOnFail<ChainBuilder> exitBlockOnFail() {
+    return ChainBuilder.EMPTY.exitBlockOnFail();
   }
 
   /**
