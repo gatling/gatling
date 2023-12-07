@@ -122,29 +122,13 @@ private[render] class SimulationTemplate(
 
       s"pause($pauseString)"
     case request: RequestElement =>
-      s"""exec(
-         |${requestTemplate.render(simulationClassName, request, extractedUris).indent(2)}
-         |)""".stripMargin
+      s"${requestTemplate.render(simulationClassName, request, extractedUris)}".stripMargin
   }
 
-  private def chainElements(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]): String = {
-    var firstNonTagElement = true
+  private def chainElements(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]): String =
     elements
-      .map { element =>
-        val prefix = element match {
-          case TagElement(_) => ""
-          case _ =>
-            if (firstNonTagElement) {
-              firstNonTagElement = false
-              ""
-            } else {
-              "."
-            }
-        }
-        s"$prefix${renderScenarioElement(element, extractedUris)}"
-      }
-      .mkString(Eol)
-  }
+      .map(renderScenarioElement(_, extractedUris))
+      .mkString(s",$Eol")
 
   private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
     val scenarioReferenceType = format match {
@@ -156,7 +140,9 @@ private[render] class SimulationTemplate(
       val scenarioElements = chainElements(extractedUris, elements)
 
       s"""private $scenarioReferenceType scn = scenario("$simulationClassName")
-         |${s".$scenarioElements".indent(2)}${format.lineTermination}""".stripMargin
+         |  .exec(
+         |${s"$scenarioElements".indent(4)}
+         |  )${format.lineTermination}""".stripMargin
     } else {
       val chains: Seq[(Int, String)] =
         elements
