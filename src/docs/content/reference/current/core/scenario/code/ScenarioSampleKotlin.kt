@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import io.gatling.javaapi.core.Choice
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.http
 import java.time.Duration
@@ -339,15 +338,15 @@ doIfEqualsOrElse("#{actual}", "expectedValue").then(
 
 //#doSwitch
 doSwitch("#{myKey}").on(
-  Choice.withKey("foo", http("name1").get("/foo")),
-  Choice.withKey("bar", http("name2").get("/bar"))
+  onCase("foo").then(http("name1").get("/foo")),
+  onCase("bar").then(http("name2").get("/bar"))
 )
 //#doSwitch
 
 //#doSwitchOrElse
 doSwitchOrElse("#{myKey}").on(
-  Choice.withKey("foo", http("name1").get("/foo")),
-  Choice.withKey("bar", http("name2").get("/bar"))
+  onCase("foo").then(http("name1").get("/foo")),
+  onCase("bar").then(http("name2").get("/bar"))
 ).orElse(
   http("name3").get("/baz")
 )
@@ -355,15 +354,15 @@ doSwitchOrElse("#{myKey}").on(
 
 //#randomSwitch
 randomSwitch().on(
-  Choice.withWeight(60.0, http("name1").get("/foo")),
-  Choice.withWeight(40.0, http("name2").get("/bar"))
+  percent(60.0).then(http("name1").get("/foo")),
+  percent(40.0).then(http("name2").get("/bar"))
 )
 //#randomSwitch
 
 //#randomSwitchOrElse
 randomSwitchOrElse().on(
-  Choice.withWeight(60.0, http("name1").get("/foo")),
-  Choice.withWeight(20.0, http("name2").get("/bar"))
+  percent(60.0).then(http("name1").get("/foo")),
+  percent(20.0).then(http("name2").get("/bar"))
 ).orElse(
   http("name3").get("/baz")
 )

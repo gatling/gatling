@@ -24,11 +24,15 @@ import io.gatling.javaapi.core.internal.Executables;
 public final class Choice {
   private Choice() {}
 
+  /** @deprecated Use {@link CoreDsl#onCase(Object)} instead. */
+  @Deprecated
   public static WithKey withKey(
       @NonNull Object key, @NonNull Executable executable, @NonNull Executable... executables) {
     return new WithKey(key, Executables.toChainBuilder(executable, executables));
   }
 
+  /** @deprecated Use {@link CoreDsl#percent(double)} instead. */
+  @Deprecated
   public static WithWeight withWeight(
       double weight, @NonNull Executable executable, @NonNull Executable... executables) {
     return new WithWeight(weight, Executables.toChainBuilder(executable, executables));
@@ -47,6 +51,18 @@ public final class Choice {
       this.key = key;
       this.chain = chain;
     }
+
+    public static final class Then {
+      private final Object key;
+
+      public Then(Object key) {
+        this.key = key;
+      }
+
+      public WithKey then(@NonNull Executable executable, @NonNull Executable... executables) {
+        return new WithKey(key, Executables.toChainBuilder(executable, executables));
+      }
+    }
   }
 
   /** A choice with a weight */
@@ -62,6 +78,18 @@ public final class Choice {
     public WithWeight(double weight, @NonNull ChainBuilder chain) {
       this.weight = weight;
       this.chain = chain;
+    }
+
+    public static final class Then {
+      private final double weight;
+
+      public Then(double weight) {
+        this.weight = weight;
+      }
+
+      public WithWeight then(@NonNull Executable executable, @NonNull Executable... executables) {
+        return new WithWeight(weight, Executables.toChainBuilder(executable, executables));
+      }
     }
   }
 }

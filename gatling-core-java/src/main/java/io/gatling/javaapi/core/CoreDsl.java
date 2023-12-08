@@ -3926,4 +3926,24 @@ public final class CoreDsl {
   public static void registerPebbleExtensions(@NonNull Extension... extensions) {
     io.gatling.core.Predef.registerPebbleExtensions(toScalaSeq(extensions));
   }
+
+  /**
+   * A Choice for a doSwitch block
+   *
+   * @param key the key to match
+   * @return the next component to define the chain to be executed on match
+   */
+  public static Choice.WithKey.Then onCase(@NonNull Object key) {
+    return new Choice.WithKey.Then(key);
+  }
+
+  /**
+   * A Choice for a randomSwitch block
+   *
+   * @param percent the weight of this branch
+   * @return the next component to define the chain to be executed on match
+   */
+  public static Choice.WithWeight.Then percent(double percent) {
+    return new Choice.WithWeight.Then(percent);
+  }
 }
