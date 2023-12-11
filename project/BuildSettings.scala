@@ -2,14 +2,12 @@ import net.moznion.sbt.SbtSpotless.autoImport.{ spotless, spotlessJava, spotless
 import net.moznion.sbt.spotless.config.{ GoogleJavaFormatConfig, JavaConfig, KotlinConfig, SpotlessConfig }
 import sbt.Keys._
 import sbt._
-import _root_.io.gatling.build.compile.GatlingCompilerSettingsPlugin.GatlingCompilerSettingsKey._
 
 object BuildSettings {
   lazy val basicSettings = Seq(
     Test / parallelExecution := false,
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    gatlingCompilerRelease := Some(11)
     // not set in private build
     // [e]
     //
