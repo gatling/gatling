@@ -63,10 +63,25 @@ lazy val docSamples = (project in file("src/docs"))
     Test / unmanagedSourceDirectories ++= (baseDirectory.value ** "code").get,
     libraryDependencies ++= docDependencies,
     // Avoid formatting but avoid errors when calling this tasks with "all"
-    scalafmtSbtCheck := Def.task(true).value,
-    scalafmtCheckAll := Def.task(()).value,
-    scalafixAll := Def.task(()).value,
-    spotlessCheck := Def.task(()).value,
+    List(Compile, Test).flatMap { conf =>
+      inConfig(conf) {
+        List(
+          scalafmtSbtCheck := { true },
+          scalafmtCheckAll := { () },
+          scalafmt := { () },
+          scalafmtSbt := { () },
+          scalafixAll := { () }
+        )
+      }
+    },
+    List(
+      scalafmtSbtCheck := { true },
+      scalafmtCheckAll := { () },
+      scalafmt := { () },
+      scalafmtSbt := { () },
+      scalafixAll := { () }
+    ),
+    spotlessCheck := { () },
     kotlinVersion := "1.9.21"
   )
   .dependsOn(
