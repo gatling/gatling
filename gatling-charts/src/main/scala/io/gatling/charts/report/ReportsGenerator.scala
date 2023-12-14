@@ -23,14 +23,14 @@ import java.time.ZoneId
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestStatsPath
-import io.gatling.core.config.{ ChartingConfiguration, DirectoryConfiguration }
+import io.gatling.core.config.{ DirectoryConfiguration, ReportsConfiguration }
 import io.gatling.shared.util.ScanHelper
 
 private[gatling] final class ReportsGenerator(
     zoneId: ZoneId,
     charset: Charset,
     directoryConfiguration: DirectoryConfiguration,
-    chartingConfiguration: ChartingConfiguration
+    reportsConfiguration: ReportsConfiguration
 ) {
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
 
@@ -39,7 +39,7 @@ private[gatling] final class ReportsGenerator(
     def hasAtLeastOneRequestReported: Boolean =
       reportsGenerationInputs.logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, charset, chartingConfiguration).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, charset, reportsConfiguration).generate()
 
     def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, charset).generate()
 
@@ -60,21 +60,21 @@ private[gatling] final class ReportsGenerator(
           ComponentLibrary.Instance,
           zoneId,
           charset,
-          chartingConfiguration
+          reportsConfiguration
         ),
         new RequestDetailsReportGenerator(
           reportsGenerationInputs,
           chartsFiles,
           ComponentLibrary.Instance,
           charset,
-          chartingConfiguration
+          reportsConfiguration
         ),
         new GroupDetailsReportGenerator(
           reportsGenerationInputs,
           chartsFiles,
           ComponentLibrary.Instance,
           charset,
-          chartingConfiguration
+          reportsConfiguration
         )
       )
 

@@ -24,7 +24,7 @@ import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, RequestPath, RequestStatsPath }
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.config.{ ChartingConfiguration, GatlingConfiguration }
+import io.gatling.core.config.ReportsConfiguration
 import io.gatling.shared.util.NumberHelper._
 
 import com.typesafe.scalalogging.StrictLogging
@@ -33,7 +33,7 @@ private[charts] class StatsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     charset: Charset,
-    configuration: ChartingConfiguration
+    configuration: ReportsConfiguration
 ) extends StrictLogging {
   import reportsGenerationInputs._
 

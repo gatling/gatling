@@ -22,10 +22,10 @@ import io.gatling.core.config.GatlingConfiguration
 import org.HdrHistogram.{ AbstractHistogram, IntCountsHistogram }
 
 class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends RequestMetricsBuffer {
-  private val percentile1 = configuration.charting.indicators.percentile1
-  private val percentile2 = configuration.charting.indicators.percentile2
-  private val percentile3 = configuration.charting.indicators.percentile3
-  private val percentile4 = configuration.charting.indicators.percentile4
+  private val percentile1 = configuration.reports.indicators.percentile1
+  private val percentile2 = configuration.reports.indicators.percentile2
+  private val percentile3 = configuration.reports.indicators.percentile3
+  private val percentile4 = configuration.reports.indicators.percentile4
 
   private val okHistogram: AbstractHistogram = new IntCountsHistogram(2)
   private val koHistogram: AbstractHistogram = new IntCountsHistogram(2)

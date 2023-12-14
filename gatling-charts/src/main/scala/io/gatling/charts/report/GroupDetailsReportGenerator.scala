@@ -24,14 +24,14 @@ import io.gatling.charts.stats.{ Group, GroupStatsPath, PercentilesVsTimePlot, R
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.OK
-import io.gatling.core.config.ChartingConfiguration
+import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class GroupDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
     charset: Charset,
-    configuration: ChartingConfiguration
+    configuration: ReportsConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._

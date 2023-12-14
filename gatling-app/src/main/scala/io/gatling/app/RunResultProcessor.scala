@@ -51,13 +51,13 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     }
 
   private def reportsGenerationEnabled: Boolean =
-    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
+    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.reports.noReports)
 
   private def generateReports(runId: String, logFileData: LogFileData, assertionResults: List[AssertionResult]): Unit =
     if (reportsGenerationEnabled) {
       println("Generating reports...")
       val reportsGenerationInputs = new ReportsGenerationInputs(runId, logFileData, assertionResults)
-      val indexFile = new ReportsGenerator(configuration.data.zoneId, configuration.core.charset, configuration.core.directory, configuration.charting)
+      val indexFile = new ReportsGenerator(configuration.data.zoneId, configuration.core.charset, configuration.core.directory, configuration.reports)
         .generateFor(reportsGenerationInputs)
       println(s"Reports generated, please open the following file: ${indexFile.toUri}")
     }

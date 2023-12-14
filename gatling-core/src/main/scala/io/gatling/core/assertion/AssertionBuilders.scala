@@ -35,10 +35,10 @@ final class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetr
   def max: AssertionWithPathAndTarget[Int] = next(Stat.Max)
   def mean: AssertionWithPathAndTarget[Int] = next(Stat.Mean)
   def stdDev: AssertionWithPathAndTarget[Int] = next(Stat.StandardDeviation)
-  def percentile1: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile1)
-  def percentile2: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile2)
-  def percentile3: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile3)
-  def percentile4: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile4)
+  def percentile1: AssertionWithPathAndTarget[Int] = percentile(configuration.reports.indicators.percentile1)
+  def percentile2: AssertionWithPathAndTarget[Int] = percentile(configuration.reports.indicators.percentile2)
+  def percentile3: AssertionWithPathAndTarget[Int] = percentile(configuration.reports.indicators.percentile3)
+  def percentile4: AssertionWithPathAndTarget[Int] = percentile(configuration.reports.indicators.percentile4)
   def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Stat.Percentile(value))
 }
 

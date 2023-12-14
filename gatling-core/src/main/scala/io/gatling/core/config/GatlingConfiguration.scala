@@ -201,7 +201,7 @@ object GatlingConfiguration extends StrictLogging {
     )
 
   private def chartingConfiguration(config: Config) =
-    new ChartingConfiguration(
+    new ReportsConfiguration(
       noReports = config.getBoolean(charting.NoReports),
       maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
       useGroupDurationMetric = config.getBoolean(charting.UseGroupDurationMetric),
@@ -280,7 +280,7 @@ object GatlingConfiguration extends StrictLogging {
       socket = socketConfiguration(config),
       ssl = sslConfiguration(config),
       netty = nettyConfiguration(config),
-      charting = chartingConfiguration(config),
+      reports = chartingConfiguration(config),
       http = httpConfiguration(config),
       jms = jmsConfiguration(config),
       data = dataConfiguration(config)
@@ -362,7 +362,7 @@ final class NettyConfiguration(
     val maxThreadLocalCharBufferSize: Int
 )
 
-final class ChartingConfiguration(
+final class ReportsConfiguration(
     val noReports: Boolean,
     val maxPlotsPerSeries: Int,
     val useGroupDurationMetric: Boolean,
@@ -444,7 +444,7 @@ final class GatlingConfiguration(
     val socket: SocketConfiguration,
     val netty: NettyConfiguration,
     val ssl: SslConfiguration,
-    val charting: ChartingConfiguration,
+    val reports: ReportsConfiguration,
     val http: HttpConfiguration,
     val jms: JmsConfiguration,
     val data: DataConfiguration

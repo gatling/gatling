@@ -60,7 +60,7 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
     val step = StatsHelper.step(
       math.floor(runInfo.injectStart / SecMillisecRatio).toInt,
       math.ceil(runInfo.injectEnd / SecMillisecRatio).toInt,
-      configuration.charting.maxPlotsPerSeries
+      configuration.reports.maxPlotsPerSeries
     ) * SecMillisecRatio
 
     val buckets = StatsHelper.buckets(0, runInfo.injectEnd - runInfo.injectStart, step)
@@ -155,8 +155,8 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
         runInfo.injectStart,
         runInfo.injectEnd,
         buckets,
-        configuration.charting.indicators.lowerBound,
-        configuration.charting.indicators.higherBound
+        configuration.reports.indicators.lowerBound,
+        configuration.reports.indicators.higherBound
       )
 
     var count = 0

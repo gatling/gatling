@@ -24,14 +24,14 @@ import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.config.ChartingConfiguration
+import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class RequestDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
     charset: Charset,
-    configuration: ChartingConfiguration
+    configuration: ReportsConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._

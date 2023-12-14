@@ -173,7 +173,7 @@ public final class Assertion {
     @NonNull
     public WithPathAndTarget<Integer> percentile1() {
       return percentile(
-          io.gatling.core.Predef.configuration().charting().indicators().percentile1());
+          io.gatling.core.Predef.configuration().reports().indicators().percentile1());
     }
 
     /**
@@ -184,7 +184,7 @@ public final class Assertion {
     @NonNull
     public WithPathAndTarget<Integer> percentile2() {
       return percentile(
-          io.gatling.core.Predef.configuration().charting().indicators().percentile2());
+          io.gatling.core.Predef.configuration().reports().indicators().percentile2());
     }
 
     /**
@@ -195,7 +195,7 @@ public final class Assertion {
     @NonNull
     public WithPathAndTarget<Integer> percentile3() {
       return percentile(
-          io.gatling.core.Predef.configuration().charting().indicators().percentile3());
+          io.gatling.core.Predef.configuration().reports().indicators().percentile3());
     }
 
     /**
@@ -206,7 +206,7 @@ public final class Assertion {
     @NonNull
     public WithPathAndTarget<Integer> percentile4() {
       return percentile(
-          io.gatling.core.Predef.configuration().charting().indicators().percentile4());
+          io.gatling.core.Predef.configuration().reports().indicators().percentile4());
     }
 
     /**
