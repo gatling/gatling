@@ -58,6 +58,10 @@ The building blocks for open model profile injection are:
 7. `rampUsersPerSec(rate1).to(rate2).during(duration).randomized`: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
 8. `stressPeakUsers(nbUsers).during(duration)`: Injects a given number of users following a smooth approximation of the [heaviside step function](http://en.wikipedia.org/wiki/Heaviside_step_function) stretched to a given duration.
 
+{{< alert tip >}}
+Rates can be expressed as fractional values.
+{{< /alert >}}
+
 ## Closed Model
 
 {{< include-code "closed-injection" java kt scala >}}
@@ -110,9 +114,9 @@ When chaining `andThen` calls, Gatling will define the new children to only star
 
 By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple nodes.
 
-This might not be the desirable behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
+This might not be the desired behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
 Indeed, only one node would run this user, leaving the other nodes without an initialized token.
 
-You can use `noShard` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
+You can use `noShard` to disable load sharding. In this case, all the nodes will use the injection and throttling profiles as defined in the Simulation.
 
 {{< include-code "noShard" java kt scala >}}
