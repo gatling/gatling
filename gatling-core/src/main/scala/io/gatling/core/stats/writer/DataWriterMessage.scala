@@ -29,12 +29,13 @@ private[gatling] final case class RunMessage(
     simulationId: String,
     start: Long,
     runDescription: String,
-    gatlingVersion: String
+    gatlingVersion: String,
+    zoneId: ZoneId
 ) {
   val runId: String = simulationId + "-" +
     DateTimeFormatter
       .ofPattern("yyyyMMddHHmmssSSS")
-      .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneId.systemDefault()))
+      .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), zoneId))
 }
 
 private[gatling] sealed trait DataWriterMessage

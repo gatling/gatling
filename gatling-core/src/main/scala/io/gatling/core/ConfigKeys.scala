@@ -127,6 +127,7 @@ object ConfigKeys {
   }
 
   object data {
+    val UtcDateTime = "gatling.data.utcDateTime"
     val Writers = "gatling.data.writers"
 
     object file {

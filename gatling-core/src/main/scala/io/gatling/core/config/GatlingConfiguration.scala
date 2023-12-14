@@ -18,6 +18,7 @@ package io.gatling.core.config
 
 import java.nio.charset.Charset
 import java.nio.file.{ Path, Paths }
+import java.time.{ ZoneId, ZoneOffset }
 import java.util.ResourceBundle
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
@@ -243,6 +244,7 @@ object GatlingConfiguration extends StrictLogging {
 
   private def dataConfiguration(config: Config) =
     new DataConfiguration(
+      zoneId = if (config.getBoolean(data.UtcDateTime)) ZoneOffset.UTC else ZoneId.systemDefault(),
       dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName(_).toList).toSeq,
       console = new ConsoleDataWriterConfiguration(
         light = config.getBoolean(data.console.Light),
@@ -397,6 +399,7 @@ final class DnsConfiguration(
 )
 
 final class DataConfiguration(
+    val zoneId: ZoneId,
     val dataWriters: Seq[DataWriterType],
     val file: FileDataWriterConfiguration,
     val leak: LeakDataWriterConfiguration,

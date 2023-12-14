@@ -118,7 +118,7 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
           updateInjectEnd(array(3).toLong)
 
         case RawRunRecord(array) =>
-          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim, array(5).trim)
+          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim, array(5).trim, configuration.data.zoneId)
 
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {

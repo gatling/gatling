@@ -24,10 +24,10 @@ import io.gatling.charts.util.HtmlHelper._
 import io.gatling.commons.util.GatlingVersion
 import io.gatling.commons.util.StringHelper._
 
-private[charts] final class SimulationCardComponent(runInfo: RunInfo) extends Component {
+private[charts] final class SimulationCardComponent(runInfo: RunInfo, zoneId: ZoneId) extends Component {
+
   override def html: String = {
-    val printableRunDateTime =
-      DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss ZZZZZ").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(runInfo.injectStart))
+    val printableRunDateTime = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss O").withZone(zoneId).format(Instant.ofEpochMilli(runInfo.injectStart))
     val printableGatlingReleaseDate = GatlingVersion.ThisVersion.releaseDate.toLocalDate.toString
     val printableDuration = {
       val duration = Duration.ofMillis(runInfo.injectEnd - runInfo.injectStart)

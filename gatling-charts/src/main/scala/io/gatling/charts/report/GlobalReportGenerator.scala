@@ -97,7 +97,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       new SchemaContainerComponent(
         componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = false),
         componentLibrary.getRequestCountPolarComponent,
-        new SimulationCardComponent(logFileData.runInfo)
+        new SimulationCardComponent(logFileData.runInfo, configuration.data.zoneId)
       ),
       new AssertionsTableComponent(assertionResults),
       new GlobalStatsTableComponent,
