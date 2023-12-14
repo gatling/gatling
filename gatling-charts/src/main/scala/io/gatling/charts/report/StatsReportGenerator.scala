@@ -27,9 +27,8 @@ import io.gatling.shared.util.NumberHelper._
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles)(implicit
-    configuration: GatlingConfiguration
-) extends StrictLogging {
+private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, configuration: GatlingConfiguration)
+    extends StrictLogging {
   import reportsGenerationInputs._
 
   def generate(): Unit = {
@@ -135,9 +134,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput)
-    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput)
-    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
+    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput, configuration)
+    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput, configuration)
+    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput, configuration)
     println(ConsoleTemplate.println(rootContainer.stats, logFileData.errors(None, None)))
   }
 }

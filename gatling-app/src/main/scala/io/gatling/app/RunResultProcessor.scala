@@ -57,7 +57,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     if (reportsGenerationEnabled) {
       println("Generating reports...")
       val reportsGenerationInputs = new ReportsGenerationInputs(runId, logFileData, assertionResults)
-      val indexFile = new ReportsGenerator()(configuration).generateFor(reportsGenerationInputs)
+      val indexFile = new ReportsGenerator(configuration).generateFor(reportsGenerationInputs)
       println(s"Reports generated, please open the following file: ${indexFile.toUri}")
     }
 

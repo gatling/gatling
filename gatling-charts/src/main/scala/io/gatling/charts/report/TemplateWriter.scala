@@ -23,6 +23,6 @@ import scala.util.Using
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class TemplateWriter(path: Path) {
-  def writeToFile(output: String)(implicit configuration: GatlingConfiguration): Unit =
+  def writeToFile(output: String, configuration: GatlingConfiguration): Unit =
     Using.resource(Files.newBufferedWriter(path, configuration.core.charset))(_.write(output))
 }

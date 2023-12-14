@@ -25,8 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 private[charts] class AllSessionsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
-    componentLibrary: ComponentLibrary
-)(implicit
+    componentLibrary: ComponentLibrary,
     configuration: GatlingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
@@ -36,6 +35,6 @@ private[charts] class AllSessionsReportGenerator(
 
     val javascript = componentLibrary.getAllUsersJs(logFileData.runInfo.injectStart, series)
 
-    new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript)
+    new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript, configuration)
   }
 }

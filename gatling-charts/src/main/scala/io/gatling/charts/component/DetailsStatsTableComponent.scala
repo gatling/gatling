@@ -47,7 +47,7 @@ private[charts] final class RequestStatistics(
     val meanNumberOfRequestsPerSecondStatistics: Stats[Double]
 )
 
-private[charts] final class DetailsStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
+private[charts] final class DetailsStatsTableComponent(configuration: GatlingConfiguration) extends Component {
   override def html: String = s"""
                         <div class="infos">
                             <div class="infos-in">

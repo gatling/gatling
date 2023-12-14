@@ -24,7 +24,7 @@ import io.gatling.charts.stats.RequestStatsPath
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.shared.util.ScanHelper
 
-private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
+private[gatling] class ReportsGenerator(configuration: GatlingConfiguration) {
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._
 
@@ -33,9 +33,9 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     def hasAtLeastOneRequestReported: Boolean =
       logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, configuration).generate()
 
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, configuration).generate()
 
     def copyAssets(): Unit = {
       ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
@@ -47,10 +47,10 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
     val reportGenerators =
       List(
-        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
-        new GlobalReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
-        new RequestDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
-        new GroupDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance)
+        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
+        new GlobalReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
+        new RequestDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
+        new GroupDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration)
       )
 
     copyAssets()

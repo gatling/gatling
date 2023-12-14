@@ -24,8 +24,11 @@ import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 
-private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
-    implicit configuration: GatlingConfiguration
+private[charts] class GlobalReportGenerator(
+    reportsGenerationInputs: ReportsGenerationInputs,
+    chartsFiles: ChartsFiles,
+    componentLibrary: ComponentLibrary,
+    configuration: GatlingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -100,7 +103,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         new SimulationCardComponent(logFileData.runInfo, configuration.data.zoneId)
       ),
       new AssertionsTableComponent(assertionResults),
-      new GlobalStatsTableComponent,
+      new GlobalStatsTableComponent(configuration),
       new ErrorsTableComponent(logFileData.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
@@ -109,6 +112,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       responsesChartComponent
     )
 
-    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput)
+    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput, configuration)
   }
 }

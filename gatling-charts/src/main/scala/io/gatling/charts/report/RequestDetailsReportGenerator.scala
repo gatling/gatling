@@ -27,8 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 private[charts] class RequestDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
-    componentLibrary: ComponentLibrary
-)(implicit
+    componentLibrary: ComponentLibrary,
     configuration: GatlingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
@@ -107,7 +106,7 @@ private[charts] class RequestDetailsReportGenerator(
           group,
           new SchemaContainerComponent(
             componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = true),
-            new DetailsStatsTableComponent
+            new DetailsStatsTableComponent(configuration)
           ),
           new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),
           responseTimeDistributionChartComponent,
@@ -117,7 +116,7 @@ private[charts] class RequestDetailsReportGenerator(
           responseTimeScatterChartComponent
         )
 
-      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput)
+      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput, configuration)
     }
 
     logFileData.statsPaths.foreach {

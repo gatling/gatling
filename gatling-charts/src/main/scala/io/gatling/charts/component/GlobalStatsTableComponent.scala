@@ -22,7 +22,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.shared.util.NumberHelper._
 
-private[charts] final class GlobalStatsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
+private[charts] final class GlobalStatsTableComponent(configuration: GatlingConfiguration) extends Component {
 
   override val html: String = {
     def pctTitle(pct: Double) = pct.toRank + " pct"
