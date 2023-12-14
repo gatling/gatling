@@ -37,7 +37,7 @@ import com.typesafe.scalalogging.StrictLogging
 object BufferedFileChannelWriter {
   def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
     val encoder = configuration.core.charset.newEncoder
-    val simulationLog = simulationLogDirectory(runId, create = true, configuration).resolve("simulation.log")
+    val simulationLog = simulationLogDirectory(runId, create = true, configuration.core.directory).resolve("simulation.log")
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
 

@@ -26,12 +26,12 @@ object GatlingFiles {
   private[gatling] def resolvePath(path: Path): Path =
     (if (path.isAbsolute || Files.exists(path)) path else GatlingHome.resolve(path)).normalize.toAbsolutePath
 
-  def customResourcesDirectory(configuration: GatlingConfiguration): Option[Path] = configuration.core.directory.customResources.map(resolvePath)
-  def binariesDirectory(configuration: GatlingConfiguration): Path =
-    configuration.core.directory.binaries.map(resolvePath).getOrElse(GatlingHome.resolve("target").resolve("test-classes"))
-  def resultDirectory(runUuid: String, configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results).resolve(runUuid)
+  def customResourcesDirectory(configuration: DirectoryConfiguration): Option[Path] = configuration.customResources.map(resolvePath)
+  def binariesDirectory(configuration: DirectoryConfiguration): Path =
+    configuration.binaries.map(resolvePath).getOrElse(GatlingHome.resolve("target").resolve("test-classes"))
+  def resultDirectory(runUuid: String, configuration: DirectoryConfiguration): Path = resolvePath(configuration.results).resolve(runUuid)
 
-  def simulationLogDirectory(runUuid: String, create: Boolean, configuration: GatlingConfiguration): Path = {
+  def simulationLogDirectory(runUuid: String, create: Boolean, configuration: DirectoryConfiguration): Path = {
     val dir = resultDirectory(runUuid, configuration)
     if (create) {
       Files.createDirectories(dir)

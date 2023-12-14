@@ -16,19 +16,22 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
+
 import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.ChartingConfiguration
 
 private[charts] class RequestDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
-    configuration: GatlingConfiguration
+    charset: Charset,
+    configuration: ChartingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -106,7 +109,7 @@ private[charts] class RequestDetailsReportGenerator(
           group,
           new SchemaContainerComponent(
             componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = true),
-            new DetailsStatsTableComponent(configuration)
+            new DetailsStatsTableComponent(configuration.indicators)
           ),
           new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),
           responseTimeDistributionChartComponent,
@@ -116,7 +119,7 @@ private[charts] class RequestDetailsReportGenerator(
           responseTimeScatterChartComponent
         )
 
-      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput, configuration)
+      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput, charset)
     }
 
     logFileData.statsPaths.foreach {

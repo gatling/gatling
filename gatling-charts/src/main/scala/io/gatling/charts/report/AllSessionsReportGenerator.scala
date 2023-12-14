@@ -16,17 +16,18 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
+
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.{ IntVsTimePlot, Series }
 import io.gatling.charts.util.Color
-import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class AllSessionsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
-    configuration: GatlingConfiguration
+    charset: Charset
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -35,6 +36,6 @@ private[charts] class AllSessionsReportGenerator(
 
     val javascript = componentLibrary.getAllUsersJs(logFileData.runInfo.injectStart, series)
 
-    new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript, configuration)
+    new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript, charset)
   }
 }

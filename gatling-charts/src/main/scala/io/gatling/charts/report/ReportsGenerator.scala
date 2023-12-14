@@ -16,26 +16,32 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
 import java.nio.file.Path
+import java.time.ZoneId
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestStatsPath
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.{ ChartingConfiguration, DirectoryConfiguration }
 import io.gatling.shared.util.ScanHelper
 
-private[gatling] class ReportsGenerator(configuration: GatlingConfiguration) {
+private[gatling] final class ReportsGenerator(
+    zoneId: ZoneId,
+    charset: Charset,
+    directoryConfiguration: DirectoryConfiguration,
+    chartingConfiguration: ChartingConfiguration
+) {
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
-    import reportsGenerationInputs._
 
-    val chartsFiles = new ChartsFiles(reportFolderName, configuration)
+    val chartsFiles = new ChartsFiles(reportsGenerationInputs.reportFolderName, directoryConfiguration)
 
     def hasAtLeastOneRequestReported: Boolean =
-      logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
+      reportsGenerationInputs.logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, configuration).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, charset, chartingConfiguration).generate()
 
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, configuration).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, charset).generate()
 
     def copyAssets(): Unit = {
       ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
@@ -47,10 +53,29 @@ private[gatling] class ReportsGenerator(configuration: GatlingConfiguration) {
 
     val reportGenerators =
       List(
-        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
-        new GlobalReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
-        new RequestDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration),
-        new GroupDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, configuration)
+        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, charset),
+        new GlobalReportGenerator(
+          reportsGenerationInputs,
+          chartsFiles,
+          ComponentLibrary.Instance,
+          zoneId,
+          charset,
+          chartingConfiguration
+        ),
+        new RequestDetailsReportGenerator(
+          reportsGenerationInputs,
+          chartsFiles,
+          ComponentLibrary.Instance,
+          charset,
+          chartingConfiguration
+        ),
+        new GroupDetailsReportGenerator(
+          reportsGenerationInputs,
+          chartsFiles,
+          ComponentLibrary.Instance,
+          charset,
+          chartingConfiguration
+        )
       )
 
     copyAssets()

@@ -16,19 +16,22 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
+
 import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.{ Group, GroupStatsPath, PercentilesVsTimePlot, RequestPath, Series }
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.OK
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.ChartingConfiguration
 
 private[charts] class GroupDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
-    configuration: GatlingConfiguration
+    charset: Charset,
+    configuration: ChartingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -84,7 +87,7 @@ private[charts] class GroupDetailsReportGenerator(
         group,
         new SchemaContainerComponent(
           componentLibrary.getRangesComponent("Group Duration Ranges", "groups", large = true),
-          new DetailsStatsTableComponent(configuration)
+          new DetailsStatsTableComponent(configuration.indicators)
         ),
         new ErrorsTableComponent(logFileData.errors(None, Some(group))),
         durationDistributionChartComponent,
@@ -93,7 +96,7 @@ private[charts] class GroupDetailsReportGenerator(
         cumulatedResponseTimeChartComponent
       )
 
-      new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput, configuration)
+      new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput, charset)
     }
 
     logFileData.statsPaths.foreach {

@@ -55,5 +55,5 @@ private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extend
 </div>
 """
 
-  def jsFiles: Seq[String] = Seq.empty
+  def jsFiles: Seq[String] = Nil
 }

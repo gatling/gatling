@@ -127,7 +127,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       folder.trimToOption match {
         case Some(f) => f
         case _ if sys.env.contains("GATLING_HOME") =>
-          customResourcesDirectory(gatlingConfiguration)
+          customResourcesDirectory(gatlingConfiguration.core.directory)
             .getOrElse(DefaultSimulationsDirectory)
             .toFile
             .toString
@@ -138,7 +138,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       if (config.hasPath(core.ResourcesFolder)) {
         config.getString(core.ResourcesFolder)
       } else {
-        customResourcesDirectory(gatlingConfiguration)
+        customResourcesDirectory(gatlingConfiguration.core.directory)
           .getOrElse(DefaultResourcesDirectory)
           .toFile
           .toString

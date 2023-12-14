@@ -44,7 +44,7 @@ object Selection {
             if (configuration.core.directory.reportsOnly.isDefined) {
               Nil
             } else {
-              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.canonicalName)
+              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration.core.directory)).simulationClasses.sortBy(_.canonicalName)
             }
 
           singleSimulationFromConfig(simulationClasses, configDefinedSimulationClassName)

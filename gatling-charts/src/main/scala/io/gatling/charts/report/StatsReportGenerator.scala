@@ -16,19 +16,25 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
+
 import io.gatling.charts.component.{ RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, RequestPath, RequestStatsPath }
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.{ ChartingConfiguration, GatlingConfiguration }
 import io.gatling.shared.util.NumberHelper._
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, configuration: GatlingConfiguration)
-    extends StrictLogging {
+private[charts] class StatsReportGenerator(
+    reportsGenerationInputs: ReportsGenerationInputs,
+    chartsFiles: ChartsFiles,
+    charset: Charset,
+    configuration: ChartingConfiguration
+) extends StrictLogging {
   import reportsGenerationInputs._
 
   def generate(): Unit = {
@@ -55,10 +61,10 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         maxResponseTimeStatistics = new Stats("max response time", total.max, ok.max, ko.max),
         meanResponseTimeStatistics = new Stats("mean response time", total.mean, ok.mean, ko.mean),
         stdDeviationStatistics = new Stats("std deviation", total.stdDev, ok.stdDev, ko.stdDev),
-        percentiles1 = percentiles(configuration.charting.indicators.percentile1, percentilesTitle, total, ok, ko),
-        percentiles2 = percentiles(configuration.charting.indicators.percentile2, percentilesTitle, total, ok, ko),
-        percentiles3 = percentiles(configuration.charting.indicators.percentile3, percentilesTitle, total, ok, ko),
-        percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko),
+        percentiles1 = percentiles(configuration.indicators.percentile1, percentilesTitle, total, ok, ko),
+        percentiles2 = percentiles(configuration.indicators.percentile2, percentilesTitle, total, ok, ko),
+        percentiles3 = percentiles(configuration.indicators.percentile3, percentilesTitle, total, ok, ko),
+        percentiles4 = percentiles(configuration.indicators.percentile4, percentilesTitle, total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(requestName, group),
         meanNumberOfRequestsPerSecondStatistics = new Stats("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
       )
@@ -66,7 +72,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
     def computeGroupStats(name: String, group: Group): RequestStatistics = {
       def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
-        if (configuration.charting.useGroupDurationMetric) {
+        if (configuration.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
           logFileData.groupDurationGeneralStats
         } else {
@@ -86,10 +92,10 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         maxResponseTimeStatistics = new Stats("maxResponseTime", total.max, ok.max, ko.max),
         meanResponseTimeStatistics = new Stats("meanResponseTime", total.mean, ok.mean, ko.mean),
         stdDeviationStatistics = new Stats("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev),
-        percentiles1 = percentiles(configuration.charting.indicators.percentile1, _ => "percentiles1", total, ok, ko),
-        percentiles2 = percentiles(configuration.charting.indicators.percentile2, _ => "percentiles2", total, ok, ko),
-        percentiles3 = percentiles(configuration.charting.indicators.percentile3, _ => "percentiles3", total, ok, ko),
-        percentiles4 = percentiles(configuration.charting.indicators.percentile4, _ => "percentiles4", total, ok, ko),
+        percentiles1 = percentiles(configuration.indicators.percentile1, _ => "percentiles1", total, ok, ko),
+        percentiles2 = percentiles(configuration.indicators.percentile2, _ => "percentiles2", total, ok, ko),
+        percentiles3 = percentiles(configuration.indicators.percentile3, _ => "percentiles3", total, ok, ko),
+        percentiles4 = percentiles(configuration.indicators.percentile4, _ => "percentiles4", total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(None, Some(group)),
         meanNumberOfRequestsPerSecondStatistics =
           new Stats("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
@@ -134,9 +140,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput, configuration)
-    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput, configuration)
-    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput, configuration)
+    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput, charset)
+    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput, charset)
+    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput, charset)
     println(ConsoleTemplate.println(rootContainer.stats, logFileData.errors(None, None)))
   }
 }

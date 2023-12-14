@@ -17,7 +17,7 @@
 package io.gatling.charts.component
 
 import io.gatling.charts.stats.{ GeneralStats, Ranges }
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.IndicatorsConfiguration
 import io.gatling.shared.util.NumberHelper._
 
 private[charts] object Stats {
@@ -47,7 +47,7 @@ private[charts] final class RequestStatistics(
     val meanNumberOfRequestsPerSecondStatistics: Stats[Double]
 )
 
-private[charts] final class DetailsStatsTableComponent(configuration: GatlingConfiguration) extends Component {
+private[charts] final class DetailsStatsTableComponent(configuration: IndicatorsConfiguration) extends Component {
   override def html: String = s"""
                         <div class="infos">
                             <div class="infos-in">
@@ -92,25 +92,25 @@ private[charts] final class DetailsStatsTableComponent(configuration: GatlingCon
                                                 <td id="minResponseTimeKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${configuration.charting.indicators.percentile1.toRank} percentile</td>
+                                                <td class="title">${configuration.percentile1.toRank} percentile</td>
                                                 <td id="percentiles1" class="total"></td>
                                                 <td id="percentiles1OK" class="ok"></td>
                                                 <td id="percentiles1KO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${configuration.charting.indicators.percentile2.toRank} percentile</td>
+                                                <td class="title">${configuration.percentile2.toRank} percentile</td>
                                                 <td id="percentiles2" class="total"></td>
                                                 <td id="percentiles2OK" class="ok"></td>
                                                 <td id="percentiles2KO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${configuration.charting.indicators.percentile3.toRank} percentile</td>
+                                                <td class="title">${configuration.percentile3.toRank} percentile</td>
                                                 <td id="percentiles3" class="total"></td>
                                                 <td id="percentiles3OK" class="ok"></td>
                                                 <td id="percentiles3KO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${configuration.charting.indicators.percentile4.toRank} percentile</td>
+                                                <td class="title">${configuration.percentile4.toRank} percentile</td>
                                                 <td id="percentiles4" class="total"></td>
                                                 <td id="percentiles4OK" class="ok"></td>
                                                 <td id="percentiles4KO" class="ko"></td>
@@ -142,5 +142,5 @@ private[charts] final class DetailsStatsTableComponent(configuration: GatlingCon
 
   val js = ""
 
-  val jsFiles: Seq[String] = Seq.empty
+  val jsFiles: Seq[String] = Nil
 }

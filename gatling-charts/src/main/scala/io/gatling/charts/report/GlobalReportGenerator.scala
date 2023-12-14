@@ -16,19 +16,24 @@
 
 package io.gatling.charts.report
 
+import java.nio.charset.Charset
+import java.time.ZoneId
+
 import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.ChartingConfiguration
 
 private[charts] class GlobalReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
-    configuration: GatlingConfiguration
+    zoneId: ZoneId,
+    charset: Charset,
+    configuration: ChartingConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -100,10 +105,10 @@ private[charts] class GlobalReportGenerator(
       new SchemaContainerComponent(
         componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = false),
         componentLibrary.getRequestCountPolarComponent,
-        new SimulationCardComponent(logFileData.runInfo, configuration.data.zoneId)
+        new SimulationCardComponent(logFileData.runInfo, zoneId)
       ),
       new AssertionsTableComponent(assertionResults),
-      new GlobalStatsTableComponent(configuration),
+      new GlobalStatsTableComponent(configuration.indicators),
       new ErrorsTableComponent(logFileData.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
@@ -112,6 +117,6 @@ private[charts] class GlobalReportGenerator(
       responsesChartComponent
     )
 
-    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput, configuration)
+    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput, charset)
   }
 }

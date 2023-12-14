@@ -19,19 +19,24 @@ package io.gatling.charts.component
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.report.Container.{ Group, Request }
 import io.gatling.commons.util.StringHelper._
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.IndicatorsConfiguration
 import io.gatling.shared.util.NumberHelper._
 
-private[charts] final class GlobalStatsTableComponent(configuration: GatlingConfiguration) extends Component {
+private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsConfiguration) extends Component {
 
   override val html: String = {
     def pctTitle(pct: Double) = pct.toRank + " pct"
 
-    val pct1 = pctTitle(configuration.charting.indicators.percentile1)
-    val pct2 = pctTitle(configuration.charting.indicators.percentile2)
-    val pct3 = pctTitle(configuration.charting.indicators.percentile3)
-    val pct4 = pctTitle(configuration.charting.indicators.percentile4)
-    val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", """<abbr title="Standard Deviation">Std Dev</abbr>""")
+    val responseTimeFields = List(
+      "Min",
+      pctTitle(configuration.percentile1),
+      pctTitle(configuration.percentile2),
+      pctTitle(configuration.percentile3),
+      pctTitle(configuration.percentile4),
+      "Max",
+      "Mean",
+      """<abbr title="Standard Deviation">Std Dev</abbr>"""
+    )
 
     s"""
                       <div id="statistics_table_container">
@@ -203,5 +208,5 @@ if (lines.index < 30) {
 $$('.table-cell-tooltip').popover({trigger:'hover'});
 """
 
-  val jsFiles: Seq[String] = Seq.empty
+  val jsFiles: Seq[String] = Nil
 }
