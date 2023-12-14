@@ -20,6 +20,29 @@ import java.nio.ByteBuffer;
 
 public class Longs {
 
+  private static final byte[] DIGIT_TENS = {
+    '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+    '1', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '3', '3', '3', '3', '3', '3', '3', '3',
+    '3', '3', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '5', '5', '5', '5', '5', '5', '5',
+    '5', '5', '5', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '7', '7', '7', '7', '7', '7',
+    '7', '7', '7', '7', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '9', '9', '9', '9', '9',
+    '9', '9', '9', '9', '9',
+  };
+
+  private static final byte[] DIGIT_ONES = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8',
+    '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6',
+    '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5',
+    '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4',
+    '5', '6', '7', '8', '9',
+  };
+
+  private static final byte[] DIGITS = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+  };
+
   private static final long[] SIZE_TABLE = {
     9L,
     99L,
@@ -62,8 +85,8 @@ public class Longs {
       // really: r = i - (q * 100);
       r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
       i = q;
-      bb.put(--charPos, Integers.DIGIT_ONES[r]);
-      bb.put(--charPos, Integers.DIGIT_TENS[r]);
+      bb.put(--charPos, DIGIT_ONES[r]);
+      bb.put(--charPos, DIGIT_TENS[r]);
     }
 
     // Get 2 digits/iteration using ints
@@ -74,8 +97,8 @@ public class Longs {
       // really: r = i2 - (q * 100);
       r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
       i2 = q2;
-      bb.put(--charPos, Integers.DIGIT_ONES[r]);
-      bb.put(--charPos, Integers.DIGIT_TENS[r]);
+      bb.put(--charPos, DIGIT_ONES[r]);
+      bb.put(--charPos, DIGIT_TENS[r]);
     }
 
     // Fall thru to fast mode for smaller numbers
@@ -83,7 +106,7 @@ public class Longs {
     for (; ; ) {
       q2 = (i2 * 52429) >>> (16 + 3);
       r = i2 - ((q2 << 3) + (q2 << 1)); // r = i2-(q2*10) ...
-      bb.put(--charPos, Integers.DIGITS[r]);
+      bb.put(--charPos, DIGITS[r]);
       i2 = q2;
       if (i2 == 0) break;
     }

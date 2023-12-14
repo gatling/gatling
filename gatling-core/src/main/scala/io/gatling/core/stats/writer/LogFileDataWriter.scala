@@ -30,7 +30,7 @@ import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent
-import io.gatling.core.util.{ Integers, Longs }
+import io.gatling.core.util.Longs
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -78,13 +78,6 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
     ensureCapacity(stringSize)
 
     Longs.writePositiveLongString(l, stringSize, bb)
-  }
-
-  def writePositiveInt(i: Int): Unit = {
-    val stringSize = Integers.positiveIntStringSize(i)
-    ensureCapacity(stringSize)
-
-    Integers.writePositiveIntString(i, stringSize, bb)
   }
 
   override def close(): Unit =
@@ -267,7 +260,7 @@ final class FileData(
     val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
-class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
+final class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
   def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
