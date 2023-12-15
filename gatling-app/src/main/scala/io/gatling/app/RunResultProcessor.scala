@@ -68,7 +68,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       assertionResult match {
         case AssertionResult.Resolved(_, success, actualValue) =>
           if (success) {
-            println(s"$message : true")
+            println(s"$message : true (actual : $actualValue)")
           } else {
             println(s"$message : false (actual : $actualValue)")
           }
