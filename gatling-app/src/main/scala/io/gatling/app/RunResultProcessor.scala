@@ -67,11 +67,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       val message = AssertionMessage.message(assertionResult.assertion)
       assertionResult match {
         case AssertionResult.Resolved(_, success, actualValue) =>
-          if (success) {
-            println(s"$message : true")
-          } else {
-            println(s"$message : false (actual : $actualValue)")
-          }
+          println(s"$message : $success (actual : $actualValue)")
         case AssertionResult.ResolutionError(_, error) =>
           println(s"$message : false ($error)")
       }
