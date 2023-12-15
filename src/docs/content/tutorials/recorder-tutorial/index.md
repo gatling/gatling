@@ -1,5 +1,5 @@
 ---
-title: "Quickstart"
+title: "Introduction to the Recorder"
 description: "Learn the basics about Gatling: installing, using the recorder to generate a basic raw test and how to execute it."
 lead: "Learn Gatling concepts, and use the recorder to create a runnable Gatling simulation"
 date: 2021-04-20T18:30:56+02:00
@@ -210,4 +210,4 @@ If Gatling doesn't work as expected, see our [FAQ]({{< ref "../../reference/curr
 
 ### Going Further
 
-When you're ready to go further, please check out the [Advanced Tutorial]({{< ref "../advanced" >}}).
+When you're ready to go further, please check out the [Writing DRY tests Tutorial]({{< ref "tutorials/advanced/index.md" >}}).

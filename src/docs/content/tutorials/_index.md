@@ -4,6 +4,7 @@ description: "Step-by-step introduction to Gatling."
 weight: 1000000
 ordering:
   - installation
-  - quickstart
+  - scripting-intro
+  - recorder-tutorial
   - advanced
 ---
