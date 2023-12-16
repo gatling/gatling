@@ -53,8 +53,6 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
   private def reportsGenerationEnabled: Boolean =
     configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.reports.noReports)
 
-  private def alwaysPrintActualValueEnabled: Boolean = configuration.charting.printActualValue
-
   private def generateReports(runId: String, logFileData: LogFileData, assertionResults: List[AssertionResult]): Unit =
     if (reportsGenerationEnabled) {
       println("Generating reports...")
@@ -69,10 +67,8 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       val message = AssertionMessage.message(assertionResult.assertion)
       assertionResult match {
         case AssertionResult.Resolved(_, success, actualValue) =>
-          if (success && alwaysPrintActualValueEnabled) {
+          if (success) {
               println(s"$message : true (actual : $actualValue)")
-          } else if (success) {
-              println(s"$message : true")
           } else {
             println(s"$message : false (actual : $actualValue)")
           }
