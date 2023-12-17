@@ -25,6 +25,7 @@ A huge thank you to our great community members who helped with this release:
 * [jonathanmash](https://github.com/jonathanmash)
 * [kudoueiji](https://github.com/kudoueiji)
 * [micheljung](https://github.com/micheljung)
+* [mrdingma](https://github.com/mrdingma)
 * [phiSgr](https://github.com/phiSgr)
 * [presidentio](https://github.com/presidentio)
 * [ViliusS](https://github.com/ViliusS)
