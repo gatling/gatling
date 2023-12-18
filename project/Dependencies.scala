@@ -83,7 +83,7 @@ object Dependencies {
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                         % "1.9.6"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                         % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.2"
-  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.2"
+  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.3"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
 
   // Test dependencies
