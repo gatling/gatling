@@ -11,12 +11,12 @@ weight: 1010000
 
 ### Java Version
 
-Gatling supports 64bits OpenJDK LTS (Long Term Support) versions: 8, 11 and 17.
-Other JVMs such as JDK 12, client JVMs, 32bits systems or OpenJ9 are not supported.
+Gatling supports 64bits OpenJDK LTS (Long Term Support) versions: 11, 17 and 21.
+Other JVMs such as 32bits systems or OpenJ9 are not supported.
 
 ### Supported Languages
 
-Gatling 3.7 supports writing tests in Java, Kotlin and Scala.
+Since 3.7, Gatling supports writing tests in Java, Kotlin and Scala.
 Older Gatling versions only support Scala.
 
 ### Gatling Version
@@ -45,14 +45,14 @@ Windows users : we recommend that you do not place Gatling in the *Programs* fol
 {{< /alert >}}
 
 In order to run Gatling, you need to have a JDK installed.
-Gatling requires at least **JDK8**. Then, we recommend that you use an up-to-date version.
+Gatling requires at least **JDK11**. Then, we recommend that you use an up-to-date version.
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../../reference/current/core/operations" >}}) section.
 
 {{< alert warning >}}
 Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
 Depending on your setup, you might end up running a different version than the one displayed with `java -version`.
-If you get strange errors such as `Unsupported major.minor version 51.0` and you were expecting to run a JDK8 or newer, you might want to explicitly set the `JAVA_HOME` env variable.
+If you get strange errors such as `Unsupported major.minor version` and you were expecting to run a JDK11 or newer, you might want to explicitly set the `JAVA_HOME` env variable.
 {{< /alert >}}
 
 The bundle structure is as follows:
