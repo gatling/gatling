@@ -68,7 +68,7 @@ class HttpRequestExpressionBuilder(
   require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
   override final def sanitizeHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
-    if (httpAttributes.body.nonEmpty || httpAttributes.bodyParts.nonEmpty) {
+    if (httpAttributes.body.isEmpty && httpAttributes.bodyParts.isEmpty) {
       // remove "content-type" that's only legit when there's a body
       HttpRequestExpressionBuilder.filterOutCaseInsensitiveKey(rawHeaders, HttpHeaderNames.CONTENT_TYPE)
     } else {
