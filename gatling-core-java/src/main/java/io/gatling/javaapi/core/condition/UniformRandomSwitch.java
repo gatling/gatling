@@ -70,7 +70,7 @@ public interface UniformRandomSwitch<
      */
     @NonNull
     public T on(@NonNull Executable executable, @NonNull Executable... executables) {
-      return on(Executables.toChainBuilder(executable, executables));
+      return on(Executables.toChainBuilders(executable, executables));
     }
 
     /**
