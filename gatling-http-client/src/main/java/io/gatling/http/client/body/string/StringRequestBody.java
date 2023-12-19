@@ -56,7 +56,12 @@ public final class StringRequestBody extends RequestBody.Base<String> {
   }
 
   @Override
-  public String toString() {
-    return "StringRequestBody{" + "charset=" + charset + ", content=" + content + '}';
+  public String print(int maxLength) {
+    return "StringRequestBody{"
+        + "charset="
+        + charset
+        + ", content="
+        + truncate(content, maxLength)
+        + '}';
   }
 }

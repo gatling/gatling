@@ -104,14 +104,14 @@ public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param
   }
 
   @Override
-  public String toString() {
+  public String print(int maxLength) {
     return "FormUrlEncodedRequestBody{"
         + "patchedContentType='"
         + patchedContentType
         + "', charset="
         + charset
         + ", content="
-        + encode()
+        + truncate(encode().toString(), maxLength)
         + '}';
   }
 }

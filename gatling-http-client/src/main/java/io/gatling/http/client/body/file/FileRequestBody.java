@@ -66,7 +66,7 @@ public final class FileRequestBody extends RequestBody.Base<File> {
   }
 
   @Override
-  public String toString() {
+  public String print(int maxLength) {
     return "FileRequestBody{" + "charset=" + charset + ", content=" + content + '}';
   }
 }

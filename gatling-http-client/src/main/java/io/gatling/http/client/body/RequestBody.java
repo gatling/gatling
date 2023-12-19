@@ -31,6 +31,8 @@ public interface RequestBody {
     return null;
   }
 
+  String print(int maxLength);
+
   abstract class Base<T> implements RequestBody {
 
     protected final T content;
@@ -41,6 +43,15 @@ public interface RequestBody {
 
     public T getContent() {
       return content;
+    }
+
+    protected final String truncate(String string, int maxLength) {
+      return string.length() > maxLength ? string.substring(0, maxLength) + "..." : string;
+    }
+
+    @Override
+    public String toString() {
+      return print(Integer.MAX_VALUE);
     }
   }
 }

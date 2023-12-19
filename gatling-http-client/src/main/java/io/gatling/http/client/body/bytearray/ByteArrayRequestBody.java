@@ -59,10 +59,10 @@ public final class ByteArrayRequestBody extends RequestBody.Base<byte[]> {
   }
 
   @Override
-  public String toString() {
+  public String print(int maxLength) {
     return "ByteArrayRequestBody{"
         + "content (Base64)="
-        + Base64.getEncoder().encodeToString(content)
+        + truncate(Base64.getEncoder().encodeToString(content), maxLength)
         + '}';
   }
 }

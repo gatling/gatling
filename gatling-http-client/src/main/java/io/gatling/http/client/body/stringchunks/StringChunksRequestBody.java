@@ -61,12 +61,12 @@ public final class StringChunksRequestBody extends RequestBody.Base<List<StringW
   }
 
   @Override
-  public String toString() {
+  public String print(int maxLength) {
     return "StringChunksRequestBody{"
         + "charset="
         + charset
         + ", content="
-        + StringWithCachedBytes.toString(content)
+        + truncate(StringWithCachedBytes.toString(content), maxLength)
         + '}';
   }
 }

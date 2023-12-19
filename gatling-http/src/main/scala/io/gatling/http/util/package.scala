@@ -62,7 +62,7 @@ package object util extends LazyLogging {
       }
 
       Option(request.getBody).foreach { requestBody =>
-        buff.append("body:").append(requestBody.toString.substring(0, BodyMaxPrintableLength)).append(Eol)
+        buff.append("body:").append(requestBody.print(BodyMaxPrintableLength)).append(Eol)
       }
 
       if (request.getProxyServer != null) {
@@ -98,7 +98,13 @@ package object util extends LazyLogging {
             buff.append("body:").append(Eol)
             if (isText(response.headers)) {
               try {
-                buff.append(response.body.string.substring(0, BodyMaxPrintableLength))
+                val bodyString = response.body.string
+                if (bodyString.length > BodyMaxPrintableLength) {
+                  buff.append(response.body.string, 0, BodyMaxPrintableLength).append("...")
+                } else {
+                  buff.append(response.body.string)
+                }
+
               } catch {
                 case NonFatal(t) =>
                   val message = "Could not decode response body"

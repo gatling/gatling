@@ -71,7 +71,7 @@ public final class InputStreamRequestBody extends RequestBody.Base<InputStream> 
   }
 
   @Override
-  public String toString() {
+  public String print(int maxLength) {
     return "InputStreamRequestBody{content=???}";
   }
 }
