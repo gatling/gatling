@@ -19,23 +19,24 @@ package io.gatling.commons.util
 import java.util.concurrent.atomic.AtomicInteger
 
 sealed trait CyclicCounter {
-  def nextVal: Int
+  def nextVal(): Int
 }
 
 object CyclicCounter {
   final class ThreadSafe(max: Int) extends CyclicCounter {
+    require(max >= 2, "max must be >= 2")
     private val counter = new AtomicInteger
-    def nextVal: Int = counter.getAndIncrement % max
+    private val maxIndex = max - 1
+    def nextVal(): Int = counter.getAndUpdate(i => if (i < maxIndex) i + 1 else 0)
   }
 
   final class NonThreadSafe(max: Int) extends CyclicCounter {
+    require(max >= 2, "max must be >= 2")
     private var counter = 0
-    def nextVal: Int = {
+    private val maxIndex = max - 1
+    def nextVal(): Int = {
       val current = counter
-      counter += 1
-      if (counter == max) {
-        counter = 0
-      }
+      counter = if (counter < maxIndex) counter + 1 else 0
       current
     }
   }

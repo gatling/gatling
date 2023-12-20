@@ -30,6 +30,6 @@ object CircularIterator {
     case 1 => new InfiniteIterator(values(0))
     case _ =>
       val counter = if (threadSafe) new CyclicCounter.ThreadSafe(values.length) else new CyclicCounter.NonThreadSafe(values.length)
-      Iterator.continually(values(counter.nextVal))
+      Iterator.continually(values(counter.nextVal()))
   }
 }
