@@ -113,12 +113,12 @@ ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)
 <div class="frise"></div>
 <div class="head">
   <div class="gatling-open-source">
-    <a class="gatling-logo gatling-logo-light" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
-    <a class="gatling-logo gatling-logo-dark" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.svg"/></a>
+    <a class="gatling-logo gatling-logo-light" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-light.svg"/></a>
+    <a class="gatling-logo gatling-logo-dark" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-dark.svg"/></a>
     <a class="gatling-documentation" href="https://gatling.io/docs/" target="_blank">Documentation</a>
   </div>
   <div class="nav spacer"></div>
-  <a class="enterprise" href="https://gatling.io/enterprise/next-step/" target="_blank">Try
+  <a class="enterprise" href="https://gatling.io/enterprise/next-step/" target="_blank"><strong>Try</strong>
     <img class="logo-enterprise-light" alt="Gatling Enterprise" src="style/logo-enterprise-light.svg"/>
     <img class="logo-enterprise-dark" alt="Gatling Enterprise" src="style/logo-enterprise-dark.svg"/>
   </a>

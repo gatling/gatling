@@ -52,7 +52,6 @@ private[charts] final class DetailsStatsTableComponent(configuration: Indicators
                         <div class="infos">
                             <div class="infos-in">
 	                        <div class="infos-title">Stats</div>
-                                <div class="repli"></div>                               
                                 <div class="info">
                                     <h2 class="first">Executions</h2>
                                     <table>

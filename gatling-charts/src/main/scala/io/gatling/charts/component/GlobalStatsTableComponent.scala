@@ -44,9 +44,9 @@ private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsC
                             <div class="title">
                               <div id="statistics_title" class="title_base"><span class="title_base_stats">Stats</span><span class="expand-table">Fixed height</span><span id="toggle-stats" class="toggle-table"></span><span class="collapse-table">Full size</span></div>
                               <div class="right">
-                                  <button id="statistics_full_screen" class="statistics-button" onclick="openStatisticsTableModal()">Full Screen</button>
                                   <button class="statistics-button expand-all-button">Expand all groups</button>
                                   <button class="statistics-button collapse-all-button">Collapse all groups</button>
+                                  <button id="statistics_full_screen" class="statistics-button" onclick="openStatisticsTableModal()"><img alt="Fullscreen" src="style/fullscreen.svg"></button>
                               </div>
                             </div>
                             <div class="scrollable">
@@ -77,7 +77,7 @@ private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsC
                         </div>
                       </div>
 <dialog id="statistics_table_modal" class="statistics-table-modal">
-  <div class="statistics-table-modal-header"><button class="button-modal" onclick="closeStatisticsTableModal()">x</button></div>
+  <div class="statistics-table-modal-header"><button class="button-modal" onclick="closeStatisticsTableModal()"><img alt="Close" src="style/close.svg"></button></div>
   <div class="statistics-table-modal-container">
     <div id="statistics_table_modal_content" class="statistics-table-modal-content"></div>
   </div>
