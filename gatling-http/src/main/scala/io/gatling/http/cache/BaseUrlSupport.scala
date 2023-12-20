@@ -18,6 +18,7 @@ package io.gatling.http.cache
 
 import java.net.InetAddress
 
+import scala.collection.immutable.ArraySeq
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.CircularIterator
@@ -51,7 +52,7 @@ private[http] object BaseUrlSupport extends LazyLogging {
       case Nil        => Session.Identity
       case url :: Nil => _.set(attributeName, url)
       case urls =>
-        val it = CircularIterator(urls.toVector, threadSafe = true)
+        val it = CircularIterator(ArraySeq.from(urls), threadSafe = true)
         _.set(attributeName, it.next())
     }
   }

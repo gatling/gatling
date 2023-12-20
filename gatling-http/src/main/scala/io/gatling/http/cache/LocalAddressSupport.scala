@@ -18,6 +18,8 @@ package io.gatling.http.cache
 
 import java.net.InetAddress
 
+import scala.collection.immutable.ArraySeq
+
 import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
@@ -38,7 +40,7 @@ private[http] object LocalAddressSupport {
           case singleIpV6Address :: Nil =>
             _.set(LocalIpV6AddressAttributeName, singleIpV6Address)
           case ipV6Addresses =>
-            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
             _.set(LocalIpV6AddressAttributeName, itV6.next())
         }
       case singleIpV4Address :: Nil =>
@@ -49,13 +51,13 @@ private[http] object LocalAddressSupport {
             _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
               .set(LocalIpV6AddressAttributeName, singleIpV6Address)
           case _ =>
-            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
             _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
               .set(LocalIpV6AddressAttributeName, itV6.next())
         }
 
       case _ =>
-        val itV4 = CircularIterator(ipV4Addresses.toVector, threadSafe = true)
+        val itV4 = CircularIterator(ArraySeq.from(ipV4Addresses), threadSafe = true)
         ipV6Addresses match {
           case Nil =>
             _.set(LocalIpV4AddressAttributeName, itV4.next())
@@ -63,7 +65,7 @@ private[http] object LocalAddressSupport {
             _.set(LocalIpV4AddressAttributeName, itV4.next())
               .set(LocalIpV6AddressAttributeName, singleIpV6Address)
           case _ =>
-            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
             _.set(LocalIpV4AddressAttributeName, itV4.next())
               .set(LocalIpV6AddressAttributeName, itV6.next())
         }

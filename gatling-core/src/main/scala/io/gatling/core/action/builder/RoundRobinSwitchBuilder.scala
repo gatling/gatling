@@ -29,7 +29,7 @@ private[core] final class RoundRobinSwitchBuilder(possibilities: List[ChainBuild
   require(possibilities.sizeIs >= 2, "Round robin switch requires at least 2 possibilities")
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    val possibleActions = ArraySeq.unsafeWrapArray(possibilities.map(_.build(ctx, next)).toArray)
+    val possibleActions = ArraySeq.from(possibilities.map(_.build(ctx, next)))
     val roundRobin = CircularIterator(possibleActions, threadSafe = true)
 
     val nextAction: Expression[Action] = _ => roundRobin.next().success
