@@ -248,7 +248,11 @@ object GatlingConfiguration extends StrictLogging {
       dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName(_).toList).toSeq,
       console = new ConsoleDataWriterConfiguration(
         light = config.getBoolean(data.console.Light),
-        writePeriod = config.getInt(data.console.WritePeriod).seconds
+        writePeriod = {
+          val value = config.getInt(data.console.WritePeriod)
+          require(value > 0, s"${data.console.WritePeriod} must be > 0")
+          value.seconds
+        }
       ),
       file = new FileDataWriterConfiguration(
         bufferSize = config.getInt(data.file.BufferSize)
