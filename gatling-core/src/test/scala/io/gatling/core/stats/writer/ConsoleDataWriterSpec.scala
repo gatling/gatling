@@ -17,6 +17,7 @@
 package io.gatling.core.stats.writer
 
 import java.time.{ LocalDateTime, Month }
+import java.time.format.DateTimeFormatter
 
 import scala.collection.mutable
 
@@ -40,7 +41,16 @@ class ConsoleDataWriterSpec extends BaseSpec {
   "console summary progress bar" should "handle it correctly when all the users are waiting" in {
     val counters = new UserCounters(Some(11))
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> counters),
+      RequestCounters.empty,
+      mutable.Map.empty,
+      mutable.Map.empty,
+      configuration,
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
+    )
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[                                                                          ]  0%"
   }
@@ -49,7 +59,16 @@ class ConsoleDataWriterSpec extends BaseSpec {
     val counters = new UserCounters(Some(11))
     for (_ <- 1 to 11) counters.userStart()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> counters),
+      RequestCounters.empty,
+      mutable.Map.empty,
+      mutable.Map.empty,
+      configuration,
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
+    )
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[--------------------------------------------------------------------------]  0%"
   }
@@ -59,7 +78,16 @@ class ConsoleDataWriterSpec extends BaseSpec {
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 11) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> counters),
+      RequestCounters.empty,
+      mutable.Map.empty,
+      mutable.Map.empty,
+      configuration,
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
+    )
     summary.complete shouldBe true
     progressBar(summary) shouldBe "[##########################################################################]100%"
   }
@@ -69,7 +97,16 @@ class ConsoleDataWriterSpec extends BaseSpec {
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 10) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> counters),
+      RequestCounters.empty,
+      mutable.Map.empty,
+      mutable.Map.empty,
+      configuration,
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
+    )
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[###################################################################-------] 90%"
   }
@@ -84,7 +121,8 @@ class ConsoleDataWriterSpec extends BaseSpec {
       requestCounters,
       mutable.Map.empty,
       configuration,
-      time
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
     )
 
     val actual = requestsInfo(summary)
@@ -104,7 +142,8 @@ class ConsoleDataWriterSpec extends BaseSpec {
       requestCounters,
       errorsCounters1,
       configuration,
-      time
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
     )
 
     val output = errorsInfo(summary1)
@@ -127,7 +166,8 @@ class ConsoleDataWriterSpec extends BaseSpec {
       requestCounters,
       errorsCounters,
       configuration,
-      time
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
     )
 
     val output = errorsInfo(summary)

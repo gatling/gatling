@@ -29,8 +29,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.ErrorStats
 
 private[gatling] object ConsoleSummary {
-  private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  private val Iso8601DateTimeFormat = DateTimeFormatter.ofPattern(Iso8601Format)
   val OutputLength: Int = 80
   val NewBlock: String = "=" * OutputLength
 
@@ -44,7 +42,8 @@ private[gatling] object ConsoleSummary {
       requestsCounters: mutable.Map[String, RequestCounters],
       errorsCounters: mutable.Map[String, Int],
       configuration: GatlingConfiguration,
-      time: TemporalAccessor
+      time: TemporalAccessor,
+      dateTimeFormatter: DateTimeFormatter
   ): ConsoleSummary = {
     def writeUsersCounters(sb: jl.StringBuilder, scenarioName: String, userCounters: UserCounters): jl.StringBuilder = {
       import userCounters._
@@ -119,13 +118,14 @@ private[gatling] object ConsoleSummary {
       sb
     }
 
+    val formattedTime = dateTimeFormatter.format(time)
     val sb = new jl.StringBuilder()
       .append(Eol)
       .append(NewBlock)
       .append(Eol)
-      .append(ConsoleSummary.Iso8601DateTimeFormat.format(time))
+      .append(formattedTime)
       .append(' ')
-      .append((runDuration.toString + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9))
+      .append((runDuration.toString + "s elapsed").leftPad(OutputLength - formattedTime.length - 9))
       .append(Eol)
 
     writeSubTitle(sb, "Requests").append(Eol)

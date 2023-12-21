@@ -17,6 +17,7 @@
 package io.gatling.core.stats.writer
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 import scala.collection.mutable
 
@@ -45,7 +46,7 @@ private object RequestCounters {
 
 private[gatling] final class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
-private[gatling] final class ConsoleData(val startUpTime: Long) extends DataWriterData {
+private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter) extends DataWriterData {
   var complete: Boolean = false
   val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
   val globalRequestCounters: RequestCounters = RequestCounters.empty
@@ -59,7 +60,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
   def onInit(init: DataWriterMessage.Init): ConsoleData = {
     import init._
 
-    val data = new ConsoleData(clock.nowMillis)
+    val data = new ConsoleData(clock.nowMillis, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss O").withZone(runMessage.zoneId))
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
@@ -73,7 +74,8 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
 
     val runDuration = (clock.nowMillis - startUpTime) / 1000
 
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, LocalDateTime.now())
+    val summary =
+      ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, LocalDateTime.now(), dateTimeFormatter)
     complete = summary.complete
     println(summary.text)
   }
