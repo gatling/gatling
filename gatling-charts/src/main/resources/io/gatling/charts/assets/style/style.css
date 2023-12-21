@@ -327,7 +327,7 @@ h1 span {
 }
 
 .enterprise:hover {
-	background-color: var(--gatling-enterprise-light-color);
+	background-color: var(--gatling-hover-color);
 	color: var(--gatling-enterprise-color);
 }
 
@@ -509,7 +509,7 @@ html[data-theme="dark"] .content-in {
 
 	font-size: var(--gatling-font-size-heading);
 	font-weight: var(--gatling-font-weight-normal);
-	padding: var(--gatling-spacing-small) var(--gatling-spacing);
+	padding: var(--gatling-spacing-small) var(--gatling-spacing) var(--gatling-spacing);
 	border-bottom: 2px solid transparent;
 	color: var(--gatling-text-color);
 	text-align: center;
