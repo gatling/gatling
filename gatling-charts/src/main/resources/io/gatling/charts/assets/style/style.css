@@ -575,16 +575,6 @@ html[data-theme="dark"] .content-in {
 	font-weight: var(--gatling-font-weight-bold);
 }
 
-.repli {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-
-	background: url('stat-fleche-bas.png') no-repeat top left;
-	height: 25px;
-	width: 22px;
-}
-
 .infos h2 {
 	color: var(--gatling-text-color);
 	font-size: var(--gatling-font-size-default);
