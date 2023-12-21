@@ -376,6 +376,15 @@ h1 span {
 	margin: 0;
 }
 
+html[data-theme="dark"] div.popover {
+	background-color: var(--gatling-light-color);
+	border-bottom: none;
+}
+
+html[data-theme="dark"] div.popover.right .arrow {
+	border-right-color: var(--gatling-light-color);
+}
+
 .ellipsed-name {
 	display: block;
 
