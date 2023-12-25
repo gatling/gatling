@@ -82,7 +82,7 @@ lazy val docSamples = (project in file("src/docs"))
       scalafixAll := { () }
     ),
     spotlessCheck := { () },
-    kotlinVersion := "1.9.21"
+    kotlinVersion := "1.9.22"
   )
   .dependsOn(
     Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
