@@ -18,9 +18,18 @@ Gatling 3.10 introduces the following breaking changes:
 
 ### slf4j 2 upgrade
 
-Gatling upgrades slf4j to the new major version, which is not compatible with slf4j 1 nor with old logback versions.
+`slf4j` is the most popular Java logging interface, `logback` is its default implementation.
 
-If you're bringing some extra libraries in Gatling's classpath that uses slf4j or logback, you have to make sure you're using slf4j and logback versions that are compatible with each other.
+Like more and more other Java based technology, Gatling 3.10 is finally upgrading from slf4j 1 to slf4j 2, and logback 1.2 to logback 1.4.
+
+As indicated by the major version change, slf4j 1 and slf4j 2 are not compatible.
+
+If you're bringing into Gatling's classpath some extra libraries that are pulling slf4j or logback dependencies, you have to make sure that you end up with slf4j and logback versions that are compatible with each other:
+
+* slf4j 1 is compatible with logback 1.2 included
+* slf4j 2 is compatible with logback 1.3 or greater
+
+With maven, you would use `mvn dependency:tree` in order to check the actual versions used and [dependencyManagement](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#dependency-management) to force the desired versions.
 
 For more details, please check the [issue #4386](https://github.com/gatling/gatling/issues/4386)
 
