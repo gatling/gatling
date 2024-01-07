@@ -163,6 +163,12 @@ object Dependencies {
       scopt,
       nettyHandler,
       nettyTcNative,
+      nettyTcNativeBoringSsl,
+      nettyTcNativeBoringSslLinuxX86,
+      nettyTcNativeBoringSslLinuxArm,
+      nettyTcNativeBoringSslOsXX86,
+      nettyTcNativeBoringSslOsXArm,
+      nettyTcNativeBoringSslWindows,
       quicklens
     ) ++
       parserDeps ++ testDeps

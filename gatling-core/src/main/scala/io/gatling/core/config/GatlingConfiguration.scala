@@ -34,6 +34,8 @@ import io.gatling.shared.util.Ssl
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.ssl.OpenSsl
+import io.netty.util.internal.PlatformDependent
 
 sealed abstract class ObsoleteUsage(val message: String) extends Product with Serializable { def path: String }
 final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
@@ -159,7 +161,18 @@ object GatlingConfiguration extends StrictLogging {
     }
 
   private def sslConfiguration(config: Config) = {
-    val useOpenSsl = config.getBoolean(ssl.UseOpenSsl)
+    val useOpenSsl =
+      config.getBoolean(ssl.UseOpenSsl) && {
+        if (OpenSsl.isAvailable) {
+          true
+        } else {
+          throw new UnsupportedOperationException(
+            s"BoringSSL is enabled in your configuration, yet it's not available for your platform ${PlatformDependent
+                .normalizedOs()}_${PlatformDependent.normalizedArch()}.",
+            OpenSsl.unavailabilityCause()
+          );
+        }
+      }
     val enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList match {
       case Nil                  => defaultEnabledProtocols(useOpenSsl)
       case userDefinedProtocols => userDefinedProtocols
