@@ -585,8 +585,9 @@ public class DefaultHttpClient implements HttpClient {
                               return;
                             }
 
-                            if (tx.request.getHttp2PriorKnowledge()
-                                == Http2PriorKnowledge.HTTP1_ONLY) {
+                            if (!tx.request.isHttp2Enabled()
+                                || tx.request.getHttp2PriorKnowledge()
+                                    == Http2PriorKnowledge.HTTP1_ONLY) {
                               sendTxWithChannel(tx, channel);
                             } else {
                               LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
@@ -673,11 +674,12 @@ public class DefaultHttpClient implements HttpClient {
 
     if (uri.isWebSocket()) {
       return resources.wsBootstrap;
-    } else if (request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP1_ONLY
-        || !request.getUri().isSecured()) {
-      return resources.http1Bootstrap;
-    } else {
+    } else if (request.getUri().isSecured()
+        && request.isHttp2Enabled()
+        && request.getHttp2PriorKnowledge() != Http2PriorKnowledge.HTTP1_ONLY) {
       return resources.http2Bootstrap;
+    } else {
+      return resources.http1Bootstrap;
     }
   }
 

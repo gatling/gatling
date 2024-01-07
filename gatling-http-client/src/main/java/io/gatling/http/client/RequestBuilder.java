@@ -62,7 +62,7 @@ public class RequestBuilder {
   private ProxyServer proxyServer;
   private Function<Request, Request> signatureCalculator;
   private boolean http2Enabled;
-  private Http2PriorKnowledge http2PriorKnowledge = Http2PriorKnowledge.HTTP1_ONLY;
+  private Http2PriorKnowledge http2PriorKnowledge;
   private String wsSubprotocol;
   private Charset defaultCharset = UTF_8;
 

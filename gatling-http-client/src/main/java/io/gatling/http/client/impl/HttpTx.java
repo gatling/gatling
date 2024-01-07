@@ -61,7 +61,8 @@ public class HttpTx {
   }
 
   SslContext sslContext() {
-    if (request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP1_ONLY) {
+    if (!request.isHttp2Enabled()
+        || request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP1_ONLY) {
       return sslContextsHolder.getSslContext();
     } else {
       if (sslContextsHolder.getAlpnSslContext() == null) {
