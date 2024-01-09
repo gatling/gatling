@@ -1,5 +1,7 @@
 import sbt._
 
+import _root_.io.gatling.build.license.ApacheV2License
+
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
@@ -57,11 +59,13 @@ lazy val root = Project("gatling-parent", file("."))
 // Modules
 lazy val docSamples = (project in file("src/docs"))
   .disablePlugins(SbtSpotless)
+  .enablePlugins(AutomateHeaderPlugin)
   .settings(
     basicSettings,
     skipPublishing,
     Test / unmanagedSourceDirectories ++= (baseDirectory.value ** "code").get,
     libraryDependencies ++= docDependencies,
+    headerLicense := ApacheV2License,
     // Avoid formatting but avoid errors when calling this tasks with "all"
     List(Compile, Test).flatMap { conf =>
       inConfig(conf) {

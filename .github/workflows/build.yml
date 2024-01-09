@@ -52,7 +52,7 @@ jobs:
       - name: Test
         run: |
           sbt \
-            "all headerCheck" \
+            "all headerCheckAll" \
             "all scalafmtSbtCheck" \
             "all scalafmtCheckAll" \
             "all spotlessCheck" \
