@@ -26,7 +26,7 @@ class SseCompileTest extends Simulation {
     .exec(
       sse("connect")
         .sseName("sse")
-        .connect("/stocks/prices")
+        .get("/stocks/prices")
         .await(30.seconds)(
           sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))
         )
@@ -49,5 +49,6 @@ class SseCompileTest extends Simulation {
     )
     .pause(15)
     .exec(sse("close").close)
-    .exec(sse("foo", "bar").connect("url"))
+    .exec(sse("foo", "bar").get("url"))
+    .exec(sse("foo", "bar").post("url").body(StringBody("")))
 }

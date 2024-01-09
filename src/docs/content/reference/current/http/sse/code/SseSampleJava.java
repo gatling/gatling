@@ -30,7 +30,8 @@ sse("Sse").sseName("myCustomName");
 //#sseName
 
 //#sseConnect
-exec(sse("Connect").connect("/stocks/prices"));
+exec(sse("Connect").get("/stocks/prices"));
+exec(sse("Connect").post("/stocks/prices").body(StringBody("{\"foo\": \"bar\"}")));
 //#sseConnect
 
 //#sseClose
@@ -51,7 +52,7 @@ sse.checkMessage("checkName")
 //#create-multiple-checks
 
 //#check-from-connect
-exec(sse("Connect").connect("/stocks/prices")
+exec(sse("Connect").get("/stocks/prices")
   .await(5).on(sseCheck));
 //#check-from-connect
 
@@ -95,7 +96,7 @@ exec(sse("SetCheck").setCheck()
 //#stock-market-sample
 ScenarioBuilder scn = scenario("ServerSentEvents")
   .exec(
-    sse("Stocks").connect("/stocks/prices")
+    sse("Stocks").get("/stocks/prices")
       .await(10).on(
         sse.checkMessage("checkName").check(regex("event: snapshot(.*)"))
       ),

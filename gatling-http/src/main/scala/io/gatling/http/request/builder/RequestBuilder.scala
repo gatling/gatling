@@ -108,9 +108,9 @@ object RequestBuilder {
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
-  def commonAttributes: CommonAttributes
+  protected def commonAttributes: CommonAttributes
 
-  private[http] def newInstance(commonAttributes: CommonAttributes): B
+  protected def newInstance(commonAttributes: CommonAttributes): B
 
   def queryParam(name: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(name, value))
   def multivaluedQueryParam(name: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(name, values))

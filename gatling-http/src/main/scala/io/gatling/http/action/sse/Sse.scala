@@ -20,6 +20,8 @@ import io.gatling.core.session._
 import io.gatling.http.check.sse.SseMessageCheck
 import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 
+import io.netty.handler.codec.http.HttpMethod
+
 object Sse {
   private val DefaultSseName = SessionPrivateAttributes.generatePrivateAttribute("http.sse")
 
@@ -33,7 +35,12 @@ object Sse {
 class Sse(requestName: Expression[String], sseName: Expression[String]) {
   def sseName(sseName: Expression[String]): Sse = new Sse(requestName, sseName)
 
-  def connect(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, url, sseName)
+  @deprecated(message = "Use get instead", since = "3.10.0")
+  def connect(url: Expression[String]): SseConnectRequestBuilder = get(url)
+
+  def get(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, HttpMethod.GET, url, sseName)
+
+  def post(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, HttpMethod.POST, url, sseName)
 
   def setCheck: SseSetCheckBuilder = SseSetCheckBuilder(requestName, sseName, Nil)
 

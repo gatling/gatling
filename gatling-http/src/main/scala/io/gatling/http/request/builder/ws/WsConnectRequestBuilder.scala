@@ -39,7 +39,7 @@ final case class WsConnectRequestBuilder(
 
   def onConnected(chain: ChainBuilder): WsConnectRequestBuilder = copy(onConnectedChain = Some(chain))
 
-  private[http] def newInstance(commonAttributes: CommonAttributes) = copy(commonAttributes = commonAttributes)
+  override protected def newInstance(commonAttributes: CommonAttributes): WsConnectRequestBuilder = copy(commonAttributes = commonAttributes)
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   override protected def appendCheckSequence(checkSequence: WsFrameCheckSequenceBuilder[WsFrameCheck]): WsConnectRequestBuilder =

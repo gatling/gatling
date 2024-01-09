@@ -41,5 +41,6 @@ public class SseJavaCompileTest extends Simulation {
                   .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))))
           .pause(15)
           .exec(sse("close").close())
-          .exec(sse("foo", "bar").connect("url"));
+          .exec(sse("foo", "bar").get("url"))
+          .exec(sse("foo", "bar").post("url").body(StringBody("")));
 }

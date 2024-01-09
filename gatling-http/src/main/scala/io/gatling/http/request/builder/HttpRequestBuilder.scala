@@ -20,7 +20,6 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.Action
-import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.check.{ ChecksumAlgorithm, ChecksumCheck }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -30,13 +29,14 @@ import io.gatling.http.action.{ HttpActionBuilder, HttpRequestAction }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
 import io.gatling.http.response.Response
 
 import com.softwaremill.quicklens._
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
+import io.netty.handler.codec.http.HttpMethod
 
 object HttpAttributes {
   val Empty: HttpAttributes =
@@ -47,10 +47,6 @@ object HttpAttributes {
       followRedirect = true,
       responseTransformer = None,
       explicitResources = Nil,
-      body = None,
-      bodyParts = Nil,
-      formParams = Nil,
-      form = None,
       requestTimeout = None
     )
 }
@@ -62,16 +58,12 @@ final case class HttpAttributes(
     followRedirect: Boolean,
     responseTransformer: Option[ResponseTransformer],
     explicitResources: List[HttpRequestBuilder],
-    body: Option[Body],
-    bodyParts: List[BodyPart],
-    formParams: List[HttpParam],
-    form: Option[Expression[Map[String, Any]]],
     requestTimeout: Option[FiniteDuration]
 )
 
 object HttpRequestBuilder {
-  private val MultipartFormDataValueExpression = HttpHeaderValues.MULTIPART_FORM_DATA.toString.expressionSuccess
-  private val ApplicationFormUrlEncodedValueExpression = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString.expressionSuccess
+  def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
+    HttpRequestBuilder(CommonAttributes(requestName = requestName, method = method, urlOrURI = urlOrURI), BodyAttributes.Empty, HttpAttributes.Empty)
 }
 
 /**
@@ -80,10 +72,12 @@ object HttpRequestBuilder {
  * @param httpAttributes
  *   the base HTTP attributes
  */
-final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes)
-    extends RequestBuilder[HttpRequestBuilder]
+final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttributes: BodyAttributes, httpAttributes: HttpAttributes)
+    extends RequestWithBodyBuilder[HttpRequestBuilder]
     with HttpActionBuilder {
-  private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
+  override protected def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder =
+    HttpRequestBuilder(commonAttributes, bodyAttributes, httpAttributes)
+  override protected def newInstance(bodyAttributes: BodyAttributes): HttpRequestBuilder = HttpRequestBuilder(commonAttributes, bodyAttributes, httpAttributes)
 
   def check(checks: HttpCheck*): HttpRequestBuilder = {
     require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
@@ -114,45 +108,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder =
     this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
 
-  def body(bd: Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).setTo(Some(bd))
-
-  def processRequestBody(processor: Body => Body): HttpRequestBuilder = this.modify(_.httpAttributes.body)(_.map(processor))
-
-  def bodyPart(part: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts)(_ ::: List(part))
-  def bodyParts(parts: BodyPart*): HttpRequestBuilder = {
-    require(parts.nonEmpty, "bodyParts can't be empty.")
-    require(!parts.contains(null), "bodyParts can't contain null elements. Forward reference issue?")
-    this.modify(_.httpAttributes.bodyParts)(_ ::: parts.toList)
-  }
-
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {
     require(!res.contains(null), "resources can't contain null elements. Forward reference issue?")
     this.modify(_.httpAttributes.explicitResources)(_ ::: res.toList)
   }
-
-  /**
-   * Adds Content-Type header to the request set with "multipart/form-data" value
-   */
-  def asMultipartForm: HttpRequestBuilder = header(HttpHeaderNames.CONTENT_TYPE, HttpRequestBuilder.MultipartFormDataValueExpression)
-  def asFormUrlEncoded: HttpRequestBuilder = header(HttpHeaderNames.CONTENT_TYPE, HttpRequestBuilder.ApplicationFormUrlEncodedValueExpression)
-
-  def formParam(key: Expression[String], value: Expression[Any]): HttpRequestBuilder = formParam(SimpleParam(key, value))
-  def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestBuilder = formParam(MultivaluedParam(key, values))
-
-  def formParamSeq(seq: Seq[(String, Any)]): HttpRequestBuilder = formParamSeq(tupleSeq2SeqExpression(seq))
-  def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestBuilder = formParam(ParamSeq(seq))
-
-  def formParamMap(map: Map[String, Any]): HttpRequestBuilder = formParamSeq(tupleSeq2SeqExpression(map.toSeq))
-  def formParamMap(map: Expression[Map[String, Any]]): HttpRequestBuilder = formParam(ParamMap(map))
-
-  private def formParam(formParam: HttpParam): HttpRequestBuilder =
-    this.modify(_.httpAttributes.formParams)(_ ::: List(formParam))
-
-  def form(form: Expression[Map[String, Any]]): HttpRequestBuilder =
-    this.modify(_.httpAttributes.form).setTo(Some(form))
-
-  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): HttpRequestBuilder =
-    bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath, rawFileBodies))
 
   def requestTimeout(timeout: FiniteDuration): HttpRequestBuilder =
     this.modify(_.httpAttributes.requestTimeout).setTo(Some(timeout))
@@ -198,7 +157,8 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
     val resolvedResources = httpAttributes.explicitResources.map(_.build(httpCaches, httpProtocol, throttled, configuration))
 
-    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
+    val resolvedRequestExpression =
+      new HttpRequestExpressionBuilder(commonAttributes, bodyAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
     val checksumAlgorithms: List[ChecksumAlgorithm] =
       sortedChecks

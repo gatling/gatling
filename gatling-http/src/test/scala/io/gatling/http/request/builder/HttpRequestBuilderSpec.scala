@@ -30,7 +30,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.{ HttpClientConfig, Param }
+import io.gatling.http.client.Param
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.resolver.InetAddressNameResolver
@@ -53,8 +53,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
       httpProtocol: HttpProtocol = HttpProtocol(configuration),
       urlOrURI: Either[Expression[String], Uri] = Right(Uri.create("http://gatling.io"))
   ) = {
-    val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, urlOrURI)
-    val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes.Empty))
+    val builder = f(HttpRequestBuilder("requestName".expressionSuccess, HttpMethod.GET, urlOrURI))
     builder.build(httpCaches, httpProtocol, throttled = false, configuration)
   }
 

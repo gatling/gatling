@@ -60,25 +60,75 @@ public final class Sse {
   }
 
   /**
-   * Boostrap an action to connect the SSE
+   * Boostrap an action to connect the SSE with a GET request
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   * @deprecated use get instead
+   */
+  @NonNull
+  @Deprecated
+  public SseConnectActionBuilder connect(@NonNull String url) {
+    return get(url);
+  }
+
+  /**
+   * Boostrap an action to connect the SSE with a GET request
    *
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
   @NonNull
-  public SseConnectActionBuilder connect(@NonNull String url) {
-    return new SseConnectActionBuilder(wrapped.connect(toStringExpression(url)));
+  public SseConnectActionBuilder get(@NonNull String url) {
+    return new SseConnectActionBuilder(wrapped.get(toStringExpression(url)));
   }
 
   /**
-   * Boostrap an action to connect the SSE
+   * Boostrap an action to connect the SSE with a POST request
    *
-   * @param url the url to connect to, expressed as a function
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
   @NonNull
+  public SseConnectActionBuilder post(@NonNull String url) {
+    return new SseConnectActionBuilder(wrapped.post(toStringExpression(url)));
+  }
+
+  /**
+   * Boostrap an action to connect the SSE with a GET request
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   * @deprecated use get instead
+   */
+  @NonNull
+  @Deprecated
   public SseConnectActionBuilder connect(@NonNull Function<Session, String> url) {
-    return new SseConnectActionBuilder(wrapped.connect(javaFunctionToExpression(url)));
+    return get(url);
+  }
+
+  /**
+   * Boostrap an action to connect the SSE with a GET request
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   * @deprecated use get instead
+   */
+  @NonNull
+  public SseConnectActionBuilder get(@NonNull Function<Session, String> url) {
+    return new SseConnectActionBuilder(wrapped.get(javaFunctionToExpression(url)));
+  }
+
+  /**
+   * Boostrap an action to connect the SSE with a POST request
+   *
+   * @param url the url to connect to, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   * @deprecated use get instead
+   */
+  @NonNull
+  public SseConnectActionBuilder post(@NonNull Function<Session, String> url) {
+    return new SseConnectActionBuilder(wrapped.post(javaFunctionToExpression(url)));
   }
 
   /**
@@ -110,7 +160,7 @@ public final class Sse {
     /**
      * Boostrap a SSE check
      *
-     * @param name
+     * @param name the name of the check
      * @return the next DSL step
      */
     @NonNull

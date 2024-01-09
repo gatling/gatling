@@ -18,11 +18,11 @@ For example:
 
 Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
-## `connect`
+## Connecting
 
-The first thing is to get a server sent event:
+The first thing is to connect the stream:
 
-For example:
+Gatling supports `GET` and `POST` requests:
 
 {{< include-code "sseConnect" java kt scala >}}
 

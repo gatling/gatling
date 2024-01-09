@@ -16,12 +16,14 @@
 
 package io.gatling.http.request.builder.sse
 
+import scala.concurrent.duration.DurationInt
+
 import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.action.sse.{ SseAwaitActionBuilder, SseConnect, SseMessageCheckSequenceBuilder }
-import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
+import io.gatling.http.request.builder.{ BodyAttributes, CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder, RequestWithBodyBuilder }
 
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
@@ -30,25 +32,30 @@ object SseConnectRequestBuilder {
   private val SseHeaderValueExpression = HttpHeaderValues.TEXT_EVENT_STREAM.toString.expressionSuccess
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
-  def apply(requestName: Expression[String], url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =
-    new SseConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName, Nil)
+  def apply(requestName: Expression[String], method: HttpMethod, url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =
+    SseConnectRequestBuilder(CommonAttributes(requestName, method, Left(url)), BodyAttributes.Empty, sseName, Nil)
       .header(HttpHeaderNames.ACCEPT, SseHeaderValueExpression)
       .header(HttpHeaderNames.CACHE_CONTROL, CacheControlNoCacheValueExpression)
 }
 
 final case class SseConnectRequestBuilder(
     commonAttributes: CommonAttributes,
+    bodyAttributes: BodyAttributes,
     sseName: Expression[String],
     checkSequences: List[SseMessageCheckSequenceBuilder]
-) extends RequestBuilder[SseConnectRequestBuilder]
+) extends RequestWithBodyBuilder[SseConnectRequestBuilder]
     with HttpActionBuilder
     with SseAwaitActionBuilder[SseConnectRequestBuilder] {
-  override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName, checkSequences)
+  override protected def newInstance(commonAttributes: CommonAttributes): SseConnectRequestBuilder = copy(commonAttributes = commonAttributes)
+
+  override protected def newInstance(bodyAttributes: BodyAttributes): SseConnectRequestBuilder = copy(bodyAttributes = bodyAttributes)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val httpComponents = lookUpHttpComponents(ctx.protocolComponentsRegistry)
-    val request = new SseRequestExpressionBuilder(
+    val request = new HttpRequestExpressionBuilder(
       commonAttributes,
+      bodyAttributes,
+      HttpAttributes.Empty.copy(requestTimeout = Some(-1.millis)), // disable request timeout
       httpComponents.httpCaches,
       httpComponents.httpProtocol,
       ctx.coreComponents.configuration

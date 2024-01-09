@@ -58,17 +58,18 @@ object HttpRequestExpressionBuilder {
   }
 }
 
-class HttpRequestExpressionBuilder(
+final class HttpRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
+    bodyAttributes: BodyAttributes,
     httpAttributes: HttpAttributes,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
-  require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
+  require(bodyAttributes.body.isEmpty || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
   override final def sanitizeHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
-    if (httpAttributes.body.isEmpty && httpAttributes.bodyParts.isEmpty) {
+    if (bodyAttributes.body.isEmpty && bodyAttributes.bodyParts.isEmpty) {
       // remove "content-type" that's only legit when there's a body
       HttpRequestExpressionBuilder.filterOutCaseInsensitiveKey(rawHeaders, HttpHeaderNames.CONTENT_TYPE)
     } else {
@@ -108,18 +109,18 @@ class HttpRequestExpressionBuilder(
 
   private def configureMultipartFormData(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     for {
-      params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
+      params <- mergeFormParamsAndFormIntoParamJList(bodyAttributes.formParams, bodyAttributes.form, session)
       stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null, null))
-      parts <- HttpRequestExpressionBuilder.bodyPartsToMultiparts(httpAttributes.bodyParts, session)
+      parts <- HttpRequestExpressionBuilder.bodyPartsToMultiparts(bodyAttributes.bodyParts, session)
     } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((stringParts ++ parts).asJava))
 
   private def configureFormUrlEncoded(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     for {
-      params <- mergeFormParamsAndFormIntoParamJList(httpAttributes.formParams, httpAttributes.form, session)
+      params <- mergeFormParamsAndFormIntoParamJList(bodyAttributes.formParams, bodyAttributes.form, session)
     } yield requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
 
   private val maybeRequestBodyBuilderExpression: Option[Expression[RequestBodyBuilder]] =
-    httpAttributes.body.map {
+    bodyAttributes.body.map {
       case StringBody(string, _) => string(_).map(new StringRequestBodyBuilder(_))
       case RawFileBody(resourceWithCachedBytes) =>
         resourceWithCachedBytes(_).map { case ResourceAndCachedBytes(resource, cachedBytes) =>
@@ -133,8 +134,8 @@ class HttpRequestExpressionBuilder(
       case InputStreamBody(is)  => is(_).map(new InputStreamRequestBodyBuilder(_))
     }
 
-  private val hasParts = httpAttributes.bodyParts.nonEmpty
-  private val hasForm = httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty
+  private val hasParts = bodyAttributes.bodyParts.nonEmpty
+  private val hasForm = bodyAttributes.formParams.nonEmpty || bodyAttributes.form.nonEmpty
   private def configureBody(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     maybeRequestBodyBuilderExpression match {
       case Some(requestBodyBuilderExpression) =>

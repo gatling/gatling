@@ -25,7 +25,7 @@ import java.util.function.Function;
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
 public final class SseConnectActionBuilder
-    extends RequestActionBuilder<
+    extends RequestWithBodyActionBuilder<
         SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder>
     implements SseAwaitActionBuilder<
         SseConnectActionBuilder, io.gatling.http.request.builder.sse.SseConnectRequestBuilder> {
