@@ -43,6 +43,9 @@ import java.util.Queue;
  */
 public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
 
+  private static final ClosedChannelException CLOSED_CHANNEL_EXCEPTION =
+      new ClosedChannelException();
+
   private static final InternalLogger logger =
       InternalLoggerFactory.getInstance(ChunkedWriteHandler.class);
 
@@ -99,7 +102,7 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
 
   @Override
   public void flush(ChannelHandlerContext ctx) throws Exception {
-      doFlush(ctx);
+    doFlush(ctx);
   }
 
   @Override
@@ -144,7 +147,7 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
 
         if (!endOfInput) {
           if (cause == null) {
-            cause = new ClosedChannelException();
+            cause = CLOSED_CHANNEL_EXCEPTION;
           }
           currentWrite.fail(cause);
         } else {
@@ -152,7 +155,7 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
         }
       } else {
         if (cause == null) {
-          cause = new ClosedChannelException();
+          cause = CLOSED_CHANNEL_EXCEPTION;
         }
         currentWrite.fail(cause);
       }
