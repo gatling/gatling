@@ -49,15 +49,14 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
   private Queue<ForkedChunkedWriteHandler.PendingWrite> queue;
   private volatile ChannelHandlerContext ctx;
 
-  private Queue<ForkedChunkedWriteHandler.PendingWrite> getAllocatedQueue() {
+  private void allocateQueue() {
     if (queue == null) {
       queue = new ArrayDeque<>();
     }
-    return queue;
   }
 
-  private boolean isQueueNonEmpty() {
-    return queue != null && !queue.isEmpty();
+  private boolean queueIsEmpty() {
+    return queue == null || queue.isEmpty();
   }
 
   @Override
@@ -90,33 +89,28 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise)
       throws Exception {
-    if (isQueueNonEmpty() || msg instanceof ChunkedInput) {
-      getAllocatedQueue().add(new ForkedChunkedWriteHandler.PendingWrite(msg, promise));
+    if (!queueIsEmpty() || msg instanceof ChunkedInput) {
+      allocateQueue();
+      queue.add(new PendingWrite(msg, promise));
     } else {
-      ctx.write(msg);
+      ctx.write(msg, promise);
     }
   }
 
   @Override
   public void flush(ChannelHandlerContext ctx) throws Exception {
-    if (isQueueNonEmpty()) {
       doFlush(ctx);
-    } else {
-      ctx.flush();
-    }
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
-    if (isQueueNonEmpty()) {
-      doFlush(ctx);
-    }
+    doFlush(ctx);
     ctx.fireChannelInactive();
   }
 
   @Override
   public void channelWritabilityChanged(ChannelHandlerContext ctx) {
-    if (isQueueNonEmpty() && ctx.channel().isWritable()) {
+    if (ctx.channel().isWritable()) {
       // channel is writable again try to continue flushing
       doFlush(ctx);
     }
@@ -124,41 +118,43 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
   }
 
   private void discard(Throwable cause) {
-    if (queue != null && !queue.isEmpty()) {
-      for (; ; ) {
-        ForkedChunkedWriteHandler.PendingWrite currentWrite = queue.poll();
+    if (queueIsEmpty()) {
+      return;
+    }
 
-        if (currentWrite == null) {
-          break;
+    for (; ; ) {
+      ForkedChunkedWriteHandler.PendingWrite currentWrite = queue.poll();
+
+      if (currentWrite == null) {
+        break;
+      }
+      Object message = currentWrite.msg;
+      if (message instanceof ChunkedInput) {
+        ChunkedInput<?> in = (ChunkedInput<?>) message;
+        boolean endOfInput;
+        try {
+          endOfInput = in.isEndOfInput();
+          closeInput(in);
+        } catch (Exception e) {
+          closeInput(in);
+          currentWrite.fail(e);
+          logger.warn("ChunkedInput failed", e);
+          continue;
         }
-        Object message = currentWrite.msg;
-        if (message instanceof ChunkedInput) {
-          ChunkedInput<?> in = (ChunkedInput<?>) message;
-          boolean endOfInput;
-          try {
-            endOfInput = in.isEndOfInput();
-            closeInput(in);
-          } catch (Exception e) {
-            closeInput(in);
-            currentWrite.fail(e);
-            logger.warn("ChunkedInput failed", e);
-            continue;
-          }
 
-          if (!endOfInput) {
-            if (cause == null) {
-              cause = new ClosedChannelException();
-            }
-            currentWrite.fail(cause);
-          } else {
-            currentWrite.success();
-          }
-        } else {
+        if (!endOfInput) {
           if (cause == null) {
             cause = new ClosedChannelException();
           }
           currentWrite.fail(cause);
+        } else {
+          currentWrite.success();
         }
+      } else {
+        if (cause == null) {
+          cause = new ClosedChannelException();
+        }
+        currentWrite.fail(cause);
       }
     }
   }
@@ -167,6 +163,11 @@ public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
     final Channel channel = ctx.channel();
     if (!channel.isActive()) {
       discard(null);
+      return;
+    }
+
+    if (queueIsEmpty()) {
+      ctx.flush();
       return;
     }
 
