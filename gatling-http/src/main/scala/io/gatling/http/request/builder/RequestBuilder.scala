@@ -43,12 +43,35 @@ object CommonAttributes {
       disableUrlEncoding = None,
       queryParams = Nil,
       headers = Map.empty,
+      headersBuiltIn = None,
       realm = None,
       virtualHost = None,
       proxy = None,
       signatureCalculator = None,
       ignoreProtocolHeaders = false
     )
+
+  sealed abstract class HeadersBuiltIn(contentHeaderValue: Expression[String]) {
+
+    private def containsCaseInsensitive(map: Map[CharSequence, _], key: CharSequence): Boolean =
+      map.keys.exists(_.toString.equalsIgnoreCase(key.toString))
+    def patch(rawHeaders: Map[CharSequence, Expression[String]], hasBody: Boolean): Map[CharSequence, Expression[String]] =
+      rawHeaders ++
+        (if (!containsCaseInsensitive(rawHeaders, HttpHeaderNames.ACCEPT)) {
+           Map(HttpHeaderNames.ACCEPT -> contentHeaderValue)
+         } else {
+           Map.empty
+         }) ++
+        (if (hasBody && !containsCaseInsensitive(rawHeaders, HttpHeaderNames.CONTENT_TYPE)) {
+           Map(HttpHeaderNames.CONTENT_TYPE -> contentHeaderValue)
+         } else {
+           Map.empty
+         })
+  }
+  object HeadersBuiltIn {
+    case object AsJson extends HeadersBuiltIn(HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess)
+    case object AsXml extends HeadersBuiltIn(HttpHeaderValues.APPLICATION_XML.toString.expressionSuccess)
+  }
 }
 
 final case class CommonAttributes(
@@ -58,6 +81,7 @@ final case class CommonAttributes(
     disableUrlEncoding: Option[Boolean],
     queryParams: List[HttpParam],
     headers: Map[CharSequence, Expression[String]],
+    headersBuiltIn: Option[CommonAttributes.HeadersBuiltIn],
     realm: Option[Expression[Realm]],
     virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
@@ -86,8 +110,6 @@ object RequestBuilder {
     HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer.Instance)
   }
 
-  private val JsonHeaderValueExpression = HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess
-  private val XmlHeaderValueExpression = HttpHeaderValues.APPLICATION_XML.toString.expressionSuccess
   val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
@@ -150,14 +172,12 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values
    */
-  def asJson: B =
-    header(HttpHeaderNames.ACCEPT, RequestBuilder.JsonHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.JsonHeaderValueExpression)
+  def asJson: B = newInstance(modify(commonAttributes)(_.headersBuiltIn).setTo(Some(CommonAttributes.HeadersBuiltIn.AsJson)))
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/xml" values
    */
-  def asXml: B =
-    header(HttpHeaderNames.ACCEPT, RequestBuilder.XmlHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.XmlHeaderValueExpression)
+  def asXml: B = newInstance(modify(commonAttributes)(_.headersBuiltIn).setTo(Some(CommonAttributes.HeadersBuiltIn.AsXml)))
 
   /**
    * Adds BASIC authentication to the request
