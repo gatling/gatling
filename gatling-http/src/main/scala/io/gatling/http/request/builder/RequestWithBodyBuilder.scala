@@ -17,21 +17,44 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.body.{ Body, RawFileBodies }
-import io.gatling.core.session.{ tupleSeq2SeqExpression, Expression, ExpressionSuccessWrapper }
+import io.gatling.core.session._
 import io.gatling.http.request.BodyPart
 
-import com.softwaremill.quicklens.ModifyPimp
+import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 
 object BodyAttributes {
-  val Empty: BodyAttributes = BodyAttributes(body = None, bodyParts = Nil, formParams = Nil, form = None)
+  val Empty: BodyAttributes = BodyAttributes(body = None, bodyParts = Nil, formParams = Nil, form = None, headersBuiltIn = None)
+
+  sealed abstract class HeadersBuiltIn(contentHeaderValue: Expression[String]) {
+
+    private def containsCaseInsensitive(map: Map[CharSequence, _], key: CharSequence): Boolean =
+      map.keys.exists(_.toString.equalsIgnoreCase(key.toString))
+    def patch(rawHeaders: Map[CharSequence, Expression[String]], hasBody: Boolean): Map[CharSequence, Expression[String]] =
+      rawHeaders ++
+        (if (!containsCaseInsensitive(rawHeaders, HttpHeaderNames.ACCEPT)) {
+           Map(HttpHeaderNames.ACCEPT -> contentHeaderValue)
+         } else {
+           Map.empty
+         }) ++
+        (if (hasBody && !containsCaseInsensitive(rawHeaders, HttpHeaderNames.CONTENT_TYPE)) {
+           Map(HttpHeaderNames.CONTENT_TYPE -> contentHeaderValue)
+         } else {
+           Map.empty
+         })
+  }
+  object HeadersBuiltIn {
+    case object AsJson extends HeadersBuiltIn(HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess)
+    case object AsXml extends HeadersBuiltIn(HttpHeaderValues.APPLICATION_XML.toString.expressionSuccess)
+  }
 }
 
 final case class BodyAttributes(
     body: Option[Body],
     bodyParts: List[BodyPart],
     formParams: List[HttpParam],
-    form: Option[Expression[Map[String, Any]]]
+    form: Option[Expression[Map[String, Any]]],
+    headersBuiltIn: Option[BodyAttributes.HeadersBuiltIn]
 )
 
 object RequestWithBodyBuilder {
@@ -84,4 +107,14 @@ abstract class RequestWithBodyBuilder[B <: RequestWithBodyBuilder[B]] extends Re
 
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): B =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath, rawFileBodies))
+
+  /**
+   * Adds Accept and Content-Type headers to the request set with "application/json" values
+   */
+  def asJson: B = newInstance(modify(bodyAttributes)(_.headersBuiltIn).setTo(Some(BodyAttributes.HeadersBuiltIn.AsJson)))
+
+  /**
+   * Adds Accept and Content-Type headers to the request set with "application/xml" values
+   */
+  def asXml: B = newInstance(modify(bodyAttributes)(_.headersBuiltIn).setTo(Some(BodyAttributes.HeadersBuiltIn.AsXml)))
 }

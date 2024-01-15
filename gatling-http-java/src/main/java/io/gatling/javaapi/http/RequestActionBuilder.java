@@ -333,26 +333,6 @@ public abstract class RequestActionBuilder<
   }
 
   /**
-   * Set the content-type header for JSON
-   *
-   * @return a new DSL instance
-   */
-  @NonNull
-  public T asJson() {
-    return make(io.gatling.http.request.builder.RequestBuilder::asJson);
-  }
-
-  /**
-   * Set the content-type header for XML
-   *
-   * @return a new DSL instance
-   */
-  @NonNull
-  public T asXml() {
-    return make(io.gatling.http.request.builder.RequestBuilder::asXml);
-  }
-
-  /**
    * Set the authorization header for Basic Auth
    *
    * @param username the username, expressed as a Gatling Expression Language String

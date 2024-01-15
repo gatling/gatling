@@ -418,4 +418,24 @@ public abstract class RequestWithBodyActionBuilder<
                 javaFunctionToExpression(filePath),
                 io.gatling.core.Predef.rawFileBodies()));
   }
+
+  /**
+   * Set the content-type header for JSON
+   *
+   * @return a new DSL instance
+   */
+  @NonNull
+  public T asJson() {
+    return make(io.gatling.http.request.builder.RequestWithBodyBuilder::asJson);
+  }
+
+  /**
+   * Set the content-type header for XML
+   *
+   * @return a new DSL instance
+   */
+  @NonNull
+  public T asXml() {
+    return make(io.gatling.http.request.builder.RequestWithBodyBuilder::asXml);
+  }
 }

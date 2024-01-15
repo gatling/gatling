@@ -68,10 +68,10 @@ abstract class RequestExpressionBuilder(
         mergeCaseInsensitive(uniqueProtocolHeaders, commonAttributes.headers)
       }
 
-    sanitizeHeaders(rawHeaders)
+    configureHeaders(rawHeaders)
   }
 
-  protected def sanitizeHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
+  protected def configureHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
     rawHeaders
 
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))

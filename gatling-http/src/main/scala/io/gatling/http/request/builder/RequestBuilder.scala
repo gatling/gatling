@@ -86,8 +86,6 @@ object RequestBuilder {
     HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer.Instance)
   }
 
-  private val JsonHeaderValueExpression = HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess
-  private val XmlHeaderValueExpression = HttpHeaderValues.APPLICATION_XML.toString.expressionSuccess
   val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
@@ -146,18 +144,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def ignoreDefaultHeaders: B = ignoreProtocolHeaders
 
   def ignoreProtocolHeaders: B = newInstance(modify(commonAttributes)(_.ignoreProtocolHeaders).setTo(true))
-
-  /**
-   * Adds Accept and Content-Type headers to the request set with "application/json" values
-   */
-  def asJson: B =
-    header(HttpHeaderNames.ACCEPT, RequestBuilder.JsonHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.JsonHeaderValueExpression)
-
-  /**
-   * Adds Accept and Content-Type headers to the request set with "application/xml" values
-   */
-  def asXml: B =
-    header(HttpHeaderNames.ACCEPT, RequestBuilder.XmlHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.XmlHeaderValueExpression)
 
   /**
    * Adds BASIC authentication to the request

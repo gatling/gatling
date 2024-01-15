@@ -51,11 +51,6 @@ object HttpRequestExpressionBuilder {
         value <- bodyPart.toMultiPart(session)
       } yield accValue :+ value
     }
-
-  private def filterOutCaseInsensitiveKey[T](map: Map[CharSequence, T], key: CharSequence): Map[CharSequence, T] = {
-    val keyString = key.toString
-    map.filterNot { case (key, _) => key.toString.equalsIgnoreCase(keyString) }
-  }
 }
 
 final class HttpRequestExpressionBuilder(
@@ -66,14 +61,13 @@ final class HttpRequestExpressionBuilder(
     httpProtocol: HttpProtocol,
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
+
   require(bodyAttributes.body.isEmpty || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-  override final def sanitizeHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
-    if (bodyAttributes.body.isEmpty && bodyAttributes.bodyParts.isEmpty) {
-      // remove "content-type" that's only legit when there's a body
-      HttpRequestExpressionBuilder.filterOutCaseInsensitiveKey(rawHeaders, HttpHeaderNames.CONTENT_TYPE)
-    } else {
-      rawHeaders
+  override protected def configureHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
+    bodyAttributes.headersBuiltIn match {
+      case Some(headersBuiltIn) => headersBuiltIn.patch(rawHeaders, bodyAttributes.body.isEmpty && bodyAttributes.bodyParts.isEmpty)
+      case _                    => rawHeaders
     }
 
   private def mergeFormParamsAndFormIntoParamJList(
