@@ -106,7 +106,7 @@ object HttpProtocol extends StrictLogging {
       wsPart = HttpProtocolWsPart(
         wsBaseUrls = Nil,
         maxReconnects = 0,
-        autoReplyTextFrames = PartialFunction.empty
+        autoReplyTextFrames = _ => None
       ),
       proxyPart = HttpProtocolProxyPart(
         proxy = None,
@@ -191,7 +191,7 @@ final case class HttpProtocolResponsePart(
 final case class HttpProtocolWsPart(
     wsBaseUrls: List[String],
     maxReconnects: Int,
-    autoReplyTextFrames: PartialFunction[String, String]
+    autoReplyTextFrames: String => Option[String]
 )
 
 final case class HttpProtocolProxyPart(

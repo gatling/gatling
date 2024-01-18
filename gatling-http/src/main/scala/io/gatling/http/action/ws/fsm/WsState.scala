@@ -122,14 +122,13 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
         fsm.onSendBinaryFrame(actionName, message, checkSequences, session, next)
     }
 
-  protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean = {
-    val autoReply = fsm.httpProtocol.wsPart.autoReplyTextFrames
-    if (autoReply.isDefinedAt(message)) {
-      logger.debug(s"Auto Reply to message '$message' with '${autoReply(message)}'")
-      webSocket.sendFrame(new TextWebSocketFrame(autoReply(message)))
-      true
-    } else {
-      false
+  protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean =
+    fsm.httpProtocol.wsPart.autoReplyTextFrames(message) match {
+      case Some(reply) =>
+        logger.debug(s"Auto Reply to message '$message' with '$reply'")
+        webSocket.sendFrame(new TextWebSocketFrame(reply))
+        true
+      case _ =>
+        false
     }
-  }
 }

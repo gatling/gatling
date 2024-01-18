@@ -39,7 +39,6 @@ import io.gatling.http.util.{ HttpHelper, InetAddresses }
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }
-import io.netty.util.internal.PlatformDependent
 
 object HttpProtocolBuilder {
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
@@ -213,7 +212,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsReconnect: HttpProtocolBuilder = wsMaxReconnects(Int.MaxValue)
   def wsMaxReconnects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.wsPart.maxReconnects).setTo(max)
   def wsAutoReplyTextFrame(f: PartialFunction[String, String]): HttpProtocolBuilder =
-    this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f)
+    this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f.lift)
   def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
 
   // proxyPart
