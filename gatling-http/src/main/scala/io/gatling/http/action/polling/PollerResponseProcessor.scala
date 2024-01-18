@@ -27,7 +27,7 @@ import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 
 import com.typesafe.scalalogging.LazyLogging
 
-class PollerResponseProcessor(
+final class PollerResponseProcessor(
     tx: HttpTx,
     sessionProcessor: SessionProcessor,
     statsProcessor: StatsProcessor,

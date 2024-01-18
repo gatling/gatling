@@ -27,7 +27,7 @@ import io.gatling.http.action.sse.fsm.SseFsm
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
-class SseConnect(
+final class SseConnect(
     override val requestName: Expression[String],
     sseName: Expression[String],
     request: Expression[Request],

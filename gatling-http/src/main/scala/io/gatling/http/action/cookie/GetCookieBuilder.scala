@@ -28,7 +28,7 @@ object GetCookieBuilder {
     new GetCookieBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieBuilder(name: Expression[String], domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
+final class GetCookieBuilder(name: Expression[String], domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
     extends HttpActionBuilder
     with NameGen {
   import CookieActionBuilder._

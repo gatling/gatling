@@ -23,7 +23,7 @@ import io.gatling.http.action.HttpActionBuilder
 
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
-class WsCloseBuilder(
+final class WsCloseBuilder(
     requestName: Expression[String],
     wsName: Expression[String],
     closeStatus: WebSocketCloseStatus

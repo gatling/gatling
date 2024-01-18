@@ -34,7 +34,7 @@ import io.gatling.jms.request._
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class Send(
+final class Send(
     attributes: JmsAttributes,
     protocol: JmsProtocol,
     jmsConnectionPool: JmsConnectionPool,

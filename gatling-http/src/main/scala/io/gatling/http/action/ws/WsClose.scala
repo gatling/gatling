@@ -25,7 +25,7 @@ import io.gatling.core.util.NameGen
 
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
-class WsClose(
+final class WsClose(
     override val requestName: Expression[String],
     wsName: Expression[String],
     closeStatus: WebSocketCloseStatus,

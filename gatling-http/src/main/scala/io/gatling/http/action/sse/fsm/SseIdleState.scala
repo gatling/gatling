@@ -22,7 +22,7 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 
 import com.typesafe.scalalogging.StrictLogging
 
-class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with StrictLogging {
+final class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with StrictLogging {
   import fsm._
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {

@@ -27,7 +27,7 @@ import io.netty.channel.EventLoop
 import io.netty.util.NetUtil
 import io.netty.util.concurrent.{ Future, Promise }
 
-private[http] class ShufflingNameResolver(wrapped: InetAddressNameResolver, eventLoop: EventLoop) extends InetAddressNameResolver {
+private[http] final class ShufflingNameResolver(wrapped: InetAddressNameResolver, eventLoop: EventLoop) extends InetAddressNameResolver {
   // no need for a CHM as will always be called from the v.u.'s EventLoop
   private val cache = new ju.HashMap[String, ju.List[InetAddress]](3)
 

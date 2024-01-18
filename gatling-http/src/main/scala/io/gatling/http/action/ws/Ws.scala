@@ -42,7 +42,7 @@ object Ws {
  * @param wsName
  *   The name of the session attribute used to store the WebSocket
  */
-class Ws(requestName: Expression[String], wsName: Expression[String]) {
+final class Ws(requestName: Expression[String], wsName: Expression[String]) {
   def wsName(wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
   /**

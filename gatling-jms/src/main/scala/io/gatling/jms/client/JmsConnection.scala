@@ -29,7 +29,7 @@ import io.gatling.jms.request._
 
 import akka.actor.ActorSystem
 
-class JmsConnection(
+final class JmsConnection(
     connection: Connection,
     val credentials: Option[Credentials],
     system: ActorSystem,

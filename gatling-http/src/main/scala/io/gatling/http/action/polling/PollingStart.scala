@@ -30,7 +30,7 @@ import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
 
-class PollingStart(
+final class PollingStart(
     pollerName: String,
     period: FiniteDuration,
     coreComponents: CoreComponents,

@@ -26,7 +26,7 @@ import scala.collection.mutable
 
 import io.gatling.shared.util.PathHelper
 
-private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
+private final class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
   private def classNameToPath(name: String): Path =
     if (name.endsWith(".class")) Paths.get(name)
     else Paths.get(name.replace('.', '/') + ".class")

@@ -60,7 +60,7 @@ private[http] object ResourceFetcher extends StrictLogging {
     }
 }
 
-private[http] class ResourceFetcher(
+private[http] final class ResourceFetcher(
     coreComponents: CoreComponents,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,

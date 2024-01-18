@@ -16,6 +16,8 @@
 
 package io.gatling.http.cache
 
+import java.{ util => ju }
+
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
@@ -24,14 +26,11 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTx
-import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolDnsPart }
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod }
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 
 class CacheSupportSpec extends BaseSpec with EmptySession {
   private val configuration = GatlingConfiguration.loadForTest()
@@ -154,12 +153,26 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
 
   private def txTo(uri: String, session: Session, redirectCount: Int, cache: Boolean) = {
     val protocol = HttpProtocol(configuration)
-    val request = mock[Request]
-    val caches = mock[HttpCaches]
-
-    when(request.getUri) thenReturn Uri.create(uri)
-    when(request.getHeaders) thenReturn new DefaultHttpHeaders
-    when(caches.setNameResolver(any[HttpProtocolDnsPart], any[HttpEngine])) thenReturn identity[Session] _
+    val request = new Request(
+      null,
+      null,
+      Uri.create(uri),
+      new DefaultHttpHeaders,
+      ju.Collections.emptyList(),
+      null,
+      0L,
+      null,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      false,
+      null,
+      null
+    )
 
     HttpTx(
       session,

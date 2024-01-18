@@ -16,20 +16,21 @@
 
 package io.gatling.http.engine
 
+import java.{ util => ju }
+
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
-import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
+import io.gatling.http.engine.tx.{ HttpTx, ResourceTx }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
 import com.softwaremill.quicklens._
-import org.mockito.Mockito._
+import io.netty.handler.codec.http.DefaultHttpHeaders
 
 class HttpTxSpec extends BaseSpec {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
@@ -37,7 +38,7 @@ class HttpTxSpec extends BaseSpec {
   trait Context {
     val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = new HttpComponents(httpProtocol, mock[HttpEngine], new HttpCaches(coreComponents), mock[HttpTxExecutor])
+    val httpComponents = new HttpComponents(httpProtocol, null, new HttpCaches(coreComponents), null)
 
     val configBase = HttpRequestConfig(
       checks = Nil,
@@ -61,29 +62,48 @@ class HttpTxSpec extends BaseSpec {
         clientRequest = clientRequest,
         requestConfig = requestConfig
       ),
-      next = mock[Action],
+      next = null,
       resourceTx = if (root) None else Some(ResourceTx(null, "resources", null)),
       redirectCount = 0
     )
 
+  private def request(uri: String): Request =
+    new Request(
+      null,
+      null,
+      Uri.create(uri),
+      new DefaultHttpHeaders,
+      ju.Collections.emptyList(),
+      null,
+      0L,
+      null,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      false,
+      null,
+      null
+    )
+
   "HttpTx" should "be silent when using default protocol and containing a request forced to silent" in new Context {
-    val ahcRequest = mock[Request]
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
+    val ahcRequest = request("http://example.com/")
 
     val config = configBase.copy(silent = Some(true))
     tx(ahcRequest, config, root = true).silent shouldBe true
   }
 
   it should "be non-silent when using default protocol and containing a regular request" in new Context {
-    val ahcRequest = mock[Request]
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
+    val ahcRequest = request("http://example.com/")
 
     tx(ahcRequest, configBase, root = true).silent shouldBe false
   }
 
   it should "not be silent when using a protocol with a silentUri pattern match the request url" in new Context {
-    val ahcRequest = mock[Request]
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
+    val ahcRequest = request("http://example.com/test.js")
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
@@ -92,8 +112,7 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "be silent when passed a protocol silencing resources and a resource (non root) request" in new Context {
-    val ahcRequest = mock[Request]
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
+    val ahcRequest = request("http://example.com/test.js")
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
@@ -102,8 +121,7 @@ class HttpTxSpec extends BaseSpec {
   }
 
   it should "not be silent when passed a protocol silencing resources and a root request" in new Context {
-    val ahcRequest = mock[Request]
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
+    val ahcRequest = request("http://example.com/test.js")
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))

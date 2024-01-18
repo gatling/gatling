@@ -20,7 +20,7 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.body.Body
 import io.gatling.core.session.Expression
 
-class MqttActionBuilderBase(requestName: Expression[String]) {
+final class MqttActionBuilderBase(requestName: Expression[String]) {
   def connect: ConnectBuilder = new ConnectBuilder(requestName)
 
   def subscribe(topic: Expression[String]): SubscribeBuilder = SubscribeBuilder(requestName, topic, None, None)

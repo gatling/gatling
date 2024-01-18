@@ -53,7 +53,7 @@ private[http] trait ResourceAggregator {
   def onCachedResource(resourceTx: ResourceTx, tx: HttpTx): Unit
 }
 
-private[fetch] class DefaultResourceAggregator(
+private[fetch] final class DefaultResourceAggregator(
     rootTx: HttpTx,
     initialResources: List[HttpRequest],
     httpCaches: HttpCaches,

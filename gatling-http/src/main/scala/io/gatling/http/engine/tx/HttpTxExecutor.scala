@@ -29,7 +29,7 @@ import io.gatling.http.response.HttpFailure
 
 import com.typesafe.scalalogging.StrictLogging
 
-class HttpTxExecutor(
+final class HttpTxExecutor(
     coreComponents: CoreComponents,
     httpEngine: HttpEngine,
     httpCaches: HttpCaches,

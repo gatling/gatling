@@ -22,7 +22,7 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 
 import com.typesafe.scalalogging.StrictLogging
 
-class SseCrashedState(fsm: SseFsm, errorMessage: String) extends SseState(null) with StrictLogging {
+final class SseCrashedState(fsm: SseFsm, errorMessage: String) extends SseState(null) with StrictLogging {
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
     val newSession = session.markAsFailed.remove(fsm.sseName)

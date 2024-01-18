@@ -28,10 +28,6 @@ import io.gatling.http.request.builder.RequestBuilder._
 
 import io.netty.handler.codec.http.HttpHeaderNames
 
-private[fetch] object ConcurrentResource {
-  val DefaultResourceChecks = List(DefaultHttpCheck)
-}
-
 private[gatling] sealed abstract class ConcurrentResource extends Product with Serializable {
   def uri: Uri
   def acceptHeader: Expression[String]

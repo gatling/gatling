@@ -39,7 +39,7 @@ object SseStream {
   private val DefaultRetryDelayInSeconds = 3
 }
 
-class SseStream(
+final class SseStream(
     originalSession: Session,
     connectRequest: Request,
     connectActionName: String,

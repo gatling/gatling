@@ -34,7 +34,7 @@ object SseConnectingState {
   }
 }
 
-class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectStart: Long) extends SseState(fsm) with StrictLogging {
+final class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectStart: Long) extends SseState(fsm) with StrictLogging {
   import fsm._
 
   override def onSseStreamConnected(connectEnd: Long): NextSseState = {

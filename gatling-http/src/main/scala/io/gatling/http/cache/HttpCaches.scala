@@ -30,7 +30,7 @@ private[http] object HttpCaches {
   ).success
 }
 
-private[http] class HttpCaches(val coreComponents: CoreComponents)
+private[http] final class HttpCaches(val coreComponents: CoreComponents)
     extends HttpContentCacheSupport
     with PermanentRedirectCacheSupport
     with DnsCacheSupport

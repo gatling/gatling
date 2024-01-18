@@ -30,7 +30,7 @@ trait NextExecutor {
   def executeFollowUp(redirectTx: HttpTx): Unit
 }
 
-class RootNextExecutor(
+final class RootNextExecutor(
     tx: HttpTx,
     resourceFetcher: ResourceFetcher,
     httpTxExecutor: HttpTxExecutor
@@ -49,7 +49,7 @@ class RootNextExecutor(
     httpTxExecutor.execute(followUpTx)
 }
 
-class ResourceNextExecutor(
+final class ResourceNextExecutor(
     tx: HttpTx,
     resourceTx: ResourceTx
 ) extends NextExecutor {

@@ -45,7 +45,7 @@ object OnConnectedChainEndAction {
  * @param exit
  *   exit action if next was not found in the session
  */
-class OnConnectedChainEndAction(override val name: String, exit: Action) extends Action {
+final class OnConnectedChainEndAction(override val name: String, exit: Action) extends Action {
   import OnConnectedChainEndAction._
 
   override def execute(session: Session): Unit =

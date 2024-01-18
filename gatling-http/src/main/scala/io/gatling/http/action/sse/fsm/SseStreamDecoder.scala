@@ -33,7 +33,7 @@ object SseStreamDecoder {
   private val RetryHeader = "retry:".toCharArray
 }
 
-class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
+final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
   import SseStreamDecoder._
 
   private[this] var pendingName: Option[String] = None

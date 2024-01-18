@@ -36,8 +36,3 @@ final case class SseSetCheckBuilder(
   override protected def appendCheckSequence(checkSequence: SseMessageCheckSequenceBuilder): SseSetCheckBuilder =
     this.modify(_.checkSequences)(_ :+ checkSequence)
 }
-
-final case class SseCloseBuilder(requestName: Expression[String], sseName: Expression[String]) extends HttpActionBuilder {
-  override def build(ctx: ScenarioContext, next: Action): Action =
-    new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
-}

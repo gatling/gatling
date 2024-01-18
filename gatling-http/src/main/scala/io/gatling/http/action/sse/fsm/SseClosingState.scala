@@ -22,7 +22,7 @@ import io.gatling.core.session.Session
 
 import com.typesafe.scalalogging.StrictLogging
 
-class SseClosingState(fsm: SseFsm, actionName: String, session: Session, next: Action, timestamp: Long) extends SseState(fsm) with StrictLogging {
+final class SseClosingState(fsm: SseFsm, actionName: String, session: Session, next: Action, timestamp: Long) extends SseState(fsm) with StrictLogging {
   import fsm._
 
   override def onSseStreamClosed(closeEnd: Long): NextSseState = {

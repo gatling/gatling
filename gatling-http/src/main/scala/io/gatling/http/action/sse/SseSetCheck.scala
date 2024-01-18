@@ -23,7 +23,7 @@ import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class SseSetCheck(
+final class SseSetCheck(
     val requestName: Expression[String],
     checkSequences: List[SseMessageCheckSequenceBuilder],
     sseName: Expression[String],

@@ -51,7 +51,7 @@ object GatlingHttpListener extends StrictLogging {
   // [e]
 }
 
-class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
+final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
   import GatlingHttpListener._
   import tx.request.requestConfig._
 

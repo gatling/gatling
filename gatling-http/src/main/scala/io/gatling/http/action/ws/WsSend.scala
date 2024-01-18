@@ -24,7 +24,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.check.ws.WsFrameCheck
 
-class WsSendTextFrame(
+final class WsSendTextFrame(
     override val requestName: Expression[String],
     wsName: Expression[String],
     message: Expression[String],

@@ -41,7 +41,7 @@ private[gatling] object SimulationClassLoader {
   }
 }
 
-private[gatling] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
+private[gatling] final class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
   def simulationClasses: List[SimulationClass] =
     PathHelper
       .deepFiles(binaryDir, _.path.hasExtension("class"))

@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 
-class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLogging {
+final class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLogging {
   private var cookies: List[Cookie] = Nil
 
   // [e]

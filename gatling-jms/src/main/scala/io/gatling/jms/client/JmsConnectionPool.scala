@@ -28,7 +28,7 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
+final class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]
 
   def jmsConnection(connectionFactory: ConnectionFactory, credentials: Option[Credentials]): JmsConnection = {

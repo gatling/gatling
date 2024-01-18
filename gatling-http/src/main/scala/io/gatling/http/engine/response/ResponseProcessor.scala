@@ -135,7 +135,7 @@ trait ResponseProcessor {
   def onComplete(result: HttpResult): Unit
 }
 
-class DefaultResponseProcessor(
+final class DefaultResponseProcessor(
     tx: HttpTx,
     sessionProcessor: SessionProcessor,
     statsProcessor: StatsProcessor,

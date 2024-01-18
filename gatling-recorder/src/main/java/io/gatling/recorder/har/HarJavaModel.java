@@ -18,9 +18,9 @@ package io.gatling.recorder.har;
 
 import java.util.List;
 
-public class HarJavaModel {
+public final class HarJavaModel {
 
-  public static class HarHttpArchive {
+  public static final class HarHttpArchive {
     private HarLog log;
 
     public HarLog getLog() {
@@ -28,7 +28,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarLog {
+  public static final class HarLog {
     private List<HarEntry> entries;
 
     public List<HarEntry> getEntries() {
@@ -36,7 +36,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarEntry {
+  public static final class HarEntry {
     private String startedDateTime;
     private Double time;
     private HarTimings timings;
@@ -64,7 +64,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarRequest {
+  public static final class HarRequest {
     private String httpVersion;
     private String method;
     private String url;
@@ -92,7 +92,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarHeader {
+  public static final class HarHeader {
     private String name;
     private String value;
 
@@ -105,7 +105,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarRequestPostData {
+  public static final class HarRequestPostData {
     private String text;
     private List<HarRequestPostParam> params;
 
@@ -118,7 +118,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarRequestPostParam {
+  public static final class HarRequestPostParam {
     private String name;
     private String value;
 
@@ -131,7 +131,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarResponse {
+  public static final class HarResponse {
     private int status;
     private List<HarHeader> headers;
     private String statusText;
@@ -154,7 +154,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarResponseContent {
+  public static final class HarResponseContent {
     private String mimeType;
     private String encoding;
     private String text;
@@ -177,7 +177,7 @@ public class HarJavaModel {
     }
   }
 
-  public static class HarTimings {
+  public static final class HarTimings {
     private double blocked;
     private double dns;
     private double connect;

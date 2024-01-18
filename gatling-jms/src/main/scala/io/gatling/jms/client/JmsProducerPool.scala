@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
 
 private[client] final case class CachedProducerKey(destination: Destination, deliveryMode: Int)
 
-class JmsProducerPool(sessionPool: JmsSessionPool) {
+final class JmsProducerPool(sessionPool: JmsSessionPool) {
   private val registeredProducers = Collections.newSetFromMap(new ConcurrentHashMap[MessageProducer, java.lang.Boolean])
   private val producers = new ConcurrentHashMap[CachedProducerKey, ThreadLocal[JmsProducer]]
 

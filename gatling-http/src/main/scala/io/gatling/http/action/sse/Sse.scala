@@ -30,7 +30,7 @@ object Sse {
   def checkMessage(name: String): SseMessageCheck = SseMessageCheck(name, Nil, Nil)
 }
 
-class Sse(requestName: Expression[String], sseName: Expression[String]) {
+final class Sse(requestName: Expression[String], sseName: Expression[String]) {
   def sseName(sseName: Expression[String]): Sse = new Sse(requestName, sseName)
 
   def connect(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, url, sseName)
