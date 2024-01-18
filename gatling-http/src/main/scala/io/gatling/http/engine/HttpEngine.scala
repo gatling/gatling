@@ -52,7 +52,7 @@ object HttpEngine {
   }
 }
 
-class HttpEngine(
+final class HttpEngine(
     sslContextsFactory: SslContextsFactory,
     httpClient: HttpClient,
     eventLoopGroup: EventLoopGroup,

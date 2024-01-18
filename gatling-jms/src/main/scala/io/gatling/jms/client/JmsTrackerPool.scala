@@ -33,7 +33,7 @@ object JmsTrackerPool {
   private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")
 }
 
-class JmsTrackerPool(
+final class JmsTrackerPool(
     sessionPool: JmsSessionPool,
     system: ActorSystem,
     statsEngine: StatsEngine,

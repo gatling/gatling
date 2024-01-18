@@ -23,7 +23,7 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-class PollingStartBuilder(
+final class PollingStartBuilder(
     pollerName: String,
     period: FiniteDuration,
     requestBuilder: HttpRequestBuilder
@@ -44,7 +44,7 @@ class PollingStartBuilder(
   }
 }
 
-class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
+final class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
     new PollingStop(pollerName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

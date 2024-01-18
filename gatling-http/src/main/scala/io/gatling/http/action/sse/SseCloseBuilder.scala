@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.mqtt.action.builder
+package io.gatling.http.action.sse
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
+import io.gatling.http.action.HttpActionBuilder
 
-import com.typesafe.scalalogging.StrictLogging
-
-final class ConnectBuilder(requestName: Expression[String]) extends MqttActionBuilder with StrictLogging {
-  override def build(ctx: ScenarioContext, next: Action): Action = ???
+final case class SseCloseBuilder(requestName: Expression[String], sseName: Expression[String]) extends HttpActionBuilder {
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

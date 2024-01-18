@@ -71,7 +71,7 @@ object SseFsm {
   }
 }
 
-class SseFsm(
+final class SseFsm(
     private[fsm] val sseName: String,
     private[fsm] val connectActionName: String,
     private[fsm] val connectCheckSequence: List[SseMessageCheckSequence],

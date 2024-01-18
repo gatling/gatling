@@ -30,7 +30,7 @@ object AddCookieBuilder {
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
+final class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
     extends HttpActionBuilder
     with NameGen {
   import CookieActionBuilder._

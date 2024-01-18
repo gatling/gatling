@@ -33,7 +33,7 @@ object StringHelper {
     private val SbPool = new StringBuilderPool
   }
 
-  implicit class RichString(val string: String) extends AnyVal {
+  implicit final class RichString(val string: String) extends AnyVal {
     def clean: String = {
       val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
       normalized.toLowerCase(Locale.ROOT).replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")

@@ -23,7 +23,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class SseClose(
+final class SseClose(
     override val requestName: Expression[String],
     sseName: Expression[String],
     override val statsEngine: StatsEngine,

@@ -28,7 +28,7 @@ import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
-class WsConnect(
+final class WsConnect(
     override val requestName: Expression[String],
     wsName: Expression[String],
     request: Expression[Request],

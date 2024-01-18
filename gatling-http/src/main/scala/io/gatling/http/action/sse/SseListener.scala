@@ -26,15 +26,15 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
 
-class SseInvalidStatusException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
+final class SseInvalidStatusException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseInvalidContentTypeException(contentType: String) extends IOException(s"Server returned http response with content-type $contentType") {
+final class SseInvalidContentTypeException(contentType: String) extends IOException(s"Server returned http response with content-type $contentType") {
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
+final class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
   private val decoder = new SseStreamDecoder
   private var channel: Channel = _
   private var closed = false

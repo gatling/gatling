@@ -38,7 +38,7 @@ private[charts] object HtmlHelper {
         .toMap
     }
 
-  implicit class HtmlRichString(val string: String) extends AnyVal {
+  implicit final class HtmlRichString(val string: String) extends AnyVal {
     def htmlEscape: String = {
       val sb = new jl.StringBuilder(string.length)
       cfor(0 until string.length) { i =>

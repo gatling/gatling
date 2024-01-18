@@ -29,7 +29,7 @@ import io.gatling.http.request.HttpRequestDef
 /**
  * This is an action that sends HTTP requests
  */
-class HttpRequestAction(
+final class HttpRequestAction(
     httpRequestDef: HttpRequestDef,
     httpTxExecutor: HttpTxExecutor,
     coreComponents: CoreComponents,

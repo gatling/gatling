@@ -37,7 +37,7 @@ private[http] object AliasesAwareNameResolver {
     }
 }
 
-private class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
+private final class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
     aliases.get(inetHost) match {
       case Some(addresses) => promise.setSuccess(addresses)

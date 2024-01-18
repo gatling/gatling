@@ -22,7 +22,7 @@ import javax.jms._
 
 import scala.jdk.CollectionConverters._
 
-class JmsSessionPool(connection: Connection) {
+final class JmsSessionPool(connection: Connection) {
   private val registeredJmsSessions = Collections.newSetFromMap(new ConcurrentHashMap[Session, java.lang.Boolean])
 
   private val jmsSessions = ThreadLocal.withInitial[Session] { () =>

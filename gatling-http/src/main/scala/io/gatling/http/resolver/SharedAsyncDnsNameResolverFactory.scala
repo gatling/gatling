@@ -50,7 +50,7 @@ object SharedAsyncDnsNameResolverFactory {
   }
 }
 
-class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgressResolutions: ConcurrentHashMap[String, Promise[ju.List[InetAddress]]])
+final class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgressResolutions: ConcurrentHashMap[String, Promise[ju.List[InetAddress]]])
     extends InetAddressNameResolver {
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] = {
     val earlyPromise = inProgressResolutions.putIfAbsent(inetHost, promise)

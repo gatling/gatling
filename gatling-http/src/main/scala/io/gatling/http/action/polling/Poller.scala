@@ -33,7 +33,7 @@ import io.gatling.http.response.HttpResult
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[polling] class Poller(
+private[polling] final class Poller(
     pollerName: String,
     period: FiniteDuration,
     requestDef: HttpRequestDef,

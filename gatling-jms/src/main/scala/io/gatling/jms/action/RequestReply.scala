@@ -34,7 +34,7 @@ import io.gatling.jms.request._
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send. This implementation then forwards it on to a tracking actor.
  */
-class RequestReply(
+final class RequestReply(
     attributes: JmsAttributes,
     replyDestination: JmsDestination,
     setJmsReplyTo: Boolean,

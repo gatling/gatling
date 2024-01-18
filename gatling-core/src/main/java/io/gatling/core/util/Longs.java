@@ -18,7 +18,7 @@ package io.gatling.core.util;
 
 import java.nio.ByteBuffer;
 
-public class Longs {
+public final class Longs {
 
   private static final byte[] DIGIT_TENS = {
     '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1',

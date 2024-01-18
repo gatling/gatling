@@ -27,7 +27,7 @@ import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool, JmsProducer }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-class Around(before: () => Unit, after: () => Unit) {
+final class Around(before: () => Unit, after: () => Unit) {
   def apply(f: => Any): Unit = {
     before()
     f

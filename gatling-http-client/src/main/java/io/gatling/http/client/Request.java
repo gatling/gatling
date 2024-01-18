@@ -28,7 +28,7 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.function.Function;
 
-public class Request {
+public final class Request {
 
   private final String name;
   private final HttpMethod method;
