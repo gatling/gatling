@@ -68,9 +68,13 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     val compiledPatterns = patterns.map(_.r.pattern)
 
     def filter(addresses: List[InetAddress]): List[InetAddress] =
-      addresses.filter { address =>
-        val hostAddress = address.getHostAddress
-        compiledPatterns.exists(_.matcher(hostAddress).matches)
+      if (compiledPatterns.isEmpty) {
+        addresses
+      } else {
+        addresses.filter { address =>
+          val hostAddress = address.getHostAddress
+          compiledPatterns.exists(_.matcher(hostAddress).matches)
+        }
       }
 
     localAddresses(filter(InetAddresses.AllIpV4LocalAddresses), filter(InetAddresses.AllIpV6LocalAddresses))
