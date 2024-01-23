@@ -95,7 +95,7 @@ http("Issues").get("https://github.com/gatling/gatling/issues")
 //#multivaluedQueryParam
 http("name").get("/")
   // with static values
-  .multivaluedQueryParam("param", Arrays.asList("value1", "value2"));
+  .multivaluedQueryParam("param", List.of("value1", "value2"));
 
 http("name").get("/")
   // with a Gatling EL string pointing to a List
@@ -103,14 +103,14 @@ http("name").get("/")
 
 http("name").get("/")
   // with a function
-  .multivaluedQueryParam("param", session -> Arrays.asList("value1", "value2"));
+  .multivaluedQueryParam("param", session -> List.of("value1", "value2"));
 //#multivaluedQueryParam
 
 //#queryParam-multiple
 http("name").get("/")
-  .queryParamSeq(Arrays.asList(
-    new AbstractMap.SimpleEntry("key1", "value1"),
-    new AbstractMap.SimpleEntry("key2", "value2")
+  .queryParamSeq(List.of(
+      Map.entry("key1", "value1"),
+      Map.entry("key2", "value2")
     )
   );
 
@@ -305,7 +305,7 @@ http("name").post("/")
 //#multivaluedFormParam
 http("name").post("/")
   // with static values
-  .multivaluedFormParam("param", Arrays.asList("value1", "value2"));
+  .multivaluedFormParam("param", List.of("value1", "value2"));
 
 http("name").post("/")
   // with a Gatling EL string pointing to a List
@@ -313,14 +313,14 @@ http("name").post("/")
 
 http("name").post("/")
   // with a function
-  .multivaluedFormParam("param", session -> Arrays.asList("value1", "value2"));
+  .multivaluedFormParam("param", session -> List.of("value1", "value2"));
 //#multivaluedFormParam
 
 //#formParam-multiple
 http("name").get("/")
-  .formParamSeq(Arrays.asList(
-      new AbstractMap.SimpleEntry("key1", "value1"),
-      new AbstractMap.SimpleEntry("key2", "value2")
+  .formParamSeq(List.of(
+      Map.entry("key1", "value1"),
+      Map.entry("key2", "value2")
     )
   );
 

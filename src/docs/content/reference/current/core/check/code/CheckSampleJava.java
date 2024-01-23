@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-import io.gatling.javaapi.http.HttpRequestActionBuilder;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
@@ -119,7 +114,7 @@ http("").get("")
   // simple expression for a document that doesn't use namespaces
   xpath("//input[@id='text1']/@value"),
   // mandatory namespaces parameter for a document that uses namespaces
-  xpath("//foo:input[@id='text1']/@value", Collections.singletonMap("foo", "http://foo.com"))
+  xpath("//foo:input[@id='text1']/@value", Map.of("foo", "http://foo.com"))
 )
 //#xpath
 
@@ -357,11 +352,11 @@ http("").get("")
   // with a static values varargs
   jmesPath("foo").in("value1", "value2"),
   // with a static values List
-  jmesPath("foo").in(Arrays.asList("value1", "value2")),
+  jmesPath("foo").in(List.of("value1", "value2")),
   // with a Gatling EL String that points to a List in Session (BEWARE DIFFERENT METHOD)
   jmesPath("foo").inEL("#{expectedValues}"),
   // with a function
-  jmesPath("foo").in(session -> Arrays.asList("value1", "value2"))
+  jmesPath("foo").in(session -> List.of("value1", "value2"))
 )
 //#in
 
@@ -418,7 +413,7 @@ http("").get("")
 
   // check the response body contains 2 https links,
   // the first one to www.google.com and the second one to gatling.io
-  regex("https://(.*)/.*").findAll().is(Arrays.asList("www.google.com", "gatling.io")),
+  regex("https://(.*)/.*").findAll().is(List.of("www.google.com", "gatling.io")),
 
   // check the response body contains a second occurrence of "someString"
   substring("someString").find(1).exists(),

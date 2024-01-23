@@ -34,7 +34,7 @@ Iterator<Map<String, Object>> groupedRecordsFeeder =
   recordsGroupedByUsername
     .values()
     .stream()
-    .map(groupedRecords -> Collections.singletonMap("userRecords", (Object) groupedRecords))
+    .map(groupedRecords -> Map.of("userRecords", (Object) groupedRecords))
     .iterator();
 
 ChainBuilder chain =
