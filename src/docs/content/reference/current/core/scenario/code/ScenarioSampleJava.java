@@ -17,7 +17,7 @@
 import io.gatling.javaapi.core.*;
 
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.List;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
@@ -157,7 +157,7 @@ repeat(5).on(
 
 //#foreach
 // with a static List
-foreach(Arrays.asList("elt1", "elt2"), "elt").on(
+foreach(List.of("elt1", "elt2"), "elt").on(
   http("name").get("/?elt=#{elt}")
 );
 // with a Gatling EL string
@@ -165,15 +165,15 @@ foreach("#{elts}", "elt").on(
   http("name").get("/?elt=#{elt}")
 );
 // with a function
-foreach(session -> Arrays.asList("elt1", "elt2"), "elt").on(
+foreach(session -> List.of("elt1", "elt2"), "elt").on(
   http("name").get("/?elt=#{elt}")
 );
 // with a counter name
-foreach(Arrays.asList("elt1", "elt2"), "elt", "counter").on(
+foreach(List.of("elt1", "elt2"), "elt", "counter").on(
   http("name").get("/?elt=#{elt}&counter=#{counter}")
 );
 // iterating over multiple actions sequentially
-foreach(Arrays.asList("elt1", "elt2"), "elt").on(
+foreach(List.of("elt1", "elt2"), "elt").on(
   http("name1").get("/?elt=#{elt}"),
   http("name2").get("/?elt=#{elt}")
 );

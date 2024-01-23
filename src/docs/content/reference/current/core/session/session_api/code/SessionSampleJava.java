@@ -16,7 +16,6 @@
 
 import io.gatling.javaapi.core.Session;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +46,7 @@ exec(session -> {
 // set one single attribute
 Session newSession1 = session.set("key", "whateverValue");
 // set multiple attributes
-Session newSession2 = session.setAll(Collections.singletonMap("key", "value"));
+Session newSession2 = session.setAll(Map.of("key", "value"));
 // remove one single attribute
 Session newSession3 = session.remove("key");
 // remove multiple attributes

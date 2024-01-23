@@ -19,9 +19,8 @@ import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
@@ -113,7 +112,7 @@ http
 
 //#hostNameAliases
 http
-  .hostNameAliases(Collections.singletonMap("gatling.io", Arrays.asList("192.168.0.1", "192.168.0.2")));
+  .hostNameAliases(Map.of("gatling.io", List.of("192.168.0.1", "192.168.0.2")));
 //#hostNameAliases
 
 //#virtualHost
@@ -169,7 +168,7 @@ http
   .header("foo", "#{headerValue}")
   // with a function value
   .header("foo", session -> session.getString("headerValue"))
-  .headers(Collections.singletonMap("foo", "bar"));
+  .headers(Map.of("foo", "bar"));
 //#headers
 
 //#headers-built-ins

@@ -34,7 +34,7 @@ class FeederSampleJava {
 Iterator<Map<String, Object>> feeder =
   Stream.generate((Supplier<Map<String, Object>>) () -> {
       String email = RandomStringUtils.randomAlphanumeric(20) + "@foo.com";
-      return Collections.singletonMap("email", email);
+      return Map.of("email", email);
     }
   ).iterator();
 //#random-mail-generator
@@ -65,16 +65,16 @@ csv("foo").circular();
 //#feeder-in-memory
 // using an array
 arrayFeeder(new Map[] {
-  Collections.singletonMap("foo", "foo1"),
-  Collections.singletonMap("foo", "foo2"),
-  Collections.singletonMap("foo", "foo3")
+  Map.of("foo", "foo1"),
+  Map.of("foo", "foo2"),
+  Map.of("foo", "foo3")
 }).random();
 
 // using a List
-listFeeder(Arrays.asList(
-  Collections.singletonMap("foo", "foo1"),
-  Collections.singletonMap("foo", "foo2"),
-  Collections.singletonMap("foo", "foo3")
+listFeeder(List.of(
+  Map.of("foo", "foo1"),
+  Map.of("foo", "foo2"),
+  Map.of("foo", "foo3")
 )).random();
 //#feeder-in-memory
   }
