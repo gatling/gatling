@@ -44,10 +44,10 @@ object HttpProtocolBuilder {
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
-    HttpProtocolBuilder(HttpProtocol(configuration), configuration.ssl.useOpenSsl)
+    HttpProtocolBuilder(HttpProtocol(configuration), configuration.ssl.useOpenSsl, configuration.ssl.enableSni)
 }
 
-final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
+final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean, enableSni: Boolean) {
   def baseUrl(url: String): HttpProtocolBuilder = baseUrls(List(url))
   def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)
   def baseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
@@ -152,7 +152,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
       useAuthorizationHeader: Boolean
   ): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret, useAuthorizationHeader = useAuthorizationHeader))
-  def enableHttp2: HttpProtocolBuilder =
+  def enableHttp2: HttpProtocolBuilder = {
+    require(enableSni, "SNI is disabled in configuration so HTTP/2 can't work.")
     if (useOpenSsl) {
       if (SslProvider.isAlpnSupported(SslProvider.OPENSSL_REFCNT)) {
         this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
@@ -166,6 +167,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     } else {
       throw new UnsupportedOperationException(s"Your Java version ${sys.props("java.version")} doesn't support ALPN so you can't use HTTP/2.")
     }
+  }
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]): HttpProtocolBuilder =
     this

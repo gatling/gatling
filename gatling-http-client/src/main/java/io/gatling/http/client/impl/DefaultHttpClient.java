@@ -361,11 +361,6 @@ public class DefaultHttpClient implements HttpClient {
     Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
     listener.onSend();
-    if (tryHttp2 && !config.isEnableSni()) {
-      listener.onThrowable(
-          new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
-      return;
-    }
 
     // start timeout
     tx.requestTimeout.start(eventLoop);
