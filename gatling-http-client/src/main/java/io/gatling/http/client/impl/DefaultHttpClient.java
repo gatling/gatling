@@ -349,7 +349,6 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {
-
     EventLoopResources resources = eventLoopResources(eventLoop);
     Request request = tx.request;
     HttpListener listener = tx.listener;
