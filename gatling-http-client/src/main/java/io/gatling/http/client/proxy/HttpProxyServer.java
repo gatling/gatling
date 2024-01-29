@@ -17,28 +17,31 @@
 package io.gatling.http.client.proxy;
 
 import io.gatling.http.client.realm.BasicRealm;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.ProxyHandler;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-public class HttpProxyServer extends ProxyServer {
+public final class HttpProxyServer extends ProxyServer {
 
-  private final BasicRealm realm;
-  private final int securedPort;
-  private final InetSocketAddress securedAddress;
+  private final boolean secured;
 
-  public HttpProxyServer(String host, int port, int securedPort, BasicRealm realm)
+  private Uri uri;
+
+  public HttpProxyServer(String host, int port, BasicRealm realm, boolean secured)
       throws UnknownHostException {
-    super(host, port);
-    this.securedPort = securedPort;
-    this.realm = realm;
-    this.securedAddress = new InetSocketAddress(inetAddress, securedPort);
+    super(host, port, realm);
+    this.secured = secured;
+    this.uri = Uri.create((secured ? "https" : "http") + "://" + host + ":" + port);
   }
 
-  public int getSecuredPort() {
-    return securedPort;
+  public boolean isSecured() {
+    return secured;
+  }
+
+  public Uri getUri() {
+    return uri;
   }
 
   public BasicRealm getRealm() {
@@ -46,31 +49,25 @@ public class HttpProxyServer extends ProxyServer {
   }
 
   @Override
-  public ProxyHandler newHandler() {
+  public ProxyHandler newProxyHandler() {
     return realm != null
         ? new HttpProxyHandler(
-            securedAddress,
-            realm.getUsername(),
-            realm.getPassword(),
-            EmptyHttpHeaders.INSTANCE,
-            true)
-        : new HttpProxyHandler(securedAddress, EmptyHttpHeaders.INSTANCE, true);
+            getAddress(), realm.getUsername(), realm.getPassword(), EmptyHttpHeaders.INSTANCE, true)
+        : new HttpProxyHandler(getAddress(), EmptyHttpHeaders.INSTANCE, true);
   }
 
   @Override
   public String toString() {
     return "HttpProxyServer{"
-        + "realm="
-        + realm
-        + ", securedPort="
-        + securedPort
-        + ", securedAddress="
-        + securedAddress
+        + "secured="
+        + secured
         + ", host='"
         + host
         + '\''
         + ", port="
         + port
+        + ", realm="
+        + realm
         + '}';
   }
 }

@@ -21,7 +21,7 @@ import io.gatling.commons.model.Credentials
 import com.softwaremill.quicklens._
 
 object ProxyBuilder {
-  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy, None))
+  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, HttpProxy, None))
 
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }
@@ -30,6 +30,9 @@ final class ProxyBuilder(val proxy: Proxy) {
   def http: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(HttpProxy))
 
+  def https: ProxyBuilder =
+    new ProxyBuilder(proxy.modify(_.proxyType).setTo(HttpsProxy))
+
   def socks4: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks4Proxy))
 
@@ -37,7 +40,7 @@ final class ProxyBuilder(val proxy: Proxy) {
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks5Proxy))
 
   def httpsPort(port: Int): ProxyBuilder =
-    new ProxyBuilder(proxy.modify(_.securePort).setTo(port))
+    new ProxyBuilder(proxy.modify(_.port).setTo(port).modify(_.proxyType).setTo(HttpsProxy))
 
   def credentials(username: String, password: String): ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.credentials).setTo(Some(Credentials(username, password))))

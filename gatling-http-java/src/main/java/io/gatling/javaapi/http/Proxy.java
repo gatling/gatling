@@ -45,6 +45,16 @@ public final class Proxy {
   }
 
   /**
+   * Define this proxy is an HTTPS one
+   *
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy https() {
+    return new Proxy(wrapped.http().https());
+  }
+
+  /**
    * Define this proxy is an SOCKS4 once
    *
    * @return a new Proxy instance

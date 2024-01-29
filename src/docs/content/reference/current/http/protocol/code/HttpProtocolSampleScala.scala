@@ -260,20 +260,27 @@ http.nameInferredHtmlResources(uri => "name")
 //#nameInferredHtmlResources
 
 //#proxy
+// clear HTTP proxy
 http.proxy(
   Proxy("myHttpProxyHost", 8080)
-    .httpsPort(8143)
     .credentials("myUsername", "myPassword")
 )
 
+// HTTPS proxy
+http.proxy(
+  Proxy("myHttpProxyHost", 8080)
+    .httpsPort(8080)
+)
+
+// SOCKS4 proxy
 http.proxy(
   Proxy("mySocks4ProxyHost", 8080)
     .socks4
 )
 
+// SOCKS5 proxy
 http.proxy(
   Proxy("mySocks5ProxyHost", 8080)
-    .httpsPort(8143)
     .socks5
 )
 //#proxy

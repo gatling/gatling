@@ -23,7 +23,6 @@ import io.gatling.http.client.realm.BasicRealm
 final case class Proxy(
     host: String,
     port: Int,
-    securePort: Int,
     proxyType: ProxyType,
     credentials: Option[Credentials]
 ) {
@@ -31,14 +30,16 @@ final case class Proxy(
     def basicRealm: Option[BasicRealm] = credentials.map(c => new BasicRealm(c.username, c.password))
 
     proxyType match {
-      case HttpProxy   => new HttpProxyServer(host, port, securePort, basicRealm.orNull)
-      case Socks4Proxy => new Socks4ProxyServer(host, port, credentials.map(_.username).orNull)
-      case Socks5Proxy => new Socks5ProxyServer(host, port, basicRealm.orNull)
+      case HttpProxy   => new HttpProxyServer(host, port, basicRealm.orNull, false)
+      case HttpsProxy  => new HttpProxyServer(host, port, basicRealm.orNull, true)
+      case Socks4Proxy => new SocksProxyServer(host, port, basicRealm.orNull, false)
+      case Socks5Proxy => new SocksProxyServer(host, port, basicRealm.orNull, true)
     }
   }
 }
 
 sealed trait ProxyType
 case object HttpProxy extends ProxyType
+case object HttpsProxy extends ProxyType
 case object Socks4Proxy extends ProxyType
 case object Socks5Proxy extends ProxyType

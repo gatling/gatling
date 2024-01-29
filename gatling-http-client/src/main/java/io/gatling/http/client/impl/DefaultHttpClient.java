@@ -26,8 +26,8 @@ import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
+import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
-import io.gatling.http.client.proxy.SockProxyServer;
 import io.gatling.http.client.ssl.Tls;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.util.Pair;
@@ -74,6 +74,7 @@ public class DefaultHttpClient implements HttpClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClient.class);
 
   private static final String PINNED_HANDLER = "pinned";
+  private static final String PROXY_SSL_HANDLER = "ssl-proxy";
   private static final String PROXY_HANDLER = "proxy";
   private static final String SSL_HANDLER = "ssl";
   public static final String HTTP_CLIENT_CODEC = "http";
@@ -117,6 +118,28 @@ public class DefaultHttpClient implements HttpClient {
           .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
           .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
           .addLast(APP_WS_HANDLER, new WebSocketHandler());
+    }
+
+    private void addProxyHandlers(Channel ch, HttpTx tx, ProxyServer proxyServer) {
+      ChannelPipeline pipeline = ch.pipeline();
+      pipeline.addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
+
+      if (proxyServer instanceof HttpProxyServer) {
+        HttpProxyServer httpProxyServer = (HttpProxyServer) proxyServer;
+        if (httpProxyServer.isSecured()) {
+          installSslHandler(tx, ch, httpProxyServer.getUri(), null, PROXY_SSL_HANDLER)
+              .addListener(
+                  f -> {
+                    if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                      ch.close();
+                    }
+                  });
+        }
+      }
+
+      if (proxyHandlerSupportsUri(proxyServer, tx.request.getUri())) {
+        pipeline.addLast(PROXY_HANDLER, proxyServer.newProxyHandler());
+      }
     }
 
     private EventLoopResources(EventLoop eventLoop) {
@@ -173,31 +196,27 @@ public class DefaultHttpClient implements HttpClient {
                   });
     }
 
-    private Bootstrap getHttp1BootstrapWithProxy(ProxyServer proxy) {
+    private Bootstrap getHttp1BootstrapWithProxy(HttpTx tx, ProxyServer proxy) {
       return http1Bootstrap
           .clone()
           .handler(
-              new ChannelInitializer<Channel>() {
+              new ChannelInitializer<>() {
                 @Override
                 protected void initChannel(Channel ch) {
-                  ch.pipeline()
-                      .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-                      .addLast(PROXY_HANDLER, proxy.newHandler());
+                  addProxyHandlers(ch, tx, proxy);
                   addHttpHandlers(ch);
                 }
               });
     }
 
-    private Bootstrap getWsBootstrapWithProxy(ProxyServer proxy) {
+    private Bootstrap getWsBootstrapWithProxy(HttpTx tx, ProxyServer proxy) {
       return wsBootstrap
           .clone()
           .handler(
-              new ChannelInitializer<Channel>() {
+              new ChannelInitializer<>() {
                 @Override
                 protected void initChannel(Channel ch) {
-                  ch.pipeline()
-                      .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-                      .addLast(PROXY_HANDLER, proxy.newHandler());
+                  addProxyHandlers(ch, tx, proxy);
                   addWsHandlers(ch);
                 }
               });
@@ -369,16 +388,12 @@ public class DefaultHttpClient implements HttpClient {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
-      InetSocketAddress unresolvedRemoteAddressThroughTunnelling =
-          unresolvedRemoteAddressThroughTunnelling(request.getProxyServer(), requestUri);
-      boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
+      InetSocketAddress proxyHandlerUnresolvedRemoteAddress =
+          proxyHandlerUnresolvedRemoteAddress(request.getProxyServer(), requestUri);
+      boolean logProxyAddress = proxyHandlerUnresolvedRemoteAddress != null;
 
-      resolveRemoteAddresses(
-              request,
-              eventLoop,
-              unresolvedRemoteAddressThroughTunnelling,
-              listener,
-              requestTimeout)
+      resolveChannelRemoteAddresses(
+              request, eventLoop, proxyHandlerUnresolvedRemoteAddress, listener, requestTimeout)
           .addListener(
               (Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
                 if (requestTimeout.isDone()) {
@@ -408,7 +423,6 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private void sendHttp2Txs(List<HttpTx> txs, EventLoop eventLoop) {
-
     HttpTx tx = txs.get(0);
     EventLoopResources resources = eventLoopResources(eventLoop);
     Request request = tx.request;
@@ -422,12 +436,12 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     ProxyServer proxyServer = request.getProxyServer();
-    InetSocketAddress unresolvedRemoteAddressThroughTunnelling =
-        unresolvedRemoteAddressThroughTunnelling(proxyServer, requestUri);
-    boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
+    InetSocketAddress proxyHandlerUnresolvedRemoteAddress =
+        proxyHandlerUnresolvedRemoteAddress(proxyServer, requestUri);
+    boolean logProxyAddress = proxyHandlerUnresolvedRemoteAddress != null;
 
-    resolveRemoteAddresses(
-            request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
+    resolveChannelRemoteAddresses(
+            request, eventLoop, proxyHandlerUnresolvedRemoteAddress, listener, requestTimeout)
         .addListener(
             (Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
               if (requestTimeout.isDone()) {
@@ -455,7 +469,6 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private void sendTxWithChannel(HttpTx tx, Channel channel) {
-
     if (isClosed()) {
       return;
     }
@@ -470,7 +483,6 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private void sendHttp2TxsWithChannel(List<HttpTx> txs, Channel channel) {
-
     if (isClosed()) {
       return;
     }
@@ -482,34 +494,39 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private InetSocketAddress unresolvedRemoteAddressThroughTunnelling(
+  private static boolean proxyHandlerSupportsUri(ProxyServer proxyServer, Uri uri) {
+    // HttpProxyServer only supports CONNECT requests, hence secured requests
+    return !(proxyServer instanceof HttpProxyServer && !uri.isSecured());
+  }
+
+  private InetSocketAddress proxyHandlerUnresolvedRemoteAddress(
       ProxyServer proxyServer, Uri requestUri) {
-    return proxyServer != null
-            && (proxyServer instanceof SockProxyServer
-                || requestUri.isSecured()
-                || requestUri.isWebSocket())
+    // HttpProxyHandler doesn't handle clear HTTP requests (absolute URI)
+    return proxyServer != null && proxyHandlerSupportsUri(proxyServer, requestUri)
         ? InetSocketAddress.createUnresolved(requestUri.getHost(), requestUri.getExplicitPort())
         : null;
   }
 
-  private Future<List<InetSocketAddress>> resolveRemoteAddresses(
+  private Future<List<InetSocketAddress>> resolveChannelRemoteAddresses(
       Request request,
       EventLoop eventLoop,
-      InetSocketAddress unresolvedRemoteAddressThroughTunnelling,
+      InetSocketAddress proxyHandlerUnresolvedRemoteAddress,
       HttpListener listener,
       RequestTimeout requestTimeout) {
     ProxyServer proxyServer = request.getProxyServer();
     if (proxyServer != null) {
-      InetSocketAddress remoteAddress =
-          unresolvedRemoteAddressThroughTunnelling != null
+      InetSocketAddress channelRemoteAddress =
+          proxyHandlerUnresolvedRemoteAddress != null
               ?
               // ProxyHandler will take care of the connect logic
-              unresolvedRemoteAddressThroughTunnelling
+              proxyHandlerUnresolvedRemoteAddress
               :
-              // directly connect to proxy over clear HTTP
+              // HttpProxyHandler only handles CONNECT requests, not clear HTTP requests with an
+              // absolute URL that we have to handle ourselves
               proxyServer.getAddress();
 
-      return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
+      return ImmediateEventExecutor.INSTANCE.newSucceededFuture(
+          singletonList(channelRemoteAddress));
 
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();
@@ -550,6 +567,7 @@ public class DefaultHttpClient implements HttpClient {
       boolean logProxyAddress) {
     tx.channelState = HttpTx.ChannelState.NEW;
     openNewChannel(
+            tx,
             tx.request,
             logProxyAddress,
             eventLoop,
@@ -570,8 +588,12 @@ public class DefaultHttpClient implements HttpClient {
                 ChannelPool.registerPoolKey(channel, tx.key);
 
                 if (tx.request.getUri().isSecured()) {
-                  LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-                  installSslHandler(tx, channel)
+                  installSslHandler(
+                          tx,
+                          channel,
+                          tx.request.getUri(),
+                          tx.request.getVirtualHost(),
+                          SSL_HANDLER)
                       .addListener(
                           f -> {
                             if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -611,6 +633,7 @@ public class DefaultHttpClient implements HttpClient {
       boolean logProxyAddress) {
     HttpTx tx = txs.get(0);
     openNewChannel(
+            tx,
             tx.request,
             logProxyAddress,
             eventLoop,
@@ -631,7 +654,8 @@ public class DefaultHttpClient implements HttpClient {
                 ChannelPool.registerPoolKey(channel, tx.key);
 
                 LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-                installSslHandler(tx, channel)
+                installSslHandler(
+                        tx, channel, tx.request.getUri(), tx.request.getVirtualHost(), SSL_HANDLER)
                     .addListener(
                         f -> {
                           if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -653,16 +677,17 @@ public class DefaultHttpClient implements HttpClient {
             });
   }
 
-  private Bootstrap bootstrap(Request request, EventLoopResources resources) {
+  private Bootstrap bootstrap(HttpTx tx, Request request, EventLoopResources resources) {
     Uri uri = request.getUri();
     ProxyServer proxyServer = request.getProxyServer();
 
     if (proxyServer != null) {
       if (uri.isWebSocket()) {
-        return resources.getWsBootstrapWithProxy(proxyServer);
-      } else if (proxyServer instanceof SockProxyServer || uri.isSecured()) {
+        return resources.getWsBootstrapWithProxy(tx, proxyServer);
+      } else {
+        // HttpProxyHandler doesn't handle clear HTTP requests, only CONNECT ones
         // FIXME HTTP/2 with proxy
-        return resources.getHttp1BootstrapWithProxy(proxyServer);
+        return resources.getHttp1BootstrapWithProxy(tx, proxyServer);
       }
     }
 
@@ -682,6 +707,7 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> openNewChannel(
+      HttpTx tx,
       Request request,
       boolean logProxyAddress,
       EventLoop eventLoop,
@@ -690,7 +716,7 @@ public class DefaultHttpClient implements HttpClient {
       HttpListener listener,
       RequestTimeout requestTimeout) {
     LOGGER.debug("Opening new channel");
-    Bootstrap bootstrap = bootstrap(request, resources);
+    Bootstrap bootstrap = bootstrap(tx, request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
     InetSocketAddress loggedProxyAddress =
         logProxyAddress ? request.getProxyServer().getAddress() : null;
@@ -837,23 +863,20 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
+  private Future<Channel> installSslHandler(
+      HttpTx tx, Channel channel, Uri uri, String virtualHost, String sslHandlerName) {
+    LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
     // [e]
     //
     // [e]
 
     try {
       SslHandler sslHandler =
-          SslHandlers.newSslHandler(
-              tx.sslContext(),
-              channel.alloc(),
-              tx.request.getUri(),
-              tx.request.getVirtualHost(),
-              config);
+          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), uri, virtualHost, config);
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
-      pipeline.addAfter(after, SSL_HANDLER, sslHandler);
+      pipeline.addAfter(after, sslHandlerName, sslHandler);
 
       return sslHandler
           .handshakeFuture()
@@ -866,7 +889,9 @@ public class DefaultHttpClient implements HttpClient {
                 if (f.isSuccess()) {
                   if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(
-                        "TLS handshake successful: protocol={} cipher suite={}",
+                        "TLS handshake successful: peerHost={} peerPort={} protocol={} cipher suite={}",
+                        sslHandler.engine().getSession().getPeerHost(),
+                        sslHandler.engine().getSession().getPeerPort(),
                         sslHandler.engine().getSession().getProtocol(),
                         sslHandler.engine().getSession().getCipherSuite());
                   }
