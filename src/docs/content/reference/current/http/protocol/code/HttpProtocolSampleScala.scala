@@ -105,15 +105,6 @@ http
   .hostNameAliases(Map("gatling.io" -> List("192.168.0.1", "192.168.0.2")))
 //#hostNameAliases
 
-//#virtualHost
-// with a static value
-http.virtualHost("virtualHost")
-// with a Gatling EL string
-http.virtualHost("#{virtualHost}")
-// with a function
-http.virtualHost(session => session("virtualHost").as[String])
-//#virtualHost
-
 //#localAddress
 http.localAddress("localAddress")
 

@@ -84,7 +84,6 @@ private[cache] trait PermanentRedirectCacheSupport {
       .setCookies(CookieSupport.getStoredCookies(session, redirectUri).asJava)
       .setBodyBuilder(if (request.getBody != null) request.getBody.newBuilder else null)
       .setRequestTimeout(request.getRequestTimeout)
-      .setVirtualHost(request.getVirtualHost)
       .setAutoOrigin(request.isAutoOrigin)
       .setLocalIpV4Address(request.getLocalIpV4Address)
       .setLocalIpV6Address(request.getLocalIpV6Address)

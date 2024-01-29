@@ -80,11 +80,6 @@ object FollowUpProcessor {
         .setRequestTimeout(originalRequest.getRequestTimeout)
         .setDefaultCharset(defaultCharset)
 
-    if (originalRequest.getUri.isSameBase(redirectUri)) {
-      // we can only assume the virtual host is still valid if the baseUrl is the same
-      requestBuilder.setVirtualHost(originalRequest.getVirtualHost)
-    }
-
     if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
       val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
       val protocolProxy = httpProtocol.proxyPart.proxy
@@ -132,7 +127,6 @@ object FollowUpProcessor {
         .setRealm(originalRequest.getRealm)
         .setRequestTimeout(originalRequest.getRequestTimeout)
         .setDefaultCharset(defaultCharset)
-        .setVirtualHost(originalRequest.getVirtualHost)
         .setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
 
     Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))

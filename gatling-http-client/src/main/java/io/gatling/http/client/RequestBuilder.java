@@ -54,7 +54,6 @@ public class RequestBuilder {
   private List<Cookie> cookies = Collections.emptyList();
   private RequestBodyBuilder bodyBuilder;
   private long requestTimeout;
-  private String virtualHost;
   private boolean autoOrigin;
   private InetAddress localIpV4Address;
   private InetAddress localIpV6Address;
@@ -100,11 +99,6 @@ public class RequestBuilder {
 
   public RequestBuilder setRequestTimeout(long requestTimeout) {
     this.requestTimeout = requestTimeout;
-    return this;
-  }
-
-  public RequestBuilder setVirtualHost(String virtualHost) {
-    this.virtualHost = virtualHost;
     return this;
   }
 
@@ -211,7 +205,7 @@ public class RequestBuilder {
     }
 
     if (!headers.contains(HOST)) {
-      headers.set(HOST, virtualHost != null ? virtualHost : hostHeader(uri));
+      headers.set(HOST, hostHeader(uri));
     }
 
     RequestBody body = null;
@@ -233,7 +227,6 @@ public class RequestBuilder {
         cookies != null ? cookies : Collections.emptyList(),
         body,
         requestTimeout,
-        virtualHost,
         autoOrigin,
         localIpV4Address,
         localIpV6Address,

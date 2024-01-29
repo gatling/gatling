@@ -28,42 +28,11 @@ import javax.net.ssl.SSLParameters;
 public class SslHandlers {
 
   public static SslHandler newSslHandler(
-      SslContext sslContext,
-      ByteBufAllocator allocator,
-      Uri uri,
-      String virtualHost,
-      HttpClientConfig config) {
-    String peerHost;
-    int peerPort;
-
-    if (virtualHost != null) {
-      int i = virtualHost.indexOf(':');
-      if (i == -1) {
-        peerHost = virtualHost;
-        peerPort = uri.getSchemeDefaultPort();
-      } else {
-        peerHost = virtualHost.substring(0, i);
-        peerPort = Integer.parseInt(virtualHost.substring(i + 1));
-      }
-
-    } else {
-      peerHost = uri.getHost();
-      peerPort = uri.getExplicitPort();
-    }
-
-    return createSslHandler(sslContext, peerHost, peerPort, allocator, config);
-  }
-
-  private static SslHandler createSslHandler(
-      SslContext sslContext,
-      String peerHost,
-      int peerPort,
-      ByteBufAllocator allocator,
-      HttpClientConfig config) {
+      SslContext sslContext, ByteBufAllocator allocator, Uri uri, HttpClientConfig config) {
 
     SSLEngine sslEngine =
         config.isEnableSni()
-            ? sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort)
+            ? sslContext.newEngine(allocator, Tls.domain(uri.getHost()), uri.getExplicitPort())
             : sslContext.newEngine(allocator);
 
     sslEngine.setUseClientMode(true);

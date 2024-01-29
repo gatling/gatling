@@ -76,7 +76,6 @@ class HttpTxSpec extends BaseSpec {
       ju.Collections.emptyList(),
       null,
       0L,
-      null,
       false,
       null,
       null,

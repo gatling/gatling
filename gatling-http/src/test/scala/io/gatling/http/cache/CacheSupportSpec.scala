@@ -161,7 +161,6 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
       ju.Collections.emptyList(),
       null,
       0L,
-      null,
       false,
       null,
       null,

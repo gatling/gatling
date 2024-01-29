@@ -149,13 +149,6 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val maybeVirtualHost = commonAttributes.virtualHost.orElse(httpProtocol.enginePart.virtualHost)
-  private def configureVirtualHost(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
-    maybeVirtualHost match {
-      case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
-      case _                 => Validation.unit
-    }
-
   private val addRefererHeader = httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined
   private val (staticHeaders, dynamicHeaders) = headers.toArray.partitionMap {
     case (key, StaticValueExpression(value)) => Left(key -> value)
@@ -240,7 +233,6 @@ abstract class RequestExpressionBuilder(
             rb
           }
 
-          _ <- configureVirtualHost(session, requestBuilder)
           _ <- configureHeaders(session, requestBuilder)
           _ <- configureRealm(session, requestBuilder)
           _ <- configureProtocolSpecific(session, requestBuilder)

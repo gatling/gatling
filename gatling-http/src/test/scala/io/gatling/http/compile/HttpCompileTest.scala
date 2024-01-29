@@ -34,7 +34,6 @@ class HttpCompileTest extends Simulation {
   private val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
     .baseUrls("http://172.30.5.143:8080", "http://172.30.5.143:8081")
-    .virtualHost("172.30.5.143:8080")
     .proxy(Proxy("172.31.76.106", 8080))
     .proxy(Proxy("172.31.76.106", 8080).credentials("username", "password"))
     .proxy(Proxy("172.31.76.106", 8080).https)

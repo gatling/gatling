@@ -44,7 +44,6 @@ object CommonAttributes {
       queryParams = Nil,
       headers = Map.empty,
       realm = None,
-      virtualHost = None,
       proxy = None,
       signatureCalculator = None,
       ignoreProtocolHeaders = false
@@ -59,7 +58,6 @@ final case class CommonAttributes(
     queryParams: List[HttpParam],
     headers: Map[CharSequence, Expression[String]],
     realm: Option[Expression[Realm]],
-    virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
     signatureCalculator: Option[(Request, Session) => Validation[Request]],
     ignoreProtocolHeaders: Boolean
@@ -156,12 +154,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   private def authRealm(realm: Expression[Realm]): B = newInstance(modify(commonAttributes)(_.realm).setTo(Some(realm)))
-
-  /**
-   * @param virtualHost
-   *   a virtual host to override default compute one
-   */
-  def virtualHost(virtualHost: Expression[String]): B = newInstance(modify(commonAttributes)(_.virtualHost).setTo(Some(virtualHost)))
 
   def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
 

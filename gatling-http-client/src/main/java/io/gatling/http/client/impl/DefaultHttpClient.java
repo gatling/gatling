@@ -127,7 +127,7 @@ public class DefaultHttpClient implements HttpClient {
       if (proxyServer instanceof HttpProxyServer) {
         HttpProxyServer httpProxyServer = (HttpProxyServer) proxyServer;
         if (httpProxyServer.isSecured()) {
-          installSslHandler(tx, ch, httpProxyServer.getUri(), null, PROXY_SSL_HANDLER)
+          installSslHandler(tx, ch, httpProxyServer.getUri(), PROXY_SSL_HANDLER)
               .addListener(
                   f -> {
                     if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -330,9 +330,7 @@ public class DefaultHttpClient implements HttpClient {
     RequestTimeout requestTimeout =
         RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
     ChannelPoolKey key =
-        new ChannelPoolKey(
-            clientId,
-            RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
+        new ChannelPoolKey(clientId, RemoteKey.newKey(request.getUri(), request.getProxyServer()));
     return new HttpTx(request, listener, requestTimeout, key, sslContextsHolder);
   }
 
@@ -588,12 +586,7 @@ public class DefaultHttpClient implements HttpClient {
                 ChannelPool.registerPoolKey(channel, tx.key);
 
                 if (tx.request.getUri().isSecured()) {
-                  installSslHandler(
-                          tx,
-                          channel,
-                          tx.request.getUri(),
-                          tx.request.getVirtualHost(),
-                          SSL_HANDLER)
+                  installSslHandler(tx, channel, tx.request.getUri(), SSL_HANDLER)
                       .addListener(
                           f -> {
                             if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -654,8 +647,7 @@ public class DefaultHttpClient implements HttpClient {
                 ChannelPool.registerPoolKey(channel, tx.key);
 
                 LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-                installSslHandler(
-                        tx, channel, tx.request.getUri(), tx.request.getVirtualHost(), SSL_HANDLER)
+                installSslHandler(tx, channel, tx.request.getUri(), SSL_HANDLER)
                     .addListener(
                         f -> {
                           if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -864,7 +856,7 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(
-      HttpTx tx, Channel channel, Uri uri, String virtualHost, String sslHandlerName) {
+      HttpTx tx, Channel channel, Uri uri, String sslHandlerName) {
     LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
     // [e]
     //
@@ -872,7 +864,7 @@ public class DefaultHttpClient implements HttpClient {
 
     try {
       SslHandler sslHandler =
-          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), uri, virtualHost, config);
+          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), uri, config);
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;

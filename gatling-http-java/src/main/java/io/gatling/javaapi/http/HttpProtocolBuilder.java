@@ -129,28 +129,6 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Define a virtual host
-   *
-   * @param virtualHost the virtual host, expressed as a Gatling Expression Language String
-   * @return a new HttpProtocolBuilder instance
-   */
-  @NonNull
-  public HttpProtocolBuilder virtualHost(@NonNull String virtualHost) {
-    return new HttpProtocolBuilder(wrapped.virtualHost(toStringExpression(virtualHost)));
-  }
-
-  /**
-   * Define a virtual host
-   *
-   * @param virtualHost the virtual host, expressed as a function
-   * @return a new HttpProtocolBuilder instance
-   */
-  @NonNull
-  public HttpProtocolBuilder virtualHost(@NonNull Function<Session, String> virtualHost) {
-    return new HttpProtocolBuilder(wrapped.virtualHost(javaFunctionToExpression(virtualHost)));
-  }
-
-  /**
    * Define the local address to bind from
    *
    * @param address the local address

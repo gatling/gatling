@@ -22,24 +22,21 @@ import java.util.Objects;
 
 public class RemoteKey {
 
-  public static RemoteKey newKey(Uri uri, String virtualHost, ProxyServer proxyServer) {
+  public static RemoteKey newKey(Uri uri, ProxyServer proxyServer) {
     String targetHostBaseUrl = uri.getBaseUrl();
     if (proxyServer == null) {
-      return new RemoteKey(targetHostBaseUrl, virtualHost, null, 0);
+      return new RemoteKey(targetHostBaseUrl, null, 0);
     } else {
-      return new RemoteKey(
-          targetHostBaseUrl, virtualHost, proxyServer.getHost(), proxyServer.getPort());
+      return new RemoteKey(targetHostBaseUrl, proxyServer.getHost(), proxyServer.getPort());
     }
   }
 
   private final String targetHostBaseUrl;
-  private final String virtualHost;
   private final String proxyHost;
   private final int proxyPort;
 
-  private RemoteKey(String targetHostBaseUrl, String virtualHost, String proxyHost, int proxyPort) {
+  private RemoteKey(String targetHostBaseUrl, String proxyHost, int proxyPort) {
     this.targetHostBaseUrl = targetHostBaseUrl;
-    this.virtualHost = virtualHost;
     this.proxyHost = proxyHost;
     this.proxyPort = proxyPort;
   }
@@ -53,14 +50,12 @@ public class RemoteKey {
 
     if (proxyPort != that.proxyPort) return false;
     if (!targetHostBaseUrl.equals(that.targetHostBaseUrl)) return false;
-    if (!Objects.equals(virtualHost, that.virtualHost)) return false;
     return Objects.equals(proxyHost, that.proxyHost);
   }
 
   @Override
   public int hashCode() {
     int result = targetHostBaseUrl.hashCode();
-    result = 31 * result + (virtualHost != null ? virtualHost.hashCode() : 0);
     result = 31 * result + (proxyHost != null ? proxyHost.hashCode() : 0);
     result = 31 * result + proxyPort;
     return result;
@@ -71,9 +66,6 @@ public class RemoteKey {
     return "RemoteKey{"
         + "targetHostBaseUrl='"
         + targetHostBaseUrl
-        + '\''
-        + ", virtualHost='"
-        + virtualHost
         + '\''
         + ", proxyHost='"
         + proxyHost

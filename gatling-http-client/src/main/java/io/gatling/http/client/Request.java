@@ -37,7 +37,6 @@ public final class Request {
   private final List<Cookie> cookies;
   private final RequestBody body;
   private final long requestTimeout;
-  private final String virtualHost;
   private final boolean autoOrigin;
   private final InetAddress localIpV4Address;
   private final InetAddress localIpV6Address;
@@ -57,7 +56,6 @@ public final class Request {
       List<Cookie> cookies,
       RequestBody body,
       long requestTimeout,
-      String virtualHost,
       boolean autoOrigin,
       InetAddress localIpV4Address,
       InetAddress localIpV6Address,
@@ -75,7 +73,6 @@ public final class Request {
     this.cookies = cookies;
     this.body = body;
     this.requestTimeout = requestTimeout;
-    this.virtualHost = virtualHost;
     this.autoOrigin = autoOrigin;
     this.localIpV4Address = localIpV4Address;
     this.localIpV6Address = localIpV6Address;
@@ -97,7 +94,6 @@ public final class Request {
         this.cookies,
         this.body,
         this.requestTimeout,
-        this.virtualHost,
         this.autoOrigin,
         this.localIpV4Address,
         this.localIpV6Address,
@@ -119,7 +115,6 @@ public final class Request {
         this.cookies,
         this.body,
         this.requestTimeout,
-        this.virtualHost,
         this.autoOrigin,
         this.localIpV4Address,
         this.localIpV6Address,
@@ -141,7 +136,6 @@ public final class Request {
         this.cookies,
         body,
         this.requestTimeout,
-        this.virtualHost,
         this.autoOrigin,
         this.localIpV4Address,
         this.localIpV6Address,
@@ -163,7 +157,6 @@ public final class Request {
         this.cookies,
         this.body,
         this.requestTimeout,
-        this.virtualHost,
         this.autoOrigin,
         this.localIpV4Address,
         this.localIpV6Address,
@@ -202,10 +195,6 @@ public final class Request {
 
   public long getRequestTimeout() {
     return requestTimeout;
-  }
-
-  public String getVirtualHost() {
-    return virtualHost;
   }
 
   public boolean isAutoOrigin() {
@@ -263,9 +252,6 @@ public final class Request {
         + body
         + ", requestTimeout="
         + requestTimeout
-        + ", virtualHost='"
-        + virtualHost
-        + '\''
         + ", localIpV4Address="
         + localIpV4Address
         + ", localIpV6Address="

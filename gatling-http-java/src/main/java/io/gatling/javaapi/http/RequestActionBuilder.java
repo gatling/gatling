@@ -447,28 +447,6 @@ public abstract class RequestActionBuilder<
   }
 
   /**
-   * Define a virtual host
-   *
-   * @param virtualHost the virtual host, expressed as a Gatling Expression Language String
-   * @return a new DSL instance
-   */
-  @NonNull
-  public T virtualHost(@NonNull String virtualHost) {
-    return make(wrapped -> (wrapped.virtualHost(toStringExpression(virtualHost))));
-  }
-
-  /**
-   * Define a virtual host
-   *
-   * @param virtualHost the virtual host, expressed as a function
-   * @return a new DSL instance
-   */
-  @NonNull
-  public T virtualHost(@NonNull Function<Session, String> virtualHost) {
-    return make(wrapped -> wrapped.virtualHost(javaFunctionToExpression(virtualHost)));
-  }
-
-  /**
    * Disable the automatic url encoding that tries to detect unescaped reserved chars
    *
    * @return a new DSL instance

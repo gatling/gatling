@@ -74,7 +74,6 @@ object HttpProtocol extends StrictLogging {
       enginePart = HttpProtocolEnginePart(
         shareConnections = false,
         maxConnectionsPerHost = 6,
-        virtualHost = None,
         localIpV4Addresses = Nil,
         localIpV6Addresses = Nil,
         enableHttp2 = false,
@@ -156,7 +155,6 @@ final case class HttpProtocol(
 final case class HttpProtocolEnginePart(
     shareConnections: Boolean,
     maxConnectionsPerHost: Int,
-    virtualHost: Option[Expression[String]],
     localIpV4Addresses: List[InetAddress],
     localIpV6Addresses: List[InetAddress],
     enableHttp2: Boolean,
