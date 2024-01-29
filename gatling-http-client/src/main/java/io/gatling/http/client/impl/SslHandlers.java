@@ -18,7 +18,6 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.ssl.Tls;
-import io.gatling.http.client.uri.Uri;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
@@ -28,11 +27,15 @@ import javax.net.ssl.SSLParameters;
 public class SslHandlers {
 
   public static SslHandler newSslHandler(
-      SslContext sslContext, ByteBufAllocator allocator, Uri uri, HttpClientConfig config) {
+      SslContext sslContext,
+      ByteBufAllocator allocator,
+      String peerHost,
+      int peerPort,
+      HttpClientConfig config) {
 
     SSLEngine sslEngine =
         config.isEnableSni()
-            ? sslContext.newEngine(allocator, Tls.domain(uri.getHost()), uri.getExplicitPort())
+            ? sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort)
             : sslContext.newEngine(allocator);
 
     sslEngine.setUseClientMode(true);

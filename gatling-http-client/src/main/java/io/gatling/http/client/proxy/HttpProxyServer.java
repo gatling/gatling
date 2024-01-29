@@ -17,7 +17,6 @@
 package io.gatling.http.client.proxy;
 
 import io.gatling.http.client.realm.BasicRealm;
-import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.ProxyHandler;
@@ -27,21 +26,14 @@ public final class HttpProxyServer extends ProxyServer {
 
   private final boolean secured;
 
-  private Uri uri;
-
   public HttpProxyServer(String host, int port, BasicRealm realm, boolean secured)
       throws UnknownHostException {
     super(host, port, realm);
     this.secured = secured;
-    this.uri = Uri.create((secured ? "https" : "http") + "://" + host + ":" + port);
   }
 
   public boolean isSecured() {
     return secured;
-  }
-
-  public Uri getUri() {
-    return uri;
   }
 
   public BasicRealm getRealm() {

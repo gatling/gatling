@@ -125,9 +125,8 @@ public class DefaultHttpClient implements HttpClient {
       pipeline.addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
 
       if (proxyServer instanceof HttpProxyServer) {
-        HttpProxyServer httpProxyServer = (HttpProxyServer) proxyServer;
-        if (httpProxyServer.isSecured()) {
-          installSslHandler(tx, ch, httpProxyServer.getUri(), PROXY_SSL_HANDLER)
+        if (((HttpProxyServer) proxyServer).isSecured()) {
+          installSslHandler(tx, ch, proxyServer.getHost(), proxyServer.getPort(), PROXY_SSL_HANDLER)
               .addListener(
                   f -> {
                     if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -585,8 +584,14 @@ public class DefaultHttpClient implements HttpClient {
                 channelGroup.add(channel);
                 ChannelPool.registerPoolKey(channel, tx.key);
 
-                if (tx.request.getUri().isSecured()) {
-                  installSslHandler(tx, channel, tx.request.getUri(), SSL_HANDLER)
+                Uri requestUri = tx.request.getUri();
+                if (requestUri.isSecured()) {
+                  installSslHandler(
+                          tx,
+                          channel,
+                          requestUri.getHost(),
+                          requestUri.getExplicitPort(),
+                          SSL_HANDLER)
                       .addListener(
                           f -> {
                             if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -599,7 +604,7 @@ public class DefaultHttpClient implements HttpClient {
                                     == Http2PriorKnowledge.HTTP1_ONLY) {
                               sendTxWithChannel(tx, channel);
                             } else {
-                              LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
+                              LOGGER.debug("Installing Http2Handler for {}", requestUri);
                               installHttp2Handler(tx, channel, resources.channelPool)
                                   .addListener(
                                       f2 -> {
@@ -646,15 +651,21 @@ public class DefaultHttpClient implements HttpClient {
                 channelGroup.add(channel);
                 ChannelPool.registerPoolKey(channel, tx.key);
 
-                LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-                installSslHandler(tx, channel, tx.request.getUri(), SSL_HANDLER)
+                Uri requestUri = tx.request.getUri();
+                LOGGER.debug("Installing SslHandler for {}", requestUri);
+                installSslHandler(
+                        tx,
+                        channel,
+                        requestUri.getHost(),
+                        requestUri.getExplicitPort(),
+                        SSL_HANDLER)
                     .addListener(
                         f -> {
                           if (tx.requestTimeout.isDone() || !f.isSuccess()) {
                             channel.close();
                             return;
                           }
-                          LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
+                          LOGGER.debug("Installing Http2Handler for {}", requestUri);
                           installHttp2Handler(tx, channel, resources.channelPool)
                               .addListener(
                                   f2 -> {
@@ -670,11 +681,11 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Bootstrap bootstrap(HttpTx tx, Request request, EventLoopResources resources) {
-    Uri uri = request.getUri();
+    Uri requestUri = request.getUri();
     ProxyServer proxyServer = request.getProxyServer();
 
     if (proxyServer != null) {
-      if (uri.isWebSocket()) {
+      if (requestUri.isWebSocket()) {
         return resources.getWsBootstrapWithProxy(tx, proxyServer);
       } else {
         // HttpProxyHandler doesn't handle clear HTTP requests, only CONNECT ones
@@ -683,9 +694,9 @@ public class DefaultHttpClient implements HttpClient {
       }
     }
 
-    if (uri.isWebSocket()) {
+    if (requestUri.isWebSocket()) {
       return resources.wsBootstrap;
-    } else if (request.getUri().isSecured()
+    } else if (requestUri.isSecured()
         && request.isHttp2Enabled()
         && request.getHttp2PriorKnowledge() != Http2PriorKnowledge.HTTP1_ONLY) {
       return resources.http2Bootstrap;
@@ -856,15 +867,15 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(
-      HttpTx tx, Channel channel, Uri uri, String sslHandlerName) {
-    LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+      HttpTx tx, Channel channel, String peerHost, int peerPort, String sslHandlerName) {
+    LOGGER.debug("Installing SslHandler for {}:{}", peerHost, peerPort);
     // [e]
     //
     // [e]
 
     try {
       SslHandler sslHandler =
-          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), uri, config);
+          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), peerHost, peerPort, config);
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
