@@ -83,8 +83,7 @@ final class HttpEngine(
         .body(StringBody(expression, configuration.core.charset))
         .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
 
-      // load ciphers
-      val url = httpProtocol.warmUpUrl.orElse(httpProtocol.baseUrls.headOption).getOrElse("https://gatling.io")
+      val url = httpProtocol.warmUpUrl.getOrElse("https://gatling.io")
       val requestBuilder = new RequestBuilder("warmUp", HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
         .setHeaders(
           new DefaultHttpHeaders()
@@ -99,28 +98,31 @@ final class HttpEngine(
 
       httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
       val eventLoop = eventLoopGroup.next()
+      // load ciphers
       val sslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
 
       try {
-        val p = Promise[Unit]()
-        httpClient.sendRequest(
-          requestBuilder.build,
-          0,
-          eventLoop,
-          new HttpListener {
-            override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
+        if (httpProtocol.warmUpUrl.isDefined) {
+          val p = Promise[Unit]()
+          httpClient.sendRequest(
+            requestBuilder.build,
+            0,
+            eventLoop,
+            new HttpListener {
+              override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
-            override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
+              override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
 
-            override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
-              if (last) {
-                p.success(())
-              }
-          },
-          sslContexts
-        )
-        Await.result(p.future, 2.seconds)
-        logger.debug(s"Warm up request $url successful")
+              override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
+                if (last) {
+                  p.success(())
+                }
+            },
+            sslContexts
+          )
+          Await.result(p.future, 2.seconds)
+          logger.debug(s"Warm up request $url successful")
+        }
       } catch {
         case NonFatal(e) =>
           if (logger.underlying.isDebugEnabled)
