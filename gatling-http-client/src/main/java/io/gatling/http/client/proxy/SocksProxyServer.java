@@ -16,40 +16,47 @@
 
 package io.gatling.http.client.proxy;
 
+import io.gatling.http.client.realm.BasicRealm;
 import io.netty.handler.proxy.ProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
-import java.net.InetSocketAddress;
+import io.netty.handler.proxy.Socks5ProxyHandler;
 import java.net.UnknownHostException;
 
-public class Socks4ProxyServer extends SockProxyServer {
+public final class SocksProxyServer extends ProxyServer {
 
-  private final InetSocketAddress address;
-  private final String username;
+  private final boolean socks5;
 
-  public Socks4ProxyServer(String host, int port, String username) throws UnknownHostException {
-    super(host, port);
-    this.address = new InetSocketAddress(host, port);
-    this.username = username;
+  public SocksProxyServer(String host, int port, BasicRealm realm, boolean socks5)
+      throws UnknownHostException {
+    super(host, port, realm);
+    this.socks5 = socks5;
   }
 
   @Override
-  public ProxyHandler newHandler() {
-    return new Socks4ProxyHandler(address, username);
+  public ProxyHandler newProxyHandler() {
+    if (socks5) {
+      return realm != null
+          ? new Socks5ProxyHandler(address, realm.getUsername(), realm.getPassword())
+          : new Socks5ProxyHandler(address);
+    } else {
+      return realm != null
+          ? new Socks4ProxyHandler(address, realm.getUsername())
+          : new Socks4ProxyHandler(address);
+    }
   }
 
   @Override
   public String toString() {
-    return "Socks4ProxyServer{"
-        + "address="
-        + address
-        + ", username='"
-        + username
-        + '\''
+    return "SocksProxyServer{"
+        + "socks5="
+        + socks5
         + ", host='"
         + host
         + '\''
         + ", port="
         + port
+        + ", realm="
+        + realm
         + '}';
   }
 }

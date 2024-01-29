@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.pool;
 
-import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.uri.Uri;
 import java.util.Objects;
@@ -29,12 +28,7 @@ public class RemoteKey {
       return new RemoteKey(targetHostBaseUrl, virtualHost, null, 0);
     } else {
       return new RemoteKey(
-          targetHostBaseUrl,
-          virtualHost,
-          proxyServer.getHost(),
-          uri.isSecured() && proxyServer instanceof HttpProxyServer
-              ? ((HttpProxyServer) proxyServer).getSecuredPort()
-              : proxyServer.getPort());
+          targetHostBaseUrl, virtualHost, proxyServer.getHost(), proxyServer.getPort());
     }
   }
 

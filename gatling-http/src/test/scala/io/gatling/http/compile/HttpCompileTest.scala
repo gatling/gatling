@@ -37,7 +37,7 @@ class HttpCompileTest extends Simulation {
     .virtualHost("172.30.5.143:8080")
     .proxy(Proxy("172.31.76.106", 8080))
     .proxy(Proxy("172.31.76.106", 8080).credentials("username", "password"))
-    .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
+    .proxy(Proxy("172.31.76.106", 8080).https)
     .proxy(Proxy("172.31.76.106", 8080).http)
     .proxy(Proxy("172.31.76.106", 8080).socks4)
     .proxy(Proxy("172.31.76.106", 8080).socks5)
@@ -313,7 +313,7 @@ class HttpCompileTest extends Simulation {
         }
     )
     // proxy
-    .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
+    .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).https))
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4))
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5))
     // polling

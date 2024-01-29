@@ -45,6 +45,16 @@ public final class Proxy {
   }
 
   /**
+   * Define this proxy is an HTTPS one
+   *
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy https() {
+    return new Proxy(wrapped.http().https());
+  }
+
+  /**
    * Define this proxy is an SOCKS4 once
    *
    * @return a new Proxy instance
@@ -62,17 +72,6 @@ public final class Proxy {
   @NonNull
   public Proxy socks5() {
     return new Proxy(wrapped.socks5());
-  }
-
-  /**
-   * Define this proxy uses a different port for HTTPS
-   *
-   * @param port the https port
-   * @return a new Proxy instance
-   */
-  @NonNull
-  public Proxy httpsPort(int port) {
-    return new Proxy(wrapped.httpsPort(port));
   }
 
   /**

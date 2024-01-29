@@ -16,6 +16,7 @@
 
 package io.gatling.http.client.proxy;
 
+import io.gatling.http.client.realm.BasicRealm;
 import io.netty.handler.proxy.ProxyHandler;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -24,15 +25,15 @@ import java.net.UnknownHostException;
 public abstract class ProxyServer {
 
   protected final String host;
-  final InetAddress inetAddress;
   protected final int port;
+  protected final BasicRealm realm;
   protected final InetSocketAddress address;
 
-  protected ProxyServer(String host, int port) throws UnknownHostException {
+  ProxyServer(String host, int port, BasicRealm realm) throws UnknownHostException {
     this.host = host;
-    this.inetAddress = InetAddress.getByName(host);
     this.port = port;
-    this.address = new InetSocketAddress(inetAddress, port);
+    this.realm = realm;
+    this.address = new InetSocketAddress(InetAddress.getByName(host), port);
   }
 
   public String getHost() {
@@ -47,5 +48,5 @@ public abstract class ProxyServer {
     return address;
   }
 
-  public abstract ProxyHandler newHandler();
+  public abstract ProxyHandler newProxyHandler();
 }

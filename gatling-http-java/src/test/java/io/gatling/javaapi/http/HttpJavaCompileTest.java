@@ -125,8 +125,8 @@ public class HttpJavaCompileTest extends Simulation {
           .noProxyFor("host1", "host2")
           .proxy(Proxy("172.31.76.106", 8080))
           .proxy(Proxy("172.31.76.106", 8080).credentials("username", "password"))
-          .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
           .proxy(Proxy("172.31.76.106", 8080).http())
+          .proxy(Proxy("172.31.76.106", 8080).https())
           .proxy(Proxy("172.31.76.106", 8080).socks4())
           .proxy(Proxy("172.31.76.106", 8080).socks5())
           .asyncNameResolution("dnsServer1", "dnsServer2")
@@ -357,7 +357,7 @@ public class HttpJavaCompileTest extends Simulation {
                   .body(ByteArrayBody("#{bytes}"))
                   .processRequestBody(gzipBody))
           // proxy
-          .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
+          .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).https()))
           .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4()))
           .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5()))
           // polling

@@ -28,53 +28,32 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class HttpProxyTest extends HttpTest {
+class HttpsRequestThroughHttpProxyTest extends HttpTest {
 
-  public static class ProxyHandler extends AbstractHandler {
-    public void handle(
-        String s,
-        org.eclipse.jetty.server.Request r,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException {
-      if ("GET".equalsIgnoreCase(request.getMethod())) {
-        response.addHeader("target", r.getHttpURI().getPath());
-        response.setStatus(HttpServletResponse.SC_OK);
-      } else {
-        // this handler is to handle POST request
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-      }
-      r.setHandled(true);
-    }
-  }
+  private static HttpsProxy proxy;
+  private static TestServer target;
 
-  private static class HttpProxy implements AutoCloseable {
+  private static class HttpsProxy implements AutoCloseable {
 
     private final Server jetty;
 
-    private final int port;
-
-    public HttpProxy(int port) {
-      this.port = port;
+    public HttpsProxy() {
       jetty = new Server();
       ServerConnector connector = new ServerConnector(jetty);
       connector.setPort(8888);
       jetty.addConnector(connector);
-      jetty.setHandler(new ProxyHandler());
+      jetty.setHandler(new ConnectHandler());
     }
 
     public int getPort() {
-      return port;
+      return ((ServerConnector) jetty.getConnectors()[0]).getPort();
     }
 
     public void start() throws Exception {
@@ -87,14 +66,11 @@ public class HttpProxyTest extends HttpTest {
     }
   }
 
-  private static HttpProxy proxy;
-  private static TestServer target;
-
   @BeforeAll
   static void start() throws Throwable {
     target = new TestServer();
     target.start();
-    proxy = new HttpProxy(8888);
+    proxy = new HttpsProxy();
     proxy.start();
   }
 
@@ -111,8 +87,8 @@ public class HttpProxyTest extends HttpTest {
             client ->
                 withServer(target)
                     .run(
-                        target -> {
-                          target.enqueueEcho();
+                        server -> {
+                          server.enqueueEcho();
 
                           HttpHeaders h = new DefaultHttpHeaders();
                           for (int i = 1; i < 5; i++) {
@@ -122,10 +98,11 @@ public class HttpProxyTest extends HttpTest {
                           Request request =
                               client
                                   .newRequestBuilder(
-                                      HttpMethod.GET, Uri.create(target.getHttpUrl()))
+                                      HttpMethod.GET, Uri.create(server.getHttpsUrl()))
                                   .setHeaders(h)
                                   .setProxyServer(
-                                      new HttpProxyServer("localhost", proxy.getPort(), 0, null))
+                                      new HttpProxyServer(
+                                          "localhost", proxy.getPort(), null, false))
                                   .build();
 
                           client
