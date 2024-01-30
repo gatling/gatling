@@ -18,7 +18,6 @@ package io.gatling.http.client.proxy;
 
 import io.gatling.http.client.realm.BasicRealm;
 import io.netty.handler.proxy.ProxyHandler;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
