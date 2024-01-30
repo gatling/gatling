@@ -278,6 +278,14 @@ class GrpcMethodsSampleKotlin {
   }
 
   init {
+    //#clientStreamStart
+    val stream = grpc("name").clientStream(ExampleServiceGrpc.getExampleMethod())
+
+    exec(stream.start())
+    //#clientStreamStart
+  }
+
+  init {
     //#clientStreamHalfClose
     val stream = grpc("name").clientStream(ExampleServiceGrpc.getExampleMethod())
 
