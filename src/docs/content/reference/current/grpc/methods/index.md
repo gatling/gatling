@@ -16,12 +16,13 @@ depending on the type of the gRPC method.
 |                                                             | Unary                                             | Server Stream                                              | Client Stream                                              | Bidirectional Stream                                   |
 |-------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------|
 | Instantiate                                                 | [`unary`]({{< ref "#instantiate-unary" >}})       | [`serverStream`]({{< ref "#instantiate-server-stream" >}}) | [`clientStream`]({{< ref "#instantiate-client-stream" >}}) | [`bidiStream`]({{< ref "#instantiate-bidi-stream" >}}) |
-| [Send a message]({{< ref "#method-send" >}})                | `send`                                            | `send`                                                     | `send`                                                     | `send`                                                 |
 | [Add request headers]({{< ref "#method-headers" >}})        | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header` | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`      |
 | [Add call options]({{< ref "#method-call-options" >}})      | `callOptions`                                     | `callOptions`                                              | `callOptions`                                              | `callOptions`                                          |
 | [Add checks]({{< ref "#method-checks" >}})                  | `check`                                           | `check`                                                    | `check`                                                    | `check`                                                |
 | [Response time policy]({{< ref "#method-response-time" >}}) | :x:                                               | `messageResponseTimePolicy`                                | :x:                                                        | `messageResponseTimePolicy`                            |
-| [Half-close stream]({{< ref "#method-half-close" >}})       | :x:                                               | :x:                                                        | `halfClose`                                                | `halfClose`                                            |
+| [Open stream]({{< ref "#method-start" >}})                  | :x:                                               | *implied by* `send`                                        | `start`                                                    | `start`                                                |
+| [Send a message]({{< ref "#method-send" >}})                | `send`                                            | `send`                                                     | `send`                                                     | `send`                                                 |
+| [Half-close stream]({{< ref "#method-half-close" >}})       | :x:                                               | *implied by* `send`                                        | `halfClose`                                                | `halfClose`                                            |
 | [Wait for stream end]({{< ref "#method-wait-end" >}})       | :x:                                               | `awaitStreamEnd`                                           | `awaitStreamEnd`                                           | `awaitStreamEnd`                                       |
 | [Cancel stream]({{< ref "#method-cancel" >}})               | :x:                                               | `cancel`                                                   | `cancel`                                                   | `cancel`                                               |
 
@@ -75,7 +76,6 @@ server streaming  method).
 
 The typical lifecycle of a server stream consists of:
 
-- Opening the stream with the `start` method
 - Sending a single message with the `send` method (this will also half-close the stream, signaling that the client will
   not send any more messages)
 - Waiting until the stream gets closed by the server with the `awaitStreamEnd` method
@@ -132,22 +132,6 @@ differentiate them:
 {{< include-code "bidiStreamNames" java kt scala >}}
 
 ## Methods reference
-
-### Send a message {#method-send}
-
-{{< badge info >}}unary{{< /badge >}}
-{{< badge info >}}serverStream{{< /badge >}}
-{{< badge info >}}clientStream{{< /badge >}}
-{{< badge info >}}bidiStream{{< /badge >}}
-
-The message sent must be of the type specified in the method descriptor for outbound messages. You can pass a static
-message, or a function to construct the message from the Gatling Session.
-
-{{< include-code "unarySend" java kt scala >}}
-
-For client streaming and bidirectional streaming methods, you can send several messages.
-
-{{< include-code "clientStreamSend" java kt scala >}}
 
 ### Add request headers {#method-headers}
 
@@ -219,6 +203,32 @@ For streaming methods only, you can specify how to calculate the response time l
   first response message received, falls back to `FromStreamStartPolicy`.
 
 {{< include-code "bidiMessageResponseTimePolicy" java kt scala >}}
+
+### Open stream {#method-start}
+
+{{< badge info clientStream />}}
+{{< badge info bidiStream />}}
+
+For client or bidirectional streaming methods only, you must start the stream to signal that the client is ready to
+send messages. Only then can you send messages and/or half-close the stream.
+
+{{< include-code "clientStreamStart" java kt scala >}}
+
+### Send a message {#method-send}
+
+{{< badge info >}}unary{{< /badge >}}
+{{< badge info >}}serverStream{{< /badge >}}
+{{< badge info >}}clientStream{{< /badge >}}
+{{< badge info >}}bidiStream{{< /badge >}}
+
+The message sent must be of the type specified in the method descriptor for outbound messages. You can pass a static
+message, or a function to construct the message from the Gatling Session.
+
+{{< include-code "unarySend" java kt scala >}}
+
+For client streaming and bidirectional streaming methods, you can send several messages.
+
+{{< include-code "clientStreamSend" java kt scala >}}
 
 ### Half-close stream {#method-half-close}
 

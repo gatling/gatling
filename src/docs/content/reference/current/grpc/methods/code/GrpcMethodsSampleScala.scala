@@ -288,6 +288,14 @@ class GrpcMethodsSampleScala {
   //#bidiMessageResponseTimePolicy
 
   {
+    //#clientStreamStart
+    val stream = grpc("name").clientStream(ExampleServiceGrpc.METHOD_EXAMPLE)
+
+    exec(stream.start)
+    //#clientStreamStart
+  }
+
+  {
     //#clientStreamHalfClose
     val stream = grpc("name").clientStream(ExampleServiceGrpc.METHOD_EXAMPLE)
 

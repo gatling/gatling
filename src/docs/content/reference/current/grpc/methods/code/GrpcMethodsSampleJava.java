@@ -328,6 +328,15 @@ class GrpcMethodsSampleJava {
     //#bidiMessageResponseTimePolicy
   }
 
+  private class ClientStreamStart {{
+    //#clientStreamStart
+    GrpcClientStreamingServiceBuilder<RequestMessage, ResponseMessage> stream =
+      grpc("name").clientStream(ExampleServiceGrpc.getExampleMethod());
+
+    exec(stream.start());
+    //#clientStreamStart
+  }}
+
   private class ClientStreamHalfClose {{
     //#clientStreamHalfClose
     GrpcClientStreamingServiceBuilder<RequestMessage, ResponseMessage> stream =
