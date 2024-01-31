@@ -6,7 +6,6 @@ import io.gatling.javaapi.grpc.GrpcDsl.*
 
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
-import io.gatling.javaapi.grpc.*
 
 import io.grpc.*
 

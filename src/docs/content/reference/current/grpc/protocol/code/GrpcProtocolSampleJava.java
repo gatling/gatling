@@ -27,7 +27,6 @@ import io.grpc.*;
 import java.util.Collections;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.grpc.GrpcDsl.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
