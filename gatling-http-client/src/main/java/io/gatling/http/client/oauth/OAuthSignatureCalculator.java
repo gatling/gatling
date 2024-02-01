@@ -35,7 +35,7 @@ public class OAuthSignatureCalculator implements Function<Request, Request> {
   private static final ThreadLocal<OAuthSignatureCalculatorInstance> INSTANCES =
       ThreadLocal.withInitial(OAuthSignatureCalculatorInstance::new);
 
-  protected OAuthSignatureCalculatorInstance getOAuthSignatureCalculatorInstance() {
+  OAuthSignatureCalculatorInstance getOAuthSignatureCalculatorInstance() {
     return INSTANCES.get();
   }
 
