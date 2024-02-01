@@ -46,8 +46,6 @@ public class HttpClientConfig {
 
   private boolean soKeepAlive;
 
-  private boolean soReuseAddress;
-
   private String threadPoolName = "gatling-http-client";
 
   public long getConnectTimeout() {
@@ -146,15 +144,6 @@ public class HttpClientConfig {
 
   public HttpClientConfig setSoKeepAlive(boolean soKeepAlive) {
     this.soKeepAlive = soKeepAlive;
-    return this;
-  }
-
-  public boolean isSoReuseAddress() {
-    return soReuseAddress;
-  }
-
-  public HttpClientConfig setSoReuseAddress(boolean soReuseAddress) {
-    this.soReuseAddress = soReuseAddress;
     return this;
   }
 

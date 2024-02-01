@@ -142,8 +142,7 @@ object GatlingConfiguration extends StrictLogging {
     new SocketConfiguration(
       connectTimeout = config.getInt(socket.ConnectTimeout).millis,
       tcpNoDelay = config.getBoolean(socket.TcpNoDelay),
-      soKeepAlive = config.getBoolean(socket.SoKeepAlive),
-      soReuseAddress = config.getBoolean(socket.SoReuseAddress)
+      soKeepAlive = config.getBoolean(socket.SoKeepAlive)
     )
 
   private def defaultEnabledProtocols(useOpenSsl: Boolean) =
@@ -354,8 +353,7 @@ final class DirectoryConfiguration(
 final class SocketConfiguration(
     val connectTimeout: FiniteDuration,
     val tcpNoDelay: Boolean,
-    val soKeepAlive: Boolean,
-    val soReuseAddress: Boolean
+    val soKeepAlive: Boolean
 )
 
 final class SslConfiguration(

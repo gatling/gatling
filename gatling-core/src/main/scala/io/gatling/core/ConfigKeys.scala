@@ -55,7 +55,6 @@ object ConfigKeys {
     val ConnectTimeout = "gatling.socket.connectTimeout"
     val TcpNoDelay = "gatling.socket.tcpNoDelay"
     val SoKeepAlive = "gatling.socket.soKeepAlive"
-    val SoReuseAddress = "gatling.socket.soReuseAddress"
   }
 
   object netty {
