@@ -30,7 +30,7 @@ import io.netty.util.concurrent.Promise;
  * Standard {@link InboundHttp2ToHttpAdapter} generates {@link FullHttpResponse}. This is not what
  * we want.
  */
-public class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAdapter {
+public final class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
   private final Http2Connection connection;
   private final Promise<Void> whenAlpn;

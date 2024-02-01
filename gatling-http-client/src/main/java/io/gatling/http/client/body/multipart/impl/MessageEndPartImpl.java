@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-public class MessageEndPartImpl extends PartImpl {
+public final class MessageEndPartImpl extends PartImpl {
 
   // lazy
   private ByteBuf contentBuffer;

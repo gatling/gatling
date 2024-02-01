@@ -23,7 +23,7 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetAddress;
 import java.util.List;
 
-public class InetAddressNameResolverWrapper implements InetAddressNameResolver {
+public final class InetAddressNameResolverWrapper implements InetAddressNameResolver {
 
   private final NameResolver<InetAddress> wrapped;
 

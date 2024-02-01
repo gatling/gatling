@@ -30,7 +30,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class HttpAppHandler extends ChannelDuplexHandler {
+final class HttpAppHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpAppHandler.class);
 

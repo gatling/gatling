@@ -27,7 +27,7 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChannelPool {
+public final class ChannelPool {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
 

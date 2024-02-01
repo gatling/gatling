@@ -18,7 +18,7 @@ package io.gatling.http.client.util;
 
 import java.util.Objects;
 
-public class Pair<L, R> {
+public final class Pair<L, R> {
 
   protected final L left;
   protected final R right;

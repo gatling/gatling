@@ -26,7 +26,7 @@ import io.gatling.http.client.util.HttpUtils;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.ReferenceCounted;
 
-public class HttpTx {
+public final class HttpTx {
 
   public enum ChannelState {
     NEW,

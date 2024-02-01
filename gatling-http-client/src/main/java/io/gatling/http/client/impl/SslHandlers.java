@@ -25,7 +25,7 @@ import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
-public class SslHandlers {
+public final class SslHandlers {
 
   public static SslHandler newSslHandler(
       SslContext sslContext,

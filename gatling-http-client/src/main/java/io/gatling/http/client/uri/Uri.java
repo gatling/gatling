@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Uri {
+public final class Uri {
 
   public static final String HTTP = "http";
   public static final String HTTPS = "https";

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipartChunkedInput implements ChunkedInput<HttpContent> {
+public final class MultipartChunkedInput implements ChunkedInput<HttpContent> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MultipartChunkedInput.class);
 

@@ -20,7 +20,7 @@ import io.gatling.http.client.body.multipart.ByteArrayPart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
+public final class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
 
   private final ByteBuf contentBuffer;
 

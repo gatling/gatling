@@ -20,7 +20,7 @@ import io.gatling.http.client.body.multipart.StringPart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-public class StringPartImpl extends PartImpl {
+public final class StringPartImpl extends PartImpl {
 
   private final ByteBuf contentBuffer;
 

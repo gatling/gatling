@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.DeflateFram
 import io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateClientExtensionHandshaker;
 
 // fork of WebSocketClientCompressionHandler that enables allowClientNoContext
-public class AllowClientNoContextWebSocketClientCompressionHandler
+public final class AllowClientNoContextWebSocketClientCompressionHandler
     extends WebSocketClientExtensionHandler {
 
   public static final AllowClientNoContextWebSocketClientCompressionHandler INSTANCE =

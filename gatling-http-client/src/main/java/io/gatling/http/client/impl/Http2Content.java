@@ -18,7 +18,7 @@ package io.gatling.http.client.impl;
 
 import io.netty.handler.codec.http.HttpContent;
 
-public class Http2Content {
+public final class Http2Content {
   public final HttpContent httpContent;
   public final int streamId;
 

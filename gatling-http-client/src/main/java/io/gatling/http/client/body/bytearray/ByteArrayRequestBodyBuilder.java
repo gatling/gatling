@@ -22,7 +22,7 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import java.nio.charset.Charset;
 
-public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]> {
+public final class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]> {
 
   private final String fileName;
 

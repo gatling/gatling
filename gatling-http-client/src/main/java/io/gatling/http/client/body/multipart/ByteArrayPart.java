@@ -22,7 +22,7 @@ import io.gatling.http.client.body.multipart.impl.PartImpl;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class ByteArrayPart extends FileLikePart<byte[]> {
+public final class ByteArrayPart extends FileLikePart<byte[]> {
 
   public ByteArrayPart(
       String name,

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-public class FilePartImpl extends FileLikePartImpl<FilePart> {
+public final class FilePartImpl extends FileLikePartImpl<FilePart> {
 
   private final File file;
   private FileChannel channel;

@@ -37,7 +37,7 @@ import io.gatling.http.client.util.Utf8UrlEncoder;
  * Value class used for OAuth tokens (request secret, access secret); simple container with two
  * parts, public id part ("key") and confidential ("secret") part.
  */
-public class RequestToken {
+public final class RequestToken {
   public final String key;
   public final String secret;
   public final String percentEncodedKey;

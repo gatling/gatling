@@ -23,7 +23,7 @@ import io.gatling.netty.util.StringWithCachedBytes;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class StringChunksRequestBodyBuilder
+public final class StringChunksRequestBodyBuilder
     extends RequestBodyBuilder.Base<List<StringWithCachedBytes>> {
 
   public StringChunksRequestBodyBuilder(List<StringWithCachedBytes> content) {

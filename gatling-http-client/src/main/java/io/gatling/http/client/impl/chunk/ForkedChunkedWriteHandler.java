@@ -41,7 +41,7 @@ import java.util.Queue;
  *   <li>Gatling doesn't use ChannelProgressivePromise
  * </ul>
  */
-public class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
+public final class ForkedChunkedWriteHandler extends ChannelDuplexHandler {
 
   private static final ClosedChannelException CLOSED_CHANNEL_EXCEPTION =
       new ClosedChannelException();

@@ -33,7 +33,7 @@ package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.util.Utf8UrlEncoder;
 
-public class ConsumerKey {
+public final class ConsumerKey {
   public final String key;
   public final String secret;
   public final String percentEncodedKey;

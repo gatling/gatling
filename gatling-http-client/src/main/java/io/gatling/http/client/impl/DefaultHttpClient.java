@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultHttpClient implements HttpClient {
+public final class DefaultHttpClient implements HttpClient {
 
   private static final Http2Settings DEFAULT_HTTP2_SETTINGS = Http2Settings.defaultSettings();
 

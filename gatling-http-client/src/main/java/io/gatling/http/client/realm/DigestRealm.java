@@ -19,7 +19,7 @@ package io.gatling.http.client.realm;
 import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.HttpMethod;
 
-public class DigestRealm implements Realm {
+public final class DigestRealm implements Realm {
 
   @FunctionalInterface
   public interface AuthorizationGen {
