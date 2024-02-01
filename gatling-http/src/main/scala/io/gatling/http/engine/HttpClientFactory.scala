@@ -45,7 +45,6 @@ private[gatling] final class HttpClientFactory(
       .setConnectTimeout(socketConfig.connectTimeout.toMillis)
       .setTcpNoDelay(socketConfig.tcpNoDelay)
       .setSoKeepAlive(socketConfig.soKeepAlive)
-      .setSoReuseAddress(socketConfig.soReuseAddress)
       .setHandshakeTimeout(sslConfig.handshakeTimeout.toMillis)
       .setEnableSni(sslConfig.enableSni)
       .setUseNativeTransport(nettyConfig.useNativeTransport)

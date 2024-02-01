@@ -159,7 +159,6 @@ public class DefaultHttpClient implements HttpClient {
                       config.isUseNativeTransport(), config.isUseIoUring()))
               .group(eventLoop)
               .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
-              .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
               .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
               .option(ChannelOption.SO_KEEPALIVE, config.isSoKeepAlive())
               .resolver(NoopAddressResolverGroup.INSTANCE)
