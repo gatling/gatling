@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Http2AppHandler extends ChannelDuplexHandler {
+public final class Http2AppHandler extends ChannelDuplexHandler {
 
   public static final class StreamTimeout {
     private final int streamId;

@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Base64;
 
-public class BasicRealm implements Realm {
+public final class BasicRealm implements Realm {
 
   private final String username;
   private final String password;

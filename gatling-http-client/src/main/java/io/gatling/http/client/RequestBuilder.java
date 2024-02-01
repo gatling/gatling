@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-public class RequestBuilder {
+public final class RequestBuilder {
 
   private static final AsciiString ACCEPT_ALL_HEADER_VALUE = new AsciiString("*/*");
 

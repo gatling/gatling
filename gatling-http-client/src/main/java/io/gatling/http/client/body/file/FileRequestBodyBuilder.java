@@ -23,7 +23,7 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import java.io.File;
 import java.nio.charset.Charset;
 
-public class FileRequestBodyBuilder extends RequestBodyBuilder.Base<File> {
+public final class FileRequestBodyBuilder extends RequestBodyBuilder.Base<File> {
 
   public FileRequestBodyBuilder(File content) {
     super(content);

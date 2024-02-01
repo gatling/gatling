@@ -19,7 +19,7 @@ package io.gatling.http.client.impl;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
-public class NoopHandler extends ChannelHandlerAdapter {
+public final class NoopHandler extends ChannelHandlerAdapter {
 
   public static final NoopHandler INSTANCE = new NoopHandler();
 

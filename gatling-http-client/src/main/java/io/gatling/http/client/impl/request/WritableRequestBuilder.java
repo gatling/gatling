@@ -31,7 +31,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import java.util.function.Function;
 
-public class WritableRequestBuilder {
+public final class WritableRequestBuilder {
 
   private static String requestUrl(Uri uri, ProxyServer proxyServer, boolean http2) {
     return http2 || (proxyServer instanceof HttpProxyServer && !uri.isSecured())

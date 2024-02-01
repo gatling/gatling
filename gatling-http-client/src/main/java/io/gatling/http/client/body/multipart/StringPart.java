@@ -22,7 +22,7 @@ import io.gatling.http.client.body.multipart.impl.StringPartImpl;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class StringPart extends Part<String> {
+public final class StringPart extends Part<String> {
 
   public StringPart(
       String name,

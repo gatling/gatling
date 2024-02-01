@@ -24,7 +24,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CoalescingChannelPool {
+final class CoalescingChannelPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(CoalescingChannelPool.class);
 
   // FIXME Queue or Set?

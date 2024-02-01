@@ -21,7 +21,7 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public class InputStreamRequestBodyBuilder extends RequestBodyBuilder.Base<InputStream> {
+public final class InputStreamRequestBodyBuilder extends RequestBodyBuilder.Base<InputStream> {
 
   public InputStreamRequestBodyBuilder(InputStream content) {
     super(content);

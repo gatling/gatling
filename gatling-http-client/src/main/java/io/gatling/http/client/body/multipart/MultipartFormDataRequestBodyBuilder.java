@@ -28,7 +28,8 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder.Base<List<Part<?>>> {
+public final class MultipartFormDataRequestBodyBuilder
+    extends RequestBodyBuilder.Base<List<Part<?>>> {
 
   public MultipartFormDataRequestBodyBuilder(List<Part<?>> content) {
     super(content);

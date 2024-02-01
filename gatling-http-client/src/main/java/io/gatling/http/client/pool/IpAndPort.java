@@ -19,7 +19,7 @@ package io.gatling.http.client.pool;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class IpAndPort {
+public final class IpAndPort {
 
   private final byte[] ip;
   private final int port;

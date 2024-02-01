@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 
-public class WritableRequest {
+public final class WritableRequest {
 
   private final HttpRequest request;
   private final Object content;

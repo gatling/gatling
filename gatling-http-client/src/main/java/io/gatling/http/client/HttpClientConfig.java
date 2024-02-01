@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
 
-public class HttpClientConfig {
+public final class HttpClientConfig {
 
   private long connectTimeout = 5_000;
 

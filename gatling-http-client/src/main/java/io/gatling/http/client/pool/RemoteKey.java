@@ -20,7 +20,7 @@ import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.uri.Uri;
 import java.util.Objects;
 
-public class RemoteKey {
+public final class RemoteKey {
 
   public static RemoteKey newKey(Uri uri, ProxyServer proxyServer) {
     String targetHostBaseUrl = uri.getBaseUrl();

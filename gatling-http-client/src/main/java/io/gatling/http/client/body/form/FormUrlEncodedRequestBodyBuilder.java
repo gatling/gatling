@@ -25,7 +25,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<List<Param>> {
+public final class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<List<Param>> {
 
   public FormUrlEncodedRequestBodyBuilder(List<Param> content) {
     super(content);
