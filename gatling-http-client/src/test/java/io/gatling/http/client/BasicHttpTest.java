@@ -21,7 +21,6 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -521,7 +520,7 @@ class BasicHttpTest extends HttpTest {
                           StringPart part =
                               new StringPart("part1", "foo", null, null, null, null, null, null);
                           RequestBodyBuilder multipartFormDataBody =
-                              new MultipartFormDataRequestBodyBuilder(singletonList(part));
+                              new MultipartFormDataRequestBodyBuilder(List.of(part));
                           Request request =
                               client
                                   .newRequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl()))

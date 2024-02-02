@@ -22,14 +22,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.javaapi.core.*;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.List;
 
 public class WsJavaCompileTest extends Simulation {
 
   private final HttpProtocolBuilder httpProtocol =
       http.wsBaseUrl("ws://localhost:9000")
           .wsBaseUrls("url1", "url2")
-          .wsBaseUrls(Collections.singletonList("url"))
+          .wsBaseUrls(List.of("url"))
           .wsReconnect()
           .wsMaxReconnects(1)
           .wsAutoReplyTextFrame(txt -> txt.equals("foo") ? "bar" : null)

@@ -22,7 +22,7 @@ import static io.gatling.javaapi.jms.JmsDsl.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
-import java.util.Collections;
+import java.util.Map;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -83,11 +83,7 @@ public class JmsJavaCompileTest extends Simulation {
           // bytesMessage with RawFileBody
           .exec(jms("req").requestReply().queue("queue").bytesMessage(RawFileBody("file")))
           //    // mapMessage
-          .exec(
-              jms("req")
-                  .requestReply()
-                  .queue("queue")
-                  .mapMessage(Collections.singletonMap("key", "value")))
+          .exec(jms("req").requestReply().queue("queue").mapMessage(Map.of("key", "value")))
           // objectMessage
           .exec(jms("req").requestReply().queue("queue").objectMessage("hello"))
           // destination
@@ -151,8 +147,7 @@ public class JmsJavaCompileTest extends Simulation {
           // objectMessage
           .exec(jms("req").send().queue("queue").objectMessage("hello"))
           // mapMessage
-          .exec(
-              jms("req").send().queue("queue").mapMessage(Collections.singletonMap("key", "value")))
+          .exec(jms("req").send().queue("queue").mapMessage(Map.of("key", "value")))
           // destination: topic
           .exec(jms("req").send().destination(topic("topic")).textMessage("hello"))
           // destination: queue

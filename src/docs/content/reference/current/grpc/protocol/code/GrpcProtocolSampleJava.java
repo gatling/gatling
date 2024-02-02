@@ -24,7 +24,7 @@ import io.gatling.javaapi.core.*;
 
 import io.grpc.*;
 
-import java.util.Collections;
+import java.util.Map;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 
@@ -57,17 +57,13 @@ class GrpcProtocolSampleJava extends Simulation {
     grpc.asciiHeader("key", "value");
     //#asciiHeader
     //#asciiHeaders
-    grpc.asciiHeaders(
-      Collections.singletonMap("key", "value")
-    );
+    grpc.asciiHeaders(Map.of("key", "value"));
     //#asciiHeaders
     //#binaryHeader
     grpc.binaryHeader("key", "value".getBytes(UTF_8));
     //#binaryHeader
     //#binaryHeaders
-    grpc.binaryHeaders(
-      Collections.singletonMap("key", "value".getBytes(UTF_8))
-    );
+    grpc.binaryHeaders(Map.of("key", "value".getBytes(UTF_8)));
     //#binaryHeaders
     //#header
     grpc.header(
