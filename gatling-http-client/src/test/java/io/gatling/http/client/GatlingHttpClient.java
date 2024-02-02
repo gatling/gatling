@@ -41,7 +41,7 @@ public class GatlingHttpClient implements AutoCloseable {
 
   public GatlingHttpClient(HttpClientConfig config) {
     this.client = new DefaultHttpClient(config);
-    DefaultThreadFactory threadFactory = new DefaultThreadFactory(config.getThreadPoolName());
+    DefaultThreadFactory threadFactory = new DefaultThreadFactory("gatling-http");
     eventLoopGroup =
         config.isUseNativeTransport()
             ? new EpollEventLoopGroup(0, threadFactory)

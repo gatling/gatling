@@ -46,8 +46,6 @@ public final class HttpClientConfig {
 
   private boolean soKeepAlive;
 
-  private String threadPoolName = "gatling-http-client";
-
   public long getConnectTimeout() {
     return connectTimeout;
   }
@@ -144,15 +142,6 @@ public final class HttpClientConfig {
 
   public HttpClientConfig setSoKeepAlive(boolean soKeepAlive) {
     this.soKeepAlive = soKeepAlive;
-    return this;
-  }
-
-  public String getThreadPoolName() {
-    return threadPoolName;
-  }
-
-  public HttpClientConfig setThreadPoolName(String threadPoolName) {
-    this.threadPoolName = threadPoolName;
     return this;
   }
 
