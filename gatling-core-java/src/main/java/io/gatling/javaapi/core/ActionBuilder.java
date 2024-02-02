@@ -18,7 +18,7 @@ package io.gatling.javaapi.core;
 
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Converters;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * Java wrapper of a Scala ActionBuilder. Builder of an Action in a Gatling scenario.
@@ -43,6 +43,6 @@ public interface ActionBuilder extends Executable {
   default ChainBuilder toChainBuilder() {
     return new ChainBuilder(
         io.gatling.core.structure.ChainBuilder.Empty()
-            .chain(Converters.toScalaSeq(Collections.singletonList(asScala()))));
+            .chain(Converters.toScalaSeq(List.of(asScala()))));
   }
 }

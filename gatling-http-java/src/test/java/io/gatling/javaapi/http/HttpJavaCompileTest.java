@@ -27,7 +27,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import javax.net.ssl.KeyManagerFactory;
 
@@ -36,7 +37,7 @@ public class HttpJavaCompileTest extends Simulation {
   HttpProtocolBuilder httpProtocol =
       http.baseUrl("url")
           .baseUrls("url1", "urls2")
-          .baseUrls(Collections.singletonList("url"))
+          .baseUrls(List.of("url"))
           .warmUp("url")
           .disableWarmUp()
           .shareConnections()
@@ -44,7 +45,7 @@ public class HttpJavaCompileTest extends Simulation {
           .virtualHost(session -> "host")
           .localAddress("127.0.0.1")
           .localAddresses("127.0.0.1", "127.0.0.2")
-          .localAddresses(Collections.singletonList("127.0.0.1"))
+          .localAddresses(List.of("127.0.0.1"))
           .useAllLocalAddresses()
           .useAllLocalAddressesMatching("pattern")
           .maxConnectionsPerHost(1)
@@ -61,7 +62,7 @@ public class HttpJavaCompileTest extends Simulation {
           .disableCaching()
           .header("name", "value")
           .header("name", session -> "value")
-          .headers(Collections.singletonMap("key", "value"))
+          .headers(Map.of("key", "value"))
           .acceptHeader("value")
           .acceptHeader(session -> "value")
           .acceptCharsetHeader("value")
@@ -104,7 +105,7 @@ public class HttpJavaCompileTest extends Simulation {
               session -> "token",
               session -> "tokenSecret")
           .enableHttp2()
-          .http2PriorKnowledge(Collections.singletonMap("host", true))
+          .http2PriorKnowledge(Map.of("host", true))
           .disableFollowRedirect()
           .maxRedirects(1)
           .strict302Handling()
@@ -152,9 +153,9 @@ public class HttpJavaCompileTest extends Simulation {
               substring("foo").is(1),
               substring(session -> "foo").is(1),
               xpath("//foo"),
-              xpath("//foo", Collections.emptyMap()),
+              xpath("//foo", Map.of()),
               xpath(session -> "//foo"),
-              xpath(session -> "//foo", Collections.emptyMap()),
+              xpath(session -> "//foo", Map.of()),
               css("selector"),
               css("selector", "attribute"),
               css(session -> "selector"),
@@ -237,22 +238,18 @@ public class HttpJavaCompileTest extends Simulation {
                   .queryParam(session -> "key", 1)
                   .queryParam("key", session -> 1)
                   .queryParam(session -> "key", session -> 1)
-                  .multivaluedQueryParam("key", Collections.singletonList(1))
-                  .multivaluedQueryParam(session -> "key", Collections.singletonList(1))
-                  .multivaluedQueryParam("key", session -> Collections.singletonList(1))
-                  .multivaluedQueryParam(session -> "key", session -> Collections.singletonList(1))
+                  .multivaluedQueryParam("key", List.of(1))
+                  .multivaluedQueryParam(session -> "key", List.of(1))
+                  .multivaluedQueryParam("key", session -> List.of(1))
+                  .multivaluedQueryParam(session -> "key", session -> List.of(1))
+                  .queryParamSeq(List.of(new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
                   .queryParamSeq(
-                      Collections.singletonList(
-                          new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                  .queryParamSeq(
-                      session ->
-                          Collections.singletonList(
-                              new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                  .queryParamMap(Collections.singletonMap("key", "value"))
-                  .queryParamMap(session -> Collections.singletonMap("key", "value"))
+                      session -> List.of(new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .queryParamMap(Map.of("key", "value"))
+                  .queryParamMap(session -> Map.of("key", "value"))
                   .header("key", "value")
                   .header("key", session -> "value")
-                  .headers(Collections.singletonMap("key", "value"))
+                  .headers(Map.of("key", "value"))
                   .ignoreProtocolHeaders()
                   .asJson()
                   .asXml()
@@ -292,21 +289,17 @@ public class HttpJavaCompileTest extends Simulation {
                   .formParam(session -> "key", 1)
                   .formParam("key", session -> 1)
                   .formParam(session -> "key", session -> 1)
-                  .multivaluedFormParam("key", Collections.singletonList(1))
-                  .multivaluedFormParam(session -> "key", Collections.singletonList(1))
-                  .multivaluedFormParam("key", session -> Collections.singletonList(1))
-                  .multivaluedFormParam(session -> "key", session -> Collections.singletonList(1))
+                  .multivaluedFormParam("key", List.of(1))
+                  .multivaluedFormParam(session -> "key", List.of(1))
+                  .multivaluedFormParam("key", session -> List.of(1))
+                  .multivaluedFormParam(session -> "key", session -> List.of(1))
+                  .formParamSeq(List.of(new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
                   .formParamSeq(
-                      Collections.singletonList(
-                          new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                  .formParamSeq(
-                      session ->
-                          Collections.singletonList(
-                              new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
-                  .formParamMap(Collections.singletonMap("key", "value"))
-                  .formParamMap(session -> Collections.singletonMap("key", "value"))
+                      session -> List.of(new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
+                  .formParamMap(Map.of("key", "value"))
+                  .formParamMap(session -> Map.of("key", "value"))
                   .form("#{key}")
-                  .form(session -> Collections.singletonMap("key", "value"))
+                  .form(session -> Map.of("key", "value"))
                   .formUpload("name", "filePath")
                   .formUpload(session -> "name", "filePath")
                   .formUpload("name", session -> "filePath")

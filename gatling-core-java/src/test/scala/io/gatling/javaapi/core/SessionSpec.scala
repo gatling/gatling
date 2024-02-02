@@ -182,7 +182,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   it should "be able to return a List previously put in Java" in {
-    val javaSession = emptyJavaJession.set("key", Collections.singletonList("value"))
+    val javaSession = emptyJavaJession.set("key", ju.List.of("value"))
 
     val fetched = javaSession.getList[String]("key")
     fetched.size() shouldBe 1
@@ -209,7 +209,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   it should "be able to return a Set previously put in Java" in {
-    val javaSession = emptyJavaJession.set("key", Collections.singleton("value"))
+    val javaSession = emptyJavaJession.set("key", ju.Set.of("value"))
 
     val fetched = javaSession.getSet[String]("key")
     fetched.size() shouldBe 1

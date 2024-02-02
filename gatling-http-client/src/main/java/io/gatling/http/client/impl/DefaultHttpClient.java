@@ -16,8 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import static java.util.Collections.singletonList;
-
 import io.gatling.http.client.*;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.impl.chunk.ForkedChunkedWriteHandler;
@@ -526,8 +524,7 @@ public final class DefaultHttpClient implements HttpClient {
               // absolute URL that we have to handle ourselves
               proxyServer.getAddress();
 
-      return ImmediateEventExecutor.INSTANCE.newSucceededFuture(
-          singletonList(channelRemoteAddress));
+      return ImmediateEventExecutor.INSTANCE.newSucceededFuture(List.of(channelRemoteAddress));
 
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();

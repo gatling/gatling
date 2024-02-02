@@ -29,9 +29,9 @@ public final class JsonJava {
       case ARRAY:
         switch (node.size()) {
           case 0:
-            return Collections.emptyList();
+            return List.of();
           case 1:
-            return Collections.singletonList(asJava(node.get(0)));
+            return List.of(asJava(node.get(0)));
           default:
             return StreamSupport.stream(node.spliterator(), false)
                 .map(JsonJava::asJava)
@@ -40,10 +40,10 @@ public final class JsonJava {
       case OBJECT:
         switch (node.size()) {
           case 0:
-            return Collections.emptyMap();
+            return Map.of();
           case 1:
             Map.Entry<String, JsonNode> entry0 = node.fields().next();
-            return Collections.singletonMap(entry0.getKey(), asJava(entry0.getValue()));
+            return Map.of(entry0.getKey(), asJava(entry0.getValue()));
           default:
             Map<String, Object> map = new TreeMap<>();
             Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
