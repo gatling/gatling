@@ -40,8 +40,6 @@ public final class HttpClientConfig {
 
   private long channelPoolIdleTimeout = 30_000;
 
-  private long channelPoolIdleCleanerPeriod = 1_000;
-
   private boolean tcpNoDelay;
 
   private boolean soKeepAlive;
@@ -116,15 +114,6 @@ public final class HttpClientConfig {
 
   public long getChannelPoolIdleTimeout() {
     return channelPoolIdleTimeout;
-  }
-
-  public HttpClientConfig setChannelPoolIdleCleanerPeriod(long channelPoolIdleCleanerPeriod) {
-    this.channelPoolIdleCleanerPeriod = channelPoolIdleCleanerPeriod;
-    return this;
-  }
-
-  public long getChannelPoolIdleCleanerPeriod() {
-    return channelPoolIdleCleanerPeriod;
   }
 
   public boolean isTcpNoDelay() {
