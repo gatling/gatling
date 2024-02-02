@@ -49,7 +49,6 @@ private[gatling] final class HttpClientFactory(
       .setEnableSni(sslConfig.enableSni)
       .setUseNativeTransport(nettyConfig.useNativeTransport)
       .setUseIoUring(nettyConfig.useIoUring)
-      .setThreadPoolName("gatling-http")
   }
 
   def newClient: HttpClient = new DefaultHttpClient(newClientConfig())
