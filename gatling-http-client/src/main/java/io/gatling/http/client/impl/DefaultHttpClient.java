@@ -94,7 +94,9 @@ public final class DefaultHttpClient implements HttpClient {
     return new HttpClientCodec(4096, Integer.MAX_VALUE, 8192, false, false, 128);
   }
 
-  private class EventLoopResources {
+  private final class EventLoopResources {
+
+    private static final int POOL_CLEANER_PERIOD_MS = 1_000;
 
     private final Bootstrap http1Bootstrap;
     private final Bootstrap http2Bootstrap;
@@ -144,12 +146,10 @@ public final class DefaultHttpClient implements HttpClient {
 
     private EventLoopResources(EventLoop eventLoop) {
       channelPool = new ChannelPool();
-      long channelPoolIdleCleanerPeriod = config.getChannelPoolIdleCleanerPeriod();
-      long idleTimeoutNanos = config.getChannelPoolIdleTimeout() * 1_000_000;
       eventLoop.scheduleWithFixedDelay(
           () -> channelPool.closeIdleChannels(idleTimeoutNanos),
-          channelPoolIdleCleanerPeriod,
-          channelPoolIdleCleanerPeriod,
+          POOL_CLEANER_PERIOD_MS,
+          POOL_CLEANER_PERIOD_MS,
           TimeUnit.MILLISECONDS);
 
       http1Bootstrap =
@@ -227,11 +227,13 @@ public final class DefaultHttpClient implements HttpClient {
   private final EventExecutor channelGroupEventExecutor;
   private final ChannelGroup channelGroup;
   private final FastThreadLocal<EventLoopResources> eventLoopResources = new FastThreadLocal<>();
+  private final long idleTimeoutNanos;
 
   public DefaultHttpClient(HttpClientConfig config) {
     this.config = config;
     channelGroupEventExecutor = new DefaultEventExecutor();
     channelGroup = new DefaultChannelGroup(channelGroupEventExecutor);
+    idleTimeoutNanos = config.getChannelPoolIdleTimeout() * 1_000_000;
   }
 
   @Override
