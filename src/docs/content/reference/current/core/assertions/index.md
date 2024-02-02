@@ -106,22 +106,3 @@ You can either protect it with backticks `` `in` `` or use the `within` alias in
 To help you understand how to use assertions, here is a list of examples:
 
 {{< include-code "examples" java kt scala >}}
-
-## Reports
-
-If a simulation defines assertions, Gatling will generate a report in the `js` result directory:
-
-* a JUnit file
-
-The latter can be used for example with Jenkin's JUnit plugin.
-
-```xml
-<testsuite name="GoogleTest" tests="2" errors="0" failures="1" time="0">
-  <testcase name="Global: max of response time is less than 50" status="false" time="0">
-    <failure type="Global">Actual value: 145</failure>
-  </testcase>
-  <testcase name="selfSigned: percent of successful requests is greater than 95" status="true" time="0">
-    <system-out>selfSigned: percent of successful requests is greater than 95</system-out>
-  </testcase>
-</testsuite>
-```
