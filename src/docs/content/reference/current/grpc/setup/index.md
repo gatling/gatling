@@ -39,7 +39,7 @@ supported languages and build tools:
 It also contains a [demo server](https://github.com/gatling/gatling-grpc-demo/tree/main/server) that you can use if
 you want to run the example scenarios over a working server.
 
-## Add the Gatling gRPC dependency {#gatling-grpc-dependency}
+## Adding the Gatling gRPC dependency {#gatling-grpc-dependency}
 
 The Gatling gRPC DSL is not included with Gatling by default. Add the Gatling gRPC dependency, in addition to the
 usual Gatling dependencies.
@@ -59,7 +59,7 @@ For Scala:
 3-sbt: includes/dependency.sbt.scala.md
 {{< /include-file >}}
 
-## Configure Protobuf code generation {#protobuf-codegen}
+## Configuring Protobuf code generation {#protobuf-codegen}
 
 By default, gRPC uses [Protocol Buffers (protobuf)](https://grpc.io/docs/what-is-grpc/introduction/#working-with-protocol-buffers)
 to serialize messages, so we also show typical configurations to generate your gRPC method descriptors and data access
