@@ -29,7 +29,7 @@ object Protocol {
 
 trait Protocol
 
-trait ProtocolKey[P, C] {
+trait ProtocolKey[P <: Protocol, C <: ProtocolComponents] {
   def protocolClass: Class[Protocol]
 
   def defaultProtocolValue(configuration: GatlingConfiguration): P
@@ -45,36 +45,44 @@ trait ProtocolComponents {
   def onExit: Session => Unit
 }
 
-class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
-  private val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
+final class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
+  private val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Protocol => ProtocolComponents]
+  private val defaultProtocolValueCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
     new ProtocolComponentsRegistry(
       coreComponents,
       globalProtocols ++ scenarioProtocols,
-      componentsFactoryCache
+      componentsFactoryCache,
+      defaultProtocolValueCache
     )
 }
 
-class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Any]) {
-  private val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
+final class ProtocolComponentsRegistry(
+    coreComponents: CoreComponents,
+    protocols: Protocols,
+    componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Protocol => ProtocolComponents],
+    defaultProtocolValueCache: mutable.Map[ProtocolKey[_, _], Protocol]
+) {
   private val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
 
-  def components[P, C](key: ProtocolKey[P, C]): C = {
-    def componentsFactory: P => C = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
-    def protocol: P =
-      protocolCache.getOrElse(key, protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
-    def comps: C = componentsFactory(protocol)
+  private def computeComponentsFactory(key: ProtocolKey[_, _]): Protocol => ProtocolComponents =
+    key.newComponents(coreComponents).asInstanceOf[Protocol => ProtocolComponents]
 
-    componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[C]
+  private def computeDefaultProtocolValue[P <: Protocol](key: ProtocolKey[P, _]): P =
+    defaultProtocolValueCache.getOrElseUpdate(key, key.defaultProtocolValue(coreComponents.configuration)).asInstanceOf[P]
+
+  private def computeComponent[P <: Protocol, C <: ProtocolComponents](key: ProtocolKey[P, C]): ProtocolComponents = {
+    val componentsFactory = componentsFactoryCache.getOrElseUpdate(key, computeComponentsFactory(key))
+    val protocol = protocols.getOrElse(key.protocolClass, computeDefaultProtocolValue(key))
+    componentsFactory(protocol)
   }
 
+  def components[P <: Protocol, C <: ProtocolComponents](key: ProtocolKey[P, C]): C =
+    componentsCache.getOrElseUpdate(key, computeComponent(key)).asInstanceOf[C]
+
   def onStart: Session => Session =
-    if (componentsCache.values.nonEmpty) {
-      componentsCache.values.map(_.onStart).reduceLeft(_ andThen _)
-    } else {
-      Session.Identity
-    }
+    componentsCache.values.foldLeft(Session.Identity)(_ andThen _.onStart)
 
   def onExit: Session => Unit =
     session => componentsCache.values.foreach(_.onExit(session))
