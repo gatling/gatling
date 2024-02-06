@@ -18,7 +18,7 @@ depending on the type of the gRPC method.
 |-------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------|
 | Instantiate                                                 | [`unary`]({{< ref "#instantiate-unary" >}})       | [`serverStream`]({{< ref "#instantiate-server-stream" >}}) | [`clientStream`]({{< ref "#instantiate-client-stream" >}}) | [`bidiStream`]({{< ref "#instantiate-bidi-stream" >}}) |
 | [Add request headers]({{< ref "#method-headers" >}})        | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header` | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`      |
-| [Add call options]({{< ref "#method-call-options" >}})      | `callOptions`                                     | `callOptions`                                              | `callOptions`                                              | `callOptions`                                          |
+| [Add deadline]({{< ref "#method-deadline" >}})              | `deadlineAfter`                                   | `deadlineAfter`                                            | `deadlineAfter`                                            | `deadlineAfter`                                        |
 | [Add checks]({{< ref "#method-checks" >}})                  | `check`                                           | `check`                                                    | `check`                                                    | `check`                                                |
 | [Response time policy]({{< ref "#method-response-time" >}}) | :x:                                               | `messageResponseTimePolicy`                                | :x:                                                        | `messageResponseTimePolicy`                            |
 | [Open stream]({{< ref "#method-start" >}})                  | :x:                                               | *implied by* `send`                                        | `start`                                                    | `start`                                                |
@@ -161,16 +161,18 @@ request headers are sent only once, when starting the stream:
 
 {{< include-code "clientStreamAsciiHeaders" java kt scala >}}
 
-### Add call options {#method-call-options}
+### Add deadline {#method-deadline}
 
 {{< badge info >}}unary{{< /badge >}}
 {{< badge info >}}serverStream{{< /badge >}}
 {{< badge info >}}clientStream{{< /badge >}}
 {{< badge info >}}bidiStream{{< /badge >}}
 
-You can specify custom `io.grpc.CallOptions` to use for the request:
+You can specify a [deadline](https://grpc.io/docs/guides/deadlines/#deadlines-on-the-client) to use for the request:
 
-{{< include-code "unaryCallOptions" java kt scala >}}
+{{< include-code "deadline" java kt scala >}}
+
+The actual deadline will be computed just before the start of each gRPC request based on the provided duration.
 
 ### Add checks {#method-checks}
 
