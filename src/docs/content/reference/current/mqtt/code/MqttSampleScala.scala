@@ -111,7 +111,7 @@ mqtt("Publishing")
 exec(waitForMessages.timeout(100.milliseconds))
 //#waitForMessages
 
-//#sample
+//#example
 class MqttSample extends Simulation {
   val mqttProtocol = mqtt
     .broker("localhost", 1883)
@@ -128,5 +128,5 @@ class MqttSample extends Simulation {
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (60)))
     .protocols(mqttProtocol)
 }
-//#sample
+//#example
 }

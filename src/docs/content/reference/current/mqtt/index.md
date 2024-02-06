@@ -73,4 +73,4 @@ MQTT support honors the ssl and netty configurations from `gatling.conf`.
 
 ## Example
 
-{{< include-code "sample" java kt scala >}}
+{{< include-code "example" java kt scala >}}

@@ -101,7 +101,7 @@ exec(waitForMessages().timeout(Duration.ofMillis(100)))
 //#waitForMessages
   }
 
-//#sample
+//#example
 class MqttSample : Simulation() {
   val mqttProtocol = mqtt
     .broker("localhost", 1883)
@@ -120,5 +120,5 @@ class MqttSample : Simulation() {
       .protocols(mqttProtocol)
   }
 }
-//#sample
+//#example
 }

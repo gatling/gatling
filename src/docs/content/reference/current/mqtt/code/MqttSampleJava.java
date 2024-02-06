@@ -116,7 +116,7 @@ exec(waitForMessages().timeout(Duration.ofMillis(100)));
 //#waitForMessages
   }
 
-//#sample
+//#example
 public class MqttSample extends Simulation {
   MqttProtocolBuilder mqttProtocol = mqtt
     .broker("localhost", 1883)
@@ -135,5 +135,5 @@ public class MqttSample extends Simulation {
       .protocols(mqttProtocol);
   }
 }
-//#sample
+//#example
 }
