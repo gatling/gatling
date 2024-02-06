@@ -41,7 +41,7 @@ you want to run the example scenarios over a working server.
 
 ## Adding the Gatling gRPC dependency {#gatling-grpc-dependency}
 
-The Gatling gRPC DSL is not included with Gatling by default. Add the Gatling gRPC dependency, in addition to the
+The Gatling gRPC plugin is not included with Gatling by default. Add the Gatling gRPC dependency, in addition to the
 usual Gatling dependencies.
 
 For Java or Kotlin:
