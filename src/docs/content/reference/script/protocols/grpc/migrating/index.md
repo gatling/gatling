@@ -15,6 +15,10 @@ This page is intended for existing users of the community-maintained
 [gRPC plugin for Gatling](https://github.com/phiSgr/gatling-grpc) (created by George Leung),
 who want to switch to using the new official gRPC support for Gatling.
 
+We currently support a subset of the original features, do not hesitate to contact us using the Gatling Enterprise
+support portal with feature requests for anything we do not cover yet. When do you, please detail your actual use case
+so we can find the best way to address it in the Gatling gRPC plugin.
+
 {{< alert warning >}}
 You are currently using the community-maintained plugin if your build configuration includes the
 [com.github.phisgr:gatling-grpc](https://central.sonatype.com/artifact/com.github.phisgr/gatling-grpc) artifact as a
@@ -253,6 +257,9 @@ More details on the [available polices in the official documentation]({{< ref "m
 
 ## Not supported
 
+- `io.grpc.CallOptions`: we don't intend to support completely arbitrary call options, only a subset:
+  - Deadline with `deadlineAfter`
+  - Others can be added on customer request
 - Dynamic protocol: `target`, `setChannel` and `disposeChannel` do not currently have a replacement
 - Dynamic payloads, the following syntax (with `$()`, `:~` and `updateExpr`) is not supported:
 

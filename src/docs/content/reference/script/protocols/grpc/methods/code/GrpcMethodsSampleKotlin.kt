@@ -6,7 +6,7 @@ import io.gatling.javaapi.grpc.GrpcDsl.*
 import io.grpc.*
 
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.time.Duration
 
 class GrpcMethodsSampleKotlin {
 
@@ -249,13 +249,18 @@ class GrpcMethodsSampleKotlin {
   }
 
   init {
-    //#unaryCallOptions
+    //#deadline
     grpc("name")
       .unary(ExampleServiceGrpc.getExampleMethod())
       .send(message)
-      .callOptions(CallOptions.DEFAULT.withDeadlineAfter(500, MILLISECONDS))
-    //#unaryCallOptions
+      // with a number of seconds
+      .deadlineAfter(10)
+      // or with a java.time.Duration
+      .deadlineAfter(Duration.ofSeconds(10))
+    //#deadline
+  }
 
+  init {
     //#unaryChecks
     grpc("name")
       .unary(ExampleServiceGrpc.getExampleMethod())

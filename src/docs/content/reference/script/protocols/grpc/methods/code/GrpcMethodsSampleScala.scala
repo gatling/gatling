@@ -260,12 +260,15 @@ class GrpcMethodsSampleScala {
     //#clientStreamAsciiHeaders
   }
 
-  //#unaryCallOptions
+  //#deadline
   grpc("name")
     .unary(ExampleServiceGrpc.METHOD_EXAMPLE)
     .send(message)
-    .callOptions(CallOptions.DEFAULT.withDeadlineAfter(500, MILLISECONDS))
-  //#unaryCallOptions
+    // with a number of seconds
+    .deadlineAfter(10)
+    // or with a scala.concurrent.duration.FiniteDuration
+    .deadlineAfter(10.seconds)
+  //#deadline
 
   //#unaryChecks
   grpc("name")

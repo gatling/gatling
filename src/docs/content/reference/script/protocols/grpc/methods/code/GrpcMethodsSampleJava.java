@@ -22,20 +22,19 @@ import io.gatling.javaapi.grpc.GrpcBidirectionalStreamingServiceBuilder;
 import io.gatling.javaapi.grpc.GrpcClientStreamingServiceBuilder;
 import io.gatling.javaapi.grpc.GrpcProtocolBuilder;
 import io.gatling.javaapi.grpc.GrpcServerStreamingServiceBuilder;
-import io.grpc.CallOptions;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.grpc.GrpcDsl.*;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 class GrpcMethodsSampleJava {
 
@@ -300,13 +299,18 @@ class GrpcMethodsSampleJava {
   }}
 
   {
-    //#unaryCallOptions
+    //#deadline
     grpc("name")
       .unary(ExampleServiceGrpc.getExampleMethod())
       .send(message)
-      .callOptions(CallOptions.DEFAULT.withDeadlineAfter(500, MILLISECONDS));
-    //#unaryCallOptions
+      // with a number of seconds
+      .deadlineAfter(10)
+      // or with a java.time.Duration
+      .deadlineAfter(Duration.ofSeconds(10));
+    //#deadline
+  }
 
+  {
     //#unaryChecks
     grpc("name")
       .unary(ExampleServiceGrpc.getExampleMethod())
