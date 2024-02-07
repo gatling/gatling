@@ -37,7 +37,7 @@ gatling {
       host = "localhost"
       port = 2003
       #light = false              # only send the all* stats
-      #protocol = "tcp"           # the protocol used to send data to Carbon (currently supported : "tcp", "udp")
+      #protocol = "tcp"           # the protocol used to send data to Carbon (currently supported: "tcp", "udp")
       #rootPathPrefix = "gatling" # the root prefix of the metrics
       #bufferSize = 8192          # internal data buffer size, in bytes
       #writePeriod = 1            # write period, in seconds

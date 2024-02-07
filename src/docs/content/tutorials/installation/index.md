@@ -41,7 +41,7 @@ Unzip the downloaded bundle to a folder of your choice.
 Use the scripts located in the `bin` directory for launching Gatling and the Recorder.
 
 {{< alert warning >}}
-Windows users : we recommend that you do not place Gatling in the *Programs* folder as there may be permission and path issues.
+Windows users: we recommend that you do not place Gatling in the *Programs* folder as there may be permission and path issues.
 {{< /alert >}}
 
 In order to run Gatling, you need to have a JDK installed.

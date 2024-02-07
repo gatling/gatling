@@ -43,7 +43,7 @@ The counts are the number of group executions, not the sum of the counts of each
 The response time of a group is the cumulated response times of each individual request in that group.
 
 {{< alert tip >}}
-When dealing with embedded resources (inferred or explicitly set), the behaviour is slightly different : as resources are fetched asynchronously,
+When dealing with embedded resources (inferred or explicitly set), the behaviour is slightly different: as resources are fetched asynchronously,
 the cumulated response time for embedded resources starts from the beginning of the first resource request to the end of the last resource request.
 {{< /alert >}}
 
