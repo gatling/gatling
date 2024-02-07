@@ -33,7 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 class GrpcProtocolSampleJava extends Simulation {
 
   {
-    //#protocol
+    //#protocol-configuration
     GrpcProtocolBuilder grpcProtocol = grpc
       .forAddress("host", 50051);
 
@@ -43,7 +43,7 @@ class GrpcProtocolSampleJava extends Simulation {
       scn.injectOpen(atOnceUsers(1))
         .protocols(grpcProtocol)
     );
-    //#protocol
+    //#protocol-configuration
   }
 
   {
