@@ -36,9 +36,9 @@ In all code examples on this page, we assume a method descriptor defined by Java
 
 ```java
 public final class ExampleServiceGrpc {
-    public static MethodDescriptor<ExampleRequest, ExampleResponse> getExampleMethod() {
-        // generated method descriptor code here
-    }
+  public static MethodDescriptor<ExampleRequest, ExampleResponse> getExampleMethod() {
+    // generated method descriptor code here
+  }
 }
 ```
 
