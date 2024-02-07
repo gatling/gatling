@@ -13,6 +13,7 @@ With gRPC, [four types of methods can be defined](https://grpc.io/docs/what-is-g
 unary, server streaming, client streaming and bidirectional streaming. Different Gatling DSL methods can be used
 depending on the type of the gRPC method.
 
+{{< table >}}
 |                                                             | Unary                                             | Server Stream                                              | Client Stream                                              | Bidirectional Stream                                   |
 |-------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------|
 | Instantiate                                                 | [`unary`]({{< ref "#instantiate-unary" >}})       | [`serverStream`]({{< ref "#instantiate-server-stream" >}}) | [`clientStream`]({{< ref "#instantiate-client-stream" >}}) | [`bidiStream`]({{< ref "#instantiate-bidi-stream" >}}) |
@@ -25,6 +26,7 @@ depending on the type of the gRPC method.
 | [Half-close stream]({{< ref "#method-half-close" >}})       | :x:                                               | *implied by* `send`                                        | `halfClose`                                                | `halfClose`                                            |
 | [Wait for stream end]({{< ref "#method-wait-end" >}})       | :x:                                               | `awaitStreamEnd`                                           | `awaitStreamEnd`                                           | `awaitStreamEnd`                                       |
 | [Cancel stream]({{< ref "#method-cancel" >}})               | :x:                                               | `cancel`                                                   | `cancel`                                                   | `cancel`                                               |
+{{< /table >}}
 
 ## gRPC Method Descriptor {#method-descriptor}
 
