@@ -46,7 +46,7 @@ these percentiles can be configured in the `gatling.conf` file.
 {{< /alert >}}
 
 {{< alert tip >}}
-If your scenario contains groups, this panel becomes a tree : each group is a non leaf node, and each request is a descendant leaf of a group. Group timings are by default the cumulated response times of all elements inside the group. Group duration can be displayed instead of group cumulated response time by editing the `gatling.conf` file.
+If your scenario contains groups, this panel becomes a tree: each group is a non leaf node, and each request is a descendant leaf of a group. Group timings are by default the cumulated response times of all elements inside the group. Group duration can be displayed instead of group cumulated response time by editing the `gatling.conf` file.
 {{< /alert >}}
 
 The bottom panel shows some details on the failed requests.
@@ -55,7 +55,7 @@ The bottom panel shows some details on the failed requests.
 
 {{< img src="charts-users.png" alt="ActiveUsers" >}}
 
-This chart displays the active users during the simulation : total and per scenario.
+This chart displays the active users during the simulation: total and per scenario.
 
 "Active users" is neither "concurrent users" or "users arrival rate".
 It's a kind of mixed metric that serves for both open and closed workload models and that represents "users who were active on the system under load at a given second".
@@ -91,7 +91,7 @@ This chart displays the number of requests sent per second over time.
 
 {{< img src="charts-responses-per-sec.png" alt="reports/charts-responses-per-sec.png" >}}
 
-This chart displays the number of responses received per second over time : total, successes and failures.
+This chart displays the number of responses received per second over time: total, successes and failures.
 
 ## Request/group specific charts
 

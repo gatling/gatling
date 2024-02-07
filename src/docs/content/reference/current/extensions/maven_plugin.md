@@ -190,7 +190,7 @@ List of configurations used by this task:
         <waitForRunEnd>true</waitForRunEnd>
         <!-- If this URL is configured, newly created packages and uploaded ones are considered as private. -->
         <!-- Private packages are uploaded and managed through this control plane. -->
-        <!-- See Private Packages on Gatling Cloud documentation for details : -->
+        <!-- See Private Packages on Gatling Cloud documentation for details: -->
         <!-- https://gatling.io/docs/enterprise/cloud/reference/admin/private_locations/private_packages/ -->
 
       <controlPlaneUrl>YOUR_CONTROL_PLANE_URL</controlPlaneUrl>
