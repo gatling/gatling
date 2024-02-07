@@ -1,20 +1,15 @@
 ---
-title: MQTT
-seotitle: Gatling MQTT protocol reference
+title: MQTT Protocol
+seotitle: Gatling MQTT protocol reference - protocol configuration
 description: How to use the MQTT support in Gatling to connect to a broker and perform checks against inbound messages.
-lead: DSL for MQTT
-badge:
-  type: enterprise
-  label: Enterprise
+lead: How to use the MQTT support in Gatling to connect to a broker and perform checks against inbound messages.
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---
 
-MQTT support is only available in [Gatling Enterprise](https://gatling.io/products/).
-
-Jar published in Gatling OSS only contains noop stubs.
-
+{{< alert info >}}
 It only supports MQTT 3.1 and 3.1.1. More recent versions are not currently supported.
+{{< /alert >}}
 
 ## Prerequisites
 
