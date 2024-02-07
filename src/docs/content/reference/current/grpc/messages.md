@@ -76,20 +76,20 @@ message received in response, using the generated code with the Gatling gRPC DSL
 
 ```java
 grpc("John Doe's greet request")
-    .unary(GreetingServiceGrpc.getGreetMethod())
-    .send(
-        GreetRequest.newBuilder()
-            .setGreeting(
-                Greeting.newBuilder()
-                    .setFirstName("John")
-                    .setLastName("Doe")
-                    .build()
-            )
-            .build()
-    )
-    .check(
-        response(GreetResponse::getResult).is("Hello John Doe")
-    );
+  .unary(GreetingServiceGrpc.getGreetMethod())
+  .send(
+    GreetRequest.newBuilder()
+      .setGreeting(
+        Greeting.newBuilder()
+          .setFirstName("John")
+          .setLastName("Doe")
+          .build()
+      )
+      .build()
+  )
+  .check(
+    response(GreetResponse::getResult).is("Hello John Doe")
+  );
 ```
 
 ## Using protoc-generated Java and Kotlin {#protoc-java-kotlin}
