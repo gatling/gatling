@@ -16,7 +16,7 @@ Search [Gatling Community Forum](https://community.gatling.io) or post your ques
 
 ## Filing bug reports
 
-In order to get the bugs fixed as fast as possible, we need a few things from you first :
+In order to get the bugs fixed as fast as possible, we need a few things from you first:
  
 * The environment
 * The steps
@@ -24,7 +24,7 @@ In order to get the bugs fixed as fast as possible, we need a few things from yo
 
 ### The environment
 
-In order to narrow down the search, we need to know first :
+In order to narrow down the search, we need to know first:
 
 * The Gatling's version you're using 
 * Which OS you're running Gatling on
@@ -34,11 +34,11 @@ In order to narrow down the search, we need to know first :
 ### The steps
 
 We'll also need to know **exactly** what you were doing.
-To do so, please provide a complete description of what you were trying to achieve, with code samples, or even better : provide a [Gist](https://gist.github.com/) (or anything similar) of your simulation.
+To do so, please provide a complete description of what you were trying to achieve, with code samples, or even better: provide a [Gist](https://gist.github.com/) (or anything similar) of your simulation.
 
 ### The problem
 
-Finally, describe the problem you're facing : the more information you give, the better.
+Finally, describe the problem you're facing: the more information you give, the better.
 If there is any error message or stacktrace available, include it in your bug report.
 
 ## Submitting Pull Requests
@@ -51,7 +51,7 @@ Before you submit a pull request, make sure that:
 2. You provided tests for the code changes you made
 3. The code follows Gatling's code guidelines formatting rules (code will be auomatically formatted if you compile it locally)
 4. The pull request's commits must follow our guidelines (see the **Commits and commit messages** below)
-5. Source files have the appropriate copyright header license :
+5. Source files have the appropriate copyright header license:
 
 	```
 	/**
@@ -76,4 +76,4 @@ Pull requests are automatically validated by Travis CI and pull requests resulti
 #### Commits and commit messages
 
 The commit message must be explicit and states what the commit changes. It must also reference the GitHub issue it's closing.
-A good example is : `Disable IPv6 by default, close #2013`.
+A good example is: `Disable IPv6 by default, close #2013`.

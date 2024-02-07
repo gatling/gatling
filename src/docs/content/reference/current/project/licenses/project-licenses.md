@@ -26,10 +26,10 @@ The default report generation module makes use of Highcharts and Highstock, two 
 These libraries are neither open source, nor free for our use case.
 
 We purchased developer licenses and got an agreement with Highsoft so we could distribute their libraries with some restrictions.
-As a consequence, this module cannot be open sourced and has to be developed in a separated project : [gatling-highcharts](https://github.com/gatling/gatling-highcharts).
+As a consequence, this module cannot be open sourced and has to be developed in a separated project: [gatling-highcharts](https://github.com/gatling/gatling-highcharts).
 However, for convenience reasons, we distribute a ready to use bundle.
 
-Making it short, we distribute this module for free with the following restrictions :
+Making it short, we distribute this module for free with the following restrictions:
 
 * one can not edit the source code without buying a Highcharts license for working on Gatling
 * the shipped Highcharts or Highstock copies cannot be used outside of Gatling standard usage

@@ -15,7 +15,7 @@ Gatling is for you!
 
 ## Underlying technologies
 
-Gatling is developed in Scala and built upon :
+Gatling is developed in Scala and built upon:
 
 * [Netty](https://netty.io) for non blocking HTTP
 * [Akka](https://akka.io) for virtual users orchestration

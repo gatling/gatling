@@ -67,12 +67,12 @@ When using the `GatlingIt` configuration, you must use the `GatlingIt/` prefix, 
 
 ### Default settings
 
-For the `Gatling` configuration :
+For the `Gatling` configuration:
 
 * By default, Gatling simulations must be in `src/test/scala`, configurable using the `Gatling / scalaSource` setting.
 * By default, Gatling reports are written to `target/gatling`, configurable using the `Gatling / target` setting.
 
-For the `GatlingIt` configuration :
+For the `GatlingIt` configuration:
 
 * By default, Gatling simulations must be in `src/it/scala`, configurable using the `GatlingIt / scalaSource` setting.
 * By default, Gatling reports are written to `target/gatling-it`, configurable using the `GatlingIt / target` setting.
@@ -175,7 +175,7 @@ Gatling / enterpriseSimulationEnvironmentVariables := Map.empty
 Gatling / waitForRunEnd := false
 // If this URL is configured, newly created packages and uploaded ones are considered as private.
 // Private packages are uploaded and managed through this control plane.
-// See Private Packages on Gatling Cloud documentation for details :
+// See Private Packages on Gatling Cloud documentation for details:
 // https://gatling.io/docs/enterprise/cloud/reference/admin/private_locations/private_packages/
 Gatling / enterpriseControlPlaneUrl := Some(new URL("YOUR_CONTROL_PLANE_URL"))
 ```
