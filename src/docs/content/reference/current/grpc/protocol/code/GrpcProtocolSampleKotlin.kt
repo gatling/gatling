@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 class GrpcProtocolSampleKotlin : Simulation() {
 
   init {
-    //#protocol
+    //#protocol-configuration
     val grpcProtocol = grpc
       .forAddress("host", 50051)
 
@@ -24,7 +24,7 @@ class GrpcProtocolSampleKotlin : Simulation() {
       scn.injectOpen(atOnceUsers(1))
         .protocols(grpcProtocol)
     )
-    //#protocol
+    //#protocol-configuration
   }
 
   init {

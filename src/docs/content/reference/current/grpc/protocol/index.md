@@ -22,7 +22,7 @@ Use the `grpc` object in order to create a gRPC protocol.
 As with every protocol in Gatling, the gRPC protocol can be configured for a scenario. This is done thanks to the following
 statements:
 
-{{< include-code "protocol" java kt scala >}}
+{{< include-code "protocol-configuration" java kt scala >}}
 
 ### Target {{% badge danger required /%}} {#target}
 

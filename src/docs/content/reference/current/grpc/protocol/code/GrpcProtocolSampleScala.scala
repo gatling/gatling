@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 class GrpcProtocolSampleScala extends Simulation {
 
   {
-    //#protocol
+    //#protocol-configuration
     val grpcProtocol = grpc
       .forAddress("host", 50051)
 
@@ -36,7 +36,7 @@ class GrpcProtocolSampleScala extends Simulation {
       scn.inject(atOnceUsers(1))
         .protocols(grpcProtocol)
     )
-    //#protocol
+    //#protocol-configuration
   }
 
   {
