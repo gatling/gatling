@@ -1,11 +1,11 @@
 ```xml
 <dependencies>
-    <dependency>
-        <groupId>io.gatling</groupId>
-        <artifactId>gatling-grpc</artifactId>
-        <version>${gatling-grpc.version}</version>
-        <scope>test</scope>
-    </dependency>
+  <dependency>
+    <groupId>io.gatling</groupId>
+    <artifactId>gatling-grpc</artifactId>
+    <version>${gatling-grpc.version}</version>
+    <scope>test</scope>
+  </dependency>
 </dependencies>
 ```
 
