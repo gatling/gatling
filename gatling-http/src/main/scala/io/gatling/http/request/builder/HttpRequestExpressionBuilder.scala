@@ -66,7 +66,7 @@ final class HttpRequestExpressionBuilder(
 
   override protected def configureHeaders(rawHeaders: Map[CharSequence, Expression[String]]): Map[CharSequence, Expression[String]] =
     bodyAttributes.headersBuiltIn match {
-      case Some(headersBuiltIn) => headersBuiltIn.patch(rawHeaders, bodyAttributes.body.isEmpty && bodyAttributes.bodyParts.isEmpty)
+      case Some(headersBuiltIn) => headersBuiltIn.patch(rawHeaders, bodyAttributes.body.nonEmpty || bodyAttributes.bodyParts.nonEmpty)
       case _                    => rawHeaders
     }
 
