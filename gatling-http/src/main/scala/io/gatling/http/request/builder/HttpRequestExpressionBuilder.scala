@@ -66,13 +66,13 @@ class HttpRequestExpressionBuilder(
       rawHeaders: Map[CharSequence, Expression[String]],
       headersBuiltIn: CommonAttributes.HeadersBuiltIn
   ): Map[CharSequence, Expression[String]] =
-    headersBuiltIn.patch(rawHeaders, httpAttributes.body.isEmpty && httpAttributes.bodyParts.isEmpty)
+    headersBuiltIn.patch(rawHeaders, httpAttributes.body.nonEmpty || httpAttributes.bodyParts.nonEmpty)
 
   private def mergeFormParamsAndFormIntoParamJList(
       params: List[HttpParam],
       maybeForm: Option[Expression[Map[String, Any]]],
       session: Session
-  ): Validation[ju.List[Param]] = {
+  ): Validation[ju.List[Param]] = { 
     val formParams = resolveParamJList(params, session)
 
     maybeForm match {
