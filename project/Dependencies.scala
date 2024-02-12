@@ -124,13 +124,16 @@ object Dependencies {
   // Dependencies by module
 
   private val gatlingGrpcVersion = "3.10.3"
+  private val gatlingMqttVersion = "3.10.3"
   val docSamplesDependencies =
     Seq(
       commonsIo,
       commonsLang,
       commonsCodec,
       "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
-      "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion
+      "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion,
+      "io.gatling" % "gatling-mqtt"      % gatlingMqttVersion,
+      "io.gatling" % "gatling-mqtt-java" % gatlingMqttVersion
     )
 
   val nettyUtilDependencies =
