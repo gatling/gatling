@@ -16,7 +16,6 @@ object Dependencies {
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.106.Final"
   private val nettyBuffer                    = netty.withName("netty-buffer")
   private val nettyHandler                   = netty.withName("netty-handler")
-  private val nettyMqtt                      = netty.withName("netty-codec-mqtt")
   private val nettyProxy                     = netty.withName("netty-handler-proxy")
   private val nettyDns                       = netty.withName("netty-resolver-dns")
   private val nettyEpollLinuxX86             = netty.withName("netty-transport-native-epoll")                               classifier "linux-x86_64"
@@ -225,8 +224,6 @@ object Dependencies {
   val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
 
   val jdbcDependencies = h2 +: testDeps
-
-  val mqttDependencies = Seq(nettyHandler, nettyTcNative, nettyMqtt, nettyEpollLinuxX86, nettyEpollLinuxArm)
 
   val chartsDependencies = tdigest +: testDeps
 

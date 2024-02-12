@@ -43,8 +43,6 @@ lazy val root = Project("gatling-parent", file("."))
     httpJava,
     jms,
     jmsJava,
-    mqtt,
-    mqttJava,
     charts,
     graphite,
     app,
@@ -89,7 +87,7 @@ lazy val docSamples = (project in file("src/docs"))
     kotlinVersion := "1.9.22"
   )
   .dependsOn(
-    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava).map(
+    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava).map(
       _ % "compile->compile;test->test"
     ): _*
   )
@@ -133,15 +131,6 @@ lazy val jdbc = gatlingModule("gatling-jdbc")
 
 lazy val jdbcJava = gatlingModule("gatling-jdbc-java")
   .dependsOn(coreJava, jdbc % "compile->compile;test->test")
-  .settings(libraryDependencies ++= defaultJavaDependencies)
-
-lazy val mqtt = gatlingModule("gatling-mqtt")
-  .disablePlugins(SbtSpotless)
-  .dependsOn(nettyUtil, core)
-  .settings(libraryDependencies ++= mqttDependencies)
-
-lazy val mqttJava = gatlingModule("gatling-mqtt-java")
-  .dependsOn(coreJava, mqtt % "compile->compile;test->test")
   .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val redis = gatlingModule("gatling-redis")
@@ -197,7 +186,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
 
 lazy val app = gatlingModule("gatling-app")
   .disablePlugins(SbtSpotless)
-  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, mqtt, mqttJava, jdbc, jdbcJava, redis, redisJava, graphite, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)
