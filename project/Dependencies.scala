@@ -108,7 +108,7 @@ object Dependencies {
   // Docs dependencies
   private val commonsIo                      = "commons-io"                           % "commons-io"                        % "2.15.1"
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
-  private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.0"
+  private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.1"
 
   // format: ON
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
