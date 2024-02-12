@@ -90,9 +90,6 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
   def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpRequestBuilder =
     check(thenChecks.map(_.checkIf(condition)): _*)
 
-  @deprecated("Please use ignoreProtocolChecks instead. Will be removed in 3.5.0", "3.4.0")
-  def ignoreDefaultChecks: HttpRequestBuilder = ignoreProtocolChecks
-
   def ignoreProtocolChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreProtocolChecks).setTo(true)
 
   def silent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(true))

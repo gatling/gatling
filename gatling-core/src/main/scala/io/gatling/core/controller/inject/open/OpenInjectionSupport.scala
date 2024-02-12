@@ -63,8 +63,6 @@ trait OpenInjectionSupport {
     OpenInjectionSupport.OpenInjectionProfileFactory
 
   def rampUsers(users: Int): OpenInjectionBuilder.Ramp = OpenInjectionBuilder.Ramp(users)
-  @deprecated("User stressPeakUsers instead", "3.7.0")
-  def heavisideUsers(users: Int): OpenInjectionBuilder.StressPeak = stressPeakUsers(users)
   def stressPeakUsers(users: Int): OpenInjectionBuilder.StressPeak = OpenInjectionBuilder.StressPeak(users)
   def atOnceUsers(users: Int): OpenInjectionStep = AtOnceOpenInjection(users)
 

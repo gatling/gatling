@@ -30,8 +30,6 @@ sealed trait FeederBuilderBase[T] extends FeederBuilder {
   def shuffle: FeederBuilderBase[T]
   def circular: FeederBuilderBase[T]
   def transform(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any]
-  @deprecated("Please use transform instead.", "3.7.0")
-  def convert(f: PartialFunction[(String, T), Any]): FeederBuilderBase[Any] = transform(f)
   def readRecords: Seq[Record[Any]]
   def recordsCount: Int
   def shard: FeederBuilderBase[T]

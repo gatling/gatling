@@ -21,7 +21,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
-import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
@@ -320,20 +319,9 @@ object ElCompiler extends StrictLogging {
     override def initialValue = new ElCompiler
   }
 
-  private val warmingNotAlreadyLogged = new AtomicBoolean(true)
-  private def convertLegacyPattern(raw: String): String =
-    if (!raw.contains("#{") && raw.contains("${")) {
-      if (warmingNotAlreadyLogged.getAndSet(false)) {
-        logger.warn("You're still using the deprecated ${} pattern for Gatling EL. Please use the #{} pattern instead.")
-      }
-      raw.replace("$${", "\\#{").replace("${", "#{")
-    } else {
-      raw
-    }
-
   @throws[ElParserException]
   def parse(string: String): List[ElPart[Any]] =
-    ElCompilers.get.parseEl(convertLegacyPattern(string))
+    ElCompilers.get.parseEl(string)
 
   def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {

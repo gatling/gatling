@@ -16,7 +16,7 @@
 
 package io.gatling.core.body
 
-import io.gatling.commons.util.{ FastByteArrayInputStream, GzipHelper }
+import io.gatling.commons.util.GzipHelper
 
 private object BodyProcessors {
   def gzip: Body => ByteArrayBody =
@@ -36,25 +36,5 @@ private object BodyProcessors {
       }
 
       ByteArrayBody(gzippedBytes)
-    }
-
-  @deprecated("Probably no use case for this, will be removed in a future release.", "3.7.0")
-  def stream: Body => InputStreamBody =
-    (body: Body) => {
-      val stream = body match {
-        case StringBody(string, charset) => string.map(s => new FastByteArrayInputStream(s.getBytes(charset)))
-        case ByteArrayBody(byteArray)    => byteArray.map(new FastByteArrayInputStream(_))
-        case RawFileBody(resourceAndCachedBytes) =>
-          resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
-            cachedBytes match {
-              case Some(bytes) => new FastByteArrayInputStream(bytes)
-              case _           => resource.inputStream
-            }
-          }
-        case InputStreamBody(inputStream) => inputStream
-        case b: ElBody                    => b.asStream
-      }
-
-      InputStreamBody(stream)
     }
 }

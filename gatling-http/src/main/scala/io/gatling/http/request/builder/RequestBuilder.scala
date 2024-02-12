@@ -138,9 +138,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def headers(newHeaders: Map[_ <: CharSequence, String]): B =
     newInstance(modify(commonAttributes)(_.headers)(_ ++ newHeaders.view.mapValues(_.el[String])))
 
-  @deprecated("Please use ignoreProtocolHeaders instead. Will be removed in 3.5.0", "3.4.0")
-  def ignoreDefaultHeaders: B = ignoreProtocolHeaders
-
   def ignoreProtocolHeaders: B = newInstance(modify(commonAttributes)(_.ignoreProtocolHeaders).setTo(true))
 
   /**

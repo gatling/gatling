@@ -63,13 +63,6 @@ case class PublishBuilder(
       Some(MqttExpectation(Nil, timeout, topic = Option(expectedTopic), blocking = true))
     ) with CheckablePublishBuilder
 
-  @deprecated("Use await instead", "3.7.0")
-  def wait(timeout: FiniteDuration): PublishBuilder with CheckablePublishBuilder =
-    await(timeout)
-  @deprecated("Use await instead", "3.7.0")
-  def wait(timeout: FiniteDuration, expectedTopic: Expression[String]): PublishBuilder with CheckablePublishBuilder =
-    await(timeout, expectedTopic)
-
   def expect(timeout: FiniteDuration): PublishBuilder with CheckablePublishBuilder =
     expect(timeout, null)
   def expect(timeout: FiniteDuration, expectedTopic: Expression[String]): PublishBuilder with CheckablePublishBuilder =

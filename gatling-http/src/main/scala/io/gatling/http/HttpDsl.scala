@@ -45,8 +45,6 @@ trait HttpDsl
   val sse: Sse.type = Sse
   val ws: Ws.type = Ws
   val poll: Polling = Polling.Default
-  @deprecated("Use poll instead", "3.7.0")
-  val polling: Polling = poll
 
   val HttpHeaderNames: HeaderNames.type = HeaderNames
   val HttpHeaderValues: HeaderValues.type = HeaderValues

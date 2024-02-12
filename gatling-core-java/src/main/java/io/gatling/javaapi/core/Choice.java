@@ -24,20 +24,6 @@ import io.gatling.javaapi.core.internal.Executables;
 public final class Choice {
   private Choice() {}
 
-  /** @deprecated Use {@link CoreDsl#onCase(Object)} instead. */
-  @Deprecated
-  public static WithKey withKey(
-      @NonNull Object key, @NonNull Executable executable, @NonNull Executable... executables) {
-    return new WithKey(key, Executables.toChainBuilder(executable, executables));
-  }
-
-  /** @deprecated Use {@link CoreDsl#percent(double)} instead. */
-  @Deprecated
-  public static WithWeight withWeight(
-      double weight, @NonNull Executable executable, @NonNull Executable... executables) {
-    return new WithWeight(weight, Executables.toChainBuilder(executable, executables));
-  }
-
   /** A choice with an expected key */
   public static final class WithKey {
     public final Object key;
