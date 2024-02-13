@@ -13,7 +13,7 @@ To help you fix the problem, here is a list of common problems and their solutio
 
 If you can't find a solution here, consider joining our [Gatling Community Forum](https://community.gatling.io).
 
-#### Why is gatling-highcharts a dedicated project/repository and why does it uses a different license?
+#### Why is gatling-highcharts a dedicated project/repository and why does it use a different license?
 
 Highcharts and Highstock are javascript libraries whose license is not open-source friendly.
 We pay license fees so that we can package and distribute them and let people use them **for free**, but this module can't be open sourced.
