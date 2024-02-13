@@ -1,11 +1,7 @@
 # Meta Data for SEO
-
-title: "Gatling"
+title: "Gatling Documentation"
 titleSeparator: "-"
 description: "Documentation"
-logos:
-  white: "/images/logo-gatling.svg"
-  black: "/images/logo-gatling-noir.svg"
 
 ## Open Graph + Twitter Cards
 images: ["images/og-gatling.png"]
@@ -15,12 +11,18 @@ facebookAuthor: "GatlingTool"
 facebookPublisher: "GatlingTool"
 ogLocale: "en_US"
 
+# Header
+logos:
+  white: "images/logo-gatling.svg"
+  black: "images/logo-gatling-noir.svg"
+
 ## JSON-LD
 schemaName: "Gatling Corp"
-schemaLogo: "gatling-logo.png"
+schemaLogo: "images/og-gatling.png"
 schemaTwitter: "https://twitter.com/GatlingTool"
 schemaLinkedIn: "https://www.linkedin.com/company/gatling/"
 schemaGitHub: https://github.com/gatling
+schemaSection: tutorials
 
 ## Sitelinks Search Box
 siteLinksSearchBox: false
@@ -32,9 +34,6 @@ themeColor: "#fff"
 quality: 85
 bgColor: "#fff"
 lqipWidth: "20x"
-
-# Footer
-footer: ""
 
 # Alert
 alert: false

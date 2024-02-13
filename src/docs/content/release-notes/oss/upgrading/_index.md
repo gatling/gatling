@@ -1,0 +1,14 @@
+---
+title: Gatling upgrade guides
+description: What changes between Gatling versions.
+lead: How to upgrade from previous Gatling versions.
+lastmod: 2023-12-13T18:00:00+02:00
+ordering:
+  - 3.9-to-3.10.md
+  - 3.8-to-3.9.md
+  - 3.7-to-3.8.md
+  - 3.6-to-3.7.md
+  - 3.4-to-3.5.md
+  - 3.3-to-3.4.md
+  - 2.3-to-3.0.md
+---

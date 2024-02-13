@@ -18,11 +18,11 @@ import io.gatling.javaapi.core.CoreDsl.*;
 
 class ComputerDatabaseSampleKotlin {
 
-  val computerDbScn = scenario("Computer Scenario")
-//#print-session-value
-.exec { session ->
-  println(session.getString("addComputer"))
-  session
-}
-//#print-session-value
+  val scn = scenario("Computer Scenario")
+    //#print-session-value
+    .exec { session ->
+      println(session.getString("addComputer"))
+      session
+    }
+    //#print-session-value
 }

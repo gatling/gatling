@@ -1,7 +1,13 @@
 ---
 title: Gatling reference documentation
-description: Versioned references on Gatling DSL, protocols, news and migrations
-lead: Versioned references on Gatling DSL, protocols, news and migrations
-versioning: true
-weight: 2000000
+menutitle: Reference
+description: References on Gatling DSL, protocols, news and migrations
+lead: References on Gatling DSL, protocols, news and migrations
+ordering:
+  - glossary
+  - install
+  - script
+  - execute
+  - stats
+  - extensions
 ---

@@ -1,213 +1,101 @@
 ---
-title: "Quickstart"
-description: "Learn the basics about Gatling: installing, using the recorder to generate a basic raw test and how to execute it."
-lead: "Learn Gatling concepts, and use the recorder to create a runnable Gatling simulation"
-date: 2021-04-20T18:30:56+02:00
-lastmod: 2022-12-14T21:30:56+02:00
-weight: 1020000
+title: Getting started with the no-code generator
+menutitle: No-code quickstart
+lead: Learn how to write your first test with the Gatling no-code generator
+description: Learn how to set up Gatling Enterprise for the first time
+badge:
+  type: enterprise
+  label: Enterprise
 ---
+
+This tutorial describes step-by-step instructions for running your first simulation with Gatling Enterprise Cloud.
+
+{{< alert info >}}
+**Requirements**
+* A Gatling Enterprise Cloud account. Sign up for a [free trial](https://cloud.gatling.io) if you don't already have an account.
+{{< /alert >}}
 
 ## Introduction
 
-In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL (Domain Specific Language).
+The Gatling no-code generator is the fastest way to discover load testing and how it can improve your application, microservice, or API. The no-code generator is a graphical user interface that lets you:
 
-{{< alert tip >}}
-Feel free to join our [Gatling Community Forum](https://community.gatling.io) and ask for help **once you've read this documentation**.
-{{< /alert >}}
+- [setup your scenario](#setup-your-scenario),
+- [setup the virtual user injection profile](#setup-the-injection-profile),
+- (optional) [define acceptance criteria](#define-acceptance-criteria-optional),
+- [select a testing location](#select-the-testing-location).
 
-### Picking the Right Language
+Once you start your simulation, the load testing data are displayed in real-time. The following guide assists you in writing and launching your first load test. To keep learning about Gatling and load testing, see these helpful resources:
 
-Gatling provides:
-* a Java DSL, introduced in Gatling 3.7, that can also be used in Kotlin
-* the original Scala DSL
+- [Gatling Community](https://community.gatling.io)
+- [Gatling Academy](https://gatling.io/academy/)
 
-When picking a language for using Gatling, we recommend the following rule:
-* if your target Gatling users are Scala developers, use Scala
-* if they are Kotlin developers, use Kotlin
-* otherwise, use Java
+## Access Gatling Enterprise Cloud
 
-Java is widely taught in CS courses, requires less CPU for compiling and is easier to configure in maven or gradle.
+To access the Gatling no-code generator:
 
-### Installing
+1. Navigate to https://cloud.gatling.io in your web browser.
+2. Login or register if you don't have an account. 
+3. Click on **Create a simulation without coding** in the _Latest simulation runs_ pane on the landing page. 
 
-Please check the [installation section]({{< ref "installation" >}}) to pick a setup that matches your needs.
-Non developers are recommended to start with the bundle setup.
-In this tutorial, we will show the commands to use with the bundle setup.
+The no-code generator is divided into 4 steps with a dynamically updated code example in Java, Scala, and Kotlin. The code example shows you how the resulting simulation can be written in your preferred programming language.  
 
-### Encoding
+{{< img src="no-code-overview.png" alt="An overview of the no-code interface" >}}
 
-Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
+## Setup your scenario
 
-* select the proper encoding while using the Recorder
-* **configure the proper encoding in the `gatling.conf` file.** It will be used for compiling your simulations, building your requests and your responses.
-* make sure your text editor encoding is properly configured to match.
+Setting up a scenario requires defining the user request(s) and any pauses between the user request(s). For this tutorial, we use the Gatling sample website https://computer-database.gatling.io to demonstrate load testing with the no-code generator. To set up the scenario, click **Test sample website** under the _Your website URL_ heading. 
 
-## Test Case
+{{< img src="setup-scenario.png" alt="An example of the scenario description" >}}
 
-This page will guide you through most of Gatling HTTP features. You'll learn about *simulations*, *scenarios*, *feeders*, *recorder*, *loops*, etc.
+## Setup the injection profile
 
-### Sample Application
+The second step in creating a no-code simulation is setting up the injection profile. This is where you have the most options for describing the test. There are 3 broad categories of tests:
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: [http://computer-database.gatling.io](http://computer-database.gatling.io).
+- **Capacity tests** tell you how your application performs as resource demand increases.
+- **Stress tests** tell you how your application performs when there is a rapid and transient increase in resource demand.
+- **Soak tests** tell you how your application performs with a regular load over a long period of time (e.g., test for memory leaks). 
 
-### Scenario
+{{< img src="setup-injection.png" alt="An example of the injection profile set up" >}}
 
-To test the performance of this application, we will create scenarios representative of what really happens when users navigate it.
+Following the test type, inputs describe the test duration and the user injection profile. For this tutorial:
 
-Here is what we think a real user would do with the application:
+1. Select _Capacity test_.
+2. Enter 90 seconds for the total test duration.
+3. Enter 1 for the initial user arrival rate.
+4. Enter 10 for the final user arrival rate. 
 
-1. A user arrives at the application.
-2. The user searches for 'macbook'.
-3. The user opens one of the related models.
-4. The user goes back to home page.
-5. The user iterates through pages.
-6. The user creates a new model.
+## Define acceptance criteria (optional) 
 
-## Basics
+Acceptance criteria, also called Assertions, allow you to establish whether or not a simulation result meets your requirements. For example, if you expect 95% or more of your users to experience a response time of 0.25 seconds or faster, you would set the 95th percentile response time to 0.25. 
 
-### Using the Recorder
+{{< img src="assertions.png" alt="An example of the assertions option" >}}
 
-To ease the creation of the scenario, we will use the *Recorder*, a tool provided with Gatling that allows you to record your actions on a web application and export them as a Gatling scenario.
+To activate acceptance criteria:
 
-This tool is launched with a script located in the *bin* directory:
+1. Click **Global 95th percentile on response time should be lower than** toggle button to enable the criterion.
+2. Enter the value 0.25 in the input field.
+3. Click **Global success ratio to be higher than** toggle button to enable the criterion.
+4. Enter the value 99%.
 
-* On Linux/Unix:
+## Select the testing location
 
-```bash
-$GATLING_HOME/bin/recorder.sh
-```
+The final step for defining your no-code simulation is to select the traffic origin location. 
 
-* On Windows:
+{{< img src="almost-done.png" alt="An example of the test location and naming step" >}}
 
-```batch
-%GATLING_HOME%\bin\recorder.bat
-```
+Under the _Location_ heading, click the arrow to open the dropdown menu and select a location from the list. The Gatling test web application is hosted near Paris, so this location usually gives the best performance.  
 
-Once launched, the following GUI lets you configure how requests and responses will be recorded.
+Finally, name your simulation and select a team (usually _default_).   
 
-Set it up with the following options:
+## Launch the test
 
-* *Recorder Mode* set to *HTTP Proxy*
-* *computerdatabase* package
-* *BasicSimulation* name
-* *Follow Redirects?* checked
-* *Infer HTML resources?* checked
-* *Automatic Referers?* checked
-* *Remove cache headers?* checked
-* *No static resources* clicked
-* Select the desired `format`. The tutorials will assume "Java 8"
+Click the **Save and launch** button to launch your no-code simulation. 
 
-{{< img src="recorder.png" alt="recorder.png" >}}
+Congratulations, you have finished your first load test with Gatling Enterprise Cloud. The results are displayed in real-time. At the end of the simulation, you can explore the results. Make sure to visit the _Report_ tab to see the detailed results, including:
 
-After configuring the recorder, all you have to do is to click on `Start!` and configure your browser to use Gatling Recorder's proxy.
+- response time percentiles,
+- connections,
+- DNS resolutions.
 
-{{< alert tip >}}
-For more information regarding Recorder and browser configuration, please check out [Recorder reference page]({{< ref "../../reference/current/http/recorder" >}}).
-{{< /alert >}}
+To keep exploring the no-code generator, click the **Edit simulation** button and change your simulation. For example, try changing the load generator location to _AP SouthEast - Sydney_ to see how users further away from the Gatling test web application experience different response times. Happy testing! 
 
-### Recording the scenario
-
-Now simply browse the application:
-
-1. Enter 'Search' tag.
-2. Go to the website: [http://computer-database.gatling.io](http://computer-database.gatling.io)
-3. Search for models with 'macbook' in their name.
-4. Select 'Macbook pro'.
-5. Enter 'Browse' tag.
-6. Go back to home page.
-7. Iterate several times through the model pages by clicking on the *Next* button.
-8. Enter 'Edit' tag.
-9. Click on *Add new computer*.
-10. Fill the form.
-11. Click on *Create this computer*.
-
-Try to act as a real user would, don't immediately jump from one page to another without taking the time to read.
-This will make your scenario closer to real users' behavior.
-
-When you have finished playing the scenario, click on `Stop` in the Recorder interface.
-
-The Simulation will be generated in the folder `user-files/simulations/computerdatabase` of your Gatling installation under the name `BasicSimulation.java`.
-
-### Gatling scenario explained
-
-Here is the produced output:
-
-{{< include-code "quickstart-recorder-output" java kt scala >}}
-
-What does it mean?
-
-1. The optional package.
-2. The required imports.
-3. The class declaration. Note that it extends `Simulation`.
-4. The common configuration to all HTTP requests.
-5. The baseUrl that will be prepended to all relative urls.
-6. Common HTTP headers that will be sent with all the requests.
-7. The scenario definition.
-8. An HTTP request, named *request_1*. This name will be displayed in the final reports.
-9. The url this request targets with the *GET* method.
-10. Some pause/think time.
-
-{{< alert tip >}}
-Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `java.time.Duration.ofSeconds(5)` in Java or `pause(5.seconds)` in Scala.
-{{< /alert >}}
-
-11. Where one sets up the scenarios that will be launched in this Simulation.
-12. Declaring that we will inject one single user into the scenario named *scn*.
-13. Attaching the HTTP configuration declared above.
-
-{{< alert tip >}}
-For more details regarding Simulation structure, please check out the [Simulation reference page]({{< ref "../../reference/current/core/simulation" >}}).
-{{< /alert >}}
-
-### Running Gatling
-
-Launch the second script located in the *bin* directory:
-
-* On Linux/Unix:
-
-```bash
-$GATLING_HOME/bin/gatling.sh
-```
-
-* On Windows:
-
-```batch
-%GATLING_HOME%\bin\gatling.bat
-```
-
-You should see a menu with the following choice:
-
-```
-Do you want to run the simulation locally, on Gatling Enterprise, or just package it?
-Type the number corresponding to your choice and press enter
-[0] <Quit>
-[1] Run the Simulation locally
-[2] Run the Simulation on Gatling Enterprise Cloud
-[3] Package the Simulation for Gatling Enterprise
-```
-
-Press 1 then enter.
-
-You should then see a menu with the simulation examples:
-
-```
-Choose a simulation number:
-[0] computerdatabase.BasicSimulation
-[1] computerdatabase.advanced.AdvancedSimulationStep01
-[2] computerdatabase.advanced.AdvancedSimulationStep02
-[3] computerdatabase.advanced.AdvancedSimulationStep03
-[4] computerdatabase.advanced.AdvancedSimulationStep04
-[5] computerdatabase.advanced.AdvancedSimulationStep05
-```
-
-Press 0 then enter. Press enter next when gatling asks for a run description.
-
-When the simulation is done, the console will display a link to the HTML reports.
-
-{{< alert tip >}}
-If Gatling doesn't work as expected, see our [FAQ]({{< ref "../../reference/current/project/faq" >}}) or ask on our [Gatling Community Forum](https://community.gatling.io).
-{{< /alert >}}
-
-### Going Further
-
-When you're ready to go further, please check out the [Advanced Tutorial]({{< ref "../advanced" >}}).
