@@ -1,9 +1,3 @@
-main:
-  - name: Gatling
-    url: reference/current/
-    identifier: gatling
-    weight: 10
-
 social:
   - name: Twitter
     pre: >-

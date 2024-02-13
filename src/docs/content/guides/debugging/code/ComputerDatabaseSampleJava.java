@@ -20,13 +20,12 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 
 class ComputerDatabaseSampleJava {
 
-  ScenarioBuilder computerDbScn = scenario("Computer Scenario")
-//#print-session-value
-.exec(session -> {
-    System.out.println(session.getString("addComputer"));
-    return session;
-  }
-)
-//#print-session-value
-;
+  ScenarioBuilder scn = scenario("Computer Scenario")
+    //#print-session-value
+    .exec(session -> {
+      System.out.println(session.getString("addComputer"));
+      return session;
+    })
+    //#print-session-value
+    ;
 }

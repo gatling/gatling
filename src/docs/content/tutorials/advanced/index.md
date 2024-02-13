@@ -1,17 +1,20 @@
 ---
-title: "Advanced Tutorial"
-description: "How to transform a raw recorded test into a dynamic and meaningful load test. Introduce feeders, dynamic parameters, loops, functions and multiple scenarios."
-lead: "Isolate process, configure virtual users, use feeders, checks and looping"
+menutitle: Writing realistic tests
+title: Writing realistic Gatling tests
+description: How to transform a raw recorded test into a dynamic and meaningful load test. Introduce feeders, dynamic parameters, loops, functions and multiple scenarios.
+lead: Isolate process, configure virtual users, use feeders, checks and looping
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
-weight: 1030000
 ---
 
-In this section, we assume that you have already gone through the [Quickstart]({{< ref "../quickstart" >}}) section and that you have a basic simulation to work with.
-We will apply a series of refactorings to introduce more advanced concepts and [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) constructs.
+In this tutorial, we assume that you have already gone through the
+[Introduction to the Recorder]({{< ref "recorder" >}}) section and that you have a basic simulation to work with.
+We will apply a series of refactorings to introduce more advanced concepts and
+[Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language) constructs.
 
 {{< alert tip >}}
-The files for this tutorial can be found [on GitHub](https://github.com/gatling/gatling/tree/main/gatling-samples/src/main/).
+The files for this tutorial can be found
+[on GitHub](https://github.com/gatling/gatling/tree/main/gatling-samples/src/main/).
 {{< /alert >}}
 
 ## Step 1: Isolate processes
@@ -96,14 +99,14 @@ Explanations:
 2. As the default Feeder strategy is *queue*, we will use the *random* strategy for this test to avoid feeder starvation.
 3. Every time a user reaches the feed step, it picks a random record from the Feeder.
    This user has two new Session attributes named *searchCriterion*, *searchComputerName*.
-4. We use Session data through [Gatling Expression Language]({{< ref "../../reference/current/core/session/el" >}}) to parameterize the search.
-5. We use a [CSS selector check]({{< ref "../../reference/current/core/check#css" >}}) (also parameterized with Gatling Expression Language to capture a part of the HTML response, here a hyperlink, and save it in the user Session under the name *computerUrl*.
+4. We use Session data through [Gatling Expression Language]({{< ref "/reference/script/core/session/el" >}}) to parameterize the search.
+5. We use a [CSS selector check]({{< ref "/reference/script/core/checks#css" >}}) (also parameterized with Gatling Expression Language to capture a part of the HTML response, here a hyperlink, and save it in the user Session under the name *computerUrl*.
 6. We use the previously saved hyperlink to get a specific page.
 
 {{< alert tip >}}
-For more details regarding *Feeders*, please check out the [Feeder reference page]({{< ref "../../reference/current/core/session/feeder" >}}).
+For more details regarding *Feeders*, please check out the [Feeder reference page]({{< ref "/reference/script/core/session/feeders" >}}).
 
-For more details regarding *HTTP Checks*, please check out the [Checks reference page]({{< ref "../../reference/current/http/check" >}}).
+For more details regarding *HTTP Checks*, please check out the [Checks reference page]({{< ref "/reference/script/protocols/http/checks" >}}).
 {{< /alert >}}
 
 ## Step 4: Looping
@@ -128,7 +131,7 @@ Explanations:
 2. As we set the counter name we can use it in Gatling EL and access the nth page.
 
 {{< alert tip >}}
-For more details regarding loops, please check out the [Loops reference page]({{< ref "../../reference/current/core/scenario#loops" >}}).
+For more details regarding loops, please check out the [Loops reference page]({{< ref "/reference/script/core/scenario#loop-statements" >}}).
 {{< /alert >}}
 
 ## Step 5: Check and failure management
@@ -159,7 +162,7 @@ Explanations:
 2. If all tries fail, the user exits the whole scenario due to `exitHereIfFailed`.
 
 {{< alert tip >}}
-For more details regarding conditional blocks, please check out the [Conditional Statements reference page]({{< ref "../../reference/current/core/scenario#conditional-statements" >}}).
+For more details regarding conditional blocks, please check out the [Conditional Statements reference page]({{< ref "/reference/script/core/scenario#conditional-statements" >}}).
 {{< /alert >}}
 
 That's all Folks!

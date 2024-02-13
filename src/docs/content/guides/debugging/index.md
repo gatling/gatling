@@ -1,10 +1,11 @@
 ---
-title: "Debugging"
-description: "Debugging of Gatling"
-lead: "Debug Gatling by printing session values or with logback"
+menutitle: Debugging 
+title: Debugging guide
+seotitle: Debugging guide for Gatling scripts
+description: Debug Gatling scripts by printing session values or with logback.
+lead: Debug Gatling scripts by printing session values or with logback.
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
-weight: 3010000
 ---
 
 ## Printing Session Values
@@ -12,8 +13,8 @@ weight: 3010000
 Print a session value.
 
 {{< alert warning >}}
-// Only use `println` for debugging, not under load.
-// sysout is a slow blocking output, massively writing in here will freeze Gatling's engine and break your test.
+Only use `println` for debugging, not under load.
+sysout is a slow blocking output, massively writing in here will freeze Gatling's engine and break your test.
 {{< /alert >}}
 
 {{< include-code "print-session-value" java kt scala >}}

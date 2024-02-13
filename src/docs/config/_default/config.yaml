@@ -1,11 +1,13 @@
-baseurl: http://localhost:1313/docs
+baseurl: http://localhost:1313
 
 theme: "github.com/gatling/gatling.io-doc-theme"
 
+disableKinds:
+  - "taxonomy"
 disableHugoGeneratorInject: true
 enableEmoji: true
 enableGitInfo: false
-enableRobotsTXT: true
+enableRobotsTXT: false
 languageCode: en-US
 paginate: 7
 rssLimit: 10
@@ -13,10 +15,8 @@ rssLimit: 10
 outputs:
   home:
     - HTML
-    - RSS
   section:
     - HTML
-    - RSS
     - SITEMAP
 
 outputFormats:
@@ -53,6 +53,7 @@ markup:
     style: monokailight
     tabWidth: 2
 
+pygmentsCodeFences: true
 pygmentsUseClasses: true
 
 minify:
@@ -70,6 +71,8 @@ module:
   noVendor: ''
   private: '*.*'
   proxy: direct
+  imports:
+    - path: github.com/gatling/gatling.io-doc-theme
   mounts:
     - source: assets
       target: assets
