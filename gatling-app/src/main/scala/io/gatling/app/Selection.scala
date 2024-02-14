@@ -41,11 +41,7 @@ object Selection {
       val simulation: SimulationClass =
         forcedSimulationClass.getOrElse {
           val simulationClasses: List[SimulationClass] =
-            if (configuration.core.directory.reportsOnly.isDefined) {
-              Nil
-            } else {
-              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration.core.directory)).simulationClasses.sortBy(_.canonicalName)
-            }
+            SimulationClassLoader(GatlingFiles.binariesDirectory(configuration.core.directory)).simulationClasses.sortBy(_.canonicalName)
 
           singleSimulationFromConfig(simulationClasses, configDefinedSimulationClassName)
             .orElse(singleSimulationFromList(simulationClasses))
