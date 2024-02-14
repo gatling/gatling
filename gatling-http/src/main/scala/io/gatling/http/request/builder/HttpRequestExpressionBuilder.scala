@@ -72,7 +72,7 @@ class HttpRequestExpressionBuilder(
       params: List[HttpParam],
       maybeForm: Option[Expression[Map[String, Any]]],
       session: Session
-  ): Validation[ju.List[Param]] = { 
+  ): Validation[ju.List[Param]] = {
     val formParams = resolveParamJList(params, session)
 
     maybeForm match {
