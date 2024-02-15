@@ -16,20 +16,16 @@
 
 package io.gatling.graphite.types
 
-import scala.collection.mutable
-
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.core.ConfigKeys._
+import io.gatling.core.config.ConfigKeys._
 import io.gatling.core.config.GatlingConfiguration
 
 class RequestMetricsBufferSpec extends BaseSpec {
   private val configuration = GatlingConfiguration.loadForTest(
-    mutable.Map(
-      charting.indicators.Percentile1 -> 95,
-      charting.indicators.Percentile2 -> 99,
-      http.RequestTimeout -> 60000
-    )
+    charting.indicators.Percentile1 -> 95,
+    charting.indicators.Percentile2 -> 99,
+    http.RequestTimeout -> 60000
   )
 
   private def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)

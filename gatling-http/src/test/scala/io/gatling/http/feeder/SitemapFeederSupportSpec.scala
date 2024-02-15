@@ -16,8 +16,6 @@
 
 package io.gatling.http.feeder
 
-import java.nio.file.Paths
-
 import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
 import io.gatling.core.config.GatlingConfiguration
@@ -27,7 +25,7 @@ class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "create sitemap feeder" should "get file resource" in {
-    val feederBuilder = sitemap(Resource.resolveResource(None, "sitemap.xml"))
+    val feederBuilder = sitemap(Resource.resolveResource("sitemap.xml"))
     feederBuilder.readRecords.length shouldBe 5
   }
 

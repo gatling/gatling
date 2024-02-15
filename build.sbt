@@ -3,8 +3,6 @@ import sbt._
 import _root_.io.gatling.build.license.ApacheV2License
 
 import BuildSettings._
-import Bundle._
-import ConfigFiles._
 import Dependencies._
 import VersionFile._
 
@@ -47,9 +45,7 @@ lazy val root = Project("gatling-parent", file("."))
     graphite,
     app,
     recorder,
-    testFramework,
-    bundle,
-    compiler
+    testFramework
   )
   .settings(basicSettings)
   .settings(skipPublishing)
@@ -119,7 +115,6 @@ lazy val core = gatlingModule("gatling-core")
   .dependsOn(sharedEnterprise)
   .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
-  .settings(copyGatlingDefaults(compiler))
 
 lazy val coreJava = gatlingModule("gatling-core-java")
   .dependsOn(core % "compile->compile;test->test")
@@ -174,10 +169,6 @@ lazy val graphite = gatlingModule("gatling-graphite")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= graphiteDependencies)
 
-lazy val compiler = gatlingModule("gatling-compiler")
-  .disablePlugins(SbtSpotless)
-  .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
-
 lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .disablePlugins(SbtSpotless)
   .dependsOn(core, http)
@@ -196,18 +187,6 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
   .disablePlugins(SbtSpotless)
   .dependsOn(app)
   .settings(libraryDependencies ++= testFrameworkDependencies)
-
-lazy val bundle = gatlingModule("gatling-bundle")
-  .dependsOn(app, recorder)
-  .enablePlugins(UniversalPlugin)
-  .settings(bundleSettings(core, bundleSamples, recorder))
-  .settings(libraryDependencies ++= bundleDependencies)
-
-lazy val bundleSamples = gatlingModule("gatling-bundle-samples")
-  .dependsOn(app)
-  .settings(
-    skipPublishing
-  )
 
 lazy val publicSamples = Project("gatling-samples", file("gatling-samples"))
   .dependsOn(app)

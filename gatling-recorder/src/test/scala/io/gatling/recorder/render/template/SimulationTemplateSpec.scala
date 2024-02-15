@@ -20,14 +20,14 @@ import io.gatling.BaseSpec
 
 class SimulationTemplateSpec extends BaseSpec {
   "renderNonBaseUrls template" should "generate empty string if no variables" in {
-    SimulationTemplate.renderNonBaseUrls(Nil, Format.Scala) shouldBe empty
+    SimulationTemplate.renderNonBaseUrls(Nil, RenderingFormat.Scala) shouldBe empty
   }
 
   it should "list variables" in {
-    val raw = SimulationTemplate.renderNonBaseUrls(Seq(UrlVal("name1", "url1"), UrlVal("name2", "url2")), Format.Scala)
+    val raw = SimulationTemplate.renderNonBaseUrls(Seq(UrlVal("name1", "url1"), UrlVal("name2", "url2")), RenderingFormat.Scala)
     raw.linesIterator.map(_.trim).filter(_.nonEmpty).toList shouldBe List(
-      s"""private val name1 = ${"url1".protect(Format.Scala)}""",
-      s"""private val name2 = ${"url2".protect(Format.Scala)}"""
+      s"""private val name1 = ${"url1".protect(RenderingFormat.Scala)}""",
+      s"""private val name2 = ${"url2".protect(RenderingFormat.Scala)}"""
     )
   }
 }

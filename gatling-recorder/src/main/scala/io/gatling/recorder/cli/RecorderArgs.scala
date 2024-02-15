@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder
+package io.gatling.recorder.cli
 
-import io.gatling.commons.util.DefaultClock
-import io.gatling.recorder.cli.RecorderArgsParser
-import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.controller.RecorderController
+import java.nio.file.Path
 
-object GatlingRecorder {
-  def main(args: Array[String]): Unit = {
-    val argsParser = new RecorderArgsParser(args)
-    RecorderConfiguration.initialSetup(argsParser.parseArguments)
-    new RecorderController(new DefaultClock)
-  }
-}
+import io.gatling.recorder.render.template.RenderingFormat
+final case class RecorderArgs(
+    simulationsFolder: Path,
+    resourcesFolder: Path,
+    pkg: Option[String],
+    className: Option[String],
+    format: Option[RenderingFormat]
+)

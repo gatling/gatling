@@ -23,7 +23,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-import io.gatling.app.cli.ArgsParser
+import io.gatling.app.cli.{ GatlingArgsParser, GatlingOptions }
+import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.scenario.Simulation
 import io.gatling.netty.util.Transports
@@ -39,19 +40,16 @@ object Gatling extends StrictLogging {
     // [e]
     //
     // [e]
-    sys.exit(fromArgs(args, None))
+    sys.exit(fromArgs(args))
   }
-
-  // used by Engine
-  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
 
   // used by sbt-test-framework
   private[gatling] def fromSbtTestFramework(args: Array[String], selectedSimulationClass: Class[Simulation]): Int =
-    fromArgs(args, Some(SimulationClass.Scala(selectedSimulationClass)))
+    fromArgs(args ++ Array(s"-${GatlingOptions.Simulation}", selectedSimulationClass.getName))
 
-  private def fromArgs(args: Array[String], forcedSimulationClass: Option[SimulationClass]): Int =
-    new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, forcedSimulationClass)
+  private def fromArgs(args: Array[String]): Int =
+    new GatlingArgsParser(args).parseArguments match {
+      case Left(gatlingArgs) => start(gatlingArgs)
       case Right(statusCode) => statusCode.code
     }
 
@@ -64,7 +62,7 @@ object Gatling extends StrictLogging {
         logger.debug("Could not terminate ActorSystem", e)
     }
 
-  private def start(overrides: ConfigOverrides, forcedSimulationClass: Option[SimulationClass]) =
+  private def start(gatlingArgs: GatlingArgs) =
     try {
       // [e]
       //
@@ -76,20 +74,20 @@ object Gatling extends StrictLogging {
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
       FileSystems.getDefault
-      val configuration = GatlingConfiguration.load(overrides)
+      val configuration = GatlingConfiguration.load()
       logger.trace("Configuration loaded")
       logger.trace("ActorSystem instantiated")
       val runResult =
-        configuration.core.directory.reportsOnly match {
+        gatlingArgs.reportsOnly match {
           case Some(runId) => new RunResult(runId, hasAssertions = true)
           case _           =>
             // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
             val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
             val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, configuration.netty.useIoUring, 0, "gatling")
             try {
-              val runner = Runner(system, eventLoopGroup, configuration)
+              val runner = Runner(system, eventLoopGroup, gatlingArgs, configuration)
               logger.trace("Runner instantiated")
-              runner.run(forcedSimulationClass)
+              runner.run()
             } catch {
               case e: Throwable =>
                 logger.error("Run crashed", e)
@@ -99,7 +97,7 @@ object Gatling extends StrictLogging {
               eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
             }
         }
-      new RunResultProcessor(configuration).processRunResult(runResult).code
+      new RunResultProcessor(gatlingArgs, configuration).processRunResult(runResult).code
     } finally {
       val factory = LoggerFactory.getILoggerFactory
       try {

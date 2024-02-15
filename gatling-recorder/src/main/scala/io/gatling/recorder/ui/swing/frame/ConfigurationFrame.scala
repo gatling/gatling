@@ -17,7 +17,7 @@
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
-import java.nio.file.Paths
+import java.nio.file.Path
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.jdk.CollectionConverters._
@@ -29,12 +29,13 @@ import scala.swing.event._
 import scala.util.Try
 
 import io.gatling.commons.util.StringHelper.RichString
+import io.gatling.core.filter.{ AllowList, DenyList }
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
-import io.gatling.recorder.render.template.Format
+import io.gatling.recorder.render.template.RenderingFormat
 import io.gatling.recorder.ui.RecorderFrontEnd
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component._
@@ -42,6 +43,8 @@ import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
+
+import com.softwaremill.quicklens._
 
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing
@@ -72,8 +75,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = DirectoriesOnly }
   private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.saveSelection().foreach { dir =>
     generateCAFiles(dir)
-    certificatePathChooser.setPath(s"$dir/${OnTheFly.GatlingCACrtFile}")
-    privateKeyPathChooser.setPath(s"$dir/${OnTheFly.GatlingCAKeyFile}")
+    certificatePathChooser.setPath(dir.resolve(OnTheFly.GatlingCACrtFile))
+    privateKeyPathChooser.setPath(dir.resolve(OnTheFly.GatlingCAKeyFile))
   }))
 
   /* Har Panel components */
@@ -83,7 +86,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
   private val simulationClassName = new TextField(30)
-  private val simulationFormat = new LabelledComboBox[Format](Format.AllFormats)
+  private val simulationFormat = new LabelledComboBox[RenderingFormat](RenderingFormat.AllFormats)
   private val followRedirects = new CheckBox("Follow Redirects?")
   private val inferHtmlResources = new CheckBox("Infer HTML resources?")
   private val removeCacheHeaders = new CheckBox("Remove cache headers?")
@@ -340,9 +343,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     case SelectionChanged(`httpsModes`) =>
       toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
-      val props = new RecorderPropertiesBuilder
-      props.saveConfig(savePreferences.selected)
-      RecorderConfiguration.reload(props.build)
+      val newRecorderConfiguration = RecorderConfiguration.recorderConfiguration.modify(_.core.saveConfig).setTo(true)
+      RecorderConfiguration.reload(newRecorderConfiguration)
       RecorderConfiguration.saveConfig()
   }
 
@@ -468,13 +470,13 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
 
   private def selectedHttpsMode = httpsModes.selection.item
 
-  def harFilePath = harPathChooser.selection
+  def harFilePath: Path = Path.of(harPathChooser.selection)
 
-  def updateHarFilePath(path: Option[String]): Unit = path.foreach(p => harPathChooser.setPath(p))
+  def updateHarFilePath(path: Option[Path]): Unit = path.foreach(harPathChooser.setPath)
 
-  private def generateCAFiles(directory: String): Unit = {
+  private def generateCAFiles(directory: Path): Unit = {
     SslUtil.generateGatlingCAPEMFiles(
-      Paths.get(directory),
+      directory,
       OnTheFly.GatlingCAKeyFile,
       OnTheFly.GatlingCACrtFile
     )
@@ -507,8 +509,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     keyStorePassword.text = configuration.proxy.https.keyStore.password
     keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
 
-    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath.toString)
-    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath.toString)
+    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath)
+    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath)
 
     configuration.proxy.outgoing.host.foreach { proxyHost =>
       outgoingProxyHost.text = proxyHost
@@ -533,7 +535,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     configuration.filters.denyList.patterns.foreach(denyListTable.addRow)
     configuration.filters.allowList.patterns.foreach(allowListTable.addRow)
     simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
-    outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
+    outputEncoding.selection.item = CharsetHelper.charsetToLabel(configuration.core.encoding)
     useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
     useMethodAndUriAsPostfix.selected = configuration.http.useMethodAndUriAsPostfix
     savePreferences.selected = configuration.core.saveConfig
@@ -556,62 +558,71 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
     } else {
-      val props = new RecorderPropertiesBuilder
+      val existingRecorderConfiguration = RecorderConfiguration.recorderConfiguration
+      val newRecorderConfiguration = RecorderConfiguration(
+        core = CoreConfiguration(
+          simulationsFolder = Path.of(simulationsFolderChooser.selection.trim),
+          resourcesFolder = existingRecorderConfiguration.core.resourcesFolder,
+          mode = modeSelector.selection.item,
+          encoding = CharsetHelper.labelToCharset(outputEncoding.selection.item),
+          pkg = simulationPackage.text,
+          className = simulationClassName.text.trim,
+          thresholdForPauseCreation = existingRecorderConfiguration.core.thresholdForPauseCreation,
+          saveConfig = savePreferences.selected,
+          headless = existingRecorderConfiguration.core.headless,
+          harFilePath = harPathChooser.selection.trimToOption.map(p => Path.of(p)),
+          format = simulationFormat.selection.item
+        ),
+        filters = FiltersConfiguration(
+          enabled = enableFilters.selected,
+          allowList = new AllowList(allowListTable.getRegexs),
+          denyList = new DenyList(denyListTable.getRegexs)
+        ),
+        http = HttpConfiguration(
+          automaticReferer = automaticReferers.selected,
+          followRedirect = followRedirects.selected,
+          inferHtmlResources = inferHtmlResources.selected,
+          removeCacheHeaders = removeCacheHeaders.selected,
+          checkResponseBodies = checkResponseBodies.selected,
+          useSimulationAsPrefix = useSimulationAsPrefix.selected,
+          useMethodAndUriAsPostfix = useMethodAndUriAsPostfix.selected
+        ),
+        proxy = ProxyConfiguration(
+          port = Try(localProxyHttpPort.text.toInt).getOrElse(0),
+          https = HttpsModeConfiguration(
+            mode = httpsModes.selection.item,
+            keyStore = KeyStoreConfiguration(
+              path = Path.of(keyStoreChooser.selection),
+              password = keyStorePassword.text,
+              keyStoreType = keyStoreTypes.selection.item
+            ),
+            certificateAuthority = CertificateAuthorityConfiguration(
+              certificatePath = Path.of(certificatePathChooser.selection),
+              privateKeyPath = Path.of(privateKeyPathChooser.selection)
+            )
+          ),
+          outgoing = outgoingProxyHost.text.trimToOption match {
+            case Some(host) =>
+              OutgoingProxyConfiguration(
+                host = Some(host),
+                username = outgoingProxyUsername.text.trimToOption,
+                password = outgoingProxyPassword.text.trimToOption,
+                port = Some(outgoingProxyHttpPort.text.toInt),
+                sslPort = Some(outgoingProxyHttpsPort.text.toInt)
+              )
+            case _ =>
+              OutgoingProxyConfiguration(
+                host = None,
+                username = None,
+                password = None,
+                port = None,
+                sslPort = None
+              )
+          }
+        )
+      )
 
-      props.mode(modeSelector.selection.item)
-
-      props.harFilePath(harPathChooser.selection)
-
-      // Local proxy
-      props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
-
-      props.httpsMode(httpsModes.selection.item.toString)
-
-      props.keystorePath(keyStoreChooser.selection)
-      props.keyStorePassword(keyStorePassword.text)
-      props.keyStoreType(keyStoreTypes.selection.item.toString)
-
-      props.certificatePath(certificatePathChooser.selection)
-      props.privateKeyPath(privateKeyPathChooser.selection)
-
-      // Outgoing proxy
-      outgoingProxyHost.text.trimToOption match {
-        case Some(host) =>
-          props.proxyHost(host)
-          props.proxyPort(outgoingProxyHttpPort.text.toInt)
-          props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
-          outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
-          outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
-
-        case _ =>
-          props.proxyHost("")
-          props.proxyPort(0)
-          props.proxySslPort(0)
-          props.proxyUsername("")
-          props.proxyPassword("")
-      }
-
-      // Filters
-      props.enableFilters(enableFilters.selected)
-      props.allowList(allowListTable.getRegexs.asJava)
-      props.denyList(denyListTable.getRegexs.asJava)
-
-      // Simulation config
-      props.simulationPackage(simulationPackage.text)
-      props.simulationClassName(simulationClassName.text.trim)
-      props.simulationFormat(simulationFormat.selection.item)
-      props.followRedirect(followRedirects.selected)
-      props.inferHtmlResources(inferHtmlResources.selected)
-      props.removeCacheHeaders(removeCacheHeaders.selected)
-      props.checkResponseBodies(checkResponseBodies.selected)
-      props.automaticReferer(automaticReferers.selected)
-      props.simulationsFolder(simulationsFolderChooser.selection.trim)
-      props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
-      props.useSimulationAsPrefix(useSimulationAsPrefix.selected)
-      props.useMethodAndUriAsPostfix(useMethodAndUriAsPostfix.selected)
-      props.saveConfig(savePreferences.selected)
-
-      RecorderConfiguration.reload(props.build)
+      RecorderConfiguration.reload(newRecorderConfiguration)
 
       if (savePreferences.selected) {
         RecorderConfiguration.saveConfig()

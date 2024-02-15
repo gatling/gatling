@@ -18,7 +18,7 @@ package io.gatling.app.classloader
 
 import java.io.File
 import java.lang.reflect.Modifier
-import java.nio.file.Path
+import java.nio.file.{ Files, Path, Paths }
 
 import scala.util.Properties
 
@@ -27,39 +27,21 @@ import io.gatling.core.scenario.Simulation
 import io.gatling.shared.util.PathHelper
 import io.gatling.shared.util.PathHelper._
 
-private[gatling] object SimulationClassLoader {
-  def apply(binariesDirectory: Path): SimulationClassLoader =
-    new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
-
-  private def selectClassLoaderImplementation(binariesDirectory: Path): ClassLoader =
-    if (isInClasspath(binariesDirectory)) getClass.getClassLoader
-    else new FileSystemBackedClassLoader(binariesDirectory, getClass.getClassLoader)
-
-  private def isInClasspath(binariesDirectory: Path): Boolean = {
-    val classpathElements = Properties.javaClassPath split File.pathSeparator
-    classpathElements.contains(binariesDirectory.toString)
-  }
-}
-
-private[gatling] final class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
+private[gatling] final class SimulationClassLoader(classLoader: ClassLoader) {
   def simulationClasses: List[SimulationClass] =
-    PathHelper
-      .deepFiles(binaryDir, _.path.hasExtension("class"))
-      .map(file => classLoader.loadClass(pathToClassName(file.path, binaryDir)))
-      .collect {
-        case clazz if isScalaSimulationClass(clazz) => SimulationClass.Scala(clazz.asInstanceOf[Class[Simulation]])
-        case clazz if isJavaSimulationClass(clazz)  => SimulationClass.Java(clazz.asInstanceOf[Class[JavaSimulation]])
+    Properties.javaClassPath
+      .split(File.pathSeparator)
+      .map(classpathElement => Paths.get(classpathElement))
+      .filter(classpathElement => Files.isDirectory(classpathElement))
+      .flatMap { directory =>
+        PathHelper
+          .deepFiles(directory, _.path.hasExtension("class"))
+          .flatMap { file =>
+            val clazz = classLoader.loadClass(pathToClassName(file.path, directory))
+            SimulationClass.fromClass(clazz).toList
+          }
       }
       .toList
-
-  private def isConcreteClass(clazz: Class[_]): Boolean =
-    !(clazz.isInterface || Modifier.isAbstract(clazz.getModifiers))
-
-  private def isScalaSimulationClass(clazz: Class[_]): Boolean =
-    classOf[Simulation].isAssignableFrom(clazz) && isConcreteClass(clazz)
-
-  private def isJavaSimulationClass(clazz: Class[_]): Boolean =
-    classOf[JavaSimulation].isAssignableFrom(clazz) && isConcreteClass(clazz)
 
   private def pathToClassName(path: Path, root: Path): String =
     path.getParent

@@ -22,9 +22,8 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[swing] object CharsetHelper extends StrictLogging {
   type Label = String
-  type Name = String
 
-  val labelOrderedPairList: List[(Name, Label)] = List(
+  private val labelOrderedPairList: List[(Charset, Label)] = List(
     "utf-8" -> "Unicode (UTF-8)",
     "ISO-8859-1" -> "West European Latin-1 (ISO-8859-1)",
     "windows-1252" -> "West European Latin-1 (Windows-1252)",
@@ -50,15 +49,14 @@ private[swing] object CharsetHelper extends StrictLogging {
     "windows-1254" -> "Turkish (Windows-1254)",
     "windows-1258" -> "Vietnamese (Windows-1258)",
     "ISO-8859-15" -> "West European Latin-9 (ISO-8859-15)"
-  ).filter { case (name, label) =>
-    val supported = Charset.isSupported(name)
-    if (!supported) logger.warn(s"This JVM doesn't support $name $label")
-    supported
+  ).collect {
+    case (name, label) if Charset.isSupported(name) =>
+      Charset.forName(name) -> label
   }
 
-  val charsetNameToLabel: Map[Name, Label] = labelOrderedPairList.toMap
+  val charsetToLabel: Map[Charset, Label] = labelOrderedPairList.toMap
 
   val orderedLabelList: List[Label] = labelOrderedPairList.map(_._2)
 
-  val labelToCharsetName = charsetNameToLabel.map(_.swap)
+  val labelToCharset: Map[Label, Charset] = charsetToLabel.map(_.swap)
 }

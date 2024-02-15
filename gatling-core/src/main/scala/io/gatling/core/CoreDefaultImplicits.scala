@@ -22,7 +22,7 @@ import io.gatling.core.check.jmespath.JmesPaths
 import io.gatling.core.check.jsonpath.JsonPaths
 import io.gatling.core.check.regex.Patterns
 import io.gatling.core.check.xpath.XmlParsers
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
 trait CoreDefaultImplicits {
@@ -36,12 +36,9 @@ trait CoreDefaultImplicits {
   lazy implicit val defaultCssSelectors: CssSelectors = new CssSelectors(configuration.core.extract.css.cacheMaxCapacity)
   lazy implicit val elFileBodies: ElFileBodies =
     new ElFileBodies(
-      GatlingFiles.customResourcesDirectory(configuration.core.directory),
       configuration.core.charset,
       configuration.core.elFileBodiesCacheMaxCapacity
     )
-  lazy implicit val rawFileBodies: RawFileBodies =
-    new RawFileBodies(GatlingFiles.customResourcesDirectory(configuration.core.directory), configuration.core.rawFileBodiesInMemoryMaxSize)
-  lazy implicit val pebbleFileBodies: PebbleFileBodies =
-    new PebbleFileBodies(GatlingFiles.customResourcesDirectory(configuration.core.directory), configuration.core.pebbleFileBodiesCacheMaxCapacity)
+  lazy implicit val rawFileBodies: RawFileBodies = new RawFileBodies(configuration.core.rawFileBodiesInMemoryMaxSize)
+  lazy implicit val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies(configuration.core.pebbleFileBodiesCacheMaxCapacity)
 }

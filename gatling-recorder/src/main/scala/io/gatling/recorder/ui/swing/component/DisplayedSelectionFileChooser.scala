@@ -17,6 +17,7 @@
 package io.gatling.recorder.ui.swing.component
 
 import java.io.File
+import java.nio.file.Path
 import javax.swing.filechooser.FileFilter
 
 import scala.swing._
@@ -57,16 +58,16 @@ private[swing] class DisplayedSelectionFileChooser(
 
   def textField = selectionDisplay
 
-  def setPath(path: String): Unit =
-    selectionDisplay.text = path
+  def setPath(path: Path): Unit =
+    selectionDisplay.text = path.toString
 
   private def fileChooserSelection() = chooserType match {
     case Open => fileChooser.openSelection()
     case Save => fileChooser.saveSelection()
   }
 
-  private def setAndPublish(newValue: String): Unit = {
-    selectionDisplay.text = newValue
+  private def setAndPublish(newValue: Path): Unit = {
+    selectionDisplay.text = newValue.toString
     creator.publish(keyReleased(selectionDisplay))
   }
 

@@ -16,18 +16,18 @@
 
 package io.gatling.core.body
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.EmptySession
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.session._
 
 class PebbleFileBodySpec extends BaseSpec with ValidationValues with EmptySession {
-  private val configuration = GatlingConfiguration.loadForTest()
-  private val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies(GatlingFiles.customResourcesDirectory(configuration.core.directory), Long.MaxValue)
+  private val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies(Long.MaxValue)
 
   "PebbleFileBody" should "support templates inheritance" in {
     val session = emptySession.set("name", "Mitchell")
-    val body = PebbleFileBody("pebble/home.html".expressionSuccess, pebbleFileBodies, configuration.core.charset)
+    val body = PebbleFileBody("pebble/home.html".expressionSuccess, pebbleFileBodies, UTF_8)
     body(session).succeeded shouldBe """<html>
                                        |<head>
                                        |  <title>Home</title>

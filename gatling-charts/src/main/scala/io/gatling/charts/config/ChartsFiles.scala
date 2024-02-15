@@ -19,7 +19,7 @@ package io.gatling.charts.config
 import java.nio.file.{ Path, Paths }
 
 import io.gatling.charts.FileNamingConventions
-import io.gatling.core.config.{ DirectoryConfiguration, GatlingFiles }
+import io.gatling.core.config.GatlingFiles
 
 private[charts] object ChartsFiles {
   private val AllSessionsFile = "all_sessions.js"
@@ -47,10 +47,10 @@ private[charts] object ChartsFiles {
   val GatlingAssetsStylePackage: Path = GatlingAssetsPackage.resolve(GatlingStyleFolder)
 }
 
-private[charts] class ChartsFiles(runUuid: String, configuration: DirectoryConfiguration) {
+private[charts] class ChartsFiles(runUuid: String, resultsDirectory: Path) {
   import ChartsFiles._
 
-  private val resultDirectory = GatlingFiles.resultDirectory(runUuid, configuration)
+  private val resultDirectory = GatlingFiles.resultDirectory(runUuid, resultsDirectory)
 
   val jsDirectory: Path = resultDirectory.resolve(GatlingJsFolder)
 

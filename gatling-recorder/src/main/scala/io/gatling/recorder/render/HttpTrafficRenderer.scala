@@ -16,8 +16,8 @@
 
 package io.gatling.recorder.render
 
-import java.io.{ BufferedOutputStream, File, IOException }
-import java.nio.file.{ Files, Path, Paths }
+import java.io.{ BufferedOutputStream, IOException }
+import java.nio.file.{ Files, Path }
 import java.util.Locale
 
 import scala.annotation.tailrec
@@ -38,15 +38,12 @@ import io.netty.handler.codec.http._
 private[render] object DumpedBodies {
   private[render] def apply(config: RecorderConfiguration): DumpedBodies = {
     val classNameAsFolderName = config.core.className.toLowerCase(Locale.ROOT)
+    val bodiesFolderPath = classNameAsFolderName.split(".").foldLeft(config.core.resourcesFolder)(_.resolve(_))
+    Files.createDirectories(bodiesFolderPath)
 
-    val bodiesFolderPath: Path = {
-      val path = config.core.resourcesFolder + File.separator + config.core.pkg.replace(".", File.separator) + File.separator + classNameAsFolderName
-      Files.createDirectories(Paths.get(path))
-    }
-
-    val bodiesClassPathLocation: String = {
-      val folderPath = config.core.pkg.replace(".", "/")
-      (if (folderPath.isEmpty) "" else folderPath + "/") + classNameAsFolderName
+    val bodiesClassPathLocation: String = config.core.pkg match {
+      case ""  => classNameAsFolderName
+      case pkg => pkg.replace(".", "/") + "/" + classNameAsFolderName
     }
 
     new DumpedBodies(bodiesFolderPath, bodiesClassPathLocation)
@@ -82,7 +79,8 @@ private[render] class DumpedBody(
 
 private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) extends StrictLogging {
   private val simulationFile: Path = {
-    val sourcesFolderPath = Files.createDirectories(Paths.get(config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)))
+    val sourcesFolderPath = config.core.pkg.split(".").foldLeft(config.core.simulationsFolder)(_.resolve(_))
+    Files.createDirectories(sourcesFolderPath)
     sourcesFolderPath.resolve(s"${config.core.className}.${config.core.format.fileExtension}")
   }
 

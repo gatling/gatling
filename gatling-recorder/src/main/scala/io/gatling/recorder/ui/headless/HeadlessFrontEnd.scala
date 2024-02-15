@@ -18,6 +18,7 @@ package io.gatling.recorder.ui.headless
 
 import java.io.{ File, PrintStream }
 import java.lang.management.ManagementFactory
+import java.nio.file.Path
 
 import scala.util.Using
 
@@ -53,7 +54,7 @@ private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration
   override def handleHarExportFailure(message: String): Unit =
     printErr(s"Could not convert HAR file: $message")
 
-  override def harFilePath: String = configuration.core.harFilePath.getOrElse("")
+  override def harFilePath: Path = configuration.core.harFilePath.getOrElse(Path.of(""))
 
   override def handleHarExportSuccess(): Unit =
     println("HAR file successfully converted.")
@@ -79,9 +80,9 @@ private[ui] class HeadlessFrontEnd(controller: RecorderController, configuration
     println("New Gatling simulation created.")
   }
 
-  override def handleMissingHarFile(path: String): Unit = {
+  override def handleMissingHarFile(path: Path): Unit = {
     val errorMessage =
-      if (path.isEmpty) "The HAR file to convert was not specified, either through recorder.conf or through CLI options."
+      if (path.toString.isEmpty) "The HAR file to convert was not specified, either through recorder.conf or through CLI options."
       else s"Could not find the HAR file (path: $path)"
     printErr(errorMessage)
   }

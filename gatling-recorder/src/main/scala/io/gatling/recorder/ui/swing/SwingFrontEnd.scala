@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.ui.swing
 
-import java.nio.file.Paths
+import java.nio.file.Path
 
 import scala.swing.Dialog
 import scala.swing.Swing._
@@ -32,12 +32,12 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this, configuration)
 
-  def selectedRecorderMode: RecorderMode = configurationFrame.selectedRecorderMode
+  override def selectedRecorderMode: RecorderMode = configurationFrame.selectedRecorderMode
 
-  def harFilePath: String = configurationFrame.harFilePath
+  override def harFilePath: Path = configurationFrame.harFilePath
 
-  def handleMissingHarFile(harFilePath: String): Unit =
-    if (harFilePath.isEmpty) {
+  override def handleMissingHarFile(harFilePath: Path): Unit =
+    if (harFilePath.toString.isEmpty) {
       Dialog.showMessage(
         title = "Error",
         message = "You haven't selected an HAR file.",
@@ -56,19 +56,19 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
       } else {
         val selector = new DialogFileSelector(configurationFrame, possibleMatches)
         selector.open()
-        val parentPath = Paths.get(harFilePath).getParent
-        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => parentPath.resolve(file).toString))
+        val parentPath = harFilePath.getParent
+        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => parentPath.resolve(file)))
       }
     }
 
-  def handleHarExportSuccess(): Unit =
+  override def handleHarExportSuccess(): Unit =
     Dialog.showMessage(
       title = "Conversion complete",
       message = "Successfully converted HAR file to a Gatling simulation",
       messageType = Dialog.Message.Info
     )
 
-  def handleHarExportFailure(message: String): Unit =
+  override def handleHarExportFailure(message: String): Unit =
     Dialog.showMessage(
       title = "Error",
       message = s"""|Export to HAR File unsuccessful: $message.
@@ -76,14 +76,14 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
       messageType = Dialog.Message.Error
     )
 
-  def handleFilterValidationFailures(failures: Seq[String]): Unit =
+  override def handleFilterValidationFailures(failures: Seq[String]): Unit =
     Dialog.showMessage(
       title = "Error",
       message = failures.mkString("\n"),
       messageType = Dialog.Message.Error
     )
 
-  def askSimulationOverwrite: Boolean =
+  override def askSimulationOverwrite: Boolean =
     Dialog.showConfirmation(
       title = "Warning",
       message = "You are about to overwrite an existing simulation.",
@@ -91,22 +91,22 @@ private[ui] class SwingFrontEnd(controller: RecorderController, configuration: R
       messageType = Dialog.Message.Warning
     ) == Dialog.Result.Ok
 
-  def init(): Unit = {
+  override def init(): Unit = {
     configurationFrame.visible = true
     runningFrame.visible = false
   }
 
-  def recordingStarted(): Unit = {
+  override def recordingStarted(): Unit = {
     runningFrame.visible = true
     configurationFrame.visible = false
   }
 
-  def recordingStopped(): Unit = runningFrame.clearState()
+  override def recordingStopped(): Unit = runningFrame.clearState()
 
-  def receiveEvent(event: FrontEndEvent): Unit = onEDT(runningFrame.receiveEvent(event))
+  override def receiveEvent(event: FrontEndEvent): Unit = onEDT(runningFrame.receiveEvent(event))
 
-  private def lookupFiles(path: String): List[String] = {
-    val parent = Paths.get(path).getParent
+  private def lookupFiles(path: Path): List[String] = {
+    val parent = path.getParent
     PathHelper.files(parent).collect { case p if p.path.startsWith(path) => p.filename }.toList
   }
 }

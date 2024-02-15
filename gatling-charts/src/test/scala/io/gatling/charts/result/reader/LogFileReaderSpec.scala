@@ -16,12 +16,12 @@
 
 package io.gatling.charts.result.reader
 
-import scala.collection.mutable
+import java.nio.file.Paths
 
 import io.gatling.BaseSpec
-import io.gatling.charts.stats.LogFileReader
-import io.gatling.core.ConfigKeys._
-import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
+import io.gatling.charts.stats.{ LogFileData, LogFileReader }
+import io.gatling.core.config.ConfigKeys._
+import io.gatling.core.config.GatlingConfiguration
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class LogFileReaderSpec extends BaseSpec {
@@ -74,21 +74,23 @@ class LogFileReaderSpec extends BaseSpec {
   //		}
   //	}
 
-  private val singleLogFileData = LogFileReader(
-    "run_single_node_with_known_stats",
-    GatlingConfiguration.loadForTest(new GatlingPropertiesBuilder().resultsDirectory("src/test/resources").build)
-  ).read()
+  private def logFileData(props: (String, _ <: Any)*): LogFileData = {
+    val runUuid = "single_node_with_known_stats"
+    val resultsDirectory = Paths.get(Thread.currentThread().getContextClassLoader.getResource(s"$runUuid/simulation.log").toURI).getParent.getParent
+    val configuration = GatlingConfiguration.loadForTest(props: _*)
+    LogFileReader(runUuid, resultsDirectory, configuration).read()
+  }
 
-  "When reading a single log file with known statistics, FileDataReder" should "return expected minResponseTime for correct request data" in {
-    singleLogFileData.requestGeneralStats(None, None, None).min shouldBe 2000
+  "When reading a single log file with known statistics, FileDataReader" should "return expected minResponseTime for correct request data" in {
+    logFileData().requestGeneralStats(None, None, None).min shouldBe 2000
   }
 
   it should "return expected maxResponseTime for correct request data" in {
-    singleLogFileData.requestGeneralStats(None, None, None).max shouldBe 9000
+    logFileData().requestGeneralStats(None, None, None).max shouldBe 9000
   }
 
   it should "return expected responseTimeStandardDeviation for correct request data" in {
-    val computedValue = singleLogFileData.requestGeneralStats(None, None, None).stdDev
+    val computedValue = logFileData().requestGeneralStats(None, None, None).stdDev
     val expectedValue = 2138
     val error = (computedValue.toDouble - expectedValue) / expectedValue
 
@@ -96,34 +98,28 @@ class LogFileReaderSpec extends BaseSpec {
   }
 
   it should "return expected responseTimePercentile for the (0, 0.7) percentiles" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.Percentile1, 0)
-    props.put(charting.indicators.Percentile2, 70)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.requestGeneralStats(None, None, None).percentile(configuration.reports.indicators.percentile1) shouldBe 2000
-    fileData.requestGeneralStats(None, None, None).percentile(configuration.reports.indicators.percentile2) shouldBe 5000
+    val fileData = logFileData(
+      charting.indicators.Percentile1 -> 0,
+      charting.indicators.Percentile2 -> 70
+    )
+    fileData.requestGeneralStats(None, None, None).percentile(0) shouldBe 2000
+    fileData.requestGeneralStats(None, None, None).percentile(70) shouldBe 5000
   }
 
   it should "return expected result for the (99.99, 100) percentiles" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.Percentile1, 99)
-    props.put(charting.indicators.Percentile2, 100)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
-    fileData.requestGeneralStats(None, None, None).percentile(configuration.reports.indicators.percentile1) shouldBe 8860
-    fileData.requestGeneralStats(None, None, None).percentile(configuration.reports.indicators.percentile2) shouldBe 9000
+    val fileData = logFileData(
+      charting.indicators.Percentile1 -> 99,
+      charting.indicators.Percentile2 -> 100
+    )
+    fileData.requestGeneralStats(None, None, None).percentile(99) shouldBe 8860
+    fileData.requestGeneralStats(None, None, None).percentile(100) shouldBe 9000
   }
 
   it should "indicate that all the request have their response time in between 0 and 100000" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.LowerBound, 0)
-    props.put(charting.indicators.HigherBound, 100000)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
+    val fileData = logFileData(
+      charting.indicators.LowerBound -> 0,
+      charting.indicators.HigherBound -> 100000
+    )
     val ranges = fileData.numberOfRequestInResponseTimeRanges(None, None)
     ranges.lowCount shouldBe 0
     ranges.middleCount shouldBe 8
@@ -132,32 +128,26 @@ class LogFileReaderSpec extends BaseSpec {
   }
 
   it should "indicate that 1 request had a response time below 2500ms" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.LowerBound, 2500)
-    props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
+    val fileData = logFileData(
+      charting.indicators.LowerBound -> 2500,
+      charting.indicators.HigherBound -> 5000
+    )
     fileData.numberOfRequestInResponseTimeRanges(None, None).lowCount shouldBe 1
   }
 
   it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.LowerBound, 2500)
-    props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
+    val fileData = logFileData(
+      charting.indicators.LowerBound -> 2500,
+      charting.indicators.HigherBound -> 5000
+    )
     fileData.numberOfRequestInResponseTimeRanges(None, None).middleCount shouldBe 3
   }
 
   it should "indicate that 2 request had a response time above 5000ms" in {
-    val props = mutable.Map.empty[String, Any]
-    props.put(charting.indicators.LowerBound, 2500)
-    props.put(charting.indicators.HigherBound, 5000)
-    props.put(core.directory.Results, "src/test/resources")
-    val configuration = GatlingConfiguration.loadForTest(props)
-    val fileData = LogFileReader("run_single_node_with_known_stats", configuration).read()
+    val fileData = logFileData(
+      charting.indicators.LowerBound -> 2500,
+      charting.indicators.HigherBound -> 5000
+    )
     fileData.numberOfRequestInResponseTimeRanges(None, None).highCount shouldBe 4
   }
 }

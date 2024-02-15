@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.controller
 
-import java.nio.file.{ Files, Paths }
+import java.nio.file.Files
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import scala.concurrent.duration.DurationLong
@@ -49,10 +49,9 @@ private[recorder] final class RecorderController(clock: Clock) extends StrictLog
     val config = RecorderConfiguration.recorderConfiguration
     converter = new HttpTrafficConverter(config)
     val selectedMode = frontEnd.selectedRecorderMode
-    val harFilePath = frontEnd.harFilePath
-    val harFile = Paths.get(harFilePath)
+    val harFile = frontEnd.harFilePath
     if (selectedMode == Har && !Files.exists(harFile)) {
-      frontEnd.handleMissingHarFile(harFilePath)
+      frontEnd.handleMissingHarFile(harFile)
     } else {
       val proceed = if (converter.simulationFileExists) frontEnd.askSimulationOverwrite else true
       if (proceed) {

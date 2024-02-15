@@ -17,7 +17,6 @@
 package io.gatling.core.body
 
 import java.nio.charset.Charset
-import java.nio.file.Path
 
 import io.gatling.commons.validation._
 import io.gatling.core.session._
@@ -26,9 +25,9 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-final class ElFileBodies(customResourcesDirectory: Option[Path], charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
+final class ElFileBodies(charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
   private def compileFile(path: String): Validation[List[ElBody.ElBodyPart]] =
-    cachedResource(customResourcesDirectory, path).flatMap { resource =>
+    cachedResource(path).flatMap { resource =>
       safely() {
         val string = resource.string(charset)
         ElBody.toParts(string, charset).success

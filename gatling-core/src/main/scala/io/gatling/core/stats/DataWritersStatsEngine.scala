@@ -16,6 +16,7 @@
 
 package io.gatling.core.stats
 
+import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.concurrent.{ Await, ExecutionContext, Future }
@@ -40,17 +41,24 @@ object DataWritersStatsEngine {
       runMessage: RunMessage,
       system: ActorSystem,
       clock: Clock,
+      resultsDirectory: Option[Path],
       configuration: GatlingConfiguration
   ): DataWritersStatsEngine = {
+    def dataWriterActor(className: String, args: Any*): ActorRef = {
+      val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+      system.actorOf(Props(clazz, args: _*), className)
+    }
+
     val dataWriters = configuration.data.dataWriters
       .map {
-        case DataWriterType.Console  => "io.gatling.core.stats.writer.ConsoleDataWriter"
-        case DataWriterType.File     => "io.gatling.core.stats.writer.LogFileDataWriter"
-        case DataWriterType.Graphite => "io.gatling.graphite.GraphiteDataWriter"
-      }
-      .map { className =>
-        val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-        system.actorOf(Props(clazz, clock, configuration), className)
+        case DataWriterType.Console => dataWriterActor("io.gatling.core.stats.writer.ConsoleDataWriter", clock, configuration)
+        case DataWriterType.File =>
+          dataWriterActor(
+            "io.gatling.core.stats.writer.LogFileDataWriter",
+            resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
+            configuration
+          )
+        case DataWriterType.Graphite => dataWriterActor("io.gatling.graphite.GraphiteDataWriter", clock, configuration)
       }
 
     val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)

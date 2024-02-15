@@ -16,13 +16,16 @@
 
 package io.gatling.app
 
+import java.nio.file.Path
+
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.{ LogFileData, LogFileReader }
+import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult, AssertionValidator }
 
-private final class RunResultProcessor(configuration: GatlingConfiguration) {
+private final class RunResultProcessor(gatlingArgs: GatlingArgs, configuration: GatlingConfiguration) {
   def processRunResult(runResult: RunResult): StatusCode =
     // [e]
     //
@@ -39,11 +42,14 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
         StatusCode.Success
     }
 
+  private def resultsDirectory: Path =
+    gatlingArgs.resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't generate reports if resultsDirectory is not set"))
+
   private def initLogFileData(runResult: RunResult): Option[LogFileData] =
     if (reportsGenerationEnabled || runResult.hasAssertions) {
       val start = System.currentTimeMillis()
       println("Parsing log file(s)...")
-      val logFileData = LogFileReader(runResult.runId, configuration).read()
+      val logFileData = LogFileReader(runResult.runId, resultsDirectory, configuration).read()
       println(s"Parsing log file(s) done in ${(System.currentTimeMillis() - start) / 1000}s.")
       Some(logFileData)
     } else {
@@ -51,13 +57,13 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     }
 
   private def reportsGenerationEnabled: Boolean =
-    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.reports.noReports)
+    gatlingArgs.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !gatlingArgs.noReports)
 
   private def generateReports(runId: String, logFileData: LogFileData, assertionResults: List[AssertionResult]): Unit =
     if (reportsGenerationEnabled) {
       println("Generating reports...")
       val reportsGenerationInputs = new ReportsGenerationInputs(runId, logFileData, assertionResults)
-      val indexFile = new ReportsGenerator(configuration.data.zoneId, configuration.core.charset, configuration.core.directory, configuration.reports)
+      val indexFile = new ReportsGenerator(configuration.data.zoneId, configuration.core.charset, resultsDirectory, configuration.reports)
         .generateFor(reportsGenerationInputs)
       println(s"Reports generated, please open the following file: ${indexFile.toUri}")
     }

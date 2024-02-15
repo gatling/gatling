@@ -27,10 +27,10 @@ package object template {
   private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
 
   private[template] implicit final class TemplateString(val string: String) extends AnyVal {
-    def protect(format: Format): String =
+    def protect(format: RenderingFormat): String =
       format match {
-        case Format.Scala | Format.Kotlin => multilineString
-        case _                            => protectJavaString
+        case RenderingFormat.Scala | RenderingFormat.Kotlin => multilineString
+        case _                                              => protectJavaString
       }
 
     private def multilineString: String = {

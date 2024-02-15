@@ -40,7 +40,7 @@ object ExtractedUris {
     paths.reduce(longestCommonRootRec).toSeq.mkString("/")
   }
 
-  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String, format: Format): Map[String, String] =
+  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String, format: RenderingFormat): Map[String, String] =
     urls.map { url =>
       val restPath = url.getPath.substring(longestCommonPath.length)
       val tail = s"$restPath${query(url)}"
@@ -54,7 +54,7 @@ object ExtractedUris {
       url.toString -> urlTail
     }.toMap
 
-  private def extractCommonHostUrls(uris: List[Uri], valName: String, format: Format): Map[String, String] =
+  private def extractCommonHostUrls(uris: List[Uri], valName: String, format: RenderingFormat): Map[String, String] =
     uris
       .map(uri => uri.toString -> s""""${uri.getScheme}://${user(uri)}" + $valName + ${s"${port(uri)}${uri.getPath}${query(uri)}".protect(format)}""")
       .toMap
@@ -80,7 +80,7 @@ object ExtractedUris {
    * @param scenarioElements
    *   \- contains uris to extracts common parts from
    */
-  def apply(scenarioElements: Seq[HttpTrafficElement], format: Format): ExtractedUris = {
+  def apply(scenarioElements: Seq[HttpTrafficElement], format: RenderingFormat): ExtractedUris = {
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
 
     val urisGroupedByHost: Map[String, List[Uri]] =

@@ -16,6 +16,8 @@
 
 package io.gatling.recorder.ui
 
+import java.nio.file.Path
+
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.headless.HeadlessFrontEnd
@@ -32,9 +34,9 @@ private[recorder] abstract class RecorderFrontEnd(controller: RecorderController
   //////////////////////////////////////
   def selectedRecorderMode: RecorderMode
 
-  def harFilePath: String
+  def harFilePath: Path
 
-  def handleMissingHarFile(path: String): Unit
+  def handleMissingHarFile(path: Path): Unit
 
   def handleHarExportSuccess(): Unit
 

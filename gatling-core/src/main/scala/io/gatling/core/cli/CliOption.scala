@@ -14,17 +14,6 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder
+package io.gatling.core.cli
 
-import io.gatling.commons.util.DefaultClock
-import io.gatling.recorder.cli.RecorderArgsParser
-import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.controller.RecorderController
-
-object GatlingRecorder {
-  def main(args: Array[String]): Unit = {
-    val argsParser = new RecorderArgsParser(args)
-    RecorderConfiguration.initialSetup(argsParser.parseArguments)
-    new RecorderController(new DefaultClock)
-  }
-}
+private[gatling] final class CliOption(val full: String, val abbr: String, val text: String, val valueName: Option[String])

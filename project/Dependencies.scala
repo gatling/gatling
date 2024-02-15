@@ -4,13 +4,8 @@ object Dependencies {
   // Compile dependencies
 
   // format: OFF
-  private def scalaReflect(version: String)  = "org.scala-lang"                       % "scala-reflect"                     % version
-  private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
-    .exclude("org.jline", "jline")
-  private def scalaCompilerBridge(version: String) = "org.scala-lang"                 % "scala2-sbt-bridge"                 % version
   private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.6"
   private val gatlingSharedModel             = "io.gatling"                          %% "gatling-shared-model"              % "0.0.4"
-  private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.8.0"
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
   private val netty                          = "io.netty"                             % "netty-codec-http"                  % "4.1.107.Final"
@@ -54,25 +49,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.6.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.4.0"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                              % "1.9.6")
-    .exclude("org.scala-sbt", "compiler-bridge_2.13")
-    .exclude("org.jline", "jline")
-    .exclude("org.scala-sbt.jline3", "jline-terminal")
-    .exclude("org.jline", "jline-terminal-jna")
-    .exclude("org.jline", "jline-terminal-jansi")
-    .exclude("org.scala-sbt.jline", "jline")
-    .exclude("org.scala-lang.modules", "scala-parser-combinators_2.13")
-    .exclude("org.scala-lang.modules", "scala-xml_2.13")
-    .exclude("org.scala-sbt", "launcher-interface")
-    .exclude("org.scala-sbt", "sbinary_2.13")
-    .exclude("org.scala-sbt", "zinc-ivy-integration_2.13")
-    .exclude("com.eed3si9n", "sjson-new-core_2.13")
-    .exclude("com.eed3si9n", "sjson-new-scalajson_2.13")
-    .exclude("com.lihaoyi", "fastparse_2.13")
-    .exclude("com.lmax", "disruptor")
-    .exclude("org.apache.logging.log4j", "log4j-api")
-    .exclude("org.apache.logging.log4j", "log4j-core")
-  private val testInterface                  = zinc.organization                      % "test-interface"                    % "1.0"
+  private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.0"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.1"
@@ -234,21 +211,7 @@ object Dependencies {
 
   val benchmarkDependencies = Seq(jmh)
 
-  val bundleDependencies = gatlingEnterprisePluginCommons +: testDeps
-
-  def compilerDependencies(scalaVersion: String) =
-    Seq(
-      scalaCompiler(scalaVersion),
-      scalaCompilerBridge(scalaVersion),
-      scalaReflect(scalaVersion),
-      config,
-      slf4jApi,
-      logback,
-      zinc,
-      scopt
-    )
-
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncyCastle, netty, akka) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncyCastle, netty, akka, quicklens) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 

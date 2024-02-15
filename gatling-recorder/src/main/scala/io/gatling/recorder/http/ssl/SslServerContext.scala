@@ -50,7 +50,7 @@ private[recorder] object SslServerContext {
       case HttpsMode.SelfSignedCertificate => SelfSignedCertificate
 
       case HttpsMode.ProvidedKeyStore =>
-        val ksFile = new File(keyStore.path)
+        val ksFile = keyStore.path.toFile
         val keyStoreType = keyStore.keyStoreType
         val password = keyStore.password.toCharArray
         new ProvidedKeystore(ksFile, keyStoreType, password)

@@ -21,16 +21,16 @@ import io.gatling.BaseSpec
 class PackageSpec extends BaseSpec {
   "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
     val string = "foo\"bar"
-    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
+    string.protect(RenderingFormat.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
   }
 
   it should "wrap a String containing backslashes with triple quotes" in {
     val string = "foo\\bar"
-    string.protect(Format.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
+    string.protect(RenderingFormat.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"
   }
 
   it should "otherwise wrap a String with simple quotes" in {
     val string = "foobar"
-    string.protect(Format.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
+    string.protect(RenderingFormat.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
   }
 }

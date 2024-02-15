@@ -32,10 +32,10 @@ private[render] object SimulationTemplate {
       new RequestTemplate(requestBodies, responseBodies, configuration)
     )
 
-  private[template] def renderNonBaseUrls(values: Seq[UrlVal], format: Format): String = {
+  private[template] def renderNonBaseUrls(values: Seq[UrlVal], format: RenderingFormat): String = {
     val referenceType = format match {
-      case Format.Scala | Format.Kotlin  => "val"
-      case Format.Java11 | Format.Java17 => "String"
+      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17 => "String"
     }
 
     if (values.isEmpty) {
@@ -56,7 +56,7 @@ private[render] object SimulationTemplate {
 private[render] class SimulationTemplate(
     packageName: String,
     simulationClassName: String,
-    format: Format,
+    format: RenderingFormat,
     protocolTemplate: ProtocolTemplate,
     requestTemplate: RequestTemplate
 ) {
@@ -69,7 +69,7 @@ private[render] class SimulationTemplate(
         val protectedHeaders = headersBlock.map { case (name, value) => (name.protect(format), value.protect(format)) }
 
         format match {
-          case Format.Scala =>
+          case RenderingFormat.Scala =>
             protectedHeaders match {
               case Seq((protectedName, protectedValue)) =>
                 s"private val $headerReference = Map($protectedName -> $protectedValue)"
@@ -78,7 +78,7 @@ private[render] class SimulationTemplate(
                    |${protectedHeaders.map { case (protectedName, protectedValue) => s"		$protectedName -> $protectedValue" }.mkString(s",$Eol")}
                    |)""".stripMargin
             }
-          case Format.Kotlin =>
+          case RenderingFormat.Kotlin =>
             protectedHeaders match {
               case Seq((protectedName, protectedValue)) =>
                 s"private val $headerReference = mapOf($protectedName to $protectedValue)"
@@ -88,7 +88,7 @@ private[render] class SimulationTemplate(
                    |)""".stripMargin
             }
 
-          case Format.Java11 | Format.Java17 =>
+          case RenderingFormat.Java11 | RenderingFormat.Java17 =>
             protectedHeaders match {
               case Seq((protectedName, protectedValue)) =>
                 s"private Map<CharSequence, String> $headerReference = Map.of($protectedName, $protectedValue);"
@@ -115,8 +115,8 @@ private[render] class SimulationTemplate(
           duration.toSeconds.toString
         } else {
           format match {
-            case Format.Scala => s"${duration.toMillis}.milliseconds"
-            case _            => s"Duration.ofMillis(${duration.toMillis})"
+            case RenderingFormat.Scala => s"${duration.toMillis}.milliseconds"
+            case _                     => s"Duration.ofMillis(${duration.toMillis})"
           }
         }
 
@@ -132,8 +132,8 @@ private[render] class SimulationTemplate(
 
   private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
     val scenarioReferenceType = format match {
-      case Format.Scala | Format.Kotlin  => "val"
-      case Format.Java11 | Format.Java17 => "ScenarioBuilder"
+      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17 => "ScenarioBuilder"
     }
 
     if (elements.sizeIs <= MaxElementPerChain) {
@@ -154,8 +154,8 @@ private[render] class SimulationTemplate(
           }
 
       val chainReferenceType = format match {
-        case Format.Scala | Format.Kotlin  => "val"
-        case Format.Java11 | Format.Java17 => "ChainBuilder"
+        case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
+        case RenderingFormat.Java11 | RenderingFormat.Java17 => "ChainBuilder"
       }
 
       s"""${chains
@@ -176,7 +176,7 @@ private[render] class SimulationTemplate(
     val nonBaseUrls: Seq[UrlVal] = extractedUris.nonBaseUrls(protocol.baseUrl)
 
     format match {
-      case Format.Scala =>
+      case RenderingFormat.Scala =>
         s"""${if (packageName.nonEmpty) s"package $packageName$Eol" else ""}
            |import scala.concurrent.duration._
            |
@@ -196,7 +196,7 @@ private[render] class SimulationTemplate(
            |}
            |""".stripMargin
 
-      case Format.Kotlin =>
+      case RenderingFormat.Kotlin =>
         s"""${if (packageName.nonEmpty) s"package $packageName$Eol" else ""}
            |import java.time.Duration
            |
@@ -222,7 +222,7 @@ private[render] class SimulationTemplate(
            |}
            |""".stripMargin
 
-      case Format.Java11 | Format.Java17 =>
+      case RenderingFormat.Java11 | RenderingFormat.Java17 =>
         s"""${if (packageName.nonEmpty) s"package $packageName;$Eol" else ""}
            |import java.time.Duration;
            |import java.util.*;

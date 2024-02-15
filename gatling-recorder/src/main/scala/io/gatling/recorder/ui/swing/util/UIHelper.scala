@@ -16,6 +16,7 @@
 
 package io.gatling.recorder.ui.swing.util
 
+import java.nio.file.Path
 import javax.swing.JComponent
 import javax.swing.border.TitledBorder
 
@@ -46,14 +47,13 @@ private[swing] object UIHelper {
   }
 
   implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {
-    def openSelection(): Option[String] = selection(fileChooser.showOpenDialog(null))
-    def saveSelection(): Option[String] = selection(fileChooser.showSaveDialog(null))
+    def openSelection(): Option[Path] = selection(fileChooser.showOpenDialog(null))
+    def saveSelection(): Option[Path] = selection(fileChooser.showSaveDialog(null))
 
     private def selection(result: FileChooser.Result.Value) =
       if (result != FileChooser.Result.Approve)
         None
       else
-        Some(fileChooser.selectedFile.getPath)
+        Some(fileChooser.selectedFile.toPath)
   }
-
 }

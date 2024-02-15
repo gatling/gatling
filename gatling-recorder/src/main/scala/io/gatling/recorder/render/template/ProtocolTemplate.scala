@@ -106,8 +106,8 @@ private[render] class ProtocolTemplate(config: RecorderConfiguration) {
 
   def render(protocol: ProtocolDefinition): String = {
     val protocolType = format match {
-      case Format.Scala | Format.Kotlin  => "val"
-      case Format.Java11 | Format.Java17 => "HttpProtocolBuilder"
+      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17 => "HttpProtocolBuilder"
     }
 
     s"""private $protocolType httpProtocol = http

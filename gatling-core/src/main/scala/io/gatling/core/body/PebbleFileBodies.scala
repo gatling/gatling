@@ -16,8 +16,6 @@
 
 package io.gatling.core.body
 
-import java.nio.file.Path
-
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, StaticValueExpression }
 import io.gatling.core.util.{ Resource, ResourceCache }
@@ -26,7 +24,7 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 import io.pebbletemplates.pebble.template.PebbleTemplate
 
-final class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
+final class PebbleFileBodies(cacheMaxCapacity: Long) extends ResourceCache {
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pebble.getResourceTemplate)
 
@@ -35,7 +33,7 @@ final class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCap
       case StaticValueExpression(path) =>
         val template =
           for {
-            resource <- cachedResource(customResourcesDirectory, path)
+            resource <- cachedResource(path)
             template <- templatesCache.get(resource)
           } yield template
 
@@ -45,7 +43,7 @@ final class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCap
         session =>
           for {
             path <- filePath(session)
-            resource <- cachedResource(customResourcesDirectory, path)
+            resource <- cachedResource(path)
             template <- templatesCache.get(resource)
           } yield template
     }

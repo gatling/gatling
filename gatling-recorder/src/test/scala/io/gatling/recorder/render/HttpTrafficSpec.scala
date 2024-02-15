@@ -16,21 +16,35 @@
 
 package io.gatling.recorder.render
 
-import scala.collection.mutable
+import java.nio.file.Path
+
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.{ BasicResource, CssResource }
+import io.gatling.recorder.cli.RecorderArgs
 import io.gatling.recorder.config.ConfigKeys.http.{ FollowRedirect, InferHtmlResources }
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders }
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
 class HttpTrafficSpec extends BaseSpec {
-  private val config: RecorderConfiguration = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
+  private val config: RecorderConfiguration =
+    RecorderConfiguration.testConfig(
+      args = RecorderArgs(
+        simulationsFolder = Path.of(""),
+        resourcesFolder = Path.of(""),
+        pkg = None,
+        className = None,
+        format = None
+      ),
+      fakeSystemProps = Map(
+        FollowRedirect -> true,
+        InferHtmlResources -> true
+      )
+    )
 
   "HttpTraffic" should "remove HTTP redirection " in {
     val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
@@ -45,7 +59,7 @@ class HttpTrafficSpec extends BaseSpec {
         TimedScenarioElement(5000, 5500, r3),
         TimedScenarioElement(7000, 7500, r4)
       ),
-      List.empty,
+      Nil,
       config
     )
     scn.elements shouldBe List(r1, PauseElement(1500.milliseconds), r2.copy(statusCode = 200), PauseElement(1500.milliseconds), r4)

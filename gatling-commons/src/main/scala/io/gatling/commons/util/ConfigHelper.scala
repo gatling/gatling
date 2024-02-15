@@ -16,6 +16,8 @@
 
 package io.gatling.commons.util
 
+import io.gatling.commons.util.StringHelper._
+
 import com.typesafe.config.Config
 
 object ConfigHelper {
@@ -33,18 +35,7 @@ object ConfigHelper {
     fallbacks.foldLeft(config)(_ withFallback _).resolve
 
   implicit final class PimpedConfig(val config: Config) extends AnyVal {
-    def withChild[T](path: String)(f: Config => T): T = f(config.getConfig(path))
-
     def getStringOption(path: String): Option[String] =
-      if (config.hasPath(path)) Some(config.getString(path)) else None
-
-    def getIntOption(path: String): Option[Int] =
-      if (config.hasPath(path)) Some(config.getInt(path)) else None
-
-    def getLongOption(path: String): Option[Long] =
-      if (config.hasPath(path)) Some(config.getLong(path)) else None
-
-    def getBooleanOption(path: String): Option[Boolean] =
-      if (config.hasPath(path)) Some(config.getBoolean(path)) else None
+      if (config.hasPath(path)) config.getString(path).trimToOption else None
   }
 }

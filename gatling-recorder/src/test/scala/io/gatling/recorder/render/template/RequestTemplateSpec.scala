@@ -16,19 +16,23 @@
 
 package io.gatling.recorder.render.template
 
-import scala.collection.mutable
+import java.nio.file.Path
 
 import io.gatling.BaseSpec
-import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
-import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
+import io.gatling.recorder.cli.RecorderArgs
+import io.gatling.recorder.config.ConfigKeys.http.{ UseMethodAndUriAsPostfix, UseSimulationAsPrefix }
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.render.{ RequestBodyParams, RequestElement }
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class RequestTemplateSpec extends BaseSpec {
-  private val config: RecorderConfiguration = fakeConfig(mutable.Map())
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  private def recorderConfig(extra: Map[String, _ <: Any] = Map.empty): RecorderConfiguration =
+    RecorderConfiguration.testConfig(
+      RecorderArgs(simulationsFolder = Path.of(""), resourcesFolder = Path.of(""), pkg = None, className = None, format = None),
+      extra
+    )
   private val url = "http://gatling.io/path1/file1"
   private val simulationClass = "Simulation Class"
 
@@ -37,6 +41,7 @@ class RequestTemplateSpec extends BaseSpec {
     new RequestElement(url, "post", EmptyHttpHeaders.INSTANCE, Some(mockRequestBody(paramName, paramValue)), EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
   "request template" should "not wrap with joinStrings strings shorter than 65535 characters" in {
+    val config = recorderConfig()
     val mockedRequest1 = mockRequestElement("name", "short")
     val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
       simulationClass,
@@ -56,6 +61,7 @@ class RequestTemplateSpec extends BaseSpec {
   }
 
   it should "wrap with joinStrings strings with not less than 65535 characters" in {
+    val config = recorderConfig()
     val mockedRequest = mockRequestElement("name", "a" * 65535)
     val res = new RequestTemplate(Map.empty, Map.empty, config).render(
       simulationClass,
@@ -66,6 +72,7 @@ class RequestTemplateSpec extends BaseSpec {
   }
 
   it should "use request as prefix by default" in {
+    val config = recorderConfig()
     val mockedRequest1 = mockRequestElement("name", "short")
     val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
       simulationClass,
@@ -77,7 +84,7 @@ class RequestTemplateSpec extends BaseSpec {
 
   it should "use simulation as prefix when requested" in {
     val mockedRequest1 = mockRequestElement("name", "short")
-    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
+    implicit val config: RecorderConfiguration = recorderConfig(Map(UseSimulationAsPrefix -> true))
     val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
       simulationClass,
       mockedRequest1,
@@ -89,7 +96,7 @@ class RequestTemplateSpec extends BaseSpec {
 
   it should "use method and URI as postfix when requested" in {
     val mockedRequest1 = mockRequestElement("name", "short")
-    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
+    implicit val config: RecorderConfiguration = recorderConfig(Map(UseMethodAndUriAsPostfix -> true))
     val res1 = new RequestTemplate(Map.empty, Map.empty, config).render(
       simulationClass,
       mockedRequest1,

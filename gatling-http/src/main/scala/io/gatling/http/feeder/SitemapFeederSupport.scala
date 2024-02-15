@@ -17,7 +17,7 @@
 package io.gatling.http.feeder
 
 import io.gatling.commons.validation._
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.feeder.{ FileBasedFeederBuilder, InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.core.util.{ Resource, ResourceCache }
 
@@ -26,7 +26,7 @@ import io.gatling.core.util.{ Resource, ResourceCache }
  */
 trait SitemapFeederSupport extends ResourceCache {
   def sitemap(filePath: String)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
-    sitemap(cachedResource(GatlingFiles.customResourcesDirectory(configuration.core.directory), filePath))
+    sitemap(cachedResource(filePath))
 
   def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     resource match {

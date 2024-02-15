@@ -21,10 +21,10 @@ import java.nio.{ ByteBuffer, CharBuffer }
 import java.nio.channels.FileChannel
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets.US_ASCII
+import java.nio.file.Path
 import java.util.Base64
 
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.commons.util.Clock
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingConfiguration
@@ -35,9 +35,9 @@ import io.gatling.core.util.Longs
 import com.typesafe.scalalogging.StrictLogging
 
 object BufferedFileChannelWriter {
-  def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
+  def apply(runId: String, resultsDirectory: Path, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
     val encoder = configuration.core.charset.newEncoder
-    val simulationLog = simulationLogDirectory(runId, create = true, configuration.core.directory).resolve("simulation.log")
+    val simulationLog = simulationLogDirectory(runId, create = true, resultsDirectory).resolve("simulation.log")
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
 
@@ -260,11 +260,11 @@ final class FileData(
     val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
-final class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
+final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData] {
   def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
-    val writer = BufferedFileChannelWriter(runMessage.runId, configuration)
+    val writer = BufferedFileChannelWriter(runMessage.runId, resultsDirectory, configuration)
     val assertionSerializer = new AssertionSerializer(writer)
     assertions.foreach(assertion => assertionSerializer.serialize(assertion))
     new RunMessageSerializer(writer).serialize(runMessage)

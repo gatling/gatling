@@ -17,24 +17,22 @@
 package io.gatling.recorder.config
 
 import java.io.FileNotFoundException
+import java.nio.charset.Charset
 import java.nio.file.{ Files, Path, Paths }
 
-import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.jdk.CollectionConverters._
-import scala.util.Properties.userHome
 import scala.util.Using
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.ConfigHelper.configChain
-import io.gatling.commons.util.Java
+import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ AllowList, DenyList, Filters }
+import io.gatling.recorder.cli.RecorderArgs
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
-import io.gatling.recorder.render.template.Format
+import io.gatling.recorder.render.template.RenderingFormat
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging
@@ -45,8 +43,6 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   }
 
   private val RenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
-  private val DefaultSimulationsDirectory = resolvePath(Paths.get("user-files/simulations"))
-  private val DefaultResourcesDirectory = resolvePath(Paths.get("user-files/resources"))
 
   private var configFile: Option[Path] = None
 
@@ -54,36 +50,34 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   def recorderConfiguration: RecorderConfiguration =
     _configuration.getOrElse(throw new UnsupportedOperationException("RecorderConfiguration hasn't been loaded yet"))
 
-  private[this] val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load(mutable.Map.empty)
+  private[this] val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load()
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) =
     ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 
-  def fakeConfig(props: mutable.Map[String, _ <: Any]): RecorderConfiguration = {
+  def testConfig(args: RecorderArgs, fakeSystemProps: Map[String, _ <: Any]): RecorderConfiguration = {
     val defaultConfig = getDefaultConfig(getClassLoader)
-    buildConfig(configChain(ConfigFactory.parseMap(props.asJava), defaultConfig))
+    buildConfig(args, configChain(ConfigFactory.parseMap(fakeSystemProps.asJava), defaultConfig))
   }
 
-  def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path]): Unit = {
+  def initialSetup(args: RecorderArgs): Unit = {
     val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
-    configFile = recorderConfigFile.orElse(
-      Option(classLoader.getResource("recorder.conf"))
-        .map(url => Paths.get(url.toURI))
-    )
 
-    val customConfig = configFile.map(path => ConfigFactory.parseFile(path.toFile)).getOrElse {
-      // Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
-      println("recorder.conf file couldn't be located or is outdated")
-      println("Recorder preferences won't be saved.")
-      println("""If running from sbt, please run "copyConfigFiles" and check the plugin documentation.""")
-      ConfigFactory.empty
-    }
-    val propertiesConfig = ConfigFactory.parseMap(props.asJava)
+    val userConfigFile = args.resourcesFolder.resolve("recorder.conf")
+    configFile = Some(userConfigFile)
+
+    val customConfig =
+      if (Files.exists(userConfigFile)) {
+        println("Loading preferences from existing recorder.conf")
+        ConfigFactory.parseFile(userConfigFile.toFile)
+      } else {
+        ConfigFactory.empty
+      }
 
     try {
-      _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig)))
+      _configuration = Some(buildConfig(args, configChain(ConfigFactory.systemProperties, customConfig, defaultConfig)))
     } catch {
       case NonFatal(e) =>
         logger.warn(s"Loading configuration crashed: ${e.rootMessage}. Probable cause is a format change, resetting.")
@@ -92,22 +86,59 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
             Files.delete(file)
           }
         }
-        _configuration = Some(buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig)))
+        _configuration = Some(buildConfig(args, configChain(ConfigFactory.systemProperties, defaultConfig)))
     }
   }
 
-  def reload(props: mutable.Map[String, _ <: Any]): Unit = {
-    val frameConfig = ConfigFactory.parseMap(props.asJava)
-    _configuration = Some(buildConfig(configChain(frameConfig, recorderConfiguration.config)))
-  }
+  def reload(newRecorderConfiguration: RecorderConfiguration): Unit =
+    _configuration = Some(newRecorderConfiguration)
 
-  def saveConfig(): Unit = {
-    // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = recorderConfiguration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file =>
+  def saveConfig(): Unit =
+    configFile.foreach { file =>
+      val configMap = Map(
+        ConfigKeys.core.Mode -> recorderConfiguration.core.mode.toString,
+        ConfigKeys.core.Encoding -> recorderConfiguration.core.encoding.name,
+        ConfigKeys.core.Package -> recorderConfiguration.core.pkg,
+        ConfigKeys.core.ClassName -> recorderConfiguration.core.className,
+        ConfigKeys.core.ThresholdForPauseCreation -> recorderConfiguration.core.thresholdForPauseCreation.toMillis,
+        ConfigKeys.core.SaveConfig -> recorderConfiguration.core.saveConfig,
+        ConfigKeys.core.Headless -> recorderConfiguration.core.headless,
+        ConfigKeys.core.HarFilePath -> recorderConfiguration.core.harFilePath.getOrElse(""),
+        ConfigKeys.core.Format -> recorderConfiguration.core.format.toString,
+        ConfigKeys.filters.Enable -> recorderConfiguration.filters.enabled,
+        ConfigKeys.filters.AllowListPatterns -> recorderConfiguration.filters.allowList.patterns.asJava,
+        ConfigKeys.filters.DenyListPatterns -> recorderConfiguration.filters.denyList.patterns.asJava,
+        ConfigKeys.http.AutomaticReferer -> recorderConfiguration.http.automaticReferer,
+        ConfigKeys.http.FollowRedirect -> recorderConfiguration.http.followRedirect,
+        ConfigKeys.http.InferHtmlResources -> recorderConfiguration.http.inferHtmlResources,
+        ConfigKeys.http.RemoveCacheHeaders -> recorderConfiguration.http.removeCacheHeaders,
+        ConfigKeys.http.CheckResponseBodies -> recorderConfiguration.http.checkResponseBodies,
+        ConfigKeys.http.UseSimulationAsPrefix -> recorderConfiguration.http.useSimulationAsPrefix,
+        ConfigKeys.http.UseMethodAndUriAsPostfix -> recorderConfiguration.http.useMethodAndUriAsPostfix,
+        ConfigKeys.proxy.Port -> recorderConfiguration.proxy.port,
+        ConfigKeys.proxy.https.Mode -> recorderConfiguration.proxy.https.mode.toString
+      ) ++ (
+        recorderConfiguration.proxy.https.mode match {
+          case HttpsMode.ProvidedKeyStore =>
+            Map(
+              ConfigKeys.proxy.https.keyStore.Type -> recorderConfiguration.proxy.https.keyStore.keyStoreType.toString,
+              ConfigKeys.proxy.https.keyStore.Path -> recorderConfiguration.proxy.https.keyStore.path.toString,
+              ConfigKeys.proxy.https.keyStore.Password -> recorderConfiguration.proxy.https.keyStore.password
+            )
+          case HttpsMode.CertificateAuthority =>
+            Map(
+              ConfigKeys.proxy.https.certificateAuthority.CertificatePath -> recorderConfiguration.proxy.https.certificateAuthority.certificatePath.toString,
+              ConfigKeys.proxy.https.certificateAuthority.PrivateKeyPath -> recorderConfiguration.proxy.https.certificateAuthority.privateKeyPath.toString
+            )
+          case _ =>
+            Map.empty
+        }
+      )
+
+      val configToSave = ConfigFactory.parseMap(configMap.asJava).root.withOnlyKey(ConfigKeys.ConfigRoot)
+
       Using.resource(Files.newBufferedWriter(createAndOpen(file), gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions)))
-    )
-  }
+    }
 
   private[config] def createAndOpen(path: Path): Path =
     if (!Files.exists(path)) {
@@ -120,49 +151,28 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       path
     }
 
-  private def buildConfig(config: Config): RecorderConfiguration = {
+  private def buildConfig(args: RecorderArgs, config: Config): RecorderConfiguration = {
     import ConfigKeys._
-
-    def getSimulationsFolder(folder: String) =
-      folder.trimToOption match {
-        case Some(f) => f
-        case _ if sys.env.contains("GATLING_HOME") =>
-          customResourcesDirectory(gatlingConfiguration.core.directory)
-            .getOrElse(DefaultSimulationsDirectory)
-            .toFile
-            .toString
-        case _ => userHome
-      }
-
-    def getResourcesFolder =
-      if (config.hasPath(core.ResourcesFolder)) {
-        config.getString(core.ResourcesFolder)
-      } else {
-        customResourcesDirectory(gatlingConfiguration.core.directory)
-          .getOrElse(DefaultResourcesDirectory)
-          .toFile
-          .toString
-      }
 
     RecorderConfiguration(
       core = CoreConfiguration(
+        simulationsFolder = args.simulationsFolder,
+        resourcesFolder = args.resourcesFolder,
         mode = RecorderMode(config.getString(core.Mode)),
-        encoding = config.getString(core.Encoding),
-        simulationsFolder = getSimulationsFolder(config.getString(core.SimulationsFolder)),
-        resourcesFolder = getResourcesFolder,
-        pkg = config.getString(core.Package),
-        className = config.getString(core.ClassName),
+        encoding = Charset.forName(config.getString(core.Encoding)),
+        pkg = args.pkg.getOrElse(config.getString(core.Package)),
+        className = args.className.getOrElse(config.getString(core.ClassName)),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation).milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig),
         headless = config.getBoolean(core.Headless),
-        harFilePath = config.getString(core.HarFilePath).trimToOption,
-        format = if (config.hasPath(core.Format)) {
-          Format.fromString(config.getString(core.Format).trim)
-        } else if (Java.MajorVersion >= 17) {
-          Format.Java17
-        } else {
-          Format.Java11
-        }
+        harFilePath = config.getString(core.HarFilePath).trimToOption.map(p => Path.of(p)),
+        format = args.format
+          .orElse(
+            config
+              .getStringOption(core.Format)
+              .map(RenderingFormat.fromString)
+          )
+          .getOrElse(RenderingFormat.defaultFromJvm)
       ),
       filters = FiltersConfiguration(
         enabled = config.getBoolean(filters.Enable),
@@ -183,7 +193,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         https = HttpsModeConfiguration(
           mode = HttpsMode(config.getString(proxy.https.Mode)),
           keyStore = KeyStoreConfiguration(
-            path = config.getString(proxy.https.keyStore.Path),
+            path = Paths.get(config.getString(proxy.https.keyStore.Path)),
             password = config.getString(proxy.https.keyStore.Password),
             keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))
           ),
@@ -199,14 +209,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
           port = config.getInt(proxy.outgoing.Port).toOption,
           sslPort = config.getInt(proxy.outgoing.SslPort).toOption
         )
-      ),
-      netty = NettyConfiguration(
-        maxInitialLineLength = config.getInt(netty.MaxInitialLineLength),
-        maxHeaderSize = config.getInt(netty.MaxHeaderSize),
-        maxChunkSize = config.getInt(netty.MaxChunkSize),
-        maxContentLength = config.getInt(netty.MaxContentLength)
-      ),
-      config
+      )
     )
   }
 }
@@ -225,17 +228,17 @@ private[recorder] final case class FiltersConfiguration(
 }
 
 private[recorder] final case class CoreConfiguration(
+    simulationsFolder: Path,
+    resourcesFolder: Path,
     mode: RecorderMode,
-    encoding: String,
-    simulationsFolder: String,
-    resourcesFolder: String,
+    encoding: Charset,
     pkg: String,
     className: String,
     thresholdForPauseCreation: Duration,
     saveConfig: Boolean,
     headless: Boolean,
-    harFilePath: Option[String],
-    format: Format
+    harFilePath: Option[Path],
+    format: RenderingFormat
 )
 
 private[recorder] final case class HttpConfiguration(
@@ -249,7 +252,7 @@ private[recorder] final case class HttpConfiguration(
 )
 
 private[recorder] final case class KeyStoreConfiguration(
-    path: String,
+    path: Path,
     password: String,
     keyStoreType: KeyStoreType
 )
@@ -279,18 +282,9 @@ private[recorder] final case class ProxyConfiguration(
     outgoing: OutgoingProxyConfiguration
 )
 
-private[recorder] final case class NettyConfiguration(
-    maxInitialLineLength: Int,
-    maxHeaderSize: Int,
-    maxChunkSize: Int,
-    maxContentLength: Int
-)
-
 private[recorder] final case class RecorderConfiguration(
     core: CoreConfiguration,
     filters: FiltersConfiguration,
     http: HttpConfiguration,
-    proxy: ProxyConfiguration,
-    netty: NettyConfiguration,
-    config: Config
+    proxy: ProxyConfiguration
 )

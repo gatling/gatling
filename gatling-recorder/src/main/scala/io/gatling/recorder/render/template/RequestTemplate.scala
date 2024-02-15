@@ -38,8 +38,8 @@ private[render] class RequestTemplate(
   private val format = config.core.format
 
   private val isCheck = format match {
-    case Format.Kotlin => "shouldBe"
-    case _             => "is"
+    case RenderingFormat.Kotlin => "shouldBe"
+    case _                      => "is"
   }
 
   private def renderMethod(request: RequestElement, extractedUri: ExtractedUris): String = {

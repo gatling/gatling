@@ -19,7 +19,7 @@ package io.gatling.core.util
 import java.io._
 import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
-import java.nio.file.{ Files, Path, Paths }
+import java.nio.file.{ Files, Paths }
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.util.Using
@@ -29,7 +29,7 @@ import io.gatling.commons.validation._
 import com.typesafe.scalalogging.LazyLogging
 
 object Resource {
-  private final case class Location(customDirectory: Option[Path], path: String)
+  private final case class Location(path: String)
 
   private object ClasspathResource extends LazyLogging {
     private def urlToFile(url: URL): File =
@@ -61,22 +61,6 @@ object Resource {
     }
   }
 
-  private object DirectoryChildResource {
-    def unapply(location: Location): Option[Validation[Resource]] =
-      location.customDirectory.flatMap { customDirectory =>
-        val path = customDirectory.resolve(location.path)
-        if (Files.isRegularFile(path)) {
-          val file = path.toFile
-          if (file.canRead)
-            Some(FilesystemResource(file).success)
-          else
-            Some(s"File $file can't be read".failure)
-        } else {
-          None
-        }
-      }
-  }
-
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] = {
       val path = Paths.get(location.path)
@@ -88,12 +72,11 @@ object Resource {
     }
   }
 
-  private[gatling] def resolveResource(customDirectory: Option[Path], path: String): Validation[Resource] =
-    Location(customDirectory, path) match {
-      case DirectoryChildResource(res) => res
-      case ClasspathResource(res)      => res
-      case AbsoluteFileResource(res)   => res
-      case _                           => s"Resource $path not found".failure
+  private[gatling] def resolveResource(path: String): Validation[Resource] =
+    Location(path) match {
+      case ClasspathResource(res)    => res
+      case AbsoluteFileResource(res) => res
+      case _                         => s"Resource $path not found".failure
     }
 
   private implicit final class StringDropUntil(val source: String) extends AnyVal {
@@ -150,6 +133,6 @@ final case class FilesystemResource(file: File) extends Resource {
 trait ResourceCache {
   private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
 
-  protected def cachedResource(customResourcesDirectory: Option[Path], path: String): Validation[Resource] =
-    resourceCache.computeIfAbsent(path, Resource.resolveResource(customResourcesDirectory, _))
+  protected def cachedResource(path: String): Validation[Resource] =
+    resourceCache.computeIfAbsent(path, Resource.resolveResource)
 }

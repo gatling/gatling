@@ -23,18 +23,18 @@ import java.time.ZoneId
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestStatsPath
-import io.gatling.core.config.{ DirectoryConfiguration, ReportsConfiguration }
+import io.gatling.core.config.ReportsConfiguration
 import io.gatling.shared.util.ScanHelper
 
 private[gatling] final class ReportsGenerator(
     zoneId: ZoneId,
     charset: Charset,
-    directoryConfiguration: DirectoryConfiguration,
+    resultsDirectory: Path,
     reportsConfiguration: ReportsConfiguration
 ) {
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
 
-    val chartsFiles = new ChartsFiles(reportsGenerationInputs.reportFolderName, directoryConfiguration)
+    val chartsFiles = new ChartsFiles(reportsGenerationInputs.reportFolderName, resultsDirectory)
 
     def hasAtLeastOneRequestReported: Boolean =
       reportsGenerationInputs.logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])

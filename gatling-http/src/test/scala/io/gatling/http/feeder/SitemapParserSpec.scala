@@ -18,7 +18,6 @@ package io.gatling.http.feeder
 
 import java.io.{ IOException, InputStream }
 import java.nio.charset.StandardCharsets.UTF_8
-import java.nio.file.Paths
 
 import scala.util.Using
 
@@ -41,7 +40,7 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
   }
 
   it should "parse valid sitemap file" in {
-    val resource = Resource.resolveResource(None, "sitemap.xml")
+    val resource = Resource.resolveResource("sitemap.xml")
     val records = resource.map(SitemapParser.parse(_, UTF_8).toArray)
     verifySitemapRecords(records.succeeded)
   }

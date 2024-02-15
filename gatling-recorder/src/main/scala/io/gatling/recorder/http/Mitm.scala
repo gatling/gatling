@@ -42,11 +42,9 @@ object Mitm extends StrictLogging {
   val SslHandlerName = "ssl"
   val HttpCodecHandlerName = "http"
   val GatlingClientHandler = "gatling-client"
-  val GatlingServerHandler = "gatling-server"
+  private val GatlingServerHandler = "gatling-server"
 
   def apply(controller: RecorderController, clock: Clock, config: RecorderConfiguration): Mitm = {
-    import config.netty._
-
     val serverChannelGroup = new DefaultChannelGroup("Gatling_Recorder", GlobalEventExecutor.INSTANCE)
     val clientEventLoopGroup = new NioEventLoopGroup
     val serverBossEventLoopGroup = new NioEventLoopGroup(1)
@@ -55,7 +53,7 @@ object Mitm extends StrictLogging {
 
     val trafficLogger = new TrafficLogger(controller)
     val sslServerContext = SslServerContext(config)
-    val httpClientCodecFactory = () => new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize)
+    val httpClientCodecFactory = () => new HttpClientCodec(10000, 20000, 8192)
 
     val outgoingProxy =
       config.proxy.outgoing.host.map { proxyHost =>
@@ -80,7 +78,7 @@ object Mitm extends StrictLogging {
             ch.pipeline
               .addLast(HttpCodecHandlerName, httpClientCodecFactory())
               .addLast("contentDecompressor", new HttpContentDecompressor)
-              .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
+              .addLast("aggregator", new HttpObjectAggregator(Int.MaxValue))
           }
         })
 
@@ -92,11 +90,11 @@ object Mitm extends StrictLogging {
         override def initChannel(ch: Channel): Unit = {
           logger.debug("Open new server channel")
           ch.pipeline
-            .addLast("requestDecoder", new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+            .addLast("requestDecoder", new HttpRequestDecoder(10000, 20000, 8192))
             .addLast("contentDecompressor", new HttpContentDecompressor)
             .addLast("responseEncoder", new HttpResponseEncoder)
             .addLast("contentCompressor", new HttpContentCompressor)
-            .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
+            .addLast("aggregator", new HttpObjectAggregator(Int.MaxValue))
             .addLast(
               GatlingServerHandler,
               new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock)

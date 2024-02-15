@@ -23,6 +23,7 @@ import scala.util.{ Failure, Try }
 import io.gatling.commons.util._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
+import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.{ Controller, ControllerCommand }
 import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
@@ -37,12 +38,13 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 
 private[gatling] object Runner {
-  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration): Runner =
-    new Runner(system, eventLoopGroup, new DefaultClock, configuration)
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, gatlingArgs: GatlingArgs, configuration: GatlingConfiguration): Runner =
+    new Runner(system, eventLoopGroup, new DefaultClock, gatlingArgs, configuration)
 }
 
-private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
-  private[app] final def run(forcedSimulationClass: Option[SimulationClass]): RunResult = {
+private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, gatlingArgs: GatlingArgs, configuration: GatlingConfiguration)
+    extends StrictLogging {
+  private[app] final def run(): RunResult = {
     logger.trace("Running")
 
     displayVersionWarning()
@@ -50,9 +52,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     // ugly way to pass the configuration to the DSL
     io.gatling.core.Predef._configuration = configuration
 
-    val selection = Selection(forcedSimulationClass, configuration)
+    val selection = Selection(gatlingArgs)
 
-    if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, configuration.data.launcher, configuration.data.buildToolVersion)
+    if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
     val (simulationParams, runMessage, coreComponents, scenarioFlows) = load(selection)
 
@@ -66,7 +68,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   }
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
-    DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
+    DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
 
   protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents, ScenarioFlows[String, Scenario]) = {
     val simulationParams = selection.simulationClass.params(configuration)
