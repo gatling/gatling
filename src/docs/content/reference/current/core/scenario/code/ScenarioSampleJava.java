@@ -67,7 +67,7 @@ exec(session ->
 
 //#session-lambda-bad
 exec(session -> {
-  // just creates a dandling component, doesn't produce any effect
+  // just creates a dangling component, doesn't produce any effect
   http("Gatling").get("https://gatling.io");
   return session;
 });
