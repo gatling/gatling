@@ -75,7 +75,7 @@ object Dependencies {
     .exclude("org.apache.logging.log4j", "log4j-core")
   private val testInterface                  = zinc.organization                      % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.4.14"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.0"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.1.12"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
