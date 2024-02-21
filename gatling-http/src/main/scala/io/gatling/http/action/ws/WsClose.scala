@@ -18,7 +18,7 @@ package io.gatling.http.action.ws
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
+import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -34,7 +34,6 @@ final class WsClose(
     val next: Action
 ) extends RequestAction
     with WsAction
-    with ExitableAction
     with NameGen {
   override val name: String = genName("wsClose")
 
