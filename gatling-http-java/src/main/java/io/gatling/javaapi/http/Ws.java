@@ -17,10 +17,14 @@
 package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
+import static io.gatling.javaapi.http.internal.WsFunctions.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.gatling.http.action.ws.WsInboundMessage;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
+import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -208,6 +212,51 @@ public final class Ws {
     public WsFrameCheck.Binary checkBinaryMessage(@NonNull Function<Session, String> name) {
       return new WsFrameCheck.Binary(
           io.gatling.http.Predef.ws().checkBinaryMessage(javaFunctionToExpression(name)));
+    }
+
+    /**
+     * Process the currently buffered inbound WebSocket messages and empty the buffer
+     *
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        BiFunction<List<WsInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.ws()
+              .processUnmatchedMessages(javaProcessUnmatchedMessagesBiFunctionToExpression(f));
+    }
+
+    /**
+     * Process the currently buffered inbound WebSocket messages and empty the buffer
+     *
+     * @param wsName the name of the WebSocket, expressed as a Gatling Expression Language String
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        String wsName, BiFunction<List<WsInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.ws()
+              .processUnmatchedMessages(
+                  toStringExpression(wsName),
+                  javaProcessUnmatchedMessagesBiFunctionToExpression(f));
+    }
+
+    /**
+     * Process the currently buffered inbound WebSocket messages and empty the buffer
+     *
+     * @param wsName the name of the WebSocket, expressed as a function
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        Function<Session, String> wsName, BiFunction<List<WsInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.ws()
+              .processUnmatchedMessages(
+                  javaFunctionToExpression(wsName),
+                  javaProcessUnmatchedMessagesBiFunctionToExpression(f));
     }
   }
 }

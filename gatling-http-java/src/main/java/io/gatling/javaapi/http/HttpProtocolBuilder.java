@@ -1160,6 +1160,17 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
     return new HttpProtocolBuilder(wrapped.wsAutoReplySocketIo4());
   }
 
+  /**
+   * Set the max size of the buffer for unmatched/unchecked inbound WebSocket messages. 0 by
+   * default, meaning such messages are not buffered.
+   *
+   * @param max the max size
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder wsUnmatchedInboundMessageBufferSize(int max) {
+    return new HttpProtocolBuilder(wrapped.wsUnmatchedInboundMessageBufferSize(max));
+  }
+
   // proxyPart
   /**
    * Ignore any configured proxy for some hosts

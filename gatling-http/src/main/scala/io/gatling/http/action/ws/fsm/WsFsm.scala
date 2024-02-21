@@ -24,10 +24,12 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.ws.WsInboundMessage
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.{ Request, WebSocket }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.util.BoundedMutableDequeue
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
@@ -48,6 +50,7 @@ final class WsFsm(
 ) extends StrictLogging {
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
+  private[fsm] val unmatchedInboundMessageBuffer = new BoundedMutableDequeue[WsInboundMessage](httpProtocol.wsPart.unmatchedInboundMessageBufferSize)
 
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
@@ -92,8 +95,10 @@ final class WsFsm(
       checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
-  ): Unit =
+  ): Unit = {
+    unmatchedInboundMessageBuffer.clear()
     execute(currentState.onSendTextFrame(actionName, message, checkSequences, session, next))
+  }
 
   def onSendBinaryFrame(
       actionName: String,
@@ -101,8 +106,10 @@ final class WsFsm(
       checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
       session: Session,
       next: Action
-  ): Unit =
+  ): Unit = {
+    unmatchedInboundMessageBuffer.clear()
     execute(currentState.onSendBinaryFrame(actionName, message, checkSequences, session, next))
+  }
 
   def onTextFrameReceived(message: String, timestamp: Long): Unit =
     execute(currentState.onTextFrameReceived(message, timestamp))
@@ -118,4 +125,7 @@ final class WsFsm(
 
   def onClientCloseRequest(actionName: String, closeStatus: WebSocketCloseStatus, session: Session, next: Action): Unit =
     execute(currentState.onClientCloseRequest(actionName, closeStatus, session, next))
+
+  def collectUnmatchedInboundMessages(): List[WsInboundMessage] =
+    unmatchedInboundMessageBuffer.removeAll()
 }

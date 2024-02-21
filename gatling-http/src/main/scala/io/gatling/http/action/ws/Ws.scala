@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.ws
 
+import io.gatling.commons.validation.Validation
+import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
 import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.CommonAttributes
@@ -25,15 +27,21 @@ import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus
 
 object Ws {
-  private val DefaultWebSocketName = SessionPrivateAttributes.generatePrivateAttribute("http.webSocket")
+  private val DefaultWebSocketName = SessionPrivateAttributes.generatePrivateAttribute("http.webSocket").expressionSuccess
 
-  def apply(requestName: Expression[String]): Ws = apply(requestName, DefaultWebSocketName.expressionSuccess)
+  def apply(requestName: Expression[String]): Ws = apply(requestName, DefaultWebSocketName)
 
   def apply(requestName: Expression[String], wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
   def checkTextMessage(name: Expression[String]): WsFrameCheck.Text = WsFrameCheck.Text(name, Nil, Nil, isSilent = false, resolvedName = "")
 
   def checkBinaryMessage(name: Expression[String]): WsFrameCheck.Binary = WsFrameCheck.Binary(name, Nil, Nil, isSilent = false, resolvedName = "")
+
+  def processUnmatchedMessages(f: (List[WsInboundMessage], Session) => Validation[Session]): ActionBuilder =
+    new WsProcessUnmatchedInboundMessagesBuilder(DefaultWebSocketName, f)
+
+  def processUnmatchedMessages(wsName: Expression[String], f: (List[WsInboundMessage], Session) => Validation[Session]): ActionBuilder =
+    new WsProcessUnmatchedInboundMessagesBuilder(wsName, f)
 }
 
 /**

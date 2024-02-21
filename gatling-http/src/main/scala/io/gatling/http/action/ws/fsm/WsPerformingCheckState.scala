@@ -22,6 +22,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws.WsInboundMessage
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 
@@ -98,6 +99,7 @@ final case class WsPerformingCheckState(
 
         case _ =>
           logger.debug(s"Received unmatched text frame $message")
+          unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Text(timestamp, message))
           // server unmatched message, just log
           logUnmatchedServerMessage(session)
           NextWsState(this)
@@ -113,6 +115,7 @@ final case class WsPerformingCheckState(
 
       case _ =>
         logger.debug("Received unmatched binary frame")
+        unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Binary(timestamp, message))
         // server unmatched message, just log
         logUnmatchedServerMessage(session)
         NextWsState(this)

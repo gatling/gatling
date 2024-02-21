@@ -21,6 +21,7 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.stats.OK
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws.WsInboundMessage
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 import io.gatling.http.engine.response.HttpTracing
@@ -120,6 +121,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
+    unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Text(timestamp, message))
     wsLogger.registerInboundMessage(message, timestamp)
     // try to auto reply or log the message
     if (!autoReplyTextFrames(message, webSocket)) {
@@ -129,6 +131,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
+    unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Binary(timestamp, message))
     wsLogger.registerInboundMessage(message, timestamp)
     // server push message, just log
     logUnmatchedServerMessage(session)
