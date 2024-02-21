@@ -86,7 +86,6 @@ public final class Sse {
    *
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
-   * @deprecated use get instead
    */
   @NonNull
   public SseConnectActionBuilder get(@NonNull Function<Session, String> url) {
@@ -98,7 +97,6 @@ public final class Sse {
    *
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
-   * @deprecated use get instead
    */
   @NonNull
   public SseConnectActionBuilder post(@NonNull Function<Session, String> url) {
