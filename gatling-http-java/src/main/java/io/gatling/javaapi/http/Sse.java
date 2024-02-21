@@ -64,19 +64,6 @@ public final class Sse {
    *
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
-   * @deprecated use get instead
-   */
-  @NonNull
-  @Deprecated
-  public SseConnectActionBuilder connect(@NonNull String url) {
-    return get(url);
-  }
-
-  /**
-   * Boostrap an action to connect the SSE with a GET request
-   *
-   * @param url the url to connect to, expressed as a Gatling Expression Language String
-   * @return the next DSL step
    */
   @NonNull
   public SseConnectActionBuilder get(@NonNull String url) {
@@ -92,19 +79,6 @@ public final class Sse {
   @NonNull
   public SseConnectActionBuilder post(@NonNull String url) {
     return new SseConnectActionBuilder(wrapped.post(toStringExpression(url)));
-  }
-
-  /**
-   * Boostrap an action to connect the SSE with a GET request
-   *
-   * @param url the url to connect to, expressed as a Gatling Expression Language String
-   * @return the next DSL step
-   * @deprecated use get instead
-   */
-  @NonNull
-  @Deprecated
-  public SseConnectActionBuilder connect(@NonNull Function<Session, String> url) {
-    return get(url);
   }
 
   /**

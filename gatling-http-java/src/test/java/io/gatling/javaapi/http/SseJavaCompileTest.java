@@ -27,7 +27,7 @@ public class SseJavaCompileTest extends Simulation {
   private ChainBuilder chain =
       exec(sse("connect")
               .sseName("sse")
-              .connect("/stocks/prices")
+              .get("/stocks/prices")
               .await(30)
               .on(
                   sse.checkMessage("checkName1")

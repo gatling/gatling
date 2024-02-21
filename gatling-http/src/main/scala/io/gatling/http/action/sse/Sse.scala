@@ -35,9 +35,6 @@ object Sse {
 final class Sse(requestName: Expression[String], sseName: Expression[String]) {
   def sseName(sseName: Expression[String]): Sse = new Sse(requestName, sseName)
 
-  @deprecated(message = "Use get instead", since = "3.10.0")
-  def connect(url: Expression[String]): SseConnectRequestBuilder = get(url)
-
   def get(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, HttpMethod.GET, url, sseName)
 
   def post(url: Expression[String]): SseConnectRequestBuilder = SseConnectRequestBuilder(requestName, HttpMethod.POST, url, sseName)
