@@ -27,11 +27,17 @@ import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 
 object AddCookieBuilder {
   def apply(cookie: AddCookieDsl): AddCookieBuilder =
-    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge, cookie.secure)
 }
 
-final class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
-    extends HttpActionBuilder
+final class AddCookieBuilder(
+    name: Expression[String],
+    value: Expression[String],
+    domain: Option[String],
+    path: Option[String],
+    maxAge: Option[Long],
+    secure: Boolean
+) extends HttpActionBuilder
     with NameGen {
   import CookieActionBuilder._
 
@@ -58,6 +64,7 @@ final class AddCookieBuilder(name: Expression[String], value: Expression[String]
         domain.foreach(cookie.setDomain)
         path.foreach(cookie.setPath)
         cookie.setSecure(secure)
+        maxAge.foreach(cookie.setMaxAge)
         storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
       }
 
