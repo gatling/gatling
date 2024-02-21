@@ -22,6 +22,7 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import io.gatling.http.action.ws.WsInboundMessage
 
 class WsCompileTest extends Simulation {
   private val httpProtocol = http
@@ -30,6 +31,7 @@ class WsCompileTest extends Simulation {
     .wsMaxReconnects(3)
     .wsAutoReplyTextFrame { case "ping" => "pong"; case "1" => "2" }
     .wsAutoReplySocketIo4
+    .wsUnmatchedInboundMessageBufferSize(5)
 
   private val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))
@@ -66,16 +68,9 @@ class WsCompileTest extends Simulation {
             ws("Perform auth")
               .sendText("Some auth token")
           ).pause(1)
-        )
-    )
-    .pause(1)
-    .repeat(2, "i") {
-      exec(
-        ws("Say Hello WS")
-          .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
-      ).pause(1)
-    }
-    .exec(
+        ),
+      ws("Say Hello WS")
+        .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}"""),
       ws("Message1")
         .wsName("foo")
         .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
@@ -90,9 +85,7 @@ class WsCompileTest extends Simulation {
         }
         .await(_ => 30.seconds)( // expression
           ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
-        )
-    )
-    .exec(
+        ),
       ws("Message2")
         .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
         .await(30.seconds)(
@@ -105,17 +98,13 @@ class WsCompileTest extends Simulation {
               }
             ),
           ws.checkTextMessage("checkName2").check(regex("somePattern2").saveAs("message2"))
-        )
-    )
-    .exec(
+        ),
       ws("Message3")
         .sendText("""{"text": "Hello, I'm #{id} and this is message #{i}!"}""")
         .await(30.seconds)(
           // match first message
           ws.checkTextMessage("checkName")
-        )
-    )
-    .exec(
+        ),
       ws("BinaryMessage")
         .sendBytes("hello".getBytes(UTF_8))
         .await(30.seconds)(
@@ -129,29 +118,30 @@ class WsCompileTest extends Simulation {
               }
             )
             .silent
-        )
-    )
-    .exec(ws("Close WS").close)
-    .exec(ws("Close WS").close(1000, "Bye"))
-    .exec(ws("Open Named", "foo").connect("/bar"))
-    .exec(
+        ),
+      ws("Close WS").close,
+      ws("Close WS").close(1000, "Bye"),
+      ws("Open Named", "foo").connect("/bar"),
       ws("SendTextMessageWithElFileBody")
-        .sendText(ElFileBody("pathToSomeFile"))
-    )
-    .exec(
+        .sendText(ElFileBody("pathToSomeFile")),
       ws("SendTextMessageWithPebbleStringBody")
-        .sendText(PebbleStringBody("somePebbleString"))
-    )
-    .exec(
+        .sendText(PebbleStringBody("somePebbleString")),
       ws("SendTextMessageWithPebbleFileBody")
-        .sendText(PebbleFileBody("pathToSomeFile"))
-    )
-    .exec(
+        .sendText(PebbleFileBody("pathToSomeFile")),
       ws("SendBytesMessageWithRawFileBody")
-        .sendBytes(RawFileBody("pathToSomeFile"))
-    )
-    .exec(
+        .sendBytes(RawFileBody("pathToSomeFile")),
       ws("SendBytesMessageWithByteArrayBody")
-        .sendBytes(ByteArrayBody("#{someByteArray}"))
+        .sendBytes(ByteArrayBody("#{someByteArray}")),
+      ws.processUnmatchedMessages((messages, session) => session.set("messages", messages)),
+      ws.processUnmatchedMessages(
+        "wsName",
+        (messages, session) => {
+          val lastTextMessage = messages.reverseIterator.collectFirst { case WsInboundMessage.Text(_, text) =>
+            text
+          }
+
+          lastTextMessage.fold(session)(m => session.set("lastTextMessage", m))
+        }
+      )
     )
 }

@@ -199,6 +199,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsAutoReplyTextFrame(f: PartialFunction[String, String]): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.autoReplyTextFrames).setTo(f.lift)
   def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
+  def wsUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
+    this.modify(_.protocol.wsPart.unmatchedInboundMessageBufferSize).setTo(max)
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

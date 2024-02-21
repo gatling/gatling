@@ -18,6 +18,8 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.WsFrameCheck;
 
+import java.util.Collections;
+
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.ws;
@@ -158,6 +160,31 @@ ws.checkTextMessage("checkName")
 ));
 //#check-matching
 
+//#process
+exec(
+  // store the unmatched messages in the Session
+  ws.processUnmatchedMessages((messages, session) -> session.set("messages", messages))
+);
+exec(
+  // collect the last text message and store it in the Session
+  ws.processUnmatchedMessages(
+    (messages, session) -> {
+      Collections.reverse(messages);
+      String lastTextMessage =
+        messages.stream()
+          .filter(m -> m instanceof io.gatling.http.action.ws.WsInboundMessage.Text)
+          .map(m -> ((io.gatling.http.action.ws.WsInboundMessage.Text) m).message())
+          .findFirst()
+          .orElse(null);
+          if (lastTextMessage != null) {
+            return session.set("lastTextMessage", lastTextMessage);
+          } else {
+            return session;
+          }
+      })
+);
+//#process
+
 //#protocol
 http
   // similar to standard `baseUrl` for HTTP,
@@ -185,7 +212,10 @@ http
   // Gatling will automatically respond
   // to server ping messages (`2`) with pong (`3`).
   // Cannot be used together with `wsAutoReplyTextFrame`.
-  .wsAutoReplySocketIo4();
+  .wsAutoReplySocketIo4()
+  // enable unmatched WebSocket inbound messages buffering,
+  // with a max buffer size of 5
+  .wsUnmatchedInboundMessageBufferSize(5);
 //#protocol
 
 //#chatroom-example

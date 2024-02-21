@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import io.gatling.http.action.ws.`WsInboundMessage$`
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.*
 import io.gatling.javaapi.http.HttpDsl.*
+import java.util.*
 
 class WsSampleKotlin {
 
@@ -154,6 +156,30 @@ exec(ws("Send").sendText("hello")
   ))
 //#check-matching
 
+//#process
+exec(
+  // store the unmatched messages in the Session
+  ws.processUnmatchedMessages { messages, session -> session.set("messages", messages) }
+)
+exec(
+  // collect the last text message and store it in the Session
+  ws.processUnmatchedMessages { messages, session ->
+    messages.reverse()
+    val lastTextMessage =
+        messages.stream()
+          .filter { m -> m is io.gatling.http.action.ws.WsInboundMessage.Text }
+          .map { m -> (m as io.gatling.http.action.ws.WsInboundMessage.Text).message() }
+          .findFirst()
+          .orElse(null)
+    if (lastTextMessage != null) {
+      session.set("lastTextMessage", lastTextMessage)
+    } else {
+      session
+    }
+  }
+)
+//#process
+
 //#protocol
 http
   // similar to standard `baseUrl` for HTTP,
@@ -182,6 +208,9 @@ http
   // to server ping messages (`2`) with pong (`3`).
   // Cannot be used together with `wsAutoReplyTextFrame`.
   .wsAutoReplySocketIo4()
+  // enable unmatched WebSocket inbound messages buffering,
+  // with a max buffer size of 5
+  .wsUnmatchedInboundMessageBufferSize(5)
 //#protocol
 
 //#chatroom-example
