@@ -15,7 +15,7 @@ Gatling is a highly flexible load-testing platform. You can write load tests in 
 
  - [install and setup your local dev environment](#install-gatling),
  - [write your first simulation](#simulation-construction),
- - [run your simulation locally](#run-the-test-locally), 
+ - [run your simulation locally](#run-the-simulation-locally), 
  - [run a simulation on Gatling Enterprise Cloud](#run-the-simulation-on-gatling-enterprise-cloud).
 
 {{< alert tip >}}
