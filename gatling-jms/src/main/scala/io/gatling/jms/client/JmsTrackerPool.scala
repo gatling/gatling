@@ -26,8 +26,8 @@ import io.gatling.core.util.NameGen
 import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
-import akka.actor.ActorSystem
 import io.netty.util.concurrent.DefaultThreadFactory
+import org.apache.pekko.actor.ActorSystem
 
 object JmsTrackerPool {
   private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")

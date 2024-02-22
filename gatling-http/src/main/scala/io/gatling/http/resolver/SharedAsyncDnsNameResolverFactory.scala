@@ -24,10 +24,10 @@ import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.engine.HttpEngine
 
-import akka.actor.ActorSystem
 import io.netty.channel.EventLoop
 import io.netty.resolver.dns.{ DefaultDnsCache, DnsCache }
 import io.netty.util.concurrent.{ Future, Promise }
+import org.apache.pekko.actor.ActorSystem
 
 object SharedAsyncDnsNameResolverFactory {
   def apply(httpEngine: HttpEngine, dnsServers: Array[InetSocketAddress], actorSystem: ActorSystem): EventLoop => InetAddressNameResolver = {

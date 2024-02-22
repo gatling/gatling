@@ -22,7 +22,7 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.controller.inject.ScenarioFlows
 import io.gatling.core.scenario.Scenario
 
-import akka.actor.{ ActorRef, FSM }
+import org.apache.pekko.actor.{ ActorRef, FSM }
 
 private trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 

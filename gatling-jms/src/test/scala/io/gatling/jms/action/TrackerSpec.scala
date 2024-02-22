@@ -26,7 +26,7 @@ import io.gatling.core.session.Session
 import io.gatling.jms._
 import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
-import akka.testkit.TestActorRef
+import org.apache.pekko.testkit.TestActorRef
 
 class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()

@@ -22,8 +22,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 
-import _root_.akka.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
+import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 
 final class CoreComponents(
     val actorSystem: ActorSystem,

@@ -21,7 +21,7 @@ import scala.collection.mutable
 import io.gatling.commons.util.Collections._
 import io.gatling.core.akka.BaseActor
 
-import akka.actor.FSM
+import org.apache.pekko.actor.FSM
 
 private object ThrottlerActorState {
   private[throttle] case object WaitingToStart extends ThrottlerActorState

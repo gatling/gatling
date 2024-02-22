@@ -24,8 +24,8 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.pekko.actor.ActorRef
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.

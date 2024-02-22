@@ -34,10 +34,10 @@ import io.gatling.jms._
 import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
-import akka.actor.ActorRef
 import io.netty.channel.EventLoopGroup
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
+import org.apache.pekko.actor.ActorRef
 
 class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
   private val t = new Thread(() => {

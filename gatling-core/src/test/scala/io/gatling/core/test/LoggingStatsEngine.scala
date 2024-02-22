@@ -22,7 +22,7 @@ import io.gatling.commons.stats.Status
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 sealed trait StatsEngineMessage
 

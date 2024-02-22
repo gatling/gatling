@@ -20,8 +20,8 @@ import io.gatling.commons.stats.Status
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.pekko.actor.ActorRef
 
 object MockStatsEngine {
   sealed trait Message

@@ -19,7 +19,7 @@ package io.gatling.core.util
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 object CoreTypeCaster {
   implicit val ActorRefTypeCaster: TypeCaster[ActorRef] = new TypeCaster[ActorRef] {

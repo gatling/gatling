@@ -23,7 +23,7 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.Predef._
 import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.apache.pekko.testkit._
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class PaceSpec extends AkkaSpec {

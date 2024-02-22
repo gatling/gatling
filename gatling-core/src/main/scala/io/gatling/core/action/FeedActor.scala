@@ -27,8 +27,8 @@ import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.Session
 
-import akka.actor.{ ActorRef, Props }
 import io.github.metarank.cfor._
+import org.apache.pekko.actor.{ ActorRef, Props }
 
 private[core] object FeedActor {
   def props[T](feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef): Props = Props(

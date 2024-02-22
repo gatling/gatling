@@ -20,8 +20,8 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.shared.util.StringBuilderPool
 
-import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.pekko.util.ByteString
 
 private[graphite] final case class GraphiteMetrics(byteString: ByteString)
 

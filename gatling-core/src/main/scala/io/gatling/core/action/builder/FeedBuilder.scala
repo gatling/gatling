@@ -26,7 +26,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 private[core] object FeedBuilder {
   private val Instances = new ju.HashMap[Long, ActorRef].asScala

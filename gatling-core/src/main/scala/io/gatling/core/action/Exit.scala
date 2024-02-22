@@ -19,7 +19,7 @@ package io.gatling.core.action
 import io.gatling.core.controller.inject.InjectorCommand
 import io.gatling.core.session.Session
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 private[gatling] final class Exit(injector: ActorRef) extends Action {
   override val name = "gatling-exit"

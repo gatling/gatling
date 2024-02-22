@@ -23,7 +23,7 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 
 private[gatling] object Controller {
   val ControllerActorName = "gatling-controller"

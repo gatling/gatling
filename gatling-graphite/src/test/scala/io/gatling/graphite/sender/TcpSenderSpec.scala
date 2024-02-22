@@ -24,9 +24,9 @@ import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.graphite.message.GraphiteMetrics
 
-import akka.io.Tcp._
-import akka.testkit._
-import akka.util.ByteString
+import org.apache.pekko.io.Tcp._
+import org.apache.pekko.testkit._
+import org.apache.pekko.util.ByteString
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
 class TcpSenderSpec extends AkkaSpec {

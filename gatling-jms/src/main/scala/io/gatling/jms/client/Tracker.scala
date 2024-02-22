@@ -32,7 +32,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms._
 
-import akka.actor.{ Props, Timers }
+import org.apache.pekko.actor.{ Props, Timers }
 
 /**
  * Advise actor a message was sent to JMS provider

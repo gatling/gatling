@@ -18,7 +18,7 @@ package io.gatling.core.controller.throttle
 
 import io.gatling.core.akka.BaseActor
 
-import akka.actor.FSM
+import org.apache.pekko.actor.FSM
 
 private[throttle] sealed trait ThrottlerControllerState
 private[throttle] object ThrottlerControllerState {

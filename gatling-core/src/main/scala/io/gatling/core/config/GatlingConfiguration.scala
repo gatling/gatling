@@ -38,8 +38,8 @@ object GatlingConfiguration extends StrictLogging {
   private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
   private val GatlingCustomConfigFile = "gatling.conf"
   private val GatlingCustomConfigFileOverrideSystemProperty = "gatling.conf.file"
-  private val ActorSystemDefaultsConfigFile = "gatling-akka-defaults.conf"
-  private val ActorSystemConfigFile = "gatling-akka.conf"
+  private val ActorSystemDefaultsConfigFile = "gatling-pekko-defaults.conf"
+  private val ActorSystemConfigFile = "gatling-pekko.conf"
 
   def loadActorSystemConfiguration(): Config = {
     val classLoader = getClass.getClassLoader

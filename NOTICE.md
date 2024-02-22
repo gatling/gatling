@@ -56,10 +56,10 @@ This product depends on Netty, distributed by the Netty Project:
   * License: license/LICENSE.netty.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/netty/netty
 
-This product depends on Akka, distributed by the Lightbend, Inc.:
+This product depends on Pekko, distributed by the Apache Foundation and originally by Lightbend Inc. as Akka:
 
-  * License: license/LICENSE.akka.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/akka/akka
+  * License: license/LICENSE.pekko.al20.txt (Apache License v2.0)
+  * Homepage: https://pekko.apache.org/
 
 This product depends on Config, distributed by the Lightbend, Inc.:
 

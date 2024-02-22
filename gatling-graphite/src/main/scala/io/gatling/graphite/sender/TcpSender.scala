@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.Clock
 import io.gatling.graphite.message.GraphiteMetrics
 
-import akka.io.{ IO, Tcp }
+import org.apache.pekko.io.{ IO, Tcp }
 
 private[graphite] class TcpSender(
     remote: InetSocketAddress,

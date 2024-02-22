@@ -24,7 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config._
 
-import akka.actor.{ Props, Stash }
+import org.apache.pekko.actor.{ Props, Stash }
 
 private[graphite] object MetricsSender {
   def props(clock: Clock, configuration: GatlingConfiguration): Props = {

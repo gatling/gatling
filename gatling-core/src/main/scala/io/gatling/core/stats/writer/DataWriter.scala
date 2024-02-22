@@ -18,7 +18,7 @@ package io.gatling.core.stats.writer
 
 import scala.util.control.NonFatal
 
-import akka.actor.FSM.NullFunction
+import org.apache.pekko.actor.FSM.NullFunction
 
 /**
  * Abstract class for all DataWriters

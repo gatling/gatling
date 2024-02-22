@@ -29,8 +29,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.scenario.Simulation
 import io.gatling.netty.util.Transports
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.pekko.actor.ActorSystem
 import org.slf4j.LoggerFactory
 
 object Gatling extends StrictLogging {

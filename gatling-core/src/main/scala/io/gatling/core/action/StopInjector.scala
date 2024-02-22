@@ -20,7 +20,7 @@ import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 class StopInjector(message: Expression[String], condition: Expression[Boolean], controller: ActorRef, val next: Action) extends ChainableAction with NameGen {
   override val name: String = genName("stopInjector")
