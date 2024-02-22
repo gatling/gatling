@@ -11,7 +11,7 @@ lastmod: 2023-12-16T21:30:56+02:00
 This guide is intended for Gatling versions `{{< var gatlingVersion >}}` and later.
 {{< /alert >}}
 
-Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, and Scala or use our [no-code feature](https://gatling.io/features/no-code) with Gatling Enterprise. In this guide, we cover a "Hello world"-style example of how to:
+Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, and Scala or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise. In this guide, we cover a "Hello world"-style example of how to:
 
  - [install and setup your local dev environment](#install-gatling),
  - [write your first simulation](#simulation-construction),
