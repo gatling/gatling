@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.sse
 
+import io.gatling.commons.validation.Validation
+import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
 import io.gatling.http.check.sse.SseMessageCheck
 import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
@@ -23,13 +25,19 @@ import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 import io.netty.handler.codec.http.HttpMethod
 
 object Sse {
-  private val DefaultSseName = SessionPrivateAttributes.generatePrivateAttribute("http.sse")
+  private val DefaultSseName = SessionPrivateAttributes.generatePrivateAttribute("http.sse").expressionSuccess
 
-  def apply(requestName: Expression[String]): Sse = apply(requestName, DefaultSseName.expressionSuccess)
+  def apply(requestName: Expression[String]): Sse = apply(requestName, DefaultSseName)
 
   def apply(requestName: Expression[String], sseName: Expression[String]): Sse = new Sse(requestName, sseName)
 
   def checkMessage(name: String): SseMessageCheck = SseMessageCheck(name, Nil, Nil)
+
+  def processUnmatchedMessages(f: (List[SseInboundMessage], Session) => Validation[Session]): ActionBuilder =
+    new SseProcessUnmatchedInboundMessagesBuilder(DefaultSseName, f)
+
+  def processUnmatchedMessages(sseName: Expression[String], f: (List[SseInboundMessage], Session) => Validation[Session]): ActionBuilder =
+    new SseProcessUnmatchedInboundMessagesBuilder(sseName, f)
 }
 
 final class Sse(requestName: Expression[String], sseName: Expression[String]) {

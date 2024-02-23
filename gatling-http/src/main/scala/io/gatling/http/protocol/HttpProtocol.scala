@@ -68,7 +68,7 @@ object HttpProtocol extends StrictLogging {
   }
 
   def apply(configuration: GatlingConfiguration): HttpProtocol =
-    HttpProtocol(
+    new HttpProtocol(
       baseUrls = Nil,
       warmUpUrl = configuration.http.warmUpUrl,
       enginePart = HttpProtocolEnginePart(
@@ -106,6 +106,9 @@ object HttpProtocol extends StrictLogging {
         wsBaseUrls = Nil,
         maxReconnects = 0,
         autoReplyTextFrames = _ => None,
+        unmatchedInboundMessageBufferSize = 0
+      ),
+      ssePart = HttpProtocolSsePart(
         unmatchedInboundMessageBufferSize = 0
       ),
       proxyPart = HttpProtocolProxyPart(
@@ -147,6 +150,7 @@ final case class HttpProtocol(
     requestPart: HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
     wsPart: HttpProtocolWsPart,
+    ssePart: HttpProtocolSsePart,
     proxyPart: HttpProtocolProxyPart,
     dnsPart: HttpProtocolDnsPart
 ) extends Protocol {
@@ -191,6 +195,10 @@ final case class HttpProtocolWsPart(
     wsBaseUrls: List[String],
     maxReconnects: Int,
     autoReplyTextFrames: String => Option[String],
+    unmatchedInboundMessageBufferSize: Int
+)
+
+final case class HttpProtocolSsePart(
     unmatchedInboundMessageBufferSize: Int
 )
 

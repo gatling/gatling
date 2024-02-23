@@ -24,8 +24,11 @@ import io.gatling.javaapi.core.Simulation;
 
 public class SseJavaCompileTest extends Simulation {
 
+  private final HttpProtocolBuilder httpProtocol = http.sseUnmatchedInboundMessageBufferSize(5);
+
   private ChainBuilder chain =
-      exec(sse("connect")
+      exec(
+          sse("connect")
               .sseName("sse")
               .get("/stocks/prices")
               .await(30)
@@ -33,14 +36,19 @@ public class SseJavaCompileTest extends Simulation {
                   sse.checkMessage("checkName1")
                       .check(regex("event: snapshot(.*)"))
                       .checkIf("#{cond}")
-                      .then(regex("event: snapshot(.*)"))))
-          .exec(
-              sse("waitForSomeMessage")
-                  .setCheck()
-                  .await(30)
-                  .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))))
-          .pause(15)
-          .exec(sse("close").close())
-          .exec(sse("foo", "bar").get("url"))
-          .exec(sse("foo", "bar").post("url").body(StringBody("")));
+                      .then(regex("event: snapshot(.*)"))),
+          sse("waitForSomeMessage")
+              .setCheck()
+              .await(30)
+              .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))),
+          sse("close").close(),
+          sse("foo", "bar").get("url"),
+          sse("foo", "bar").post("url").body(StringBody("")),
+          sse.processUnmatchedMessages((messages, session) -> session.set("messages", messages)),
+          sse.processUnmatchedMessages(
+              "wsName",
+              (messages, session) ->
+                  !messages.isEmpty()
+                      ? session.set("lastMessage", messages.get(messages.size() - 1).message())
+                      : session));
 }

@@ -18,6 +18,7 @@ package io.gatling.http.action.sse.fsm
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
 import com.typesafe.scalalogging.StrictLogging
@@ -56,6 +57,7 @@ final class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) wi
   override def onSseReceived(message: String, timestamp: Long): NextSseState = {
     // server push message, just log
     logger.debug(s"Received unmatched message=$message")
+    unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, message))
     logUnmatchedServerMessage(session)
     NextSseState(this)
   }

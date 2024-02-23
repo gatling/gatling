@@ -202,6 +202,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.unmatchedInboundMessageBufferSize).setTo(max)
 
+  // ssePart
+  def sseUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
+    this.modify(_.protocol.ssePart.unmatchedInboundMessageBufferSize).setTo(max)
+
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
   def proxy(proxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(proxy.proxyServer))

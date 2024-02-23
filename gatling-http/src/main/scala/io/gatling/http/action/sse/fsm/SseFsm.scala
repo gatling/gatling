@@ -24,11 +24,13 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.util.BoundedMutableDequeue
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
@@ -61,6 +63,7 @@ object SseFsm {
       connectActionName,
       connectCheckSequence,
       statsEngine,
+      httpProtocol,
       session.eventLoop,
       clock,
       stream
@@ -76,12 +79,15 @@ final class SseFsm(
     private[fsm] val connectActionName: String,
     private[fsm] val connectCheckSequence: List[SseMessageCheckSequence],
     private[fsm] val statsEngine: StatsEngine,
+    httpProtocol: HttpProtocol,
     eventLoop: EventLoop,
     private[fsm] val clock: Clock,
     private[fsm] val stream: SseStream
 ) extends StrictLogging {
   private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
+  private[fsm] val unmatchedInboundMessageBuffer = new BoundedMutableDequeue[SseInboundMessage](httpProtocol.ssePart.unmatchedInboundMessageBufferSize)
+
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {
@@ -119,8 +125,10 @@ final class SseFsm(
   def onSseStreamConnected(): Unit =
     execute(currentState.onSseStreamConnected(clock.nowMillis))
 
-  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit =
+  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit = {
+    unmatchedInboundMessageBuffer.clear()
     execute(currentState.onSetCheck(actionName, checkSequences, session: Session, next))
+  }
 
   def onSseReceived(message: String): Unit =
     execute(currentState.onSseReceived(message, clock.nowMillis))
@@ -136,4 +144,7 @@ final class SseFsm(
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit =
     execute(currentState.onClientCloseRequest(actionName, session, next))
+
+  def collectUnmatchedInboundMessages(): List[SseInboundMessage] =
+    unmatchedInboundMessageBuffer.removeAll()
 }

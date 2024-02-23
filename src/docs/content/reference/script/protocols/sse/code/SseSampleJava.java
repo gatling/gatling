@@ -18,9 +18,11 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.SseMessageCheck;
 
+import java.util.Collections;
+
 import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.http;
-import static io.gatling.javaapi.http.HttpDsl.sse;
+import static io.gatling.javaapi.http.HttpDsl.*;
+import static io.gatling.javaapi.http.HttpDsl.ws;
 
 class SseSampleJava {
 
@@ -92,6 +94,28 @@ exec(sse("SetCheck").setCheck()
       .check(regex("event: snapshot(.*)"))
   ));
 //#check-matching
+
+//#process
+exec(
+  // store the unmatched messages in the Session
+  ws.processUnmatchedMessages((messages, session) -> session.set("messages", messages))
+);
+exec(
+  // collect the last message and store it in the Session
+  sse.processUnmatchedMessages(
+          (messages, session) ->
+                  !messages.isEmpty()
+                          ? session.set("lastMessage", messages.get(messages.size() - 1).message())
+                          : session)
+);
+//#process
+
+//#protocol
+http
+  // enable unmatched SSE inbound messages buffering,
+  // with a max buffer size of 5
+  .sseUnmatchedInboundMessageBufferSize(5);
+//#protocol
 
 //#stock-market-sample
 ScenarioBuilder scn = scenario("ServerSentEvents")

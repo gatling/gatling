@@ -86,6 +86,28 @@ exec(sse("SetCheck").setCheck
   ))
 //#check-matching
 
+//#process
+exec(
+  // store the unmatched messages in the Session
+  sse.processUnmatchedMessages((messages, session) => session.set("messages", messages))
+)
+exec(
+  // collect the last message and store it in the Session
+  sse.processUnmatchedMessages { (messages, session) =>
+    messages
+      .lastOption
+      .fold(session)(m => session.set("lastMessage", m.message))
+  }
+)
+//#process
+
+//#protocol
+http
+  // enable unmatched SSE inbound messages buffering,
+  // with a max buffer size of 5
+  .sseUnmatchedInboundMessageBufferSize(5)
+//#protocol
+
 //#stock-market-sample
 val scn = scenario("ServerSentEvents")
   .exec(
