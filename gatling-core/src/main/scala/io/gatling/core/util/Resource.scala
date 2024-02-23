@@ -29,6 +29,13 @@ import io.gatling.commons.validation._
 import com.typesafe.scalalogging.LazyLogging
 
 object Resource {
+
+  private val WrongPrefixes = Set(
+    "src/test/resources/",
+    "src/main/resources/",
+    "src/gatling/resources/"
+  )
+
   private final case class Location(path: String)
 
   private object ClasspathResource extends LazyLogging {
@@ -40,23 +47,22 @@ object Resource {
       }
 
     def unapply(location: Location): Option[Validation[Resource]] = {
-      val nixPath = location.path.replace('\\', '/')
-      val cleanPath = cleanResourcePath(nixPath)
+      val classpathPath = location.path.replace('\\', '/')
 
-      Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
-        if (cleanPath != nixPath) {
-          logger.warn(s"""Your resource's path ${location.path} is incorrect.
-                         |It should not be relative to your project root on the filesystem.
-                         |Instead, it should be relative to your classpath root.
-                         |We've clean it up into $cleanPath for you but please fix it.
-                         |""".stripMargin)
-        }
-
-        url.getProtocol match {
-          case "file" => ClasspathFileResource(cleanPath, urlToFile(url)).success
-          case "jar"  => ClasspathPackagedResource(cleanPath, url).success
-          case _      => s"$url is neither a file nor a jar".failure
-        }
+      WrongPrefixes.find(classpathPath.startsWith) match {
+        case Some(wrongPrefix) =>
+          Some(s"""Your resource's path ${location.path} is incorrect.
+                  |It should not be relative to your project root on the filesystem.
+                  |Instead, it should be relative to your classpath root, eg '${wrongPrefix}file.csv' should actually be `file.csv`.
+                  |""".stripMargin.failure)
+        case _ =>
+          Option(getClass.getClassLoader.getResource(classpathPath)).map { url =>
+            url.getProtocol match {
+              case "file" => ClasspathFileResource(classpathPath, urlToFile(url)).success
+              case "jar"  => ClasspathPackagedResource(classpathPath, url).success
+              case _      => s"$url is neither a file nor a jar".failure
+            }
+          }
       }
     }
   }
@@ -65,7 +71,17 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] = {
       val path = Paths.get(location.path)
       if (Files.isRegularFile(path)) {
-        Some(FilesystemResource(path.toFile).success)
+        val nixPath = location.path.replace('\\', '/')
+
+        WrongPrefixes.find(nixPath.contains) match {
+          case Some(wrongPrefix) =>
+            Some(s"""Your resource's path ${location.path} is incorrect.
+                    |It should not be an absolute path pointing to a directory that belongs to your classpath.
+                    |Instead, it should be relative to your classpath root, eg '/foo/myproject/${wrongPrefix}file.csv' should actually be `file.csv`.
+                    |""".stripMargin.failure)
+          case _ =>
+            Some(FilesystemResource(path.toFile).success)
+        }
       } else {
         None
       }
@@ -78,20 +94,6 @@ object Resource {
       case AbsoluteFileResource(res) => res
       case _                         => s"Resource $path not found".failure
     }
-
-  private implicit final class StringDropUntil(val source: String) extends AnyVal {
-    def dropUntil(pattern: String): String =
-      source.indexOf(pattern) match {
-        case i if i != -1 => source.substring(i + pattern.length, source.length)
-        case _            => source
-      }
-  }
-
-  private[util] def cleanResourcePath(nixPath: String): String =
-    nixPath
-      .dropUntil("src/test/resources/")
-      .dropUntil("src/main/resources/")
-      .dropUntil("src/gatling/resources/")
 }
 
 sealed trait Resource {
