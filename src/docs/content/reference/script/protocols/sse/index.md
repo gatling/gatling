@@ -83,6 +83,26 @@ Non-matching messages will be ignored.
 
 {{< include-code "check-matching" java kt scala >}}
 
+## Processing unmatched messages
+
+You can use `processUnmatchedMessages` to process inbound messages that haven't been matched with a check and have been buffered.
+By default, unmatched inbound messages are not buffered, you must enable this feature by setting the size of the buffer on the protocol with `.sseUnmatchedInboundMessageQueueSize(maxSize)`.
+The buffer is reset when:
+* sending an outbound message
+* calling `processUnmatchedMessages` so we don't present the same message twice
+
+You can then pass your processing logic as a function.
+The list of messages passed to this function is sorted in timestamp ascending (meaning older messages first).
+It contains instances of types `io.gatling.http.action.sse.SseInboundMessage`.
+
+{{< include-code "process" java kt scala >}}
+
+## Configuration
+
+SSE support introduces new HttpProtocol parameters:
+
+{{< include-code "protocol" java kt scala >}}
+
 ## Debugging
 
 You can inspect streams if you add the following logger to your logback configuration:

@@ -20,8 +20,12 @@ import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import io.gatling.http.action.sse.SseInboundMessage
 
 class SseCompileTest extends Simulation {
+  private val httpProtocol = http
+    .sseUnmatchedInboundMessageBufferSize(5)
+
   private val scn = scenario(this.getClass.getSimpleName)
     .exec(
       sse("connect")
@@ -29,9 +33,7 @@ class SseCompileTest extends Simulation {
         .get("/stocks/prices")
         .await(30.seconds)(
           sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))
-        )
-    )
-    .exec(
+        ),
       sse("waitForSomeMessage").setCheck.await(30.seconds)(
         sse
           .checkMessage("checkName1")
@@ -45,10 +47,20 @@ class SseCompileTest extends Simulation {
           .checkIf("#{cond}") {
             jsonPath("$.foo")
           }
+      ),
+      sse("close").close,
+      sse("foo", "bar").get("url"),
+      sse("foo", "bar").post("url").body(StringBody("")),
+      sse.processUnmatchedMessages((messages, session) => session.set("messages", messages)),
+      sse.processUnmatchedMessages(
+        "sseName",
+        (messages, session) => {
+          val lastMessage = messages.reverseIterator.collectFirst { case SseInboundMessage(_, text) =>
+            text
+          }
+
+          lastMessage.fold(session)(m => session.set("lastMessage", m))
+        }
       )
     )
-    .pause(15)
-    .exec(sse("close").close)
-    .exec(sse("foo", "bar").get("url"))
-    .exec(sse("foo", "bar").post("url").body(StringBody("")))
 }

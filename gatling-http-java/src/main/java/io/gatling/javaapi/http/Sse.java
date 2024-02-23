@@ -17,10 +17,14 @@
 package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
+import static io.gatling.javaapi.http.internal.SseFunctions.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.gatling.http.action.sse.SseInboundMessage;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
+import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -138,6 +142,52 @@ public final class Sse {
     @NonNull
     public SseMessageCheck checkMessage(@NonNull String name) {
       return new SseMessageCheck(io.gatling.http.Predef.sse().checkMessage(name));
+    }
+
+    /**
+     * Process the currently buffered inbound SSE messages and empty the buffer
+     *
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        BiFunction<List<SseInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.sse()
+              .processUnmatchedMessages(javaProcessUnmatchedMessagesBiFunctionToExpression(f));
+    }
+
+    /**
+     * Process the currently buffered inbound SSE messages and empty the buffer
+     *
+     * @param sseName the name of the SSE stream, expressed as a Gatling Expression Language String
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        String sseName, BiFunction<List<SseInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.sse()
+              .processUnmatchedMessages(
+                  toStringExpression(sseName),
+                  javaProcessUnmatchedMessagesBiFunctionToExpression(f));
+    }
+
+    /**
+     * Process the currently buffered inbound SSE messages and empty the buffer
+     *
+     * @param sseName the name of the SSE stream, expressed as a function
+     * @param f the function to process the buffered messages
+     * @return an ActionBuilder
+     */
+    public ActionBuilder processUnmatchedMessages(
+        Function<Session, String> sseName,
+        BiFunction<List<SseInboundMessage>, Session, Session> f) {
+      return () ->
+          io.gatling.http.Predef.sse()
+              .processUnmatchedMessages(
+                  javaFunctionToExpression(sseName),
+                  javaProcessUnmatchedMessagesBiFunctionToExpression(f));
     }
   }
 }

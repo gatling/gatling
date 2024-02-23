@@ -21,6 +21,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
+import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.check.sse.{ SseCheck, SseMessageCheck, SseMessageCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -143,6 +144,7 @@ final case class SsePerformingCheckState(
       }
     } else {
       logger.debug(s"Received non-matching message $message")
+      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, message))
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextSseState(this)
