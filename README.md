@@ -22,7 +22,7 @@ Gatling is developed in Scala and built upon:
 
 ## Questions, help?
 
-Read the [documentation](https://gatling.io/docs/current/).
+Read the [documentation](https://docs.gatling.io/).
 
 Join the [Gatling Community Forum](https://community.gatling.io).
 
