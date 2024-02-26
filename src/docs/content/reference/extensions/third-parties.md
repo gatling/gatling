@@ -21,7 +21,6 @@ If you run into an issue, please contact their respective owners.
 * [Git plugin (Gatling 3.9)](https://github.com/GerritForge/gatling-git) by GerritForge
 * [gRPC plugin (Gatling 3.9)](https://github.com/phiSgr/gatling-grpc) by George Leung
 * [JDBC plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-jdbc-plugin) by Tinkoff
-* [Kafka plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
 * [Sftp plugin (Gatling 3.9)](https://github.com/fherbreteau/gatling-sftp) by François Herbreteau
 * [Ftp plugin (Gatling 3.9)](https://github.com/fherbreteau/gatling-ftp) by François Herbreteau
 * [Kafka plugin (Gatling 3.9)](https://github.com/Amerousful/gatling-kafka) by Amerousful (Bairov Pavel)
@@ -55,3 +54,4 @@ If you're interested, please consider reaching out to their respective authors o
 * [UDP plugin (Gatling 2.3)](https://github.com/arenhage/gatling-udp) by Daniel Arenhage
 * [Thrift plugin (Gatling 2.3)](https://github.com/3tty0n/gatling-thrift) by Yusuke Izawa
 * [ZeroMQ plugin (Gatling 2.2)](https://github.com/softwaremill/gatling-zeromq) by SoftwareMill
+* [Kafka plugin (Gatling 3.9)](https://github.com/Tinkoff/gatling-kafka-plugin) by Tinkoff
