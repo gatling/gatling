@@ -19,10 +19,10 @@ This tutorial describes step-by-step instructions for running your first simulat
 
 The Gatling no-code generator is the fastest way to discover load testing and how it can improve your application, microservice, or API. The no-code generator is a graphical user interface that lets you:
 
-- [setup your scenario](#setup-your-scenario),
-- [setup the virtual user injection profile](#setup-the-injection-profile),
-- (optional) [define acceptance criteria](#define-acceptance-criteria-optional),
-- [select a testing location](#select-the-testing-location).
+- [setup your scenario]({{< ref "#setup-your-scenario" >}}),
+- [setup the virtual user injection profile]({{< ref "#setup-the-injection-profile" >}}),
+- (optional) [define acceptance criteria]({{< ref "#define-acceptance-criteria-optional" >}}),
+- [select a testing location]({{< ref "#select-the-testing-location" >}}).
 
 Once you start your simulation, the load testing data are displayed in real-time. The following guide assists you in writing and launching your first load test. To keep learning about Gatling and load testing, see these helpful resources:
 

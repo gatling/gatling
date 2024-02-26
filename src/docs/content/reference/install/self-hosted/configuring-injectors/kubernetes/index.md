@@ -19,7 +19,7 @@ Kubernetes pools configuration gains access to the cluster through the credentia
 {{< img src="credentials-settings.png" alt="Kubernetes credentials" >}}
 
 - **Kubernetes Url**: The url of your Kubernetes API with the protocol
-- **Service Account Token**: The token of your service account which has edit permissions on the namespace below (see [the minimal permissions](#minimal-permissions-for-gatling-enterprise-service-account))
+- **Service Account Token**: The token of your service account which has edit permissions on the namespace below (see [the minimal permissions]({{< ref "#minimal-permissions-for-gatling-enterprise-service-account" >}}))
 - **Namespace**: The namespace/project name in which injectors will be spawned
 
 If your instance of Gatling Enterprise is deployed inside a kubernetes cluster, and you want to deploy your injectors in the same cluster,
