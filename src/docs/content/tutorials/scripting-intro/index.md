@@ -13,10 +13,10 @@ This guide is intended for Gatling versions `{{< var gatlingVersion >}}` and lat
 
 Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, and Scala or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise. In this guide, we cover a "Hello world"-style example of how to:
 
- - [install and setup your local dev environment](#install-gatling),
- - [write your first simulation](#simulation-construction),
- - [run your simulation locally](#run-the-simulation-locally), 
- - [run a simulation on Gatling Enterprise Cloud](#run-the-simulation-on-gatling-enterprise-cloud).
+ - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
+ - [write your first simulation]({{< ref "#simulation-construction" >}}),
+ - [run your simulation locally]({{< ref "#run-the-simulation-locally" >}}),
+ - [run a simulation on Gatling Enterprise Cloud]({{< ref "#run-the-simulation-on-gatling-enterprise-cloud" >}}).
 
 {{< alert tip >}}
 Join the [Gatling Community Forum](https://community.gatling.io) to discuss load testing with other users. Please try to find answers in the documentation before asking for help.
@@ -65,7 +65,7 @@ A Gatling simulation consists of the following:
 - setting up the injection profile (virtual user profile).
 
 The following procedure teaches you to develop the simulation from each constituent component. If you want to skip ahead
-and copy the final simulation, jump to [Test execution](#test-execution). Learn more about simulations in the
+and copy the final simulation, jump to [Test execution]({{< ref "#test-execution" >}}). Learn more about simulations in the
 [Documentation]({{< ref "/reference/script/core/simulation" >}}). 
 
 #### Setup the file 
@@ -144,7 +144,7 @@ When the test has finished, there is an HTML link in the terminal that you can u
 
 Gatling Enterprise Cloud is a feature-rich SaaS platform that is designed for teams and organizations to get the most
 out of load testing. With the trial account you created in the
-[Sign up for Gatling Enterprise Cloud](#sign-up-for-gatling-enterprise-cloud) section, you can upload and run your test
+[Sign up for Gatling Enterprise Cloud]({{< ref "#sign-up-for-gatling-enterprise-cloud" >}}) section, you can upload and run your test
 with advanced configuration, reporting, and collaboration features. 
 
 #### Generate a package
@@ -170,7 +170,7 @@ procedure:
 5. **Click** _Create a new package_.
   {{< img src="createPackage.png" alt="createPackage.png" >}}
 6. Enter a package name in the _Name_ field.
-7. **Click** _Browse files_ in the Create Package modale and select the `.jar` file from the [Generate a package](#generate-a-package) section.
+7. **Click** _Browse files_ in the Create Package modale and select the `.jar` file from the [Generate a package]({{< ref "#generate-a-package" >}}) section.
 8. **Click** _Save_.
   {{< img src="generatePackage.png" alt="generatePackage.png" >}}
 9. Select the Class name from the dropdown menu.
