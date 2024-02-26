@@ -8,8 +8,8 @@ object Dependencies {
   private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                    % version)
     .exclude("org.jline", "jline")
   private def scalaCompilerBridge(version: String) = "org.scala-lang"                 % "scala2-sbt-bridge"                 % version
-  private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.6"
-  private val gatlingSharedModel             = "io.gatling"                          %% "gatling-shared-model"              % "0.0.4"
+  private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.7"
+  private val gatlingSharedModel             = "io.gatling"                          %% "gatling-shared-model"              % "0.0.5"
   private val gatlingEnterprisePluginCommons = "io.gatling"                           % "gatling-enterprise-plugin-commons" % "1.8.0"
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.3.0"
