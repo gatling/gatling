@@ -18,7 +18,8 @@ Make sure you've fulfilled the requirements listed in the [Installation Guide]({
 Kubernetes pools configuration gains access to the cluster through the credentials settings:
 {{< img src="credentials-settings.png" alt="Kubernetes credentials" >}}
 
-- **Kubernetes Url**: The url of your Kubernetes API with the protocol
+- **Kubernetes URL**: The url of your Kubernetes API with the protocol
+- **Kubernetes CA**: The [certificate]({{< ref "/reference/execute/self-hosted/admin/private-keys" >}}) of your Kubernetes API (optional, trusted by default)
 - **Service Account Token**: The token of your service account which has edit permissions on the namespace below (see [the minimal permissions]({{< ref "#minimal-permissions-for-gatling-enterprise-service-account" >}}))
 - **Namespace**: The namespace/project name in which injectors will be spawned
 
