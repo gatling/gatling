@@ -83,8 +83,8 @@ control-plane {
       
       # Hosts accessible with the SSH private key, on configured port (hostnames or IP addresses)
       hosts = [
-        "localhost",
-        "0.0.0.0"
+        # "my.domain.example.com",
+        # "1.2.3.4"
       ]
       
       # Java configuration (following configuration properties are optional)
