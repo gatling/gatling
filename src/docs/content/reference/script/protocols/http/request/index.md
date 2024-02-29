@@ -328,10 +328,6 @@ Just like you can [define a global `basicAuth`  or `digestAuth` on the HttpProto
 
 Just like you can [globally define a `proxy` on the HttpProtocol configuration]({{< ref "protocol#proxy" >}}), you can define one on individual requests.
 
-#### `virtualHost`
-
-Just like you can [globally define a `virtualHost` on the HttpProtocol configuration]({{< ref "protocol#virtualhost" >}}), you can define one on individual requests.
-
 #### `disableFollowRedirect`
 
 Just like you can [globally disable following redirect on the HttpProtocol configuration]({{< ref "protocol#disablefollowredirect" >}}), you can define one on individual requests.

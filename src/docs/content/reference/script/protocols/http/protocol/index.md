@@ -116,12 +116,6 @@ But you can use pass aliases programmatically.
 
 {{< include-code "hostNameAliases" java kt scala >}}
 
-#### `virtualHost`
-
-You can change the `Host` to something else than the url domain.
-
-{{< include-code "virtualHost" java kt scala >}}
-
 #### `localAddress`
 
 It's possible to have multiple IP addresses for your load generators, typically using [IP-aliasing or `iproute2`](https://www.kernel.org/doc/html/v5.8/networking/alias.html).
