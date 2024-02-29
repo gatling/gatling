@@ -25,9 +25,9 @@ val feeder = Iterator.continually {
 }
 //#random-mail-generator
 
-//#feed
+//#feed-keyword
 feed(feeder)
-//#feed
+//#feed-keyword
 
 //#feed-multiple
 feed(feeder, 2)

@@ -32,9 +32,9 @@ val feeder = generateSequence {
 }.iterator()
 //#random-mail-generator
 
-//#feed
+//#feed-keyword
 feed(feeder)
-//#feed
+//#feed-keyword
 
 //#feed-multiple
 feed(feeder, 2)
