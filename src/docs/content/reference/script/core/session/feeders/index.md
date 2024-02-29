@@ -15,7 +15,7 @@ It's very simple to build a custom one. For example, here's how one could build 
 
 The structure DSL provides a `feed` method that can be called at the same place as `exec`.
 
-{{< include-code "feed" java kt scala >}}
+{{< include-code "feed-keyword" java kt scala >}}
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
