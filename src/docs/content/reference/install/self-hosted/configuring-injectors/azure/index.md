@@ -13,7 +13,7 @@ A Microsoft Azure Pool is a reference to the Azure account you can use to spawn 
 Make sure your network and firewall configuration will let Gatling Enterprise connect to:
 * your injectors on port 22 (SSH) and 9999 (HTTP);
 * the Microsoft and Azure REST API:
-  * `https://login.microsoftonline.com` (Aaure IAM)
+  * `https://login.microsoftonline.com` (Azure IAM)
   * `https://management.azure.com` (Azure REST API)
   * `http://169.254.169.254` (Azure IMDS)
 
@@ -33,10 +33,19 @@ To configure the type of instances you want to spawn, you need to fill the form 
 - **Network**: the network configured on your Microsoft Azure account you want to use
 - **Subnet**: the subnet you want to use
 - **Connect to private IP**: Gatling Enterprise will connect to the injectors' private IP instead of the public one. If unchecked, the private IP remains a fallback if a public IP is missing. This option should be used only when the Gatling Enterprise host and the injector are both in the same Azure network.
-- **Image** or **Image URL**: the certified image or the url of the image you want to use for your instances.
+- **Image location (certified)**: select the certified image you want to use for your instances.
+- **Image location (custom)**: the Resource Id of the custom image in your Compute Gallery you want to use for your instances. VHD URL are supported, but Azure documentation [suggests to use galleries](https://learn.microsoft.com/en-us/azure/virtual-machines/vm-specialized-image-version).
 
 {{< alert tip >}}
-You can use our certified images or the url of your custom VHD: the image should at least have JDK8 installed, a configured key pair without password and the port 22 & 9999 should be open, see the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-linux-capture-image) if you want to learn how to make your own image.
+A custom image must meet those requirements:
+- It must be a [generalized image](https://learn.microsoft.com/en-us/azure/virtual-machines/shared-image-galleries?tabs=azure-cli#generalized-and-specialized-images)
+- JDK8+ installed
+- A configured key pair without password
+- Port 22 and port 9999 should be open
+
+Refer to Azure documentation to learn more about creating and storing a generalized image:
+- [How to generalize a VM](https://learn.microsoft.com/en-us/azure/virtual-machines/generalize#linux)
+- [How to store an image in Azure Compute Gallery](https://learn.microsoft.com/en-us/azure/virtual-machines/shared-image-galleries?tabs=azure-cli)
 {{< /alert >}}
 
 - **Public Key**: the public ssh key to connect to your instances
