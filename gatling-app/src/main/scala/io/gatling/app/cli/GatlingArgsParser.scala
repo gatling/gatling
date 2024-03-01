@@ -16,11 +16,13 @@
 
 package io.gatling.app.cli
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
+import java.util.Base64
 
+import io.gatling.app.cli.GatlingOptions._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.cli.{ CliOptionParser, GatlingArgs }
-
-import GatlingOptions._
 
 private[app] final class GatlingArgsParser(args: Array[String]) {
   private var gatlingArgs = GatlingArgs.Empty
@@ -30,23 +32,30 @@ private[app] final class GatlingArgsParser(args: Array[String]) {
       .foreach(_ => gatlingArgs = gatlingArgs.copy(noReports = true))
 
     opt[String](ReportsOnly)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(reportsOnly = Some(value)))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(reportsOnly = value.trimToOption))
 
     opt[String](ResultsFolder)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(resultsDirectory = Some(Paths.get(value))))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(resultsDirectory = value.trimToOption.map(trimmed => Paths.get(trimmed))))
 
     opt[String](Simulation)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(simulationClass = Some(value)))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(simulationClass = value.trimToOption))
 
     opt[String](RunDescription)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(runDescription = Some(value)))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(runDescription = value.trimToOption.map(tryDecodeBase64)))
 
     opt[String](Launcher)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(launcher = Some(value)))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(launcher = value.trimToOption))
 
     opt[String](BuildToolVersion)
-      .foreach(value => gatlingArgs = gatlingArgs.copy(buildToolVersion = Some(value)))
+      .foreach(value => gatlingArgs = gatlingArgs.copy(buildToolVersion = value.trimToOption))
   }
+
+  private def tryDecodeBase64(raw: String): String =
+    try {
+      new String(Base64.getDecoder.decode(raw), StandardCharsets.UTF_8)
+    } catch {
+      case _: IllegalArgumentException => raw
+    }
 
   def parseArguments: Either[GatlingArgs, StatusCode] =
     if (cliOptsParser.parse(args)) {
