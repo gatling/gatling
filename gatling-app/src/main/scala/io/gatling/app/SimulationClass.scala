@@ -23,7 +23,6 @@ import io.gatling.core.scenario.{ Simulation, SimulationParams }
 
 sealed abstract class SimulationClass(clazz: Class[_]) extends Product with Serializable {
   def simpleName: String = clazz.getSimpleName
-  def canonicalName: String = clazz.getCanonicalName
   def params(configuration: GatlingConfiguration): SimulationParams
 }
 
