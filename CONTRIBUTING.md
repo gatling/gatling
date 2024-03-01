@@ -49,7 +49,7 @@ Before you submit a pull request, make sure that:
 
 1. New features or API changes are properly documented (documentation sources are in `/src/sphynx`)
 2. You provided tests for the code changes you made
-3. The code follows Gatling's code guidelines formatting rules (code will be auomatically formatted if you compile it locally)
+3. The code follows Gatling's code guidelines formatting rules (code will be automatically formatted if you compile it locally)
 4. The pull request's commits must follow our guidelines (see the **Commits and commit messages** below)
 5. Source files have the appropriate copyright header license:
 
