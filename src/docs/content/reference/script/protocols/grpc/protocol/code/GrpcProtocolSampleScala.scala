@@ -22,6 +22,7 @@ import io.gatling.grpc.Predef._
 import io.grpc._
 
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.concurrent.Executor
 
 class GrpcProtocolSampleScala extends Simulation {
 
@@ -74,6 +75,51 @@ class GrpcProtocolSampleScala extends Simulation {
     //#shareSslContext
     grpc.shareSslContext
     //#shareSslContext
+    val callCredentials = callCredentialsForUser("")
+    //#callCredentials
+    grpc
+      // with a constant
+      .callCredentials(callCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .callCredentials("#{callCredentials}")
+      // or with a function
+      .callCredentials { session =>
+        val name = session("myUserName").as[String]
+        callCredentialsForUser(name)
+      }
+    //#callCredentials
+    val channelCredentials = channelCredentialsForUser("")
+    //#channelCredentials
+    grpc
+      // with a constant
+      .channelCredentials(channelCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .channelCredentials("#{channelCredentials}")
+      // or with a function
+      .channelCredentials { session =>
+        val name = session("myUserName").as[String]
+        channelCredentialsForUser(name)
+      }
+    //#channelCredentials
+    //#tlsMutualAuthChannelCredentials
+    grpc.channelCredentials(
+      TlsChannelCredentials.newBuilder()
+        .keyManager(
+          ClassLoader.getSystemResourceAsStream("client.crt"),
+          ClassLoader.getSystemResourceAsStream("client.key"))
+        .trustManager(ClassLoader.getSystemResourceAsStream("ca.crt"))
+        .build()
+    )
+    //#tlsMutualAuthChannelCredentials
+    //#insecureTrustManagerChannelCredentials
+    TlsChannelCredentials.newBuilder()
+      .trustManager(
+        io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE.getTrustManagers:_*
+      )
+    //#insecureTrustManagerChannelCredentials
+    //#overrideAuthority
+    grpc.overrideAuthority("test.example.com")
+    //#overrideAuthority
     //#usePlaintext
     grpc.usePlaintext
     //#usePlaintext
@@ -105,4 +151,14 @@ class GrpcProtocolSampleScala extends Simulation {
     grpc.useChannelPool(4)
     //#useChannelPool
   }
+
+  private def callCredentialsForUser(name: String): CallCredentials =
+    new CallCredentials() {
+      override def applyRequestMetadata(requestInfo: CallCredentials.RequestInfo, appExecutor: Executor, applier: CallCredentials.MetadataApplier): Unit = {}
+    }
+
+  private def channelCredentialsForUser(name: String): ChannelCredentials =
+    new ChannelCredentials() {
+      override def withoutBearerTokens(): ChannelCredentials = this
+    }
 }

@@ -24,7 +24,9 @@ import io.gatling.javaapi.core.*;
 
 import io.grpc.*;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 
@@ -77,6 +79,55 @@ class GrpcProtocolSampleJava extends Simulation {
     //#shareSslContext
     grpc.shareSslContext();
     //#shareSslContext
+    var callCredentials = callCredentialsForUser("");
+    //#callCredentials
+    grpc
+      // with a constant
+      .callCredentials(callCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .callCredentials("#{callCredentials}")
+      // or with a function
+      .callCredentials(session -> {
+        var name = session.getString("myUserName");
+        return callCredentialsForUser(name);
+      });
+    //#callCredentials
+    var channelCredentials = channelCredentialsForUser("");
+    //#channelCredentials
+    grpc
+      // with a constant
+      .channelCredentials(channelCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .channelCredentials("#{channelCredentials}")
+      // or with a function
+      .channelCredentials(session -> {
+        var name = session.getString("myUserName");
+        return channelCredentialsForUser(name);
+      });
+    //#channelCredentials
+    try {
+      //#tlsMutualAuthChannelCredentials
+      grpc.channelCredentials(
+        TlsChannelCredentials.newBuilder()
+          .keyManager(
+            ClassLoader.getSystemResourceAsStream("client.crt"),
+            ClassLoader.getSystemResourceAsStream("client.key"))
+          .trustManager(ClassLoader.getSystemResourceAsStream("ca.crt"))
+          .build()
+      );
+      //#tlsMutualAuthChannelCredentials
+    } catch (IOException e) {
+    }
+    //#insecureTrustManagerChannelCredentials
+    TlsChannelCredentials.newBuilder()
+      .trustManager(
+        io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE.getTrustManagers()
+      )
+    //#insecureTrustManagerChannelCredentials
+    ;
+    //#overrideAuthority
+    grpc.overrideAuthority("test.example.com");
+    //#overrideAuthority
     //#usePlaintext
     grpc.usePlaintext();
     //#usePlaintext
@@ -107,5 +158,20 @@ class GrpcProtocolSampleJava extends Simulation {
     //#useChannelPool
     grpc.useChannelPool(4);
     //#useChannelPool
+  }
+
+  private CallCredentials callCredentialsForUser(String name) {
+    return new CallCredentials() {
+      @Override public void applyRequestMetadata(RequestInfo requestInfo, Executor appExecutor, MetadataApplier applier) {}
+    };
+  }
+
+  private ChannelCredentials channelCredentialsForUser(String name) {
+    return new ChannelCredentials() {
+      @Override
+      public ChannelCredentials withoutBearerTokens() {
+        return this;
+      }
+    };
   }
 }
