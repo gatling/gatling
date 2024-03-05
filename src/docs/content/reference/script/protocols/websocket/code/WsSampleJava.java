@@ -18,6 +18,8 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.WsFrameCheck;
 
+import java.nio.charset.StandardCharsets;
+
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.ws;
@@ -94,6 +96,12 @@ ws.checkTextMessage("#{checkName}")
 // with a function name
 ws.checkTextMessage(session -> "checkName")
   .check(regex("hello (.*)").saveAs("name"));
+// checking a binary frame
+ws.checkBinaryMessage("checkName")
+  .check(
+    bodyBytes().is("hello".getBytes(StandardCharsets.UTF_8)),
+    bodyLength().is(3)
+  );
 //#create-single-check
 
 //#create-multiple-checks

@@ -15,8 +15,11 @@
  */
 
 import io.gatling.javaapi.core.CoreDsl.*
-import io.gatling.javaapi.http.*
-import io.gatling.javaapi.http.HttpDsl.*
+
+import io.gatling.javaapi.http.HttpDsl.http
+import io.gatling.javaapi.http.HttpDsl.ws
+import io.gatling.javaapi.http.WsFrameCheck
+import java.nio.charset.StandardCharsets
 
 class WsSampleKotlin {
 
@@ -89,7 +92,13 @@ ws.checkTextMessage("#{checkName}")
   .check(regex("hello (.*)").saveAs("name"))
 // with a function name
 ws.checkTextMessage{ session -> "checkName" }
-.check(regex("hello (.*)").saveAs("name"))
+  .check(regex("hello (.*)").saveAs("name"))
+// checking a binary frame
+ws.checkBinaryMessage("checkName")
+  .check(
+    bodyBytes().shouldBe("hello".toByteArray(StandardCharsets.UTF_8)),
+    bodyLength().shouldBe(3)
+  )
 //#create-single-check
 
 //#create-multiple-checks

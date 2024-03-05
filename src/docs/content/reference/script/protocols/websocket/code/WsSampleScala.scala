@@ -18,6 +18,8 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.check.ws.WsFrameCheck
 
+import java.nio.charset.StandardCharsets
+
 class WsSampleScala {
 //#wsName
 ws("WS Operation").wsName("myCustomName")
@@ -88,6 +90,12 @@ ws.checkTextMessage("#{checkName}")
 // with a function name
 ws.checkTextMessage(session => "checkName")
   .check(regex("hello (.*)").saveAs("name"))
+// checking a binary frame
+ws.checkBinaryMessage("checkName")
+  .check(
+    bodyBytes.is("hello".getBytes(StandardCharsets.UTF_8)),
+    bodyLength.is(3)
+  )
 //#create-single-check
 
 //#create-multiple-checks
