@@ -7,6 +7,7 @@ import io.grpc.*
 
 import java.nio.charset.StandardCharsets
 import java.time.Duration
+import java.util.concurrent.Executor
 
 class GrpcMethodsSampleKotlin {
 
@@ -246,6 +247,29 @@ class GrpcMethodsSampleKotlin {
       stream.send(message2)
     )
     //#clientStreamAsciiHeaders
+  }
+
+  private fun callCredentialsForUser(name: String): CallCredentials =
+    object: CallCredentials() {
+      override fun applyRequestMetadata(requestInfo: RequestInfo?, appExecutor: Executor?, applier: MetadataApplier?) {}
+    }
+
+  init {
+    val callCredentials = callCredentialsForUser("")
+    //#unaryCallCredentials
+    grpc("name")
+      .unary(ExampleServiceGrpc.getExampleMethod())
+      .send(message)
+      // with a constant
+      .callCredentials(callCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .callCredentials("#{callCredentials}")
+      // or with a function
+      .callCredentials { session ->
+        val name = session.getString("myUserName")!!
+        callCredentialsForUser(name)
+      }
+    //#unaryCallCredentials
   }
 
   init {

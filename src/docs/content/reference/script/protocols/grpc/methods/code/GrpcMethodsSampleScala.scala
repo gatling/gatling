@@ -20,6 +20,7 @@ import io.gatling.grpc.Predef._
 import io.grpc._
 
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.Executor
 
 import scala.concurrent.duration._
 
@@ -258,6 +259,29 @@ class GrpcMethodsSampleScala {
       stream.send(message2)
     )
     //#clientStreamAsciiHeaders
+  }
+
+  private def callCredentialsForUser(name: String): CallCredentials =
+    new CallCredentials() {
+      override def applyRequestMetadata(requestInfo: CallCredentials.RequestInfo, appExecutor: Executor, applier: CallCredentials.MetadataApplier): Unit = {}
+    }
+
+  {
+    val callCredentials = callCredentialsForUser("")
+    //#unaryCallCredentials
+    grpc("name")
+      .unary(ExampleServiceGrpc.METHOD_EXAMPLE)
+      .send(message)
+      // with a constant
+      .callCredentials(callCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .callCredentials("#{callCredentials}")
+      // or with a function
+      .callCredentials { session =>
+        val name = session("myUserName").as[String]
+        callCredentialsForUser(name)
+      }
+    //#unaryCallCredentials
   }
 
   //#deadline

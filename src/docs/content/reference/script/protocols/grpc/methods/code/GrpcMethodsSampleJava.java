@@ -22,6 +22,7 @@ import io.gatling.javaapi.grpc.GrpcBidirectionalStreamingServiceBuilder;
 import io.gatling.javaapi.grpc.GrpcClientStreamingServiceBuilder;
 import io.gatling.javaapi.grpc.GrpcProtocolBuilder;
 import io.gatling.javaapi.grpc.GrpcServerStreamingServiceBuilder;
+import io.grpc.CallCredentials;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
@@ -297,6 +299,29 @@ class GrpcMethodsSampleJava {
     );
     //#clientStreamAsciiHeaders
   }}
+
+  private CallCredentials callCredentialsForUser(String name) {
+    return new CallCredentials() {
+      @Override public void applyRequestMetadata(RequestInfo requestInfo, Executor appExecutor, MetadataApplier applier) {}
+    };
+  }
+  {
+    var callCredentials = callCredentialsForUser("");
+    //#unaryCallCredentials
+    grpc("name")
+        .unary(ExampleServiceGrpc.getExampleMethod())
+        .send(message)
+        // with a constant
+        .callCredentials(callCredentials)
+        // or with an EL string to retrieve CallCredentials already stored in the session
+        .callCredentials("#{callCredentials}")
+        // or with a function
+        .callCredentials(session -> {
+          var name = session.getString("myUserName");
+          return callCredentialsForUser(name);
+        });
+    //#unaryCallCredentials
+  }
 
   {
     //#deadline
