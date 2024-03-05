@@ -61,7 +61,7 @@ on each connection.
 
 {{< include-code "useChannelPool" java kt scala >}}
 
-### Encryption
+### Encryption and authentication
 
 It is possible to use either unencrypted or encrypted connections to a remote service.
 
@@ -99,6 +99,39 @@ TLS handshake will be performed only once and the TLS sessions will be shared be
 Use this option if you want to avoid the overhead of TLS while still having per-user channels.
 
 {{< include-code "shareSslContext" java kt scala >}}
+
+#### `callCredentials`
+
+You can specify call credentials by providing an instance of `io.grpc.CallCredentials`. This will be applied to each
+gRPC call, except when [overridden on specific calls]({{< ref "methods#method-call-credentials" >}}).
+
+{{< include-code "callCredentials" java kt scala >}}
+
+#### `channelCredentials`
+
+You can specify channel credentials by providing an instance of `io.grpc.ChannelCredentials`.
+
+{{< include-code "channelCredentials" java kt scala >}}
+
+This is most often used for mutual auth TLS, for instance:
+
+{{< include-code "tlsMutualAuthChannelCredentials" java kt scala >}}
+
+{{<alert warning>}}
+Because `io.grpc.ChannelCredentials` can specify its own trust manager, this option is **not** compatible with the
+`useInsecureTrustManager`, `useStandardTrustManager`, or `useCustomCertificateTrustManager` options.
+
+To avoid the overhead of validating the server certificate, you can explicitly build your channel credentials with an
+insecure trust manager, for instance:
+
+{{< include-code "insecureTrustManagerChannelCredentials" java kt scala >}}
+{{< /alert >}}
+
+#### `overrideAuthority`
+
+You can override the authority used with TLS and HTTP virtual hosting.
+
+{{< include-code "overrideAuthority" java kt scala >}}
 
 ### Headers
 

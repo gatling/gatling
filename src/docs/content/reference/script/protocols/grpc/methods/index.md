@@ -14,18 +14,19 @@ unary, server streaming, client streaming and bidirectional streaming. Different
 depending on the type of the gRPC method.
 
 {{< table >}}
-|                                                             | Unary                                             | Server Stream                                              | Client Stream                                              | Bidirectional Stream                                   |
-|-------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------|
-| Instantiate                                                 | [`unary`]({{< ref "#instantiate-unary" >}})       | [`serverStream`]({{< ref "#instantiate-server-stream" >}}) | [`clientStream`]({{< ref "#instantiate-client-stream" >}}) | [`bidiStream`]({{< ref "#instantiate-bidi-stream" >}}) |
-| [Add request headers]({{< ref "#method-headers" >}})        | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header` | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`      |
-| [Add deadline]({{< ref "#method-deadline" >}})              | `deadlineAfter`                                   | `deadlineAfter`                                            | `deadlineAfter`                                            | `deadlineAfter`                                        |
-| [Add checks]({{< ref "#method-checks" >}})                  | `check`                                           | `check`                                                    | `check`                                                    | `check`                                                |
-| [Response time policy]({{< ref "#method-response-time" >}}) | :x:                                               | `messageResponseTimePolicy`                                | :x:                                                        | `messageResponseTimePolicy`                            |
-| [Open stream]({{< ref "#method-start" >}})                  | :x:                                               | *implied by* `send`                                        | `start`                                                    | `start`                                                |
-| [Send a message]({{< ref "#method-send" >}})                | `send`                                            | `send`                                                     | `send`                                                     | `send`                                                 |
-| [Half-close stream]({{< ref "#method-half-close" >}})       | :x:                                               | *implied by* `send`                                        | `halfClose`                                                | `halfClose`                                            |
-| [Wait for stream end]({{< ref "#method-wait-end" >}})       | :x:                                               | `awaitStreamEnd`                                           | `awaitStreamEnd`                                           | `awaitStreamEnd`                                       |
-| [Cancel stream]({{< ref "#method-cancel" >}})               | :x:                                               | `cancel`                                                   | `cancel`                                                   | `cancel`                                               |
+|                                                                | Unary                                             | Server Stream                                              | Client Stream                                              | Bidirectional Stream                                   |
+|----------------------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|--------------------------------------------------------|
+| Instantiate                                                    | [`unary`]({{< ref "#instantiate-unary" >}})       | [`serverStream`]({{< ref "#instantiate-server-stream" >}}) | [`clientStream`]({{< ref "#instantiate-client-stream" >}}) | [`bidiStream`]({{< ref "#instantiate-bidi-stream" >}}) |
+| [Add request headers]({{< ref "#method-headers" >}})           | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header` | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`          | `asciiHeader(s)`<br>`binaryHeader(s)`<br>`header`      |
+| [Add call credentials]({{< ref "#method-call-credentials" >}}) | `callCredentials`                                 | `callCredentials`                                          | `callCredentials`                                          | `callCredentials`                                      |
+| [Add deadline]({{< ref "#method-deadline" >}})                 | `deadlineAfter`                                   | `deadlineAfter`                                            | `deadlineAfter`                                            | `deadlineAfter`                                        |
+| [Add checks]({{< ref "#method-checks" >}})                     | `check`                                           | `check`                                                    | `check`                                                    | `check`                                                |
+| [Response time policy]({{< ref "#method-response-time" >}})    | :x:                                               | `messageResponseTimePolicy`                                | :x:                                                        | `messageResponseTimePolicy`                            |
+| [Open stream]({{< ref "#method-start" >}})                     | :x:                                               | *implied by* `send`                                        | `start`                                                    | `start`                                                |
+| [Send a message]({{< ref "#method-send" >}})                   | `send`                                            | `send`                                                     | `send`                                                     | `send`                                                 |
+| [Half-close stream]({{< ref "#method-half-close" >}})          | :x:                                               | *implied by* `send`                                        | `halfClose`                                                | `halfClose`                                            |
+| [Wait for stream end]({{< ref "#method-wait-end" >}})          | :x:                                               | `awaitStreamEnd`                                           | `awaitStreamEnd`                                           | `awaitStreamEnd`                                       |
+| [Cancel stream]({{< ref "#method-cancel" >}})                  | :x:                                               | `cancel`                                                   | `cancel`                                                   | `cancel`                                               |
 {{< /table >}}
 
 ## gRPC Method Descriptor {#method-descriptor}
@@ -160,6 +161,18 @@ Note that in gRPC, headers are per-stream, not per-message. Even in client or bi
 request headers are sent only once, when starting the stream:
 
 {{< include-code "clientStreamAsciiHeaders" java kt scala >}}
+
+### Add call credentials {#method-call-credentials}
+
+{{< badge info >}}unary{{< /badge >}}
+{{< badge info >}}serverStream{{< /badge >}}
+{{< badge info >}}clientStream{{< /badge >}}
+{{< badge info >}}bidiStream{{< /badge >}}
+
+You can specify call credentials by providing an instance of `io.grpc.CallCredentials`. This will override any value set
+[on the protocol]({{< ref "protocol#callcredentials" >}}).
+
+{{< include-code "unaryCallCredentials" java kt scala >}}
 
 ### Add deadline {#method-deadline}
 

@@ -10,6 +10,7 @@ import io.gatling.javaapi.core.CoreDsl.*
 import io.grpc.*
 
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.concurrent.Executor
 
 class GrpcProtocolSampleKotlin : Simulation() {
 
@@ -62,6 +63,51 @@ class GrpcProtocolSampleKotlin : Simulation() {
     //#shareSslContext
     grpc.shareSslContext()
     //#shareSslContext
+    val callCredentials = callCredentialsForUser("")
+    //#callCredentials
+    grpc
+      // with a constant
+      .callCredentials(callCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .callCredentials("#{callCredentials}")
+      // or with a function
+      .callCredentials { session ->
+        val name = session.getString("myUserName")!!
+        callCredentialsForUser(name)
+      }
+    //#callCredentials
+    val channelCredentials = channelCredentialsForUser("")
+    //#channelCredentials
+    grpc
+      // with a constant
+      .channelCredentials(channelCredentials)
+      // or with an EL string to retrieve CallCredentials already stored in the session
+      .channelCredentials("#{channelCredentials}")
+      // or with a function
+      .channelCredentials { session ->
+        val name = session.getString("myUserName")!!
+        channelCredentialsForUser(name)
+      }
+    //#channelCredentials
+    //#tlsMutualAuthChannelCredentials
+    grpc.channelCredentials(
+      TlsChannelCredentials.newBuilder()
+        .keyManager(
+          ClassLoader.getSystemResourceAsStream("client.crt"),
+          ClassLoader.getSystemResourceAsStream("client.key"))
+        .trustManager(ClassLoader.getSystemResourceAsStream("ca.crt"))
+        .build()
+    )
+    //#tlsMutualAuthChannelCredentials
+    //#insecureTrustManagerChannelCredentials
+    TlsChannelCredentials.newBuilder()
+      .trustManager(
+        *io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE.trustManagers
+      )
+    //#insecureTrustManagerChannelCredentials
+    //#overrideAuthority
+    grpc.overrideAuthority("test.example.com")
+    //#overrideAuthority
     //#usePlaintext
     grpc.usePlaintext()
     //#usePlaintext
@@ -93,4 +139,16 @@ class GrpcProtocolSampleKotlin : Simulation() {
     grpc.useChannelPool(4)
     //#useChannelPool
   }
+
+  private fun callCredentialsForUser(name: String): CallCredentials =
+    object: CallCredentials() {
+      override fun applyRequestMetadata(requestInfo: RequestInfo?, appExecutor: Executor?, applier: MetadataApplier?) {}
+    }
+
+  private fun channelCredentialsForUser(name: String): ChannelCredentials =
+    object: ChannelCredentials() {
+      override fun withoutBearerTokens(): ChannelCredentials {
+        return this
+      }
+    }
 }
