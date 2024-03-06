@@ -67,7 +67,7 @@ private[http] object CookieSupport {
       case _ => NoCookieJarFailure
     }
 
-  val FlushSessionCookies: Expression[Session] = session =>
+  private val FlushSessionCookies: Expression[Session] = session =>
     cookieJar(session) match {
       case Some(cookieJar) =>
         val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
@@ -75,7 +75,7 @@ private[http] object CookieSupport {
       case _ => session.success
     }
 
-  val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success
+  private val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success
 }
 
 trait CookieSupport {
