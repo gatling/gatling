@@ -28,8 +28,13 @@ object GetCookieBuilder {
     new GetCookieBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-final class GetCookieBuilder(name: Expression[String], domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
-    extends HttpActionBuilder
+final class GetCookieBuilder(
+    name: Expression[String],
+    domain: Option[Expression[String]],
+    path: Option[String],
+    secure: Option[Boolean],
+    saveAs: Option[String]
+) extends HttpActionBuilder
     with NameGen {
   import CookieActionBuilder._
 
@@ -37,13 +42,12 @@ final class GetCookieBuilder(name: Expression[String], domain: Option[Expression
     val httpProtocol = lookUpHttpComponents(ctx.protocolComponentsRegistry).httpProtocol
 
     val nonEmptyDomain = domain.getOrElse(defaultDomain(httpProtocol))
-    val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session =>
       for {
         resolvedName <- name(session)
         resolvedDomain <- nonEmptyDomain(session)
-        cookieValue <- getCookieValue(session, resolvedDomain, resolvedPath, resolvedName, secure)
+        cookieValue <- getCookieValue(session, resolvedName, resolvedDomain, path, secure)
       } yield session.set(saveAs.getOrElse(resolvedName), cookieValue)
 
     new SessionHook(expression, genName("getCookie"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction

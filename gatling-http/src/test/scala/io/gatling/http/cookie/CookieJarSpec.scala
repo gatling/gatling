@@ -335,9 +335,25 @@ class CookieJarSpec extends BaseSpec {
     val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
     val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3), System.currentTimeMillis())
 
-    val cookies = cookieStore3.get("foo.org", "/moodle/login", secure = true)
+    val cookies = cookieStore3.get(Uri.create("https://foo.org/moodle/login"))
     cookies should have size 1
     cookies.head.value shouldBe "VALUE3"
     cookies.head.isSecure shouldBe true
+  }
+
+  "find" should "collect all cookies matching criteria" in {
+    val cookie1 = decode("cookie1=VALUE1; Path=/")
+    val cookie2 = decode("cookie2=VALUE2; Path=/")
+    val cookie3 = decode("cookie1=VALUE3; Path=/foo; Secure")
+    val cookie4 = decode("cookie1=VALUE4; Path=/; Secure")
+    val cookieStore =
+      CookieJar(Uri.create("http://domain1.com/moodle/"), List(cookie1, cookie2, cookie3), System.currentTimeMillis())
+        .add(Uri.create("http://domain2.com/moodle"), List(cookie4), System.currentTimeMillis())
+
+    cookieStore.find("cookie1", "domain1.com", None, None).map(_.value) shouldBe List("VALUE1", "VALUE3")
+    cookieStore.find("cookie1", "domain1.com", Some("/"), None).map(_.value) shouldBe List("VALUE1")
+    cookieStore.find("cookie1", "domain1.com", None, Some(true)).map(_.value) shouldBe List("VALUE3")
+    cookieStore.find("cookie1", "domain1.com", None, Some(false)).map(_.value) shouldBe List("VALUE1")
+    cookieStore.find("cookie1", "domain1.com", Some("/"), Some(true)).map(_.value) shouldBe Nil
   }
 }
