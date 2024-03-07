@@ -22,11 +22,11 @@ final case class GetCookieDsl(
     name: Expression[String],
     domain: Option[Expression[String]],
     path: Option[String],
-    secure: Boolean,
+    secure: Option[Boolean],
     saveAs: Option[String]
 ) {
   def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): GetCookieDsl = copy(path = Some(path))
-  def withSecure(secure: Boolean): GetCookieDsl = copy(secure = secure)
+  def withSecure(secure: Boolean): GetCookieDsl = copy(secure = Some(secure))
   def saveAs(key: String): GetCookieDsl = copy(saveAs = Some(key))
 }

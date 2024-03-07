@@ -77,12 +77,8 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
    * @param cookies
    *   the cookies to store
    */
-  def add(requestUri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = {
-    val thisRequestDomain = requestDomain(requestUri)
-    val thisRequestPath = requestUri.getNonEmptyPath
-
-    add(thisRequestDomain, thisRequestPath, cookies, nowMillis)
-  }
+  def add(requestUri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar =
+    add(requestDomain(requestUri), requestUri.getNonEmptyPath, cookies, nowMillis)
 
   def add(requestDomain: String, requestPath: String, cookies: List[Cookie], nowMillis: Long): CookieJar = {
     val newStore = cookies.foldLeft(store) { (updatedStore, cookie) =>
@@ -100,18 +96,34 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
     CookieJar(newStore)
   }
-
-  def get(domain: String, path: String, secure: Boolean): List[Cookie] =
+  // used by getCookieValue
+  def find(name: String, requestDomain: String, requestPath: Option[String], requestSecure: Option[Boolean]): List[Cookie] =
     if (store.isEmpty) {
       Nil
     } else {
-      def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
-        domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
-          pathsMatch(key.path, path) &&
-          (secure || !storedCookie.cookie.isSecure)
+      store.collect {
+        case (key, storedCookie)
+            if key.name == name &&
+              domainsMatch(key.domain, requestDomain, storedCookie.hostOnly) &&
+              requestPath.forall(pathsMatch(key.path, _))
+              && requestSecure.forall(_ == storedCookie.cookie.isSecure) =>
+          storedCookie.cookie
+      }.toList
+    }
+
+  // used by getStoredCookies, for HTTP requests
+  def get(requestUri: Uri): List[Cookie] =
+    if (store.isEmpty) {
+      Nil
+    } else {
+      val domain = requestDomain(requestUri)
+      val path = requestUri.getNonEmptyPath
+      val secure = requestUri.isSecured
 
       val matchingCookies = store.filter { case (key, storedCookie) =>
-        isCookieMatching(key, storedCookie)
+        domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
+        pathsMatch(key.path, path) &&
+        (secure || !storedCookie.cookie.isSecure)
       }
 
       matchingCookies.toList
@@ -126,11 +138,4 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
         }
         .map(_._2.cookie)
     }
-
-  def get(requestUri: Uri): List[Cookie] =
-    get(
-      domain = requestDomain(requestUri),
-      path = requestUri.getNonEmptyPath,
-      secure = requestUri.isSecured
-    )
 }

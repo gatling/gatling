@@ -56,13 +56,13 @@ private[http] object CookieSupport {
     session.set(CookieJarAttributeName, cookieJar.add(domain, path, cookie :: Nil, nowMillis))
   }
 
-  def getCookieValue(session: Session, domain: String, path: String, name: String, secure: Boolean): Validation[String] =
+  def getCookieValue(session: Session, name: String, domain: String, path: Option[String], secure: Option[Boolean]): Validation[String] =
     cookieJar(session) match {
       case Some(cookieJar) =>
-        cookieJar.get(domain, path, secure = secure).filter(_.name == name) match {
-          case Nil           => s"No Cookie matching parameters domain=$domain, path=$path, name=$name, secure=$secure".failure
+        cookieJar.find(name, domain, path, secure) match {
           case cookie :: Nil => cookie.value.success
-          case _             => s"Found more than one matching cookie domain=$domain, path=$path, name=$name, secure=$secure!!?".failure
+          case Nil           => s"No cookie matching (name=$name, domain=$domain, path=$path, secure=$secure)".failure
+          case _             => s"Found more than one cookie matching (name=$name, domain=$domain, path=$path, secure=$secure)".failure
         }
       case _ => NoCookieJarFailure
     }
@@ -87,5 +87,5 @@ trait CookieSupport {
 
   def Cookie(name: Expression[String], value: Expression[String]): AddCookieDsl =
     AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
-  def CookieKey(name: Expression[String]): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
+  def CookieKey(name: Expression[String]): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = None, saveAs = None)
 }
