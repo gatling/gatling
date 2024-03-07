@@ -54,7 +54,7 @@ The building blocks for open model profile injection are:
 3. `rampUsers(nbUsers).during(duration)`: Injects a given number of users distributed evenly on a time window of a given duration.
 4. `constantUsersPerSec(rate).during(duration)`: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
 5. `constantUsersPerSec(rate).during(duration).randomized`: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
-6. `rampUsersPerSec(rate1).to.(rate2).during(duration)`: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
+6. `rampUsersPerSec(rate1).to(rate2).during(duration)`: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
 7. `rampUsersPerSec(rate1).to(rate2).during(duration).randomized`: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
 8. `stressPeakUsers(nbUsers).during(duration)`: Injects a given number of users following a smooth approximation of the [heaviside step function](http://en.wikipedia.org/wiki/Heaviside_step_function) stretched to a given duration.
 
