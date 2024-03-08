@@ -16,8 +16,6 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
-
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
@@ -29,23 +27,25 @@ import io.gatling.jms.client.JmsConnectionPool
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
+import javax.jms.Message
+
 /**
  * Core JMS Action to handle Request-Reply semantics
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send. This implementation then forwards it on to a tracking actor.
  */
 final class RequestReply(
-    attributes: JmsAttributes,
-    replyDestination: JmsDestination,
-    setJmsReplyTo: Boolean,
-    trackerDestination: Option[JmsDestination],
-    protocol: JmsProtocol,
-    jmsConnectionPool: JmsConnectionPool,
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action,
-    throttler: Option[Throttler]
-) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
+                          attributes: JmsAttributes,
+                          replyDestination: JmsDestination,
+                          setJmsReplyTo: Boolean,
+                          trackerDestination: Option[JmsDestination],
+                          protocol: JmsProtocol,
+                          jmsConnectionPool: JmsConnectionPool,
+                          val statsEngine: StatsEngine,
+                          val clock: Clock,
+                          val next: Action,
+                          throttler: Option[Throttler]
+                        ) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
   override val name: String = genName("jmsRequestReply")
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
@@ -66,29 +66,31 @@ final class RequestReply(
       messageMatcher.prepareRequest(message)
 
       // notify the tracker that a message was sent
-      val matchId = messageMatcher.requestMatchId(message)
+      val matchIds = messageMatcher.requestMatchId(message)
       val tracker = jmsConnection.tracker(resolvedTrackerDestination, resolvedSelector, protocol.listenerThreadCount, messageMatcher)
 
       new Around(
         before = () => {
           if (logger.underlying.isDebugEnabled) {
-            logMessage(s"Message sent matchId=$matchId", message)
+            logMessage(s"Message sent matchId=$matchIds", message)
           }
 
           // [e]
           //
           // [e]
 
-          if (matchId != null) {
-            tracker.track(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+          if (matchIds != null) {
+            matchIds.foreach(
+              tracker.track(_, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName))
           }
         },
         after = () =>
-          if (matchId == null) {
-            val updatedMatchId = messageMatcher.requestMatchId(message)
+          if (matchIds == null) {
+            val updatedMatchIds = messageMatcher.requestMatchId(message)
 
-            if (updatedMatchId != null) {
-              tracker.track(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+            if (updatedMatchIds != null) {
+              updatedMatchIds.foreach(
+                tracker.track(_, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName))
             } else {
               val now = clock.nowMillis
               statsEngine.logResponse(session.scenario, session.groups, requestName, now, now, KO, None, Some("Failed to get a matchId to track"))

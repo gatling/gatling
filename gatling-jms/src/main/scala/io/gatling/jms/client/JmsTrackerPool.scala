@@ -16,31 +16,30 @@
 
 package io.gatling.jms.client
 
-import java.util.concurrent.ConcurrentHashMap
-import javax.jms.Destination
-
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
-
 import io.netty.util.concurrent.DefaultThreadFactory
 import org.apache.pekko.actor.ActorSystem
+
+import java.util.concurrent.ConcurrentHashMap
+import javax.jms.Destination
 
 object JmsTrackerPool {
   private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")
 }
 
 final class JmsTrackerPool(
-    sessionPool: JmsSessionPool,
-    system: ActorSystem,
-    statsEngine: StatsEngine,
-    clock: Clock,
-    configuration: GatlingConfiguration
-) extends JmsLogging
-    with NameGen {
+                            sessionPool: JmsSessionPool,
+                            system: ActorSystem,
+                            statsEngine: StatsEngine,
+                            clock: Clock,
+                            configuration: GatlingConfiguration
+                          ) extends JmsLogging
+  with NameGen {
   private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
 
   def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
@@ -55,9 +54,10 @@ final class JmsTrackerPool(
           val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread { () =>
             val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
             consumer.setMessageListener { message =>
-              val matchId = messageMatcher.responseMatchId(message)
-              logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-              actor ! MessageReceived(matchId, clock.nowMillis, message)
+              val matchIds = messageMatcher.responseMatchId(message)
+              logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchIds", message)
+              matchIds.foreach(
+                actor ! MessageReceived(_, clock.nowMillis, message))
             }
           }
 
