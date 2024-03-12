@@ -113,7 +113,7 @@ spec:
 
 ### Troubleshooting
 
-#### Run timeout while control plane logs deployment
+#### Run timeout while control plane logged a successful deployment
 
 The control plane initiated a request to the Kubernetes API to deploy load generators using Batch Job. 
 Although the Kubernetes API responded with an OK status, the actual deployment of the underlying job may have failed.

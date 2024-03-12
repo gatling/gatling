@@ -85,7 +85,7 @@ control-plane {
       # Clean up finished jobs resources after given time (optional)
       ttl-after-finished = 10 minutes
       # Service account used for load generator pods (optional)
-      service-account-name = "myServiceAccount"
+      # service-account-name = "myServiceAccount"
       # Labels of initiated resources (optional)
       labels {
         # ExampleKey = ExampleValue
@@ -148,3 +148,9 @@ control-plane {
   ]
 }
 ```
+
+{{< alert info >}}
+The service account is optional; the control-plane Kubernetes defaults will be utilized instead.
+For example, in [Kubernetes installation]({{< ref "/reference/install/cloud/kubernetes/installation#example" >}}), the service account is configured on the control-plane container.
+{{< /alert >}}
+
