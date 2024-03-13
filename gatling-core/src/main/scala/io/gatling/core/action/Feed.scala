@@ -26,13 +26,16 @@ private final class Feed(feedActor: ActorRef, numberOpt: Option[Expression[Int]]
     extends ExitableAction {
   override val name: String = feedActor.path.name
 
-  override def execute(session: Session): Unit =
+  private val executeF: Session => Unit =
     numberOpt match {
       case Some(number) =>
-        recover(session) {
-          number(session).map(n => feedActor ! FeedMessage(session, Some(n), next))
-        }
+        session =>
+          recover(session) {
+            number(session).map(n => feedActor ! FeedMessage(session, Some(n), next))
+          }
       case _ =>
-        feedActor ! FeedMessage(session, None, next)
+        session => feedActor ! FeedMessage(session, None, next)
     }
+
+  override def execute(session: Session): Unit = executeF(session)
 }
