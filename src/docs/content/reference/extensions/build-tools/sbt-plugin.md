@@ -190,8 +190,6 @@ If a `simulationId` is set, the task will start the simulation on Gatling Enterp
 
 If no simulationId is set, the task will ask you if you want to start or create a new simulation. If you choose create, you will be able to configure a new simulation (with the configured `packageId`, `teamId`, `simulationClass` as default), then start it. If you choose start, you will be able to start an already existing simulation on Gatling Enterprise.
 
-If you are on a CI environment, you don't want to handle interaction with the plugin. You should then set the `batchMode` option to true. In batch mode, no input will be asked from the user, the new simulation will be created using only the configuration.
-
 #### Package
 
 You can directly package your simulations for Gatling Enterprise Cloud:
