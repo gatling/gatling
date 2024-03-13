@@ -87,9 +87,13 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
   def receive: Receive = { case FeedMessage(session, number, next) =>
     try {
       val newAttributes = number match {
-        case Some(n) if n > 1  => pollMultipleRecords(n)
-        case Some(n) if n <= 0 => s"$n is not a valid number of records".failure
-        case _                 => pollSingleRecord()
+        case Some(n) =>
+          if (n <= 0) {
+            s"$n is not a valid number of records".failure
+          } else {
+            pollMultipleRecords(n)
+          }
+        case _ => pollSingleRecord()
       }
 
       newAttributes match {

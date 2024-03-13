@@ -21,7 +21,7 @@ This defines a workflow step where **every virtual user** feed on the same Feede
 
 Every time a virtual user reaches this step, it will pop a record out of the Feeder, which will be injected into the user's Session, resulting in a new Session instance.
 
-It's also possible to feed multiple records at once. In this case, values will be arrays containing all the values of the same key.
+It's also possible to feed multiple records at once. In this case, values will be Java List or Scala Seq containing all the values of the same key.
 
 {{< include-code "feed-multiple" java kt scala >}}
 
