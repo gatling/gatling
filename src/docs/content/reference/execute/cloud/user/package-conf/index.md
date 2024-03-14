@@ -26,9 +26,7 @@ In order to add a package, click on the "Create" button above the packages table
 {{< img src="package-create.png" alt="Package creation" >}}
 
 - **Name**: the name that will appear on the simulations general step.
-- **Team**:
-  - you can select **Global** so that all teams have access to the package;
-  - or select **Specific** and choose a single team which will own the package.
+- **Team**: select the team which will have access to the package.
 
 ## Upload
 
