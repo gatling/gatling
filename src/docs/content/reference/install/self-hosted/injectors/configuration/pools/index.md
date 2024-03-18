@@ -25,5 +25,5 @@ If you are using the Azure marketplace offer, you will only have access to the O
 {{< img src="pools.png" alt="Pools" >}}
 
 {{< alert warning >}}
-Every pool except Kubernetes will need to have a [private key]({{< ref "../../../execute/self-hosted/admin/private-keys" >}}) configured, and scoped on Pools. You won't be able to create one of these pools if you have not created a private key.
+Every pool except Kubernetes will need to have a [private key]({{< ref "../../../../execute/self-hosted/admin/private-keys" >}}) configured, and scoped on Pools. You won't be able to create one of these pools if you have not created a private key.
 {{< /alert >}}

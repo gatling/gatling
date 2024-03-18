@@ -10,7 +10,7 @@ lastmod: 2023-04-03T12:00:00+00:00
 A Kubernetes/OpenShift Pool is a reference to your Kubernetes infrastructure.
 
 {{< alert warning >}}
-Make sure you've fulfilled the requirements listed in the [Installation Guide]({{< ref "../deploying-injectors#kubernetes-openshift" >}}).
+Make sure you've fulfilled the requirements listed in the [Installation Guide]({{< ref "../requirements#kubernetes-openshift" >}}).
 {{< /alert >}}
 
 ## Credentials settings

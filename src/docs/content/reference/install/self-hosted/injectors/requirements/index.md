@@ -1,7 +1,7 @@
 ---
-title: Deploying injectors
-seotitle: Deploy injectors with Gatling Enterprise Self-Hosted
-description: Preliminary configuration of Gatling Enterprise's injectors.
+title: Requirements
+seotitle: Requirements for injectors with Gatling Enterprise Self-Hosted
+description: Requirements for Gatling Enterprise injectors.
 lead: Find generic information about Gatling Enterprise injectors, and specific information about each supported cloud provider.
 date: 2021-03-26T17:41:00+01:00
 lastmod: 2021-08-16T17:55:36+02:00
@@ -28,7 +28,7 @@ The hosts running the Gatling injectors must:
 * `/tmp` not mounted with `noexec`
 
 We recommend that you tune your OS for maximum performance.
-Please check the [Gatling documentation]({{< ref "../../script/core/operations#os-tuning" >}}).
+Please check the [Gatling documentation]({{< ref "../../../script/core/operations#os-tuning" >}}).
 
 We also recommend that you disable automatic updates and automatic package repositories listing updates.
 This could eventually lead to upgrading the JDK while running, which could break your simulation run.
@@ -62,12 +62,12 @@ Gatling is more likely to use 100% of the CPU cores and will not benefit from CP
 
 ## Certified images
 
-We provide certified, pre-built images for AWS, Azure, GCE & Docker.
-Those images are available for OpenJDK 8, 11 and 17, and include all recommended optimisations.
+We provide certified, pre-built Virtual Machine images for AWS, Azure and GCE, and Docker images for Kubernetes and OpenShift.
+These images are available for OpenJDK 11, 17 and 21, and include all recommended optimisations.
 If you can't use our certified images, we provide the templates from which our certified images are built:
 
-* For AWS & GCE: [frontline-injector-playbook](https://github.com/gatling/frontline-injector-playbook/) (requires Ansible & Packer)
-* For Docker: [frontline-injector-docker-image](https://github.com/gatling/frontline-injector-docker-image)
+* For AWS, Azure & GCE: [frontline-injector-playbook](https://github.com/gatling/frontline-injector-playbook/) (requires Ansible & Packer)
+* For Kubernetes and OpenShift: [frontline-injector-docker-image](https://github.com/gatling/frontline-injector-docker-image)
 ## Local
 
 It's possible to have Gatling Enterprise use a "Local" pool to deploy a single injector on the same host.
@@ -99,7 +99,7 @@ It's very easy to configure on-premises pools from Gatling Enterprise:
 
 Gatling Enterprise is currently managing five different cloud providers: AWS, GCE, OpenStack and Microsoft Azure.
 
-### AWS (On-premises license & AWS marketplace)
+### AWS
 
 Gatling Corp provides certified AMIs that you choose in the Gatling Enterprise AWS configuration. This AMI will be used as a base for your injectors. However, you can still build a custom one with a JDK 8, 11 or 17 installed, a key pair without password configured and the port 22 and 9999 opened.
 
@@ -141,7 +141,7 @@ Gatling Enterprise requires the following permissions (or grant `AmazonEC2FullAc
 
 <1> ONLY REQUIRED WHEN SETTING INSTANCE PROFILE ON INJECTORS
 
-### GCE (On-premises license only)
+### GCE
 
 There are requirements before creating a GCE pool:
 
@@ -153,7 +153,7 @@ There are requirements before creating a GCE pool:
 The GCE Account used must have the `instanceAdmin` role.
 {{< /alert >}}
 
-### OpenStack (On-premises license only)
+### OpenStack
 
 There are requirements before creating a OpenStack pool:
 
@@ -164,7 +164,7 @@ There are requirements before creating a OpenStack pool:
 The OpenStack User might need some special permissions to launch instances.
 {{< /alert >}}
 
-### Microsoft Azure (On-premises license & Azure marketplace)
+### Microsoft Azure
 
 Gatling Corp provides certified images that you choose in the Gatling Enterprise Microsoft Azure configuration. This image will be used as a base for your injectors. However, you can still build a custom one with a JDK 8, 11 or 17 installed, a key pair without password configured and the port 22 and 9999 opened.
 

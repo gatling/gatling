@@ -28,5 +28,5 @@ To configure the type of instances you want to spawn, you need to fill the form 
 - **Flavor**: the flavor used for your instances
 - **Security Group**: the security group of your account
 - **Username**: the username used by your ssh command to connect to the instances
-- **Private Key**: the previously added [private key]({{< ref "../../../execute/self-hosted/admin/private-keys" >}}) used by your images
+- **Private Key**: the previously added [private key]({{< ref "../../../../execute/self-hosted/admin/private-keys" >}}) used by your images
 - **Availability Zone**: the optional availability zone
