@@ -1,5 +1,5 @@
 ---
-title: Configuring load
+title: Configuration
 seotitle: Injectors configuration for Gatling Enterprise Self-Hosted
 description: Learn how to configure injectors for Gatling Enterprise Self-Hosted
 ordering:

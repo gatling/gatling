@@ -13,7 +13,7 @@ To access the Private Keys administration, click on **Admin** in the navigation 
 A private key may be needed to:
 - Connect to your Git repository
 - Connect to load generators
-- Upload a custom certificate for [Kubernetes URL]({{< ref "/reference/install/self-hosted/configuring-injectors/kubernetes#credentials-settings" >}})
+- Upload a custom certificate for [Kubernetes URL]({{< ref "/reference/install/self-hosted/injectors/configuration/kubernetes#credentials-settings" >}})
 
 {{< img src="private-keys.png" alt="Private Keys table" >}}
 

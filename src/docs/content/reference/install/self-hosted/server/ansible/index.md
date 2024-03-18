@@ -72,7 +72,7 @@ REPLACE_WITH_YOUR_CUSTOM_GATLING_ENTERPRISE_BUNDLE_DOWNLOAD_LINK/frontline-insta
 ```
 
 {{< alert tip >}}
-Check the [documentation conventions]({{< ref "introduction#custom-bundle-download-link" >}}) for ways to find your custom Gatling Enterprise bundle download link.
+Check the [documentation conventions]({{< ref "../introduction#custom-bundle-download-link" >}}) for ways to find your custom Gatling Enterprise bundle download link.
 {{< /alert >}}
 
 We suggest you download and check the integrity of the installer by doing the following:

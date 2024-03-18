@@ -259,7 +259,7 @@ REPLACE_WITH_YOUR_CUSTOM_GATLING_ENTERPRISE_BUNDLE_DOWNLOAD_LINK/frontline-bundl
 ```
 
 {{< alert tip >}}
-Check the [documentation conventions]({{< ref "introduction#custom-bundle-download-link" >}}) for ways to find your custom Gatling Enterprise bundle download link.
+Check the [documentation conventions]({{< ref "../introduction#custom-bundle-download-link" >}}) for ways to find your custom Gatling Enterprise bundle download link.
 {{< /alert >}}
 
 On launch, Gatling Enterprise will create or update the Gatling Enterprise schema in the Cassandra database.
