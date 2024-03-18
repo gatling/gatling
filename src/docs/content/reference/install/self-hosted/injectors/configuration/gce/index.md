@@ -79,7 +79,7 @@ Finally, it is also possible to setup **Access Scopes** directly on the instance
 ## Instance Settings
 
 - **Zone**: the zone where you want to spawn your injectors
-- **Private Key**: the previously added [private key]({{< ref "../../../execute/self-hosted/admin/private-keys" >}}) used by your Template
+- **Private Key**: the previously added [private key]({{< ref "../../../../execute/self-hosted/admin/private-keys" >}}) used by your Template
 - **Connect to private IP**: Gatling Enterprise will connect to the injectors' private IP instead of the public one. If unchecked, the private IP remains a fallback if a public IP is missing. This option should be used only when the Gatling Enterprise host and the injector are both in the same GCE network.
 - **Deployment**: You can choose to spawn GCE instances from an image or an instance template
 

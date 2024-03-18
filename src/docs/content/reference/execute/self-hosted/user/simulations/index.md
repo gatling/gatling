@@ -123,7 +123,7 @@ In this step, you'll configure the pools used for the Gatling Enterprise injecto
 {{< img src="create-simulation3.png" alt="Create simulation - Step 3" >}}
 
 - **Weight distribution**: on even, every injector will produce the same load. On custom, you have to set the weight in % of each pool (eg the first pool does 20% of the requests, and the second does 80%). The sum of the weight should be 100%.
-- **Pools**: defines the pools to be used when initiating the Gatling Enterprise injectors, see the section about [pools]({{< ref "../../../install/self-hosted/configuring-injectors/pools" >}}).
+- **Pools**: defines the pools to be used when initiating the Gatling Enterprise injectors, see the section about [pools]({{< ref "../../../install/self-hosted/injectors/configuration/pools" >}}).
 You can add many pools with a different number of hosts to run your simulation.
 If you have more hosts than needed on your Pool, the hosts will be chosen randomly between all hosts available in this Pool.
 

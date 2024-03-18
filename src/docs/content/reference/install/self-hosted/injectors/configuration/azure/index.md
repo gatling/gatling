@@ -64,7 +64,7 @@ Azure has some requirements about the username:
 Check the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-username-requirements-when-creating-a-vm-) for all the details.
 {{< /alert >}}
 
-- **Private Key**: the previously added [private key]({{< ref "../../../execute/self-hosted/admin/private-keys" >}}) associated with the public ssh key
+- **Private Key**: the previously added [private key]({{< ref "../../../../execute/self-hosted/admin/private-keys" >}}) associated with the public ssh key
 
 It's also possible to use User Assigned Managed Identities, refer to the installation guide if you want to create a Managed Identity:
 

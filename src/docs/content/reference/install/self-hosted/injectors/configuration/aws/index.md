@@ -27,7 +27,7 @@ To configure the type of instances you want to spawn, you need to fill the form 
 - **Instance Type**: the type of the instances you want to spawn
 - **Key Pair**: the Key pair name used by your AMI
 - **User Name**: the username used by your ssh command to connect to the instances. If you use one of our certified AMIs, the username will be ec2-user
-- **Private Key**: the previously added [private key]({{< ref "../../../execute/self-hosted/admin/private-keys" >}}) used by your AMI
+- **Private Key**: the previously added [private key]({{< ref "../../../../execute/self-hosted/admin/private-keys" >}}) used by your AMI
 - **Use Elastic IP**: Allow instances to use predefined Elastic IP
 - **Connect to private IP**: Gatling Enterprise will connect to the injectors' private IP instead of the public one. If unchecked, the private IP remains a fallback if a public IP is missing. This option should be used only when the Gatling Enterprise host and the injector are both in the same AWS network.
 - **IAM Instance Profile**: optional step, you can specify an IAM instance profile to grant injectors permissions
