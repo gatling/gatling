@@ -43,16 +43,16 @@ A credit represents a minute of usage of one Gatling load generator.
 
 ## Admin users
 
-Shows all System Admins in your organization.
+Shows all Administrators in your organization.
 
 {{< img src="admin-users.png" alt="Organization users admin" >}}
 
-For each System Admin, you will find their GitHub username, first name, and last name.
+For each Administrator, you will find their GitHub username, first name, and last name.
 
 ## Credits
 
 {{< alert warning >}}
-This section is only available to System Admins.
+This section is only available to Administrators.
 {{< /alert >}}
 
 Credits consumption history.
@@ -70,7 +70,7 @@ By clicking on a row, you will see all the details of the credit consumption for
 ### Extra credits
 
 {{< alert warning >}}
-This section is only available to System Admins & payment made by Stripe.
+This section is only available to Administrators & payment made by Stripe.
 {{< /alert >}}
 
 When you start to hit the credit limits in your plan:
@@ -91,7 +91,7 @@ Now simulations -- you couldn't launch before -- can run consuming extra credits
 ## Plans
 
 {{< alert warning >}}
-This section is only available to System Admins.
+This section is only available to Administrators.
 {{< /alert >}}
 
 Plans view history.
@@ -106,7 +106,7 @@ Plans view history.
 ## Offers
 
 {{< alert warning >}}
-This section is only available to Organization System Admins.
+This section is only available to Administrators.
 {{< /alert >}}
 
 ### payment via Stripe

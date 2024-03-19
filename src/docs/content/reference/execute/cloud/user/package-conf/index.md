@@ -11,7 +11,7 @@ lastmod: 2021-08-05T13:13:30+00:00
 
 ## Managing
 
-To access the Packages section, click on **Packages** in the navigation bar. You need the **Test Admin** role to access this page.
+To access the Packages section, click on **Packages** in the navigation bar. You need the **Leader** or **Team Leader** role to access this page.
 
 The Packages view contains all the packages you have configured with the given name, team, filename of the uploaded package if not empty and the date of the last upload.
 
