@@ -39,22 +39,30 @@ To edit a user, click on the {{< icon pencil-alt >}} icon. To remove them from y
 
 ## Permissions
 
-There are 4 different user roles in Gatling Enterprise:
+There are 8 different user roles in Gatling Enterprise:
 
-- System Admin
-- Test Admin
-- Tester
+For an organization:
+
+- Administrator
+- Leader
+- Contributor
 - Viewer
 
-|                                          | Viewer             | Tester             | Test Admin         | System Admin             |
-|------------------------------------------|:------------------:|:------------------:|:------------------:|:------------------------:|
-| Access own profile and Organization page | {{< icon check >}} | {{< icon check >}} | {{< icon check >}} | {{< icon check >}}       |
-| Access Reports and Trends                | Own team           | Own team           | Own team           | Own team                 |
-| Start Simulation                         |                    | Own team           | Own team           | Own team                 |
-| Generate Public Links                    |                    | Own team           | Own team           | Own team                 |
-| Create Simulation                        |                    |                    | Own team           | Own team                 |
-| Administrate Packages                    |                    |                    | Own team           | Own team                 |
-| Administrate API Tokens, Users and Teams |                    |                    |                    | Own team                 |
-| Subscribe and view Offers                |                    |                    |                    | Global System Admin only |
+For a team:
 
-Each role can be global to the organization or team-specific.
+- Team Administrator
+- Team Leader
+- Team Contributor
+- Team Viewer
+
+|                                          | Viewer / Team Viewer | Contributor / Team Contributor | Leader / Team Leader | Administrator / Team Administrator |
+|------------------------------------------|:--------------------:|:------------------------------:|:--------------------:|:----------------------------------:|
+| Access own profile and Organization page |  {{< icon check >}}  |       {{< icon check >}}       |  {{< icon check >}}  |         {{< icon check >}}         |
+| Access Reports and Trends                |       Own team       |            Own team            |       Own team       |              Own team              |
+| Start Simulation                         |                      |            Own team            |       Own team       |              Own team              |
+| Generate Public Links                    |                      |            Own team            |       Own team       |              Own team              |
+| Create Simulation                        |                      |                                |       Own team       |              Own team              |
+| Administrate Packages                    |                      |                                |       Own team       |              Own team              |
+| Administrate API Tokens, Users and Teams |                      |                                |                      |              Own team              |
+| Subscribe and view Offers                |                      |                                |                      |         Administrator only         |
+
