@@ -20,6 +20,7 @@ import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
@@ -37,6 +38,7 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.{ HttpHelper, InetAddresses }
 
 import com.softwaremill.quicklens._
+import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }
 
@@ -47,7 +49,7 @@ object HttpProtocolBuilder {
     HttpProtocolBuilder(HttpProtocol(configuration), configuration.ssl.useOpenSsl, configuration.ssl.enableSni)
 }
 
-final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean, enableSni: Boolean) {
+final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean, enableSni: Boolean) extends LazyLogging {
   def baseUrl(url: String): HttpProtocolBuilder = baseUrls(List(url))
   def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)
   def baseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
@@ -230,5 +232,24 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def perUserNameResolution: HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.perUserNameResolution).setTo(true)
 
-  def build: HttpProtocol = protocol
+  private def preResolve(baseUrl: String, aliasedHostnames: Set[String]): Unit =
+    try {
+      val uri = Uri.create(baseUrl)
+      if (!aliasedHostnames.contains(uri.getHost)) {
+        InetAddress.getAllByName(uri.getHost)
+      }
+    } catch {
+      case NonFatal(e) =>
+        logger.debug(s"Couldn't pre-resolve hostname from baseUrl $baseUrl", e)
+    }
+
+  def build: HttpProtocol = {
+    if (protocol.proxyPart.proxy.isEmpty) {
+      val aliasedHostnames = protocol.dnsPart.hostNameAliases.keySet
+      protocol.baseUrls.foreach(preResolve(_, aliasedHostnames))
+      protocol.wsPart.wsBaseUrls.foreach(preResolve(_, aliasedHostnames))
+    }
+
+    protocol
+  }
 }
