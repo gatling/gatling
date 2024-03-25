@@ -16,10 +16,7 @@
 
 package io.gatling.http.cache
 
-import java.net.InetAddress
-
 import scala.collection.immutable.ArraySeq
-import scala.util.control.NonFatal
 
 import io.gatling.commons.util.CircularIterator
 import io.gatling.commons.validation._
@@ -34,20 +31,7 @@ private[http] object BaseUrlSupport extends LazyLogging {
 
   private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.wsBaseUrl")
 
-  private def preResolve(baseUrl: String, aliasedHostnames: Set[String]): Unit =
-    try {
-      val uri = Uri.create(baseUrl)
-      if (!aliasedHostnames.contains(uri.getHost)) {
-        InetAddress.getAllByName(uri.getHost)
-      }
-    } catch {
-      case NonFatal(e) =>
-        logger.debug(s"Couldn't pre-resolve hostname from baseUrl $baseUrl", e)
-    }
-
-  private def setBaseUrl(baseUrls: List[String], attributeName: String, aliasedHostnames: Set[String]): Session => Session = {
-    baseUrls.foreach(preResolve(_, aliasedHostnames))
-
+  private def setBaseUrl(baseUrls: List[String], attributeName: String): Session => Session =
     baseUrls match {
       case Nil        => Session.Identity
       case url :: Nil => _.set(attributeName, url)
@@ -55,13 +39,12 @@ private[http] object BaseUrlSupport extends LazyLogging {
         val it = CircularIterator(ArraySeq.from(urls), threadSafe = true)
         _.set(attributeName, it.next())
     }
-  }
 
   def setHttpBaseUrl(httpProtocol: HttpProtocol): Session => Session =
-    setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName, httpProtocol.dnsPart.hostNameAliases.keySet)
+    setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName)
 
   def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session =
-    setBaseUrl(httpProtocol.wsPart.wsBaseUrls, WsBaseUrlAttributeName, httpProtocol.dnsPart.hostNameAliases.keySet)
+    setBaseUrl(httpProtocol.wsPart.wsBaseUrls, WsBaseUrlAttributeName)
 
   private def baseUrl(session: Session, attributeName: String): Option[String] =
     session.attributes.get(attributeName).map(_.asInstanceOf[String])
