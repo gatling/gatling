@@ -281,7 +281,8 @@ You can provide your own path to a custom pidfile this way:
 [... frontline-bundle ]$ ./bin/frontline -p pidfile
 ```
 
-Using the foreground mode will cancel the handling of a pidfile.
+You can also set the `-f` option to launch in the foreground, eg for creating a `systemd` service.
+In this case, this mode will cancel the handling of a pidfile.
 
 ### Configuration
 
