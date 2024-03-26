@@ -5,7 +5,7 @@ description: Learn how to package Gatling simulations for Gatling Enterprise Sel
 aliases:
   - binary
 date: 2021-03-26T18:06:39+01:00
-lastmod: 2021-11-23T09:00:00+02:00
+lastmod: 2024-03-26T09:00:00+02:00
 ---
 
 ## Gatling Enterprise Gatling Versions
@@ -28,6 +28,10 @@ plugin. To set up you project, please refer to the documentation pages of the re
 
 Once your project is ready, you can then [configure a repository]({{< ref "repositories" >}}) and
 [a simulation]({{< ref "simulations" >}}).
+
+{{< alert tip >}}
+Please also check the dedicated pages of the build plugins if you intend to pre-generate the packages and deploy them in a maven repository.
+{{< /alert >}}
 
 ## Note on Feeders
 
