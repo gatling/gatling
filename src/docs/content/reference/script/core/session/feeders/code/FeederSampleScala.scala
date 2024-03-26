@@ -30,8 +30,13 @@ feed(feeder)
 //#feed-keyword
 
 //#feed-multiple
+// feed 2 records at once
 feed(feeder, 2)
+// feed a number of records that's defined as the "numberOfRecords" attribute
+// stored in the session of the virtual user
 feed(feeder, "#{numberOfRecords}")
+// feed a number of records that's computed dynamically from the session
+// with a function
 feed(feeder, session => session("numberOfRecords").as[Int])
 //#feed-multiple
 
