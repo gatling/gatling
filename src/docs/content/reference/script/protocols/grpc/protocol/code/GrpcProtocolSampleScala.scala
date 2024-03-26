@@ -48,7 +48,13 @@ class GrpcProtocolSampleScala extends Simulation {
     grpc.forTarget("dns:///host:50051")
     //#forTarget
     //#asciiHeader
-    grpc.asciiHeader("key", "value")
+    grpc
+      // with a static header value
+      .asciiHeader("key")("value")
+      // with a Gatling EL string header value
+      .asciiHeader("key")("#{headerValue}")
+      // with a function value
+      .asciiHeader("key")(session => session("headerValue").as[String])
     //#asciiHeader
     //#asciiHeaders
     grpc.asciiHeaders(
@@ -56,7 +62,13 @@ class GrpcProtocolSampleScala extends Simulation {
     )
     //#asciiHeaders
     //#binaryHeader
-    grpc.binaryHeader("key", "value".getBytes(UTF_8))
+    grpc
+      // with a static header value
+      .binaryHeader("key")("value".getBytes(UTF_8))
+      // with a Gatling EL string header value
+      .binaryHeader("key")("#{headerValue}")
+      // with a function value
+      .binaryHeader("key")(session => session("headerValue").as[Array[Byte]])
     //#binaryHeader
     //#binaryHeaders
     grpc.binaryHeaders(
@@ -64,10 +76,14 @@ class GrpcProtocolSampleScala extends Simulation {
     )
     //#binaryHeaders
     //#header
-    grpc.header(
-      Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER),
-      "value"
-    )
+    val key = Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER)
+    grpc
+      // with a static header value
+      .header[String](key)("value")
+      // with a Gatling EL string header value
+      .header[String](key)("#{headerValue}")
+      // with a function value
+      .header(key)(session => session("headerValue").as[String])
     //#header
     //#shareChannel
     grpc.shareChannel
