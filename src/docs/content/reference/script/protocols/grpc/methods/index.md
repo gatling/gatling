@@ -162,6 +162,9 @@ request headers are sent only once, when starting the stream:
 
 {{< include-code "clientStreamAsciiHeaders" java kt scala >}}
 
+Also note that keys in gRPC headers are allowed to be associated with more than one value, so adding the same key a
+second time will simply add a second value, not replace the first one.
+
 ### Add call credentials {#method-call-credentials}
 
 {{< badge info >}}unary{{< /badge >}}

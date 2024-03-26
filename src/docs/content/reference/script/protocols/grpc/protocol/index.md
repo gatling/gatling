@@ -135,11 +135,8 @@ You can override the authority used with TLS and HTTP virtual hosting.
 
 ### Headers
 
-Define gRPC headers to be set on all requests.
-
-##### `header`
-
-{{< include-code "header" java kt scala >}}
+Define gRPC headers to be set on all requests. Note that keys in gRPC headers are allowed to be associated with more
+than one value, so adding the same key a second time will simply add a second value, not replace the first one.
 
 ###### `asciiHeader`
 
@@ -168,6 +165,12 @@ Shortcut for multiple [headers]({{< ref "#header" >}}) with the default binary m
 pairs, i.e. `io.grpc.Metadata#BINARY_BYTE_MARSHALLER`:
 
 {{< include-code "binaryHeaders" java kt scala >}}
+
+##### `header`
+
+Add a single header with a custom key.
+
+{{< include-code "header" java kt scala >}}
 
 ### Loading balancing
 

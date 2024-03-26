@@ -56,22 +56,38 @@ class GrpcProtocolSampleJava extends Simulation {
     grpc.forTarget("dns:///host:50051");
     //#forTarget
     //#asciiHeader
-    grpc.asciiHeader("key", "value");
+    grpc
+      // with a static header value
+      .asciiHeader("key").value("value")
+      // with a Gatling EL string header value
+      .asciiHeader("key").valueEl("#{headerValue}")
+      // with a function value
+      .asciiHeader("key").value(session -> session.getString("headerValue"));
     //#asciiHeader
     //#asciiHeaders
     grpc.asciiHeaders(Map.of("key", "value"));
     //#asciiHeaders
     //#binaryHeader
-    grpc.binaryHeader("key", "value".getBytes(UTF_8));
+    grpc
+      // with a static header value
+      .binaryHeader("key").value("value".getBytes(UTF_8))
+      // with a Gatling EL string header value
+      .binaryHeader("key").valueEl("#{headerValue}")
+      // with a function value
+      .binaryHeader("key").value(session -> session.get("headerValue"));
     //#binaryHeader
     //#binaryHeaders
     grpc.binaryHeaders(Map.of("key", "value".getBytes(UTF_8)));
     //#binaryHeaders
     //#header
-    grpc.header(
-      Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER),
-      "value"
-    );
+    var key = Metadata.Key.of("key", Metadata.ASCII_STRING_MARSHALLER);
+    grpc
+      // with a static header value
+      .header(key).value("value")
+      // with a Gatling EL string header value
+      .header(key).valueEl("#{headerValue}")
+      // with a function value
+      .header(key).value(session -> session.get("headerValue"));
     //#header
     //#shareChannel
     grpc.shareChannel();

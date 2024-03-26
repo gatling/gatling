@@ -194,8 +194,12 @@ class GrpcMethodsSampleKotlin {
       .send(message)
       // Adds several headers at once
       .asciiHeaders(sentHeaders)
-      // Adds another header
-      .asciiHeader("header", "value")
+      // Adds another header, with a static value
+      .asciiHeader("header").value("value")
+      // with a Gatling EL string header value
+      .asciiHeader("header").valueEl("#{headerValue}")
+      // with a function value
+      .asciiHeader("header").value { session -> session.getString("headerValue") }
     //#unaryAsciiHeaders
   }
 
@@ -213,8 +217,12 @@ class GrpcMethodsSampleKotlin {
       .send(message)
       // Adds several headers at once
       .binaryHeaders(sentHeaders)
-      // Adds another header
-      .binaryHeader("header-bin", "value".toByteArray(utf8))
+      // Adds another header, with a static value
+      .binaryHeader("header-bin").value("value".toByteArray(utf8))
+      // with a Gatling EL string header value
+      .binaryHeader("header-bin").valueEl("#{headerValue}")
+      // with a function value
+      .binaryHeader("header-bin").value { session -> session.get("headerValue") }
     //#unaryBinaryHeaders
   }
 
@@ -229,8 +237,12 @@ class GrpcMethodsSampleKotlin {
       .send(message)
       // Add headers one at a time (the type of the value must match the type
       // expected by the Key's serializer, e.g. Integer for the first one here)
-      .header(Metadata.Key.of("header", intToAsciiMarshaller), 123)
-      .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller), 4.56)
+      .header(Metadata.Key.of("header", intToAsciiMarshaller)).value(123)
+      .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller)).value(4.56)
+      // with a Gatling EL string header value
+      .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller)).valueEl("#{headerValue}")
+      // with a function value
+      .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller)).value { session -> session.get("headerValue") }
     //#unaryCustomHeaders
   }
 
@@ -239,7 +251,6 @@ class GrpcMethodsSampleKotlin {
     val stream = grpc("name")
       .clientStream(ExampleServiceGrpc.getExampleMethod())
       .asciiHeader("header", "value")
-
 
     exec(
       stream.start(), // Header is sent only once, on stream start

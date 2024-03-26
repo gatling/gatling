@@ -209,8 +209,12 @@ class GrpcMethodsSampleScala {
       .send(message)
       // Adds several headers at once
       .asciiHeaders(sentHeaders)
-      // Adds another header
-      .asciiHeader("header", "value")
+      // Adds another header, with a static value
+      .asciiHeader("header")("value")
+      // with a Gatling EL string header value
+      .asciiHeader("header")("#{headerValue}")
+      // with a function value
+      .asciiHeader("header")(session => session("headerValue").as[String])
     //#unaryAsciiHeaders
   }
 
@@ -228,8 +232,12 @@ class GrpcMethodsSampleScala {
       .send(message)
       // Adds several headers at once
       .binaryHeaders(sentHeaders)
-      // Adds another header
-      .binaryHeader("header", "value".getBytes(utf8))
+      // Adds another header, with a static value
+      .binaryHeader("header")("value".getBytes(utf8))
+      // with a Gatling EL string header value
+      .binaryHeader("header-bin")("#{headerValue}")
+      // with a function value
+      .binaryHeader("header-bin")(session => session("headerValue").as[Array[Byte]])
     //#unaryBinaryHeaders
   }
 
@@ -243,8 +251,12 @@ class GrpcMethodsSampleScala {
     .send(message)
     // Add headers one at a time (the type of the value must match the type
     // expected by the Key's serializer, e.g. Int for the first one here)
-    .header(Metadata.Key.of("header", intToAsciiMarshaller), 123)
-    .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller), 4.56)
+    .header(Metadata.Key.of("header", intToAsciiMarshaller))(123)
+    .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller))(4.56)
+    // with a Gatling EL string header value
+    .header[Double](Metadata.Key.of("header-bin", doubleToBinaryMarshaller))("#{headerValue}")
+    // with a function value
+    .header(Metadata.Key.of("header-bin", doubleToBinaryMarshaller))(session => session("headerValue").as[Double])
   //#unaryCustomHeaders
 
   {
