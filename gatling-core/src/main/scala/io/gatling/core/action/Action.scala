@@ -62,6 +62,8 @@ trait Action extends StrictLogging {
  */
 trait ChainableAction extends Action {
 
+  def statsEngine: StatsEngine
+
   /**
    * @return
    *   the next Action in the scenario workflow
@@ -88,6 +90,7 @@ trait ChainableAction extends Action {
 
   def recover(session: Session)(v: Validation[_]): Unit =
     v.onFailure { message =>
+      statsEngine.logScenarioCrash(session.scenario, message)
       logger.error(s"'$name' failed to execute: $message")
       next ! session.markAsFailed
     }
@@ -101,7 +104,6 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
  * An Action that can trigger a forced exit and bypass regular workflow.
  */
 trait ExitableAction extends ChainableAction {
-  def statsEngine: StatsEngine
   def clock: Clock
 
   override abstract def !(session: Session): Unit =
@@ -115,28 +117,28 @@ trait RequestAction extends ExitableAction {
   def requestName: Expression[String]
   def sendRequest(session: Session): Validation[Unit]
 
-  private def reportUnbuildableRequest(session: Session, error: String): Unit = {
-    val loggedName = requestName(session) match {
+  private def logCrash(session: Session, error: String): Unit =
+    requestName(session) match {
       case Success(requestNameValue) =>
-        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestNameValue, error)
-        requestNameValue
-      case _ =>
-        name
+        logger.error(s"Failed to build request $requestNameValue: $error")
+        statsEngine.logRequestCrash(session.scenario, session.groups, requestNameValue, error)
+      case Failure(requestNameError) =>
+        val errorMessage = s"Failed to build request name: $requestNameError"
+        logger.error(errorMessage)
+      // [ee]
     }
-    logger.error(s"'$loggedName' failed to execute: $error")
-  }
 
   override def execute(session: Session): Unit =
     try {
       sendRequest(session) match {
         case Failure(error) =>
-          reportUnbuildableRequest(session, error)
+          logCrash(session, error)
           next ! session.markAsFailed
         case _ =>
       }
     } catch {
       case NonFatal(e) =>
-        reportUnbuildableRequest(session, e.detailedMessage)
+        logCrash(session, e.detailedMessage)
         // rethrow so we trigger exception handling in "ChainableAction!"
         throw e
     }

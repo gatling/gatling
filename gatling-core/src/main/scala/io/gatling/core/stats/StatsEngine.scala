@@ -61,6 +61,8 @@ trait StatsEngine extends EnterpriseStatsEngineExtensions {
   //
   //
   //
+  //
+  //
   // [e]
 
   def logResponse(
@@ -80,10 +82,7 @@ trait StatsEngine extends EnterpriseStatsEngineExtensions {
       exitTimestamp: Long
   ): Unit
 
-  def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit
-
-  def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit =
-    logCrash(scenario, groups, requestName, s"Failed to build request: $errorMessage")
+  def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit
 }
 
 // WARNING those methods only serve a purpose in Gatling Enterprise and mustn't be called from other components

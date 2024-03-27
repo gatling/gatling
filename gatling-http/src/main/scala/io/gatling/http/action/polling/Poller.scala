@@ -20,7 +20,7 @@ import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.validation.{ Success, Validation }
+import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
@@ -50,20 +50,11 @@ private[polling] final class Poller(
     timer = session.eventLoop.scheduleAtFixedRate(() => poll(), 0, period.toMillis, TimeUnit.MILLISECONDS)
   }
 
-  // FIXME is currently static
-  private def buildHttpTx(): Validation[HttpTx] =
-    for {
-      httpRequest <- requestDef.build(session).mapFailure { errorMessage =>
-        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, pollerName, errorMessage)
-        errorMessage
-      }
-    } yield HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0)
-
   private def poll(): Unit =
-    buildHttpTx() match {
-      case Success(tx) =>
+    requestDef.build(session) match {
+      case Success(httpRequest) =>
         httpTxExecutor.execute(
-          tx,
+          HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0),
           tx =>
             new ResponseProcessor() {
               override def onComplete(result: HttpResult): Unit =
@@ -71,7 +62,10 @@ private[polling] final class Poller(
                 session = resourceFetched(tx, result)
             }
         )
-      case _ =>
+      case Failure(requestNameError) =>
+        val errorMessage = s"Failed to build polling request $pollerName: $requestNameError"
+        logger.error(errorMessage)
+        statsEngine.logRequestCrash(session.scenario, session.groups, pollerName, errorMessage)
         timer.cancel(false)
         session = session.markAsFailed
     }

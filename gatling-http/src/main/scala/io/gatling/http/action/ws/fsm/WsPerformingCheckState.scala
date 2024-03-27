@@ -73,7 +73,7 @@ final case class WsPerformingCheckState(
           Some(currentCheck.resolvedName),
           requestMessage
         )
-        statsEngine.logCrash(session.scenario, session.groups, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
+        statsEngine.logRequestCrash(session.scenario, session.groups, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
         sendFrame.next
     }
 
@@ -186,7 +186,7 @@ final case class WsPerformingCheckState(
                 Some(currentCheck.resolvedName),
                 requestMessage
               )
-              statsEngine.logCrash(session.scenario, session.groups, sendMessage.actionName, s"Couldn't reconnect: $errorMessage")
+              statsEngine.logRequestCrash(session.scenario, session.groups, sendMessage.actionName, s"Couldn't reconnect: $errorMessage")
               sendMessage.next
           }
 
@@ -287,7 +287,7 @@ final case class WsPerformingCheckState(
           Some(currentCheck.resolvedName),
           requestMessage
         )
-        statsEngine.logCrash(session.scenario, session.groups, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
+        statsEngine.logRequestCrash(session.scenario, session.groups, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
         sendTextMessage.next
     }
 
