@@ -37,7 +37,7 @@ private final class TryMax(
 
   private[this] var innerTryMax: Action = _
   private[core] def initialize(loopNext: Action): Unit =
-    innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", next)
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", statsEngine, next)
 
   override def execute(session: Session): Unit =
     BlockExit.mustExit(session) match {
@@ -51,6 +51,7 @@ class InnerTryMax(
     loopNext: Action,
     counterName: String,
     val name: String,
+    val statsEngine: StatsEngine,
     val next: Action
 ) extends ChainableAction {
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())

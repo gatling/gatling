@@ -80,9 +80,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
         .GroupEnd(scenario, groupBlock, exitTimestamp)
     )
 
-  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
-
-  override def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit = {}
+  override def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
 
   private def handle(msg: MockStatsEngine.Message): Unit = {
     messages = msg :: messages

@@ -150,6 +150,6 @@ class DataWritersStatsEngine(dataWriterInitMessage: DataWriterMessage.Init, data
       )
     )
 
-  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
+  override def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
     dispatch(DataWriterMessage.LoadEvent.Error(s"$requestName: $error ", clock.nowMillis))
 }

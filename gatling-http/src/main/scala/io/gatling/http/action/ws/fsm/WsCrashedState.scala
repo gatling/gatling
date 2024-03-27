@@ -29,7 +29,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String], val remaini
     val newSession = (errorMessage match {
       case Some(mess) =>
         val newSession = session.markAsFailed
-        fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but WebSocket was already crashed: $mess")
+        fsm.statsEngine.logRequestCrash(session.scenario, session.groups, actionName, s"Client issued close order but WebSocket was already crashed: $mess")
         newSession
       case _ =>
         logger.debug("Client issued close order but WebSocket was already closed")
