@@ -154,8 +154,13 @@ private[http] final class ResourceFetcher(
 
       case Failure(error) =>
         resource.requestName(session) match {
-          case Success(requestName) => coreComponents.statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, error)
-          case Failure(m)           => logger.error(s"Could build request name for explicitResource: $m")
+          case Success(requestName) =>
+            logger.error(s"Failed to build explicitResource $requestName: $error")
+            coreComponents.statsEngine.logRequestCrash(session.scenario, session.groups, requestName, error)
+          case Failure(requestNameError) =>
+            val errorMessage = s"Failed to build explicitResource name: $requestNameError"
+            logger.error(errorMessage)
+          // [ee]
         }
         Nil
     }

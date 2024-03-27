@@ -28,6 +28,7 @@ class ChainableActionSpec extends BaseSpec with EmptySession {
     var hasRun = false
 
     override val name = "chainable"
+    override val statsEngine = null
     override def execute(session: Session): Unit =
       if (fail) throw new Exception("expected crash") with NoStackTrace
       else hasRun = true
@@ -43,6 +44,7 @@ class ChainableActionSpec extends BaseSpec with EmptySession {
     var hasRun = false
 
     override val name = "test"
+    override val statsEngine = null
     override def execute(session: Session): Unit = recover(session) {
       if (fail) {
         "woops".failure

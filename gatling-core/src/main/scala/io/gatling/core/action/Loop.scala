@@ -44,7 +44,7 @@ private final class Loop(
         session.enterLoop(counterName, continueCondition, next, exitASAP)
       }
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", statsEngine, next)
   }
 
   override def execute(session: Session): Unit =
@@ -59,6 +59,7 @@ class InnerLoop(
     loopNext: Action,
     counterIncrement: Session => Session,
     val name: String,
+    val statsEngine: StatsEngine,
     val next: Action
 ) extends ChainableAction {
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())

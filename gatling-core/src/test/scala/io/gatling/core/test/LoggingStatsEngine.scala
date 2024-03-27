@@ -67,6 +67,6 @@ class LoggingStatsEngine extends StatsEngine {
   override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
     msgQueue.addLast(LogGroupEnd(scenario, groupBlock, exitTimestamp))
 
-  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
+  override def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
     msgQueue.addLast(LogCrash(scenario, groups, requestName, error))
 }
