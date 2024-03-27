@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import io.gatling.javaapi.core.ScenarioBuilder;
-
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
