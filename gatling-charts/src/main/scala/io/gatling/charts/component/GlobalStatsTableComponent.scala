@@ -134,7 +134,7 @@ function generateHtmlRow(request, level, index, parent, group) {
         var expandButtonStyle = ' hidden';
 
     if (request.stats.numberOfRequests.total != 0)
-        var koPercent = (request.stats.numberOfRequests.ko * 100 / request.stats.numberOfRequests.total).toFixed(0) + '%';
+        var koPercent = (request.stats.numberOfRequests.ko * 100 / request.stats.numberOfRequests.total).toFixed(2);
     else
         var koPercent = '-'
 

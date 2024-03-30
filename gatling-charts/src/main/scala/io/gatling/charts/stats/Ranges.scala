@@ -19,9 +19,9 @@ package io.gatling.charts.stats
 final case class Ranges(lowerBound: Int, higherBound: Int, lowCount: Int, middleCount: Int, highCount: Int, koCount: Int) {
 
   private val totalCount = lowCount + middleCount + highCount + koCount
-  private def percentage(count: Int): Int = if (totalCount == 0) 0 else (count.toDouble / totalCount * 100).round.toInt
-  def lowPercentage: Int = percentage(lowCount)
-  def middlePercentage: Int = percentage(middleCount)
-  def highPercentage: Int = percentage(highCount)
-  def koPercentage: Int = percentage(koCount)
+  private def percentage(count: Int): Double = if (totalCount == 0) 0 else count.toDouble / totalCount * 100
+  def lowPercentage: Double = percentage(lowCount)
+  def middlePercentage: Double = percentage(middleCount)
+  def highPercentage: Double = percentage(highCount)
+  def koPercentage: Double = percentage(koCount)
 }
