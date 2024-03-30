@@ -24,10 +24,10 @@ import io.gatling.charts.util.JsHelper._
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
-  private def group(index: Int, label: String, count: Int, percentage: Int): String =
+  private def group(index: Int, label: String, count: Int, percentage: Double): String =
     group(index, label, label, count, percentage)
 
-  private def group(index: Int, textLabel: String, htmlLabel: String, count: Int, percentage: Int): String =
+  private def group(index: Int, textLabel: String, htmlLabel: String, count: Int, percentage: Double): String =
     s""""group${index + 1}": {
        |    "name": "$textLabel",
        |    "htmlName": "$htmlLabel",

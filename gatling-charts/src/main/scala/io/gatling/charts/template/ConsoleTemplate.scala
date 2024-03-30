@@ -24,6 +24,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.stats.ErrorStats
 import io.gatling.core.stats.writer.ConsoleErrorsWriter
 import io.gatling.core.stats.writer.ConsoleSummary._
+import io.gatling.shared.util.NumberHelper._
 
 private[charts] object ConsoleTemplate {
   private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Stats[T]): jl.StringBuilder = {
@@ -39,13 +40,13 @@ private[charts] object ConsoleTemplate {
       .append(')')
   }
 
-  private[template] def writeRange(sb: jl.StringBuilder, textLabel: String, count: Int, percentage: Int): jl.StringBuilder =
+  private[template] def writeRange(sb: jl.StringBuilder, textLabel: String, count: Int, percentage: Double): jl.StringBuilder =
     sb.append("> ")
       .append(textLabel.rightPad(OutputLength - 32))
       .append(' ')
       .append(count.toString.leftPad(7))
       .append(" (")
-      .append(percentage.toString.leftPad(3))
+      .append(percentage.toPrintableString.leftPad(6))
       .append("%)")
 
   private[template] def writeErrorsAndEndBlock(sb: jl.StringBuilder, errors: Seq[ErrorStats]): jl.StringBuilder = {

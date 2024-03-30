@@ -30,6 +30,6 @@ class ConsoleTemplateSpec extends BaseSpec {
 
   it should "format the grouped counts properly" in {
     val out = ConsoleTemplate.writeRange(new jl.StringBuilder, "t < 42 ms", 90, 42).toString
-    out shouldBe "> t < 42 ms                                             90 ( 42%)"
+    out shouldBe "> t < 42 ms                                             90 (    42%)"
   }
 }
