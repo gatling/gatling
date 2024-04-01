@@ -82,7 +82,7 @@ object Dependencies {
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
 
   // Docs dependencies
-  private val commonsIo                      = "commons-io"                           % "commons-io"                        % "2.15.1"
+  private val commonsIo                      = "commons-io"                           % "commons-io"                        % "2.16.0"
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.1"
 
