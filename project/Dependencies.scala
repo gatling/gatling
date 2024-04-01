@@ -101,7 +101,7 @@ object Dependencies {
   // Dependencies by module
 
   private val gatlingGrpcVersion = "3.10.5"
-  private val gatlingMqttVersion = "3.10.5"
+  private val gatlingMqttVersion = "3.10.5.1"
   val docSamplesDependencies =
     Seq(
       commonsIo,
