@@ -62,7 +62,7 @@ http("").get("")
 .check(bodyStream().transform { inputStream ->
   // decode the Base64 stream into a String
   Base64.getDecoder().wrap(inputStream).use { base64Is ->
-    org.apache.commons.io.IOUtils.toString(base64Is, StandardCharsets.UTF_8.name())
+    String(base64Is.readAllBytes(), StandardCharsets.UTF_8)
   }
 })
 //#bodyStream

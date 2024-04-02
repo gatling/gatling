@@ -66,7 +66,7 @@ request
 .check(bodyStream.transform { is =>
   // decode the Base64 stream into a String
   Using(Base64.getDecoder.wrap(is)) { base64Is =>
-    org.apache.commons.io.IOUtils.toString(base64Is, StandardCharsets.UTF_8.name())
+    new String(base64Is.readAllBytes(), StandardCharsets.UTF_8)
   }
 })
 //#bodyStream
