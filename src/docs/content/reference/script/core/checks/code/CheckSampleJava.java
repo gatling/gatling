@@ -67,7 +67,7 @@ http("").get("")
 .check(bodyStream().transform(is -> {
   // decode the Base64 stream into a String
   try (InputStream base64Is = Base64.getDecoder().wrap(is)) {
-      return org.apache.commons.io.IOUtils.toString(base64Is, StandardCharsets.UTF_8.name());
+      return new String(base64Is.readAllBytes(), StandardCharsets.UTF_8);
   } catch (IOException e) {
       throw new RuntimeException("Impossible to decode Base64 stream");
   }

@@ -105,7 +105,6 @@ object Dependencies {
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
 
   // Docs dependencies
-  private val commonsIo                      = "commons-io"                           % "commons-io"                        % "2.15.1"
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.1"
 
@@ -126,7 +125,6 @@ object Dependencies {
   private val gatlingMqttVersion = "3.10.5.1"
   val docSamplesDependencies =
     Seq(
-      commonsIo,
       commonsLang,
       commonsCodec,
       "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
