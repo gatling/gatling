@@ -18,11 +18,27 @@ package io.gatling.recorder.cli
 
 import java.nio.file.Path
 
-import io.gatling.core.cli.CliOptionParser
-import io.gatling.recorder.cli.RecorderOptions._
+import io.gatling.core.cli.{ CliOption, CliOptionParser }
 import io.gatling.recorder.render.template.RenderingFormat
 
+object RecorderArgsParser {
+  private val SimulationsFolder: CliOption = new CliOption(
+    "simulations-folder",
+    "sf",
+    "Uses <directoryPath> as the absolute path of the directory where simulations are stored",
+    Some("<directoryPath>")
+  )
+  private val ResourcesFolder: CliOption =
+    new CliOption("resources-folder", "rf", "Uses <folderName> as the folder where generated resources will be stored", Some("<folderName>"))
+  private val Package: CliOption = new CliOption("package", "pkg", "Sets the package of the generated class", Some("<package>"))
+  private val ClassName: CliOption = new CliOption("classname", "cn", "Sets the name of the generated class", Some("<classname>"))
+  private val Format: CliOption = new CliOption("format", "fmt", "Sets the format of the generated code", Some("<format>"))
+}
+
 private[recorder] final class RecorderArgsParser(args: Array[String]) {
+
+  import RecorderArgsParser._
+
   private var simulationsFolder: Option[Path] = None
   private var resourcesFolder: Option[Path] = None
   private var pkg: Option[String] = None
