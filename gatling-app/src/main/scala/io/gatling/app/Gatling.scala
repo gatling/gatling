@@ -23,7 +23,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-import io.gatling.app.cli.{ GatlingArgsParser, GatlingOptions }
+import io.gatling.app.cli.GatlingArgsParser
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.scenario.Simulation
@@ -45,7 +45,7 @@ object Gatling extends StrictLogging {
 
   // used by sbt-test-framework
   private[gatling] def fromSbtTestFramework(args: Array[String], selectedSimulationClass: Class[Simulation]): Int =
-    fromArgs(args ++ Array(s"-${GatlingOptions.Simulation}", selectedSimulationClass.getName))
+    fromArgs(args ++ Array(s"-${GatlingArgsParser.Simulation}", selectedSimulationClass.getName))
 
   private def fromArgs(args: Array[String]): Int =
     new GatlingArgsParser(args).parseArguments match {
