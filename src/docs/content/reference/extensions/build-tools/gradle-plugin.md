@@ -322,7 +322,7 @@ gatling {
     // Private packages are uploaded and managed through this control plane.
     // Null by default; you can also use the gatling.enterprise.controlPlaneUrl system property
     // See Private Packages on Gatling Cloud documentation for details:
-    // {{< ref "/reference/install/cloud/private-packages" >}}
+    // {{< ref "/reference/install/cloud/private-locations/private-packages" >}}
     controlPlaneUrl "YOUR_CONTROL_PLANE_URL"
   }
 }
