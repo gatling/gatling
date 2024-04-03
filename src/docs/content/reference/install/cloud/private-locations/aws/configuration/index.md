@@ -37,10 +37,10 @@ So when using a custom image, make sure following are available:
 - [cloud-init](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) integration.
 - [jq](https://jqlang.github.io/jq/download/) a lightweight and flexible command-line JSON processor.
 - [curl](https://curl.se/download.html) a command line tool and library for transferring data with URLs
-- [Java runtime environment](https://openjdk.org/install/): OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../oss#java-version" >}}))
+- [Java runtime environment](https://openjdk.org/install/): OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../../oss#java-version" >}}))
 
 {{< alert tip >}}
-Learn how to tune the OS for more performance, configure the open files limit, the kernel and the network [here]({{< ref "../../../script/core/operations#os-tuning" >}}).
+Learn how to tune the OS for more performance, configure the open files limit, the kernel and the network [here]({{< ref "../../../../script/core/operations#os-tuning" >}}).
 {{< /alert >}}
 
 

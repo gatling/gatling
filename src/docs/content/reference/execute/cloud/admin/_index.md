@@ -6,6 +6,5 @@ ordering:
   - users
   - teams
   - api-tokens
-  - custom-sso
   - notifications
 ---
