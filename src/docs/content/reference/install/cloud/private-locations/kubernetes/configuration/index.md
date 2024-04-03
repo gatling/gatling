@@ -42,10 +42,10 @@ So when using a custom image, make sure following are available:
 
 - [jq](https://jqlang.github.io/jq/download/) a lightweight and flexible command-line JSON processor.
 - [curl](https://curl.se/download.html) a command line tool and library for transferring data with URLs
-- [Java runtime environment](https://openjdk.org/install/): OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../oss#java-version" >}}))
+- [Java runtime environment](https://openjdk.org/install/): OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../../oss#java-version" >}}))
 
 {{< alert tip >}}
-Learn how to tune the OS for more performance, configure the open files limit, the kernel and the network [here]({{< ref "../../../script/core/operations#os-tuning" >}}).
+Learn how to tune the OS for more performance, configure the open files limit, the kernel and the network [here]({{< ref "../../../../script/core/operations#os-tuning" >}}).
 {{< /alert >}}
 
 ## Control plane configuration file
@@ -155,6 +155,6 @@ control-plane {
 
 {{< alert info >}}
 The service account is optional; the control-plane Kubernetes defaults will be utilized instead.
-For example, in [Kubernetes installation]({{< ref "/reference/install/cloud/kubernetes/installation#example" >}}), the service account is configured on the control-plane container.
+For example, in [Kubernetes installation]({{< ref "installation#example" >}}), the service account is configured on the control-plane container.
 {{< /alert >}}
 

@@ -41,7 +41,7 @@ This file is in [`HOCON` format (Human-Optimized Config Object Notation)](https:
 {{< alert tip >}}
 Managed location name must be an available region (see list in example file below).
 
-Private location name must be an id configured in your control plane ([see documentation]({{< ref "/reference/install/cloud/introduction#configuration" >}})).
+Private location name must be an id configured in your control plane ([see documentation]({{< ref "/reference/install/cloud/private-locations/introduction#configuration" >}})).
 {{< /alert >}}
 
 {{<alert warning>}}

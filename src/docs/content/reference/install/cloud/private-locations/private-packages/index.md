@@ -192,9 +192,9 @@ To create a private package, you can use Gatling Enterprise Cloud's public API. 
 2. Navigate to the Swagger package section for further instructions on creating a private package.
 3. When creating the package, select a private storage type.
 4. Use Gatling plugins to create and upload your private packages. You can refer to the Gatling documentation for specific plugin usage:
-   - [Maven plugin]({{< ref "../../extensions/build-tools/maven-plugin#working-with-gatling-enterprise-cloud" >}})
-   - [Gradle plugin]({{< ref "../../extensions/build-tools/gradle-plugin#working-with-gatling-enterprise-cloud" >}})
-   - [sbt plugin]({{< ref "../../extensions/build-tools/sbt-plugin#working-with-gatling-enterprise-cloud" >}})
+   - [Maven plugin]({{< ref "/reference/extensions/build-tools/maven-plugin#working-with-gatling-enterprise-cloud" >}})
+   - [Gradle plugin]({{< ref "/reference/extensions/build-tools/gradle-plugin#working-with-gatling-enterprise-cloud" >}})
+   - [sbt plugin]({{< ref "/reference/extensions/build-tools/sbt-plugin#working-with-gatling-enterprise-cloud" >}})
 5. For each plugin, you will need to configure it with the following details:
   - Your API token with `Configure` permission for the private package team.
   - The private package ID.

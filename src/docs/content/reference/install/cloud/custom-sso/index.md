@@ -12,13 +12,13 @@ Configuring a custom Single Sign-On (SSO) solution is only available on [corpora
 
 At the moment, we only support integration with SSO systems which are accessible on the Internet, and user roles are still administered within Gatling Enterprise.
 
-If you already have an organization on Gatling Enterprise Cloud, after configuring a custom SSO, you will need to re-invite your users and configure their roles. You will, however, keep all other existing data, such as your [teams]({{< ref "teams" >}}), [simulations]({{< ref "../user/simulations" >}}), [reports]({{< ref "/reference/stats/reports/cloud" >}}), [API tokens]({{< ref "api-tokens" >}}), etc.
+If you already have an organization on Gatling Enterprise Cloud, after configuring a custom SSO, you will need to re-invite your users and configure their roles. You will, however, keep all other existing data, such as your [teams]({{< ref "/reference/execute/cloud/user/simulations" >}}), [simulations]({{< ref "/reference/execute/cloud/admin/teams" >}}), [reports]({{< ref "/reference/stats/reports/cloud" >}}), [API tokens]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}), etc.
 
 ## Required information
 
 To handle your support request, we will need to know:
 
-- the name and slug for your organization, visible on the [organization settings page]({{< ref "../user/organization" >}})
+- the name and slug for your organization, visible on the [organization settings page]({{< ref "/reference/execute/cloud/user/organization" >}})
 - relevant information depending on the type of SSO system used (see below)
 - a way to configure one of your users as a global admin, so that they can invite back your other users - in most cases, we will ask them to sign in once, after we have configured the SSO, to link their account
 
