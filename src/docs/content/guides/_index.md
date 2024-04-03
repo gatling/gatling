@@ -8,4 +8,5 @@ ordering:
   - passing-parameters
   - grouping-feeder
   - dynatrace
+  - aws-secrets-manager
 ---

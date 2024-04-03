@@ -84,7 +84,8 @@ object Dependencies {
   // Docs dependencies
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.16.1"
-
+  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.23.7"
+  
   // format: ON
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
@@ -101,10 +102,12 @@ object Dependencies {
 
   private val gatlingGrpcVersion = "3.10.5"
   private val gatlingMqttVersion = "3.10.5.1"
+
   val docSamplesDependencies =
     Seq(
       commonsLang,
       commonsCodec,
+      awsSecretsManager,
       "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
       "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion,
       "io.gatling" % "gatling-mqtt"      % gatlingMqttVersion,
