@@ -94,6 +94,10 @@ control-plane {
       annotations {
         # ExampleKey = ExampleValue
       }
+      # Node selector of initiated pods (optional)
+      node-selector {
+        # ExampleKey = ExampleValue
+      }
       # Environment variables of initiated pods (optional)
       environment-variables {
         # ExampleKey = ExampleValue
