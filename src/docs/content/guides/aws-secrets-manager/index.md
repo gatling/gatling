@@ -16,7 +16,7 @@ Integrating AWS Secrets Manager with Gatling allows secure access and retrieval 
 - Using Gatling SDK with Java 1.x or 2.x.
 
 
-## Conifguration
+## Configuration
 
 To enable secure access to AWS Secrets Manager, assign an IAM instance profile to your load generators. This profile should grant access permissions for retrieving and describing secrets as detailed below. 
 For more information, visit: [Gatling AWS Locations Configuration](https://docs.gatling.io/reference/install/cloud/aws/configuration/)
