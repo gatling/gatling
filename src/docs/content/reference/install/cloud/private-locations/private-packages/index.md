@@ -198,7 +198,7 @@ To create a private package, you can use Gatling Enterprise Cloud's public API. 
 5. For each plugin, you will need to configure it with the following details:
   - Your API token with `Configure` permission for the private package team.
   - The private package ID.
-  - The control plane repository URL.
+  - The control plane URL.
 
 {{< alert tip >}}
 To create a private package easily from the plugin instead of the API, you can use the interactive enterprise start command.
