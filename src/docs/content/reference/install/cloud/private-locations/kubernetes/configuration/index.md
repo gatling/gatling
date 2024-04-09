@@ -130,6 +130,20 @@ control-plane {
       #  }
       ]
       
+      # Init Containers (optional)
+      init-containers = [
+      #  {
+      #     Name of the init container
+      #     name = "init-container-name-1"
+      #     Image of the init container
+      #     image = "init-container-image-1"
+      #     Override entrypoint of the image (optional)
+      #     command = ["printenv"]
+      #     Pass arguments to the entrypoint of the image (optional)  
+      #     args = ["HOSTNAME", "KUBERNETES_PORT"]
+      #  }
+        ]
+      
       # Java configuration (following configuration properties are optional)
       # System properties (optional)
       system-properties {
