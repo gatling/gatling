@@ -19,9 +19,9 @@ This plugin doesn't create a new Gatling Enterprise simulation, you have to crea
 
 On Gatling Enterprise Cloud, you can do it using the options provided by our build tools plugins:
 
-- [Maven]({{< ref "../build-tools/maven-plugin#working-with-gatling-enterprise-cloud" >}})
-- [Gradle]({{< ref "../build-tools/gradle-plugin#working-with-gatling-enterprise-cloud" >}})
-- [sbt]({{< ref "../build-tools/sbt-plugin#working-with-gatling-enterprise-cloud" >}})
+- [Maven]({{< ref "../build-tools/maven-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
+- [Gradle]({{< ref "../build-tools/gradle-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
+- [sbt]({{< ref "../build-tools/sbt-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
 
 Don't forget to check out [GitHub's official documentation](https://docs.github.com/en/actions) to learn how to write CI/CD workflows with GitHub Actions.
 

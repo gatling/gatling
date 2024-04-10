@@ -20,7 +20,7 @@ build-gatling-simulation:
   # for other useful options for Gradle builds.
   image: azul/zulu-openjdk:17-latest
   script:
-    - ./gradlew gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
+    - gradle gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
 
 # Run the simulation on Gatling Enterprise
 run-gatling-enterprise:

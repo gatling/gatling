@@ -9,6 +9,7 @@ ordering:
   - package-gen
   - package-conf
   - simulations
+  - configuration-as-code
   - dedicated-ips
   - organization
   - api

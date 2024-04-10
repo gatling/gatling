@@ -113,12 +113,16 @@ mvn gatling:recorder
 Use `mvn gatling:help -Ddetail=true -Dgoal=recorder` to print the description of all the available configuration options
 on the `recorder` goal.
 
-### Working with Gatling Enterprise Cloud
+### Running your simulations on Gatling Enterprise Cloud
 
-#### API tokens
+#### Prerequisites
 
-You need to configure an [an API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) for most
-of the tasks regarding Gatling Enterprise Cloud. The API token needs the `Configure` role.
+You need to configure an [an API token]({{< ref "reference/execute/cloud/admin/api-tokens" >}}) for most
+of the actions between the CLI and Gatling Enterprise Cloud.
+
+{{< alert warning >}}
+The API token needs the `Configure` role on expected teams.
+{{< /alert >}}
 
 Since you probably don’t want to include you secret token in your source code, you can configure it using either:
 
@@ -138,104 +142,56 @@ If really needed, you can also configure it in your pom.xml:
 </plugin>
 ```
 
-#### Create or start a simulation
+#### Deploying on Gatling Enterprise Cloud
 
-You can, using the `enterpriseStart` goal:
+With `gatling:enterpriseDeploy` command, you can:
+- Create, update and upload packages
+- Create and update simulations
 
-- configure a new simulation on Gatling Enterprise Cloud, upload your packaged code, and immediately start the simulation
-- or, for a simulation already configured on Gatling Enterprise Cloud, upload any updated code and immediately start the simulation
+This command automatically checks your simulation project and performs the deployment according to your configuration.
 
-{{< alert warning >}}
-You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
+{{< alert info >}}
+You can run this command without any configuration to try it.
+
+Check the [Configuration as Code documentation]({{< ref "reference/execute/cloud/user/configuration-as-code" >}}) for the complete reference and advanced usage.
 {{< /alert >}}
 
-Quick usage:
+#### Start your simulations on Gatling Enterprise Cloud
 
-- configure and start a new simulation with `mvn gatling:enterpriseStart`, you will be prompted to choose all required
-  options. This will also print the simulationId of the newly configured simulation.
-- run the simulation again with `mvn gatling:enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID>`.
-- run the simulation and wait for the end of the run (will regularly print out progress information, and exit with an error code if the simulation fails) with `mvn gatling:enterpriseStart -Dgatling.enterprise.simulationId=<YOUR_SIMULATION_ID> -Dgatling.enterprise.waitForRunEnd=true`.
+You can, using the `gatling:enterpriseStart` command:
+- Automatically [deploy your package and associated simulations](#deploying-on-gatling-enterprise-cloud)
+- Start a deployed simulation
 
-List of configurations used by this task:
-
-```xml
-<plugin>
-    <groupId>io.gatling</groupId>
-    <artifactId>gatling-maven-plugin</artifactId>
-    <version>${gatling-maven-plugin.version}</version>
-    <configuration>
-        <!-- Simulation that needs to be started, you will be able to create a new simulation if empty -->
-        <!-- You can also use the gatling.enterprise.simulationId system property -->
-        <simulationId>YOUR_SIMULATION_ID</simulationId>
-        <!-- Default package when creating a new simulation -->
-        <!-- You can also use the gatling.enterprise.packageId system property -->
-        <packageId>YOUR_PACKAGE_ID</packageId>
-        <!-- Default team when creating a new simulation -->
-        <!-- You can also use the gatling.enterprise.teamId system property -->
-        <teamId>YOUR_TEAM_ID</teamId>
-        <!-- Fully-qualified class name of the simulation used when creating a new simulation -->
-        <!-- You can also use the gatling.simulationClass system property -->
-        <simulationClass>io.gatling.BasicSimulation</simulationClass>
-        <!-- Custom system properties used when running the simulation on Gatling Enterprise -->
-        <simulationSystemProperties>
-            <key1>VALUE_1</key1>
-            <key2>VALUE_2</key2>
-        </simulationSystemProperties>
-        <!-- Additional environment variables used when running the simulation on Gatling Enterprise -->
-        <simulationEnvironmentVariables>
-            <key1>VALUE_1</key1>
-            <key2>VALUE_2</key2>
-        </simulationEnvironmentVariables>
-        <!-- Wait for the result after starting the simulation on Gatling Enterprise -->
-        <!-- Will complete with an error if the simulation ends with any error status -->
-        <!-- False by default; you can also use the gatling.enterprise.waitForRunEnd system property -->
-        <waitForRunEnd>true</waitForRunEnd>
-        <!-- If this URL is configured, newly created packages and uploaded ones are considered as private. -->
-        <!-- Private packages are uploaded and managed through this control plane. -->
-        <!-- See Private Packages on Gatling Cloud documentation for details: -->
-        <!-- {{< ref "/reference/install/cloud/private-locations/private-packages" >}} -->
-
-      <controlPlaneUrl>YOUR_CONTROL_PLANE_URL</controlPlaneUrl>
-    </configuration>
-</plugin>
-```
-
-You can run it with the command:
+By default, the Gatling plugin prompts the user to choose a simulation to start from among the deployed simulations.
+However, users can also specify the simulation name directly to bypass the prompt using the following command:
 ```shell
-mvn gatling:enterpriseStart
+mvn gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
 ```
+Replace `<simulation name>` with the desired name of the simulation you want to start.
 
-If a `simulationId` is set, the task will start the simulation on Gatling Enterprise.
+If you need the command to wait until the run completes and to fail in case of assertion failures, you can enable `-Dgatling.enterprise.waitForRunEnd=true`.
 
-If no `simulationId` is set, the task will ask you if you want to start or create a new simulation. If you choose
-create, you will be able to configure a new simulation (with the configured `packageId`, `teamId`, `simulationClass` as
-default), then start it. If you choose start, you will be able to start an already existing simulation on Gatling
-Enterprise.
+If you are on a CI environment, you don't want to handle interaction with the plugin.
+Most CI tools define the `CI` environment variable, used by the Gatling plugin to disable interactions and run in headless mode.
 
-If you are on a CI environment, you don't want to handle interaction with the plugin. You should then run Maven in
-[batch mode](https://maven.apache.org/ref/current/maven-embedder/cli.html#batch-mode). In batch mode, no input will be
-asked from the user, the new simulation will be created using only the configuration.
+It's also possible to disable interactions by running Maven in [batch mode](https://maven.apache.org/ref/current/maven-embedder/cli.html#batch-mode).
 
-#### Package
+#### Upload a package manually
 
-You can directly package your simulations for Gatling Enterprise Cloud using the `enterprisePackage` goal:
+##### Packaging
+
+You can directly package your simulations for Gatling Enterprise Cloud using:
 
 ```shell
 mvn gatling:enterprisePackage
 ```
 
 This will generate the `target/<artifactId>-<version>-shaded.jar` package which you can then
-[upload to the Cloud]({{< ref "../../execute/cloud/user/package-conf" >}}).
+[upload to the Cloud]({{< ref "reference/execute/cloud/user/package-conf" >}}).
 
-#### Package and upload
+##### Upload
 
-You can also create and upload the package in a single command using the `enterpriseUpload` goal.
-
-{{< alert warning >}}
-You will need to configure [an API token]({{< ref "#working-with-gatling-enterprise-cloud" >}}) with the `Configure` role.
-{{< /alert >}}
-
-You must already have [configured a package]({{< ref "../../execute/cloud/user/package-conf" >}}).
+You must already have [configured a package]({{< ref "reference/execute/cloud/user/package-conf" >}}).
 Copy the package ID from the Packages table, or copy the simulation ID linked to the package from the Simulations table.
 
 Configure the package ID or simulation ID on the plugin:
@@ -263,15 +219,32 @@ Then package and upload your simulation to gatling Enterprise Cloud:
 mvn gatling:enterpriseUpload
 ```
 
-### Working with Gatling Enterprise Self-Hosted
+#### Private packages
+
+Configure the [Control Plane URL]({{< ref "/reference/install/cloud/private-locations/private-packages/#control-plane-server" >}}):
+
+```scala
+<plugin>
+  <groupId>io.gatling</groupId>
+  <artifactId>gatling-maven-plugin</artifactId>
+  <version>${gatling-maven-plugin.version}</version>
+  <configuration>
+    <controlPlaneUrl>YOUR_CONTROL_PLANE_URL</controlPlaneUrl>
+  </configuration>
+</plugin>
+```
+
+Once configured, your private package can be created and uploaded using the [deploy command]({{< ref "#deploying-on-gatling-enterprise-cloud" >}}).
+
+### Running your simulations on Gatling Enterprise Self-Hosted
 
 #### Build from sources
 
 Once you have configured the Maven plugin on your project, Gatling Enterprise Self-Hosted can build it from sources
 without additional configuration.
-[Add your source repository]({{< ref "../../execute/self-hosted/user/repositories#downloading-from-sources" >}})
+[Add your source repository]({{< ref "reference/execute/self-hosted/user/repositories#downloading-from-sources" >}})
 and configure your simulation to
-[build from sources]({{< ref "../../execute/self-hosted/user/simulations#option-1-build-from-sources" >}})
+[build from sources]({{< ref "reference/execute/self-hosted/user/simulations#option-1-build-from-sources" >}})
 using Maven.
 
 To make sure your setup is correct, you can run the packaging command and check that you get a jar containing all the

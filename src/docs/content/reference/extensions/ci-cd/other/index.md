@@ -14,9 +14,9 @@ lastmod: 2023-02-17T14:00:00+00:00
 We provide dedicated support for a number of CI tools: [GitHub Actions]({{< ref "github-actions" >}}), [Gitlab CI]({{< ref "gitlab-ci" >}}), [Jenkins]({{< ref "jenkins" >}}), [Teamcity]({{< ref "teamcity" >}}), [Bamboo]({{< ref "github-actions" >}}). However, we also document here how to run your simulations on Gatling Enterprise from any other CI products, using either one of the supported build tools or our CI shell script. Note that we also provide dedicated instructions to use our CI shell script [with Azure DevOps Pipelines]({{< ref "./azure-devops" >}})
 
 This will not create a new Gatling Enterprise simulation, you have to create it using the Gatling Enterprise Dashboard before, or do it using the options provided by our build tools plugins:
-- [Maven]({{< ref "../build-tools/maven-plugin#working-with-gatling-enterprise-cloud" >}})
-- [Gradle]({{< ref "../build-tools/gradle-plugin#working-with-gatling-enterprise-cloud" >}})
-- [sbt]({{< ref "../build-tools/sbt-plugin#working-with-gatling-enterprise-cloud" >}})
+- [Maven]({{< ref "../build-tools/maven-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
+- [Gradle]({{< ref "../build-tools/gradle-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
+- [sbt]({{< ref "../build-tools/sbt-plugin#running-your-simulations-on-gatling-enterprise-cloud" >}})
 
 ## Pre-requisites
 

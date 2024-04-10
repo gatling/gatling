@@ -68,11 +68,14 @@ curl -X PUT --upload-file <PACKAGE_LOCAL_PATH> \
 
 ### Option 3: Plugin configuration
 
-Maven, sbt and Gradle plugin offer commands to upload the generated package if properly configured.
-Check the [Maven]({{< ref "../../../extensions/build-tools/maven-plugin/#package-and-upload" >}}), 
-[Gradle]({{< ref "../../../extensions/build-tools/gradle-plugin/#package-and-upload" >}}), 
-[sbt]({{< ref "../../../extensions/build-tools/sbt-plugin/#package-and-upload" >}}) 
+Maven, sbt and Gradle plugins offer commands to automatically deploy and manage your packages and simulations.
+
+{{< alert info >}}
+Check the [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
+[Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
+[sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}) 
 plugin extensions for more information.
+{{< / alert >}}
 
 ## Usage
 

@@ -24,7 +24,7 @@ build-gatling-simulation:
     # The GitLab doc example uses a token to publish to GitLab Package
     # Registry, you may need to configure e.g. username and password instead;
     # see https://maven.apache.org/settings.html#servers
-    - ./mvnw deploy -s ci_settings.xml
+    - mvn deploy -s ci_settings.xml
 
 # Run the simulation on Gatling Enterprise
 run-gatling-enterprise:

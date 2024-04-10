@@ -9,4 +9,5 @@ ordering:
   - grouping-feeder
   - dynatrace
   - aws-secrets-manager
+  - config-as-code
 ---
