@@ -51,13 +51,13 @@ private[gatling] final case class InMemoryFeederSource[T](records: IndexedSeq[Re
 private[feeder] object ZippedResourceCache {
   private val cache = new ConcurrentHashMap[Resource, Resource]()
 
-  def unzipped(zippedResource: Resource, options: FeederOptions[_]): Resource =
-    if (options.unzip) cache.computeIfAbsent(zippedResource, Unzip.unzip) else zippedResource
+  def unzipped(rawResource: Resource, unzip: Boolean): Resource =
+    if (unzip) cache.computeIfAbsent(rawResource, Unzip.unzip) else rawResource
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
-  private def withJsonNodeIterator[T](options: FeederOptions[Any])(f: Iterator[JsonNode] => T): T =
-    Using.resource(ZippedResourceCache.unzipped(resource, options).inputStream) { is =>
+  private def withJsonNodeIterator[T](unzip: Boolean)(f: Iterator[JsonNode] => T): T =
+    Using.resource(ZippedResourceCache.unzipped(resource, unzip).inputStream) { is =>
       val node = jsonParsers.parse(is, charset)
       if (node.isArray) {
         f(node.elements.asScala)
@@ -67,7 +67,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
     }
 
   override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] = {
-    val records = withJsonNodeIterator(options)(_.collect {
+    val records = withJsonNodeIterator(options.unzip)(_.collect {
       case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
     }.toVector)
 
@@ -98,12 +98,12 @@ private[gatling] final class SeparatedValuesFeederSource(val resource: Resource,
       }
     }
 
-    val uncompressedResource = ZippedResourceCache.unzipped(resource, options)
+    val uncompressedResource = ZippedResourceCache.unzipped(resource, options.unzip)
     applyBatch(uncompressedResource)
   }
 
   override def recordsCount(options: FeederOptions[String], configuration: GatlingConfiguration): Int = {
-    val uncompressedResource = ZippedResourceCache.unzipped(resource, options)
+    val uncompressedResource = ZippedResourceCache.unzipped(resource, options.unzip)
     val linesIncludingHeader = Using.resource(uncompressedResource.inputStream)(LineCounter(configuration.core.charset).countLines)
 
     linesIncludingHeader - 1
