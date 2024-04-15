@@ -53,12 +53,12 @@ object JmsCheckMaterializer {
 
   private val JsonPreparerErrorMapper: String => String = "Could not parse response into a JSON: " + _
 
-  private def jsonPreparer(jsonParsers: JsonParsers, charset: Charset): Preparer[Message, JsonNode] =
+  private def jsonPreparer(jsonParsers: JsonParsers): Preparer[Message, JsonNode] =
     replyMessage =>
       safely(JsonPreparerErrorMapper) {
         replyMessage match {
           case tm: TextMessage          => jsonParsers.safeParse(tm.getText)
-          case bm: CachingMessage.Bytes => jsonParsers.safeParse(new ByteArrayInputStream(bm.bytes), charset)
+          case bm: CachingMessage.Bytes => jsonParsers.safeParse(new ByteArrayInputStream(bm.bytes))
           case _                        => "Unsupported message type".failure
         }
       }
@@ -81,11 +81,11 @@ object JmsCheckMaterializer {
   def substring(charset: Charset): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
     new JmsCheckMaterializer(stringBodyPreparer(charset))
 
-  def jmesPath(jsonParsers: JsonParsers, charset: Charset): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsCheckMaterializer(jsonPreparer(jsonParsers, charset))
+  def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
+    new JmsCheckMaterializer(jsonPreparer(jsonParsers))
 
-  def jsonPath(jsonParsers: JsonParsers, charset: Charset): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsCheckMaterializer(jsonPreparer(jsonParsers, charset))
+  def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
+    new JmsCheckMaterializer(jsonPreparer(jsonParsers))
 
   val Xpath: CheckMaterializer[XPathCheckType, JmsCheck, Message, XdmNode] = {
     val errorMapper: String => String = "Could not parse response into a DOM Document: " + _

@@ -57,7 +57,7 @@ trait FeederSupport extends ResourceCache {
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
     cachedResource(filePath) match {
-      case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers, configuration.core.charset), configuration)
+      case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers), configuration)
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 

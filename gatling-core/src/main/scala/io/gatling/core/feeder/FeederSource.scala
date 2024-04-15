@@ -17,7 +17,6 @@
 package io.gatling.core.feeder
 
 import java.nio.channels.FileChannel
-import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
@@ -55,10 +54,10 @@ private[feeder] object ZippedResourceCache {
     if (unzip) cache.computeIfAbsent(rawResource, Unzip.unzip) else rawResource
 }
 
-private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
+private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers) extends FeederSource[Any] {
   private def withJsonNodeIterator[T](unzip: Boolean)(f: Iterator[JsonNode] => T): T =
     Using.resource(ZippedResourceCache.unzipped(resource, unzip).inputStream) { is =>
-      val node = jsonParsers.parse(is, charset)
+      val node = jsonParsers.parse(is)
       if (node.isArray) {
         f(node.elements.asScala)
       } else {

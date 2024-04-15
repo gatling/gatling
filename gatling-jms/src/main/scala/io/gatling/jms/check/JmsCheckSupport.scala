@@ -91,16 +91,14 @@ trait JmsCheckSupport {
     JmsCheckMaterializer.Xpath
 
   implicit def jmsJsonPathCheckMaterializer(implicit
-      jsonParsers: JsonParsers,
-      configuration: GatlingConfiguration
+      jsonParsers: JsonParsers
   ): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
-    JmsCheckMaterializer.jsonPath(jsonParsers, configuration.core.charset)
+    JmsCheckMaterializer.jsonPath(jsonParsers)
 
   implicit def jmsJmesPathCheckMaterializer(implicit
-      jsonParsers: JsonParsers,
-      configuration: GatlingConfiguration
+      jsonParsers: JsonParsers
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
-    JmsCheckMaterializer.jmesPath(jsonParsers, configuration.core.charset)
+    JmsCheckMaterializer.jmesPath(jsonParsers)
 
   implicit val jmsUntypedCheckIfMaker: UntypedCheckIfMaker[JmsCheck] = _.checkIf(_)
 

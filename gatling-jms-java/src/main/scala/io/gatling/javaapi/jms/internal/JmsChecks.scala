@@ -51,11 +51,11 @@ object JmsChecks {
       case CoreCheckType.JsonPath =>
         scalaCheck
           .asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]]
-          .build(JmsPredef.jmsJsonPathCheckMaterializer(CorePredef.defaultJsonParsers, CorePredef.configuration))
+          .build(JmsPredef.jmsJsonPathCheckMaterializer(CorePredef.defaultJsonParsers))
       case CoreCheckType.JmesPath =>
         scalaCheck
           .asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]]
-          .build(JmsPredef.jmsJmesPathCheckMaterializer(CorePredef.defaultJsonParsers, CorePredef.configuration))
+          .build(JmsPredef.jmsJmesPathCheckMaterializer(CorePredef.defaultJsonParsers))
       case JmsCheckType.Simple => scalaCheck.build(null).asInstanceOf[JmsCheck]
 
       case unknown => throw new IllegalArgumentException(s"JMS DSL doesn't support $unknown")
