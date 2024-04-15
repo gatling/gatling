@@ -19,14 +19,14 @@ package io.gatling.core.feeder
 import java.nio.channels.FileChannel
 import java.util.concurrent.ConcurrentHashMap
 
-import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.{ Json, JsonParsers }
 import io.gatling.core.util._
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.core.JsonToken
 import com.typesafe.scalalogging.LazyLogging
 
 private[gatling] sealed trait FeederSource[T] {
@@ -55,28 +55,47 @@ private[feeder] object ZippedResourceCache {
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers) extends FeederSource[Any] {
-  private def withJsonNodeIterator[T](unzip: Boolean)(f: Iterator[JsonNode] => T): T =
-    Using.resource(ZippedResourceCache.unzipped(resource, unzip).inputStream) { is =>
+
+  override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] =
+    Using.resource(ZippedResourceCache.unzipped(resource, options.unzip).inputStream) { is =>
       val node = jsonParsers.parse(is)
-      if (node.isArray) {
-        f(node.elements.asScala)
-      } else {
-        throw new IllegalArgumentException("Root element of JSON feeder file isn't an array")
-      }
+      require(node.isArray, "Root element of JSON feeder file isn't an array")
+
+      val records = node.elements.asScala.collect {
+        case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
+      }.toVector
+      InMemoryFeeder(records, options.conversion, options.strategy)
     }
-
-  override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] = {
-    val records = withJsonNodeIterator(options.unzip)(_.collect {
-      case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
-    }.toVector)
-
-    InMemoryFeeder(records, options.conversion, options.strategy)
-  }
 
   override def name: String = s"json(${resource.name})"
 
   override def recordsCount(options: FeederOptions[Any], configuration: GatlingConfiguration): Int =
-    withJsonNodeIterator(options)(_.size)
+    Using.resource(ZippedResourceCache.unzipped(resource, options.unzip).inputStream) { is =>
+      val parser = jsonParsers.createParser(is)
+      require(parser.nextToken == JsonToken.START_ARRAY, "Root element of JSON feeder file isn't an array")
+
+      parser.nextToken match {
+        case JsonToken.START_OBJECT =>
+          var size = 1
+          parser.skipChildren()
+
+          while (parser.nextToken != null) {
+            if (parser.getCurrentToken == JsonToken.START_OBJECT) {
+              size += 1
+              parser.skipChildren()
+            }
+          }
+
+          size
+
+        case JsonToken.END_ARRAY =>
+          // empty array
+          0
+
+        case _ =>
+          throw new IllegalArgumentException("Root element of JSON feeder file isn't an array of objects")
+      }
+    }
 }
 
 private[gatling] final class SeparatedValuesFeederSource(val resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {

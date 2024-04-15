@@ -20,13 +20,14 @@ import java.io.InputStream
 
 import io.gatling.commons.validation._
 
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.JsonNode
 
 object JsonParsers {
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
 }
 
-final class JsonParsers {
+private[gatling] final class JsonParsers {
   import JsonParsers._
 
   private val jsonNodeValueType = Json.objectMapper.getTypeFactory.constructType(classOf[JsonNode])
@@ -42,4 +43,7 @@ final class JsonParsers {
 
   def safeParse(string: String): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(string).success)
+
+  def createParser(is: InputStream): JsonParser =
+    Json.objectMapper.createParser(is)
 }

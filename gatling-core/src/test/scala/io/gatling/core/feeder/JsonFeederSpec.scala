@@ -24,7 +24,7 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val jsonParsers: JsonParsers = new JsonParsers
 
-  "jsonFile" should "handle proper JSON file" in {
+  "jsonFile#readRecords" should "handle proper JSON file" in {
     val data = jsonFile("test.json").readRecords
 
     data.length shouldBe 2
@@ -33,9 +33,21 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
     head("company") shouldBe Map("id" -> 18971)
   }
 
-  "jsonUrl" should "retrieve and handle proper JSON file" in {
+  "jsonFile#recordsCount" should "handle proper JSON file" in {
+    val count = jsonFile("test.json").recordsCount
+
+    count shouldBe 2
+  }
+
+  "jsonUrl#readRecords" should "retrieve and handle proper JSON file" in {
     val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).readRecords
     data.length shouldBe 2
     data.head("id") shouldBe 19434
+  }
+
+  "jsonUrl#recordsCount" should "retrieve and handle proper JSON file" in {
+    val count = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).recordsCount
+
+    count shouldBe 2
   }
 }
