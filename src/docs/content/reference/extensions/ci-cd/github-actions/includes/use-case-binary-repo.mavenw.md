@@ -41,7 +41,7 @@ jobs:
 
       # Build, package, and publish your Gatling project 
       - name: Build Gatling simulation
-        run: mvn --batch-mode deploy
+        run: ./mvnw --batch-mode deploy
         env:
           # Retrieve username and password from GitHub secrets
           # See https://docs.github.com/en/actions/security-guides/encrypted-secrets

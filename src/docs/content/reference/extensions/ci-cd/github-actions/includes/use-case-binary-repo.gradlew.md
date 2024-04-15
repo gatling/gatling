@@ -36,7 +36,7 @@ jobs:
 
       # Build, package, and publish your Gatling project 
       - name: Build Gatling simulation
-        run: gradle publish
+        run: ./gradlew publish
         env:
           # Retrieve username and password from GitHub secrets
           # See https://docs.github.com/en/actions/security-guides/encrypted-secrets

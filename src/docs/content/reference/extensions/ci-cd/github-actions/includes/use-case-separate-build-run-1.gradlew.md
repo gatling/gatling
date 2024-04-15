@@ -42,5 +42,5 @@ jobs:
 
       # Build, package, and upload your Gatling project 
       - name: Build Gatling simulation
-        run: gradle gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=${{ env.SIMULATION_ID }}
+        run: ./gradlew gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=${{ env.SIMULATION_ID }}
 ```

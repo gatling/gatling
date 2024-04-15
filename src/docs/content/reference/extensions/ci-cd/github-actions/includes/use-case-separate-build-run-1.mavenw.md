@@ -42,5 +42,5 @@ jobs:
 
       # Build, package, and upload your Gatling project 
       - name: Build Gatling simulation
-        run: mvn gatling:enterpriseUpload -Dgatling.enterprise.simulationId=${{ env.SIMULATION_ID }}
+        run: ./mvnw gatling:enterpriseUpload -Dgatling.enterprise.simulationId=${{ env.SIMULATION_ID }}
 ```
