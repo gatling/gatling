@@ -29,14 +29,16 @@ object JsonParsers {
 final class JsonParsers {
   import JsonParsers._
 
+  private val jsonNodeValueType = Json.objectMapper.getTypeFactory.constructType(classOf[JsonNode])
+
   def parse(is: InputStream): JsonNode =
-    Json.objectMapper.readValue(is, classOf[JsonNode])
+    Json.objectMapper.readValue(is, jsonNodeValueType)
 
   def safeParse(is: InputStream): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(is).success)
 
   def parse(string: String): JsonNode =
-    Json.objectMapper.readValue(string, classOf[JsonNode])
+    Json.objectMapper.readValue(string, jsonNodeValueType)
 
   def safeParse(string: String): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(string).success)
