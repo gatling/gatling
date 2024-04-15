@@ -56,7 +56,7 @@ private[feeder] object ZippedResourceCache {
 }
 
 private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParsers: JsonParsers, charset: Charset) extends FeederSource[Any] {
-  private def withJsonArrayElements[T](options: FeederOptions[Any])(f: Iterator[JsonNode] => T): T =
+  private def withJsonNodeIterator[T](options: FeederOptions[Any])(f: Iterator[JsonNode] => T): T =
     Using.resource(ZippedResourceCache.unzipped(resource, options).inputStream) { is =>
       val node = jsonParsers.parse(is, charset)
       if (node.isArray) {
@@ -67,7 +67,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
     }
 
   override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] = {
-    val records = withJsonArrayElements(options)(_.collect {
+    val records = withJsonNodeIterator(options)(_.collect {
       case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
     }.toVector)
 
@@ -77,7 +77,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
   override def name: String = s"json(${resource.name})"
 
   override def recordsCount(options: FeederOptions[Any], configuration: GatlingConfiguration): Int =
-    withJsonArrayElements(options)(_.size)
+    withJsonNodeIterator(options)(_.size)
 }
 
 private[gatling] final class SeparatedValuesFeederSource(val resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
