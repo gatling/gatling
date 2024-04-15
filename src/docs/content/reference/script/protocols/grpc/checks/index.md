@@ -46,6 +46,17 @@ The description being optional, its absence can be tested using `isNull`:
 
 {{< include-code "statusDescriptionIsNull" java kt scala >}}
 
+#### `statusCause`
+
+Targets the cause of a status. Note that since the cause is a `Throwable`, you cannot easily compare it for equality;
+but you can, for instance, check a specific field (like in this example):
+
+{{< include-code "statusCause" java kt scala >}}
+
+The cause being optional, its absence can be tested using `isNull`:
+
+{{< include-code "statusCauseIsNull" java kt scala >}}
+
 ### Headers
 
 With [gRPC Java](https://github.com/grpc/grpc-java),
