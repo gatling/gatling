@@ -37,6 +37,14 @@ class GrpcChecksSampleKotlin : Simulation() {
         //#statusDescriptionIsNull
         statusDescription().isNull()
         //#statusDescriptionIsNull
+        ,
+        //#statusCause
+        statusCause().transform { it.message }.shouldBe("actual cause message")
+        //#statusCause
+        ,
+        //#statusCauseIsNull
+        statusCause().isNull()
+        //#statusCauseIsNull
       )
 
     grpc("header checks")

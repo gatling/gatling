@@ -50,6 +50,14 @@ class GrpcChecksSampleScala extends Simulation {
       //#statusDescriptionIsNull
       statusDescription.isNull
       //#statusDescriptionIsNull
+      ,
+      //#statusCause
+      statusCause.transform(_.getMessage).is("actual cause message")
+      //#statusCause
+      ,
+      //#statusCauseIsNull
+      statusCause.isNull
+      //#statusCauseIsNull
     )
 
   grpc("header checks")

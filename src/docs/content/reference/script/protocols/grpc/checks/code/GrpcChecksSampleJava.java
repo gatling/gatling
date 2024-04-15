@@ -72,6 +72,14 @@ class GrpcChecksSampleJava extends Simulation {
         //#statusDescriptionIsNull
         statusDescription().isNull()
         //#statusDescriptionIsNull
+        ,
+        //#statusCause
+        statusCause().transform(Throwable::getMessage).is("actual cause message")
+        //#statusCause
+        ,
+        //#statusCauseIsNull
+        statusCause().isNull()
+        //#statusCauseIsNull
       );
 
     grpc("header checks")
