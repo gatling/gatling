@@ -10,7 +10,4 @@ ordering:
   - kubernetes
   - dedicated
   - private-packages
-badge:
-  type: enterprise
-  label: Enterprise
 ---
