@@ -261,7 +261,7 @@ private[gatling] object Json {
     node.getNodeType match {
       case ARRAY =>
         (node.size: @switch) match {
-          case 0 => Seq.empty
+          case 0 => Nil
           case 1 =>
             Array(asScala(node.get(0))).toSeq
           case 2 =>
