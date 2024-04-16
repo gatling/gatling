@@ -17,6 +17,7 @@
 package io.gatling.core.json
 
 import java.{ lang => jl, util => ju }
+import java.io.InputStream
 
 import scala.annotation.switch
 import scala.jdk.CollectionConverters._
@@ -24,7 +25,7 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.util.Hex
 import io.gatling.shared.util.StringBuilderPool
 
-import com.fasterxml.jackson.core.{ JsonFactoryBuilder, StreamReadConstraints, StreamReadFeature }
+import com.fasterxml.jackson.core.{ JsonFactoryBuilder, JsonToken, StreamReadConstraints, StreamReadFeature }
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node.JsonNodeType._
@@ -47,6 +48,33 @@ private[gatling] object Json {
     }
 
     new ObjectMapper(jsonFactoryBuilder.build)
+  }
+
+  def arrayOfObjectsLength(is: InputStream, jsonParsers: JsonParsers): Int = {
+    val parser = jsonParsers.createParser(is)
+    require(parser.nextToken == JsonToken.START_ARRAY, "Root element of JSON feeder file isn't an array")
+
+    parser.nextToken match {
+      case JsonToken.START_OBJECT =>
+        var size = 1
+        parser.skipChildren()
+
+        while (parser.nextToken != null) {
+          if (parser.getCurrentToken == JsonToken.START_OBJECT) {
+            size += 1
+            parser.skipChildren()
+          }
+        }
+
+        size
+
+      case JsonToken.END_ARRAY =>
+        // empty array
+        0
+
+      case _ =>
+        throw new IllegalArgumentException("Root element of JSON feeder file isn't an array of objects")
+    }
   }
 
   def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {

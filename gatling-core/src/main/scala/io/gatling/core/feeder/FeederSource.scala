@@ -26,7 +26,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.{ Json, JsonParsers }
 import io.gatling.core.util._
 
-import com.fasterxml.jackson.core.JsonToken
 import com.typesafe.scalalogging.LazyLogging
 
 private[gatling] sealed trait FeederSource[T] {
@@ -71,30 +70,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
 
   override def recordsCount(options: FeederOptions[Any], configuration: GatlingConfiguration): Int =
     Using.resource(ZippedResourceCache.unzipped(resource, options.unzip).inputStream) { is =>
-      val parser = jsonParsers.createParser(is)
-      require(parser.nextToken == JsonToken.START_ARRAY, "Root element of JSON feeder file isn't an array")
-
-      parser.nextToken match {
-        case JsonToken.START_OBJECT =>
-          var size = 1
-          parser.skipChildren()
-
-          while (parser.nextToken != null) {
-            if (parser.getCurrentToken == JsonToken.START_OBJECT) {
-              size += 1
-              parser.skipChildren()
-            }
-          }
-
-          size
-
-        case JsonToken.END_ARRAY =>
-          // empty array
-          0
-
-        case _ =>
-          throw new IllegalArgumentException("Root element of JSON feeder file isn't an array of objects")
-      }
+      Json.arrayOfObjectsLength(is, jsonParsers)
     }
 }
 
