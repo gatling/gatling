@@ -105,7 +105,8 @@ final class HttpAppHandler extends ChannelDuplexHandler {
     }
 
     try {
-      WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false);
+      WritableRequest request =
+          WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false, tx.listener);
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());

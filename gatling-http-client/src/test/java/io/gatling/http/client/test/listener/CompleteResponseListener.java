@@ -17,6 +17,7 @@
 package io.gatling.http.client.test.listener;
 
 import io.gatling.http.client.HttpListener;
+import io.gatling.http.client.Request;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -28,6 +29,9 @@ public abstract class CompleteResponseListener implements HttpListener {
   protected HttpResponseStatus status;
   protected HttpHeaders headers;
   protected List<ByteBuf> chunks;
+
+  @Override
+  public void onFinalClientRequest(Request request) {}
 
   @Override
   public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {

@@ -19,7 +19,7 @@ package io.gatling.http.action.sse
 import java.io.IOException
 
 import io.gatling.http.action.sse.fsm._
-import io.gatling.http.client.HttpListener
+import io.gatling.http.client.{ HttpListener, Request }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
@@ -48,6 +48,8 @@ final class SseListener(stream: SseStream) extends HttpListener with StrictLoggi
       channel.close()
       channel == null
     }
+
+  override def onFinalClientRequest(request: Request): Unit = {}
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
     if (!closed) {

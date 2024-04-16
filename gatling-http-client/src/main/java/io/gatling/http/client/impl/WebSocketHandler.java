@@ -80,7 +80,7 @@ public final class WebSocketHandler extends ChannelDuplexHandler {
 
       try {
         WritableRequest request =
-            WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false);
+            WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), false, tx.listener);
 
         boolean absoluteUpgradeUrl =
             !tx.request.getUri().isSecured()

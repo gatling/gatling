@@ -23,6 +23,8 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 
 public interface HttpListener {
 
+  void onFinalClientRequest(Request request);
+
   void onHttpResponse(HttpResponseStatus status, HttpHeaders headers);
 
   void onHttpResponseBodyChunk(ByteBuf chunk, boolean last);

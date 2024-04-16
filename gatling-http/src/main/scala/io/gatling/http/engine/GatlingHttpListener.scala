@@ -23,7 +23,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.{ Clock, Hex }
 import io.gatling.commons.util.Throwables._
-import io.gatling.http.client.HttpListener
+import io.gatling.http.client.{ HttpListener, Request }
 import io.gatling.http.engine.response.ResponseProcessor
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response, ResponseBody }
@@ -55,6 +55,7 @@ final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: Res
   import GatlingHttpListener._
   import tx.request.requestConfig._
 
+  private var finalClientRequest = tx.request.clientRequest
   private var init = false
   private var done = false
   private var storeHtmlOrCss: Boolean = _
@@ -127,6 +128,9 @@ final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: Res
   //
   // [e]
 
+  override def onFinalClientRequest(request: Request): Unit =
+    finalClientRequest = request
+
   override def onProtocolAwareness(isHttp2: Boolean): Unit =
     this.isHttp2 = isHttp2
 
@@ -182,7 +186,7 @@ final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: Res
         val body = ResponseBody(bodyLength, chunksOrderedByArrival, resolveCharset(headers, defaultCharset))
 
         Response(
-          tx.request.clientRequest,
+          finalClientRequest,
           requestStartTimestamp,
           requestEndTimestamp,
           status,
@@ -213,7 +217,7 @@ final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: Res
 
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(
-      tx.request.clientRequest,
+      finalClientRequest,
       requestStartTimestamp,
       requestEndTimestamp,
       errorMessage

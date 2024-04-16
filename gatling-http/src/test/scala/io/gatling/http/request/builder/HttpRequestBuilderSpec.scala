@@ -30,14 +30,15 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.Param
+import io.gatling.http.client.{ HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
-import io.netty.handler.codec.http.HttpMethod
+import io.netty.buffer.ByteBuf
+import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySession {
   // Default config
@@ -46,6 +47,16 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
   private val sessionBase = emptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
+
+  private val noopListener = new HttpListener {
+    override def onFinalClientRequest(request: Request): Unit = {}
+
+    override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit = {}
+
+    override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit = {}
+
+    override def onThrowable(e: Throwable): Unit = {}
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def httpRequestDef(
@@ -61,7 +72,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     httpRequestDef(f = identity, urlOrURI = Left("https://postman-echo.com/get?foo=do da"))
       .build(sessionBase)
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false, noopListener)
         writableRequest.getRequest.uri
       }
       .succeeded shouldBe "/get?foo=do+da"
@@ -74,7 +85,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
     })
       .build(sessionBase)
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, false, noopListener)
         writableRequest.getRequest.headers.get("X-Token")
       }
       .succeeded shouldBe "foo"

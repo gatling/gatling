@@ -19,6 +19,7 @@ package io.gatling.http.client.impl.request;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpMethod.*;
 
+import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.WritableContent;
@@ -86,9 +87,12 @@ public final class WritableRequestBuilder {
         new DefaultHttpRequest(HttpVersion.HTTP_1_1, method, url, headers), body);
   }
 
-  public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, boolean http2)
+  public static WritableRequest buildRequest(
+      Request request, ByteBufAllocator alloc, boolean http2, HttpListener listener)
       throws Exception {
-    return buildRequest0(signRequest(request), alloc, http2);
+    Request signedRequest = signRequest(request);
+    listener.onFinalClientRequest(signedRequest);
+    return buildRequest0(signedRequest, alloc, http2);
   }
 
   private static Request signRequest(Request request) {

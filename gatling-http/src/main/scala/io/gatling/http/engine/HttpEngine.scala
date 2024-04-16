@@ -109,6 +109,8 @@ final class HttpEngine(
             0,
             eventLoop,
             new HttpListener {
+              override def onFinalClientRequest(request: Request): Unit = {}
+
               override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
               override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)

@@ -98,7 +98,8 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     txByStreamId.put(thisStreamId, tx);
 
     try {
-      WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), true);
+      WritableRequest request =
+          WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), true, tx.listener);
       LOGGER.debug("Write request {}", request);
       tx.listener.onWrite(ctx.channel());
 

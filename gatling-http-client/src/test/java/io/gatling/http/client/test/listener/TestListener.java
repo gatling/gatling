@@ -16,11 +16,15 @@
 
 package io.gatling.http.client.test.listener;
 
+import io.gatling.http.client.Request;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class TestListener extends ResponseAsStringListener {
 
   private final CompletableFuture<Void> result = new CompletableFuture<>();
+
+  @Override
+  public void onFinalClientRequest(Request request) {}
 
   public abstract void onComplete0();
 
@@ -41,10 +45,5 @@ public abstract class TestListener extends ResponseAsStringListener {
 
   public CompletableFuture<Void> getResult() {
     return result;
-  }
-
-  public static class NoopTestListener extends TestListener {
-    @Override
-    public void onComplete0() {}
   }
 }
