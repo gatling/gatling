@@ -15,7 +15,7 @@ Gatling is a highly flexible load-testing platform. You can write load tests in 
 
  - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
  - [write your first simulation]({{< ref "#simulation-construction" >}}),
- - [run your simulation locally]({{< ref "#run-the-simulation-locally" >}}),
+ - [run your simulation locally]({{< ref "#optional-run-the-simulation-locally-for-debugging" >}}),
  - [run a simulation on Gatling Enterprise Cloud]({{< ref "#run-the-simulation-on-gatling-enterprise-cloud" >}}).
 
 {{< alert tip >}}
@@ -30,7 +30,7 @@ This section guides you through installation and setting up your developer envir
 - CI/CD integrations,
 - Java, Kotlin, and Scala SDKs
 
-This guide uses Java and the Gatling bundle. Gatling recommends that developers use the Java SDK unless they are already experienced with Scala or Kotlin. Java is widely taught in CS courses, requires less CPU for compiling, and is easier to configure in Maven and Gradle. You can adapt the steps to your development environment using reference documentation links provided throughout the guide. 
+This guide uses Java and the Maven-based Gatling bundle. Gatling recommends that developers use the Java SDK unless they are already experienced with Scala or Kotlin. Java is widely taught in CS courses, requires less CPU for compiling, and is easier to configure in Maven and Gradle. You can adapt the steps to your development environment using reference documentation links provided throughout the guide. 
 
 ### Sign up for Gatling Enterprise Cloud
 
@@ -53,7 +53,7 @@ https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-b
 
 This guide introduces the basic Gatling HTTP features. Gatling provides a cloud-hosted web application
 [https://computer-database.gatling.io](https://computer-database.gatling.io) for running sample simulations. You'll learn how to construct simulations
-using the Java SDK. Code examples for Kotlin and the Scala SDK are available in the Documentation.
+using the Java SDK. Code examples for the Kotlin and Scala SDKs are available throughout the Documentation.
 
 ### Learn the simulation components
 
@@ -122,62 +122,46 @@ Now, you should have a completed simulation that looks like the following:
 
 {{< include-code "ComputerDatabaseSimulation.java#full-example" java >}}
 
-### Run the Simulation locally
+### Run the Simulation on Gatling Enterprise Cloud
+
+Gatling Enterprise Cloud is a feature-rich SaaS platform that is designed for teams and organizations to get the most
+out of load testing. With the trial account, you created in the [Prerequisites section](#prerequisites), you can upload and run your test with advanced configuration, reporting, and collaboration features. 
+
+From Gatling 3.11 packaging and running simulations on Gatling Entrprise Cloud is simplified by using configuration as code (link). In this tutorial, we only use the default configuration to demonstrate deploying your project. You can learn more about customizing your configuration with our configuration-as-code guide (link)
+
+To deploy and run your simulation on Gatling Enterprise Cloud, use the following procedure: 
+
+1. Generate an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) with the `Create` permission in your Gatling Enterprise Cloud account. 
+2. Add the API token to your current terminal session by replacing `<your-API-token>` with the API token generated in step 1 and running the following command:
+
+{{< code-toggle console >}}
+Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+{{</ code-toggle >}}
+
+3. Run the following command in your terminal to deploy and start your simulation:
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterpriseStart
+Windows: mvnw.cmd gatling:enterpriseStart
+{{</ code-toggle >}}
+
+Watch the Simulation deploy automatically and generate real-time reports.
+
+### (optional) Run the Simulation locally for debugging
 
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a
 new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
-Using the bundle, you can launch your test with the following command in the project `bin` directory:
+Using the bundle, you can launch your test with the following command in the project root directory:
 
-```console
-# Mac OS and Linux
-./gatling.sh
-
-# Windows
-gatling.bat
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:test
+Windows: mvnw.cmd gatling:test
+{{</ code-toggle >}}
 
 Select `1 Run the Simulation locally` to start the test.
 
 When the test has finished, there is an HTML link in the terminal that you can use to access the static report. 
-
-### Run the Simulation on Gatling Enterprise Cloud
-
-Gatling Enterprise Cloud is a feature-rich SaaS platform that is designed for teams and organizations to get the most
-out of load testing. With the trial account you created in the
-[Sign up for Gatling Enterprise Cloud]({{< ref "#sign-up-for-gatling-enterprise-cloud" >}}) section, you can upload and run your test
-with advanced configuration, reporting, and collaboration features. 
-
-#### Generate a package
-
-Gatling Enterprise deploys packages containing your compiled Simulations and resources. The packages must be generated
-and uploaded to Gatling Enterprise. Using the bundle, the following procedure will generate your package:
-
-1. Run `./gatling.sh` (Mac OS/Linux) or `gatling.bat` (Windows) in the `bin` directory.
-2. Select option 3 `Package the Simulation for Gatling Enterprise` by typing `3` and pressing enter.
-3. Note the path of the `.jar file`.
-
-#### Create a Simulation on Gatling Enterprise Cloud
-
-To run your Simulation on Gatling Enterprise Cloud you must upload the package and create a Simulation. The following
-procedure:
-
-1. Log in to your Gatling Enterprise Cloud account.
-2. **Click** _Create a new simulation_.
-  {{< img src="create.png" alt="create.png" >}}
-3. **Click** _Create a simulation with a package_.
-  {{< img src="simulationWithPackage.png" alt="simulationWithPackage.png" >}}
-4. Fill out the _Name_ and select a _Team_.
-5. **Click** _Create a new package_.
-  {{< img src="createPackage.png" alt="createPackage.png" >}}
-6. Enter a package name in the _Name_ field.
-7. **Click** _Browse files_ in the Create Package modale and select the `.jar` file from the [Generate a package]({{< ref "#generate-a-package" >}}) section.
-8. **Click** _Save_.
-  {{< img src="generatePackage.png" alt="generatePackage.png" >}}
-9. Select the Class name from the dropdown menu.
-10. Select Paris under the _Locations configuration_.
-11. **Click** _Save and launch_ at the bottom of the page.
-
-Watch the Simulation deploy automatically and generate real-time reports.  
 
 ## Keep learning
 
