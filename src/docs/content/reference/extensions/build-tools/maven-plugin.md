@@ -46,7 +46,7 @@ If you prefer to manually configure your Maven project rather than clone one of 
 ```
 
 {{< alert warning >}}
-**For Scala users only**: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala. Please check the `pom.xml` of the demo project for maven and Scala mentioned above for complete configuration.
+**For Scala users only**: starting from version 4, this plugin no longer compiles Scala code and requires to use the `scala-maven-plugin` when using Gatling with Simulations written in Scala. Please check the `pom.xml` of the demo project for Maven and Scala mentioned above for complete configuration.
 {{< /alert >}}
 
 ## Configuration
@@ -72,45 +72,31 @@ See each goal's section below for the relevant configuration options.
 
 You can directly launch the `gatling-maven-plugin` with the `test` goal:
 
-```shell
-mvn gatling:test
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:test
+Windows: mvnw.cmd gatling:test
+{{</ code-toggle >}}
 
 Use `mvn gatling:help -Ddetail=true -Dgoal=test` to print the description of all the available configuration options on
 the `test` goal.
 
-#### Includes/Excludes filters
-
-When running multiple simulations, you can control which simulations will be triggers with the `includes` and `excludes`
-filters. Those use the ant pattern syntax and are matched against class names. Also note that those filters are only
-applied against the classes that were compiled from sources in the project where the plugin is set.
-
-```xml  
-<configuration>
-  <!--   ...  -->
-  <runMultipleSimulations>true</runMultipleSimulations>
-  <includes>
-    <include>my.package.*</include>
-  </includes>
-  <excludes>
-    <exclude>my.package.IgnoredSimulation</exclude>
-  </excludes>
-</configuration>
-```
-
-{{< alert tip >}}
-The order of filters has no impact on execution order, simulations will be sorted by class name alphabetically.
-{{< /alert >}}
+The `gatling:test` goal runs in interactive mode and suggests the simulation class to launch unless:
+* there's only one simulation available,
+* or the Simulation class is forced with the `-Dgatling.simulationClass=<FullyQualifiedClassName>` Java System Property,
+* or the non-interactive mode is forced, in which case the task will fail if there is more than 1 simulation available,
+* or it's in batch mode (`-B` Maven option), in which case the task will fail if there is more than 1 simulation available,
+* or the `CI` env var is set to `true`, in which case the task will fail if there is more than 1 simulation available.
 
 ### Running the Gatling Recorder
 
 You can launch the [Gatling Recorder]({{< ref "../../script/protocols/http/recorder" >}}):
 
-```shell
-mvn gatling:recorder
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:recorder
+Windows: mvnw.cmd gatling:recorder
+{{</ code-toggle >}}
 
-Use `mvn gatling:help -Ddetail=true -Dgoal=recorder` to print the description of all the available configuration options
+Use `gatling:help -Ddetail=true -Dgoal=recorder` to print the description of all the available configuration options
 on the `recorder` goal.
 
 ### Running your simulations on Gatling Enterprise Cloud
@@ -162,11 +148,14 @@ You can, using the `gatling:enterpriseStart` command:
 - Automatically [deploy your package and associated simulations](#deploying-on-gatling-enterprise-cloud)
 - Start a deployed simulation
 
-By default, the Gatling plugin prompts the user to choose a simulation to start from among the deployed simulations.
+By default, the Gatling plugin prompts the user to choose a simulation to start from amongst the deployed simulations.
 However, users can also specify the simulation name directly to bypass the prompt using the following command:
-```shell
-mvn gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
-```
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
+Windows: mvnw.cmd gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
+{{</ code-toggle >}}
+
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
 If you need the command to wait until the run completes and to fail in case of assertion failures, you can enable `-Dgatling.enterprise.waitForRunEnd=true`.
@@ -182,9 +171,10 @@ It's also possible to disable interactions by running Maven in [batch mode](http
 
 You can directly package your simulations for Gatling Enterprise Cloud using:
 
-```shell
-mvn gatling:enterprisePackage
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterprisePackage
+Windows: mvnw.cmd gatling:enterprisePackage
+{{</ code-toggle >}}
 
 This will generate the `target/<artifactId>-<version>-shaded.jar` package which you can then
 [upload to the Cloud]({{< ref "reference/execute/cloud/user/package-conf" >}}).
@@ -213,11 +203,12 @@ You can also configure either of those using [Java System properties](https://do
 - packageId: `gatling.enterprise.packageId`
 - simulationId: `gatling.enterprise.simulationId`
 
-Then package and upload your simulation to gatling Enterprise Cloud:
+Then package and upload your simulation to Gatling Enterprise Cloud:
 
-```shell
-mvn gatling:enterpriseUpload
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterpriseUpload
+Windows: mvnw.cmd gatling:enterpriseUpload
+{{</ code-toggle >}}
 
 #### Private packages
 
@@ -250,9 +241,10 @@ using Maven.
 To make sure your setup is correct, you can run the packaging command and check that you get a jar containing all the
 classes and extra dependencies of your project in `target/<artifactId>-<version>-shaded.jar`:
 
-```shell
-mvn gatling:enterprisePackage
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterprisePackage
+Windows: mvnw.cmd gatling:enterprisePackage
+{{</ code-toggle >}}
 
 #### Publish to a binary repository
 
@@ -299,9 +291,10 @@ Bind the `gatling:enterprisePackage` goal to the Maven lifecycle in the plugin c
 
 The packaged artifact will be automatically attached to your project and deployed with the `shaded` classifier when you publish it:
 
-```shell
-mvn deploy
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw deploy
+Windows: mvnw.cmd deploy
+{{</ code-toggle >}}
 
 ## Integrating with the Maven lifecycle
 

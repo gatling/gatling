@@ -22,10 +22,10 @@ Check out available versions on [Gradle Plugins Portal](https://plugins.gradle.o
 ### Gradle version
 
 {{< alert warning >}}
-This plugin requires at least Gradle 5.
+This plugin requires at least Gradle 7.1.
 {{< /alert >}}
 
-The latest version of this plugin is tested against Gradle versions ranging from 5.0 to 8.2.
+The latest version of this plugin is tested against Gradle versions ranging from 7.1 to 8.6.
 Any version outside this range is not guaranteed to work.
 
 ## Setup
@@ -36,7 +36,7 @@ Cloning or downloading one of our demo projects on GitHub is definitely the fast
 * [for gradle and Kotlin](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
 * [for gradle and Scala](https://github.com/gatling/gatling-gradle-plugin-demo-scala)
 
-They also come pre-configured with the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html), so you don't need to install Gradle yourself. You can simply run `gradle` (Mac/Linux) or `gradlew.bat` (Windows) from the project directory instead of the `gradle` command.
+They also come pre-configured with the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html), so you don't need to install Gradle yourself.
 {{< /alert >}}
 
 If you prefer to manually configure your Gradle project rather than clone one of our samples, you need to add the following to your `build.gradle`:
@@ -91,17 +91,16 @@ sourceSets {
 
 The plugin defines the following extension properties in the `gatling` closure:
 
-| Property name | Type | Default value  | Description |
-| --- | --- | --- | --- |
-| `gatlingVersion`    | String  | The first 3 digits of this plugin's version | Gatling version |
-| `logLevel`          | String  | `'WARN'` | The default Gatling console log level if no `logback.xml` present in the configuration folder |
-| `logHttp`           | String  | `'NONE'` | Verbosity of logging HTTP requests performed by Gatling, must be one of: <br/> * `'NONE'` - do not log, <br/> * `'ALL'` - log all requests, <br/> * `'FAILURES'` - only failed requests |
-| `includeMainOutput` | Boolean | `true` | `true` |
-| `includeTestOutput` | Boolean | `true` | Include test source set output to gatlingImplementation |
-| `scalaVersion`      | String  | `'2.13.8'` | Scala version that fits your Gatling version |
-| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br> '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations |
-| `systemProperties`  | Map     | `['java.net.preferIPv6Addresses': true]` | Additional systems properties passed to JVM together with caller JVM system properties |
-| `simulations`       | Closure | `include("**/*Simulation*.java", "**/*Simulation*.kt", "**/*Simulation*.scala")` | Simulations filter. [See Gradle docs](https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html) for details. |
+| Property name       | Type    | Default value                                                                                                                                                                                         | Description                                                                            |
+|---------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| `gatlingVersion`    | String  | The first 3 digits of this plugin's version                                                                                                                                                           | Gatling version                                                                        |
+| `includeMainOutput` | Boolean | `true`                                                                                                                                                                                                | `true`                                                                                 |
+| `includeTestOutput` | Boolean | `true`                                                                                                                                                                                                | Include test source set output to gatlingImplementation                                |
+| `scalaVersion`      | String  | `'2.13.8'`                                                                                                                                                                                            | Scala version that fits your Gatling version                                           |
+| `jvmArgs`           | List    | <pre>[<br> '-server',<br> '-Xmx1G',<br> '-XX:+HeapDumpOnOutOfMemoryError',<br> '-XX:+UseG1GC',<br> '-XX:+ParallelRefProcEnabled',<br> '-XX:MaxInlineLevel=20',<br> '-XX:MaxTrivialSize=12'<br>]</pre> | Additional arguments passed to JVM when executing Gatling simulations                  |
+| `systemProperties`  | Map     | `['java.net.preferIPv6Addresses': true]`                                                                                                                                                              | Additional systems properties passed to JVM together with caller JVM system properties |
+| `simulation`        | String  | A fully qualified class name that extends a Gatling `Simulation`                                                                                                                                      | The simulation to run                                                                  |
+| `apiToken`          | String  | `null`, optional                                                                                                                                                                                      | Your Gatling Enterprise api token                                                      |
 
 How to override Gatling version, JVM arguments and system properties:
 
@@ -112,20 +111,6 @@ gatling {
   systemProperties = ['file.encoding': 'UTF-8']
 }
 ```
-
-How to filter simulations:
-
-```groovy
-gatling {
-  simulations = {
-    include "**/package1/*Simu.scala" // <1>
-    include "**/package2/*Simulation.scala" // <2>
-  }
-}
-```
-
-1. all Scala files from plugin simulation dir subfolder `package1` ending with `Simu`.
-2. all Scala files from plugin simulation dir subfolder `package2` ending with `Simulation`.
 
 ## Gatling configuration
 
@@ -139,46 +124,6 @@ put your own version of `gatling.conf` into `src/gatling/resources`.
 
 Gatling uses [Logback](http://logback.qos.ch/documentation.html). To change the logging behaviour, put your
 custom `logback.xml` configuration file in the resources folder, `src/gatling/resources`.
-
-If no custom `logback.xml` file is provided, by default the plugin will implicitly use the following configuration:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-      <immediateFlush>false</immediateFlush>
-    </encoder>
-  </appender>
-  <root level="${logLevel}"> <!--1-->
-    <appender-ref ref="CONSOLE"/>
-  </root>
-</configuration>
-```
-
-1. `logLevel` is configured via plugin extension, `WARN` by default.
-
-In case `logHttp` is configured (except for `'NONE'`), the generated `logback.xml` will look like this:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-      <immediateFlush>false</immediateFlush>
-    </encoder>
-  </appender>
-  <logger name="io.gatling.http.engine.response" level="${logHttp}"/> <!--1-->
-  <root level="${logLevel}"> <!--2-->
-    <appender-ref ref="CONSOLE"/>
-  </root>
-</configuration>
-```
-
-1. `logHttp` is configured via plugin extension, `TRACE` for `ALL` value and `DEBUG` for `FAILURES`
-2. `logLevel` is configured via plugin extension, `WARN` by default.
 
 ## Dependency management
 
@@ -226,36 +171,53 @@ dependencies {
 ### Running your simulations
 
 Use the task `GatlingRunTask` to execute Gatling simulations. You can create your own instances of this task
-to run particular simulations, or use the default tasks:
+to run particular simulations, or use the default `gatlingRun` task.
 
-| Task name | Type | Description |
-| --- | --- | --- |
-| `gatlingClasses`           | ---            | Compiles Gatling simulation and copies resources |
-| `gatlingRun`               | GatlingRunTask | Executes all Gatling simulations configured by extension |
-| `gatlingRun-SimulationFQN` | GatlingRunTask | Executes single Gatling simulation<br>`SimulationFQN` should be replaced by fully qualified simulation class name. |
+By default, the `gatlingRun` task runs in interactive mode and suggests the simulation class to launch unless:
+* there's only one Simulation available,
+* or the Simulation class is forced with the `--simulation=<FullyQualifiedClassName>` option,
+* or the non-interactive mode is forced with the `--non-interactive` option, in which case the task will fail if there is more than 1 simulation available,
+* or the `CI` environment variable is set to true, in which case the task will fail if there is more than 1 simulation available.
 
-For example, run all simulations:
+For example, to run a simulation:
 
-```shell
-gradle gatlingRun
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingRun
+Windows: gradlew.bat gatlingRun
+{{</ code-toggle >}}
 
 Run a single simulation by its FQN (fully qualified class name):
 
-```console
-gradle gatlingRun-com.project.simu.MySimulation
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingRun --simulation com.project.simu.MySimulation
+Windows: gradlew.bat gatlingRun --simulation com.project.simu.MySimulation
+{{</ code-toggle >}}
+
+You can run all simulations with the `--all` option:
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingRun --all
+Windows: gradlew.bat gatlingRun --all
+{{</ code-toggle >}}
 
 The following configuration options are available. Those options are similar to
 global `gatling` configurations. Options are used in a fallback manner, i.e. if
 an option is not set the value from the `gatling` global config is taken.
 
-| Property name | Type | Default value | Description |
-| --- | --- | --- | --- |
-| `jvmArgs`              | List<String>        | `null` | Additional arguments passed to JVM when executing Gatling simulations |
-| `systemProperties`     | Map<String, Object> | `null` | Additional systems properties passed to JVM together with caller JVM system properties |
-| `environmentVariables` | Map<String, Object> | `null` | Additional environment variables passed to the simulation |
-| `simulations`          | Closure             | `null` | [See Gradle docs](https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html) for details. |
+| Property name      | Type | Default value | Description |
+|--------------------| --- | --- | --- |
+| `simulation`       | String  | The only class that extends a Gatling `Simulation` | The simulation to run |
+| `jvmArgs`          | List<String>        | `null` | Additional arguments passed to JVM when executing Gatling simulations |
+| `systemProperties` | Map<String, Object> | `null` | Additional systems properties passed to JVM together with caller JVM system properties |
+| `environment`      | Map<String, Object> | `null` | Additional environment variables passed to the simulation |
+
+### Running the Gatling Recorder
+
+You can launch the [Gatling Recorder]({{< ref "../../script/protocols/http/recorder" >}}):
+
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingRecorder
+Windows: gradlew.bat gatlingRecorder
+{{</ code-toggle >}}
 
 ### Running your simulations on Gatling Enterprise Cloud
 
@@ -285,7 +247,7 @@ gatling {
 
 #### Deploying on Gatling Enterprise Cloud
 
-With `GatlingEnterpriseDeploy` command, you can:
+With `gatlingEnterpriseDeploy` command, you can:
 - Create, update and upload packages
 - Create and update simulations
 
@@ -300,15 +262,18 @@ Check the [Configuration as Code documentation]({{< ref "reference/execute/cloud
 
 #### Start your simulations on Gatling Enterprise Cloud
 
-You can, using the `GatlingEnterpriseStart` command:
+You can, using the `gatlingEnterpriseStart` command:
 - Automatically [deploy your package and associated simulations](#deploying-on-gatling-enterprise-cloud)
 - Start a deployed simulation
 
-By default, the Gatling plugin prompts the user to choose a simulation to start from among the deployed simulations.
+By default, the Gatling plugin prompts the user to choose a simulation to start from amongst the deployed simulations.
 However, users can also specify the simulation name directly to bypass the prompt using the following command:
-```shell
-gradle GatlingEnterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
-```
+
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingEnterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
+Windows: gradlew.bat gatlingEnterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
+{{</ code-toggle >}}
+
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
 If you need the command to wait until the run completes and to fail in case of assertion failures, you can enable `-Dgatling.enterprise.waitForRunEnd=true`.
@@ -328,9 +293,10 @@ Lifecycle logs need to be enabled in interactive mode.
 
 You can directly package your simulations for Gatling Enterprise Cloud using:
 
-```shell
-gradle gatlingEnterprisePackage
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingEnterprisePackage
+Windows: gradlew.bat gatlingEnterprisePackage
+{{</ code-toggle >}}
 
 This will generate the `build/libs/<artifactId>-<version>-tests.jar` package which you can then
 [upload to the Cloud]({{< ref "reference/execute/cloud/user/package-conf" >}}).
@@ -355,11 +321,12 @@ You can also configure either of those using [Java System properties](https://do
 - packageId: `gatling.enterprise.packageId`
 - simulationId: `gatling.enterprise.simulationId`
 
-Then package and upload your simulation to gatling Enterprise Cloud:
+Then package and upload your simulation to Gatling Enterprise Cloud:
 
-```shell
-gradle gatlingEnterpriseUpload
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingEnterpriseUpload
+Windows: gradlew.bat gatlingEnterpriseUpload
+{{</ code-toggle >}}
 
 #### Private packages
 
@@ -390,9 +357,10 @@ using Gradle or Gradle Wrapper.
 To make sure your setup is correct, you can run the packaging command and check that you get a jar containing all the
 classes and extra dependencies of your project in `build/libs/<artifactId>-<version>-tests.jar`:
 
-```shell
-gradle gatlingEnterprisePackage
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew gatlingEnterprisePackage
+Windows: gradlew.bat gatlingEnterprisePackage
+{{</ code-toggle >}}
 
 #### Publish to a binary repository
 
@@ -434,9 +402,11 @@ publishing {
 
 The packaged artifact will be deployed with the `tests` classifier when you publish it:
 
-```shell
-gradle publish
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew publish
+Windows: gradlew.bat publish
+{{</ code-toggle >}}
+
 
 ## Sources
 
