@@ -119,7 +119,7 @@ The scenario components and their functionality are described in the [Intro to S
 Gatling Enterprise Cloud is a feature-rich SaaS platform that is designed for teams and organizations to get the most
 out of load testing. With the trial account, you created in the [Prerequisites section](#prerequisites), you can upload and run your test with advanced configuration, reporting, and collaboration features. 
 
-From Gatling 3.11 packaging and running simulations on Gatling Enterprise Cloud is simplified by using configuration as code {{< ref "reference/execute/cloud/user/configuration-as-code" >}}. In this tutorial, we only use the default configuration to demonstrate deploying your project. You can learn more about customizing your configuration with our configuration-as-code guide ({{< ref "guides/config-as-code" >}}). 
+From Gatling 3.11 packaging and running simulations on Gatling Enterprise Cloud is simplified by using [configuration as code]({{< ref "reference/execute/cloud/user/configuration-as-code" >}}). In this tutorial, we only use the default configuration to demonstrate deploying your project. You can learn more about customizing your configuration with our [configuration-as-code guide]({{< ref "guides/config-as-code" >}}). 
 
 To deploy and run your simulation on Gatling Enterprise Cloud, use the following procedure: 
 
