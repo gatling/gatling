@@ -176,13 +176,17 @@ sbt Gatling/enterpriseStart "<simulation name>"
 ```
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
+If you are on a CI environment, you don't want to handle interaction with the plugin.
+Most CI tools define the `CI` environment variable, used by the Gatling plugin to disable interactions and run in headless mode.
+
 If you need the command to wait until the run completes and to fail in case of assertion failures, you can enable:
 ```scala
 Gatling / waitForRunEnd := true
 ```
 
-If you are on a CI environment, you don't want to handle interaction with the plugin.
-Most CI tools define the `CI` environment variable, used by the Gatling plugin to disable interactions and run in headless mode.
+Here are additional options for this command:
+- `--run-title <title>`: Allows setting a title for your run reports.
+- `--run-description <description>`: Allows setting a description for your run reports summary.
 
 #### Upload a package manually
 

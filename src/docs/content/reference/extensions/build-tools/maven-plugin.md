@@ -164,12 +164,15 @@ Windows: mvnw.cmd gatling:enterpriseStart -Dgatling.enterprise.simulationName="<
 
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
-If you need the command to wait until the run completes and to fail in case of assertion failures, you can enable `-Dgatling.enterprise.waitForRunEnd=true`.
-
 If you are on a CI environment, you don't want to handle interaction with the plugin.
 Most CI tools define the `CI` environment variable, used by the Gatling plugin to disable interactions and run in headless mode.
 
 It's also possible to disable interactions by running Maven in [batch mode](https://maven.apache.org/ref/current/maven-embedder/cli.html#batch-mode).
+
+Here are additional options for this command:
+- `-Dgatling.enterprise.waitForRunEnd=true`: Enables the command to wait until the run finishes and fail if there are assertion failures.
+- `-Dgatling.enterprise.runTitle=<title>`: Allows setting a title for your run reports.
+- `-Dgatling.enterprise.runDescription=<description>`:  Allows setting a description for your run reports summary.
 
 #### Upload a package manually
 
