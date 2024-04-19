@@ -4,212 +4,164 @@ title: Introduction to the Gatling Recorder
 aliases:
   - quickstart
 description: "Learn the basics about Gatling: installing, using the Recorder to generate a basic raw test and how to execute it."
-lead: Learn Gatling concepts, and use the Recorder to create a runnable Gatling simulation.
+lead: Learn Gatling concepts and use the Recorder to create a runnable Gatling simulation.
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---
 
 ## Introduction
 
-In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL (Domain Specific Language).
-
-{{< alert tip >}}
-Feel free to join our [Gatling Community Forum](https://community.gatling.io) and ask for help **once you've read this documentation**.
+{{< alert warning >}}
+This tutorial is intended for Gatling versions `{{< var gatlingVersion >}}` and later. 
 {{< /alert >}}
 
-### Picking the Right Language
+The Gatling Recorder allows you to capture browser-based actions to create a realistic user scenario for load testing. The Recorder application is launched from Gatling, using either the bundle or the Maven, Gradle, or sbt plugins.  
 
-Gatling provides:
-* a Java DSL, introduced in Gatling 3.7, that can also be used in Kotlin
-* the original Scala DSL
+In this tutorial, we use Gatling to load test a simple cloud-hosted web server and introduce you to the basic elements of the Recorder. We strongly recommend completing the [Introduction to scripting tutorial]({{< ref "/tutorials/scripting-intro" >}}) before starting to work with the Recorder. 
 
-When picking a language for using Gatling, we recommend the following rule:
-* if your target Gatling users are Scala developers, use Scala
-* if they are Kotlin developers, use Kotlin
-* otherwise, use Java
+This tutorial uses Java and the Maven-based Gatling bundle. Gatling recommends that developers use the Java SDK unless they are already experienced with Scala or Kotlin. Java is widely taught in CS courses, requires less CPU for compiling, and is easier to configure in Maven and Gradle. You can adapt the steps to your development environment using reference documentation links provided throughout the guide.
 
-Java is widely taught in CS courses, requires less CPU for compiling and is easier to configure in maven or gradle.
+{{< alert tip >}}
+Join the [Gatling Community Forum](https://community.gatling.io) to discuss load testing with other users. Please try to find answers in the documentation before asking for help.
+{{< /alert >}}
 
-### Installing
+## Prerequisites
 
-Please check the [installation section]({{< ref "/reference/install/oss" >}}) to pick a setup that matches your needs.
-Non developers are recommended to start with the bundle setup.
-In this tutorial, we will show the commands to use with the bundle setup.
+This tutorial requires running Gatling on your local machine and using the Mozilla FireFox browser to create your Gatling Script. Additionally, the tutorial uses Gatling Enterprise Cloud to run tests with dedicated load generators and enhanced data reporting features. Use the following links to access each of the prerequisites:
 
-### Encoding
+- [Download Gatling](https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}-bundle.zip)
+- [Create a Gatling Enterprise Cloud trial account](https://cloud.gatling.io/)
+- [Configure your web browser]({{< ref "/reference/script/protocols/http/recorder/#configuration" >}}) (link)
 
-Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
 
-* select the proper encoding while using the Recorder
-* **configure the proper encoding in the `gatling.conf` file.** It will be used for compiling your simulations, building your requests and your responses.
-* make sure your text editor encoding is properly configured to match.
+## Plan the user scenario
 
-## Test Case
+This tutorial uses an application named _Computer-Database_, which is deployed at the URL: [http://computer-database.gatling.io](http://computer-database.gatling.io). This application is for demonstration purposes and is read-only. Please be kind and only run small proof of concept load tests against the site.
 
-This page will guide you through most of Gatling HTTP features. You'll learn about *simulations*, *scenarios*, *feeders*, *recorder*, *loops*, etc.
+To test the performance of the _Computer-Database_ application, create scenarios representative of what happens when users navigate the site.
 
-### Sample Application
+The following is an example of what a real user might do with the application. 
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: [http://computer-database.gatling.io](http://computer-database.gatling.io).
-
-### Scenario
-
-To test the performance of this application, we will create scenarios representative of what really happens when users navigate it.
-
-Here is what we think a real user would do with the application:
-
-1. A user arrives at the application.
+1. The user arrives at the application.
 2. The user searches for 'macbook'.
-3. The user opens one of the related models.
-4. The user goes back to home page.
-5. The user iterates through pages.
-6. The user creates a new model.
+3. The user opens one of the search results.
+4. The user goes back to the home page.
+5. The user browses through pages of records.
+6. The user creates a new entry in the computer database. 
 
-## Basics
 
-### Using the Recorder
+## Launch the Recorder
 
-To ease the creation of the scenario, we will use the *Recorder*, a tool provided with Gatling that allows you to record your actions on a web application and export them as a Gatling scenario.
+Using the Recorder requires running Gatling in your local development environment. To install Gatling, follow the [Gatling installation]({{< ref "/reference/install/oss" >}}) instructions. Once you have installed Gatling, open the project in your IDE or terminal and launch the recorder:
 
-This tool is launched with a script located in the *bin* directory:
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:recorder
+Windows: mvnw.cmd gatling:recorder
+{{</ code-toggle >}}
 
-* On Linux/Unix:
 
-```bash
-$GATLING_HOME/bin/recorder.sh
-```
-
-* On Windows:
-
-```batch
-%GATLING_HOME%\bin\recorder.bat
-```
-
-Once launched, the following GUI lets you configure how requests and responses will be recorded.
+Once launched, the Recorder application opens, allowing you to configure the settings before recording a web browser session.
 
 Set it up with the following options:
 
 * *Recorder Mode* set to *HTTP Proxy*
 * *computerdatabase* package
-* *BasicSimulation* name
+* *RecordedSimulation* name
 * *Follow Redirects?* checked
 * *Infer HTML resources?* checked
 * *Automatic Referers?* checked
 * *Remove cache headers?* checked
 * *No static resources* clicked
-* Select the desired `format`. The tutorials will assume "Java 8"
+* Select the desired `format`. This tutorial assumes "Java 17" 
 
-{{< img src="recorder.png" alt="recorder.png" >}}
-
-After configuring the recorder, all you have to do is to click on `Start!` and configure your browser to use Gatling Recorder's proxy.
+After configuring the recorder, all you have to do is click **Start!**. 
 
 {{< alert tip >}}
-For more information regarding Recorder and browser configuration, please check out [Recorder reference page]({{< ref "/reference/script/protocols/http/recorder" >}}).
+For more information regarding Recorder and browser configuration, please check out the [Recorder reference documentation]({{< ref "/reference/script/protocols/http/recorder" >}}).
 {{< /alert >}}
 
-### Recording the scenario
 
-Now simply browse the application:
+## Record a website session
 
-1. Enter 'Search' tag.
+Once the Recorder is launched, there are 4 buttons to control the session recording:
+- **Add** - adds a tag to organize actions in your session.
+- **Clear** - clears the _Executed events_.
+- **Cancel** - cancels the Recorder session.
+- **Stop & Save** - stops and saves the current Recorder session. 
+
+
+
+Based on the scenario described in [Launch the Recorder](#launch-the-recorder) perform the following actions in your configured web browser. Try to act as a real user would, don't immediately jump from one page to another without taking the time to read. This makes your scenario similar to how a real user would behave.
+
+1. Enter a 'Search' tag in the Recorder application and click **Add**.
 2. Go to the website: [http://computer-database.gatling.io](http://computer-database.gatling.io)
 3. Search for models with 'macbook' in their name.
 4. Select 'Macbook pro'.
-5. Enter 'Browse' tag.
-6. Go back to home page.
-7. Iterate several times through the model pages by clicking on the *Next* button.
-8. Enter 'Edit' tag.
-9. Click on *Add new computer*.
+5. Return to the Recorder application.
+6. Enter a 'Browse' tag and click **Add**
+6. Go back to the home page.
+7. Browse through the model pages by clicking on the **Next** button.
+8. Return to the Recorder application.
+8. Enter an 'Edit' tag and click **Add**.
+9. Return to the browser and Click on **Add new computer**.
 10. Fill the form.
-11. Click on *Create this computer*.
+11. Click on **Create this computer**.
+12. Return to the Recorder application and click **Stop**
 
-Try to act as a real user would, don't immediately jump from one page to another without taking the time to read.
-This will make your scenario closer to real users' behavior.
-
-When you have finished playing the scenario, click on `Stop` in the Recorder interface.
-
-The Simulation will be generated in the folder `user-files/simulations/computerdatabase` of your Gatling installation under the name `BasicSimulation.java`.
-
-### Gatling scenario explained
-
-Here is the produced output:
-
-{{< include-code "quickstart-recorder-output-1,quickstart-recorder-output-2,quickstart-recorder-output-3" java kt scala >}}
-
-What does it mean?
-
-1. The optional package.
-2. The required imports.
-3. The class declaration. Note that it extends `Simulation`.
-4. The common configuration to all HTTP requests.
-5. The baseUrl that will be prepended to all relative urls.
-6. Common HTTP headers that will be sent with all the requests.
-7. The scenario definition.
-8. An HTTP request, named *request_1*. This name will be displayed in the final reports.
-9. The url this request targets with the *GET* method.
-10. Some pause/think time.
+The simulation is generated in the folder `src/test/java/`.
 
 {{< alert tip >}}
-Duration units default to `seconds`, e.g. `pause(5)` is equivalent to `java.time.Duration.ofSeconds(5)` in Java or `pause(5.seconds)` in Scala.
+The scenario components and their functionality are described in the [Intro to Scripting]({{< ref "/tutorials/scripting-intro" >}}) tutorial. For more details regarding the Simulation structure, please check out the [Simulation reference page]({{< ref "/reference/script/core/simulation" >}}).
 {{< /alert >}}
 
-11. Where one sets up the scenarios that will be launched in this Simulation.
-12. Declaring that we will inject one single user into the scenario named *scn*.
-13. Attaching the HTTP configuration declared above.
+## Run the simulation on Gatling Enterprise Cloud 
 
-{{< alert tip >}}
-For more details regarding Simulation structure, please check out the [Simulation reference page]({{< ref "/reference/script/core/simulation" >}}).
-{{< /alert >}}
+Gatling Enterprise Cloud is a feature-rich SaaS platform that is designed for teams and organizations to get the most
+out of load testing. With the trial account, you created in the [Prerequisites section](#prerequisites), you can upload and run your test with advanced configuration, reporting, and collaboration features. 
 
-### Running Gatling
+From Gatling 3.11 packaging and running simulations on Gatling Enterprise Cloud is simplified by using configuration as code {{< ref "reference/execute/cloud/user/configuration-as-code" >}}. In this tutorial, we only use the default configuration to demonstrate deploying your project. You can learn more about customizing your configuration with our configuration-as-code guide ({{< ref "guides/config-as-code" >}}). 
 
-Launch the second script located in the *bin* directory:
+To deploy and run your simulation on Gatling Enterprise Cloud, use the following procedure: 
 
-* On Linux/Unix:
+1. Generate an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) with the `Create` permission in your Gatling Enterprise Cloud account. 
+2. Add the API token to your current terminal session by replacing `<your-API-token>` with the API token generated in step 1 and running the following command:
 
-```bash
-$GATLING_HOME/bin/gatling.sh
-```
+{{< code-toggle console >}}
+Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+{{</ code-toggle >}}
 
-* On Windows:
+3. Run the following command in your terminal to deploy and start your simulation:
 
-```batch
-%GATLING_HOME%\bin\gatling.bat
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterpriseStart
+Windows: mvnw.cmd gatling:enterpriseStart
+{{</ code-toggle >}}
 
-You should see a menu with the following choice:
+Watch the Simulation deploy automatically and generate real-time reports.
 
-```
-Do you want to run the simulation locally, on Gatling Enterprise, or just package it?
-Type the number corresponding to your choice and press enter
-[0] <Quit>
-[1] Run the Simulation locally
-[2] Run the Simulation on Gatling Enterprise Cloud
-[3] Package the Simulation for Gatling Enterprise
-```
+## Run the simulation locally for debugging
 
-Press 1 then enter.
+The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
+Using the terminal, you can launch your test with the following command in the project root directory:
 
-You should then see a menu with the simulation examples:
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:test
+Windows: mvnw.cmd gatling:test
+{{</ code-toggle >}}
 
-```
-Choose a simulation number:
-[0] computerdatabase.BasicSimulation
-[1] computerdatabase.advanced.AdvancedSimulationStep01
-[2] computerdatabase.advanced.AdvancedSimulationStep02
-[3] computerdatabase.advanced.AdvancedSimulationStep03
-[4] computerdatabase.advanced.AdvancedSimulationStep04
-[5] computerdatabase.advanced.AdvancedSimulationStep05
-```
+The Gatling interactive CLI starts and asks a series of questions. Answer the questions as follows: 
 
-Press 0 then enter. Press enter next when gatling asks for a run description.
+1. Press 1 and then enter to select `Run the Simulation locally`.
+2. Press 0 and then enter to select `RecordedSimulation`
+3. (optional) Enter a run description.
+4. Press enter.
 
-When the simulation is done, the console will display a link to the HTML reports.
+The simulation should start on your local machine, with the progress displayed in your terminal. When the test has finished, there is an HTML link in the terminal that you can use to access the static report.
 
-{{< alert tip >}}
-If Gatling doesn't work as expected, see our [FAQ]({{< ref "faq" >}}) or ask on our [Gatling Community Forum](https://community.gatling.io).
-{{< /alert >}}
+## Keep learning
 
-### Going Further
+Now that you have completed the Introduction to scripting and Introduction to the Recorder tutorials, you have a solid foundation of Gatling and load testing knowlege. We strongly recommend you complete the Writing realistic tests tutorial to learn the essential skills for writing clean and concise tests. 
 
-When you're ready to go further, please check out the [Advanced Tutorial]({{< ref "advanced" >}}).
+ - [Gatling Academy](https://academy.gatling.io/) 
+ - [Writing realistic tests]({{< ref "advanced" >}})
