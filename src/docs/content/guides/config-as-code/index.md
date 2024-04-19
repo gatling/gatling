@@ -105,9 +105,10 @@ simulations on Gatling Enterprise Cloud. Use the following procedure to make you
   - [Gatling Plugin with Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#prerequisites" >}})
   - [Gatling Plugin with sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#prerequisites" >}})
 2. Deploy your package and simulation(s) with the following command:
-- Maven: `mvn gatling:enterpriseDeploy`
-- Gradle: `gradle gatlingEnterpriseDeploy`
-- sbt: `sbt Gatling/enterpriseDeploy`
+  - [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
+  - [Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
+  - [sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
+
 
 The CLI deploys the package and simulation to Gatling Enterprise Cloud and returns the package ID and simulation ID in the terminal. 
 

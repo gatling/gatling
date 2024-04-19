@@ -136,6 +136,12 @@ With `gatling:enterpriseDeploy` command, you can:
 
 This command automatically checks your simulation project and performs the deployment according to your configuration.
 
+By default, `enterpriseDeploy` searches for the package descriptor in `.gatling/package.conf`.
+However, you can target a different filename in `.gatling` by using the following command:
+```shell
+mvn gatling:enterpriseDeploy -Dgatling.enterprise.packageDescriptorFilename="<file name>"
+```
+
 {{< alert info >}}
 You can run this command without any configuration to try it.
 
