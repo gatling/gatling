@@ -454,5 +454,7 @@ public class CoreJavaCompileTest extends Simulation {
         .uniformPauses(Duration.ofSeconds(1))
         .normalPausesWithStdDevDuration(Duration.ofMillis(50))
         .normalPausesWithPercentageDuration(30);
+
+    int indexOfLoadGeneratorInRun = deploymentInfo.indexOfLoadGeneratorInRun;
   }
 }

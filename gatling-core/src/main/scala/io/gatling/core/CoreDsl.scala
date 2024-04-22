@@ -43,4 +43,6 @@ trait CoreDsl
   def AllowList(patterns: String*): io.gatling.core.filter.AllowList = new io.gatling.core.filter.AllowList(patterns.toList)
 
   def DenyList(patterns: String*): io.gatling.core.filter.DenyList = new io.gatling.core.filter.DenyList(patterns.toList)
+
+  def deploymentInfo: io.gatling.core.util.DeploymentInfo.type = io.gatling.core.util.DeploymentInfo
 }

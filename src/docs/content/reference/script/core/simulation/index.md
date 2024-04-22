@@ -140,3 +140,13 @@ The lifecycle is as follows:
 You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.
 If you're looking for executing Gatling DSL, you might consider using [sequential scenarios]({{< ref "injection#sequential-scenarios" >}}).
 {{< /alert >}}
+
+## Deployment Information (Gatling Enterprise only) {#deployment-info}
+
+When running tests on Gatling Enterprise, you might be interested in some information about the Load Generator running the test.
+
+{{< alert warning >}}
+`deploymentInfo` is only effective when running with Gatling Enterprise, otherwise it's just a noop.
+{{< /alert >}}
+
+{{< include-code "deployment-info" java kt scala >}}

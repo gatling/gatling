@@ -148,4 +148,30 @@ override fun after() {
   println("Simulation is finished!")
 }
 //#hooks
+
+//#deployment-info
+// the UUID of the run
+// null when not deploying on Gatling Enterprise
+val runId = deploymentInfo.runId
+
+// the name of the Location where this Load Generator is deployed
+// null when not deploying on Gatling Enterprise
+val locationName = deploymentInfo.locationName
+
+// the number of Load Generators deployed on this Location in this run
+// 1 when not deploying on Gatling Enterprise
+val numberOfLoadGeneratorsInLocation = deploymentInfo.numberOfLoadGeneratorsInLocation
+
+// the index of this Load Generators within the Load Generators deployed on this Location in this run
+// 0 when not deploying on Gatling Enterprise
+val indexOfLoadGeneratorInLocation = deploymentInfo.indexOfLoadGeneratorInLocation
+
+// the total number of Load Generators deployed in this run
+// 1 when not deploying on Gatling Enterprise
+val numberOfLoadGeneratorsInRun = deploymentInfo.numberOfLoadGeneratorsInRun
+
+// the index of this Load Generators within the total number of Load Generators deployed in this run
+// 0 when not deploying on Gatling Enterprise
+val indexOfLoadGeneratorInRun = deploymentInfo.indexOfLoadGeneratorInRun
+//#deployment-info
 }

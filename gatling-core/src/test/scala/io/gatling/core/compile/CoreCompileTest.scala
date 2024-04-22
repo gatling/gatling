@@ -388,4 +388,6 @@ class CoreCompileTest extends Simulation {
     .uniformPauses(1.second)
     .normalPausesWithStdDevDuration(50.millis)
     .normalPausesWithPercentageDuration(30)
+
+  deploymentInfo.indexOfLoadGeneratorInRun
 }

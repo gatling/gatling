@@ -32,6 +32,7 @@ import java.time.Duration;
 //#imports
 
 import java.time.Duration;
+import java.util.UUID;
 
 class SimulationSampleJava extends Simulation {
 
@@ -151,4 +152,30 @@ public void after() {
   System.out.println("Simulation is finished!");
 }
 //#hooks
+
+//#deployment-info
+// the UUID of the run
+// null when not deploying on Gatling Enterprise
+UUID runId = deploymentInfo.runId;
+
+// the name of the Location where this Load Generator is deployed
+// null when not deploying on Gatling Enterprise
+String locationName = deploymentInfo.locationName;
+
+// the number of Load Generators deployed on this Location in this run
+// 1 when not deploying on Gatling Enterprise
+int numberOfLoadGeneratorsInLocation = deploymentInfo.numberOfLoadGeneratorsInLocation;
+
+// the index of this Load Generators within the Load Generators deployed on this Location in this run
+// 0 when not deploying on Gatling Enterprise
+int indexOfLoadGeneratorInLocation = deploymentInfo.indexOfLoadGeneratorInLocation;
+
+// the total number of Load Generators deployed in this run
+// 1 when not deploying on Gatling Enterprise
+int numberOfLoadGeneratorsInRun = deploymentInfo.numberOfLoadGeneratorsInRun;
+
+// the index of this Load Generators within the total number of Load Generators deployed in this run
+// 0 when not deploying on Gatling Enterprise
+int indexOfLoadGeneratorInRun = deploymentInfo.indexOfLoadGeneratorInRun;
+//#deployment-info
 }

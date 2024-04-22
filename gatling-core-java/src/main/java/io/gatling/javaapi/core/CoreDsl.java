@@ -52,6 +52,8 @@ public final class CoreDsl {
 
   private CoreDsl() {}
 
+  public static final DeploymentInfo deploymentInfo = DeploymentInfo.INSTANCE;
+
   ////////// CoreDsl
 
   /**
