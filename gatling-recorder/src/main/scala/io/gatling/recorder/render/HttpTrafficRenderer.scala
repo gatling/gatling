@@ -79,7 +79,7 @@ private[render] class DumpedBody(
 
 private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) extends StrictLogging {
   private val simulationFile: Path = {
-    val sourcesFolderPath = config.core.pkg.split(".").foldLeft(config.core.simulationsFolder)(_.resolve(_))
+    val sourcesFolderPath = config.core.pkg.split("\\.").foldLeft(config.core.simulationsFolder)(_.resolve(_))
     Files.createDirectories(sourcesFolderPath)
     sourcesFolderPath.resolve(s"${config.core.className}.${config.core.format.fileExtension}")
   }
