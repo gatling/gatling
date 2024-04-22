@@ -17,7 +17,7 @@
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.jdk.CollectionConverters._
@@ -476,7 +476,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
 
   private def generateCAFiles(directory: Path): Unit = {
     SslUtil.generateGatlingCAPEMFiles(
-      directory,
+      Files.createDirectories(directory),
       OnTheFly.GatlingCAKeyFile,
       OnTheFly.GatlingCACrtFile
     )
