@@ -32,7 +32,7 @@ those are not documented and released only for internal use or [Gatling Enterpri
 ## Using the Bundle
 
 You can use Gatling as a standalone bundle.
-Then, you'll just need a text editor, possibly with Java or Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line.
+Then, you'll just need a text editor, possibly with Java or Scala syntactic coloration, to edit your simulations, and you'll be able to launch Gatling from the command line. From Gatling 3.11 the bundle is based on a Maven wrapper, and we recommend using it with and IDE such as IntelliJ. 
 
 To install the bundle, download and extract the following `ZIP` file:
 
@@ -44,7 +44,6 @@ https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-b
 The bundle only supports Java and Scala, not Kotlin. To use Kotlin, you'll need a [Maven]({{< ref "#maven" >}}) or [Gradle]({{< ref "#gradle" >}}) project.
 {{</ alert >}}
 
-Use the scripts located in the `bin` directory for launching Gatling and the Recorder.
 
 {{< alert warning >}}
 Windows users: we recommend that you do not place Gatling in the *Programs* folder as there may be permission and path issues.
@@ -56,21 +55,36 @@ Gatling requires at least **JDK11**. Then, we recommend that you use an up-to-da
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the [operations]({{< ref "../script/core/operations" >}}) section.
 
 {{< alert warning >}}
-Gatling launch scripts and Gatling maven plugin honor `JAVA_HOME` env var if it's set.
+Gatling launch scripts and Gatling Maven plugin honor `JAVA_HOME` env var if it's set.
 Depending on your setup, you might end up running a different version than the one displayed with `java -version`.
 If you get strange errors such as `Unsupported major.minor version` and you were expecting to run a JDK11 or newer, you might want to explicitly set the `JAVA_HOME` env variable.
 {{< /alert >}}
 
 The bundle structure is as follows:
 
-* `bin`: launch scripts for Gatling and the Recorder.
-* `conf`: configuration files for Gatling, Akka and Logback.
-* `lib`: Gatling and dependencies binaries
-* `user-files`:
-    * `simulations`: where to place your Simulations code. You must respect the package folder hierarchy.
-    * `resources`: non source code files such as feeder files and templates for request bodies.
-    * `lib`: you can add you own dependencies (JAR files) here. When running on Gatling Enterprise, they are packaged in a single "fat JAR" file together with your Simulations code.
-* `results`: where test results are generated.
+* `src/test/java`: where to place your Simulations code. You must respect the package folder hierarchy.
+* `src/test/resources`: non source code files such as feeder files and templates for request bodies and configuration files for Gatling, Akka and Logback.
+* `pom.xml`: Maven informations about the project.
+* `target`: where test results are generated.
+
+### Run a Gatling simulation
+
+Use the following command to starts Gatling in interactive mode:
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:test
+Windows: mvnw.cmd gatling:test
+{{</ code-toggle >}}
+
+### Start the Gatling Recorder
+
+The [Gatling Recorder]({{< ref "/reference/script/protocols/http/recorder/" >}}) allows you to capture browser-based actions and convert them into a script. Use the following command to launch the Recorder:
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:recorder
+Windows: mvnw.cmd gatling:recorder
+{{</ code-toggle >}}
+
 
 ## Using a Build Tool
 
@@ -122,7 +136,7 @@ We recommend that you have a look at the official documentation for setting up V
 
 ### Launching Gatling and the Recorder from the IDE
 
-All maven, gradle and sbt demo projects contain some helper classes you can use to trigger some Gatling tasks.
+All Maven, Gradle and sbt demo projects contain some helper classes you can use to trigger some Gatling tasks.
 
 You can right-click on the `Engine` class in your IDE and launch the Gatling load test engine.
 Simulation reports will be written in your `target` directory.
