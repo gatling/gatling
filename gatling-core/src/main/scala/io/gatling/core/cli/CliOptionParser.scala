@@ -16,15 +16,20 @@
 
 package io.gatling.core.cli
 
+import io.gatling.shared.cli.CliOption
+
 import scopt.{ OptionDef, OptionParser, Read }
 
 private[gatling] class CliOptionParser[B](programName: String) extends OptionParser[B](programName) {
 
-  def opt[A: Read](constant: CliOption): OptionDef[A, B] =
-    constant.valueName match {
-      case Some(name) => opt[A](constant.full).abbr(constant.abbr).text(constant.text).valueName(name)
-      case _          => opt[A](constant.full).abbr(constant.abbr).text(constant.text)
+  def opt[A: Read](constant: CliOption): OptionDef[A, B] = {
+    val base = opt[A](constant.full).abbr(constant.abbr).text(constant.text)
+    if (constant.valueName == null) {
+      base
+    } else {
+      base.valueName(constant.valueName)
     }
+  }
 
   override def errorOnUnknownArgument: Boolean = false
 }

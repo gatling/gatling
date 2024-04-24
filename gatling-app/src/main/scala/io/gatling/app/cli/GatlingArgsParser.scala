@@ -21,29 +21,10 @@ import java.nio.file.Paths
 import java.util.Base64
 
 import io.gatling.commons.util.StringHelper._
-import io.gatling.core.cli.{ CliOption, CliOptionParser, GatlingArgs }
-
-private[app] object GatlingArgsParser {
-  private val NoReports: CliOption = new CliOption("no-reports", "nr", "Runs simulation but does not generate reports", None)
-  private val ReportsOnly: CliOption =
-    new CliOption("reports-only", "ro", "Generates the reports for the simulation in <directoryName>", Some("<directoryName>"))
-  private val ResultsFolder: CliOption = new CliOption(
-    "results-folder",
-    "rf",
-    "Uses <directoryPath> as the absolute path of the directory where results are stored",
-    Some("<directoryPath>")
-  )
-  private[app] val Simulation: CliOption = new CliOption("simulation", "s", "Runs <className> simulation", Some("<className>"))
-  private val RunDescription: CliOption =
-    new CliOption("run-description", "rd", "A short <description> of the run to include in the report", Some("<description>"))
-  private[app] val Launcher: CliOption = new CliOption("launcher", "l", "The program that launched Gatling", Some(""))
-  private val BuildToolVersion: CliOption = new CliOption("build-tool-version", "btv", "The version of the build tool used to launch Gatling", Some(""))
-}
+import io.gatling.core.cli.{ CliOptionParser, GatlingArgs }
+import io.gatling.shared.cli.GatlingCliOptions._
 
 private[app] final class GatlingArgsParser(args: Array[String]) {
-
-  import GatlingArgsParser._
-
   private var gatlingArgs = GatlingArgs.Empty
 
   private val cliOptsParser = new CliOptionParser[Unit]("gatling") {

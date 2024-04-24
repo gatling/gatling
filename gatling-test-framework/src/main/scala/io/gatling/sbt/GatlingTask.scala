@@ -21,6 +21,7 @@ import java.io.{ PrintWriter, StringWriter }
 import io.gatling.app.Gatling
 import io.gatling.app.cli.StatusCode
 import io.gatling.core.scenario.Simulation
+import io.gatling.shared.cli.GatlingCliOptions
 
 import sbt.testing.{ EventHandler, Logger, OptionalThrowable, Task, TaskDef, TestSelector }
 
@@ -48,7 +49,7 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
     val before = System.nanoTime()
     val (returnCode, exception) =
       try {
-        (Gatling.fromSbtTestFramework(args ++ Array("-l", "sbt"), simulationClass), None)
+        (Gatling.fromSbtTestFramework(args ++ Array("-" + GatlingCliOptions.Launcher.abbr, "sbt"), simulationClass), None)
       } catch {
         case e: Exception =>
           val sw = new StringWriter
