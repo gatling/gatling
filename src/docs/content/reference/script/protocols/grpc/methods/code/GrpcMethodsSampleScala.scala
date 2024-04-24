@@ -263,7 +263,7 @@ class GrpcMethodsSampleScala {
     //#clientStreamAsciiHeaders
     val stream = grpc("request name")
       .clientStream(ExampleServiceGrpc.METHOD_EXAMPLE)
-      .asciiHeader("header", "value")
+      .asciiHeader("header")("value")
 
     exec(
       stream.start, // Header is sent only once, on stream start

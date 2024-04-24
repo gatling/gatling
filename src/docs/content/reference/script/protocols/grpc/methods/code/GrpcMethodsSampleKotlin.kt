@@ -250,7 +250,7 @@ class GrpcMethodsSampleKotlin {
     //#clientStreamAsciiHeaders
     val stream = grpc("name")
       .clientStream(ExampleServiceGrpc.getExampleMethod())
-      .asciiHeader("header", "value")
+      .asciiHeader("header").value("value")
 
     exec(
       stream.start(), // Header is sent only once, on stream start

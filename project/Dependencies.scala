@@ -99,19 +99,8 @@ object Dependencies {
   private val parserDeps = Seq(jackson, saxon, lagarto, joddUtil, jmespath)
 
   // Dependencies by module
-  private val gatlingGrpcVersion = "3.10.5.3"
-  private val gatlingMqttVersion = "3.10.5.1"
-
-  val docSamplesDependencies =
-    Seq(
-      commonsLang,
-      commonsCodec,
-      awsSecretsManager,
-      "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
-      "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion,
-      "io.gatling" % "gatling-mqtt"      % gatlingMqttVersion,
-      "io.gatling" % "gatling-mqtt-java" % gatlingMqttVersion
-    )
+  private val gatlingGrpcVersion = "3.11.0"
+  private val gatlingMqttVersion = "3.11.0"
 
   val nettyUtilDependencies =
     Seq(
@@ -215,5 +204,15 @@ object Dependencies {
 
   val testFrameworkDependencies = Seq(testInterface)
 
-  val docDependencies = Seq(activemqBroker)
+  val docSamplesDependencies =
+    Seq(
+      commonsLang,
+      commonsCodec,
+      awsSecretsManager,
+      activemqBroker,
+      "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
+      "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion,
+      "io.gatling" % "gatling-mqtt"      % gatlingMqttVersion,
+      "io.gatling" % "gatling-mqtt-java" % gatlingMqttVersion
+    )
 }

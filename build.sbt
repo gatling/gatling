@@ -58,7 +58,7 @@ lazy val docSamples = (project in file("src/docs"))
     basicSettings,
     skipPublishing,
     Test / unmanagedSourceDirectories ++= (baseDirectory.value ** "code").get,
-    libraryDependencies ++= docDependencies,
+    libraryDependencies ++= docSamplesDependencies,
     headerLicense := ApacheV2License,
     // Avoid formatting but avoid errors when calling this tasks with "all"
     List(Compile, Test).flatMap { conf =>
@@ -87,7 +87,6 @@ lazy val docSamples = (project in file("src/docs"))
       _ % "compile->compile;test->test"
     ): _*
   )
-  .settings(libraryDependencies ++= docSamplesDependencies)
 
 def gatlingModule(id: String) =
   Project(id, file(id))
