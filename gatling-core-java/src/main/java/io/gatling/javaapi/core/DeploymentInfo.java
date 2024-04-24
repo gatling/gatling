@@ -27,10 +27,10 @@ public final class DeploymentInfo {
   private DeploymentInfo() {}
 
   /** The UUID of the Gatling Enterprise Location where this Load Generator is deployed */
-  public final UUID runId = DeploymentInfo$.MODULE$.runId().getOrElse(null);
+  public final UUID runId = DeploymentInfo$.MODULE$.runId().getOrElse(() -> null);
 
   /** The name of the Gatling Enterprise Location where this Load Generator is deployed */
-  public final String locationName = DeploymentInfo$.MODULE$.locationName().getOrElse(null);
+  public final String locationName = DeploymentInfo$.MODULE$.locationName().getOrElse(() -> null);
 
   /** The number of Load Generators deployed on this Location */
   public final int numberOfLoadGeneratorsInLocation =
