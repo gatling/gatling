@@ -26,7 +26,6 @@ lazy val root = Project("gatling-parent", file("."))
   .disablePlugins(SbtSpotless)
   .aggregate(
     nettyUtil,
-    sharedEnterprise,
     commons,
     docSamples,
     jsonpath,
@@ -94,8 +93,6 @@ def gatlingModule(id: String) =
     .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
-lazy val sharedEnterprise = gatlingModule("gatling-shared-enterprise")
-
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
   .settings(libraryDependencies ++= nettyUtilDependencies)
 
@@ -111,7 +108,6 @@ lazy val jsonpath = gatlingModule("gatling-jsonpath")
 lazy val core = gatlingModule("gatling-core")
   .dependsOn(nettyUtil)
   .dependsOn(commons % "compile->compile;test->test")
-  .dependsOn(sharedEnterprise)
   .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
 
