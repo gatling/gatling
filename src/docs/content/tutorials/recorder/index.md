@@ -29,7 +29,7 @@ Join the [Gatling Community Forum](https://community.gatling.io) to discuss load
 
 This tutorial requires running Gatling on your local machine and using the Mozilla FireFox browser to create your Gatling Script. Additionally, the tutorial uses Gatling Enterprise Cloud to run tests with dedicated load generators and enhanced data reporting features. Use the following links to access each of the prerequisites:
 
-- [Download Gatling](https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}-bundle.zip)
+- [Download Gatling](https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip)
 - [Create a Gatling Enterprise Cloud trial account](https://cloud.gatling.io/)
 - [Configure your web browser]({{< ref "/reference/script/protocols/http/recorder/#configuration" >}}) (link)
 

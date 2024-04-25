@@ -46,7 +46,7 @@ Java 11, 17, or 21 64-bit OpenJDK LTS (Long Term Support) version installed on y
 This guide uses the Gatling bundle, which is accessed by downloading and extracting the following `zip`file:
 
 {{< button title="Download Gatling" >}}
-https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}-bundle.zip
+https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip
 {{< /button >}}
 
 ## Simulation construction 

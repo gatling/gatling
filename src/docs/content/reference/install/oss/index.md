@@ -37,7 +37,7 @@ Then, you'll just need a text editor, possibly with Java or Scala syntactic colo
 To install the bundle, download and extract the following `ZIP` file:
 
 {{< button title="Download Gatling" >}}
-https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}-bundle.zip
+https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip
 {{< /button >}}
 
 {{< alert warning >}}
