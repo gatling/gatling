@@ -26,9 +26,7 @@ import scala.util.control.NonFatal
 import io.gatling.app.cli.GatlingArgsParser
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.scenario.Simulation
 import io.gatling.netty.util.Transports
-import io.gatling.shared.cli.GatlingCliOptions
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -45,10 +43,7 @@ object Gatling extends StrictLogging {
   }
 
   // used by sbt-test-framework
-  private[gatling] def fromSbtTestFramework(args: Array[String], selectedSimulationClass: Class[Simulation]): Int =
-    fromArgs(args ++ Array(s"-${GatlingCliOptions.Simulation}", selectedSimulationClass.getName))
-
-  private def fromArgs(args: Array[String]): Int =
+  private[gatling] def fromArgs(args: Array[String]): Int =
     new GatlingArgsParser(args).parseArguments match {
       case Left(gatlingArgs) => start(gatlingArgs)
       case Right(statusCode) => statusCode.code
