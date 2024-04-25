@@ -285,14 +285,14 @@ object TypeCaster extends LowPriorityTypeCaster {
     override def cast(key: String, value: Any): Map[String, Any] =
       value match {
         case scalaMap: Map[_, _]   => scalaMap.asInstanceOf[Map[String, Any]]
-        case javaMap: ju.Map[_, _] => javaMap.asScala.asInstanceOf[Map[String, Any]]
+        case javaMap: ju.Map[_, _] => javaMap.asScala.toMap.asInstanceOf[Map[String, Any]]
         case _                     => throw new ClassCastException(cceMessage(key, value, classOf[Map[_, _]]))
       }
 
     override def validate(key: String, value: Any): Validation[Map[String, Any]] =
       value match {
         case scalaMap: Map[_, _]   => scalaMap.asInstanceOf[Map[String, Any]].success
-        case javaMap: ju.Map[_, _] => javaMap.asScala.asInstanceOf[Map[String, Any]].success
+        case javaMap: ju.Map[_, _] => javaMap.asScala.toMap.asInstanceOf[Map[String, Any]].success
         case _                     => cceMessage(key, value, classOf[Map[_, _]]).failure
       }
   }
