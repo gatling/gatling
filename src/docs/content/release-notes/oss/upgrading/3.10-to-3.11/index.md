@@ -112,6 +112,26 @@ This bundle ships all the necessary libraries and works offline, both for Gatlin
 This way, it can be used by users who are not familiar with configuring maven to work in their Corporate network.
 As it uses a maven project layout, it can be easily imported in any IDE.
 
+### Migrating from the standalone bundle to the Maven-based bundle
+
+The following procedure assists you to migrate from the standalone bundle to the new Maven-based bundle.
+
+1. Download the [Maven-based bundle](https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}-bundle.zip). 
+2. Upgrade your existing project to [Gatling 3.10.5]({{< ref "/release-notes/oss/upgrading/3.9-to-3.10/" >}}) if you are not already on this version.
+3. From your existing project: 
+  - Copy all files from `user-files/simulations/` of the Gatling bundle to `src/test/java/` in your Maven project.
+  - Copy all files from `user-files/resources/` of the Gatling bundle to `src/test/resources/` in your Maven project.
+  - (optional) Open `pom.xml` in the Maven project and modify it to compile with your version of Java (example for Java 11):
+
+  ```xml
+  <maven.compiler.release>11</maven.compiler.release>
+  ```
+4. Verify a successful migration by starting a simulation:
+  {{< code-toggle console >}}
+  Linux/MacOS: ./mvnw gatling:test
+  Windows: mvnw.cmd gatling:test
+  {{</ code-toggle >}}
+
 ## Dropping relative filesystem path resolution for resources (feeders, bodies)
 
 Before Gatling 3.11, it was possible to define feeder and body files paths as relative to the current location, typically the root of the project.
