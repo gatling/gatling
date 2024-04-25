@@ -95,7 +95,7 @@ object Expressions {
     Pauses.durationExpression(s, Some(TimeUnit.SECONDS))
 
   def toSeqExpression[T](s: String): Expression[Seq[T]] =
-    s.el[Seq[T]]
+    s.el[Seq[Any]].asInstanceOf[Expression[Seq[T]]]
 
   def toMapExpression(s: String): Expression[Map[String, Any]] =
     s.el[Map[String, Any]]
