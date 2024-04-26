@@ -73,7 +73,7 @@ and copy the final simulation, jump to [Test execution]({{< ref "#test-execution
 Once you have downloaded and extracted the Gatling `zip` file, open the project in your integrated development
 environment (IDE). Gatling recommends the [IntelliJ community edition](https://www.jetbrains.com/idea/download/). 
 
-1. Navigate to and open `user-files/simulations/computerdatabase/ComputerDatabaseSimulation.java`.
+1. Navigate to and open `src/test/java/computerdatabase/ComputerDatabaseSimulation.java`.
 2. Modify the simulation by deleting everything below line 7 `import io.gatling.javaapi.http.*;`.
 3. The simulation should now look like the following:
 

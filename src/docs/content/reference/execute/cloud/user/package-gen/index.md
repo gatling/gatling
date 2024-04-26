@@ -14,56 +14,53 @@ lastmod: 2021-11-22T16:00:00+00:00
 Gatling Enterprise deploys packages containing your compiled Simulations and resources. Those packages have to be generated
 upstream, using one of the methods below, before you can run them with Gatling Enterprise.
 
-Gatling Enterprise is compatible with Gatling version from 3.5 to 3.10 included.
+Gatling Enterprise is compatible with Gatling version from 3.5 to {{< var gatlingVersion >}} included, however, these instructions are aligned with the new Maven-based bundle released in Gatling 3.11.
 
 {{< alert tip >}}
 If you go to the [Simulations page]({{< ref "simulations" >}}) in the Gatling Enterprise Cloud app, you can click on
 "Sample simulations" to download sample projects for all the options below.
 {{< /alert >}}
 
-### Gatling zip bundle
+### Gatling bundle
 
-Once you have created a simulation you want to upload, run the script `gatling.sh` (on Linux or macOS) or
-`gatling.bat` (on Windows), found in the `bin` directory of your unzipped Gatling bundle and then select choice `3`. This will generate a
-`target/package.jar` file. You can then upload this file in the [Packages section]({{< ref "package-conf" >}}).
+Once you have created a simulation you want to upload, you can use the `enterpriseDeploy` command to upload your package and simulation with the default configuration. To customize your package and simulation configuration, see the [Configuration as code documentation]({{< ref "configuration-as-code" >}}). 
 
-```shell
-$ ./bin/gatling.sh
-Do you want to run the simulation locally, on Gatling Enterprise, or just package it?
-Type the number corresponding to your choice and press enter
-[0] <Quit>
-[1] Run the Simulation locally
-[2] Run the Simulation on Gatling Enterprise Cloud
-[3] Package the Simulation for Gatling Enterprise
+To use the `enterpriseDeploy` command:
 
-3
-```
+1. Create an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) in Gatling Enterprise. 
+2. Set the API token in your local environment.
+3. Run the `enterpriseDeploy` command:
 
-You can also create a package and upload it in a single command, always using the same script, but selecting choice `2`. You must have already [configured a package]({{< ref "package-conf" >}})
-(copy the package ID from the Packages table). You also need [an API token]({{< ref "../admin/api-tokens" >}}) with
-appropriate permissions to upload a package.
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterpriseDeploy
+Windows: mvnw.cmd gatling:enterpriseDeploy
+{{</ code-toggle >}}
 
-Run the script:
 
-```shell
-$ ./bin/gatling.sh --package-id YOUR_PACKAGE_ID --api-token YOUR_API_TOKEN
-```
+Alternatively, you can package your simulation and then upload it using the Gatling Enterprise UI. To package and upload your simulation:
 
-Alternatively, the API token can be set with the environment variable `GATLING_ENTERPRISE_API_TOKEN`:
+1. Run the command `enterprisePackage` in your local terminal:
 
-```shell
-$ export GATLING_ENTERPRISE_API_TOKEN=YOUR_API_TOKEN
-$ ./bin/gatling.sh --package-id YOUR_PACKAGE_ID
-```
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:enterprisePackage
+Windows: mvnw.cmd gatling:enterprisePackage
+{{</ code-toggle >}}
 
-Finally, you can get the list of all the available options with the `--help` option:
+2. Log in to Gatling Enterprise and go to the **Packages** page from the left-side navigation menu.
+3. Click **+ Create**. 
+4. Use the upload modal to name the package and assign it to a team.
+5. Upload the `.jar` file created in step 1 from your project's `target` folder.
+6. Click **Save**.
 
-```shell
-$ ./bin/gatling.sh --help
-```
+Finally, you can get the list of all the available options with the `help` command:
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:help
+Windows: mvnw.cmd gatling:help
+{{</ code-toggle >}}
 
 {{< alert warning >}}
-These commands are only available since Gatling `3.8`. If you're using an older version, you'll have to upgrade.
+These commands are only available since Gatling `3.11`. If you're using an older version, you'll have to upgrade.
 {{< /alert >}}
 
 ### Maven, Gradle or sbt project
