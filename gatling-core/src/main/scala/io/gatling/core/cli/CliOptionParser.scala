@@ -23,7 +23,7 @@ import scopt.{ OptionDef, OptionParser, Read }
 private[gatling] class CliOptionParser[B](programName: String) extends OptionParser[B](programName) {
 
   def opt[A: Read](constant: CliOption): OptionDef[A, B] = {
-    val base = opt[A](constant.full).abbr(constant.abbr).text(constant.text)
+    val base = opt[A](constant.longName).abbr(constant.shortName).text(constant.text)
     if (constant.valueName == null) {
       base
     } else {
