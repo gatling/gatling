@@ -100,8 +100,8 @@ object Dependencies {
   private val parserDeps = Seq(jackson, saxon, lagarto, joddUtil, jmespath)
 
   // Dependencies by module
-  private val gatlingGrpcVersion = "3.11.0"
-  private val gatlingMqttVersion = "3.11.0"
+  private val gatlingGrpcVersion = "3.11.1"
+  private val gatlingMqttVersion = "3.11.1"
 
   val nettyUtilDependencies =
     Seq(
