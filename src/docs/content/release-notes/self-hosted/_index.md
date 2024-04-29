@@ -7,6 +7,7 @@ badge:
   type: enterprise
   label: Enterprise
 ordering:
+  - 1.21.md
   - 1.20.md
   - 1.19.md
   - 1.18.md
