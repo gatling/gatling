@@ -20,7 +20,6 @@ import java.{ util => ju }
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -34,8 +33,7 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHe
 
 class CacheSupportSpec extends BaseSpec with EmptySession {
   private val configuration = GatlingConfiguration.loadForTest()
-  private val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
-  private val httpCaches = new HttpCaches(coreComponents)
+  private val httpCaches = new HttpCaches(new DefaultClock, configuration)
 
   class CacheContext {
     def getResponseExpire(headers: Seq[(CharSequence, CharSequence)]): Option[Long] = {

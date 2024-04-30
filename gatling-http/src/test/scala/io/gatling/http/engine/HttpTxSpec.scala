@@ -20,7 +20,6 @@ import java.{ util => ju }
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
@@ -36,9 +35,8 @@ class HttpTxSpec extends BaseSpec {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   trait Context {
-    val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = new HttpComponents(httpProtocol, null, new HttpCaches(coreComponents), null)
+    val httpComponents = new HttpComponents(httpProtocol, null, new HttpCaches(new DefaultClock, configuration), null)
 
     val configBase = HttpRequestConfig(
       checks = Nil,

@@ -20,7 +20,6 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
 import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingConfiguration
@@ -44,8 +43,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySe
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
-  private val httpCaches = new HttpCaches(coreComponents)
+  private val httpCaches = new HttpCaches(clock, configuration)
   private val sessionBase = emptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
 
   private val noopListener = new HttpListener {

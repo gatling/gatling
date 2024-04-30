@@ -17,38 +17,13 @@
 package io.gatling.http.resolver
 
 import java.{ util => ju }
-import java.net.{ InetAddress, InetSocketAddress }
+import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
-import io.gatling.http.engine.HttpEngine
 
-import akka.actor.ActorSystem
-import io.netty.channel.EventLoop
-import io.netty.resolver.dns.{ DefaultDnsCache, DnsCache }
 import io.netty.util.concurrent.{ Future, Promise }
-
-object SharedAsyncDnsNameResolverFactory {
-  def apply(httpEngine: HttpEngine, dnsServers: Array[InetSocketAddress], actorSystem: ActorSystem): EventLoop => InetAddressNameResolver = {
-    // create shared name resolvers for all the users with this protocol
-    val sharedResolverCache = new ConcurrentHashMap[EventLoop, InetAddressNameResolver]
-    // perform close on system shutdown instead of virtual user termination as it's shared
-    actorSystem.registerOnTermination(() => sharedResolverCache.values().forEach(_.close()))
-
-    val inProgressResolutions = new ConcurrentHashMap[String, Promise[ju.List[InetAddress]]]
-
-    val sharedCache: DnsCache = new DefaultDnsCache
-
-    val computer: ju.function.Function[EventLoop, InetAddressNameResolver] =
-      el => {
-        val actualResolver = httpEngine.newAsyncDnsNameResolver(el, dnsServers, sharedCache)
-        new InflightInetAddressNameResolver(actualResolver, inProgressResolutions)
-      }
-
-    eventLoop => sharedResolverCache.computeIfAbsent(eventLoop, computer)
-  }
-}
 
 final class InflightInetAddressNameResolver(wrapped: InetAddressNameResolver, inProgressResolutions: ConcurrentHashMap[String, Promise[ju.List[InetAddress]]])
     extends InetAddressNameResolver {

@@ -16,7 +16,8 @@
 
 package io.gatling.http.engine
 
-import java.net.InetSocketAddress
+import java.{ util => ju }
+import java.net.{ InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.{ Await, Promise }
@@ -35,6 +36,7 @@ import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.Pair
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
+import io.gatling.http.resolver._
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 import io.gatling.netty.util.Transports
 
@@ -43,6 +45,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.{ EventLoop, EventLoopGroup }
 import io.netty.handler.codec.http._
 import io.netty.resolver.dns._
+import io.netty.util.concurrent.{ Promise => NettyPromise }
 
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
@@ -164,7 +167,6 @@ final class HttpEngine(
 
   // [e]
   //
-  //
   // [e]
 
   def newJavaDnsNameResolver: InetAddressNameResolver =
@@ -195,6 +197,23 @@ final class HttpEngine(
         .build()
     )
 
+  // create shared name resolvers for all the users with this protocol
+  private val sharedResolverCache = new ju.concurrent.ConcurrentHashMap[EventLoop, InetAddressNameResolver]
+
+  def newSharedAsyncDnsNameResolverFactory(dnsServers: Array[InetSocketAddress]): EventLoop => InetAddressNameResolver = {
+    val inProgressResolutions = new ju.concurrent.ConcurrentHashMap[String, NettyPromise[ju.List[InetAddress]]]
+
+    val sharedCache: DnsCache = new DefaultDnsCache
+
+    val computer: ju.function.Function[EventLoop, InetAddressNameResolver] =
+      el => {
+        val actualResolver = newAsyncDnsNameResolver(el, dnsServers, sharedCache)
+        new InflightInetAddressNameResolver(actualResolver, inProgressResolutions)
+      }
+
+    eventLoop => sharedResolverCache.computeIfAbsent(eventLoop, computer)
+  }
+
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =
     sslContextsFactory.newSslContexts(http2Enabled, perUserKeyManagerFactory)
 
@@ -203,6 +222,9 @@ final class HttpEngine(
       httpClient.flushClientIdChannels(clientId, eventLoop)
     }
 
-  override def close(): Unit =
+  override def close(): Unit = {
     httpClient.close()
+    // perform close on system shutdown instead of virtual user termination as it's shared
+    sharedResolverCache.values().forEach(_.close())
+  }
 }

@@ -20,12 +20,11 @@ import java.{ util => ju }
 import java.net.InetAddress
 
 import io.gatling.commons.validation._
-import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, HttpProtocolDnsPart, JavaDnsNameResolution }
-import io.gatling.http.resolver.{ AliasesAwareNameResolver, SharedAsyncDnsNameResolverFactory, ShufflingNameResolver }
+import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShufflingNameResolver }
 
 import io.netty.resolver.dns.DefaultDnsCache
 
@@ -35,8 +34,6 @@ private[http] object DnsCacheSupport {
 
 private[http] trait DnsCacheSupport {
   import DnsCacheSupport._
-
-  def coreComponents: CoreComponents
 
   private def setDecoratedResolver(
       session: Session,
@@ -60,7 +57,7 @@ private[http] trait DnsCacheSupport {
           val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers, new DefaultDnsCache)
           setDecoratedResolver(session, actualResolver, hostNameAliases)
         } else {
-          val factory = SharedAsyncDnsNameResolverFactory(httpEngine, dnsServers, coreComponents.actorSystem)
+          val factory = httpEngine.newSharedAsyncDnsNameResolverFactory(dnsServers)
           session => {
             val sharedResolver = factory(session.eventLoop)
             setDecoratedResolver(session, sharedResolver, hostNameAliases)

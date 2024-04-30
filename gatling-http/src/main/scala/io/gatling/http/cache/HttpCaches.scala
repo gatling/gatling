@@ -30,12 +30,8 @@ private[http] object HttpCaches {
   ).success
 }
 
-private[http] final class HttpCaches(val coreComponents: CoreComponents)
+private[http] final class HttpCaches(val clock: Clock, val configuration: GatlingConfiguration)
     extends HttpContentCacheSupport
     with PermanentRedirectCacheSupport
     with DnsCacheSupport
-    with ResourceCacheSupport {
-  override def clock: Clock = coreComponents.clock
-
-  override def configuration: GatlingConfiguration = coreComponents.configuration
-}
+    with ResourceCacheSupport

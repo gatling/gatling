@@ -50,7 +50,7 @@ object HttpProtocol extends StrictLogging {
     override def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
       val httpEngine = HttpEngine(coreComponents)
       coreComponents.actorSystem.registerOnTermination(httpEngine.close())
-      val httpCaches = new HttpCaches(coreComponents)
+      val httpCaches = new HttpCaches(coreComponents.clock, coreComponents.configuration)
       val defaultStatsProcessor = new DefaultStatsProcessor(coreComponents.statsEngine)
 
       httpProtocol => {
