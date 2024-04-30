@@ -245,14 +245,12 @@ case object RandomUUID extends ElPart[String] {
   private val Version4Mask = 2L << 62
   private val VariantMask = 2L << 62
 
-  def version4UUID(): UUID = {
+  def apply(session: Session): Validation[String] = {
     val rnd = ThreadLocalRandom.current()
     val mostSigBits = (rnd.nextLong() & ~0xf000L) | Version4Mask
     val leastSigBits = ((rnd.nextLong() << 2) >>> 2) | VariantMask
-    new UUID(mostSigBits, leastSigBits)
+    new UUID(mostSigBits, leastSigBits).toString.success
   }
-
-  def apply(session: Session): Validation[String] = version4UUID().toString.success
 }
 
 case object RandomInt extends ElPart[Int] {
