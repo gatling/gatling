@@ -167,7 +167,8 @@ class CookieJarSpec extends BaseSpec {
     cookieStore.get(Uri.create("http://www.foo.com/bar")) should have size 1
   }
 
-  it should "handle the domain in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
+  it should "handle the domain in a case-insensitive manner" in {
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.3
     val cookie = decode("ALPHA=VALUE1")
     val uri = Uri.create("http://www.foo.com/bar")
     val cookieStore = CookieJar(uri, List(cookie), System.currentTimeMillis())
@@ -175,17 +176,8 @@ class CookieJarSpec extends BaseSpec {
     cookieStore.get(Uri.create("http://www.FoO.com/bar")) should have size 1
   }
 
-  it should "handle the cookie name in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
-    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
-    val uri = Uri.create("http://www.foo.com/bar/baz")
-    val cookieStore = CookieJar(uri, List(cookie), System.currentTimeMillis())
-
-    val storedCookies = cookieStore.add(uri, List(decode("alpha=VALUE2; Domain=www.foo.com; path=/bar")), System.currentTimeMillis()).get(uri)
-    storedCookies should have size 1
-    storedCookies.head.value shouldBe "VALUE2"
-  }
-
-  it should "handle the cookie path in a case-sensitive manner (RFC 2965 sec. 3.3.3)" in {
+  it should "handle the cookie path in a case-sensitive manner" in {
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.4
     val cookie = decode("ALPHA=VALUE1")
     val uri = Uri.create("http://www.foo.com/foo/bar")
     val cookieStore = CookieJar(uri, List(cookie), System.currentTimeMillis())
@@ -204,7 +196,7 @@ class CookieJarSpec extends BaseSpec {
     val cookie = decode("cookie1=VALUE1; Path=/; Domain=foo.org;")
     val cookieStore = CookieJar(Uri.create("https://x.foo.org/"), List(cookie), System.currentTimeMillis())
 
-    // RFC 6265, 5.1.3.  Domain Matching
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.3
     cookieStore.get(Uri.create("https://y.x.foo.org/")) should have size 1
   }
 
@@ -220,7 +212,7 @@ class CookieJarSpec extends BaseSpec {
   }
 
   it should "should serve cookies based on the host and independently of the port" in {
-    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
     val cookie1 = decode("cookie1=VALUE1; Path=/")
     val cookieStore = CookieJar(Uri.create("http://foo.org/moodle/"), List(cookie1), System.currentTimeMillis())
 
@@ -293,7 +285,7 @@ class CookieJarSpec extends BaseSpec {
   }
 
   it should "should also serve non secure cookies based on the uri scheme" in {
-    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
     val cookie1 = decode("cookie1=VALUE1; Path=/")
     val cookieStore = CookieJar(Uri.create("https://foo.org/moodle/"), List(cookie1), System.currentTimeMillis())
 
@@ -310,7 +302,7 @@ class CookieJarSpec extends BaseSpec {
   }
 
   it should "should not serve secure cookies for a default retrieved http uri scheme" in {
-    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
     val cookie1 = decode("cookie1=VALUE1; Path=/")
     val cookieStore = CookieJar(Uri.create("http://foo.org/moodle/"), List(cookie1), System.currentTimeMillis())
 
@@ -325,7 +317,7 @@ class CookieJarSpec extends BaseSpec {
   }
 
   it should "should serve secure cookies for a specifically retrieved http uri scheme" in {
-    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    // https://datatracker.ietf.org/doc/html/rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
     val cookie1 = decode("cookie1=VALUE1; Path=/")
     val cookieStore = CookieJar(Uri.create("http://foo.org/moodle/"), List(cookie1), System.currentTimeMillis())
 

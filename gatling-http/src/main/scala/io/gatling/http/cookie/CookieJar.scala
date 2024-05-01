@@ -87,10 +87,10 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
       val keyPath = cookiePath(Option(cookie.path), requestPath)
 
       if (hasExpired(cookie)) {
-        updatedStore - CookieKey(cookie.name.toLowerCase(Locale.ROOT), keyDomain, keyPath)
+        updatedStore - CookieKey(cookie.name, keyDomain, keyPath)
       } else {
         val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
-        updatedStore + (CookieKey(cookie.name.toLowerCase(Locale.ROOT), keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
+        updatedStore + (CookieKey(cookie.name, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
       }
     }
 
