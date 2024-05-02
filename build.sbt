@@ -19,7 +19,7 @@ Global / gatlingDevelopers := Seq(
 // Root project
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-Global / scalaVersion := "2.13.13"
+Global / scalaVersion := "2.13.14"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
