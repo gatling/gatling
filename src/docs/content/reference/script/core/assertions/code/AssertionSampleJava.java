@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import io.gatling.javaapi.core.PopulationBuilder;
-import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.core.*;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 
 class AssertionSampleJava extends Simulation {
 
   AssertionSampleJava() {
-    PopulationBuilder population = scenario("foo").injectOpen(atOnceUsers(1));
+    ScenarioBuilder scn = scenario("foo");
+    OpenInjectionStep injectionProfile = atOnceUsers(1);
 
 //#setUp
-setUp(population)
+setUp(scn.injectOpen(injectionProfile))
   .assertions(
     global().responseTime().max().lt(50),
     global().successfulRequests().percent().gt(95.0)
@@ -42,20 +42,20 @@ details("MyGroup", "MyRequest");
 
 //#examples
 // Assert that the max response time of all requests is less than 100 ms
-setUp(population)
+setUp(scn.injectOpen(injectionProfile))
   .assertions(global().responseTime().max().lt(100));
 
 // Assert that every request has no more than 5% of failing requests
-setUp(population)
+setUp(scn.injectOpen(injectionProfile))
   .assertions(forAll().failedRequests().percent().lte(5.0));
 
 // Assert that the percentage of failed requests named "MyRequest" in the group "MyGroup"
 // is exactly 0 %
-setUp(population)
+setUp(scn.injectOpen(injectionProfile))
   .assertions(details("MyGroup", "MyRequest").failedRequests().percent().is(0.0));
 
 // Assert that the rate of requests per seconds for the group "MyGroup"
-setUp(population)
+setUp(scn.injectOpen(injectionProfile))
   .assertions(details("MyGroup").requestsPerSec().between(100.0, 1000.0));
 //#examples
   }

@@ -17,10 +17,11 @@
 import io.gatling.core.Predef._
 
 class AssertionSampleScala extends Simulation {
-  val population = scenario("foo").inject(atOnceUsers(1))
+  val scn = scenario("foo")
+  val injectionProfile = atOnceUsers(1)
 
 //#setUp
-setUp(population)
+setUp(scn.inject(injectionProfile))
   .assertions(
     global.responseTime.max.lt(50),
     global.successfulRequests.percent.gt(95)
@@ -37,20 +38,20 @@ details("MyGroup" / "MyRequest")
 
 //#examples
 // Assert that the max response time of all requests is less than 100 ms
-setUp(population)
+setUp(scn.inject(injectionProfile))
   .assertions(global.responseTime.max.lt(100))
 
 // Assert that every request has no more than 5% of failing requests
-setUp(population)
+setUp(scn.inject(injectionProfile))
   .assertions(forAll.failedRequests.percent.lte(5))
 
 // Assert that the percentage of failed requests named "MyRequest" in the group "MyGroup"
 // is exactly 0 %
-setUp(population)
+setUp(scn.inject(injectionProfile))
   .assertions(details("MyGroup" / "MyRequest").failedRequests.percent.is(0))
 
 // Assert that the rate of requests per seconds for the group "MyGroup"
-setUp(population)
+setUp(scn.inject(injectionProfile))
   .assertions(details("MyGroup").requestsPerSec.between(100, 1000))
 //#examples
 }
