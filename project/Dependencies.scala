@@ -62,6 +62,7 @@ object Dependencies {
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.2"
   private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.5"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
+  private val fastparse                      = "com.lihaoyi"                         %% "fastparse"                         % "3.1.0"
 
   // Test dependencies
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.18"            % Test
@@ -125,7 +126,7 @@ object Dependencies {
     Seq(gatlingSharedUtil, config, cfor) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
-    Seq(gatlingSharedUtil, scalaParserCombinators, jackson) ++ testDeps
+    Seq(gatlingSharedUtil, fastparse, jackson) ++ testDeps
 
   val coreDependencies =
     Seq(
