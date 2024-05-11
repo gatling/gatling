@@ -16,7 +16,7 @@ Note that most method can take static value, [Gatling Expression Language (EL)](
 HTTP support has a dedicated DSL, whose entry point is the `http(requestName)` method.
 
 This request name is important because it will act as a key when computing stats for the reports.
-If the same name appears in multiple places in a Simulation, Gatling will consider those requests are of the same type and their statistics will be aggregated.
+If the same name appears in multiple places in a Simulation, Gatling will consider the requests to be the same type, and their statistics will be aggregated.
 
 {{< include-code "requestName" java kt scala >}}
 
@@ -26,7 +26,7 @@ However, we recommend that you don't abuse this feature and end up with a very h
 You would put a huge burden on the reporting module and your stats might be harder to analyze and probably not meaningful (not enough values per request name).
 {{</ alert >}}
 
-HTTP requests have to be passed to the `exec()` method in order to be attached to the scenario and be executed.
+HTTP requests must be passed to the `exec()` method to be attached to the scenario and executed.
 
 {{< include-code "inline" java kt scala >}}
 
@@ -37,12 +37,12 @@ Gatling provides built-ins for the most common methods. Those are simply the met
 {{< include-code "methods" java kt scala >}}
 
 {{< alert tip >}}
-Gatling also support relative urls, see [baseUrl]({{< ref "protocol#baseurl" >}}).
+Gatling also supports relative URLs; see [baseUrl]({{< ref "protocol#baseurl" >}}).
 {{< /alert >}}
 
 ## Query Parameters
 
-Frameworks and developers often pass additional information in the query, which is the part of the url after the `?`. A query is composed of *key=value* pairs, separated by `&`. Those are named *query parameters*.
+Frameworks and developers often pass additional information in the query, which is the part of the URL after the `?`. A query is composed of *key=value* pairs, separated by `&`. Those are named *query parameters*.
 
 For example, `https://github.com/gatling/gatling/issues?milestone=1&state=open` contains 2 query parameters:
 * `milestone=1` : the key is *milestone* and its value is *1*
@@ -50,12 +50,12 @@ For example, `https://github.com/gatling/gatling/issues?milestone=1&state=open` 
 
 {{< alert tip >}}
 Query parameter keys and values have to be [URL encoded](http://www.w3schools.com/tags/ref_urlencode.asp), as per `RFC3986](http://tools.ietf.org/html/rfc3986).
-By default, Gatling will try to take care of this encoding, but you can disable it, see [disableUrlEncoding]({{< ref "protocol#disableurlencoding" >}}).
+By default, Gatling will try to take care of this encoding, but you can disable it; see [disableUrlEncoding]({{< ref "protocol#disableurlencoding" >}}).
 {{< /alert >}}
 
-In order to set the query parameters of an HTTP request, you can:
+To set the query parameters of an HTTP request, you can:
 
-* either pass the full query in the url, e.g.:
+* either pass the full query in the URL, e.g.:
 
 {{< include-code "full-query-in-url" java kt scala >}}
 
@@ -75,20 +75,20 @@ You can use `queryParamSeq` and `queryParamMap` to set multiple query parameters
 
 #### `header`
 
-The HTTP protocol uses headers to exchange information between client and server that is not part of the message body.
+The HTTP protocol uses headers to exchange information between the client and server that is not part of the message body.
 
-Gatling HTTP allows you to specify any header you want to with the `header` and `headers` methods.
+Gatling HTTP allows you to specify any header you want with the `header` and `headers` methods.
 
 {{< include-code "headers" java kt scala >}}
 
 {{< alert tip >}}
-Headers keys are defined as constants usable in the scenario, for example: `HttpHeaderNames.ContentType`.
+Header keys are defined as constants usable in the scenario, for example: `HttpHeaderNames.ContentType`.
 You can find a list of the predefined constants [here](https://github.com/gatling/gatling/blob/main/gatling-http/src/main/scala/io/gatling/http/Headers.scala).
 {{< /alert >}}
 
 #### `asXXX`
 
-Gatling provides some handy shortcuts for setting the required headers for JSON, XML and form encodings: 
+Gatling provides some handy shortcuts for setting the required headers for JSON, XML, and form encodings: 
 
 {{< include-code "asXXX" java kt scala >}}
 
@@ -121,9 +121,7 @@ In this section, you can find the various methods for setting the full request b
 {{< alert tip >}}
 Body templates location are resolved the same way as for [Feeder files]({{< ref "../../core/session/feeders#file-based-feeders" >}}).
 
-Files must be placed in:
-* the `user-files/resources` directory when using the bundle distribution
-* `src/main/resources` or `src/test/resources` when using a maven, gradle or sbt project
+Files must be placed in `src/main/resources` or `src/test/resources` when using a Maven (including the Gatling bundle), Gradle, or sbt project.
 {{</ alert >}}
 
 {{< alert warning >}}
@@ -135,16 +133,16 @@ You can add a full body to an HTTP request with the dedicated method `body`, whe
 #### `StringBody`
 
 `StringBody` lets you pass a text payload defined in your code.
-The charset used writing the bytes on the wire is the one defined in the `charset` attribute of the `Content-Type` request header if defined, otherwise the one defined in `gatling.conf`.
+The charset used for writing the bytes on the wire is the one defined in the `charset` attribute of the `Content-Type` request header if defined; otherwise the one defined in `gatling.conf` is used.
 
 This solution is typically used with Strings in the [Gatling Expression Language]({{< ref "../../core/session/el" >}}) format.
 
 It takes one single parameter:
-* `string` the text content, can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `string` the text content can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
 {{< include-code "StringBody" java kt scala >}}
 
-Using function is one way to craft complex dynamic payload as you can code your own logic.
+Using a function is one way to craft complex dynamic payloads, as you can code your own logic.
 
 {{< include-code "template,template-usage" java kt scala >}}
 
@@ -154,7 +152,7 @@ Using function is one way to craft complex dynamic payload as you can code your 
 This way is the most efficient one as bytes can be cached and don't have to be decoded into text and then re-encoded back into bytes to be written on the wire. 
 
 It takes one single parameter:
-* `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
 {{< include-code "RawFileBody" java kt scala >}}
 
@@ -163,21 +161,21 @@ It takes one single parameter:
 `ElFileBody` lets you pass some text content resolved from a template file in the [Gatling Expression Language]({{< ref "../../core/session/el" >}}) format.
 
 It takes one single parameter:
-* `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String` or a function.
+* `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
-As Gatling EL is a text based templating engine, content can not be non-textual.
+Since Gatling EL is a text-based templating engine, content can not be non-textual.
 
 {{< include-code "ElFileBody" java kt scala >}}
 
 #### `PebbleStringBody`
 
-Gatling Expression Language is definitively the most optimized templating engine for Gatling, in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
+Gatling Expression Language is definitively the most optimized templating engine for Gatling in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
 If you want loops and conditional blocks, you can use Gatling's [Pebble](https://github.com/PebbleTemplates/pebble) based templating engine.
 
 {{< include-code "PebbleStringBody" java kt scala >}}
 
 {{< alert tip >}}
-You can register Pebble `Extensions`s with `registerPebbleExtensions(extensions: Extension*)`. This can only be done once, and must be done prior to loading any Pebble template.
+You can register Pebble `Extensions` with `registerPebbleExtensions(extensions: Extension*)`. This can only be done once and must be done before loading any Pebble template.
 {{< /alert >}}
 
 {{< alert tip >}}
@@ -198,7 +196,7 @@ Template inheritance is only available when using [`PebbleFileBody`]({{< ref "#p
 
 #### `InputStreamBody`
 
-`InputStreamBody` lets you pass an `java.util.InputStream`.
+`InputStreamBody` lets you pass a `java.util.InputStream`.
 
 {{< include-code "InputStreamBody" java kt scala >}}
 
@@ -214,7 +212,7 @@ Unless you've explicitly set the `Content-Type` header:
 
 #### `formParam`
 
-`formParam` lets you pass non file form input fields.
+`formParam` lets you pass non-file form input fields.
 
 {{< include-code "formParam" java kt scala >}}
 
@@ -237,15 +235,15 @@ Note you can override the form field values with the `formParam` and the likes.
 #### `formUpload`
 
 This method takes 2 parameters:
-* *name* the name of the form input, can be a plain `String`, a Gatling Expression Language `String` or a function.
-* *filePath* the path to the file, can be a plain `String`, a Gatling Expression Language `String` or a function.
+* *name* the name of the form input can be a plain `String`, a Gatling Expression Language `String`, or a function.
+* *filePath*, the path to the file, can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
 [See above]({{< ref "#full-body" >}}) how Gatling resolves `filePath`.
 
 {{< include-code "formUpload" java kt scala >}}
 
 {{< alert tip >}}
-The MIME Type of the uploaded file defaults to `application/octet-stream` and the character set defaults to the one configured in `gatling.conf` (`UTF-8` by default). Override them when needed.
+The MIME Type of the uploaded file defaults to `application/octet-stream`, and the character set defaults to the one configured in `gatling.conf` (`UTF-8` by default). Override them when needed.
 {{< /alert >}}
 
 ### Multipart
@@ -262,7 +260,7 @@ The [asXXX shortcuts]({{< ref "#asxxx" >}}) can help you configure the necessary
 
 
 Once bootstrapped with one of the following methods, `BodyPart` has the following methods for setting additional options.
-Like in the rest of the DSL, almost every parameter can be a plain `String`, a Gatling Expression Language `String` or a function.
+Like in the rest of the DSL, almost every parameter can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
 {{< include-code "bodyPart-options" java kt scala >}}
 
@@ -278,7 +276,7 @@ Similar to [RawFileBody]({{< ref "#rawfilebody" >}}).
 
 #### `ElFileBodyPart`
 
-where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
+where path is the location of a file whose content will be parsed and resolved with the Gatling EL engine.
 
 Similar to [ElFileBody]({{< ref "#elfilebody" >}}).
 
@@ -305,7 +303,7 @@ Gatling currently only provides one single pre-processor: `gzipBody`.
 
 ## Resources
 
-Gatling can fetch a main request's resources in parallel in order to emulate the behavior of a real web browser.
+Gatling can fetch a main request's resources in parallel to emulate the behavior of a real web browser.
 
 {{< include-code "resources" java kt scala >}}
 
@@ -344,7 +342,7 @@ You can then make the request *silent*:
 
 {{< include-code "silent" java kt scala >}}
 
-You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at protocol level:
+You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at the protocol level:
 
 {{< include-code "notSilent" java kt scala >}}
 

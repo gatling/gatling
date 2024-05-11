@@ -31,9 +31,9 @@ init {
 //#requestName
 // with a static value
 http("requestName").get("https://gatling.io")
-// with a static value
+// with a dynamic value computed from a Gatling Expression Language String
 http("#{requestName}").get("https://gatling.io")
-// with a static value
+// with a dynamic value computed from a function
 http { session -> session.getString("requestName") }.get("https://gatling.io")
 //#requestName
 

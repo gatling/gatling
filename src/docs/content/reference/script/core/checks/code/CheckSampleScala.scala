@@ -76,9 +76,9 @@ request
   // with a static value
   // (identical to substring("expected").find.exists)
   substring("expected"),
-  // with a Gatling EL
+  // with a dynamic value computed from a Gatling Expression Language String
   substring("#{expectedKey}"),
-  // with a function
+  // with a dynamic value computed from a function
   substring(session => "expectedValue"),
   substring("Error:").notExists,
   // this will save a List<Int>
