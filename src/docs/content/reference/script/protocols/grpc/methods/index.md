@@ -96,7 +96,7 @@ differentiate them:
 takes a [method descriptor]({{< ref "#method-descriptor" >}}) describing the gRPC method to call (which must describe a
 client streaming  method).
 
-{{< include-code "serverStreamInstantiation" java kt scala >}}
+{{< include-code "clientStreamInstantiation" java kt scala >}}
 
 The typical lifecycle of a client stream consists of:
 
