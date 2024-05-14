@@ -224,7 +224,7 @@ gatling.enterprise.package {
     - `US East - N. Virginia`
     - `US West - N. California`
     - `US West - Oregon`
-    - An existing [Private Location ID]({{< ref "reference/install/cloud/private-locations/introduction" >}})
+    - An existing [Private Location ID]({{< ref "/reference/install/cloud/private-locations/introduction" >}})
 - `size` *(optional)* : The number of load generators to deploy for the location *(default: 1)*
 - `weight` *(optional)* : The % of virtual users handled by the load generators of the location *(default: even weight)*
 
@@ -234,8 +234,8 @@ Locations weights sum must be equal to 100
 
 `parameters` *(optional)* :
 
-- `ignoreDefaults` *(optional)* : Ignore or not [Default Load Generator Parameters]({{< ref "reference/install/cloud/private-locations/introduction" >}}) *(default: false, or existing)*
-- `systemProperties` *(optional)* : [Java system properties]({{ < ref "/reference/execute/cloud/user/simulations/#step-3-load-generator-parameters-optional">}}) for the simulation *(default: empty, or existing)*
+- `ignoreDefaults` *(optional)* : Ignore or not [Default Load Generator Parameters]({{< ref "/reference/install/cloud/private-locations/introduction" >}}) *(default: false, or existing)*
+- `systemProperties` *(optional)* : [Java system properties]({{ < ref "/reference/execute/cloud/user/simulations#step-3-load-generator-parameters" >}}) for the simulation *(default: empty, or existing)*
 - `environmentVariables` *(optional)* : Environment variables for the simulation *(default: empty, or existing)*
 
 {{< alert info >}}
@@ -247,8 +247,6 @@ Environment variables prefix with `SENSITIVE_` will not be displayed on dashboar
 
 - `rampUp` *(optional)* : number of second at the beginning of the test to ignore *(default: 0, or existing)*
 - `rampDown` *(optional)* : number of second at the end of the test to ignore *(default: 0, or existing)*
-
-
 
 ### Common settings for simulations
 

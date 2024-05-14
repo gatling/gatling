@@ -15,7 +15,7 @@ Gatling is a highly flexible load-testing platform. You can write load tests in 
 
  - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
  - [write your first simulation]({{< ref "#simulation-construction" >}}),
- - [run your simulation locally]({{< ref "#optional-run-the-simulation-locally-for-debugging" >}}),
+ - [run your simulation locally]({{< ref "#run-the-simulation-locally-for-debugging" >}}),
  - [run a simulation on Gatling Enterprise Cloud]({{< ref "#run-the-simulation-on-gatling-enterprise-cloud" >}}).
 
 {{< alert tip >}}
@@ -148,7 +148,7 @@ Windows: mvnw.cmd gatling:enterpriseStart
 
 Watch the Simulation deploy automatically and generate real-time reports.
 
-### (optional) Run the Simulation locally for debugging
+### Run the Simulation locally for debugging {{% badge info "Optional" /%}} {#run-the-simulation-locally-for-debugging}
 
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a
 new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
