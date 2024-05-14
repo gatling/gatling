@@ -17,7 +17,7 @@ Only use `println` for debugging, not under load.
 sysout is a slow blocking output, massively writing in here will freeze Gatling's engine and break your test.
 {{< /alert >}}
 
-{{< include-code "print-session-value" java kt scala >}}
+{{< include-code "print-session-value" >}}
 
 ## Logback
 

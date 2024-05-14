@@ -19,7 +19,7 @@ import static io.gatling.javaapi.http.HttpDsl.*;
 class HttpCheckSampleJava {
 
   static {
-http("").get("")
+    http("").get("")
 
 //#status
 .check(

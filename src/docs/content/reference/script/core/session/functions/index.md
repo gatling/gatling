@@ -27,7 +27,7 @@ The generic signature of these functions is:
 * In Java and Kotlin: `Session -> T`
 * In Scala: `Expression[T]` is an alias for `Session => Validation[T]`. Values can implicitly lifted in `Validation`.
 
-{{< include-code "function" java kt scala >}}
+{{< include-code "function-sample" >}}
 
 {{< alert warning >}}
 (Scala Only): For more information about `Validation`, please check out the [Validation reference]({{< ref "validation" >}}).

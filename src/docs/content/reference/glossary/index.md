@@ -21,7 +21,7 @@ Only when chained with other components so they are ultimately passed to the [se
 The example below doesn't execute 5 HTTP requests.
 It creates 5 dangling HTTP requests definitions that don't have any effect.
 
-{{< include-code "dsl-bad" java kt scala >}}
+{{< include-code "dsl-bad" >}}
 
 ## Immutability
 
@@ -30,7 +30,7 @@ Most Gatling APIs such as DSL components and Session, are **immutable**.
 This means you can't update existing instances but only generate new instances with the desired changes.
 {{< /alert >}}
 
-{{< include-code "dsl-immutable" java kt scala >}}
+{{< include-code "dsl-immutable" >}}
 
 ## Virtual User
 
@@ -68,7 +68,7 @@ This allows fast writing of scenarios and easy maintenance of existing scenarios
 
 Here is a simple example of a scenario:
 
-{{< include-code "simple-scenario" java kt scala >}}
+{{< include-code "simple-scenario" >}}
 
 As we can easily guess, this scenario:
 
@@ -99,7 +99,7 @@ A simulation is a description of the load test. It describes how, possibly sever
 
 Here is an example of simulation definition:
 
-{{< include-code "example-definition" java kt scala >}}
+{{< include-code "example-definition" >}}
 
 For more information, check the [Simulation Setup reference section]({{< ref "/reference/script/core/simulation" >}}).
 

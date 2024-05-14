@@ -22,8 +22,8 @@ import java.util.function.Function;
 
 class FunctionSampleJava {
   {
-//#function
-// inline usage with a Java lamdba
+//#function-sample
+// inline usage with a Java lambda
 exec(http("name")
   .get(session -> "/foo/" + session.getString("param").toLowerCase(Locale.getDefault())));
 
@@ -31,6 +31,6 @@ exec(http("name")
 Function<Session, String> f =
     session -> "/foo/" + session.getString("param").toLowerCase(Locale.getDefault());
 exec(http("name").get(f));
-//#function
+//#function-sample
   }
 }

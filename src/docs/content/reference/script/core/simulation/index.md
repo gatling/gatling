@@ -18,7 +18,7 @@ Some tools such as maven surefire aggressively consider that all classes with su
 
 The Gatling DSL requires some imports:
 
-{{< include-code "imports" java kt scala >}}
+{{< include-code "imports" >}}
 
 {{< alert warning >}}
 Do not try to "optimize imports" with your IDE, you'd break everything.
@@ -35,13 +35,13 @@ Most pieces of your tests can possibly be extracted into other helper classes so
 
 The only mandatory piece in your Simulations is that they must call the `setUp` method exactly once in their constructor to register the test components.
 
-{{< include-code "setUp" java kt scala >}}
+{{< include-code "setUp" >}}
 
 which correspond to injecting one single user into the `scn` scenario.
 
 It's possible to have multiple populations, ie scenarios with an associated injection profile, in the same simulation:
 
-{{< include-code "setUp-multiple" java kt scala >}}
+{{< include-code "setUp-multiple" >}}
 
 For more information regarding scenarios, see the dedicated section [here]({{< ref "scenario" >}}).
 
@@ -53,7 +53,7 @@ Protocols configurations can be attached
 * either on the setUp, in which case they are applied on all the populations
 * or on each population, so they can have different configurations
 
-{{< include-code "protocols" java kt scala >}}
+{{< include-code "protocols" >}}
 
 For more information regarding protocols configurations, see the HttpProtocol section [here]({{< ref "../../script/protocols/http/protocol" >}}).
 
@@ -61,7 +61,7 @@ For more information regarding protocols configurations, see the HttpProtocol se
 
 Assertions are configured on the setUp.
 
-{{< include-code "assertions" java kt scala >}}
+{{< include-code "assertions" >}}
 
 For more information regarding assertions, see the dedicated section [here]({{< ref "assertions" >}}).
 
@@ -69,7 +69,7 @@ For more information regarding assertions, see the dedicated section [here]({{< 
 
 The pauses can be configured on `Simulation` with a bunch of methods:
 
-{{< include-code "pauses" java kt scala >}}
+{{< include-code "pauses" >}}
 
 ## Shaping Throughput
 
@@ -93,7 +93,7 @@ Throttling is currently only supported for HTTP requests and JMS.
 * Gatling will automatically interrupt your test at the end of the throttle, just like it does with [`maxDuration`]({{< ref "#maximum-duration" >}}).
 {{< /alert >}}
 
-{{< include-code "throttling" java kt scala >}}
+{{< include-code "throttling" >}}
 
 This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
 
@@ -114,7 +114,7 @@ Finally, with `maxDuration` you can force your run to terminate based on a durat
 
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
-{{< include-code "max-duration" java kt scala >}}
+{{< include-code "max-duration" >}}
 
 ## Hooks
 
@@ -134,7 +134,7 @@ The lifecycle is as follows:
 7. HTML reports are generated if enabled
 8. Gatling shuts down
 
-{{< include-code "hooks" java kt scala >}}
+{{< include-code "hooks" >}}
 
 {{< alert tip >}}
 You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.
@@ -149,4 +149,4 @@ When running tests on Gatling Enterprise, you might be interested in some inform
 `deploymentInfo` is only effective when running with Gatling Enterprise, otherwise it's just a noop.
 {{< /alert >}}
 
-{{< include-code "deployment-info" java kt scala >}}
+{{< include-code "deployment-info" >}}

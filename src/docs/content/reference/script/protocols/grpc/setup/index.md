@@ -9,6 +9,10 @@ lastmod: 2024-01-17T10:00:00:+0200
 
 Under the hood, Gatling uses [gRPC-Java](https://grpc.io/docs/languages/java/) to implement its protocol support.
 
+{{< alert warning >}}
+The gRPC protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## License and limitations {#license}
 
 **The Gatling gRPC component is distributed under the

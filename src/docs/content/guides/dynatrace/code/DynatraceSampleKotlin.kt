@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 
 class DynatraceSampleKotlin {
 
-//#dynatrace
+//#dynatrace-sample
 private val Hostname: String = InetAddress.getLocalHost().getHostName()
 
 // Source Id identifies the product that triggered the request
@@ -38,5 +38,5 @@ val httpProtocol = http
 
     request
   }
-//#dynatrace
+//#dynatrace-sample
 }

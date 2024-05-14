@@ -20,7 +20,7 @@ import io.gatling.core.session._
 import io.gatling.http.Predef._
 
 class FunctionSampleScala {
-//#function
+//#function-sample
 // inline usage with an anonymous function
 exec(http("name")
   .get(session => s"/foo/${session("param").as[String].toLowerCase(Locale.getDefault)}"))
@@ -29,5 +29,5 @@ exec(http("name")
 val f: Expression[String] =
   session => s"/foo/${session("param").as[String].toLowerCase(Locale.getDefault)}"
 exec(http("name").get(f));
-//#function
+//#function-sample
 }

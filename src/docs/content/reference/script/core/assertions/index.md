@@ -13,7 +13,7 @@ The Assertions API is used to verify that global statistics, like response time 
 
 Assertions are registered for a simulation using the method `assertions` on the `setUp`. For example:
 
-{{< include-code "setUp" java kt scala >}}
+{{< include-code "setUp" >}}
 
 This method takes as many assertions as you like.
 
@@ -36,11 +36,11 @@ An assertion can test a statistic calculated from all requests or only part of t
 
 For example, to perform an assertion on the request `MyRequest`, use:
 
-{{< include-code "details" java kt scala >}}
+{{< include-code "details" >}}
 
 and to perform an assertion on the request `MyRequest` in the group `MyGroup`, use:
 
-{{< include-code "details-group" java kt scala >}}
+{{< include-code "details-group" >}}
 
 For WebSockets it takes the name of the check and not the name of the request. `ws.checkTextMessage("use this name")`
 
@@ -105,4 +105,4 @@ You can either protect it with backticks `` `in` `` or use the `within` alias in
 
 To help you understand how to use assertions, here is a list of examples:
 
-{{< include-code "examples" java kt scala >}}
+{{< include-code "examples" >}}

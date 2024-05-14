@@ -78,8 +78,8 @@ val search = exec(http("Home")
   .exec(http("Search")
     .get("/computers?f=#{searchCriterion}") // 4
     .check(
-      css("a:contains('#{searchComputerName}')", "href") // 5
-        .saveAs("computerUrl")
+      css("a:contains('#{searchComputerName}')", "href")
+        .saveAs("computerUrl") // 5
     )
   )
   .pause(1)

@@ -1,15 +1,14 @@
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 
-//#imprts
-
+//#imports
 import io.gatling.javaapi.mqtt.MqttDsl.*
-//#imprts
+//#imports
 import java.time.Duration
 import javax.net.ssl.KeyManagerFactory
 
 class MqttProtocolSampleKotlin {
-  //#protocol
+  //#protocol-sample
   val mqttProtocol = mqtt
     // enable protocol version 3.1 (default: false)
     .mqttVersion_3_1()
@@ -57,7 +56,7 @@ class MqttProtocolSampleKotlin {
     .timeoutCheckInterval(1)
     // check for pairing messages sent and messages received
     .correlateBy(null as CheckBuilder)
-//#protocol
+//#protocol-sample
 
   init {
 //#connect

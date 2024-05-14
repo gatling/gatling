@@ -45,7 +45,7 @@ Open and closed workload models are antinomical and you can't mix them in the sa
 
 ## Open Model
 
-{{< include-code "open-injection" java kt scala >}}
+{{< include-code "open-injection" >}}
 
 The building blocks for open model profile injection are:
 
@@ -64,7 +64,7 @@ Rates can be expressed as fractional values.
 
 ## Closed Model
 
-{{< include-code "closed-injection" java kt scala >}}
+{{< include-code "closed-injection" >}}
 
 The building blocks for closed model profile injection are:
 
@@ -84,11 +84,11 @@ But there is now an alternative using the meta DSL.
 
 #### `incrementUsersPerSec`
 
-{{< include-code "incrementUsersPerSec" java kt scala >}}
+{{< include-code "incrementUsersPerSec" >}}
 
 #### `incrementConcurrentUsers`
 
-{{< include-code "incrementConcurrentUsers" java kt scala >}}
+{{< include-code "incrementConcurrentUsers" >}}
 
 `incrementUsersPerSec` is for open workload and `incrementConcurrentUsers` is for closed workload (users/sec vs concurrent users).
 
@@ -100,13 +100,13 @@ If you don't specify the number of starting users the test will start at 0 concu
 
 You can configure multiple scenarios in the same `setUp` block to start at the same time and execute concurrently.
 
-{{< include-code "multiple" java kt scala >}}
+{{< include-code "multiple" >}}
 
 ## Sequential Scenarios
 
 It's also possible with `andThen` to chain scenarios, so that children scenarios start once all the users in the parent scenario terminate.
 
-{{< include-code "andThen" java kt scala >}}
+{{< include-code "andThen" >}}
 
 When chaining `andThen` calls, Gatling will define the new children to only start once all the users of the previous children have terminated, descendants included.
 
@@ -119,4 +119,4 @@ Indeed, only one node would run this user, leaving the other nodes without an in
 
 You can use `noShard` to disable load sharding. In this case, all the nodes will use the injection and throttling profiles as defined in the Simulation.
 
-{{< include-code "noShard" java kt scala >}}
+{{< include-code "noShard" >}}

@@ -7,6 +7,10 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---
 
+{{< alert warning >}}
+The MQTT protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 {{< alert info >}}
 It only supports MQTT 3.1 and 3.1.1. More recent versions are not currently supported.
 {{< /alert >}}
@@ -17,13 +21,13 @@ Gatling Enterprise MQTT DSL is not imported by default.
 
 You have to manually add the following imports:
 
-{{< include-code "imprts" java kt scala >}}
+{{< include-code "imports" java kt scala >}}
 
 ## MQTT Protocol
 
 Use the `mqtt` object in order to create a MQTT protocol.
 
-{{< include-code "protocol" java kt scala >}}
+{{< include-code "protocol-sample" java kt scala >}}
 
 ## Request
 

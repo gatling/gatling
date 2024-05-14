@@ -410,12 +410,15 @@ http("name").get("/") //#notSilent
   )
 //#notSilent
 
+/*
 //#resp-processors-imports
-//import io.gatling.http.response.*;
-//
-//import java.nio.charset.StandardCharsets.UTF_8
-//import java.util.Base64
+import io.gatling.http.response.*;
+
+import java.nio.charset.StandardCharsets.UTF_8
+import java.util.Base64
 //#resp-processors-imports
+*/
+
 http("name").post("/")
 //#response-processors
 // ignore when response status code is not 200

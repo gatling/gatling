@@ -141,10 +141,14 @@ jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users");
   }
 
   {
-//#sitemap-feeder
+/*
+//#sitemap-imports
 // beware: you need to import the http module
-// import static io.gatling.javaapi.http.HttpDsl.*;
+import static io.gatling.javaapi.http.HttpDsl.*;
+//#sitemap-imports
+*/
 
+//#sitemap-feeder
 sitemap("/path/to/sitemap/file");
 //#sitemap-feeder
   }

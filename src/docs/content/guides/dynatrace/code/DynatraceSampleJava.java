@@ -25,7 +25,7 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 
 class DynatraceSampleJava {
 
-//#dynatrace
+//#dynatrace-sample
 private static final String Hostname;
 
 static {
@@ -47,26 +47,25 @@ private final String LTN =
 
 HttpProtocolBuilder httpProtocol = http
   .sign((request, session) -> {
-      // Virtual User ID of the unique user who sent the request
-      String VU = Hostname + "_" + session.scenario() + "_" + session.userId();
+    // Virtual User ID of the unique user who sent the request
+    String VU = Hostname + "_" + session.scenario() + "_" + session.userId();
 
-      // Test Step Name is a logical test step within your load testing script
-      String TSN = request.getName();
+    // Test Step Name is a logical test step within your load testing script
+    String TSN = request.getName();
 
-      // Load Script Name - name of the load testing script.
-      String LSN = session.scenario();
+    // Load Script Name - name of the load testing script.
+    String LSN = session.scenario();
 
-      // Page Context provides information about the document
-      String PC = String.join(",", session.groups());
+    // Page Context provides information about the document
+    String PC = String.join(",", session.groups());
 
-      request.getHeaders()
-        .set(
-          "x-dynaTrace",
-          "VU=" + VU + ";SI=" + SI + ";TSN=" + TSN + ";LSN=" + LSN + ";LTN=" + LTN + ";PC=" + PC
-        );
+    request.getHeaders()
+      .set(
+        "x-dynaTrace",
+        "VU=" + VU + ";SI=" + SI + ";TSN=" + TSN + ";LSN=" + LSN + ";LTN=" + LTN + ";PC=" + PC
+      );
 
-      return request;
-    }
-  );
-//#dynatrace
+    return request;
+  });
+//#dynatrace-sample
 }

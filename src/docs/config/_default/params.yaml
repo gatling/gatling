@@ -42,9 +42,10 @@ alertText: ""
 # Edit Page
 editPage: true
 
-includeCode:
+languages:
   default: java
   labels:
-    java: Java
-    kt: Kotlin
-    scala: Scala
+    - java: Java
+    - kt: Kotlin
+    - scala: Scala
+    - js: JavaScript

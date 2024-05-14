@@ -15,4 +15,4 @@ As described in [Dynatrace's documentation](https://www.dynatrace.com/support/he
 
 The idea here is to use [`sign`]({{< ref "/reference/script/protocols/http/protocol#sign" >}}) on the HttpProtocol to define a global signing function to be applied on all generated requests.
 
-{{< include-code "dynatrace" java kt scala >}}
+{{< include-code "dynatrace-sample" >}}

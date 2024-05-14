@@ -16,12 +16,12 @@
 
 import io.gatling.core.Predef._
 import scala.concurrent.duration._
-//#imprts
+//#imports
 import io.gatling.mqtt.Predef._
-//#imprts
+//#imports
 
 class MqttProtocolSampleScala {
-//#protocol
+//#protocol-sample
 val mqttProtocol = mqtt
   // enable protocol version 3.1 (default: false)
   .mqttVersion_3_1
@@ -69,7 +69,7 @@ val mqttProtocol = mqtt
   .timeoutCheckInterval(1)
   // check for pairing messages sent and messages received
   .correlateBy(null)
-//#protocol
+//#protocol-sample
 
 //#connect
 mqtt("Connecting").connect

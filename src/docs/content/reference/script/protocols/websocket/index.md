@@ -16,6 +16,10 @@ WebSocket protocol is very different from the HTTP one as the communication is 2
 As a consequence, the main HTTP branch and a WebSocket branch can exist in a Gatling scenario in a dissociated way, in parallel.
 When doing so, each flow branch has its own state, so a user might have to reconcile them, for example when capturing data from a WebSocket check and wanting this data to be available to the HTTP branch.
 
+{{< alert warning >}}
+The WebSocket protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## `wsName`
 
 If you want to deal with several WebSockets per virtual users, you have to give them a name and pass this name on each ws operation:

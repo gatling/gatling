@@ -7,6 +7,10 @@ date: 2023-08-24T11:27:53:+0200
 lastmod: 2023-08-24T11:27:53:+0200
 ---
 
+{{< alert warning >}}
+The gRPC protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## Summary
 
 With gRPC, [four types of methods can be defined](https://grpc.io/docs/what-is-grpc/core-concepts/#service-definition):
