@@ -18,7 +18,7 @@ package io.gatling.http.cache
 
 import java.util.concurrent.ConcurrentMap
 
-import scala.compat.java8.FunctionConverters._
+import scala.jdk.FunctionConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache

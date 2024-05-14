@@ -25,9 +25,9 @@ import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Failure
 import io.gatling.core.action.Action
-import io.gatling.core.pekko.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms._

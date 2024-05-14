@@ -17,13 +17,16 @@
 package io.gatling
 
 import java.nio.charset.Charset
-
+import scala.io.Source
 import scala.util.Using
 
 object Utils {
   def resourceAsString(res: String, charset: Charset): String = {
     Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream(res)) { is =>
-      is.toString(charset)
+      val source = Source.fromInputStream(is)(charset)
+      val result = source.mkString
+      source.close
+      result
     }
   }
 }

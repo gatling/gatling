@@ -18,8 +18,8 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.pekko.BaseActor
 import io.gatling.core.controller.inject.ScenarioFlows
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.scenario.Scenario
 
 import org.apache.pekko.actor.{ ActorRef, FSM }

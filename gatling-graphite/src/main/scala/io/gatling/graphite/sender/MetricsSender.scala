@@ -21,8 +21,8 @@ import java.net.InetSocketAddress
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.pekko.BaseActor
 import io.gatling.core.config._
+import io.gatling.core.pekko.BaseActor
 
 import org.apache.pekko.actor.{ Props, Stash }
 

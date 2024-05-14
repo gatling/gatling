@@ -19,8 +19,8 @@ package io.gatling.core.pekko
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-import org.apache.pekko.actor.{ Actor, ActorSystem, Scheduler, Terminated }
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.pekko.actor.{ Actor, ActorSystem, Scheduler, Terminated }
 
 private[gatling] abstract class BaseActor extends Actor with LazyLogging {
   implicit def system: ActorSystem = context.system

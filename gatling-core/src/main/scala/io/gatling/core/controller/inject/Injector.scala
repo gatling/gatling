@@ -26,8 +26,8 @@ import io.gatling.core.controller.inject.open.OpenWorkload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
-import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 import io.netty.channel.EventLoopGroup
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 
 private[controller] sealed trait InjectorCommand
 object InjectorCommand {

@@ -16,8 +16,8 @@
 
 package io.gatling.core.stats.writer
 
-import io.gatling.core.pekko.BaseActor
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.pekko.BaseActor
 
 import org.apache.pekko.actor.FSM
 
