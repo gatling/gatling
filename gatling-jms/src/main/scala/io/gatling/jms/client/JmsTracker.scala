@@ -20,7 +20,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.jms._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 final class JmsTracker(actor: ActorRef) {
   def track(

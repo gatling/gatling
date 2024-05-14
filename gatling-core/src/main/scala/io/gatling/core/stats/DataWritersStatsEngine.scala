@@ -31,9 +31,9 @@ import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 import io.gatling.core.structure.PopulationBuilder
 
-import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
-import akka.pattern.ask
-import akka.util.Timeout
+import org.apache.pekko.actor.{ Actor, ActorRef, ActorSystem, Props }
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.util.Timeout
 
 object DataWritersStatsEngine {
   def apply(

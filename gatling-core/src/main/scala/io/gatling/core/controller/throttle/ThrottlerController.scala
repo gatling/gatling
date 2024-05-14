@@ -18,7 +18,7 @@ package io.gatling.core.controller.throttle
 
 import scala.concurrent.duration._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 private sealed trait ThrottlerControllerCommand
 

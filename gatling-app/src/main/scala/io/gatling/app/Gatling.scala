@@ -28,7 +28,7 @@ import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.netty.util.Transports
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 

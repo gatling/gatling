@@ -32,8 +32,8 @@ import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 

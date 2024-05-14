@@ -32,7 +32,7 @@ import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.ProtocolComponentsRegistries
 import io.gatling.core.structure._
 
-import akka.actor.{ ActorRef, ActorSystem }
+import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
 
 final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {

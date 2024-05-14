@@ -34,8 +34,8 @@ object Dependencies {
   private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
-  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                        % "2.6.20"
-  private val akkaSlf4j                      = akka.withName("akka-slf4j")
+  private val pekko                           = "org.apache.pekko"                   %% "pekko-actor"                        % "1.0.2"
+  private val pekkoSlf4j                      = pekko.withName("pekko-slf4j")
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "2.0.13"
@@ -68,7 +68,7 @@ object Dependencies {
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-16"                   % "3.2.14.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                       % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.0"            % Test
-  private val akkaTestKit                    = akka.withName("akka-testkit")                                                                      % Test
+  private val pekkoTestKit                    = pekko.withName("pekko-testkit")                                                                      % Test
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "4.11.0"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.18.4"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
@@ -86,7 +86,7 @@ object Dependencies {
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.0"
   private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.25.50"
-  
+
   // format: ON
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
@@ -94,7 +94,7 @@ object Dependencies {
     scalaTestScalacheck,
     scalaTestMockito,
     scalaCheck,
-    akkaTestKit,
+    pekkoTestKit,
     mockitoCore
   )
   private val parserDeps = Seq(jackson, saxon, lagarto, joddUtil, jmespath)
@@ -131,8 +131,8 @@ object Dependencies {
     Seq(
       gatlingSharedModel,
       gatlingSharedCli,
-      akka,
-      akkaSlf4j,
+      pekko,
+      pekkoSlf4j,
       sfm,
       caffeine,
       pebble,
@@ -202,7 +202,7 @@ object Dependencies {
 
   val benchmarkDependencies = Seq(jmh)
 
-  val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, netty, akka, quicklens) ++ testDeps
+  val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, netty, pekko, quicklens) ++ testDeps
 
   val testFrameworkDependencies = Seq(gatlingSharedCli, testInterface)
 

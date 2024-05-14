@@ -20,8 +20,8 @@ import java.net.InetSocketAddress
 
 import io.gatling.graphite.message.GraphiteMetrics
 
-import akka.actor.ActorRef
-import akka.io.{ IO, Udp }
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.io.{ IO, Udp }
 
 private[graphite] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
   import Udp._

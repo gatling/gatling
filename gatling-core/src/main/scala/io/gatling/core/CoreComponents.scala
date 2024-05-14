@@ -22,7 +22,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 
-import _root_.akka.actor.{ ActorRef, ActorSystem }
+import _root_.org.apache.pekko.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
 
 final class CoreComponents(

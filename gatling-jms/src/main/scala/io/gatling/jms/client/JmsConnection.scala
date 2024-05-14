@@ -27,7 +27,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.protocol.JmsMessageMatcher
 import io.gatling.jms.request._
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 
 final class JmsConnection(
     connection: Connection,

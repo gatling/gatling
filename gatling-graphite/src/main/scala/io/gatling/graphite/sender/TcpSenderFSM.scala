@@ -16,7 +16,7 @@
 
 package io.gatling.graphite.sender
 
-import akka.actor.{ ActorRef, FSM }
+import org.apache.pekko.actor.{ ActorRef, FSM }
 
 private[sender] trait TcpSenderFSM extends FSM[TcpSenderState, TcpSenderData]
 

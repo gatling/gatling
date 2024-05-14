@@ -16,10 +16,10 @@
 
 package io.gatling.core.stats.writer
 
-import io.gatling.core.akka.BaseActor
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 
-import akka.actor.FSM
+import org.apache.pekko.actor.FSM
 
 private[gatling] trait DataWriterFSM extends BaseActor with FSM[DataWriterState, DataWriterData]
 

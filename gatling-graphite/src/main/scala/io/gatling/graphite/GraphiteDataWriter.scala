@@ -28,7 +28,7 @@ import io.gatling.graphite.message.GraphiteMetrics
 import io.gatling.graphite.sender.MetricsSender
 import io.gatling.graphite.types._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 final case class GraphiteData(
     metricsSender: ActorRef,

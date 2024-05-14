@@ -19,12 +19,12 @@ package io.gatling.core.action
 import scala.collection.mutable
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.akka.BaseActor
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 
 private object RendezVous extends NameGen {
   def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {

@@ -16,15 +16,15 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.apache.pekko.testkit._
 import org.scalatestplus.mockito.MockitoSugar
 
-class FeedSpec extends AkkaSpec with MockitoSugar {
+class FeedSpec extends PekkoSpec with MockitoSugar {
   private val clock = new DefaultClock
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {

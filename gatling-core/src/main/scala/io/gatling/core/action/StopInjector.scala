@@ -21,7 +21,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 final class StopInjector(message: Expression[String], condition: Expression[Boolean], val statsEngine: StatsEngine, controller: ActorRef, val next: Action)
     extends ChainableAction

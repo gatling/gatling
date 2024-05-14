@@ -16,12 +16,12 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.EmptySession
 import io.gatling.core.stats.StatsEngine
 
-class RendezVousSpec extends AkkaSpec {
+class RendezVousSpec extends PekkoSpec {
   private val clock = new DefaultClock
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {

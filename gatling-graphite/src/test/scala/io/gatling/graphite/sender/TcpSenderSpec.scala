@@ -20,16 +20,16 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.graphite.message.GraphiteMetrics
 
-import akka.io.Tcp._
-import akka.testkit._
-import akka.util.ByteString
+import org.apache.pekko.io.Tcp._
+import org.apache.pekko.testkit._
+import org.apache.pekko.util.ByteString
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
-class TcpSenderSpec extends AkkaSpec {
+class TcpSenderSpec extends PekkoSpec {
   private val dummySocketAddress = new InetSocketAddress(9999)
 
   private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock) {

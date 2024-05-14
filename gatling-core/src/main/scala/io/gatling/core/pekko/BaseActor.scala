@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.core.akka
+package io.gatling.core.pekko
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-import akka.actor.{ Actor, ActorSystem, Scheduler, Terminated }
+import org.apache.pekko.actor.{ Actor, ActorSystem, Scheduler, Terminated }
 import com.typesafe.scalalogging.LazyLogging
 
 private[gatling] abstract class BaseActor extends Actor with LazyLogging {

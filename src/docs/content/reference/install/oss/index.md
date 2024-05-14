@@ -63,7 +63,7 @@ If you get strange errors such as `Unsupported major.minor version` and you were
 The bundle structure is as follows:
 
 * `src/test/java`: where to place your Simulations code. You must respect the package folder hierarchy.
-* `src/test/resources`: non source code files such as feeder files and templates for request bodies and configuration files for Gatling, Akka and Logback.
+* `src/test/resources`: non source code files such as feeder files and templates for request bodies and configuration files for Gatling, Pekko and Logback.
 * `pom.xml`: Maven informations about the project.
 * `target`: where test results are generated.
 

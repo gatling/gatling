@@ -24,7 +24,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 
 /**

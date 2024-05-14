@@ -21,10 +21,10 @@ import scala.concurrent.duration._
 
 import io.gatling.core.EmptySession
 
-import akka.actor.ActorSystem
-import akka.testkit.{ ImplicitSender, TestKit }
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.testkit.{ ImplicitSender, TestKit }
 
-abstract class AkkaSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with EmptySession {
+abstract class PekkoSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with EmptySession {
   override def afterAll(): Unit = {
     val whenTerminated = system.terminate()
     Await.result(whenTerminated, 2.seconds)

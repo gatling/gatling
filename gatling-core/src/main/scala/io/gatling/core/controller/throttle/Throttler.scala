@@ -18,7 +18,7 @@ package io.gatling.core.controller.throttle
 
 import io.gatling.core.scenario.SimulationParams
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 
 private final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
   def limitReached(scenario: String): Boolean =

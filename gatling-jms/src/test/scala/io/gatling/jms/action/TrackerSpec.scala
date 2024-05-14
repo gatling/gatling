@@ -16,7 +16,7 @@
 
 package io.gatling.jms.action
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreDsl
@@ -26,9 +26,9 @@ import io.gatling.core.session.Session
 import io.gatling.jms._
 import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
-import akka.testkit.TestActorRef
+import org.apache.pekko.testkit.TestActorRef
 
-class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
+class TrackerSpec extends PekkoSpec with CoreDsl with JmsDsl with MockMessage {
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val clock = new DefaultClock

@@ -16,14 +16,14 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.core.controller.ControllerCommand.Crash
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
 
-import akka.testkit._
+import org.apache.pekko.testkit._
 
-class FeedActorSpec extends AkkaSpec {
+class FeedActorSpec extends PekkoSpec {
   private def createFeedActor[T](feeder: Feeder[T], controller: TestProbe) =
     TestActorRef(FeedActor.props(feeder, None, generateJavaCollection = false, controller.ref))
 

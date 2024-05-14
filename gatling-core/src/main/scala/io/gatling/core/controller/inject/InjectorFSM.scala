@@ -16,10 +16,10 @@
 
 package io.gatling.core.controller.inject
 
-import io.gatling.core.akka.BaseActor
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.scenario.Scenario
 
-import akka.actor.{ ActorRef, Cancellable, FSM }
+import org.apache.pekko.actor.{ ActorRef, Cancellable, FSM }
 
 private[inject] trait InjectorState
 private[inject] object InjectorState {

@@ -16,10 +16,10 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.core.controller.inject.InjectorCommand
 
-class ExitSpec extends AkkaSpec {
+class ExitSpec extends PekkoSpec {
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
     val exit = new Exit(self)
 

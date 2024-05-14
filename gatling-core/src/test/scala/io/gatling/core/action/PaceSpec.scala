@@ -18,15 +18,15 @@ package io.gatling.core.action
 
 import scala.concurrent.duration._
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.Predef._
 import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.apache.pekko.testkit._
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
-class PaceSpec extends AkkaSpec {
+class PaceSpec extends PekkoSpec {
   private val clock = new DefaultClock
 
   private val interval = 3.seconds

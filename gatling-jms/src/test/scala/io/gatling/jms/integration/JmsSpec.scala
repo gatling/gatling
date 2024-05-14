@@ -20,7 +20,7 @@ import javax.jms.{ Session => JmsSession, _ }
 
 import scala.concurrent.duration._
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
@@ -34,7 +34,7 @@ import io.gatling.jms._
 import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import io.netty.channel.EventLoopGroup
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
@@ -66,7 +66,7 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
   t.start()
 }
 
-trait JmsSpec extends AkkaSpec with JmsDsl {
+trait JmsSpec extends PekkoSpec with JmsDsl {
   override def beforeAll(): Unit = {
     sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
     startBroker()

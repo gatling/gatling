@@ -22,7 +22,7 @@ import io.gatling.commons.stats.Status
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import io.netty.channel.ChannelHandler
 
 trait StatsEngine extends EnterpriseStatsEngineExtensions {

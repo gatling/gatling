@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-import io.gatling.AkkaSpec
+import io.gatling.PekkoSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
@@ -41,7 +41,7 @@ import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
 import org.scalatest.BeforeAndAfter
 
-abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
+abstract class HttpSpec extends PekkoSpec with BeforeAndAfter {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 

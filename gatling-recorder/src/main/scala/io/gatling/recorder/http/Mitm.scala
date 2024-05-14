@@ -28,7 +28,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.ssl.SslServerContext
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.{ Bootstrap, ServerBootstrap }
 import io.netty.channel.{ Channel, ChannelInitializer, ChannelOption, EventLoopGroup }

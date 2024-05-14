@@ -22,12 +22,12 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
-import io.gatling.core.akka.BaseActor
+import io.gatling.core.pekko.BaseActor
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.Session
 
-import akka.actor.{ ActorRef, Props }
+import org.apache.pekko.actor.{ ActorRef, Props }
 import io.github.metarank.cfor._
 
 private[core] object FeedActor {

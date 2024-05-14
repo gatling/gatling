@@ -26,7 +26,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 
 final class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]
