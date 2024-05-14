@@ -24,7 +24,7 @@ import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
-  private val htmlContent = Using.resource(getClass.getClassLoader.getResourceAsStream("pekko.apache.org.html")) { is =>
+  private val htmlContent = Using.resource(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
     new String(is.readAllBytes(), UTF_8).toCharArray
   }
 
@@ -33,44 +33,44 @@ class HtmlParserSpec extends BaseSpec {
 
   private implicit def string2Uri(string: String): Uri = Uri.create(string)
 
-  "parsing pekko.apache.org page" should "extract all urls" in {
-    embeddedResources("http://pekko.apache.org", htmlContent) shouldBe List(
-      BasicResource("http://pekko.apache.org/resources/favicon.ico"),
-      CssResource("http://pekko.apache.org/resources/stylesheets/style.css"),
+  "parsing akka.io page" should "extract all urls" in {
+    embeddedResources("http://akka.io", htmlContent) shouldBe List(
+      BasicResource("http://akka.io/resources/favicon.ico"),
+      CssResource("http://akka.io/resources/stylesheets/style.css"),
       CssResource("http://fonts.googleapis.com/css?family=Exo:300,400,600,700"),
-      CssResource("http://pekko.apache.org/resources/stylesheets/prettify-frontpage.css"),
-      CssResource("http://pekko.apache.org/resources/stylesheets/base.css"),
-      BasicResource("http://pekko.apache.org/resources/images/logo-small.png"),
-      BasicResource("http://pekko.apache.org/resources/images/logo_dropshadow.png"),
-      BasicResource("http://pekko.apache.org/resources/images/scala-sm.png"),
-      BasicResource("http://pekko.apache.org/resources/images/ubs.png"),
-      BasicResource("http://pekko.apache.org/resources/images/klout.png"),
-      BasicResource("http://pekko.apache.org/resources/images/ign.png"),
-      BasicResource("http://pekko.apache.org/resources/images/tdc.png"),
-      BasicResource("http://pekko.apache.org/resources/images/vmware.png"),
-      BasicResource("http://pekko.apache.org/resources/images/csc.png"),
-      BasicResource("http://pekko.apache.org/resources/images/moshimonsters.png"),
-      BasicResource("http://pekko.apache.org/resources/images/amazon.png"),
-      BasicResource("http://pekko.apache.org/resources/images/zeebox.png"),
-      BasicResource("http://pekko.apache.org/resources/images/creditsuisse.png"),
-      BasicResource("http://pekko.apache.org/resources/images/autodesk.png"),
-      BasicResource("http://pekko.apache.org/resources/images/atos.png"),
-      BasicResource("http://pekko.apache.org/resources/images/blizzard.png"),
-      BasicResource("http://pekko.apache.org/resources/images/rss.png"),
-      BasicResource("http://pekko.apache.org/resources/images/watermark.png"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/prettify.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/slideleft.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.livetwitter.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/livetwitter.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.rss.min.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/blogfeed.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/moment.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/dateparse.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.scrollTo-1.4.2-min.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.localscroll-1.2.7-min.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/jquery.serialScroll-1.2.2-min.js"),
-      BasicResource("http://pekko.apache.org/resources/javascript/sliderbox.js")
+      CssResource("http://akka.io/resources/stylesheets/prettify-frontpage.css"),
+      CssResource("http://akka.io/resources/stylesheets/base.css"),
+      BasicResource("http://akka.io/resources/images/logo-small.png"),
+      BasicResource("http://akka.io/resources/images/logo_dropshadow.png"),
+      BasicResource("http://akka.io/resources/images/scala-sm.png"),
+      BasicResource("http://akka.io/resources/images/ubs.png"),
+      BasicResource("http://akka.io/resources/images/klout.png"),
+      BasicResource("http://akka.io/resources/images/ign.png"),
+      BasicResource("http://akka.io/resources/images/tdc.png"),
+      BasicResource("http://akka.io/resources/images/vmware.png"),
+      BasicResource("http://akka.io/resources/images/csc.png"),
+      BasicResource("http://akka.io/resources/images/moshimonsters.png"),
+      BasicResource("http://akka.io/resources/images/amazon.png"),
+      BasicResource("http://akka.io/resources/images/zeebox.png"),
+      BasicResource("http://akka.io/resources/images/creditsuisse.png"),
+      BasicResource("http://akka.io/resources/images/autodesk.png"),
+      BasicResource("http://akka.io/resources/images/atos.png"),
+      BasicResource("http://akka.io/resources/images/blizzard.png"),
+      BasicResource("http://akka.io/resources/images/rss.png"),
+      BasicResource("http://akka.io/resources/images/watermark.png"),
+      BasicResource("http://akka.io/resources/javascript/jquery.js"),
+      BasicResource("http://akka.io/resources/javascript/prettify.js"),
+      BasicResource("http://akka.io/resources/javascript/slideleft.js"),
+      BasicResource("http://akka.io/resources/javascript/jquery.livetwitter.js"),
+      BasicResource("http://akka.io/resources/javascript/livetwitter.js"),
+      BasicResource("http://akka.io/resources/javascript/jquery.rss.min.js"),
+      BasicResource("http://akka.io/resources/javascript/blogfeed.js"),
+      BasicResource("http://akka.io/resources/javascript/moment.js"),
+      BasicResource("http://akka.io/resources/javascript/dateparse.js"),
+      BasicResource("http://akka.io/resources/javascript/jquery.scrollTo-1.4.2-min.js"),
+      BasicResource("http://akka.io/resources/javascript/jquery.localscroll-1.2.7-min.js"),
+      BasicResource("http://akka.io/resources/javascript/jquery.serialScroll-1.2.2-min.js"),
+      BasicResource("http://akka.io/resources/javascript/sliderbox.js")
     )
   }
 
