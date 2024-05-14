@@ -28,7 +28,6 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.ssl.SslServerContext
 
-import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.{ Bootstrap, ServerBootstrap }
 import io.netty.channel.{ Channel, ChannelInitializer, ChannelOption, EventLoopGroup }
@@ -37,6 +36,7 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.{ NioServerSocketChannel, NioSocketChannel }
 import io.netty.handler.codec.http._
 import io.netty.util.concurrent.GlobalEventExecutor
+import org.apache.pekko.actor.ActorSystem
 
 object Mitm extends StrictLogging {
   val SslHandlerName = "ssl"

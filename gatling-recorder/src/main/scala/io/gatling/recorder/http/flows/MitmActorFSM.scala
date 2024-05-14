@@ -18,9 +18,9 @@ package io.gatling.recorder.http.flows
 
 import io.gatling.http.client.uri.Uri
 
-import org.apache.pekko.actor.{ Actor, FSM }
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.FullHttpRequest
+import org.apache.pekko.actor.{ Actor, FSM }
 
 object Remote {
   def missingScheme(rawUri: String, https: Boolean): Option[String] =

@@ -21,11 +21,11 @@ import io.gatling.recorder.http.flows._
 import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.ssl.SslServerContext
 
-import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.{ ChannelHandlerContext, ChannelInboundHandlerAdapter }
 import io.netty.handler.codec.http.{ FullHttpRequest, HttpClientCodec, HttpMethod }
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, Props }
 
 class ServerHandler(
     system: ActorSystem,

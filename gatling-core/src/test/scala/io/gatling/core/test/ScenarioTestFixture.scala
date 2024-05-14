@@ -32,8 +32,8 @@ import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.ProtocolComponentsRegistries
 import io.gatling.core.structure._
 
-import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
+import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 
 final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
   private[test] val expectations = new ArrayBuffer[PartialFunction[Any, Unit]]

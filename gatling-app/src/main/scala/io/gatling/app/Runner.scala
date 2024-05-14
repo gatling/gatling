@@ -32,10 +32,10 @@ import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.pattern.ask
 
 private[gatling] object Runner {
   def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, gatlingArgs: GatlingArgs, configuration: GatlingConfiguration): Runner =
