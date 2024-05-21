@@ -4,4 +4,4 @@ dependencies {
 }
 ```
 
-Base Gatling setup for Gradle is [documented here]({{< ref "../../../extensions/build-tools/gradle-plugin#setup" >}}).
+Base Gatling setup for Gradle is [documented here]({{< ref "../../../integrations/build-tools/gradle-plugin#setup" >}}).

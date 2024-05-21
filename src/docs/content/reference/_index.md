@@ -9,5 +9,5 @@ ordering:
   - script
   - execute
   - stats
-  - extensions
+  - integrations
 ---

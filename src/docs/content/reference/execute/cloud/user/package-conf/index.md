@@ -71,10 +71,10 @@ curl -X PUT --upload-file <PACKAGE_LOCAL_PATH> \
 Maven, sbt and Gradle plugins offer commands to automatically deploy and manage your packages and simulations.
 
 {{< alert info >}}
-Check the [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
-[Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
-[sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}) 
-plugin extensions for more information.
+Check the [Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
+[Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}), 
+[sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}) 
+integrations for more information.
 {{< / alert >}}
 
 ## Usage

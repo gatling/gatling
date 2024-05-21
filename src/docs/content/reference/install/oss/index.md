@@ -94,7 +94,7 @@ Maven can be used for Gatling projects with Java, Kotlin and Scala.
 
 Gatling provides an official maven plugin named `gatling-maven-plugin`. This plugin lets you compile your code and launch Gatling simulations.
 
-Check the [Maven plugin documentation]({{< ref "../extensions/build-tools/maven-plugin" >}}) for more information.
+Check the [Maven plugin documentation]({{< ref "../integrations/build-tools/maven-plugin" >}}) for more information.
 
 ### Gradle
 
@@ -102,7 +102,7 @@ Gradle can be used for Gatling projects with Java, Kotlin and Scala.
 
 Gatling provides an official gradle plugin named `io.gatling.gradle`. This plugin lets you launch your Gatling simulations.
 
-Check the [Gradle plugin documentation]({{< ref "../extensions/build-tools/gradle-plugin" >}}) for more information.
+Check the [Gradle plugin documentation]({{< ref "../integrations/build-tools/gradle-plugin" >}}) for more information.
 
 ### sbt
 
@@ -110,7 +110,7 @@ sbt can be used for Gatling projects with Scala only.
 
 Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
 
-Check the [sbt plugin documentation]({{< ref "../extensions/build-tools/sbt-plugin" >}}) for more information.
+Check the [sbt plugin documentation]({{< ref "../integrations/build-tools/sbt-plugin" >}}) for more information.
 
 ## Using an IDE
 

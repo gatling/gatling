@@ -29,13 +29,13 @@ For a better understanding, see references for underlying concepts:
 To deploy your Gatling project on Gatling Enterprise Cloud, follow these steps:
 
 1. Configure the Gatling Enterprise Cloud [API Token]({{< ref "reference/execute/cloud/admin/api-tokens" >}}) within your Gatling Build Plugin:
-   - [Gatling Plugin with Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#prerequisites" >}})
-   - [Gatling Plugin with Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#prerequisites" >}})
-   - [Gatling Plugin with sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#prerequisites" >}})
+   - [Gatling Plugin with Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#prerequisites" >}})
+   - [Gatling Plugin with Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#prerequisites" >}})
+   - [Gatling Plugin with sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#prerequisites" >}})
 2. Use the following command for deployment:
-    - [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
-    - [Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
-    - [sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
+    - [Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
+    - [Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
+    - [sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
 
 {{< alert tip >}}
 Demo projects are available with a fully configured [Package Descriptor example]({{< ref "#package-descriptor" >}}) for each Build Plugin: [Maven](https://github.com/gatling/gatling-maven-plugin-demo-java/tree/main/.gatling/example.package.conf), [Gradle](https://github.com/gatling/gatling-gradle-plugin-demo-java/tree/main/.gatling/example.package.conf), and [sbt](https://github.com/gatling/gatling-sbt-plugin-demo/tree/main/.gatling/example.package.conf)
