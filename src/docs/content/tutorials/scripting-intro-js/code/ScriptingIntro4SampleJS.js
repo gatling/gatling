@@ -24,12 +24,7 @@ simulation((setUp) => {
 
   const myScenario = scenario("My Scenario")
     .exec(
-      http("Request 1").get("/computers/"),
-      pause(2),
-      http("Request 2")
-        .get("/computers/?f=macbook")
-        .check(status().is(200))
-    );
+      http("Request 1").get("/computers/"));
 
   // Add the setUp block:
   setUp(
