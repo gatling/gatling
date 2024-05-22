@@ -84,7 +84,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
   private val harPathChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = FilesOnly, fileFilter = harFileFilter)
 
   /* Simulation panel components */
+  private val simulationPackageLabel = new Label("Package: ")
   private val simulationPackage = new TextField(30)
+  private val simulationClassNameLabel = new Label()
   private val simulationClassName = new TextField(30)
   private val simulationFormat = new LabelledComboBox[RenderingFormat](RenderingFormat.AllFormats)
   private val followRedirects = new CheckBox("Follow Redirects?")
@@ -208,11 +210,11 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
 
         val config = new BorderPanel {
           val packageName = new LeftAlignedFlowPanel {
-            contents += new Label("Package: ")
+            contents += simulationPackageLabel
             contents += simulationPackage
           }
           val className = new LeftAlignedFlowPanel {
-            contents += new Label("Class Name*: ")
+            contents += simulationClassNameLabel
             contents += simulationClassName
           }
           val format = new LeftAlignedFlowPanel {
@@ -331,8 +333,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       root.center.har.visible = true
   }
 
-  /* Reactions I: handling filters, save checkbox, table edition and switching between Proxy and HAR mode */
-  listenTo(enableFilters, modeSelector.selection, httpsModes.selection, savePreferences)
+  /* Reactions I: handling filters, save checkbox, table edition, switching between Proxy and HAR mode, and switching format */
+  listenTo(enableFilters, modeSelector.selection, httpsModes.selection, savePreferences, simulationFormat.selection)
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
@@ -342,6 +344,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
       toggleFiltersEdition(isNotDisabled)
     case SelectionChanged(`httpsModes`) =>
       toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
+    case SelectionChanged(`simulationFormat`) =>
+      togglePackage(simulationFormat.selection.item.hasPackages)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
       val newRecorderConfiguration = RecorderConfiguration.recorderConfiguration.modify(_.core.saveConfig).setTo(true)
       RecorderConfiguration.reload(newRecorderConfiguration)
@@ -377,6 +381,13 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     ignoreValidation(certificatePathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
     ignoreValidation(privateKeyPathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
     start.enabled = ValidationHelper.validationStatus
+  }
+
+  private def togglePackage(enabled: Boolean): Unit = {
+    simulationPackageLabel.visible = enabled
+    simulationPackage.visible = enabled
+    simulationClassNameLabel.text = if (enabled) "Class Name*: " else "Simulation Name*: "
+    simulationClassName.columns = if (enabled) 30 else 60
   }
 
   /* Reactions II: fields validation */
@@ -526,6 +537,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuratio
     configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
     simulationClassName.text = configuration.core.className
     simulationFormat.selection.item = configuration.core.format
+    togglePackage(configuration.core.format.hasPackages)
     enableFilters.selected = configuration.filters.enabled
     followRedirects.selected = configuration.http.followRedirect
     inferHtmlResources.selected = configuration.http.inferHtmlResources
