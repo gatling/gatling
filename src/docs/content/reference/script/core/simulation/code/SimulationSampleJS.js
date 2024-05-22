@@ -27,11 +27,13 @@ const httpProtocol1 = http;
 const httpProtocol2 = http;
 
 //#setUp
-const scn = scenario("scn"); // etc...
+export default simulation((setUp) => {
+  const scn = scenario("scn"); // etc...
 
-setUp(
-  scn.injectOpen(atOnceUsers(1))
-);
+  setUp(
+    scn.injectOpen(atOnceUsers(1))
+  );
+});
 //#setUp
 
 //#setUp-multiple

@@ -15,7 +15,7 @@
  */
 
 //#write-the-scenario
-simulation((setUp) => {
+export default simulation((setUp) => {
 
   const httpProtocol =
     http.baseUrl("https://computer-database.gatling.io")

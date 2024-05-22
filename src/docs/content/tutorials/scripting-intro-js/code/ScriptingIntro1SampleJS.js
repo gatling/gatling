@@ -17,13 +17,14 @@
 //#setup-the-file
 import {
   scenario,
-  simulation
+  simulation,
+  constantUsersPerSec
 } from "@gatling.io/core";
 import { http } from "@gatling.io/http";
 //#setup-the-file
 
-//#extend-the-simulation-class
-simulation((setUp) => {
+//#extend-the-simulation-function
+export default simulation((setUp) => {
 
 });
-//#extend-the-simulation-class
+//#extend-the-simulation-function

@@ -15,7 +15,7 @@
  */
 
 //#define-the-protocol-class
-simulation((setUp) => {
+export default simulation((setUp) => {
 
   // Add the HttpProtocolBuilder:
   const httpProtocol =

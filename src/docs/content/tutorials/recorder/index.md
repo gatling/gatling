@@ -15,7 +15,7 @@ lastmod: 2022-12-14T21:30:56+02:00
 This tutorial is intended for Gatling versions `{{< var gatlingVersion >}}` and later. 
 {{< /alert >}}
 
-The Gatling Recorder allows you to capture browser-based actions to create a realistic user scenario for load testing. The Recorder application is launched from Gatling, using either the bundle or the Maven, Gradle, or sbt plugins.  
+The Gatling Recorder allows you to capture browser-based actions to create a realistic user scenario for load testing. The Recorder application is launched from Gatling, using either the bundle, the Maven, Gradle, or sbt plugins, or the JavaScript SDK.  
 
 In this tutorial, we use Gatling to load test a simple cloud-hosted web server and introduce you to the basic elements of the Recorder. We strongly recommend completing the [Introduction to scripting tutorial]({{< ref "/tutorials/scripting-intro" >}}) before starting to work with the Recorder. 
 
@@ -31,7 +31,7 @@ This tutorial requires running Gatling on your local machine and using the Mozil
 
 - [Download Gatling](https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip)
 - [Create a Gatling Enterprise Cloud trial account](https://cloud.gatling.io/)
-- [Configure your web browser]({{< ref "/reference/script/protocols/http/recorder/#configuration" >}}) (link)
+- [Configure your web browser]({{< ref "/reference/script/protocols/http/recorder/#configuration" >}})
 
 
 ## Plan the user scenario
@@ -59,6 +59,11 @@ Linux/MacOS: ./mvnw gatling:recorder
 Windows: mvnw.cmd gatling:recorder
 {{</ code-toggle >}}
 
+For the JavaScript SDK:
+
+```console
+npm run recorder
+```
 
 Once launched, the Recorder application opens, allowing you to configure the settings before recording a web browser session.
 
@@ -108,7 +113,12 @@ Based on the scenario described in [Launch the Recorder](#launch-the-recorder) p
 11. Click on **Create this computer**.
 12. Return to the Recorder application and click **Stop**
 
-The simulation is generated in the folder `src/test/java/`.
+The simulation is generated in the folder:
+
+{{< code-toggle console >}}
+Java: src/test/java/
+JavaScript: src/
+{{</ code-toggle >}}
 
 {{< alert tip >}}
 The scenario components and their functionality are described in the [Intro to Scripting]({{< ref "/tutorials/scripting-intro" >}}) tutorial. For more details regarding the Simulation structure, please check out the [Simulation reference page]({{< ref "/reference/script/core/simulation" >}}).
@@ -131,12 +141,24 @@ Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
 Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
 {{</ code-toggle >}}
 
+JavaScript SDK: 
+
+```console
+Coming soon
+```
+
 3. Run the following command in your terminal to deploy and start your simulation:
 
 {{< code-toggle console >}}
 Linux/MacOS: ./mvnw gatling:enterpriseStart
 Windows: mvnw.cmd gatling:enterpriseStart
 {{</ code-toggle >}}
+
+JavaScript SDK: 
+
+```console
+Coming soon
+```
 
 Watch the Simulation deploy automatically and generate real-time reports.
 
@@ -149,6 +171,15 @@ Using the terminal, you can launch your test with the following command in the p
 Linux/MacOS: ./mvnw gatling:test
 Windows: mvnw.cmd gatling:test
 {{</ code-toggle >}}
+
+JavaScript SDK: 
+
+{{< code-toggle console >}}
+JavaScript: npx gatling run  --simulation  <simulation-name>
+TypeScript: npx gatling run  --typescript --simulation  <simulation-name>
+{{</ code-toggle >}}
+
+
 
 The Gatling interactive CLI starts and asks a series of questions. Answer the questions as follows: 
 

@@ -11,7 +11,7 @@ lastmod: 2023-12-16T21:30:56+02:00
 This guide is only intended for the  Gatling JS version {{< var gatlingJsVersion >}}.
 {{< /alert >}}
 
-Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, Scala, JavaScript/TypeScript, or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise. In this guide, we cover a "Hello world"-style example for JavaScript and TypeScript of how to:
+Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, Scala, JavaScript|TypeScript, or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise. In this guide, we cover a "Hello world"-style example for JavaScript of how to:
 
  - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
  - [write your first simulation]({{< ref "#simulation-construction" >}}),
@@ -23,30 +23,24 @@ Join the [Gatling Community Forum](https://community.gatling.io) to discuss load
 
 ## Setup
 
-This section guides you through installation and setting up your developer environment. Gatling has a lot of optionalities, including:
-
-- build tools,
-- CI/CD integrations,
-- Java, Kotlin, Scala, and JavaScript SDKs
-
-This guide uses JavaScript and the `gatling-js-demo` project. The JavaScript SDK is currently available for the `HTTP` protocol only. 
+This section guides you through installation and setting up your developer environment. This guide uses JavaScript and the `gatling-js-demo` project. The JavaScript SDK is currently available for the `HTTP` protocol only. 
 
 ### Install Gatling 
 
 {{< alert info >}}
 **Prerequisites**  
-NodeJS v18 or later (LTS versions only) and npm v8 or later.
+[Node.js](https://nodejs.org/) v18 or later (LTS versions only) and npm v8 or later.
 {{< /alert >}}
 
 Then, use the following procedure to install Gatling:
 
-1. Download the Gatling-js demo project zip file using the following download button:
+1. Download the Gatling JS demo project zip file using the following download button:
 {{< button title="Download Gatling for JavaScript" >}}
 https://github.com/gatling/gatling-js-demo/archive/refs/heads/main.zip{{< /button >}}  
 
 2. Unzip and open the project in your IDE or terminal.
 3. navigate to the `/javascript` folder for JavaScript projects in your terminal. 
-4. Run `npm install` to install the packages and dependencies. 
+4. Run `npm install` to install the packages and dependencies including the `gatling` command. 
 
 ## Simulation construction 
 
@@ -61,7 +55,7 @@ A Gatling simulation consists of the following:
 - importing Gatling functions, 
 - configuring the protocol (commonly HTTP),
 - describing a scenario, 
-- setting up the injection profile (virtual user profile).
+- setting up the injection profile (virtual users profile).
 
 The following procedure teaches you to develop the simulation from each constituent component. If you want to skip ahead
 and copy the final simulation, jump to [Test execution]({{< ref "#test-execution" >}}). Learn more about simulations in the
@@ -71,24 +65,23 @@ and copy the final simulation, jump to [Test execution]({{< ref "#test-execution
 
 To set up the test file use the following procedure: 
 
-1. In your IDE open the `index.js` file in the `javascript/src/` folder.
-2. Modify the simulation by deleting everything below line 13 `import { http, status } from "@gatling.io/http";`.
-3. The simulation should now look like the following:
+1. In your IDE create the `myfirstsimulation.gatling.js` file in the `javascript/src/` folder.
+2. Copy the following import statements and past them in the `myfirstsimulation.gatling.js` file.
 
 {{< include-code "ScriptingIntro1Sample#setup-the-file" js >}}
 
-#### Extend the `Simulation` function 
+#### Define the `Simulation` function 
 
-You must extend Gatling's `Simulation` function to write a script. To extend the `Simulation` function, after the import statements, add: 
+The `simulation` function takes the `setUp` function as an argument, which is used to write a script. To add the `simulation` function, after the import statements, add: 
 
-{{< include-code "ScriptingIntro1Sample#extend-the-simulation-class" js >}}
+{{< include-code "ScriptingIntro1Sample#extend-the-simulation-function" js >}}
 
-#### Define the protocol function
+#### Define an HTTP protocol
 
-Inside the `simulation` function, add an `HTTP protocol` function. Learn about all of the
+Inside the `simulation` function, define an HTTP protocol. Learn about all of the
 `HttpProtocolBuilder` options in the [Documentation]({{< ref "/reference/script/protocols/http/protocol" >}}). For
 this example, the `baseUrl` property is hardcoded as the Gatling computer database test site, and the `acceptHeader` and
-contentTypeHeader` properties are set to `application/json`.  
+`contentTypeHeader` properties are set to `application/json`. Add the HTTP protocol: 
 
 {{< include-code "ScriptingIntro2Sample#define-the-protocol-class" js >}}
 
@@ -96,7 +89,7 @@ contentTypeHeader` properties are set to `application/json`.
 
 The next step is to describe the user journey. For a web application, this usually consists of a user arriving at the
 application and then a series of interactions with the application. The following scenario mocks a user arriving on the
-home page of the [Gatling sample application](https://computer-database.gatling.io).
+home page of the [Gatling sample application](https://computer-database.gatling.io). Add the scenario:
 
 {{< include-code "ScriptingIntro3Sample#write-the-scenario" js >}}
 
@@ -105,14 +98,13 @@ components.
 
 #### Define the injection profile
 
-The final component of a Gatling simulation is the injection profile. The injection profile is contained in the `setUp`
-block. The following example adds 2 users per second for 60 seconds. See the
-[Documentation]({{< ref "/reference/script/core/injection" >}}) for all of the injection profile options. 
+The final component of a Gatling simulation is the injection profile. In your simulation you must call the `setUp` function exactly once to configure the injection profile. If you have several scenarios, each needs its own injection profile. 
+
+The following example adds 2 users per second for 60 seconds and each user executes the scenario we defined in [Write the Scenario]({{< ref="#write-the-scenario" >}}). See the [Documentation]({{< ref "/reference/script/core/injection" >}}) for all of the injection profile options. 
 
 {{< include-code "ScriptingIntro4Sample#define-the-injection-profile" js >}}
 
-Congrats! You have written your first Gatling simulation. The next step is to learn how to run the simulation locally
-and on Gatling Enterprise Cloud. 
+Congrats! You have written your first Gatling simulation. The next step is to learn how to run the simulation locally. 
 
 ## Test execution
 
@@ -123,13 +115,12 @@ Now, you should have a completed simulation that looks like the following:
 
 ### Run the Simulation locally 
 
-The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a
-new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
-Using the terminal, you can launch your test with the following command in the project `javascript` directory:
+The open-source version of Gatling allows you to run simulations locally, generating load from your computer.
+Using the terminal, you can launch your test with the following command in the `javascript` project directory:
 
 ```console
 
-npm run start
+npx gatling run --simulation myfirstsimulation
 
 ```
 

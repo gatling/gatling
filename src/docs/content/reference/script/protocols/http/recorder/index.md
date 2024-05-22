@@ -10,7 +10,23 @@ lastmod: 2022-12-14T21:30:56+02:00
 The Gatling Recorder helps you to quickly generate scenarios, by either acting as a HTTP proxy between the browser and the HTTP server or converting HAR (Http ARchive) files.
 Either way, the Recorder generates a simple simulation that mimics your recorded navigation.
 
-If you're using the bundle, you can launch it with the following script `$GATLING_HOME/bin/recorder.sh`.
+If you're using the bundle or the Maven plugin, you can launch the Recorder with the following command:
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw gatling:recorder
+Windows: mvnw.cmd gatling:recorder
+{{</ code-toggle >}}
+
+For the JavaScript SDK:
+
+```console
+npx gatling recorder
+```
+{{< alert tip >}}
+The Recorder is also available for the [sbt]({{< ref="../integrations/build-tools/sbt-plugin/" >}}) and [Gradle]({{< ref="../integrations/build-tools/gradle-plugin/" >}}) build tool plugins. See their respective documentation for more information.
+{{< /alert >}}
+
+
 You will get a window that looks like this one:
 
 {{< img src="recorder.png" alt="recorder.png" >}}

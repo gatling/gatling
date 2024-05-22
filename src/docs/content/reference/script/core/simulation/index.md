@@ -2,16 +2,16 @@
 title: Simulation
 seotitle: Gatling Simulation scripting reference
 description: Learn about the structure of the Gatling simulation, including required imports, protocol configuration and setUp.
-lead: "Learn about the main parts of a Gatling simulation: DSL imports, scenario definitions, simulation definitions, hooks."
+lead: "Learn about the main parts of a Gatling simulation: DSL imports, scenario definitions, simulation definitions, and hooks."
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---
 
-`Simulation` is the parent class your tests must extend so Gatling can launch them.
+`Simulation` is the parent class (function in JavaScript|TypeScript) your tests must extend so Gatling can launch them.
 
 {{< alert warning >}}
 We recommend that your Simulation's name does not start with `Test`.
-Some tools such as maven surefire aggressively consider that all classes with such naming patterns are for them to handle, and they will try to launch them.
+Some tools such as Maven Surefire aggressively consider that all classes with such naming patterns are for them to handle, and they will try to launch them.
 {{< /alert >}}
 
 ## DSL imports
@@ -31,7 +31,7 @@ Beware that any class that doesn't belong to those packages is considered privat
 
 ## setUp
 
-Most pieces of your tests can possibly be extracted into other helper classes so you can bring your own test libraries: scenarios, protocols, headers, injection profiles, etc.
+Most pieces of your tests can possibly be extracted into other helper classes (helper functions in JavaScript|TypeScript) so you can bring your own test libraries: scenarios, protocols, headers, injection profiles, etc.
 
 The only mandatory piece in your Simulations is that they must call the `setUp` method exactly once in their constructor to register the test components.
 
@@ -126,7 +126,7 @@ Gatling provides two hooks:
 The lifecycle is as follows:
 
 1. Gatling starts
-2. Simulation constructor is called and all the code in the class body not delayed in `before` and `after` hooks is executed
+2. Simulation constructor is called, and all the code in the class body that is not delayed in the `before` and `after` hooks is executed.
 3. `before` hook is executed
 4. Simulation runs
 5. Simulation terminates
