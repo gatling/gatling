@@ -49,8 +49,6 @@ private[render] object SimulationTemplate {
   }
 
   private[template] def headersBlockName(id: Int) = s"headers_$id"
-
-  private val MaxElementPerChain = 100
 }
 
 private[render] class SimulationTemplate(
@@ -125,46 +123,20 @@ private[render] class SimulationTemplate(
       s"${requestTemplate.render(simulationClassName, request, extractedUris)}".stripMargin
   }
 
-  private def chainElements(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]): String =
-    elements
-      .map(renderScenarioElement(_, extractedUris))
-      .mkString(s",$Eol")
-
   private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
     val scenarioReferenceType = format match {
       case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
       case RenderingFormat.Java11 | RenderingFormat.Java17 => "ScenarioBuilder"
     }
 
-    if (elements.sizeIs <= MaxElementPerChain) {
-      val scenarioElements = chainElements(extractedUris, elements)
+    val scenarioElements = elements
+      .map(renderScenarioElement(_, extractedUris))
+      .mkString(s",$Eol")
 
-      s"""private $scenarioReferenceType scn = scenario("$simulationClassName")
-         |  .exec(
-         |${s"$scenarioElements".indent(4)}
-         |  )${format.lineTermination}""".stripMargin
-    } else {
-      val chains: Seq[(Int, String)] =
-        elements
-          .grouped(MaxElementPerChain)
-          .toList
-          .zipWithIndex
-          .map { case (chain, i) =>
-            (i, chainElements(extractedUris, chain))
-          }
-
-      val chainReferenceType = format match {
-        case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
-        case RenderingFormat.Java11 | RenderingFormat.Java17 => "ChainBuilder"
-      }
-
-      s"""${chains
-          .map { case (i, content) => s"private $chainReferenceType chain_$i =$Eol${content.indent(2)}" }
-          .mkString(s"${format.lineTermination}$Eol$Eol")}
-         |
-         |$scenarioReferenceType scn = scenario("$simulationClassName")
-         |  .exec(${chains.map { case (i, _) => s"chain_$i" }.mkString(", ")})${format.lineTermination}""".stripMargin
-    }
+    s"""private $scenarioReferenceType scn = scenario("$simulationClassName")
+       |  .exec(
+       |${s"$scenarioElements".indent(4)}
+       |  )${format.lineTermination}""".stripMargin
   }
 
   def render(
