@@ -4,6 +4,8 @@ title: Open-source Jenkins Plugin
 seotitle: Open-Source Jenkins Plugin for Gatling
 description: How to use the Jenkins plugin to set up your load tests in your Continuous Integration pipelines.
 lead: Open-source Jenkins CI plugin for Gatling
+aliases:
+  - /reference/extensions/ci-cd/jenkins/oss
 date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---

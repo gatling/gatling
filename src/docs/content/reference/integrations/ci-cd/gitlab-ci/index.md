@@ -7,6 +7,8 @@ lead: Run your Gatling Enterprise simulations from GitLab CI/CD.
 badge:
   type: enterprise
   label: Enterprise
+aliases:
+  - /reference/extensions/ci-cd/gitlab-ci
 date: 2023-02-17T14:00:00+00:00
 lastmod: 2023-10-11T10:10:00+00:00
 ---

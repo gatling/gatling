@@ -1,6 +1,8 @@
 ---
 menutitle: Grafana Datasource
 title: Grafana Datasource for Gatling Enterprise
+aliases:
+  - /reference/extensions/grafana
 description: Learn how to configure the Gatling Enterprise Grafana datasource to display your Gatling Enterprise simulation reports.
 lead: Display Gatling Enterprise simulation reports in Grafana.
 badge:

@@ -7,6 +7,8 @@ lead: Run your Gatling Enterprise simulations from GitHub Actions.
 badge:
   type: enterprise
   label: Enterprise
+aliases:
+  - /reference/extensions/ci-cd/github-actions
 date: 2022-01-04T15:00:00+00:00
 lastmod: 2023-10-11T10:10:00+00:00
 ---

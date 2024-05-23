@@ -7,6 +7,8 @@ lead: Run your Gatling Enterprise simulations from your TeamCity CI.
 badge:
   type: enterprise
   label: Enterprise
+aliases:
+  - /reference/extensions/ci-cd/teamcity
 date: 2021-03-08T12:50:20+00:00
 lastmod: 2023-10-11T10:10:00+00:00
 ---

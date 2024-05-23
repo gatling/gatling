@@ -7,6 +7,8 @@ lead: Run your Gatling Enterprise simulations from Azure DevOps Pipelines.
 badge:
   type: enterprise
   label: Enterprise
+aliases:
+  - /reference/extensions/ci-cd/azure-devops
 date: 2023-11-09T15:25:27:+0000
 lastmod: 2023-11-09T15:25:27:+0000
 ---
