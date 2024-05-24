@@ -20,7 +20,8 @@ To invite a user to your organization, click on the **Invite** button and fill i
 - **Organization role**: either choose an organization role (which will be applied to every team), or select none and specify each role by team according to the permissions you want to grant.
 
 {{< alert warning >}}
-Only organization system admins can generate invitations.
+- Organization administrators can generate invitations to the organization and any team(s).
+- Team administrators can generate invitations to their specific team(s).
 {{< /alert >}}
 
 {{< img src="users-invite.png" alt="User create" >}}
