@@ -27,7 +27,7 @@ object JsonParsers {
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
 }
 
-private[gatling] final class JsonParsers {
+final class JsonParsers {
   import JsonParsers._
 
   private val jsonNodeValueType = Json.objectMapper.getTypeFactory.constructType(classOf[JsonNode])
