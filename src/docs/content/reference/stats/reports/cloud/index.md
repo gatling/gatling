@@ -9,109 +9,101 @@ date: 2021-03-10T14:29:43+00:00
 lastmod: 2023-10-12T09:41:48+00:00
 ---
 
-The reports can be accessed by clicking on the {{< icon chart-area >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}) or in the [runs table]({{< ref "../trends/cloud#runs-table" >}}).
+Click on the {{< icon chart-area >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}) or in the [runs table]({{< ref "../trends/cloud#runs-table" >}}) to access the reports.
 
-This view displays all of the metrics available for a specific run.
-The Reports page consists of:
+This view displays all the metrics available for a specific run.
 
-- [The run bar]({{< ref "#run-bar" >}})
-- [The top navigator menu]({{< ref "#top-navigator-menu" >}})
-- [Assertions]({{< ref "#assertions" >}})
-- [The timeline]({{< ref "#timeline" >}})
-- [Tabs]({{< ref "#tabs" >}})
-- [Filter bar]({{< ref "#filter-bar" >}})
-- [Charts area]({{< ref "#charts" >}})
-- [The summary]({{< ref "#summary" >}}) (only for requests and groups tabs)
-- [Public links]({{< ref "#shareable-links" >}})
-- [Print to PDF]({{< ref "#print-to-pdf" >}})
-- [Tips]({{< ref "#tips" >}})
+The page is split into a [header]({{< ref "#header" >}}) displaying the run title with the general actions, and the three main following sections:
 
-{{< img src="reports.png" alt="Reports" >}}
+- [Summary]({{< ref "#summary" >}})
+- [Report]({{< ref "#report" >}})
+- [Logs]({{< ref "#logs" >}})
 
-## Run Bar
+## Summary
 
-This bar is a combination of buttons including:
+The main objective of this tab is to provide a brief overview of your run performance.
 
-- **Start / Stop**: Start a new run of the simulation, or stop the ongoing run
-- **Share**: Create a [shareable link]({{< ref "#shareable-links" >}}) to share this reports to anyone you want.
-- **Print to PDF**: [Print a PDF]({{< ref "#print-to-pdf" >}}) of your reports
+The first section gives you general information about your run configuration and execution:
 
-{{< img src="run-bar.png" alt="Run bar" >}}
+{{< img src="summary-general-section.png" alt="Summary general section" >}}
 
-## Top Navigator Menu
+You can add a description to your run by clicking the **Edit** button and then **Save**.
 
-The navigation menu allows you to choose the simulation time range. You can also view a custom time range by dragging the cursors. 
+### Main KPIs
 
-{{< img src="timewindow.png" alt="Timewindow" >}}
+This section displays your run main KPIs:
 
-## Timeline
+{{< img src="summary-main-kpis.png" alt="Summary main KPIs" >}}
 
-The timeline contains metrics of the full run providing an overview of the run.
-Global information are available such as the resolution and the simulation name.
+- Error ratio: the ratio of responses with errors compared with the total number, in percent
+- Total requests: the total number of requests made during the run
+- Max. concurrent V.U: the maximum number of concurrent virtual users during the run
+- P95 response time: the response time of one of the requests, such that 95% of the requests were faster and only 5% were slower
 
-The resolution indicates the number of seconds per data point in the graph.
+### Assertions
 
-You can change the time range with control buttons or by selecting a region on the timeline:
+Assertions are the run's acceptance criteria. It allows you to quickly know if your requirements are met or not.
+After having observed the first run(s) results, you will be able to define your criteria to validate a simulation.
 
-{{< img src="timeline.png" alt="Timeline" >}}
+Gatling gives you the ability to create your own custom assertions thanks to [our DSL]({{< ref "../../script/core/assertions" >}}).
 
-## Assertions
+Each assertion has a status (successful or failed) that let you know which part of your run met your requirements.
 
-The image below shows the status of the simulation (ongoing, successful, timeout...).
-If your simulation has some assertions configured, you can click this label.
-You can add comments to the run by clicking on the {{< icon comment-alt >}} icon.
+{{< img src="summary-assertions.png" alt="Summary assertions" >}}
 
-{{< img src="timeline-assertions.png" alt="Timeline assertions" >}}
+### Request and response charts
 
-## Tabs
+The following section contains a global overview of your requests and responses per second and the response time percentiles:
 
-Below the navigator chart, there are tabs to switch charts.
-Each tab has the same structure except the summary that is available only for requests and groups tabs.
+{{< img src="summary-charts.png" alt="Summary charts" >}}
 
-{{< img src="tabs.png" alt="Tabs" >}}
-
-## Filter Bar
-
-This filter bar is a combination of buttons:
-
-- **Switch to Summary**: Switch to [summary]({{< ref "#summary" >}}) view for Requests & Groups tabs
-- buttons to filter the metrics displayed in the charts area
-
-{{< img src="filter-bar.png" alt="Filter bar" >}}
-
-## Charts
-
-All charts in Gatling Enterprise runs are interactive, so if you select a time window on a chart it will automatically change the time window
-for all other charts. Metrics are drawn in multiple charts.
-
-{{< img src="charts.png" alt="Charts" >}}
-
-Some of them have an icon to update the chart settings:
-
-{{< img src="distrib-chart.png" alt="Distribution chart" >}}
-
-You can also switch from area to pie and column charts using the icon.
-
-{{< img src="pie-button.png" alt="Pie button" >}}
-
-{{< alert warning >}}
-If your kernel version is too low (around below 3.10) you might not be able to get data from the TCP connection by state graph on the Connections tab. If you want to access this data, you should upgrade your kernel.
+{{< alert info >}}
+Tip: you can right-click on any chart to place pins that will also be visible in the "Report" tab. They are often useful to highlight sections of your run that will need to be studied more thoroughly.
 {{< /alert >}}
 
-## Summary (Requests and Groups only) {#summary}
 
-This view is available only from the Requests and Groups tabs.
-The summary of the data which is laid out in this table which can be viewed in flat mode (default) or hierarchy mode
-The summary is also connected to the timeline and the time window selected, so if you change the time window the summary
-will refresh the data to match the time window.
+### Errors list
 
-In flat mode, you can click on the title of each column to arrange the data in ascending or descending order. 
+The final section contains the details of every error that occurred during your run:
 
-{{< img src="summary.png" alt="Summary" >}}
+{{< img src="summary-errors.png" alt="Summary errors" >}}
 
-### Download CSV
 
-In order to download summaries as CSV for later use, you can click the download button on the top right side of the summary
+## Report
+
+Gatling Reports gives you all the information you need regarding the run execution: details about the injection profile, results including advanced metrics in various charts and formats to allow deep analysis, and also the possibility to export the raw data for custom reporting.
+
+All metrics and charts are split into the following panels:
+- [Requests]({{< ref "#requests" >}})
+- [Groups]({{< ref "#groups" >}}) (if you defined some)
+- [Users]({{< ref "#users" >}})
+- [Connections]({{< ref "#connections" >}})
+- [DNS]({{< ref "#dns" >}})
+- [Load Generators]({{< ref "#load-generators" >}})
+
+Using the request timeline at the top of the page, you can select your run time range to review. 
+Either select a predefined time range from the dropdown menu or drag and drop on the chart the desired area.
+
+{{< img src="report-timeline.png" alt="Report timeline" >}}
+
+### Requests
+
+The requests panel allows you to review how your requests and responses performed over time.
+You can add scenarios, groups and requests filtering options to filter by your criteria.
+
+You can visualize your run execution using charts:
+
+{{< img src="report-requests-charts.png" alt="Report requests charts" >}}
+
+or using tabular data:
+
+{{< img src="report-requests-table.png" alt="Report requests table" >}}
+
+{{< alert info >}}
+This table is also connected to the timeline and the time window selected, so if you change the time window the table will refresh the data to filter it.
+{{< /alert >}}
+
+You can download the table as a CSV file for later use. To do so, you can click the download button on the top right side of the table.
 
 {{< img src="download-summary.png" alt="Download-summary" >}}
 
@@ -119,12 +111,91 @@ CSV files are generated according to the selected **Scenario**
 
 {{< img src="download-summary-select-scenario.png" alt="Download-summary-select-scenario" >}}
 
-When downloading a group level summary, you will receive data for both **Duration** and **Cumulated response time**.
+When downloading a group level summary, you receive data for both **Duration** and **Cumulated response time**.
 
 
-## Generate Shareable Links {#shareable-links}
+### Groups
 
-A shareable link is a link of the current reports which will be accessible to anyone, without having to log in to Gatling Enterprise. To generate a shareable link, click on the *Share* button and choose the expiration date of your link.
+If you defined [groups]({{< ref "../../script/core/scenario#groups" >}}) in your simulation, you will be able to break down your results per each one of them.
+
+Once again like the requests panel, you can visualize your run execution using charts:
+
+{{< img src="report-groups-charts.png" alt="Report groups charts" >}}
+
+or using tabular data:
+
+{{< img src="report-groups-table.png" alt="Report groups table" >}}
+
+{{< alert info >}}
+This table is also connected to the timeline and the time window selected, so if you change the time window the table will refresh the data to filter it.
+{{< /alert >}}
+
+
+You can download the table as a CSV file for later use. To do so, you can click the download button on the top right side of the table.
+
+{{< img src="download-group-csv.png" alt="Download group csv" >}}
+
+CSV files are generated according to the selected **Scenario**
+
+{{< img src="download-group-select-scenario.png" alt="Download-group-select-scenario" >}}
+
+When downloading a group-level summary, you receive data for both **Duration** and **Cumulated response time**.
+
+
+### Users
+
+The users panel shows how your virtual users defined in your injection profile where injected over time in your simulation.
+
+{{< img src="report-users.png" alt="Report Users panel" >}}
+
+### Connections
+
+The connections panel shows metrics regarding the number of socket connections, TCP events, and TLS handshakes over time.
+
+{{< img src="report-connections.png" alt="Report Connections panel" >}}
+
+{{< alert warning >}}
+If your kernel version is too low (below 3.10) you might not be able to get data from the TCP connection by state chart. If you want to access this data, you should upgrade your kernel.
+{{< /alert >}}
+
+### DNS
+
+The DNS panel shows metrics related to DNS requests made during the run execution.
+
+{{< img src="report-dns.png" alt="Report DNS panel" >}}
+
+### Load Generators
+
+This panel shows metrics related to the CPU, heap, GC, and TCP events of the load generators VMs used for your run and configured in your [simulation]({{< ref "../../execute/cloud/user/simulations#creating-a-simulation" >}}).
+
+{{< img src="report-load-generators.png" alt="Report Load Generators panel" >}}
+
+
+## Logs
+
+This tab allows you to read logs from your simulation and load generators while your run is ongoing or when it failed.
+
+{{< img src="report-logs.png" alt="Report Logs" >}}
+
+{{< alert warning >}}
+Logs are archived and are inaccessible for successfully completed runs.
+{{< /alert >}}
+
+
+## Header
+
+The page header lets you edit your run title by clicking the {{< icon pencil >}} icon and gives you access to general actions:
+
+- [Public links]({{< ref "#shareable-links" >}})
+- [Print to PDF]({{< ref "#print-to-pdf" >}})
+- [View properties]({{< ref "#properties" >}})
+
+
+### Generate Shareable Links {#shareable-links}
+
+A shareable link is a link to the current report that is accessible to anyone without having to log in to Gatling Enterprise. To generate a shareable link, click on the **Share** button in the **Actions** dropdown at the top right of your page and choose the expiration date of your link.
+
+{{< img src="report-export-button.png" alt="Report export button" >}}
 
 {{< img src="generate-public-link.png" alt="Generate public links" >}}
 
@@ -134,13 +205,17 @@ Choose an expiration date, then click the generate button.
 
 {{< img src="successful-generation-public-link.png" alt="Successful public link generation" >}}
 
-You can copy the shareable link to share your report to non-Gatling Enterprise users, or click on the "Go" Button to access it yourself. You can click on the "OK" button to close this modal.
+You can copy the shareable link to share your report to non-Gatling Enterprise users, or click on the **Shareable link** itself to access it. Click on the **OK** button to close this modal.
 
-## Print to PDF
+### Print to PDF
 
-When clicking on the blue "Print to PDF" button in the navigator menu, you will have access to a page where you can configure and then print a PDF report of a specific simulation run.
+The "Print to PDF" option lets you create your own custom report. This custom report is visible online or in a PDF file that you can easily save and share.
 
-{{< img src="run-bar.png" alt="Print to PDF button" >}}
+All metrics and charts displayed in the [Report tab]({{< ref "#report" >}}) are available for your custom report. You can also create reusable templates for your future needs.
+
+Click the "Print to PDF" button in the **Actions** dropdown to access the configure and print PDF page.
+
+{{< img src="report-print-button.png" alt="Print to PDF button" >}}
 
 This report is initialized with:
 
@@ -150,16 +225,16 @@ This report is initialized with:
 - the run assertions
 - the run requests summary
 - 3 charts of the run:
-* Requests and Responses per second
-* Responses per Second by Status
-* Response Time Percentiles
+  * Requests and Responses per second
+  * Responses per Second by Status
+  * Response Time Percentiles
 
 {{< img src="export-page.png" alt="Print to PDF page" >}}
 
-This page is a configurable list of different elements that will be displayed in the report. You can click on the blue add button under every element
+This page is a configurable list of different elements that will be displayed in the report. You can click on the **Add block** button under every element
 to add another one.
 
-Every element can be moved up or down by clicking on the blue arrow on the top right of the element, or be removed by clicking on the red dash.
+Every element can be moved up or down by clicking on the arrows on the top right of the element, or be removed by clicking on the red trash icon.
 
 Those elements are composed of:
 
@@ -179,7 +254,7 @@ the group, etc.. whose data you want to fetch. You do not need to have the same 
 
 {{< img src="export-charts.png" alt="Export charts" >}}
 
-After adding all desired elements in the report you can click on the *Preview & Print to PDF* button on the top right to get your PDF file.
+After adding all desired elements in the report you can click on the **Preview & Print to PDF** button on the top right or the page to get your PDF file.
 
 {{< img src="export-actions.png" alt="Export actions" >}}
 
@@ -187,14 +262,22 @@ There are two more actions available to you:
 
 - **Save**: saves the current Export configuration:
   - **as a template**: this option will save the element list without the content
-  - **as a save**: this option will save everything, including the content of the Text Area and the configuration of the graphs
+  - **as a save**: this option saves everything, including the content of the Text Area and the configuration of the graphs
 - **Load**: load a previously saved template or save.
+
+### View properties {#properties}
+
+The **View properties** button, located in the top right action bar, shows every property you configured for your run.
+
+{{< img src="report-view-properties-button.png" alt="Run properties" >}}
+{{< img src="report-properties.png" alt="Run properties" >}}
+
 
 ## Useful Tips {#tips}
 
 ### Zoom
 
-You can reset the zoom status by double clicking on a chart.
+You can reset the zoom status by double-clicking on a chart.
 It is possible to change the time range window by doing any of the following actions:
 
 - Clicking the zoom icons of the control buttons
@@ -203,7 +286,7 @@ It is possible to change the time range window by doing any of the following act
 
 ### Markers
 
-To ease your analysis, you can create markers on all the charts by right clicking on them. You can click on the top of the marker to delete it.
+To ease your analysis, right-click on the charts to create markers. Click on the top of the marker to delete it.
 
 {{< img src="marker.png" alt="Marker" >}}
 
@@ -232,3 +315,9 @@ If you hover your mouse over a label on the percentiles chart legend, you will b
 The highlight legend option is enabled for every "non stacked" graph.
 
 {{< img src="highlightchart.png" alt="Highlight chart" >}}
+
+### Run comparison
+
+Gatling enterprise also offers the possibility to view and compare reports for each run.
+
+You can either decide to export a PDF report and select for each chart which run it relates to, or you can compare the request response times and error rates using the compare function in the [simulation details page]({{< ref "../trends/cloud#run-comparison" >}}).
