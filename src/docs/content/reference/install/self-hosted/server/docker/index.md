@@ -18,13 +18,13 @@ You can reuse every configuration shown here to spawn your own Docker based envi
 1. Contact support with your Docker Hub username to get access to the Gatling Enterprise Docker image
 2. Prepare a folder to hold the Docker Compose configuration, and inside this folder, make three subfolders:
 
-    - `cassandra-data`, kept empty
-    - `frontline-conf` prepared with the default [`frontline.conf`]({{< ref "configuration#default-configuration-file" >}}) and [`logback.xml`]({{< ref "#logging" >}})
-    - `frontline-keys`, kept empty
+  - `cassandra-data`, kept empty
+  - `frontline-conf` prepared with the default [`frontline.conf`]({{< ref "configuration#default-configuration-file" >}}) and [`logback.xml`]({{< ref "#logging" >}})
+  - `frontline-keys`, kept empty
 
 3. Optionally, create this subfolder:
 
-    - `repositories-cache`, kept empty
+  - `repositories-cache`, kept empty
 
 You can skip to the [Docker Compose configuration section]({{< ref "#configuration" >}}) if you already know the details.
 
@@ -137,7 +137,7 @@ For your convenience, here are some docker compose instructions to set up a quic
 
 **Cassandra container:**
 
-Based on cassandra image `cassandra:4.0`, you'll have to bind a local directory on the volume to store and keep your data. A healthcheck will be started on the container.
+Based on cassandra image `cassandra:4.1`, you'll have to bind a local directory on the volume to store and keep your data. A healthcheck will be started on the container.
 
 **Gatling Enterprise container:**
 
@@ -154,7 +154,7 @@ version: '2.4'
 services:
   cassandra:
     container_name: cassandra
-    image: cassandra:4.0
+    image: cassandra:4.1
     environment:
       - CASSANDRA_CLUSTER_NAME=FrontLine
     volumes:
