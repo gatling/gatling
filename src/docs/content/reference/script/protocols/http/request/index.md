@@ -18,7 +18,7 @@ HTTP support has a dedicated DSL, whose entry point is the `http(requestName)` m
 This request name is important because it will act as a key when computing stats for the reports.
 If the same name appears in multiple places in a Simulation, Gatling will consider the requests to be the same type, and their statistics will be aggregated.
 
-{{< include-code "requestName" java kt scala >}}
+{{< include-code "requestName" >}}
 
 {{< alert warning >}}
 As you can see, request names can be dynamic.
@@ -28,13 +28,13 @@ You would put a huge burden on the reporting module and your stats might be hard
 
 HTTP requests must be passed to the `exec()` method to be attached to the scenario and executed.
 
-{{< include-code "inline" java kt scala >}}
+{{< include-code "inline" >}}
 
 ## Method and URL
 
 Gatling provides built-ins for the most common methods. Those are simply the method name in minor case.
 
-{{< include-code "methods" java kt scala >}}
+{{< include-code "methods" >}}
 
 {{< alert tip >}}
 Gatling also supports relative URLs; see [baseUrl]({{< ref "protocol#baseurl" >}}).
@@ -57,19 +57,19 @@ To set the query parameters of an HTTP request, you can:
 
 * either pass the full query in the URL, e.g.:
 
-{{< include-code "full-query-in-url" java kt scala >}}
+{{< include-code "full-query-in-url" >}}
 
 * or pass query parameters one by one to the method named `queryParam`:
 
-{{< include-code "queryParam" java kt scala >}}
+{{< include-code "queryParam" >}}
 
 You can use `multivaluedQueryParam` to set query parameters with multiple values:
 
-{{< include-code "multivaluedQueryParam" java kt scala >}}
+{{< include-code "multivaluedQueryParam" >}}
 
 You can use `queryParamSeq` and `queryParamMap` to set multiple query parameters at once:
 
-{{< include-code "queryParam-multiple" java kt scala >}}
+{{< include-code "queryParam-multiple" >}}
 
 ## Headers
 
@@ -79,7 +79,7 @@ The HTTP protocol uses headers to exchange information between the client and se
 
 Gatling HTTP allows you to specify any header you want with the `header` and `headers` methods.
 
-{{< include-code "headers" java kt scala >}}
+{{< include-code "headers" >}}
 
 {{< alert tip >}}
 Header keys are defined as constants usable in the scenario, for example: `HttpHeaderNames.ContentType`.
@@ -90,7 +90,7 @@ You can find a list of the predefined constants [here](https://github.com/gatlin
 
 Gatling provides some handy shortcuts for setting the required headers for JSON, XML, and form encodings: 
 
-{{< include-code "asXXX" java kt scala >}}
+{{< include-code "asXXX" >}}
 
 {{< alert tip >}}
 Shared headers can also be defined on the [`HttpProtocol`]({{< ref "protocol#header" >}}).
@@ -98,19 +98,19 @@ Shared headers can also be defined on the [`HttpProtocol`]({{< ref "protocol#hea
 
 For a given request, you can also disable shared `HttpProtocol` headers with `ignoreProtocolHeaders`.
 
-{{< include-code "ignoreProtocolHeaders" java kt scala >}}
+{{< include-code "ignoreProtocolHeaders" >}}
 
 ## Checks
 
 You can add checks on a request.
 
-{{< include-code "check" java kt scala >}}
+{{< include-code "check" >}}
 
 For more information, see the [HTTP Checks reference section]({{< ref "checks" >}}).
 
 For a given request, you can also disable common checks that were defined on the `HttpProtocol` with `ignoreProtocolChecks`:
 
-{{< include-code "ignoreProtocolChecks" java kt scala >}}
+{{< include-code "ignoreProtocolChecks" >}}
 
 ## Request Body
 
@@ -140,11 +140,11 @@ This solution is typically used with Strings in the [Gatling Expression Language
 It takes one single parameter:
 * `string` the text content can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
-{{< include-code "StringBody" java kt scala >}}
+{{< include-code "StringBody" >}}
 
 Using a function is one way to craft complex dynamic payloads, as you can code your own logic.
 
-{{< include-code "template,template-usage" java kt scala >}}
+{{< include-code "template,template-usage" >}}
 
 #### `RawFileBody` 
 
@@ -154,7 +154,7 @@ This way is the most efficient one as bytes can be cached and don't have to be d
 It takes one single parameter:
 * `filePath` the file location, can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
-{{< include-code "RawFileBody" java kt scala >}}
+{{< include-code "RawFileBody" >}}
 
 #### `ElFileBody` 
 
@@ -165,17 +165,22 @@ It takes one single parameter:
 
 Since Gatling EL is a text-based templating engine, content can not be non-textual.
 
-{{< include-code "ElFileBody" java kt scala >}}
+{{< include-code "ElFileBody" >}}
 
 #### `PebbleStringBody`
 
 Gatling Expression Language is definitively the most optimized templating engine for Gatling in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
 If you want loops and conditional blocks, you can use Gatling's [Pebble](https://github.com/PebbleTemplates/pebble) based templating engine.
 
-{{< include-code "PebbleStringBody" java kt scala >}}
+{{< include-code "PebbleStringBody" >}}
 
 {{< alert tip >}}
-You can register Pebble `Extensions` with `registerPebbleExtensions(extensions: Extension*)`. This can only be done once and must be done before loading any Pebble template.
+You can register Pebble `Extensions` with `registerPebbleExtensions(extensions: Extension*)`.
+This can only be done once and must be done before loading any Pebble template.
+{{< /alert >}}
+
+{{< alert warning >}}
+The `registerPebbleExtensions` function is not supported by Gatling JS.
 {{< /alert >}}
 
 {{< alert tip >}}
@@ -186,19 +191,19 @@ Template inheritance is only available when using [`PebbleFileBody`]({{< ref "#p
 
 `PebbleFileBody` lets you pass the path to a [Pebble](https://github.com/PebbleTemplates/pebble) file template.
 
-{{< include-code "PebbleFileBody" java kt scala >}}
+{{< include-code "PebbleFileBody" >}}
 
 #### `ByteArrayBody`
 
 `ByteArrayBody` lets you pass an array of bytes, typically when you want to use a binary protocol such as Protobuf.
 
-{{< include-code "ByteArrayBody" java kt scala >}}
+{{< include-code "ByteArrayBody" >}}
 
 #### `InputStreamBody`
 
 `InputStreamBody` lets you pass a `java.util.InputStream`.
 
-{{< include-code "InputStreamBody" java kt scala >}}
+{{< include-code "InputStreamBody" >}}
 
 ### Forms
 
@@ -214,15 +219,15 @@ Unless you've explicitly set the `Content-Type` header:
 
 `formParam` lets you pass non-file form input fields.
 
-{{< include-code "formParam" java kt scala >}}
+{{< include-code "formParam" >}}
 
 You can use `multivaluedFormParam` to set form parameters with multiple values:
 
-{{< include-code "multivaluedFormParam" java kt scala >}}
+{{< include-code "multivaluedFormParam" >}}
 
 You can use `formParamSeq` and `formParamMap` to set multiple form parameters at once:
 
-{{< include-code "formParam-multiple" java kt scala >}}
+{{< include-code "formParam-multiple" >}}
 
 #### `form`
 
@@ -230,7 +235,7 @@ You might want to repost all the inputs or a form previously captured with a [`f
 
 Note you can override the form field values with the `formParam` and the likes.
 
-{{< include-code "formFull" java kt scala >}}
+{{< include-code "formFull" >}}
 
 #### `formUpload`
 
@@ -240,7 +245,7 @@ This method takes 2 parameters:
 
 [See above]({{< ref "#full-body" >}}) how Gatling resolves `filePath`.
 
-{{< include-code "formUpload" java kt scala >}}
+{{< include-code "formUpload" >}}
 
 {{< alert tip >}}
 The MIME Type of the uploaded file defaults to `application/octet-stream`, and the character set defaults to the one configured in `gatling.conf` (`UTF-8` by default). Override them when needed.
@@ -252,7 +257,7 @@ The MIME Type of the uploaded file defaults to `application/octet-stream`, and t
 
 You can set a multipart body as individual parts using `bodyPart`.
 
-{{< include-code "bodyPart" java kt scala >}}
+{{< include-code "bodyPart" >}}
 
 {{< alert tip >}}
 The [asXXX shortcuts]({{< ref "#asxxx" >}}) can help you configure the necessary HTTP headers.
@@ -262,7 +267,7 @@ The [asXXX shortcuts]({{< ref "#asxxx" >}}) can help you configure the necessary
 Once bootstrapped with one of the following methods, `BodyPart` has the following methods for setting additional options.
 Like in the rest of the DSL, almost every parameter can be a plain `String`, a Gatling Expression Language `String`, or a function.
 
-{{< include-code "bodyPart-options" java kt scala >}}
+{{< include-code "bodyPart-options" >}}
 
 #### `StringBodyPart`
 
@@ -299,13 +304,13 @@ Similar to [ByteArrayBody]({{< ref "#bytearraybody" >}}).
 You might want to process the request body before it's being sent to the wire.
 Gatling currently only provides one single pre-processor: `gzipBody`.
 
-{{< include-code "processRequestBody" java kt scala >}}
+{{< include-code "processRequestBody" >}}
 
 ## Resources
 
 Gatling can fetch a main request's resources in parallel to emulate the behavior of a real web browser.
 
-{{< include-code "resources" java kt scala >}}
+{{< include-code "resources" >}}
 
 ## Advanced Options
 
@@ -316,7 +321,7 @@ The default request timeout is controlled by the ``gatling.http.requestTimeout` 
 However, you might want to use `requestTimeout`
 to override the global value for a specific request, typically a long file upload or download.
 
-{{< include-code "requestTimeout" java kt scala >}}
+{{< include-code "requestTimeout" >}}
 
 #### `basicAuth` and `digestAuth` {#authorization}
 
@@ -340,11 +345,11 @@ See [silencing protocol section]({{< ref "protocol#silenturi" >}}) for more deta
 
 You can then make the request *silent*:
 
-{{< include-code "silent" java kt scala >}}
+{{< include-code "silent" >}}
 
 You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at the protocol level:
 
-{{< include-code "notSilent" java kt scala >}}
+{{< include-code "notSilent" >}}
 
 #### `sign`
 
@@ -354,8 +359,10 @@ Just like you can [define a global signing strategy on the HttpProtocol configur
 
 Similarly, one might want to process the response before it's passed to the checks pipeline:
 
-`transformResponse(responseTransformer: (Response, Session) => Validation[Response])`
+```scala
+transformResponse(transformer: (Response, Session) => Validation[Response])
+```
 
 The example below shows how to decode some Base64 encoded response body:
 
-{{< include-code "resp-processors-imports,response-processors" java kt scala >}}
+{{< include-code "resp-processors-imports,response-processors" >}}

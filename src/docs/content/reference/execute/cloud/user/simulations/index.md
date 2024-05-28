@@ -58,7 +58,6 @@ This limit exists for both performance reasons (to avoid data growing too large 
 reasons (to avoid a forgotten test running forever).
 {{< /alert >}}
 
-
 ### Step 1: General
 
 In this step, you will define the simulation's general parameters.
@@ -114,7 +113,7 @@ You can add several locations with different numbers of load generators to run y
 
 After this step, you can already save the simulation, or continue with optional configurations.
 
-### Step 3: Load Generator Parameters (optional)
+### Step 3: Load Generator Parameters {{% badge info "Optional" /%}} {#step-3-load-generators-parameters}
 
 This step allows you to define the Java system properties and environment variables used when running this particular simulation. Properties/variables entered here will add to the defaults, unless you choose to ignore the defaults. If you keep the defaults, and you add a property/variable with the same key as one from the defaults, the simulation's value will be used (it overrides the default).
 
@@ -137,8 +136,7 @@ System properties can be retrieved in your Gatling simulation with `System.getPr
 Environment variables can be retrieved in your Gatling simulation with `System.getEnv("YOUR_ENV_VAR_KEY")`.
 {{< /alert >}}
 
-
-### Step 4: Time window (optional)
+### Step 4: Time window {{% badge info "Optional" /%}} {#step-4-time-window}
 
 You can configure some ramp up/down time windows to be excluded when computing assertions. This is typically useful when you know that at the beginning of your test run you're going to expect higher response times than when your system is warm (JIT compiler has kicked in, autoscaling has done its work, caches are filled...) and don’t want them to cause your assertions to fail.
 

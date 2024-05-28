@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '16.15.1'
+          node-version: '20'
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3

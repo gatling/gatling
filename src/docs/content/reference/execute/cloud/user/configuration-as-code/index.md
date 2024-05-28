@@ -29,13 +29,13 @@ For a better understanding, see references for underlying concepts:
 To deploy your Gatling project on Gatling Enterprise Cloud, follow these steps:
 
 1. Configure the Gatling Enterprise Cloud [API Token]({{< ref "reference/execute/cloud/admin/api-tokens" >}}) within your Gatling Build Plugin:
-   - [Gatling Plugin with Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#prerequisites" >}})
-   - [Gatling Plugin with Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#prerequisites" >}})
-   - [Gatling Plugin with sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#prerequisites" >}})
+   - [Gatling Plugin with Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#prerequisites" >}})
+   - [Gatling Plugin with Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#prerequisites" >}})
+   - [Gatling Plugin with sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#prerequisites" >}})
 2. Use the following command for deployment:
-    - [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
-    - [Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
-    - [sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
+    - [Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
+    - [Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
+    - [sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
 
 {{< alert tip >}}
 Demo projects are available with a fully configured [Package Descriptor example]({{< ref "#package-descriptor" >}}) for each Build Plugin: [Maven](https://github.com/gatling/gatling-maven-plugin-demo-java/tree/main/.gatling/example.package.conf), [Gradle](https://github.com/gatling/gatling-gradle-plugin-demo-java/tree/main/.gatling/example.package.conf), and [sbt](https://github.com/gatling/gatling-sbt-plugin-demo/tree/main/.gatling/example.package.conf)
@@ -224,7 +224,7 @@ gatling.enterprise.package {
     - `US East - N. Virginia`
     - `US West - N. California`
     - `US West - Oregon`
-    - An existing [Private Location ID]({{< ref "reference/install/cloud/private-locations/introduction" >}})
+    - An existing [Private Location ID]({{< ref "/reference/install/cloud/private-locations/introduction" >}})
 - `size` *(optional)* : The number of load generators to deploy for the location *(default: 1)*
 - `weight` *(optional)* : The % of virtual users handled by the load generators of the location *(default: even weight)*
 
@@ -234,8 +234,8 @@ Locations weights sum must be equal to 100
 
 `parameters` *(optional)* :
 
-- `ignoreDefaults` *(optional)* : Ignore or not [Default Load Generator Parameters]({{< ref "reference/install/cloud/private-locations/introduction" >}}) *(default: false, or existing)*
-- `systemProperties` *(optional)* : [Java system properties]({{ < ref "/reference/execute/cloud/user/simulations/#step-3-load-generator-parameters-optional">}}) for the simulation *(default: empty, or existing)*
+- `ignoreDefaults` *(optional)* : Ignore or not [Default Load Generator Parameters]({{< ref "/reference/install/cloud/private-locations/introduction" >}}) *(default: false, or existing)*
+- `systemProperties` *(optional)* : [Java system properties]({{ < ref "/reference/execute/cloud/user/simulations#step-3-load-generator-parameters" >}}) for the simulation *(default: empty, or existing)*
 - `environmentVariables` *(optional)* : Environment variables for the simulation *(default: empty, or existing)*
 
 {{< alert info >}}
@@ -247,8 +247,6 @@ Environment variables prefix with `SENSITIVE_` will not be displayed on dashboar
 
 - `rampUp` *(optional)* : number of second at the beginning of the test to ignore *(default: 0, or existing)*
 - `rampDown` *(optional)* : number of second at the end of the test to ignore *(default: 0, or existing)*
-
-
 
 ### Common settings for simulations
 

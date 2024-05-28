@@ -98,7 +98,7 @@ Gatling 3.11.0 is removing the old syntax, meaning you must now use `#{}` and th
 The HTTP protocol `virtualHost` method has been dropped.
 If you want to hit a specific IP address while forcing the hostname, you can achieve the same result with bypassing the DNS resolution using the existing `hostNameAliases`.
 
-## Replacing the hand-made bundle with a maven wrapper based one
+## Replacing the hand-made bundle with a Maven wrapper based one
 
 The Gatling standalone bundle was created as a means for non developers to start using Gatling without having to install anything but a JDK on their machine.
 

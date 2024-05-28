@@ -7,6 +7,10 @@ date: 2024-02-07T14:18:28+00:00
 lastmod: 2024-02-07T14:18:28+00:00
 ---
 
+{{< alert warning >}}
+The MQTT protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## License and limitations {#license}
 
 **The Gatling MQTT component is distributed under the

@@ -101,13 +101,13 @@ This allows you to work with the package and simulation IDs for keeping track of
 simulations on Gatling Enterprise Cloud. Use the following procedure to make your initial deployment: 
 
 1. Add the [API Token]({{< ref "reference/execute/cloud/admin/api-tokens" >}}) to your Gatling project.
-  - [Gatling Plugin with Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#prerequisites" >}})
-  - [Gatling Plugin with Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#prerequisites" >}})
-  - [Gatling Plugin with sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#prerequisites" >}})
+  - [Gatling Plugin with Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#prerequisites" >}})
+  - [Gatling Plugin with Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#prerequisites" >}})
+  - [Gatling Plugin with sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#prerequisites" >}})
 2. Deploy your package and simulation(s) with the following command:
-  - [Maven]({{< ref "reference/extensions/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
-  - [Gradle]({{< ref "reference/extensions/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
-  - [sbt]({{< ref "reference/extensions/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
+  - [Maven]({{< ref "reference/integrations/build-tools/maven-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `mvn gatling:enterpriseDeploy`
+  - [Gradle]({{< ref "reference/integrations/build-tools/gradle-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `gradle gatlingEnterpriseDeploy`
+  - [sbt]({{< ref "reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise-cloud" >}}): `sbt Gatling/enterpriseDeploy`
 
 
 The CLI deploys the package and simulation to Gatling Enterprise Cloud and returns the package ID and simulation ID in the terminal. 

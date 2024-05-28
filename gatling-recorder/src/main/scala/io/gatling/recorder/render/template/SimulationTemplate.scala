@@ -34,8 +34,9 @@ private[render] object SimulationTemplate {
 
   private[template] def renderNonBaseUrls(values: Seq[UrlVal], format: RenderingFormat): String = {
     val referenceType = format match {
-      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
-      case RenderingFormat.Java11 | RenderingFormat.Java17 => "String"
+      case RenderingFormat.Scala | RenderingFormat.Kotlin          => "private val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17         => "private String"
+      case RenderingFormat.JavaScript | RenderingFormat.TypeScript => "const"
     }
 
     if (values.isEmpty) {
@@ -43,14 +44,12 @@ private[render] object SimulationTemplate {
     } else {
       values
         .sortBy(_.valName)
-        .map(value => s"private $referenceType ${value.valName} = ${value.url.protect(format)}${format.lineTermination}")
+        .map(value => s"$referenceType ${value.valName} = ${value.url.protect(format)}${format.lineTermination}")
         .mkString(Eol, s"$Eol$Eol", "")
     }
   }
 
   private[template] def headersBlockName(id: Int) = s"headers_$id"
-
-  private val MaxElementPerChain = 100
 }
 
 private[render] class SimulationTemplate(
@@ -87,7 +86,6 @@ private[render] class SimulationTemplate(
                    |${protectedHeaders.map { case (protectedName, protectedValue) => s"  $protectedName to $protectedValue" }.mkString(s",$Eol")}
                    |)""".stripMargin
             }
-
           case RenderingFormat.Java11 | RenderingFormat.Java17 =>
             protectedHeaders match {
               case Seq((protectedName, protectedValue)) =>
@@ -97,7 +95,10 @@ private[render] class SimulationTemplate(
                    |${protectedHeaders.map { case (protectedName, protectedValue) => s"  Map.entry($protectedName, $protectedValue)" }.mkString(s",$Eol")}
                    |);""".stripMargin
             }
-
+          case RenderingFormat.JavaScript | RenderingFormat.TypeScript =>
+            s"""const $headerReference = {
+               |${protectedHeaders.map { case (protectedName, protectedValue) => s"  $protectedName: $protectedValue" }.mkString(s",$Eol")}
+               |};""".stripMargin
           case _ =>
             s"""Map<CharSequence, String> $headerReference = new HashMap<>();
                |${protectedHeaders
@@ -115,8 +116,9 @@ private[render] class SimulationTemplate(
           duration.toSeconds.toString
         } else {
           format match {
-            case RenderingFormat.Scala => s"${duration.toMillis}.milliseconds"
-            case _                     => s"Duration.ofMillis(${duration.toMillis})"
+            case RenderingFormat.Scala                                   => s"${duration.toMillis}.milliseconds"
+            case RenderingFormat.JavaScript | RenderingFormat.TypeScript => s"""{ amount: ${duration.toMillis}, unit: "milliseconds" }"""
+            case _                                                       => s"Duration.ofMillis(${duration.toMillis})"
           }
         }
 
@@ -125,46 +127,21 @@ private[render] class SimulationTemplate(
       s"${requestTemplate.render(simulationClassName, request, extractedUris)}".stripMargin
   }
 
-  private def chainElements(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]): String =
-    elements
+  private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
+    val scenarioReferenceType = format match {
+      case RenderingFormat.Scala | RenderingFormat.Kotlin          => "private val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17         => "private ScenarioBuilder"
+      case RenderingFormat.JavaScript | RenderingFormat.TypeScript => "const"
+    }
+
+    val scenarioElements = elements
       .map(renderScenarioElement(_, extractedUris))
       .mkString(s",$Eol")
 
-  private def renderScenario(extractedUris: ExtractedUris, elements: Seq[HttpTrafficElement]) = {
-    val scenarioReferenceType = format match {
-      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
-      case RenderingFormat.Java11 | RenderingFormat.Java17 => "ScenarioBuilder"
-    }
-
-    if (elements.sizeIs <= MaxElementPerChain) {
-      val scenarioElements = chainElements(extractedUris, elements)
-
-      s"""private $scenarioReferenceType scn = scenario("$simulationClassName")
-         |  .exec(
-         |${s"$scenarioElements".indent(4)}
-         |  )${format.lineTermination}""".stripMargin
-    } else {
-      val chains: Seq[(Int, String)] =
-        elements
-          .grouped(MaxElementPerChain)
-          .toList
-          .zipWithIndex
-          .map { case (chain, i) =>
-            (i, chainElements(extractedUris, chain))
-          }
-
-      val chainReferenceType = format match {
-        case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
-        case RenderingFormat.Java11 | RenderingFormat.Java17 => "ChainBuilder"
-      }
-
-      s"""${chains
-          .map { case (i, content) => s"private $chainReferenceType chain_$i =$Eol${content.indent(2)}" }
-          .mkString(s"${format.lineTermination}$Eol$Eol")}
-         |
-         |$scenarioReferenceType scn = scenario("$simulationClassName")
-         |  .exec(${chains.map { case (i, _) => s"chain_$i" }.mkString(", ")})${format.lineTermination}""".stripMargin
-    }
+    s"""$scenarioReferenceType scn = scenario("$simulationClassName")
+       |  .exec(
+       |${s"$scenarioElements".indent(4)}
+       |  )${format.lineTermination}""".stripMargin
   }
 
   def render(
@@ -247,6 +224,21 @@ private[render] class SimulationTemplate(
            |	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
            |  }
            |}
+           |""".stripMargin
+
+      case RenderingFormat.JavaScript | RenderingFormat.TypeScript =>
+        s"""import { simulation, scenario, pause, atOnceUsers, RawFileBody } from "@gatling.io/core";
+           |import { http, status } from "@gatling.io/http";
+           |
+           |${protocolTemplate.render(protocol).indent(2)}
+           |${renderHeaders(headers).indent(2)}
+           |${renderNonBaseUrls(nonBaseUrls, format).indent(2)}
+           |
+           |${renderScenario(extractedUris, scenarioElements).indent(2)}
+           |
+           |export default simulation((setUp) => {
+           |  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
+           |});
            |""".stripMargin
     }
   }

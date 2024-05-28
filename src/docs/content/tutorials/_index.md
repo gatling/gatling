@@ -6,6 +6,7 @@ description: Step-by-step introduction to Gatling.
 ordering:
   - quickstart
   - scripting-intro
+  - scripting-intro-js
   - recorder
   - advanced
   - faq

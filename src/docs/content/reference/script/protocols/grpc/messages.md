@@ -28,6 +28,10 @@ This allows, for instance:
 - Manually instantiating a method descriptor in your code, instead of using a description file and a code generator.
 - Transforming a method descriptor.
 
+{{< alert warning >}}
+The gRPC protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## Using protoc-generated Java {#protoc-java}
 
 You can check out our sample projects for configuration examples

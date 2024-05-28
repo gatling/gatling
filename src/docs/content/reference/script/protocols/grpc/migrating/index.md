@@ -11,6 +11,10 @@ private: true
 Migration guide from the gatling-grpc community plugin to the official Gatling gRPC support.
 {{< /alert >}}
 
+{{< alert warning >}}
+The gRPC protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 This page is intended for existing users of the community-maintained
 [gRPC plugin for Gatling](https://github.com/phiSgr/gatling-grpc) (created by George Leung),
 who want to switch to using the new official gRPC support for Gatling.

@@ -21,8 +21,8 @@ import io.gatling.javaapi.http.HttpDsl.*
 
 class FunctionSampleKotlin {
   init {
-//#function
-// inline usage with a Java lamdba
+//#function-sample
+// inline usage with a Kotlin lambda
 exec(http("name")
   .get { session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" })
 
@@ -30,6 +30,6 @@ exec(http("name")
 val f =
   { session: Session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" }
 exec(http("name").get(f))
-//#function
+//#function-sample
   }
 }

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-//#imprts
+//#imports
 import io.gatling.javaapi.mqtt.*;
 
 import static io.gatling.javaapi.mqtt.MqttDsl.*;
-//#imprts
+//#imports
 import java.time.Duration;
 import io.gatling.javaapi.core.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 
 class MqttProtocolSampleJava {
-//#protocol
+//#protocol-sample
 MqttProtocolBuilder mqttProtocol = mqtt
   // enable protocol version 3.1 (default: false)
   .mqttVersion_3_1()
@@ -72,7 +72,7 @@ MqttProtocolBuilder mqttProtocol = mqtt
   .timeoutCheckInterval(1)
   // check for pairing messages sent and messages received
   .correlateBy((CheckBuilder) null);
-//#protocol
+//#protocol-sample
 
   {
 //#connect

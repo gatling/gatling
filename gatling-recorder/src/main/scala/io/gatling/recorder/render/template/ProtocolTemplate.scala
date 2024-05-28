@@ -106,11 +106,12 @@ private[render] class ProtocolTemplate(config: RecorderConfiguration) {
 
   def render(protocol: ProtocolDefinition): String = {
     val protocolType = format match {
-      case RenderingFormat.Scala | RenderingFormat.Kotlin  => "val"
-      case RenderingFormat.Java11 | RenderingFormat.Java17 => "HttpProtocolBuilder"
+      case RenderingFormat.Scala | RenderingFormat.Kotlin          => "private val"
+      case RenderingFormat.Java11 | RenderingFormat.Java17         => "private HttpProtocolBuilder"
+      case RenderingFormat.JavaScript | RenderingFormat.TypeScript => "const"
     }
 
-    s"""private $protocolType httpProtocol = http
+    s"""$protocolType httpProtocol = http
        |  .baseUrl("${protocol.baseUrl}")
        |${renderProxy.indent(2)}
        |${renderFollowRedirect.indent(2)}

@@ -13,11 +13,11 @@ Feeder is a type alias for `Iterator<Map<String, T>>`, meaning that the componen
 
 It's very simple to build a custom one. For example, here's how one could build a random email generator:
 
-{{< include-code "random-mail-generator" java kt scala >}}
+{{< include-code "random-mail-generator" >}}
 
 The structure DSL provides a `feed` method that can be called at the same place as `exec`.
 
-{{< include-code "feed-keyword" java kt scala >}}
+{{< include-code "feed-keyword" >}}
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
@@ -25,13 +25,13 @@ Every time a virtual user reaches this step, it will pop a record out of the Fee
 
 It's also possible to feed multiple records at once. In this case, values will be Java List or Scala Seq containing all the values of the same key.
 
-{{< include-code "feed-multiple" java kt scala >}}
+{{< include-code "feed-multiple" >}}
 
 ## Strategies
 
 Gatling provides multiple strategies for the built-in feeders:
 
-{{< include-code "strategies" java kt scala >}}
+{{< include-code "strategies" >}}
 
 {{< alert warning >}}
 When using the default `queue` or `shuffle` strategies, make sure that your dataset contains enough records.
@@ -42,7 +42,7 @@ If your feeder runs out of record, Gatling will self shut down.
 
 Gatling provides some converters to use in-memory datastructures as Feeders.
 
-{{< include-code "feeder-in-memory" java kt scala >}}
+{{< include-code "feeder-in-memory" >}}
 
 ## File Based Feeders
 
@@ -69,7 +69,7 @@ Our parser honors the [RFC4180](https://tools.ietf.org/html/rfc4180) specificati
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 
-{{< include-code "sep-values-feeders" java kt scala >}}
+{{< include-code "sep-values-feeders" >}}
 
 ## Loading Mode
 
@@ -79,7 +79,7 @@ CSV files feeders provide several options for how data should be loaded in memor
 This mode works best with reasonably small files that can be parsed quickly without delaying simulation start time and easily sit in memory.
 This behavior was the default prior to Gatling 3.1 and you can still force it.
 
-{{< include-code "eager" java kt scala >}}
+{{< include-code "eager" >}}
 
 `batch` works better with large files whose parsing would delay simulation start time and eat a lot of heap space.
 Data is then read by chunks.
@@ -89,7 +89,7 @@ When in `batch` mode, `random` and `shuffle` can't of course operate on the full
 The default size of this buffer is 2,000 and can be changed.
 {{< /alert >}}
 
-{{< include-code "batch" java kt scala >}}
+{{< include-code "batch" >}}
 
 Default behavior is an adaptive policy based on (unzipped, sharded) file size, see `gatling.core.feederAdaptiveLoadModeThreshold` in config file.
 Gatling will use `eager` below threshold and `batch` above.
@@ -98,7 +98,7 @@ Gatling will use `eager` below threshold and `batch` above.
 
 If your files are very large, you can provide them zipped and ask gatling to `unzip` them on the fly:
 
-{{< include-code "unzip" java kt scala >}}
+{{< include-code "unzip" >}}
 
 Supported formats are gzip and zip (but archive must contain only one single file).
 
@@ -112,13 +112,13 @@ For example, if you have a file with 30,000 records deployed on 3 nodes, each wi
 `shard` is only effective when running with Gatling Enterprise, otherwise it's just a noop.
 {{< /alert >}}
 
-{{< include-code "shard" java kt scala >}}
+{{< include-code "shard" >}}
 
 ## JSON Feeders
 
 Some might want to use data in JSON format instead of CSV:
 
-{{< include-code "json-feeders" java kt scala >}}
+{{< include-code "json-feeders" >}}
 
 For example, the following JSON:
 
@@ -148,7 +148,7 @@ Note that the root element has of course to be an array.
 
 Gatling also provide a builtin that reads from a JDBC connection.
 
-{{< include-code "jdbc-feeder" java kt scala >}}
+{{< include-code "jdbc-feeder" >}}
 
 Just like File parser built-ins, this return a `RecordSeqFeederBuilder` instance.
 
@@ -166,7 +166,7 @@ Do not forget to add the required JDBC driver jar in the classpath (`lib` folder
 
 Gatling supports a feeder that reads data from a [Sitemap](http://www.sitemaps.org/protocol.html) file.
 
-{{< include-code "sitemap-feeder" java kt scala >}}
+{{< include-code "sitemap-imports,sitemap-feeder" >}}
 
 The following Sitemap file:
 
@@ -231,17 +231,17 @@ Gatling can read data from Redis using one of the following Redis commands.
 
 By default, RedisFeeder uses LPOP command:
 
-{{< include-code "redis-LPOP" java kt scala >}}
+{{< include-code "redis-LPOP" >}}
 
 You can then override the desired Redis command:
 
-{{< include-code "redis-SPOP" java kt scala >}}
+{{< include-code "redis-SPOP" >}}
 
-{{< include-code "redis-SRANDMEMBER" java kt scala >}}
+{{< include-code "redis-SRANDMEMBER" >}}
 
 You can create a circular feeder by using the same keys with RPOPLPUSH
 
-{{< include-code "redis-RPOPLPUSH" java kt scala >}}
+{{< include-code "redis-RPOPLPUSH" >}}
 
 ## Transforming Records {#transform}
 
@@ -255,7 +255,7 @@ For example, a csv feeder would give you only Strings, but you might want to tra
 
 For example:
 
-{{< include-code "transform" java kt scala >}}
+{{< include-code "transform" >}}
 
 ## Loading All the Records in Memory {#read-records}
 
@@ -271,4 +271,4 @@ Beware that each `readRecords` call will read the underlying source, eg parse th
 
 Sometimes, you want to know the size of your feeder without having to use `readRecords` and copy all the data in memory.
 
-{{< include-code "recordsCount" java kt scala >}}
+{{< include-code "recordsCount" >}}

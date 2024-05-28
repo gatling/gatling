@@ -9,4 +9,4 @@
 </dependencies>
 ```
 
-Base Gatling setup for Maven is [documented here]({{< ref "../../../extensions/build-tools/maven-plugin#setup" >}}).
+Base Gatling setup for Maven is [documented here]({{< ref "../../../integrations/build-tools/maven-plugin#setup" >}}).

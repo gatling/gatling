@@ -63,22 +63,22 @@ If Gatling complains that an attribute could not be found, check that:
 
 ### Setting Attributes
 
-{{< include-code "set" java kt scala >}}
+{{< include-code "set" >}}
 
 {{< alert warning >}}
 `Session` instances are immutable, meaning that methods such as `set` return a new instance and leave the original instance unmodified!
 {{< /alert >}}
 
-{{< include-code "sessions-are-immutable" java kt scala >}}
+{{< include-code "sessions-are-immutable" >}}
 
 ### Getting Attributes
 
-{{< include-code "get" java kt scala >}}
+{{< include-code "get" >}}
 
 ### Virtual User Properties
 
-{{< include-code "properties" java kt scala >}}
+{{< include-code "properties" >}}
 
 ### Handling Session State
 
-{{< include-code "state" java kt scala >}}
+{{< include-code "state" >}}

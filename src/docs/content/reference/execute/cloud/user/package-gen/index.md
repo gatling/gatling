@@ -68,9 +68,9 @@ These commands are only available since Gatling `3.11`. If you're using an older
 To set up you project, and to learn how to use you preferred build tool to upload your simulations to Gatling Enterprise
 Cloud, please refer to the documentation pages of the respective plugins:
 
-- [Gatling plugin for Maven]({{< ref "../../../extensions/build-tools/maven-plugin" >}}) (for Java, Kotlin and Scala)
-- [Gatling plugin for Gradle]({{< ref "../../../extensions/build-tools/gradle-plugin" >}}) (for Java, Kotlin and Scala)
-- [Gatling plugin for sbt]({{< ref "../../../extensions/build-tools/sbt-plugin" >}}) (for Scala)
+- [Gatling plugin for Maven]({{< ref "../../../integrations/build-tools/maven-plugin" >}}) (for Java, Kotlin and Scala)
+- [Gatling plugin for Gradle]({{< ref "../../../integrations/build-tools/gradle-plugin" >}}) (for Java, Kotlin and Scala)
+- [Gatling plugin for sbt]({{< ref "../../../integrations/build-tools/sbt-plugin" >}}) (for Scala)
 
 {{< alert warning >}}
 The Gatling build plugins now include everything you need to work with Gatling Enterprise. Previous versions required an

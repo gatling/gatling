@@ -15,8 +15,8 @@ Gatling is a highly flexible load-testing platform. You can write load tests in 
 
  - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
  - [write your first simulation]({{< ref "#simulation-construction" >}}),
- - [run your simulation locally]({{< ref "#optional-run-the-simulation-locally-for-debugging" >}}),
- - [run a simulation on Gatling Enterprise Cloud]({{< ref "#run-the-simulation-on-gatling-enterprise-cloud" >}}).
+ - [run a simulation on Gatling Enterprise Cloud]({{< ref "#run-the-simulation-on-gatling-enterprise-cloud" >}}),
+ - [run the simulation locally for debugging]({{< ref "#run-the-simulation-locally-for-debugging" >}}).
 
 {{< alert tip >}}
 Join the [Gatling Community Forum](https://community.gatling.io) to discuss load testing with other users. Please try to find answers in the documentation before asking for help.
@@ -77,13 +77,13 @@ environment (IDE). Gatling recommends the [IntelliJ community edition](https://w
 2. Modify the simulation by deleting everything below line 7 `import io.gatling.javaapi.http.*;`.
 3. The simulation should now look like the following:
 
-{{< include-code "ScriptingIntro1SampleJava.java#setup-the-file" java >}}
+{{< include-code "ScriptingIntro1Sample#setup-the-file" java >}}
 
 #### Extend the `Simulation` class 
 
 You must extend Gatling's `Simulation` class to write a script. To extend the `Simulation` class, after the import statements, add: 
 
-{{< include-code "ScriptingIntro1SampleJava.java#extend-the-simulation-class" java >}}
+{{< include-code "ScriptingIntro1Sample#extend-the-simulation-class" java >}}
 
 #### Define the protocol class
 
@@ -92,7 +92,7 @@ Inside the `ComputerDatabaseSimulation` class, add an `HTTP protocol` class. Lea
 this example, the `baseUrl` property is hardcoded as the Gatling computer database test site, and the `acceptHeader` and
 contentTypeHeader` properties are set to `application/json`.  
 
-{{< include-code "ScriptingIntro2SampleJava.java#define-the-protocol-class" java >}}
+{{< include-code "ScriptingIntro2Sample#define-the-protocol-class" java >}}
 
 #### Write the scenario
 
@@ -100,7 +100,7 @@ The next step is to describe the user journey. For a web application, this usual
 application and then a series of interactions with the application. The following scenario mocks a user arriving on the
 home page of the [Gatling sample application](https://computer-database.gatling.io).
 
-{{< include-code "ScriptingIntro3SampleJava.java#write-the-scenario" java >}}
+{{< include-code "ScriptingIntro3Sample#write-the-scenario" java >}}
 
 See the [Documentation]({{< ref "/reference/script/core/scenario" >}}) for the available scenario
 components. 
@@ -111,7 +111,7 @@ The final component of a Gatling simulation is the injection profile. The inject
 block. The following example adds 2 users per second for 60 seconds. See the
 [Documentation]({{< ref "/reference/script/core/injection" >}}) for all of the injection profile options. 
 
-{{< include-code "ScriptingIntro4SampleJava.java#define-the-injection-profile" java >}}
+{{< include-code "ScriptingIntro4Sample#define-the-injection-profile" java >}}
 
 Congrats! You have written your first Gatling simulation. The next step is to learn how to run the simulation locally
 and on Gatling Enterprise Cloud. 
@@ -120,7 +120,7 @@ and on Gatling Enterprise Cloud.
 
 Now, you should have a completed simulation that looks like the following: 
 
-{{< include-code "ComputerDatabaseSimulation.java#full-example" java >}}
+{{< include-code "ComputerDatabaseSimulation#full-example" java >}}
 
 ### Run the Simulation on Gatling Enterprise Cloud
 
@@ -148,7 +148,7 @@ Windows: mvnw.cmd gatling:enterpriseStart
 
 Watch the Simulation deploy automatically and generate real-time reports.
 
-### (optional) Run the Simulation locally for debugging
+### Run the Simulation locally for debugging {{% badge info "Optional" /%}} {#run-the-simulation-locally-for-debugging}
 
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a
 new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.

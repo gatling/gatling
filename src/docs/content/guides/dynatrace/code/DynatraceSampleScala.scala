@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class DynatraceSampleScala {
-//#dynatrace
+//#dynatrace-sample
 private val Hostname = InetAddress.getLocalHost.getHostName
 
 // Source Id identifies the product that triggered the request
@@ -54,5 +54,5 @@ val httpProtocol = http
     )
     request
   }
-//#dynatrace
+//#dynatrace-sample
 }

@@ -13,9 +13,9 @@ You can click on the Documentation icon in the navigation bar at the bottom left
 
 {{< img src="documentation.png" alt="Documentation" >}}
 
-## Plugins
+## Integrations
 
-If you want to download one of our official Gatling Enterprise plugins, please click on the Plugins icon in the navigation bar.
-For more information about the plugins, please refer to the **Plugins** section of this site.
+If you want to download one of our official Gatling Enterprise plugins, please click on the Integrations icon in the navigation bar.
+For more information about the integrations, please refer to the [Integrations]({{< ref "/reference/integrations" >}}) section of this site.
 
-{{< img src="plugins.png" alt="Plugins" >}}
+{{< img src="integrations.png" alt="Integrations" >}}

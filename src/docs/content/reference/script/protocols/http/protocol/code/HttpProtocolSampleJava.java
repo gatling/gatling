@@ -194,7 +194,7 @@ http.sign((request, session) -> request);
 // with static values
 http.signWithOAuth1(
   "consumerKey",
- "clientSharedSecret",
+  "clientSharedSecret",
   "token",
   "tokenSecret"
 );

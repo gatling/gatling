@@ -9,6 +9,10 @@ lastmod: 2022-12-14T21:30:56+02:00
 
 SSE support is an extension to the HTTP DSL, whose entry point is the `sse(requestName: Expression[String])` method.
 
+{{< alert warning >}}
+The SSE protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## `sseName`
 
 If you want to deal with several SSE streams per virtual users, you have to give them a name and pass this name on each SSE operation:

@@ -187,9 +187,9 @@ After configuration, restart your control plane to start the server.
 ### Creating a private package
 
 To create a private package, use Gatling Plugin deployment commands with control plane URL configured:
-- [Maven plugin]({{< ref "/reference/extensions/build-tools/maven-plugin#private-packages" >}})
-- [Gradle plugin]({{< ref "/reference/extensions/build-tools/gradle-plugin#private-packages" >}})
-- [sbt plugin]({{< ref "/reference/extensions/build-tools/sbt-plugin#private-packages" >}})
+- [Maven plugin]({{< ref "/reference/integrations/build-tools/maven-plugin#private-packages" >}})
+- [Gradle plugin]({{< ref "/reference/integrations/build-tools/gradle-plugin#private-packages" >}})
+- [sbt plugin]({{< ref "/reference/integrations/build-tools/sbt-plugin#private-packages" >}})
 
 ### Deleting a private package
 

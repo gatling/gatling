@@ -72,10 +72,7 @@ data:
     frontline.licenseKey = <YOUR FRONTLINE LICENSE KEY>
     frontline.security.superAdminPassword = <YOUR SUPER ADMIN PASSWORD>
     frontline.security.secretKey = <YOUR ENCRYPTION SECRET KEY>
-    frontline.cassandra.contactPoints = [{
-      host = cassandra.frontline.svc.cluster.local
-      port = 9042
-    }]
+    frontline.cassandra.basic.contact-points = ["cassandra.frontline.svc.cluster.local:9042"]
   logback.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>

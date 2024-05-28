@@ -22,7 +22,7 @@ Use the `http` object in order to create an HTTP protocol.
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
 This is done thanks to the following statements:
 
-{{< include-code "bootstrapping" java kt scala >}}
+{{< include-code "bootstrapping" >}}
 
 ## HTTP Engine
 
@@ -31,7 +31,7 @@ This is done thanks to the following statements:
 The Java/NIO engine start up introduces an overhead on the first request to be executed.
 In order to compensate this effect, Gatling automatically performs a request to https://gatling.io.
 
-{{< include-code "warmUp" java kt scala >}}
+{{< include-code "warmUp" >}}
 
 #### `maxConnectionsPerHost`
 
@@ -44,7 +44,7 @@ This feature only makes sense when fetching concurrent `resources` over HTTP/1.1
 It doesn't make sense when using HTTP/2 or when using `.shareConnections`.
 {{< /alert >}}
 
-{{< include-code "maxConnectionsPerHost" java kt scala >}}
+{{< include-code "maxConnectionsPerHost" >}}
 
 #### `shareConnections`
 
@@ -53,7 +53,7 @@ This behavior meets your needs when you want to simulate internet traffic where 
 
 Instead, if you want to simulate server to server traffic where the actual client has a long-lived connection pool, you want to have the virtual users share a single global connection pool.
 
-{{< include-code "shareConnections" java kt scala >}}
+{{< include-code "shareConnections" >}}
 
 #### `enableHttp2`
 
@@ -61,7 +61,7 @@ HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
 
 Note that you'll either need your injectors to run with Java 9+, or make sure that `gatling.http.ahc.useOpenSsl` wasn't turned to `false` in Gatling configuration.
 
-{{< include-code "enableHttp2" java kt scala >}}
+{{< include-code "enableHttp2" >}}
 
 {{< alert warning >}}
 HTTP/2 Push is not supported.
@@ -84,7 +84,7 @@ If you are setting a remote to false (it doesn't support HTTP/2), ALPN won't be 
 
 This option is useful to simulate users that already went to your website, and whose browsers already cached the fact that your website is using HTTP/2 or HTTP/1.
 
-{{< include-code "http2PriorKnowledge" java kt scala >}}
+{{< include-code "http2PriorKnowledge" >}}
 
 {{< alert warning >}}
 If you configure a remote in prior knowledge and set it to true, but that the ALPN ends in the remote only supporting HTTP/1, the request will crash.
@@ -106,7 +106,7 @@ to emulate DNS round-robin.
 
 You can use Gatling's own async DNS resolver instead, with `.asyncNameResolution()`.
 
-{{< include-code "dns-async" java kt scala >}}
+{{< include-code "dns-async" >}}
 
 #### `hostNameAliases`
 
@@ -114,7 +114,7 @@ You can of course define hostname aliases at the OS level in the `/etc/hosts` fi
 
 But you can use pass aliases programmatically.
 
-{{< include-code "hostNameAliases" java kt scala >}}
+{{< include-code "hostNameAliases" >}}
 
 #### `localAddress`
 
@@ -122,7 +122,7 @@ It's possible to have multiple IP addresses for your load generators, typically 
 
 In this case, you can bind the sockets from specific local addresses instead of the default one:
 
-{{< include-code "localAddress" java kt scala >}}
+{{< include-code "localAddress" >}}
 
 Note that when setting multiple addresses, each virtual user is assigned to one single local address once and for all in a round-robin fashion.
 
@@ -136,7 +136,7 @@ By default, Gatling uses the KeyManagerFactory configuration defined in `gatling
 
 Then, it's possible to have per virtual user KeyManagerFactories, typically if you want them to use different sets of keys.
 
-{{< include-code "perUserKeyManagerFactory" java kt scala >}}
+{{< include-code "perUserKeyManagerFactory" >}}
 
 This function's input is the virtual user's id (if you need it to generate some file's name) and returns a [javax.net.ssl.KeyManagerFactory](https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/KeyManagerFactory.html).
 
@@ -147,13 +147,13 @@ This function's input is the virtual user's id (if you need it to generate some 
 As you may have seen in the previous example, you can set a base URL.
 This base URL will be prepended to all urls that does not start with `http`, e.g.:
 
-{{< include-code "baseUrl" java kt scala >}}
+{{< include-code "baseUrl" >}}
 
 #### `baseUrls`
 
 You might want to load test several servers at the same time, to bypass a load-balancer for example.
 
-{{< include-code "baseUrls" java kt scala >}}
+{{< include-code "baseUrls" >}}
 
 Each virtual user will pick one of the baseUrls from the list once and for all when it starts, based on a round-robin strategy.
 
@@ -162,7 +162,7 @@ Each virtual user will pick one of the baseUrls from the list once and for all w
 By default, Gatling automatically computes the `Referer` HTTP header from the request history.
 You can disable this feature.
 
-{{< include-code "disableAutoReferer" java kt scala >}}
+{{< include-code "disableAutoReferer" >}}
 
 #### `disableCaching`
 
@@ -175,7 +175,7 @@ By default, Gatling caches responses based on:
 
 You can disable this feature.
 
-{{< include-code "disableCaching" java kt scala >}}
+{{< include-code "disableCaching" >}}
 
 {{< alert tip >}}
 When a response gets cached, checks are disabled.
@@ -188,7 +188,7 @@ By default, Gatling will encode them for you.
 
 If you know that your urls are already properly encoded and want to optimize performance, you can disable this feature.
 
-{{< include-code "disableUrlEncoding" java kt scala >}}
+{{< include-code "disableUrlEncoding" >}}
 
 Note that this feature can also be [disabled per request]({{< ref "request#disableurlencoding" >}}).
 
@@ -210,34 +210,34 @@ Rules are:
 * otherwise, a request is silent if it's a resource (not a top level request) and protocol's `silentResources` flag has been turned on
 * otherwise, a request is not silent
 
-{{< include-code "silentUri" java kt scala >}}
+{{< include-code "silentUri" >}}
 
 #### `header`
 
 Gatling lets you define some [HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers) to be set one all requests.
 
-{{< include-code "headers" java kt scala >}}
+{{< include-code "headers" >}}
 
 You have also the following built-ins for the more commons headers.
 
-{{< include-code "headers-built-ins" java kt scala >}}
+{{< include-code "headers-built-ins" >}}
 
 #### `sign`
 
 You can set a function to sign a request once Gatling has built it, just before it's being sent over the wire.
 Typically, you would compute an extra HTTP header.
 
-{{< include-code "sign" java kt scala >}}
+{{< include-code "sign" >}}
 
 We also provide a built-in for OAuth1.
 
-{{< include-code "sign-oauth1" java kt scala >}}
+{{< include-code "sign-oauth1" >}}
 
 #### `basicAuth` and `digestAuth` {#authorization}
 
 You can set the authentication methods at protocol level to be applied to all requests.
 
-{{< include-code "authorization" java kt scala >}}
+{{< include-code "authorization" >}}
 
 ## Response Handling
 
@@ -246,7 +246,7 @@ You can set the authentication methods at protocol level to be applied to all re
 By default, Gatling automatically follow redirects in case of 301, 302, 303, 307 or 308 response status code.
 You can disable this behavior.
 
-{{< include-code "disableFollowRedirect" java kt scala >}}
+{{< include-code "disableFollowRedirect" >}}
 
 To avoid infinite redirection loops, Gatling sets a limit on the number of redirects.
 The default value is 20. You can tune this limit with: `.maxRedirects(int)`
@@ -264,13 +264,13 @@ The function takes 3 parameters
 * `originalRequestName`
 * `redirectCount`
 
-{{< include-code "redirectNamingStrategy" java kt scala >}}
+{{< include-code "redirectNamingStrategy" >}}
 
 #### `transformResponse`
 
 You might want to process manually the response.
 
-{{< include-code "transformResponse" java kt scala >}}
+{{< include-code "transformResponse" >}}
 
 {{< alert tip >}}
 For more details see the dedicated section [here]({{< ref "request#transformresponse" >}}).
@@ -311,22 +311,26 @@ Other resources are not supported: css images, javascript triggered resources, c
 
 You can also specify `AllowList` and `DenyList` based on Java Regex patterns to have a more fine grain control on resource fetching.
 
-{{< include-code "inferHtmlResources" java kt scala >}}
+{{< include-code "inferHtmlResources" >}}
 
 #### `nameInferredHtmlResources`
 
 By default, Gatling will generate resource request names automatically.
 You can control this behavior and even define your own custom strategy.
 
-{{< include-code "nameInferredHtmlResources" java kt scala >}}
+{{< include-code "nameInferredHtmlResources" >}}
+
+{{< alert warning >}}
+Naming resource requests with a custom strategy is not supported by Gatling JS.
+{{< /alert >}}
 
 ## Proxy
 
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-{{< include-code "proxy" java kt scala >}}
+{{< include-code "proxy" >}}
 
 You can also disable the use of proxy for some hosts with `noProxyFor`:
 
-{{< include-code "noProxyFor" java kt scala >}}
+{{< include-code "noProxyFor" >}}

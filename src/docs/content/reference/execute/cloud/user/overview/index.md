@@ -23,7 +23,7 @@ The Gatling Enterprise navigation bar is composed of:
 - [**Simulations**]({{< ref "simulations" >}}): manage simulations, runs and reports
 - [**Dedicated IP Addresses**]({{< ref "dedicated-ips" >}}): a table of the dedicated IP's- *accessible to test admins and system admins* 
 ---
-- [**Plugins**]({{< ref "../../../extensions" >}}): shows all plugin download links
+- [**Plugins**]({{< ref "../../../integrations" >}}): shows all plugin download links
 - **Documentation**: shows all documentation guides and the link to the public API Swagger documentation
 - **About**: current version of Gatling Enterprise, and supported Gatling versions
 

@@ -127,10 +127,13 @@ jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users")
   }
 
   {
-//#sitemap-feeder
+//#sitemap-imports
 // beware: you need to import the http module
 import io.gatling.http.Predef._
+//#sitemap-imports
 
+//#sitemap-feeder
+// beware: you need to import the http module
 sitemap("/path/to/sitemap/file")
 //#sitemap-feeder
   }

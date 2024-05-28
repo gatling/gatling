@@ -24,7 +24,8 @@ private[recorder] sealed abstract class RenderingFormat(
     val configValue: String,
     val fileExtension: String,
     val lineTermination: String,
-    val parameterlessMethodCall: String
+    val parameterlessMethodCall: String,
+    val hasPackages: Boolean
 ) extends Labelled
     with Product
     with Serializable {
@@ -32,20 +33,24 @@ private[recorder] sealed abstract class RenderingFormat(
 }
 
 private[recorder] object RenderingFormat {
-  val AllFormats: List[RenderingFormat] = List(Java11, Java17, Kotlin, Scala)
+  val AllFormats: List[RenderingFormat] = List(Java11, Java17, Kotlin, Scala, JavaScript, TypeScript)
 
   def fromString(configValue: String): RenderingFormat = configValue match {
-    case Java11.configValue => Java11
-    case Java17.configValue => Java17
-    case Kotlin.configValue => Kotlin
-    case Scala.configValue  => Scala
-    case _                  => throw new IllegalArgumentException(s"Unknown Format $configValue")
+    case Java11.configValue     => Java11
+    case Java17.configValue     => Java17
+    case Kotlin.configValue     => Kotlin
+    case Scala.configValue      => Scala
+    case JavaScript.configValue => JavaScript
+    case TypeScript.configValue => TypeScript
+    case _                      => throw new IllegalArgumentException(s"Unknown Format $configValue")
   }
 
-  private[recorder] case object Java11 extends RenderingFormat("Java 11", "java11", "java", ";", "()")
-  private[recorder] case object Java17 extends RenderingFormat("Java 17", "java17", "java", ";", "()")
-  private[recorder] case object Kotlin extends RenderingFormat("Kotlin", "kotlin", "kt", "", "()")
-  private[recorder] case object Scala extends RenderingFormat("Scala", "scala", "scala", "", "")
+  private[recorder] case object Java11 extends RenderingFormat("Java 11", "java11", "java", ";", "()", true)
+  private[recorder] case object Java17 extends RenderingFormat("Java 17", "java17", "java", ";", "()", true)
+  private[recorder] case object Kotlin extends RenderingFormat("Kotlin", "kotlin", "kt", "", "()", true)
+  private[recorder] case object Scala extends RenderingFormat("Scala", "scala", "scala", "", "", true)
+  private[recorder] case object JavaScript extends RenderingFormat("JavaScript", "javascript", "gatling.js", ";", "()", false)
+  private[recorder] case object TypeScript extends RenderingFormat("TypeScript", "typescript", "gatling.ts", ";", "()", false)
 
   def defaultFromJvm: RenderingFormat = if (Java.MajorVersion >= 17) RenderingFormat.Java17 else RenderingFormat.Java11
 }

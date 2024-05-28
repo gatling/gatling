@@ -9,6 +9,10 @@ lastmod: 2022-12-14T21:30:56+02:00
 
 JMS support was initially contributed by [Jason Koch](https://github.com/jasonk000).
 
+{{< alert warning >}}
+The JMS protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## Prerequisites
 
 Gatling JMS DSL is not imported by default.

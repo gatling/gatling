@@ -29,19 +29,15 @@ class ScriptingIntro4SampleJava {
         .acceptHeader("application/json")
         .contentTypeHeader("application/json");
 
-    ScenarioBuilder myFirstScenario = scenario("My First Scenario")
+    ScenarioBuilder myScenario = scenario("My Scenario")
       .exec(
-        http("Request 1").get("/computers/"),
-        pause(2),
-        http("Request 2")
-          .get("/computers/?f=macbook")
-          .check(status().is(200))
+        http("Request 1").get("/computers/")
       );
 
     // Add the setUp block:
     {
       setUp(
-        myFirstScenario.injectOpen(constantUsersPerSec(2).during(60))
+        myScenario.injectOpen(constantUsersPerSec(2).during(60))
       ).protocols(httpProtocol);
     }
   }

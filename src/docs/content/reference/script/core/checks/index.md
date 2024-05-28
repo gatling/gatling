@@ -21,11 +21,11 @@ Checks are used for 2 things:
 Checks are typically attached to the parent object with the `check` method.
 For example, on an HTTP request:
 
-{{< include-code "status-is-200" java kt scala >}}
+{{< include-code "status-is-200" >}}
 
 You can also define multiple checks at once:
 
-{{< include-code "status-is-not-404-or-500" java kt scala >}}
+{{< include-code "status-is-not-404-or-500" >}}
 
 This API provides a dedicated DSL for chaining the following steps:
 
@@ -44,31 +44,31 @@ The following check types are generic and usually implemented on most official G
 
 Returns the response time of this request in milliseconds = the time between starting to send the request and finishing to receive the response.
 
-{{< include-code "responseTimeInMillis" java kt scala >}}
+{{< include-code "responseTimeInMillis" >}}
 
 #### `bodyString`
 
 Return the full response body String.
 
-{{< include-code "bodyString" java kt scala >}}
+{{< include-code "bodyString" >}}
 
 #### `bodyBytes`
 
 Return the full response body byte array.
 
-{{< include-code "bodyBytes" java kt scala >}}
+{{< include-code "bodyBytes" >}}
 
 #### `bodyLength`
 
 Return the length of the response body in bytes (without the overhead of computing the bytes array).
 
-{{< include-code "bodyLength" java kt scala >}}
+{{< include-code "bodyLength" >}}
 
 #### `bodyStream`
 
 Return an InputStream of the full response body bytes, typically to transform the received bytes before processing them.
 
-{{< include-code "bodyStream" java kt scala >}}
+{{< include-code "bodyStream" >}}
 
 #### `substring`
 
@@ -81,7 +81,7 @@ It takes one single parameter:
 Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
 {{< /alert >}}
 
-{{< include-code "substring" java kt scala >}}
+{{< include-code "substring" >}}
 
 #### `regex`
 
@@ -90,7 +90,7 @@ This check applies a [Java regular expression pattern](https://docs.oracle.com/j
 It takes one single parameter:
 * `pattern`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "regex" java kt scala >}}
+{{< include-code "regex" >}}
 
 {{< alert tip >}}
 In Java 15+ (Text blocks), Scala and Kotlin, you can use escaped strings with this notation: `"""my "non-escaped" string"""`.
@@ -100,7 +100,7 @@ This simplifies the writing and reading of regular expressions.
 By default, it can extract 0 or 1 capture group, so the extracted type is `String`.
 If your pattern contains more than one capture group, you must specify it with an extra step:
 
-{{< include-code "regex-ofType" java kt scala >}}
+{{< include-code "regex-ofType" >}}
 
 #### `xpath`
 
@@ -110,7 +110,7 @@ It takes two parameters:
 * `expression`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 * `namespaces` is an optional List of couples of (prefix, uri). It's mandatory as soon as your document contains namespaces.
 
-{{< include-code "xpath" java kt scala >}}
+{{< include-code "xpath" >}}
 
 {{< alert tip >}}
 XPath only works on well-formed XML documents, which HTML is not.
@@ -130,13 +130,13 @@ You might want to consider using our [JMESPath support]({{< ref "#jmespath" >}})
 It takes one single parameter:
 * `expression`  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "jsonPath" java kt scala >}}
+{{< include-code "jsonPath" >}}
 
 By default, it extracts Strings, meaning that non String values get serialized back into JSON.
 You can tell Gatling the expected type with an extra step.
 Note that the check will then fail if the actual value doesn't match the expected type.
 
-{{< include-code "jsonPath-ofType" java kt scala >}}
+{{< include-code "jsonPath-ofType" >}}
 
 For example, considering the following JSON payload:
 
@@ -148,7 +148,7 @@ For example, considering the following JSON payload:
 ```
 
 ... this is how you would extract an integer value:
-{{< include-code "jsonPath-Int" java kt scala >}}
+{{< include-code "jsonPath-Int" >}}
 
 #### `jsonpJsonPath`
 
@@ -166,13 +166,13 @@ As a result, an expression tested with the online evaluator is guaranteed to wor
 It takes one single parameter:
 * *expression*  can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "jmesPath" java kt scala >}}
+{{< include-code "jmesPath" >}}
 
 By default, it extracts Strings, meaning that non String values get serialized back into JSON.
 You can tell Gatling the expected type with an extra step.
 Note that the check will then fail is the actual value doesn't match the expected type.
 
-{{< include-code "jmesPath-ofType" java kt scala >}}
+{{< include-code "jmesPath-ofType" >}}
 
 For example, considering the following JSON payload:
 
@@ -184,7 +184,7 @@ For example, considering the following JSON payload:
 ```
 
 ... this is how you would extract an integer value:
-{{< include-code "jmesPath-Int" java kt scala >}}
+{{< include-code "jmesPath-Int" >}}
 
 {{< alert tip >}}
 You can use `registerJmesPathFunctions(io.burt.jmespath.function.Function*)` to register custom functions.
@@ -202,11 +202,11 @@ It takes two parameters:
 * `selector` can be a plain `String`, a Gatling Expression Language `String` or a function.
 * `attribute` is an optional static `String` if you want to target an attribute of the selected DOM nodes.
 
-{{< include-code "css" java kt scala >}}
+{{< include-code "css" >}}
 
 By default, it extracts Strings. In particular, if you haven't defined the `attribute` parameter, it will extract the node text content. You can force Gatling to actually capture the [jodd.lagarto.dom.Node](http://oblac.github.io/jodd-site/javadoc/jodd/lagarto/dom/Node.html) with an extra step:
 
-{{< include-code "css-ofType" java kt scala >}}
+{{< include-code "css-ofType" >}}
 
 #### `form`
 
@@ -217,13 +217,13 @@ Map values can be multivalued depending on if the input is multivalued or not
 It takes one single parameter:
 * `selector` can be a plain `String`, a Gatling Expression Language `String` or a function.
 
-{{< include-code "form" java kt scala >}}
+{{< include-code "form" >}}
 
 #### `md5` and `sha1` {#checksum}
 
 This check computes a checksum of the response body. This can be useful to verify that a downloaded resource has not been corrupted in the process.
 
-{{< include-code "checksum" java kt scala >}}
+{{< include-code "checksum" >}}
 
 {{< alert tip >}}
 Checksums are computed against the stream of chunks, so the whole body is not stored in memory.
@@ -248,13 +248,13 @@ It comes in 2 flavors:
 * parameterless, identical to `find(0)`
 * with an integer parameter that is a 0 based rank of the occurrence. Only available on checks that can return multiple values.
 
-{{< include-code "find" java kt scala >}}
+{{< include-code "find" >}}
 
 #### `findAll`
 
 Return all the occurrences. Only available on checks that can return multiple values.
 
-{{< include-code "findAll" java kt scala >}}
+{{< include-code "findAll" >}}
 
 #### `findRandom`
 
@@ -264,13 +264,13 @@ It comes in 2 flavors:
 * parameterless, identical to `findRandom(1)`
 * with a `num` int parameter and an optional `failIfLess` boolean parameter (default false, check will pick as many as possible) to extract several occurrences and optionally fail is the number of actual matches is less than the expected number.
 
-{{< include-code "findRandom" java kt scala >}}
+{{< include-code "findRandom" >}}
 
 #### `count`
 
 Returns the number of occurrences. Only available on checks that can return multiple values.
 
-{{< include-code "count" java kt scala >}}
+{{< include-code "count" >}}
 
 ## Transforming
 
@@ -283,7 +283,7 @@ This optional step lets you provide a default value in case the previous step fa
 It takes one single parameter:
 * `defaultValue` can be a plain `String`, a Gatling Expression Language `String` or a function that must return the same type as the expected value
 
-{{< include-code "withDefault" java kt scala >}}
+{{< include-code "withDefault" >}}
 
 #### `transform`
 
@@ -292,7 +292,7 @@ This step lets you pass a function that will only be triggered if the previous s
 It takes one single parameter:
 * `function` is of type `X` to another possibly different type `X2`
 
-{{< include-code "transform" java kt scala >}}
+{{< include-code "transform" >}}
 
 #### `transformWithSession`
 
@@ -301,13 +301,13 @@ This step is a variant of [`transform`]({{< ref "#transform" >}}) that lets you 
 It takes one single parameter:
 * `function` is of type `(X, Session)` to another possibly different type `X2`
 
-{{< include-code "transformWithSession" java kt scala >}}
+{{< include-code "transformWithSession" >}}
 
 #### `transformOption`
 
 In contrary to [`transform`]({{< ref "#transform" >}}), this step is always invoked, even when the previous step failed to capture anything. 
 
-{{< include-code "transformOption" java kt scala >}}
+{{< include-code "transformOption" >}}
 
 {{< alert tip >}}
 If your goal is to provide a default value, [`withDefault`]({{< ref "#withdefault" >}}) is probably a more convenient way.
@@ -317,7 +317,7 @@ If your goal is to provide a default value, [`withDefault`]({{< ref "#withdefaul
 
 This step is a variant of [`transformOption`]({{< ref "#transformoption" >}}) that lets you access the `Session` is order to compute the returned result.
 
-{{< include-code "transformOptionWithSession" java kt scala >}}
+{{< include-code "transformOptionWithSession" >}}
 
 ## Validating
 
@@ -332,7 +332,7 @@ Validate that the value is equal to the expected one.
 It takes one single parameter:
 * `expected` can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
 
-{{< include-code "is" java kt scala >}}
+{{< include-code "is" >}}
 
 {{< alert tip >}}
 `is` is a reserved keyword in Kotlin.
@@ -343,7 +343,7 @@ You can either protect it with backticks `` `is` `` or use the `shouldBe` alias 
 
 Validate that the extracted value is null, typically a JSON value.
 
-{{< include-code "isNull" java kt scala >}}
+{{< include-code "isNull" >}}
 
 #### `not`
 
@@ -352,31 +352,31 @@ Validate that the extracted value is different from the expected one.
 It takes one single parameter:
 * `unexpected` can be a plain value whose type matches the extracted value, a Gatling Expression Language `String` or a function.
 
-{{< include-code "not" java kt scala >}}
+{{< include-code "not" >}}
 
 #### `notNull`
 
 Validate that the extracted value is not null, typically a JSON value.
 
-{{< include-code "notNull" java kt scala >}}
+{{< include-code "notNull" >}}
 
 #### `exists`
 
 Validate that the extracted value exists.
 
-{{< include-code "exists" java kt scala >}}
+{{< include-code "exists" >}}
 
 #### `notExists`
 
 Validate that the check didn't match and failed to extract anything.
 
-{{< include-code "notExists" java kt scala >}}
+{{< include-code "notExists" >}}
 
 #### `in`
 
 Validate that the extracted value belongs to a given sequence or vararg.
 
-{{< include-code "in" java kt scala >}}
+{{< include-code "in" >}}
 
 {{< alert tip >}}
 `in` is a reserved keyword in Kotlin.
@@ -396,7 +396,7 @@ It takes two parameters:
 * `name` is the String that would be used to describe this part in case of a failure in the final error message.
 * `validator` is the validation logic function.
 
-{{< include-code "validator" java kt scala >}}
+{{< include-code "validator" >}}
 
 ## Naming
 
@@ -407,7 +407,7 @@ Naming is an **optional** step for customizing the name of the check in the erro
 It takes one single parameter:
 * `name` can only be a static String.
 
-{{< include-code "name" java kt scala >}}
+{{< include-code "name" >}}
 
 ## Saving
 
@@ -418,7 +418,7 @@ Saving is an **optional** step for storing the result of the check into the virt
 It takes one single parameter:
 * `key` can only be a static String.
 
-{{< include-code "saveAs" java kt scala >}}
+{{< include-code "saveAs" >}}
 
 ## Conditional Checking
 
@@ -430,10 +430,10 @@ Use `checkIf` instead of `check`.
 
 Only perform the checks when some condition holds.
 
-{{< include-code "checkIf" java kt scala >}}
+{{< include-code "checkIf" >}}
 
 ## Putting It All Together
 
 To help you understand the checks, here is a list of examples.
 
-{{< include-code "all-together" java kt scala >}}
+{{< include-code "all-together" >}}

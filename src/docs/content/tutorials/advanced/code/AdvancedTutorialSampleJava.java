@@ -77,7 +77,7 @@ ScenarioBuilder admins = scenario("Admins")
 
 //#feeder
 FeederBuilder.Batchable<String> feeder =
-  csv("search.csv").random();// 1, 2
+  csv("search.csv").random(); // 1, 2
 
 ChainBuilder search = exec(http("Home")
   .get("/"))

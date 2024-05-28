@@ -17,11 +17,11 @@ However, some use cases require a more fine grain control.
 
 One might want to manually add or compute a cookie:
 
-{{< include-code "addCookie" java kt scala >}}
+{{< include-code "addCookie" >}}
 
 Cookie can also take more optional parameters:
 
-{{< include-code "cookie" java kt scala >}}
+{{< include-code "cookie" >}}
 
 * `domain` is optional, defaulting to base url domain
 * `path` is optional, defaulting to "/"
@@ -32,11 +32,11 @@ Cookie can also take more optional parameters:
 
 Get the cookie value and put it in the session
 
-{{< include-code "getCookie" java kt scala >}}
+{{< include-code "getCookie" >}}
 
 CookieKey can also take more optional parameters:
 
-{{< include-code "cookieKey" java kt scala >}}
+{{< include-code "cookieKey" >}}
 
 * `domain` is optional. If undefined, defaults to the domain of the `baseUrl` defined in the `HttpProtocol`. In this case, fail if the `baseUrl` is undefined. Matching is based on [RFC6265's domain matching algorithm](https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.3).
 * `path` is optional. If defined, match based on [RFC6265's path matching algorithm](https://datatracker.ietf.org/doc/html/rfc6265#section-5.1.4). Otherwise, always match.
@@ -47,13 +47,13 @@ CookieKey can also take more optional parameters:
 
 Simulate closing a browser, so session cookies are dropped but not permanent cookies.
 
-{{< include-code "flushSessionCookies" java kt scala >}}
+{{< include-code "flushSessionCookies" >}}
 
 ### Flushing All Cookies
 
 Flush the whole CookieJar.
 
-{{< include-code "flushCookieJar" java kt scala >}}
+{{< include-code "flushCookieJar" >}}
 
 ## Dealing with Caching
 
@@ -61,4 +61,4 @@ Flush the whole CookieJar.
 
 Flush the virtual user's whole HTTP cache.
 
-{{< include-code "flushHttpCache" java kt scala >}}
+{{< include-code "flushHttpCache" >}}

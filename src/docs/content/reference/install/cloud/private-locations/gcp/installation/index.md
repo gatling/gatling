@@ -56,6 +56,7 @@ compute.disks.create
 compute.instances.create
 compute.instances.delete
 compute.instances.list
+compute.instances.setLabels
 compute.instances.setMetadata
 compute.subnetworks.use
 compute.subnetworks.useExternalIp

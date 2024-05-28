@@ -7,6 +7,10 @@ date: 2023-08-24T11:27:53:+0200
 lastmod: 2024-01-17T10:54:53:+0200
 ---
 
+{{< alert warning >}}
+The gRPC protocol is not supported by Gatling JS.
+{{< /alert >}}
+
 ## Checks
 
 The following components of a gRPC request can be checked, each having their own built-in:
