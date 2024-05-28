@@ -91,11 +91,11 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
 
 object DataWriterMessageSerializer {
   val Separator: String = "\t"
-  val GroupSeparatorChar = ','
-  val SeparatorBytes: Array[Byte] = Separator.getBytes(US_ASCII)
+  private val GroupSeparatorChar = ','
+  private val SeparatorBytes: Array[Byte] = Separator.getBytes(US_ASCII)
 
-  val SpaceBytes: Array[Byte] = Array(' ')
-  val GroupSeparatorBytes: Array[Byte] = GroupSeparatorChar.toString.getBytes(US_ASCII)
+  private val SpaceBytes: Array[Byte] = Array(' ')
+  private val GroupSeparatorBytes: Array[Byte] = GroupSeparatorChar.toString.getBytes(US_ASCII)
 
   /**
    * Converts whitespace characters that would break the simulation log format into spaces.
@@ -110,13 +110,13 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
   def writeSeparator(): Unit =
     writer.writeBytes(SeparatorBytes)
 
-  def writeGroupSeparator(): Unit =
+  private def writeGroupSeparator(): Unit =
     writer.writeBytes(GroupSeparatorBytes)
 
   def writeSpace(): Unit =
     writer.writeBytes(SpaceBytes)
 
-  def writeEol(): Unit =
+  private def writeEol(): Unit =
     writer.writeBytes(EolBytes)
 
   def writeGroups(groupHierarchy: List[String]): Unit = {
@@ -132,11 +132,8 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
 
   private val headerBytes = header.getBytes(US_ASCII)
 
-  def writeHeader(): Unit =
-    writer.writeBytes(headerBytes)
-
   def serialize(m: T): Unit = {
-    writeHeader()
+    writer.writeBytes(headerBytes)
     writeSeparator()
     serialize0(m)
     writeEol()
@@ -260,8 +257,8 @@ final class FileData(
     val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
-final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData] {
-  def onInit(init: DataWriterMessage.Init): FileData = {
+final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData]("file-data-writer") {
+  override def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
     val writer = BufferedFileChannelWriter(runMessage.runId, resultsDirectory, configuration)

@@ -22,10 +22,11 @@ import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action._
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.jms.client.JmsConnectionPool
+import io.gatling.jms.client.{ JmsConnectionPool, JmsTracker }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
@@ -44,7 +45,7 @@ final class RequestReply(
     val statsEngine: StatsEngine,
     val clock: Clock,
     val next: Action,
-    throttler: Option[Throttler]
+    throttler: Option[ActorRef[Throttler.Command]]
 ) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
   override val name: String = genName("jmsRequestReply")
 
@@ -80,7 +81,7 @@ final class RequestReply(
           // [e]
 
           if (matchId != null) {
-            tracker.track(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+            tracker ! JmsTracker.Command.MessageSent(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
           }
         },
         after = () =>
@@ -88,7 +89,7 @@ final class RequestReply(
             val updatedMatchId = messageMatcher.requestMatchId(message)
 
             if (updatedMatchId != null) {
-              tracker.track(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+              tracker ! JmsTracker.Command.MessageSent(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
             } else {
               val now = clock.nowMillis
               statsEngine.logResponse(session.scenario, session.groups, requestName, now, now, KO, None, Some("Failed to get a matchId to track"))

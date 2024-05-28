@@ -22,22 +22,27 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.controller.ControllerCommand
+import io.gatling.core.actor.{ Actor, ActorRef, Behavior }
+import io.gatling.core.controller.Controller
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.Session
 
-import akka.actor.{ ActorRef, Props }
 import io.github.metarank.cfor._
 
 private[core] object FeedActor {
-  def props[T](feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef): Props = Props(
-    new FeedActor(feeder, feederName, generateJavaCollection, controller)
-  )
+  def actor[T](
+      feeder: Feeder[T],
+      actorName: String,
+      feederName: Option[String],
+      generateJavaCollection: Boolean,
+      controller: ActorRef[Controller.Command]
+  ): Actor[FeedMessage] =
+    new FeedActor(feeder, feederName.getOrElse(actorName), generateJavaCollection, controller)
 }
 
-private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[String], generateJavaCollection: Boolean, controller: ActorRef) extends BaseActor {
-  private def emptyFeederFailure = s"Feeder ${feederName.getOrElse("unknown")} is now empty, stopping engine".failure
+private final class FeedActor[T] private (feeder: Feeder[T], feederName: String, generateJavaCollection: Boolean, controller: ActorRef[Controller.Command])
+    extends Actor[FeedMessage](feederName) {
+  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
@@ -84,7 +89,7 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
     }
   }
 
-  def receive: Receive = { case FeedMessage(session, number, next) =>
+  override def init(): Behavior[FeedMessage] = { case FeedMessage(session, number, next) =>
     try {
       val newAttributes = number match {
         case Some(n) =>
@@ -98,20 +103,13 @@ private final class FeedActor[T](val feeder: Feeder[T], feederName: Option[Strin
 
       newAttributes match {
         case Success(attr)    => next ! session.setAll(attr)
-        case Failure(message) => controller ! ControllerCommand.Crash(new IllegalStateException(message))
+        case Failure(message) => controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: $message. Stopping engine"))
       }
     } catch {
-      case NonFatal(e) =>
-        logger.error(s"Feeder ${feederName.getOrElse("unknown")} crashed", e)
-        s"Feeder ${feederName.getOrElse("unknown")} crashed: ${e.detailedMessage}, stopping engine".failure
+      case NonFatal(e) => controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: ${e.detailedMessage}. Stopping engine", e))
     }
+    stay
   }
-
-  override def postStop(): Unit =
-    feeder match {
-      case closeable: AutoCloseable => closeable.close()
-      case _                        =>
-    }
 }
 
 final case class FeedMessage(session: Session, num: Option[Int], next: Action)

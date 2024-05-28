@@ -13,13 +13,6 @@ It officially supports HTTP, WebSocket, Server-Sent-Events and JMS.
 
 Gatling is for you!
 
-## Underlying technologies
-
-Gatling is developed in Scala and built upon:
-
-* [Netty](https://netty.io) for non blocking HTTP
-* [Akka](https://akka.io) for virtual users orchestration
-
 ## Questions, help?
 
 Read the [documentation](https://docs.gatling.io).
@@ -30,5 +23,4 @@ Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues).
 
 ## Partners
 
-<img alt="Takima" src="https://raw.githubusercontent.com/gatling/gatling/main/images/logo-takima-1-nom-bas.png" width="80">&nbsp;&nbsp;&nbsp;&nbsp;
-![Highsoft AS](https://raw.githubusercontent.com/gatling/gatling/main/images/highsoft_logo.png)&nbsp;&nbsp;&nbsp;&nbsp;
+![Highsoft AS](./images/highsoft_logo.png)

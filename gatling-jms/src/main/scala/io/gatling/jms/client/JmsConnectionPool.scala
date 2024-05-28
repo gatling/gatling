@@ -23,10 +23,9 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.model.Credentials
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.ActorSystem
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.ActorSystem
 
 final class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]

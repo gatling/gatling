@@ -20,29 +20,35 @@ import java.{ util => ju }
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.core.action.{ Action, Feed, FeedActor }
+import io.gatling.core.action.{ Action, Feed, FeedActor, FeedMessage }
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.feeder.{ FeederBuilder, NamedFeederBuilder }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorRef
-
 private[core] object FeedBuilder {
-  private val Instances = new ju.HashMap[Long, ActorRef].asScala
+  private val Instances = new ju.HashMap[Long, ActorRef[FeedMessage]].asScala
 }
 
 private[core] final class FeedBuilder(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean)
     extends ActionBuilder
     with NameGen {
-  private def newFeedActor(ctx: ScenarioContext): ActorRef = {
+  private def newFeedActor(ctx: ScenarioContext): ActorRef[FeedMessage] = {
     val feederName = feederBuilder match {
       case namedFeederBuilder: NamedFeederBuilder => Some(namedFeederBuilder.name)
       case _                                      => None
     }
 
-    val props = FeedActor.props(feederBuilder(), feederName, generateJavaCollection, ctx.coreComponents.controller)
-    ctx.coreComponents.actorSystem.actorOf(props, genName("feed"))
+    val feeder = feederBuilder()
+
+    feeder match {
+      case closeable: AutoCloseable => ctx.coreComponents.actorSystem.registerOnTermination(closeable.close())
+      case _                        =>
+    }
+
+    val props = FeedActor.actor(feeder, genName("feed"), feederName, generateJavaCollection, ctx.coreComponents.controller)
+    ctx.coreComponents.actorSystem.actorOf(props)
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {

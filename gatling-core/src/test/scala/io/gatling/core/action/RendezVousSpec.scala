@@ -16,27 +16,39 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.EmptySession
+import io.gatling.core.actor.ActorSpec
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
-class RendezVousSpec extends AkkaSpec {
+@SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
+class RendezVousSpec extends ActorSpec {
   private val clock = new DefaultClock
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {
-    val rendezVous = RendezVous(3, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val nextActor = mockActorRef[Session]("next")
+    val rendezVous = RendezVous(3, actorSystem, mock[StatsEngine], clock, new ActorDelegatingAction("next", nextActor))
 
-    rendezVous ! emptySession
-    expectNoMessage(remainingOrDefault)
+    val session0 = emptySession.copy(userId = 0)
+    val session1 = emptySession.copy(userId = 1)
+    val session2 = emptySession.copy(userId = 2)
+    val session3 = emptySession.copy(userId = 3)
 
-    rendezVous ! emptySession
-    expectNoMessage(remainingOrDefault)
+    rendezVous ! session0
+    Thread.sleep(100)
+    nextActor.expectNoMsg()
 
-    rendezVous ! emptySession
-    expectMsgAllOf(emptySession, emptySession, emptySession)
+    rendezVous ! session1
+    Thread.sleep(100)
+    nextActor.expectNoMsg()
 
-    rendezVous ! emptySession
-    expectMsg(emptySession)
+    rendezVous ! session2
+    Thread.sleep(100)
+    nextActor.expectMsgType[Session]() shouldBe session0
+    nextActor.expectMsgType[Session]() shouldBe session1
+    nextActor.expectMsgType[Session]() shouldBe session2
+
+    rendezVous ! session3
+    nextActor.expectMsgType[Session]() shouldBe session3
   }
 }

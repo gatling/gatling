@@ -16,17 +16,16 @@
 
 package io.gatling.core.action
 
-import io.gatling.core.controller.inject.InjectorCommand
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.inject.Injector
 import io.gatling.core.session.Session
 
-import akka.actor.ActorRef
-
-private[gatling] final class Exit(injector: ActorRef) extends Action {
+private[gatling] final class Exit(injector: ActorRef[Injector.Command]) extends Action {
   override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    injector ! InjectorCommand.UserEnd(session.scenario)
+    injector ! Injector.Command.UserEnd(session.scenario)
   }
 }

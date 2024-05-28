@@ -20,6 +20,7 @@ import javax.jms.Message
 
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
@@ -39,7 +40,7 @@ abstract class JmsAction(
     attributes: JmsAttributes,
     protocol: JmsProtocol,
     pool: JmsConnectionPool,
-    throttler: Option[Throttler]
+    throttler: Option[ActorRef[Throttler.Command]]
 ) extends RequestAction
     with JmsLogging
     with NameGen {
@@ -62,7 +63,7 @@ abstract class JmsAction(
       jmsType.foreach(message.setJMSType)
 
       throttler match {
-        case Some(th) => th.throttle(session.scenario, () => around(producer.send(message)))
+        case Some(th) => th ! Throttler.Command.ThrottledRequest(session.scenario, () => around(producer.send(message)))
         case _        => around(producer.send(message))
       }
     }

@@ -23,17 +23,15 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
 
 import io.gatling.commons.stats.Status
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.ControllerCommand
+import io.gatling.core.controller.Controller
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 import io.gatling.core.structure.PopulationBuilder
-
-import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
-import akka.pattern.ask
-import akka.util.Timeout
 
 object DataWritersStatsEngine {
   def apply(
@@ -44,63 +42,65 @@ object DataWritersStatsEngine {
       resultsDirectory: Option[Path],
       configuration: GatlingConfiguration
   ): DataWritersStatsEngine = {
-    def dataWriterActor(className: String, args: Any*): ActorRef = {
-      val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz, args: _*), className)
-    }
-
     val dataWriters = configuration.data.dataWriters
       .map {
-        case DataWriterType.Console => dataWriterActor("io.gatling.core.stats.writer.ConsoleDataWriter", clock, configuration)
+        case DataWriterType.Console => system.actorOf(new ConsoleDataWriter(clock, configuration))
         case DataWriterType.File =>
-          dataWriterActor(
-            "io.gatling.core.stats.writer.LogFileDataWriter",
-            resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
-            configuration
+          system.actorOf(
+            new LogFileDataWriter(
+              resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
+              configuration
+            )
           )
-        case DataWriterType.Graphite => dataWriterActor("io.gatling.graphite.GraphiteDataWriter", clock, configuration)
       }
 
     val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
 
-    val dataWriterInitMessage = DataWriterMessage.Init(
+    new DataWritersStatsEngine(
       simulationParams.assertions,
       runMessage,
-      allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
+      allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount)),
+      dataWriters,
+      system,
+      clock
     )
-
-    new DataWritersStatsEngine(dataWriterInitMessage, dataWriters, system, clock)
   }
 }
 
-class DataWritersStatsEngine(dataWriterInitMessage: DataWriterMessage.Init, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
+final class DataWritersStatsEngine(
+    assertions: Seq[Assertion],
+    runMessage: RunMessage,
+    scenarios: Seq[ShortScenarioDescription],
+    dataWriters: Seq[ActorRef[DataWriterMessage]],
+    system: ActorSystem,
+    clock: Clock
+) extends StatsEngine {
   private val active = new AtomicBoolean(true)
 
   override def start(): Unit = {
-    implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
-    implicit val dispatcher: ExecutionContext = system.dispatcher
+    val startTimeoutDuration = 5.seconds
 
-    val dataWriterInitResponses = dataWriters.map(_ ? dataWriterInitMessage)
+    val dataWriterInitResponses = dataWriters.map { dataWriter =>
+      val promise = dataWriter.replyPromise[Unit](startTimeoutDuration)
+      dataWriter ! DataWriterMessage.Init(assertions, runMessage, scenarios, promise)
+      promise.future
+    }
 
-    val statsEngineFuture: Future[Unit] = Future
-      .sequence(dataWriterInitResponses)
-      .flatMap { responses =>
-        if (responses.forall(_ == true)) {
-          Future.unit
-        } else {
-          Future.failed(new Exception("DataWriters didn't initialize properly"))
-        }
-      }
+    implicit val executionContext: ExecutionContext = system.executionContext
+    val statsEngineFuture = Future.sequence(dataWriterInitResponses)
 
-    Await.ready(statsEngineFuture, dataWriterTimeOut.duration)
+    Await.ready(statsEngineFuture, startTimeoutDuration)
   }
 
-  override def stop(controller: ActorRef, exception: Option[Exception]): Unit =
+  override def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {
-      implicit val dispatcher: ExecutionContext = system.dispatcher
-      implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
-      val responses = dataWriters.map(_ ? DataWriterMessage.Stop)
-      Future.sequence(responses).onComplete(_ => controller ! ControllerCommand.StatsEngineStopped)
+      val responses = dataWriters.map { dataWriter =>
+        val promise = dataWriter.replyPromise[Unit](5.seconds)
+        dataWriter ! DataWriterMessage.Stop(promise)
+        promise.future
+      }
+      implicit val executionContext: ExecutionContext = system.executionContext
+      Future.sequence(responses).onComplete(_ => controller ! Controller.Command.StatsEngineStopped)
     }
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)

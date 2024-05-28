@@ -23,6 +23,7 @@ import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.Cancellable
 import io.gatling.core.config.GatlingConfiguration
 
 private[gatling] final class UserCounters(val totalUserCount: Option[Long]) {
@@ -46,7 +47,7 @@ private object RequestCounters {
 
 private[gatling] final class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
-private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter) extends DataWriterData {
+private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter, val timer: Cancellable) extends DataWriterData {
   var complete: Boolean = false
   val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
   val globalRequestCounters: RequestCounters = RequestCounters.empty
@@ -54,17 +55,18 @@ private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeForm
   val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 }
 
-private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
-  private val flushTimerName = "flushTimer"
+private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData]("console-data-writer") {
 
-  def onInit(init: DataWriterMessage.Init): ConsoleData = {
+  override def onInit(init: DataWriterMessage.Init): ConsoleData = {
     import init._
 
-    val data = new ConsoleData(clock.nowMillis, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss O").withZone(runMessage.zoneId))
+    val timer = scheduler.scheduleAtFixedRate(configuration.data.console.writePeriod) {
+      self ! DataWriterMessage.Flush
+    }
+
+    val data = new ConsoleData(clock.nowMillis, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss O").withZone(runMessage.zoneId), timer)
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
-
-    startTimerAtFixedRate(flushTimerName, DataWriterMessage.Flush, configuration.data.console.writePeriod)
 
     data
   }
@@ -113,7 +115,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
     import data._
     import response._
 
-    val requestPath = (groupHierarchy :+ name).mkString(" / ")
+    val requestPath = (groupHierarchy :+ response.name).mkString(" / ")
     val requestCounters = requestsCounters.getOrElseUpdate(requestPath, RequestCounters.empty)
 
     status match {
@@ -136,7 +138,7 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
   override def onCrash(cause: String, data: ConsoleData): Unit = {}
 
   override def onStop(data: ConsoleData): Unit = {
-    cancelTimer(flushTimerName)
+    data.timer.cancel()
     if (!data.complete) onFlush(data)
   }
 }

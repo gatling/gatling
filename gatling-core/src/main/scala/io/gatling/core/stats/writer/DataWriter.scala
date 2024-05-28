@@ -18,15 +18,14 @@ package io.gatling.core.stats.writer
 
 import scala.util.control.NonFatal
 
-import akka.actor.FSM.NullFunction
+import io.gatling.core.actor.{ Actor, Behavior }
 
 /**
  * Abstract class for all DataWriters
  *
  * These writers are responsible for writing the logs that will be read to generate the statistics
  */
-private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
-  startWith(Uninitialized, NoData)
+private[gatling] abstract class DataWriter[T <: DataWriterData](name: String) extends Actor[DataWriterMessage](name) {
 
   def onInit(init: DataWriterMessage.Init): T
 
@@ -38,44 +37,42 @@ private[gatling] abstract class DataWriter[T <: DataWriterData] extends DataWrit
 
   def onMessage(message: DataWriterMessage.LoadEvent, data: T): Unit
 
-  when(Uninitialized) { case Event(init: DataWriterMessage.Init, NoData) =>
-    logger.info("Initializing")
-    try {
-      val newState = onInit(init)
-      logger.info("Initialized")
-      sender() ! true
-      goto(Initialized) using newState
-    } catch {
-      case NonFatal(e) =>
-        logger.error("DataWriter failed to initialize", e)
-        sender() ! false
-        goto(Terminated)
-    }
+  override def init(): Behavior[DataWriterMessage] = {
+    case init: DataWriterMessage.Init =>
+      logger.info("Initializing")
+      try {
+        val newState = onInit(init)
+        logger.info("Initialized")
+        init.startPromise.trySuccess(())
+        become(initialized(newState))
+      } catch {
+        case NonFatal(e) =>
+          logger.error("DataWriter failed to initialize", e)
+          init.startPromise.tryFailure(e)
+          die
+      }
+
+    case msg => dieOnUnexpected(msg)
   }
 
-  when(Initialized) {
-    case Event(DataWriterMessage.Flush, data: Any) =>
-      onFlush(data.asInstanceOf[T])
-      stay()
+  private def initialized(data: T): Behavior[DataWriterMessage] = {
+    case DataWriterMessage.Flush =>
+      onFlush(data)
+      stay
 
-    case Event(DataWriterMessage.Stop, data: Any) =>
-      onStop(data.asInstanceOf[T])
-      sender() ! true
-      goto(Terminated) using NoData
+    case DataWriterMessage.Stop(stopPromise) =>
+      onStop(data)
+      stopPromise.trySuccess(())
+      die
 
-    case Event(DataWriterMessage.Crash(cause), data: Any) =>
-      onCrash(cause, data.asInstanceOf[T])
-      goto(Terminated) using NoData
+    case DataWriterMessage.Crash(cause) =>
+      onCrash(cause, data)
+      die
 
-    case Event(message: DataWriterMessage.LoadEvent, data: Any) =>
-      onMessage(message, data.asInstanceOf[T])
-      stay()
-  }
+    case message: DataWriterMessage.LoadEvent =>
+      onMessage(message, data)
+      stay
 
-  when(Terminated)(NullFunction)
-
-  whenUnhandled { case Event(m, _) =>
-    logger.info(s"Can't handle $m in state $stateName")
-    stay()
+    case msg => dieOnUnexpected(msg)
   }
 }

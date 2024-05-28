@@ -23,10 +23,10 @@ import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
+import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
@@ -41,7 +41,7 @@ import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
 import org.scalatest.BeforeAndAfter
 
-abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
+abstract class HttpSpec extends ActorSpec with BeforeAndAfter {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 
@@ -68,12 +68,13 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(system, mock[EventLoopGroup], null, None, mock[StatsEngine], clock, mock[Action], configuration)
+      new CoreComponents(actorSystem, mock[EventLoopGroup], null, None, mock[StatsEngine], clock, mock[Action], configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
-    val next = new ActorDelegatingAction("next", self)
+    val nextActor = mockActorRef[Session]("next")
+    val next = new ActorDelegatingAction("next", nextActor)
     val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     action ! emptySession
-    expectMsgClass(timeout, classOf[Session])
+    nextActor.expectMsgType[Session](timeout)
   }
 
   def sendFile(name: String): ChannelProcessor = ctx => {

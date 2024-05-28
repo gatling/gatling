@@ -16,26 +16,24 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.actor.ActorSpec
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
-import org.scalatestplus.mockito.MockitoSugar
-
-class FeedSpec extends AkkaSpec with MockitoSugar {
+class FeedSpec extends ActorSpec {
   private val clock = new DefaultClock
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {
-    val feedActor = TestProbe()
-    val next = new ActorDelegatingAction("next", self)
+    val feedActor = mockActorRef[FeedMessage]("feed")
+    val nextActor = mockActorRef[Session]("next")
+    val next = new ActorDelegatingAction("next", nextActor)
 
-    val feed = new Feed(feedActor.ref, None, mock[StatsEngine], clock, next)
+    val feed = new Feed(feedActor, None, mock[StatsEngine], clock, next)
 
     feed ! emptySession
 
-    val feedMessage = feedActor.expectMsgType[FeedMessage]
+    val feedMessage = feedActor.expectMsgType[FeedMessage]()
     feedMessage.session shouldBe emptySession
     feedMessage.next shouldBe next
   }

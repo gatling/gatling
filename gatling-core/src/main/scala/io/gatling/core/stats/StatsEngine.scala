@@ -19,16 +19,16 @@ package io.gatling.core.stats
 import java.net.InetSocketAddress
 
 import io.gatling.commons.stats.Status
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.session.GroupBlock
-import io.gatling.core.stats.writer._
 
-import akka.actor.ActorRef
 import io.netty.channel.ChannelHandler
 
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
   def start(): Unit
 
-  def stop(controller: ActorRef, exception: Option[Exception]): Unit
+  private[gatling] def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit
 
   def logUserStart(scenario: String): Unit
 

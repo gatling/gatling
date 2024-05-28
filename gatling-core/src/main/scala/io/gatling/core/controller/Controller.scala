@@ -16,80 +16,86 @@
 
 package io.gatling.core.controller
 
-import scala.util.{ Failure, Success, Try }
+import scala.concurrent.Promise
+import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.controller.inject.InjectorCommand
+import io.gatling.core.actor.{ Actor, ActorRef, Behavior, Cancellable, Effect }
+import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.SimulationParams
+import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
-
 private[gatling] object Controller {
-  val ControllerActorName = "gatling-controller"
-
-  def props(
+  def actor(
       statsEngine: StatsEngine,
-      injector: ActorRef,
-      throttler: Option[Throttler],
+      injector: ActorRef[Injector.Command],
+      throttler: Option[ActorRef[Throttler.Command]],
       simulationParams: SimulationParams
-  ): Props =
-    Props(new Controller(statsEngine, injector, throttler, simulationParams))
+  ): Actor[Command] =
+    new Controller(statsEngine, injector, throttler, simulationParams)
 
-  // [e]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [e]
-}
-
-private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option[Throttler], simulationParams: SimulationParams) extends ControllerFSM {
-  import ControllerCommand._
-  import ControllerData._
-  import ControllerState._
-
-  val maxDurationTimer = "maxDurationTimer"
-
-  startWith(WaitingToStart, NoData)
-
-  when(WaitingToStart) { case Event(Start(scenarioFlows), NoData) =>
-    val initData = InitData(sender(), scenarioFlows)
-
-    simulationParams.maxDuration.foreach { maxDuration =>
-      logger.debug("Setting up max duration")
-      startSingleTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
-    }
-
-    throttler.foreach(_.start())
-    statsEngine.start()
-    injector ! InjectorCommand.Start(self, initData.scenarioFlows)
-
-    goto(Started) using StartedData(initData)
+  private object Data {
+    final case class Init(scenarioFlows: ScenarioFlows[String, Scenario], maxDurationTimer: Option[Cancellable], runDonePromise: Promise[Unit])
+    final case class End(initData: Init, exception: Option[Exception])
   }
 
-  when(Started) {
-    case Event(RunTerminated, data: StartedData) =>
+  private[gatling] sealed trait Command
+  private[gatling] object Command {
+    private[gatling] final case class Start(scenarioFlows: ScenarioFlows[String, Scenario], runDonePromise: Promise[Unit]) extends Command
+    private[gatling] final case object RunTerminated extends Command
+    private[gatling] final case class Crash(exception: Exception) extends Command
+    private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
+    private[gatling] final case object StopInjector extends Command
+    private[gatling] final case object StatsEngineStopped extends Command
+    // [e]
+    private[gatling] final case object Kill extends Command
+    // [e]
+  }
+}
+
+private final class Controller private (
+    statsEngine: StatsEngine,
+    injector: ActorRef[Injector.Command],
+    throttler: Option[ActorRef[Throttler.Command]],
+    simulationParams: SimulationParams
+) extends Actor[Controller.Command]("controller") {
+  import Controller._
+
+  override def init(): Behavior[Controller.Command] = {
+    case Command.Start(scenarioFlows, runDonePromise) =>
+      val maxDurationTimer = simulationParams.maxDuration.map { maxDuration =>
+        logger.debug("Setting up max duration")
+        scheduler.scheduleOnce(maxDuration) {
+          self ! Command.MaxDurationReached(maxDuration)
+        }
+      }
+
+      throttler.foreach(_ ! Throttler.Command.Start)
+      statsEngine.start()
+      injector ! Injector.Command.Start(self, scenarioFlows)
+      become(started(Data.Init(scenarioFlows, maxDurationTimer, runDonePromise)))
+
+    case msg => dieOnUnexpected(msg)
+  }
+
+  private def started(data: Data.Init): Behavior[Command] = {
+    case Command.RunTerminated =>
       logger.info(s"Injector has stopped, initiating graceful stop")
-      cancelTimer(maxDurationTimer)
+      data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, None)
 
-    case Event(MaxDurationReached(maxDuration), data: StartedData) =>
+    case Command.MaxDurationReached(maxDuration) =>
       logger.info(s"Max duration of $maxDuration reached")
       stopGracefully(data, None)
 
-    case Event(Crash(exception), data: StartedData) =>
+    case Command.Crash(exception) =>
       logger.error(s"Simulation crashed", exception)
-      cancelTimer(maxDurationTimer)
+      data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, Some(exception))
 
-    case Event(StopInjector, data: StartedData) =>
+    case Command.StopInjector =>
       logger.info("Injector was forcefully stopped")
-      cancelTimer(maxDurationTimer)
+      data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, None)
 
     // [e]
@@ -98,24 +104,29 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
     //
     //
     // [e]
+
+    case msg => dropUnexpected(msg)
   }
 
-  private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
+  private def stopGracefully(initData: Data.Init, exception: Option[Exception]): Effect[Command] = {
     statsEngine.stop(self, exception)
-    goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
+    become(waitingForResourcesToStop(Data.End(initData, exception)))
   }
 
-  private def stop(endData: EndData): State = {
-    endData.initData.launcher ! replyToLauncher(endData)
-    goto(Stopped) using NoData
+  private def stop(endData: Data.End): Effect[Command] = {
+    endData.exception match {
+      case Some(exception) => endData.initData.runDonePromise.tryFailure(exception)
+      case _               => endData.initData.runDonePromise.trySuccess(())
+    }
+    die
   }
 
-  when(WaitingForResourcesToStop) {
-    case Event(StatsEngineStopped, data: EndData) =>
+  private def waitingForResourcesToStop(data: Data.End): Behavior[Command] = {
+    case Command.StatsEngineStopped =>
       logger.debug("StatsEngine was stopped")
       stop(data)
 
-    case Event(StopInjector, data: EndData) =>
+    case Command.StopInjector =>
       logger.info("Injector was forcefully stopped")
       stop(data)
 
@@ -125,23 +136,6 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
     //
     // [e]
 
-    case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for resources to stop")
-      stay()
+    case msg => dropUnexpected(msg)
   }
-
-  private def replyToLauncher(endData: EndData): Try[Unit] =
-    endData.exception match {
-      case Some(exception) => Failure(exception)
-      case _               => Success(())
-    }
-
-  // -- STEP 4 : Controller has been stopped, all new messages will be discarded -- //
-
-  when(Stopped) { case Event(message, NoData) =>
-    logger.debug(s"Ignore message $message since Controller has been stopped")
-    stay()
-  }
-
-  initialize()
 }

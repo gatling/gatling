@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.jms.Destination
 
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
-import akka.actor.ActorSystem
 import io.netty.util.concurrent.DefaultThreadFactory
 
 object JmsTrackerPool {
@@ -41,13 +41,13 @@ final class JmsTrackerPool(
     configuration: GatlingConfiguration
 ) extends JmsLogging
     with NameGen {
-  private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
+  private val trackers = new ConcurrentHashMap[(Destination, Option[String]), ActorRef[JmsTracker.Command]]
 
-  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
+  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): ActorRef[JmsTracker.Command] =
     trackers.computeIfAbsent(
       (destination, selector),
       _ => {
-        val actor = system.actorOf(Tracker.props(statsEngine, clock, configuration), genName("jmsTrackerActor"))
+        val tracker = system.actorOf(JmsTracker.actor(genName("jmsTrackerActor"), statsEngine, clock, configuration))
 
         for (_ <- 1 to listenerThreadCount) {
           // jms session pool logic creates a session per thread and stores it in thread local.
@@ -57,14 +57,14 @@ final class JmsTrackerPool(
             consumer.setMessageListener { message =>
               val matchId = messageMatcher.responseMatchId(message)
               logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-              actor ! MessageReceived(matchId, clock.nowMillis, message)
+              tracker ! JmsTracker.Command.MessageReceived(matchId, clock.nowMillis, message)
             }
           }
 
           thread.start()
         }
 
-        new JmsTracker(actor)
+        tracker
       }
     )
 }

@@ -17,14 +17,19 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
+private final class Feed(
+    feedActor: ActorRef[FeedMessage],
+    numberOpt: Option[Expression[Int]],
+    val statsEngine: StatsEngine,
+    val clock: Clock,
+    val next: Action
+) extends ExitableAction {
 
-private final class Feed(feedActor: ActorRef, numberOpt: Option[Expression[Int]], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
-    extends ExitableAction {
-  override val name: String = feedActor.path.name
+  override def name: String = feedActor.name
 
   private val executeF: Session => Unit =
     numberOpt match {

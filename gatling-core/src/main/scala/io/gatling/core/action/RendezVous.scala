@@ -19,56 +19,40 @@ package io.gatling.core.action
 import scala.collection.mutable
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.akka.BaseActor
+import io.gatling.core.actor.{ Actor, ActorRef, ActorSystem, Behavior }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
-
 private object RendezVous extends NameGen {
   def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {
-    val props = Props(new RendezVousActor(users: Int, next))
-    val actor = actorSystem.actorOf(props, genName("rendezVous"))
+    val actor = actorSystem.actorOf(new RendezVousActor(users, next, genName("rendezVous")))
     new RendezVous(actor, statsEngine, clock, next)
   }
 }
 
-private final class RendezVous private (actor: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
-    extends ActorDelegatingAction(actor.path.name, actor)
+private final class RendezVous private (actor: ActorRef[Session], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ActorDelegatingAction(actor.name, actor)
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
  */
-private final class RendezVousActor(users: Int, val next: Action) extends BaseActor {
+private final class RendezVousActor(users: Int, val next: Action, name: String) extends Actor[Session](name) {
   private val buffer = mutable.Queue.empty[Session]
 
-  private val passThrough: Receive = { case session: Session =>
-    next ! session
-  }
-
-  def execute(session: Session): Unit = {
+  override def init(): Behavior[Session] = session => {
     buffer += session
     if (buffer.sizeIs == users) {
-      context.become(passThrough)
       buffer.foreach(next ! _)
       buffer.clear()
+      become(passThrough)
+    } else {
+      stay
     }
   }
 
-  override def receive: Receive = { case session: Session =>
-    execute(session)
+  private val passThrough: Behavior[Session] = session => {
+    next ! session
+    stay
   }
-
-  /**
-   * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
-   */
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
-    message.foreach {
-      case session: Session =>
-        logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
-        next ! session.markAsFailed
-      case _ =>
-        logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
-    }
 }

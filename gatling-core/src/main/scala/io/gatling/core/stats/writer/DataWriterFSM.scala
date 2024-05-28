@@ -16,18 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 
-import akka.actor.FSM
-
-private[gatling] trait DataWriterFSM extends BaseActor with FSM[DataWriterState, DataWriterData]
-
-private[gatling] sealed trait DataWriterState
-private[gatling] case object Uninitialized extends DataWriterState
-private[gatling] case object Initialized extends DataWriterState
-private[gatling] case object Terminated extends DataWriterState
-
 private[gatling] trait DataWriterData
-private[gatling] case object NoData extends DataWriterData
-private[gatling] final case class InitData(configuration: GatlingConfiguration) extends DataWriterData
+private[gatling] final case class InitData(configuration: GatlingConfiguration)

@@ -41,7 +41,6 @@ lazy val root = Project("gatling-parent", file("."))
     jms,
     jmsJava,
     charts,
-    graphite,
     app,
     recorder,
     testFramework
@@ -159,11 +158,6 @@ lazy val charts = gatlingModule("gatling-charts")
   .settings(libraryDependencies ++= chartsDependencies)
   .settings(chartTestsSettings)
 
-lazy val graphite = gatlingModule("gatling-graphite")
-  .disablePlugins(SbtSpotless)
-  .dependsOn(core % "compile->compile;test->test")
-  .settings(libraryDependencies ++= graphiteDependencies)
-
 lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .disablePlugins(SbtSpotless)
   .dependsOn(core, http)
@@ -172,7 +166,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
 
 lazy val app = gatlingModule("gatling-app")
   .disablePlugins(SbtSpotless)
-  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, graphite, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)

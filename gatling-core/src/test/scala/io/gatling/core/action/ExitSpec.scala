@@ -16,20 +16,21 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
-import io.gatling.core.controller.inject.InjectorCommand
+import io.gatling.core.actor.ActorSpec
+import io.gatling.core.controller.inject.Injector
 
-class ExitSpec extends AkkaSpec {
+class ExitSpec extends ActorSpec {
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
-    val exit = new Exit(self)
-
     var hasTerminated = false
 
+    val mockInjector = mockActorRef[Injector.Command]("injector")
+
+    val exit = new Exit(mockInjector)
     val session = emptySession.copy(onExit = _ => hasTerminated = true)
     exit ! session
 
     hasTerminated shouldBe true
-    val userMessage = expectMsgType[InjectorCommand.UserEnd]
+    val userMessage = mockInjector.expectMsgType[Injector.Command.UserEnd]()
     userMessage.scenario shouldBe session.scenario
   }
 }

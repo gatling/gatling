@@ -17,6 +17,7 @@
 package io.gatling.http.engine.tx
 
 import io.gatling.core.CoreComponents
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.NameGen
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches, SslContextSupport }
 import io.gatling.http.client.HttpListener
@@ -150,7 +151,7 @@ final class HttpTxExecutor(
 
         throttler match {
           case Some(th) if tx.request.requestConfig.throttled =>
-            th.throttle(
+            th ! Throttler.Command.ThrottledRequest(
               tx.session.scenario,
               () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, userSslContexts)
             )
@@ -178,7 +179,7 @@ final class HttpTxExecutor(
 
       throttler match {
         case Some(th) if txs.head.request.requestConfig.throttled =>
-          th.throttle(
+          th ! Throttler.Command.ThrottledRequest(
             headTx.session.scenario,
             () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, userSslContexts)
           )

@@ -32,7 +32,7 @@ import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
+import io.netty.handler.codec.http.HttpMethod
 
 object CommonAttributes {
   def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): CommonAttributes =

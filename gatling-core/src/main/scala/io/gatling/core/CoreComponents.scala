@@ -18,18 +18,19 @@ package io.gatling.core
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
+import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.Controller
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 
-import _root_.akka.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
 
 final class CoreComponents(
     val actorSystem: ActorSystem,
     val eventLoopGroup: EventLoopGroup,
-    val controller: ActorRef,
-    val throttler: Option[Throttler],
+    val controller: ActorRef[Controller.Command],
+    val throttler: Option[ActorRef[Throttler.Command]],
     val statsEngine: StatsEngine,
     val clock: Clock,
     val exit: Action,

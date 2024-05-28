@@ -16,54 +16,56 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
-import io.gatling.core.controller.ControllerCommand.Crash
+import io.gatling.core.actor._
+import io.gatling.core.controller.Controller
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
 
-import akka.testkit._
-
-class FeedActorSpec extends AkkaSpec {
-  private def createFeedActor[T](feeder: Feeder[T], controller: TestProbe) =
-    TestActorRef(FeedActor.props(feeder, None, generateJavaCollection = false, controller.ref))
+class FeedActorSpec extends ActorSpec {
+  private def createFeedActor[T](feeder: Feeder[T], controller: ActorRef[Controller.Command]): ActorRef[FeedMessage] =
+    actorSystem.actorOf(FeedActor.actor(feeder, "feeder", None, generateJavaCollection = false, controller))
 
   "FeedActor" should "force the simulation termination if the nb of records to pop is not strictly positive" in {
-    val controller = TestProbe()
+    val controller = mockActorRef[Controller.Command]("controller")
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
+    val nextActor = mockActorRef[Session]("next")
 
-    feedActor ! FeedMessage(emptySession, Some(0), new ActorDelegatingAction("next", self))
-    controller.expectMsgType[Crash]
+    feedActor ! FeedMessage(emptySession, Some(0), new ActorDelegatingAction("next", nextActor))
+    controller.expectMsgType[Controller.Command.Crash]()
 
-    feedActor ! FeedMessage(emptySession, Some(-1), new ActorDelegatingAction("next", self))
-    controller.expectMsgType[Crash]
+    feedActor ! FeedMessage(emptySession, Some(-1), new ActorDelegatingAction("next", nextActor))
+    controller.expectMsgType[Controller.Command.Crash]()
   }
 
   it should "force the simulation termination if the feeder is empty" in {
-    val controller = TestProbe()
+    val controller = mockActorRef[Controller.Command]("controller")
     val feedActor = createFeedActor(Iterator.empty, controller)
+    val nextActor = mockActorRef[Session]("next")
 
-    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", self))
-    controller.expectMsgType[Crash]
+    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", nextActor))
+    controller.expectMsgType[Controller.Command.Crash]()
   }
 
   it should "simply put an entry from the feeder in the session when polling 1 record at a time" in {
-    val controller = TestProbe()
+    val controller = mockActorRef[Controller.Command]("controller")
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
+    val nextActor = mockActorRef[Session]("next")
 
-    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", nextActor))
 
-    val newSession = expectMsgType[Session]
+    val newSession = nextActor.expectMsgType[Session]()
     newSession.contains("foo") shouldBe true
     newSession("foo").as[String] shouldBe "bar"
   }
 
   it should "put entries from the feeder suffixed with an index in the session when polling multiple record at a time" in {
-    val controller = TestProbe()
+    val controller = mockActorRef[Controller.Command]("controller")
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
+    val nextActor = mockActorRef[Session]("next")
 
-    feedActor ! FeedMessage(emptySession, Some(2), new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, Some(2), new ActorDelegatingAction("next", nextActor))
 
-    val newSession = expectMsgType[Session]
+    val newSession = nextActor.expectMsgType[Session]()
     newSession.contains("foo") shouldBe true
     newSession("foo").as[Seq[Any]] shouldBe Seq("bar", "bar")
   }

@@ -16,24 +16,23 @@
 
 package io.gatling.app
 
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
 import io.gatling.commons.util._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
+import io.gatling.core.actor.ActorSystem
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.{ Controller, ControllerCommand }
+import io.gatling.core.controller.Controller
 import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 
@@ -87,9 +86,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     )
     val coreComponents = {
       val statsEngine = newStatsEngine(simulationParams, runMessage)
-      val throttler = Throttler.newThrottler(system, simulationParams)
-      val injector = Injector(system, eventLoopGroup, statsEngine, clock)
-      val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams), Controller.ControllerActorName)
+      val throttler = Throttler.actor(simulationParams.throttlings).map(system.actorOf)
+      val injector = system.actorOf(Injector.actor(eventLoopGroup, statsEngine, clock))
+      val controller = system.actorOf(Controller.actor(statsEngine, injector, throttler, simulationParams))
       val exit = new Exit(injector)
       new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
     }
@@ -104,14 +103,15 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
       simulationParams: SimulationParams,
       scenarioFlows: ScenarioFlows[String, Scenario],
       coreComponents: CoreComponents
-  ): Try[_] = {
+  ): Try[Unit] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")
     logger.trace("Asking Controller to start")
-    val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarioFlows))(timeout).mapTo[Try[String]]
-    val runDone = Await.result(whenRunDone, timeout)
-    println(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
+    val runDonePromise = coreComponents.controller.replyPromise[Unit](timeout)
+    coreComponents.controller ! Controller.Command.Start(scenarioFlows, runDonePromise)
+    val runDone = Try(Await.result(runDonePromise.future, timeout))
+    logger.info(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone
   }
 

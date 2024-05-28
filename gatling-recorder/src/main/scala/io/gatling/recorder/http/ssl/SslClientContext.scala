@@ -18,7 +18,7 @@ package io.gatling.recorder.http.ssl
 
 import javax.net.ssl.SSLEngine
 
-import io.gatling.recorder.http.flows.Remote
+import io.gatling.recorder.http.Remote
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBufAllocator

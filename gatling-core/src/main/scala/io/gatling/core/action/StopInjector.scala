@@ -16,15 +16,19 @@
 
 package io.gatling.core.action
 
-import io.gatling.core.controller.ControllerCommand
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorRef
-
-final class StopInjector(message: Expression[String], condition: Expression[Boolean], val statsEngine: StatsEngine, controller: ActorRef, val next: Action)
-    extends ChainableAction
+final class StopInjector(
+    message: Expression[String],
+    condition: Expression[Boolean],
+    val statsEngine: StatsEngine,
+    controller: ActorRef[Controller.Command],
+    val next: Action
+) extends ChainableAction
     with NameGen {
   override val name: String = genName("stopInjector")
 
@@ -35,7 +39,7 @@ final class StopInjector(message: Expression[String], condition: Expression[Bool
     } yield {
       if (condition) {
         logger.error(s"Requested injector to stop: $msg")
-        controller ! ControllerCommand.StopInjector
+        controller ! Controller.Command.StopInjector
       } else {
         next ! session
       }

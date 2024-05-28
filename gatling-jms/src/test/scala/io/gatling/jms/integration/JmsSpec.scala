@@ -20,11 +20,12 @@ import javax.jms.{ Session => JmsSession, _ }
 
 import scala.concurrent.duration._
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
+import io.gatling.core.actor.{ ActorRef, ActorSpec }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.Controller
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.{ Session, StaticValueExpression }
@@ -34,7 +35,6 @@ import io.gatling.jms._
 import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
-import akka.actor.ActorRef
 import io.netty.channel.EventLoopGroup
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
@@ -66,7 +66,7 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
   t.start()
 }
 
-trait JmsSpec extends AkkaSpec with JmsDsl {
+trait JmsSpec extends ActorSpec with JmsDsl {
   override def beforeAll(): Unit = {
     sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
     startBroker()
@@ -114,12 +114,13 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
   ): Session = {
     val clock = new DefaultClock
     val coreComponents =
-      new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], None, mock[StatsEngine], clock, mock[Action], configuration)
-    val next = new ActorDelegatingAction("next", self)
+      new CoreComponents(actorSystem, mock[EventLoopGroup], mock[ActorRef[Controller.Command]], None, mock[StatsEngine], clock, mock[Action], configuration)
+    val nextActor = mockActorRef[Session]("next")
+    val next = new ActorDelegatingAction("next", nextActor)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val actor = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     actor ! emptySession
-    val session = expectMsgClass(timeout, classOf[Session])
+    val session = nextActor.expectMsgType[Session](timeout)
 
     session
   }

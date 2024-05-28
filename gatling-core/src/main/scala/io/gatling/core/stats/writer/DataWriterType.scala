@@ -17,7 +17,7 @@
 package io.gatling.core.stats.writer
 
 private[core] object DataWriterType {
-  private val AllTypes = Seq(Console, File, Graphite)
+  private val AllTypes = Seq(Console, File)
     .map(t => t.name -> t)
     .toMap
 
@@ -25,7 +25,6 @@ private[core] object DataWriterType {
 
   private[stats] object Console extends DataWriterType("console")
   private[core] object File extends DataWriterType("file")
-  private[stats] object Graphite extends DataWriterType("graphite")
 }
 
 sealed abstract class DataWriterType(val name: String)

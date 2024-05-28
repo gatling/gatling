@@ -19,16 +19,14 @@ package io.gatling.app
 import java.nio.file.FileSystems
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 import io.gatling.app.cli.GatlingArgsParser
+import io.gatling.core.actor.ActorSystem
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.netty.util.Transports
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 
@@ -49,10 +47,9 @@ object Gatling extends StrictLogging {
       case Right(statusCode) => statusCode.code
     }
 
-  private def terminateActorSystem(system: ActorSystem, timeout: FiniteDuration): Unit =
+  private def terminateActorSystem(system: ActorSystem): Unit =
     try {
-      val whenTerminated = system.terminate()
-      Await.result(whenTerminated, timeout)
+      system.close()
     } catch {
       case NonFatal(e) =>
         logger.debug("Could not terminate ActorSystem", e)
@@ -78,7 +75,7 @@ object Gatling extends StrictLogging {
           case Some(runId) => new RunResult(runId, hasAssertions = true)
           case _           =>
             // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-            val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+            val system = new ActorSystem
             val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, configuration.netty.useIoUring, 0, "gatling")
             try {
               val runner = Runner(system, eventLoopGroup, gatlingArgs, configuration)
@@ -89,7 +86,7 @@ object Gatling extends StrictLogging {
                 logger.error("Run crashed", e)
                 throw e
             } finally {
-              terminateActorSystem(system, configuration.core.shutdownTimeout.milliseconds)
+              terminateActorSystem(system)
               eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
             }
         }

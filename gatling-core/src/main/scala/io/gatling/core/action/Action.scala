@@ -21,10 +21,10 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 
 /**
@@ -95,7 +95,7 @@ trait ChainableAction extends Action {
     }
 }
 
-class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
+class ActorDelegatingAction(val name: String, actor: ActorRef[Session]) extends Action {
   def execute(session: Session): Unit = actor ! session
 }
 

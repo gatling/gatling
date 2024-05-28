@@ -19,6 +19,8 @@ package io.gatling.core.stats.writer
 import java.time.{ Instant, ZoneId, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 
+import scala.concurrent.Promise
+
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
 
@@ -40,10 +42,11 @@ private[gatling] final case class RunMessage(
 
 private[gatling] sealed trait DataWriterMessage
 private[gatling] object DataWriterMessage {
-  final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+  final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription], startPromise: Promise[Unit])
+      extends DataWriterMessage
   case object Flush extends DataWriterMessage
   private[stats] final case class Crash(cause: String) extends DataWriterMessage
-  private[stats] case object Stop extends DataWriterMessage
+  private[stats] final case class Stop(stopPromise: Promise[Unit]) extends DataWriterMessage
 
   sealed trait LoadEvent extends DataWriterMessage
   object LoadEvent {

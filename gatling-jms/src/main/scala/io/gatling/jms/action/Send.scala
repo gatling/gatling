@@ -22,6 +22,7 @@ import io.gatling.commons.stats.OK
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action._
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
@@ -41,7 +42,7 @@ final class Send(
     val statsEngine: StatsEngine,
     val clock: Clock,
     val next: Action,
-    throttler: Option[Throttler]
+    throttler: Option[ActorRef[Throttler.Command]]
 ) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
   override val name: String = genName("jmsSend")
 

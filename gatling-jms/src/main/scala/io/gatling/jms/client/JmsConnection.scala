@@ -21,13 +21,12 @@ import javax.jms.{ Connection, Destination }
 
 import io.gatling.commons.model.Credentials
 import io.gatling.commons.util.Clock
+import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.protocol.JmsMessageMatcher
 import io.gatling.jms.request._
-
-import akka.actor.ActorSystem
 
 final class JmsConnection(
     connection: Connection,
@@ -59,7 +58,7 @@ final class JmsConnection(
 
   private val trackerPool = new JmsTrackerPool(sessionPool, system, statsEngine, clock, configuration)
 
-  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
+  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): ActorRef[JmsTracker.Command] =
     trackerPool.tracker(destination, selector, listenerThreadCount, messageMatcher)
 
   def close(): Unit = {

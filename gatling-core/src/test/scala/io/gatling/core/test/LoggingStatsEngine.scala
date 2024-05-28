@@ -19,10 +19,10 @@ package io.gatling.core.test
 import java.util.concurrent.ConcurrentLinkedDeque
 
 import io.gatling.commons.stats.Status
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.ActorRef
 
 sealed trait StatsEngineMessage
 
@@ -46,7 +46,7 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def start(): Unit = {}
 
-  override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit = {}
 
   override def logUserStart(scenario: String): Unit = {}
 
