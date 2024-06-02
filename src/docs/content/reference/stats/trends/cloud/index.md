@@ -10,27 +10,35 @@ lastmod: 2021-08-05T13:13:30+00:00
 
 The runs list and trends for a simulation can be accessed by clicking on the {{< icon history >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}).
 
-This view contains the list of your simulation's runs which can be filtered by name and/or status and the trends which are displaying information between those runs.
+This view contains the list of your simulation's runs which can be filtered by status and the trends which are displaying information between those runs.
 {{< img src="trends-overview.png" alt="Run trends" >}}
 
-### Runs table
+### Simulation runs
 
 {{< img src="run-table.png" alt="Run table" >}}
 
 As with the results of the latest run in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}), you
-can access the [logs]({{< ref "/reference/execute/cloud/user/simulations#logs" >}}) of the run by clicking on the {{< icon terminal >}} icon
-and you can sort the table by each of the columns. The logs are only available for runs which are not flagged as "Successful".
+can access the [logs]({{< ref "/reference/execute/cloud/user/simulations#logs" >}}) of the run by clicking on the status badge. 
 
-If there is one, You can click on the {{< icon eye >}} icon next to the status to display the [assertions]({{< ref "../reports/cloud#assertions" >}}) of the run.
+{{< img src="logs-badge.png" alt="Logs badge" >}}
+
+{{< alert warning >}}
+The logs are only available for runs which are not flagged as "Successful".
+{{< /alert >}}
+
+If you defined assertions, you can display them by also clicking on the badge:
+
+{{< img src="assertions-badge.png" alt="Assertions badge" >}}
+
 You can delete runs by selecting them and clicking on the **Delete** button in the action bar above the table.
 
-You can add comments to a run by clicking on the {{< icon comment-alt >}} icon on the right side of the table.
-
-{{< img src="comment.png" alt="Comment" >}}
-
-You can also click on the {{< icon info-circle >}} icon to see a snapshot of the run configuration. The Java system properties beginning with `sensitive.` and environment variables beginning with `SENSITIVE_` will not be displayed.
+You can also click on the {{< icon gear >}} icon to see the properties of the run. 
 
 {{< img src="snapshot.png" alt="Snapshot" >}}
+
+{{< alert warning >}}
+The Java system properties beginning with `sensitive.` and environment variables beginning with `SENSITIVE_` will not be displayed.
+{{< /alert >}}
 
 ### Run Comparison
 
