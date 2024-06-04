@@ -98,7 +98,7 @@ exec(sse("SetCheck").setCheck()
 //#process
 exec(
   // store the unmatched messages in the Session
-  ws.processUnmatchedMessages((messages, session) -> session.set("messages", messages))
+  sse.processUnmatchedMessages((messages, session) -> session.set("messages", messages))
 );
 exec(
   // collect the last message and store it in the Session
