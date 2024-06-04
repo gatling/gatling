@@ -10,17 +10,16 @@ lastmod: 2023-10-13T08:10:39+00:00
 
 ## Instance specifications
 
-We recommend that you use for your own load generator instances with at least 4 cores.
+The follow recommendations help you to select the best instances and tune them for maximum performance. 
 
-As Gatling load tests tend to be CPU bound, we recommend using instances of the "Compute Optimized" family.
+- We recommend instances with at least 4 cores for your load generators.
+- As Gatling load tests tend to be CPU bound, we recommend using instances from the "Compute Optimized" family.
+- In our experience, it seems that Intel CPUs perform better than AMD and ARM Graviton ones when it comes to TLS. As a result, we recommend using `c6i.xlarge` instances or larger.
+- You might want to tune the `Xmx` JVM options to half of the physical memory. See `jvm-options` configuration below. If you don't, the JVM will use a max heap size of 1/4th of the physical memory.
 
-From our findings, it seems that Intel CPUs perform better than AMD and ARM Graviton ones when it comes to TLS.
-
-As a result, we recommend using `c6i.xlarge` instances or larger.
-
-You might want to tune the `Xmx` JVM options to half of the physical memory.
-See `jvm-options` configuration below.
-If you don't, the JVM will use a max heap size of 1/4th of the physical memory.
+{{<alert tip >}}
+Simplify and speed up configuration and deployment with Gatling's pre-built [Terraform modules]({{< ref "#terraform" >}}).
+{{</alert>}}
 
 ## Permissions
 
@@ -131,3 +130,6 @@ control-plane {
   ]
 }
 ```
+## Configure instances using Terraform {#terraform}
+
+Gatling provides Terraform modules to set up AWS infrastructure for Private Locations. One module specifies the load generator location(s), and the second module deploys the control plane. To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment)
