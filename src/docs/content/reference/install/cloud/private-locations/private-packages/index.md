@@ -102,6 +102,10 @@ This configuration includes the following parameters:
 - **bucket**: The name of the bucket where packages are uploaded to on AWS S3.
 - **path:** The path of a folder in AWS S3 bucket. (optional)
 
+{{<alert tip>}}
+Simplify and speed up your AWS installation and configuration with Gatling's pre-built [Terraform modules]({{< ref "#configure-private-packages-with-terraform-aws-s3-only" >}})
+{{</alert>}}
+
 #### GCP Cloud Storage
 
 {{< alert warning >}}
@@ -180,9 +184,20 @@ This configuration includes the following parameters:
 - **directory**: The directory where the simulations will be stored.
 - **location.download-base-url**: The access URL for the control-plane. This URL will be provided to the load-generators so that they can download your simulations. 
 
-## Usage
 
-After configuration, restart your control plane to start the server.
+## Configure private packages with Terraform (AWS S3-only)
+
+Gatling provides Terraform modules to set up AWS infrastructure for Private Locations with Private Packages. There are three required modules for a successful setup:
+
+- specify the load generator location(s),
+- specify the private package,
+- deploy the control plane.
+
+To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment).
+
+## Usage 
+
+After configuration, restart the control plane to start the server.
 
 ### Creating a private package
 

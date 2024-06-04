@@ -8,6 +8,10 @@ date: 2021-11-15T16:00:00+00:00
 lastmod: 2021-11-15T16:00:00+00:00
 ---
 
+{{<alert tip >}}
+Simplify and speed up installation and configuration with Gatling's pre-built [Terraform modules]({{< ref "#terraform" >}}).
+{{</alert>}}
+
 AWS [Elastic Container Service (ECS)](https://aws.amazon.com/ecs/) is a managed container orchestration service available on AWS. In this example:
 
 - we use **Amazon ECS** to configure a service to run the Gatling Control Plane
@@ -224,3 +228,7 @@ Cloud.
 {{< img src="ecs-control-plane-status.png" alt="Checking out the Control Plane's status in Gatling Enterprise Cloud" >}}
 
 You can now configure a simulation to run on one or more of this Control Plane's locations!
+
+## Install instances using Terraform {#terraform}
+
+Gatling provides Terraform modules to set up AWS infrastructure for Private Locations. One module specifies the load generator location(s), and the second module deploys the control plane. To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment)
