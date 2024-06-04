@@ -5,6 +5,7 @@ description: Learn how to create a Gatling Enterprise Cloud simulation, run it, 
 ordering:
   - login
   - overview
+  - home
   - profile
   - package-gen
   - package-conf

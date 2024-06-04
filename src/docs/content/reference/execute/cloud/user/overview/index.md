@@ -11,19 +11,19 @@ lastmod: 2021-08-05T13:13:30+00:00
 
 ## Navigation Bar
 
-The Gatling Enterprise navigation bar on the left side can be deployed using the Burger Navigation Menu button. {{< icon bars >}}
+The Gatling Enterprise navigation bar on the left side can be collapsed using the Burger Navigation Menu button. {{< icon bars >}}
 
-The Gatling Enterprise navigation bar is composed of:
+The navigation bar is composed of:
 
+- [**Home**]({{< ref "home" >}}): see your teams last runs, credits left and useful links to documentation
+- [**Simulations**]({{< ref "simulations" >}}): manage simulations, runs and reports
 - [**Organization**]({{< ref "organization" >}}): view organization details, credits usage and admin users
-- [**Users**]({{< ref "../admin/users" >}}): manage users teams and roles - *accessible to system admins only*
-- [**Teams**]({{< ref "../admin/teams" >}}): manage teams - *accessible to system admins only*
 - [**API Tokens**]({{< ref "../admin/api-tokens" >}}): manage token to access the API - *accessible to system admins only*
 - [**Packages**]({{< ref "package-conf" >}}): manage simulations packages - *accessible to test admins and system admins*
-- [**Simulations**]({{< ref "simulations" >}}): manage simulations, runs and reports
 - [**Dedicated IP Addresses**]({{< ref "dedicated-ips" >}}): a table of the dedicated IP's- *accessible to test admins and system admins* 
+- [**Private Locations**]({{< ref "../../../install/cloud/private-locations/introduction" >}}): a table of your private locations - *accessible if you purchased some* 
 ---
-- [**Plugins**]({{< ref "../../../integrations" >}}): shows all plugin download links
+- [**Integrations**]({{< ref "../../../integrations" >}}): shows all integrations download links
 - **Documentation**: shows all documentation guides and the link to the public API Swagger documentation
 - **About**: current version of Gatling Enterprise, and supported Gatling versions
 
