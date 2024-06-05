@@ -11,7 +11,7 @@ lastmod: 2021-08-05T13:13:30+00:00
 
 ## Navigation Bar
 
-The Gatling Enterprise navigation bar on the left side can be collapsed using the Burger Navigation Menu button. {{< icon bars >}}
+The left-side Gatling Enterprise navigation bar can be collapsed using the Burger Navigation Menu button. {{< icon bars >}}
 
 The navigation bar is composed of:
 

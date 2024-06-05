@@ -6,18 +6,17 @@ date: 2021-08-05T13:13:30+00:00
 lastmod: 2021-08-05T13:13:30+00:00
 ---
 
-To view information about your organization, click on the **Organization settings** button.
+To view [settings]({{< ref "#settings" >}}) about your organization, click on the **Organization settings** button or on the **Organization** menu item.
 
-{{< img src="menu.png" alt="Organization settings" >}}
-
-## Switch between multiple organizations
+{{< img src="menu.png" alt="Organization settings button" caption="The organization settings button" >}}
+{{< img src="menu-nav.png" alt="Organization menu" caption="The organization menu item" >}}
 
 If you've been invited to multiple organizations, 
 you can switch between them by clicking on the organization name in the top right corner.
 
 {{< img src="multiple-organizations.png" alt="Multiple organizations" >}}
 
-## Profile
+## Settings
 
 {{< img src="profile.png" alt="Organization profile information" >}}
 
@@ -30,50 +29,97 @@ you can switch between them by clicking on the organization name in the top righ
 Click on the pen icon to edit the **Organization name**.
 {{< /alert >}}
 
-## Credit consumption
+## Users
 
-{{< img src="credits-consumption.png" alt="Organization credit informations" >}}
+Depending on your role, shows all users or administrators in your organization.
 
-{{< alert info >}}
-A credit represents a minute of usage of one Gatling load generator.
-{{< /alert >}}
+{{< img src="users.png" alt="Organization users" >}}
 
-* **Blue** - Available credits.
-* **Orange** - Consumed credits.
+If you are an administrator, you can edit the roles of each user using the **Edit roles** button:
 
-## Admin users
+{{< img src="edit-roles.png" alt="Edit user roles" >}}
 
-Shows all Administrators in your organization.
-
-{{< img src="admin-users.png" alt="Organization users admin" >}}
-
-For each Administrator, you will find their GitHub username, first name, and last name.
-
-## Credits
+## Invitations
 
 {{< alert warning >}}
-This section is only available to Administrators.
+This section is only available to [Administrators]({{< ref "../admin/users#permissions" >}}).
 {{< /alert >}}
 
-Credits consumption history.
+Create, see the pending invitations in your organization, and resend them if you need it by clicking the **Resend invitation** button:
 
-{{< img src="credits.png" alt="Organization credits view in row" >}}
+{{< img src="invitations.png" alt="Organization invitations" >}}
 
-By clicking on a row, you will see all the details of the credit consumption for each month.
+## Teams
 
-{{< img src="credits-detail.png" alt="Organization credits view in detail" >}}
+{{< alert warning >}}
+This section is only available to [Administrators]({{< ref "../admin/users#permissions" >}}).
+{{< /alert >}}
 
-* **Type** - Which type of event occurred, with a link redirecting to the run when credits were used to run a simulation.
-* **Date** - The day the event took effect.
-* **Credits** - Number of credits gained or used from the event.
+See the existing teams in your organization and their users using the **See members** button:
+
+{{< img src="teams.png" alt="Organization teams" >}}
+
+You can also see how many API tokens, simulations or packages belong to this team using the clickable badges in the **Relations column**:
+
+{{< img src="relations.png" alt="Organization teams relations" >}}
+
+## Usage
+
+{{< alert warning >}}
+This section is only available to [Administrators]({{< ref "../admin/users#permissions" >}}).
+{{< /alert >}}
+
+This page shows how your credits where consumed during your current billable month. 
+
+{{< img src="usage.png" alt="Organization usage" >}}
+
+## Billing
+
+{{< alert warning >}}
+This section is only available to [Administrators]({{< ref "../admin/users#permissions" >}}).
+{{< /alert >}}
+
+This page covers your billing and credit consumption settings and your subscribed plans history, if any.
+
+{{< img src="billing.png" alt="Organization billing" >}}
+
+### Billing settings
+
+{{< alert warning >}}
+This section is only available if you have subscribed to a paid plan.
+{{< /alert >}}
+
+You can click the **Customer portal** to update your billing settings and download your invoices:
+
+{{< img src="billing-settings.png" alt="Organization billing settings" >}}
+
+You will then be redirected to our Stripe portal:
+
+{{< img src="billing-portal.png" alt="Organization billing portal" >}}
+
+{{< alert info >}}
+If you subscribed through the AWS marketplace, your billing information and invoices are available through AWS.
+{{< /alert >}}
+
+### Credits consumption
+
+The amount of consumed and remaining credits are displayed for both paid and trial plans. For paid plans, the credits consumed are for your billing period:
+
+{{< img src="paid-plan-credits.png" alt="Organization paid plan credits" caption="The credits consumption view for a paid plan" >}}
+
+{{< img src="free-plan-credits.png" alt="Organization paid plan credits" caption="The credits consumption view for a free plan" >}}
+
+{{< alert info >}}
+For trial plans, the given credits are only available for 14 days.
+{{< /alert >}}
 
 ### Extra credits
 
 {{< alert warning >}}
-This section is only available to Administrators & payment made by Stripe.
+This section is only available for payments made by Stripe.
 {{< /alert >}}
 
-When you start to hit the credit limits in your plan:
+When you approach the  credit limits of your plan:
 
 {{< img src="credit_empty.png" alt="Empty credits" >}}
 
@@ -88,11 +134,7 @@ And set new extra credit limit.
 Now simulations -- you couldn't launch before -- can run consuming extra credits.
 
 
-## Plans
-
-{{< alert warning >}}
-This section is only available to Administrators.
-{{< /alert >}}
+### Plans
 
 Plans view history.
 
@@ -103,13 +145,9 @@ Plans view history.
 * **To** - End date of the plan, if there is one.
 * **Credits** - Number of credits awarded each month by the plan.
 
-## Offers
+### Offers
 
-{{< alert warning >}}
-This section is only available to Administrators.
-{{< /alert >}}
-
-### payment via Stripe
+#### Payment via Stripe
 
 This page shows all available offers for your organization. You can choose the number of credits for your offer. A credit represents a minute of usage of one Gatling load generator.
 
@@ -118,30 +156,20 @@ This page shows all available offers for your organization. You can choose the n
 Click on the **Subscribe now** button in order to buy the desired offer via stripe. If you want to change your current offer, or buy the **Custom** one, please click on **Contact us**.
 
 
-### payment via AWS Marketplace
+#### Payment via AWS Marketplace
 
-After Organization and Admin user of this organization created, 
-you can choose to subscribe to an offer via the [AWS marketplace](https://aws.amazon.com/marketplace/pp/prodview-6bhi2464rfmzq):  
+After creating an Organization and an organization Admin user you can choose to subscribe to an offer via the [AWS marketplace](https://aws.amazon.com/marketplace/pp/prodview-6bhi2464rfmzq):  
 
 {{<img src="aws_marketplace.png" alt="AWS marketplace offer" >}}
 
-select, among other options, the contract option:
+Select, among other options, the contract option:
 
 {{<img src="aws_contract_option.png" alt="Contract option" >}}
 
-and click on **Create contract**:
+And click on **Create contract**:
 
 {{<img src="aws_create_contract.png" alt="Create contract" >}}
 
-to finish setup, fill the subscription form with current users and organization information:
+To finish setup, fill out the subscription form with current users and organization information:
 
 {{<img src="aws_subscription_form.png" alt="setup subscription" >}}
-
-## Billing
-After the first payment, you can access invoices and update payment information by clicking on the **Customer portal** button in the **Billing** tab. 
-
-{{< img src="customer-portal.png" alt="Customer portal" >}}
-
-{{< alert info >}}
-If you subscribe through the AWS marketplace, your billing information and invoices are available through AWS.
-{{< /alert >}}
