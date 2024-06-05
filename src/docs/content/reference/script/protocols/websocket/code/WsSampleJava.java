@@ -245,13 +245,13 @@ ScenarioBuilder scn = scenario("WebSocket")
     ws("Connect WS").connect("/room/chat?username=#{id}"),
     pause(1),
     repeat(2, "i").on(
-    ws("Say Hello WS")
-      .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
-      .await(30).on(
-        ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
-      ),
-      pause(1)
+      ws("Say Hello WS")
+        .sendText("{\"text\": \"Hello, I'm #{id} and this is message #{i}!\"}")
+        .await(30).on(
+          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+      )
     ),
+    pause(1),
     ws("Close WS").close()
   );
 //#chatroom-example
