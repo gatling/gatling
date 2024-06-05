@@ -28,7 +28,7 @@ To update your profile settings, click on the account settings button.
 
 {{< alert warning >}}
 You cannot change your roles here. You will need to ask an Administrator [to change them]({{< ref "../admin/users#managing-users" >}}).
-You can [see the list of your Administrators]({{< ref "organization#admin-users" >}}) on the **Organization settings** page, accessible
+You can [see the list of your Administrators]({{< ref "organization#users" >}}) on the **Organization settings** page, accessible
 from the drop-down menu at the top-right of the screen.
 {{< /alert >}}
 
