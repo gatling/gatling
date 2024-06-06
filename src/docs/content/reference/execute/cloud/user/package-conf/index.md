@@ -21,34 +21,27 @@ The Gatling version of the package is displayed in a badge next to the filename.
 
 ## Creation
 
-In order to add a package, click on the "Create" button above the packages table.
+In order to add a package, click on the **Create** button above the packages table.
 
 {{< img src="package-create.png" alt="Package creation" >}}
 
 - **Name**: the name that will appear on the simulations general step.
 - **Team**: select the team which will have access to the package.
+- **Simulation packaged with Gatling Enterprise plugin**: *optional (see below)*. The generated package file to upload.
 
 ## Upload
 
 ### Option 1: Manual Upload
 
-In order to fill the package with your bundled simulation, click on the {{< icon upload >}} icon on the right side of the table.
+In order to fill the package with your bundled simulation, click on the **Browse files** button or drag and drop your file directly on the dashed-bordered area.
 
-{{< alert tip >}}
+{{< alert info >}}
 In order to package a bundle of your simulation, refer to the [Package Generation documentation]({{< ref "package-gen" >}}).
 {{< / alert >}}
 
-{{< img src="package-upload-empty.png" alt="Package upload empty" >}}
+Upon successful file upload, you should see your file:
 
-You can then drag and drop your package to fill the form and click on the **Upload** button.
-
-{{< img src="package-upload-filled.png" alt="Package upload filled" >}}
-
-You can upload multiple packages concurrently. Uploads progress will be shown in the Packages table.
-
-You can cancel an upload in progress by clicking on the cancel icon.
-
-{{< img src="package-upload-progress.png" alt="Package upload progress" >}}
+{{< img src="package-filled.png" alt="Package upload filled" >}}
 
 ### Option 2: API Upload
 
