@@ -19,7 +19,7 @@ The structure DSL provides a `feed` method that can be called at the same place 
 
 {{< include-code "feed-keyword" >}}
 
-This defines a workflow step where **every virtual user** feed on the same Feeder.
+This defines a workflow step where **every virtual user** feeds on the same Feeder.
 
 Every time a virtual user reaches this step, it will pop a record out of the Feeder, which will be injected into the user's Session, resulting in a new Session instance.
 
@@ -35,7 +35,7 @@ Gatling provides multiple strategies for the built-in feeders:
 
 {{< alert warning >}}
 When using the default `queue` or `shuffle` strategies, make sure that your dataset contains enough records.
-If your feeder runs out of record, Gatling will self shut down.
+If your feeder runs out of records, Gatling will self shut down.
 {{< /alert >}}
 
 ## Using Arrays and Lists
@@ -50,9 +50,9 @@ Gatling provides various file based feeders.
 
 When using the bundle distribution, files must be in the `user-files/resources` directory. This location can be overridden, see [configuration]({{< ref "../configuration#gatling-conf" >}}).
 
-When using a build tool such as maven, gradle or sbt, files must be placed in `src/main/resources` or `src/test/resources`.
+When using a build tool such as Maven, Gradle or sbt, files must be placed in `src/main/resources` or `src/test/resources`.
 
-In order to locate the file, Gatling try the following strategies in sequence:
+In order to locate the file, Gatling tries the following strategies in sequence:
 
 1. as a **classpath resource** from the classpath root, eg `data/file.csv` for targeting the `your_project/src/main/resources/data/file.csv` file. This is the recommended strategy.
 2. as an **absolute filesystem path** to a file. Use this strategy if you want your feeder files to be deployed separately.
@@ -116,7 +116,7 @@ For example, if you have a file with 30,000 records deployed on 3 nodes, each wi
 
 ## JSON Feeders
 
-Some might want to use data in JSON format instead of CSV:
+Some users might want to use data in JSON format instead of CSV:
 
 {{< include-code "json-feeders" >}}
 
@@ -146,17 +146,17 @@ Note that the root element has of course to be an array.
 
 ## JDBC Feeder
 
-Gatling also provide a builtin that reads from a JDBC connection.
+Gatling also provides a builtin that reads from a JDBC connection.
 
 {{< include-code "jdbc-feeder" >}}
 
-Just like File parser built-ins, this return a `RecordSeqFeederBuilder` instance.
+Just like File parser built-ins, this returns a `RecordSeqFeederBuilder` instance.
 
 * The databaseUrl must be a JDBC URL (e.g. `jdbc:postgresql:gatling`),
 * the username and password are the credentials to access the database,
 * sql is the query that will get the values needed.
 
-Only JDBC4 drivers are supported, so that they automatically registers to the DriverManager.
+Only JDBC4 drivers are supported, so that they automatically register to the DriverManager.
 
 {{< alert tip >}}
 Do not forget to add the required JDBC driver jar in the classpath (`lib` folder in the bundle)
@@ -245,9 +245,9 @@ You can create a circular feeder by using the same keys with RPOPLPUSH
 
 ## Transforming Records {#transform}
 
-Sometimes, you might want to transform the raw data you got from your feeder.
+Sometimes, you might want to transform the raw data you receive from your feeder.
 
-For example, a csv feeder would give you only Strings, but you might want to transform one of the attribute into an Int.
+For example, a csv feeder would give you only Strings, but you might want to transform one of the attributes into an Int.
 
 `transform` takes:
 * in Java and Kotlin, a `BiFunction<String, T, Object>`
