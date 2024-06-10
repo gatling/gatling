@@ -117,7 +117,7 @@ Working directory must be executable
 ## Troubleshooting
 
 This section contains tips for troubleshooting common issues with dedicated machines. 
-If you have an issue not covered here, consider posting a question on the [Community Forum](https://community.gatling.io/c/enterprise/6).
+If you have an issue not covered here, [contact](https://gatling.io/contact) your Sales or Customer Success representative.
 
 ### SSH keys
 
