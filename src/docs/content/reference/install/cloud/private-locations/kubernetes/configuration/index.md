@@ -82,6 +82,11 @@ control-plane {
       #   type = custom
       #   image = "gatlingcorp/classic-openjdk:latest"
       # }
+      #
+      # Image pull secret
+      # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      # image-pull-secret = "<your secret name>"
+      #
       # Clean up finished jobs resources after given time (optional)
       ttl-after-finished = 10 minutes
       # Service account used for load generator pods (optional)
