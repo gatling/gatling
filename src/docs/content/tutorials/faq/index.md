@@ -20,6 +20,8 @@ At present Gatling Enterprise supports the following languages:
 - Java 
 - Scala
 - Kotlin 
+- Javascript
+- Typescript
 
 We typically recommend Java because it is widely taught in Computer Science programs and makes including additional developers easier. Gatling is constantly evolving, and more SDKs will likely be added in the future.
 
@@ -28,8 +30,9 @@ We typically recommend Java because it is widely taught in Computer Science prog
 
 Yes, the tests you develop for Gatling open source are compatible with Gatling Enterprise without requiring any modifications. If you have a Gatling Enterprise account, you can view Gatling simulations that have been migrated and are already available on the Enterprise platform.
 
-Gatling provides plugins for Maven, Gradle, and sbt. These plugins allow for a straightforward transition of your open-source script into Gatling Enterprise. 
+Gatling provides plugins for Maven, Gradle, and sbt. These plugins allow for a straightforward transition of your open-source script into Gatling Enterprise.
 
+JavaScript and TypeScript users can use their preferred package manager to create `zip` files for running tests on Gatling Enterprise.
 
 ## Running simulations
 
