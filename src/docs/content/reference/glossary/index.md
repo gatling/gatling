@@ -93,6 +93,15 @@ An injection profile is the way Virtual Users are started. It's typically either
 
 For more information, check the [Injection reference section]({{< ref "/reference/script/core/injection" >}}).
 
+## Load Generator
+
+A load generator, in the context of load testing, is a component that simulates Virtual Users who generate traffic in a system or application. The purpose of load generators is to replicate the conditions of a real-world scenario by imposing a specific level of load on the target system. This allows performance testers to evaluate how the system reacts under various conditions, such as different numbers of concurrent users or varying transaction volumes.
+
+Load generators generate virtual users by simulating their interactions with the system, sending requests and receiving responses. These responses are collected, stored, arranged, and pushed into load test reports. Load testing involves using multiple load generators to create a substantial and realistic load on the system.
+
+Load generators are sometimes known as Injectors, Load agents, or Runners.
+
+
 ## Simulation
 
 A simulation is a description of the load test. It describes how, possibly several, user populations will run: which scenario they will execute and how new virtual users will be injected.
