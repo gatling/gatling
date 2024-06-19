@@ -22,6 +22,10 @@ Gatling is a highly flexible load-testing platform. You can write load tests in 
 Join the [Gatling Community Forum](https://community.gatling.io) to discuss load testing with other users. Please try to find answers in the documentation before asking for help.
 {{< /alert >}}
 
+{{< alert tip >}}
+If you're a Javascript / Typescript user, you'll be more interested in our [introduction to JavaScript scripting]({{< ref "tutorials/scripting-intro-js" >}})
+{{< /alert >}}
+
 ## Setup
 
 This section guides you through installation and setting up your developer environment. Gatling has a lot of optionalities, including:

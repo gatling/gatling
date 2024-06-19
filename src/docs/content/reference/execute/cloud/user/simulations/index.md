@@ -23,6 +23,7 @@ Samples are distributed under:
 - **Scala** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-scala), [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-scala), [**sbt**](https://github.com/gatling/gatling-sbt-plugin-demo) and [**Gatling Enterprise Bundle**](https://gatling.io/products/)
 - **Java** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-java), [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-java) and [**Gatling Enterprise Bundle**](https://gatling.io/products/)
 - **Kotlin** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-kotlin) and [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
+- [**Javascript** and **Typescript**](https://github.com/gatling/gatling-js-demo)
 
 {{< img src="samples.png" alt="Samples" >}}
 
@@ -79,13 +80,13 @@ Once your package is selected you will be able to select the **Class name**, the
 
 In this step, you'll configure the locations used for the Gatling Enterprise load generators.
 
-You can either use the public locations provided by Gatling Enterprise Cloud, or use your own [private locations]({{< ref "../../../install/cloud" >}})
+You can either use the managed locations provided by Gatling Enterprise Cloud, or use your own [private locations]({{< ref "../../../install/cloud" >}})
 
 {{< alert info >}}
-It is not currently possible to mix public and private locations in the same simulation.
+It is not currently possible to mix managed and private locations in the same simulation.
 {{< /alert >}}
 
-Gatling Enterprise public locations are available in the following regions:
+Gatling Enterprise managed locations are available in the following regions:
 
 - AP Pacific (Hong kong)
 - AP Pacific (Tokyo)
