@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.util
+package io.gatling.core.util
 
 import io.gatling.BaseSpec
 

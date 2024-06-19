@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.http.util
+package io.gatling.core.util
 
 import scala.collection.mutable
 
-final class BoundedMutableDequeue[T](maxSize: Int) {
+private[gatling] final class BoundedMutableDequeue[T](maxSize: Int) {
   private val queue = mutable.ArrayDeque.empty[T]
 
   def addOne(value: T): Unit =

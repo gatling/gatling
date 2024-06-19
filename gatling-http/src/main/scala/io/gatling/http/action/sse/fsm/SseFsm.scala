@@ -24,13 +24,13 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.BoundedMutableDequeue
 import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.BoundedMutableDequeue
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
