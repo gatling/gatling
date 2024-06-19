@@ -37,29 +37,39 @@ You can check out the latest releases available [from the GitHub project](https:
 
 You must first create an API token. It will be used to authenticate with Gatling Enterprise.
 
-We recommend storing the API Token [in a GitHub encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#using-encrypted-secrets-in-a-workflow). In the following examples, we assume the **API Token** is stored in a secret called `GATLING_ENTERPRISE_API_TOKEN`.
+We recommend storing the API Token [in a GitHub encrypted secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#using-encrypted-secrets-in-a-workflow).
+In the following examples, we assume the **API Token** is stored in a secret called `GATLING_ENTERPRISE_API_TOKEN`.
 
-- for Gatling Enterprise Cloud, the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
-- for Gatling Enterprise Self-Hosted, the [API token]({{< ref "../../execute/self-hosted/admin/api-tokens" >}}) needs the **All** role.
-
-{{< alert info >}}
-For {{< badge self-hosted "Self-Hosted" />}}, the runner will also need the **URL for your Gatling Enterprise instance**. In the following examples, we will use `http://my-gatling-instance.my-domain.tld`, but you must replace it with the correct URL for your Gatling Enterprise Self-Hosted instance.
-
-Please also note that it **must be accessible** from the GitHub Action runners you plan to use (either the [GitHub-hosted runners](https://docs.github.com/en/actions/using-github-hosted-runners/) or your own [self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/)).
-{{< /alert >}}
+For Gatling Enterprise Cloud, the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
 
 We also assume that you have already configured a simulation on Gatling Enterprise. You can copy the simulation ID from the simulations list view. In the following examples, we will show the simulation ID as `00000000-0000-0000-0000-000000000000`.
 
-See [Gatling Enterprise Cloud documentation]({{< ref "../../execute/cloud/user/simulations" >}}) or [Gatling Enterprise Self-Hosted documentation]({{< ref "../../execute/self-hosted/user/simulations" >}}).
+See [Gatling Enterprise Cloud documentation]({{< ref "../../execute/cloud/user/simulations" >}}).
 
 ## Quickstart (minimal job configuration)
 
 In this example, we configure a workflow which will only start a simulation as already configured and uploaded on Gatling Enterprise. We use the `workflow_dispatch` trigger event, so that we can [run it manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow), but feel free to use what works for your use case.
 
-{{< include-file >}}
-Cloud: includes/quickstart.cloud.md
-Self-Hosted: includes/quickstart.self-hosted.md
-{{< /include-file >}}
+```yaml
+name: Run Gatling Enterprise Simulation
+
+on:
+  workflow_dispatch:
+    inputs:
+      simulation_id:
+        type: string
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gatling Enterprise Action
+        uses: gatling/enterprise-action@v1
+        with:
+          api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
+          simulation_id: ${{ inputs.simulation_id }}
+```
 
 Push this to your repository's default branch (otherwise, new `workflow_dispatch` workflows don't get detected). You can then run the workflow from you GitHub repository's Actions tab. Select the workflow's name from the menu on the left, and click on Run workflow.
 
@@ -71,10 +81,61 @@ Several configuration options are available as Action inputs. This Action also p
 
 ### Inputs
 
-{{< include-file >}}
-Cloud: includes/reference-inputs.cloud.md
-Self-Hosted: includes/reference-inputs.self-hosted.md
-{{< /include-file >}}
+Example:
+
+```yaml
+steps:
+  - uses: gatling/enterprise-action@v1
+    with:
+      api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
+      simulation_id: '00000000-0000-0000-0000-000000000000'
+      extra_system_properties: >
+        {
+          "sys_prop_1":"value 1",
+          "sys_prop_2":42,
+          "sys_prop_3":true
+        }
+      extra_environment_variables: >
+        {
+          "ENV_VAR_1":"value 1",
+          "ENV_VAR_2":42,
+          "ENV_VAR_3":true
+        }
+      override_load_generators: >
+        {
+          "4a399023-d443-3a58-864f-3919760df78b":{"size":1,"weight":60},
+          "c800b6d9-163b-3db7-928f-86c1470a9542":{"size":1,"weight":40}
+        }
+      fail_action_on_run_failure: true
+      wait_for_run_end: true
+      run_summary_enabled: true
+      run_summary_initial_refresh_interval: 5
+      run_summary_initial_refresh_count: 12
+      run_summary_refresh_interval: 60
+```
+
+- `api_token` {{< badge danger >}}required{{< /badge >}} (unless using an environment variable named `GATLING_ENTERPRISE_API_TOKEN` instead): The API token used by the Action to authenticate with Gatling Enterprise.
+
+- `simulation_id` {{< badge danger >}}required{{< /badge >}}: The ID of the simulation as configured on Gatling Enterprise.
+
+- `extra_system_properties` {{< badge info >}}optional{{< /badge >}}: Additional Java system properties, will be merged with the simulation's configured system properties. Must be formatted as a JSON object containing the desired key/value pairs. Values can be strings, numbers or booleans.
+
+- `extra_environment_variables` {{< badge info >}}optional{{< /badge >}}: Additional environment variables, will be merged with the simulation's configured environment variables. Must be formatted as a JSON object containing the desired key/value pairs. Values can be strings, numbers or booleans.
+
+- `override_load_generators` {{< badge info >}}optional{{< /badge >}}: Overrides the simulation's load generators configuration. Must be formatted as a JSON object. Keys are the load generator IDs, which can be retrieved [from the public API]({{< ref "../../execute/cloud/user/api" >}}) (using the `/pools` route). Weights are optional.
+
+- `fail_action_on_run_failure` {{< badge info >}}optional{{< /badge >}} (defaults to `true`): If `true`, the Action will fail if the simulation run ends in an error (including failed assertions). Note: if set to `false` and the simulation ends in an error, some of the outputs may be missing (e.g. there will be no assertion results if the simulation crashed before the end).
+
+- `wait_for_run_end` {{< badge info >}}optional{{< /badge >}} (defaults to `true`): If `true`, the Action will wait for the end of te simulation run on Gatling Enterprise before terminating. Note: if set to `false`, some of the outputs may be missing (there will be no status nor assertion results).
+
+- `run_summary_enabled` {{< badge info >}}optional{{< /badge >}} (defaults to `true`): Assuming `wait_for_run_end` is also true, will regularly log a summary of the ongoing run to the console until it finishes. See also the [logs section]({{< ref "#logs" >}}).
+
+- `run_summary_initial_refresh_interval` {{< badge info >}}optional{{< /badge >}} (defaults to `5`): Initial interval before displaying a new summary of the ongoing run in the console, in seconds. Should be a multiple of 5 (otherwise it will be rounded up). Only used a limited number of times (set by `run_summary_initial_refresh_count`) before switching to the interval set by run_summary_refresh_interval. See also the [logs section]({{< ref "#logs" >}}).
+
+- `run_summary_initial_refresh_count` {{< badge info >}}optional{{< /badge >}} (defaults to `12`): Number of times to use `run_summary_initial_refresh_interval` as the interval before displaying a new summary of the ongoing run in the console. After that, `run_summary_refresh_interval` will be used. This allows to avoid spamming the log output once the test run is well underway. See also the [logs section]({{< ref "#logs" >}}).
+
+- `run_summary_refresh_interval` {{< badge info >}}optional{{< /badge >}} (defaults to `60`): Interval before displaying a new summary of the ongoing run in the console, in seconds. Should be a multiple of 5 (otherwise it will be rounded up). See also the [logs section]({{< ref "#logs" >}}).
+
 
 ### Outputs
 
@@ -85,8 +146,6 @@ steps:
   - id: gatling-enterprise-action
     uses: gatling/enterprise-action@v1
     with:
-      # For Gatling Enterprise Self-Hosted, you must specify the URL:
-      # gatling_enterprise_url: http://my-gatling-instance.my-domain.tld
       api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
       simulation_id: '00000000-0000-0000-0000-000000000000'
   - run: |
@@ -170,89 +229,6 @@ jobs:
       - name: Gatling Enterprise Action
         uses: gatling/enterprise-action@v1
         with:
-          api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
-          simulation_id: '00000000-0000-0000-0000-000000000000'
-```
-
-## Sample use cases {{% badge self-hosted "Self-Hosted" /%}} {#self-hosted-sample-use-cases}
-
-### Building from sources
-
-In this example, we assume you have configured your repository on Gatling Enterprise to [build from sources]({{< ref "../../execute/self-hosted/user/repositories/#downloading-from-sources" >}}), from your GitHub repository's `main` branch. Every time the code on the `main` branch gets updated, we run the updated simulation on Gatling Enterprise.
-
-Feel free to use different trigger events or to configure the other inputs and outputs for the Action as documented above, according to your own use case. But keep in mind that Gatling Enterprise will only download and run your simulation scripts from the branch set [in the simulation configuration]({{< ref "../../execute/self-hosted/user/simulations/#option-1-build-from-sources" >}})!
-
-```yaml
-name: Run Gatling Enterprise Simulation
-
-# Execute the workflow on each push to the main branch
-on:
-  push:
-    branches:
-      - main
-
-# Here we use concurrency to cancel previous executions if they are still
-# ongoing. Useful to avoid running the same simulation several times
-# simultaneously if we push several code changes in a short time.
-# See https://docs.github.com/actions/using-jobs/using-concurrency.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      # Run the simulation on Gatling Enterprise
-      # If it is configured to "build from sources" from the branch "main",
-      # it will download and run the updated version of the code
-      - name: Gatling Enterprise Action
-        uses: gatling/enterprise-action@v1
-        with:
-          gatling_enterprise_url: http://my-gatling-instance.my-domain.tld
-          api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
-          simulation_id: '00000000-0000-0000-0000-000000000000'
-```
-
-### Using a binary repository
-
-This workflow is defined in the GitHub repository which contains your Gatling simulation script built with one of our build tools plugins. In this example, every time the code on the `main` branch gets updated, we build, package, and publish the current version of the simulation script, before starting the simulation on Gatling Enterprise.
-
-In this example, we assume that:
-- You have configured your repository on Gatling Enterprise to [download from a binary repository]({{< ref "../../execute/self-hosted/user/repositories#downloading-from-a-binary-repository" >}}), using Artifactory or Sonatype Nexus.
-- You have [configured your simulation]({{< ref "../../execute/self-hosted/user/simulations/#option-2-download-binary-from-repository" >}}) to use the version marker `latest.integration` for the artifact published on the binary repository.
-- Your build is properly configured to publish to the binary repository, using [Maven]({{< ref "../build-tools/maven-plugin#publish-to-a-binary-repository" >}}), [Gradle]({{< ref "../build-tools/gradle-plugin#publish-to-a-binary-repository" >}}), or [sbt]({{< ref "../build-tools/sbt-plugin#publish-to-a-binary-repository" >}}).
-
-{{< include-file >}}
-Maven: includes/use-case-binary-repo.maven.md
-Maven Wrapper: includes/use-case-binary-repo.mavenw.md
-Gradle: includes/use-case-binary-repo.gradle.md
-Gradle Wrapper: includes/use-case-binary-repo.gradlew.md
-sbt: includes/use-case-binary-repo.sbt.md
-{{< /include-file >}}
-
-{{< alert tip >}}
-For each build tool, there can be different ways to configure credentials for the target repository. We only provide some examples, with links to the relevant documentations they are based on.
-{{< /alert >}}
-
-### Run the simulation weekly
-
-```yaml
-name: Run Gatling Enterprise Simulation
-
-# Execute the workflow every Sunday at 2 AM UTC, using POSIX CRON syntax. See:
-# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
-on:
-  schedule:
-    - '0 2 * * 0'
-
-jobs:
-  run:
-      # Run the simulation on Gatling Enterprise
-      - name: Gatling Enterprise Action
-        uses: gatling/enterprise-action@v1
-        with:
-          gatling_enterprise_url: http://my-gatling-instance.my-domain.tld
           api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
           simulation_id: '00000000-0000-0000-0000-000000000000'
 ```

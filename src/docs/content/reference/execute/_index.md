@@ -6,5 +6,4 @@ badge:
   label: Enterprise
 ordering:
   - cloud
-  - self-hosted
 ---

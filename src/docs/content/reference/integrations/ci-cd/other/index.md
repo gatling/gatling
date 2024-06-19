@@ -61,7 +61,15 @@ These tools must be installed on the machine or container where your CI system w
 
 Configure your CI build to call the script with 3 parameters like this:
 
-{{< include-file >}}
-1-Cloud: includes/script.cloud.md
-2-Self-Hosted: includes/script.self-hosted.md
-{{< /include-file  >}}
+```shell
+./start_simulation.sh \
+  'https://cloud.gatling.io' \
+  "$GATLING_ENTERPRISE_API_TOKEN" \
+  '00000000-0000-0000-0000-000000000000'
+```
+
+- Gatling Enterprise URL: `https://cloud.gatling.io`.
+- API token: the [API token]({{< ref "reference/execute/cloud/admin/api-tokens" >}}) will allow the script to
+  authenticate to Gatling Enterprise. The API token needs the **Configure** permission.
+- Simulation ID: the ID of the simulation you want to start. You can get this ID on the
+  [Simulations table]({{< ref "reference/execute/cloud/user/simulations" >}}), with the {{< icon clipboard >}} icon.

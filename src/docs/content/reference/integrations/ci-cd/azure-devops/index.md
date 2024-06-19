@@ -26,11 +26,9 @@ All the configuration shown in this page is available on the demo project [gatli
 You will need:
 
 - A git repository: we will be using GitHub in our example
-- A working simulation on [Gatling Enterprise Cloud](https://cloud.gatling.io) or Gatling Enterprise Self-Hosted: you
+- A working simulation on [Gatling Enterprise Cloud](https://cloud.gatling.io): you
   will need its ID later on, which you can copy with **Copy Simulation ID to clipboard** in the Simulations page
-- An API Token:
-  - for Gatling Enterprise Cloud, the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
-  - for Gatling Enterprise Self-Hosted, the [API token]({{< ref "../../execute/self-hosted/admin/api-tokens" >}}) needs the **All** role.
+- An [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) which needs the **Start** permission.
 
 On Azure DevOps, your will need:
 
@@ -94,7 +92,7 @@ From here, you will follow a 4 steps process: Connect -> Select -> Configure -> 
 
 4. On the **Review** step, create three variables by clicking **New variable** on the top right, then:
 
-    - `gatlingEnterpriseUrl`: use `https://cloud.gatling.io`, or your Gatling Enterprise Self-Hosted hostname
+    - `gatlingEnterpriseUrl`: use `https://cloud.gatling.io`
     - `apiToken`: make sure **Keep this value secret** is enabled
     - `simulationId`: use the ID of the simulation you want to run
 

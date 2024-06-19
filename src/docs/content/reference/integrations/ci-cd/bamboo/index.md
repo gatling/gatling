@@ -39,8 +39,7 @@ Add two new variables:
 
 - the first one is named `frontline.address`, and corresponds to the address of Gatling Enterprise (`https://cloud.gatling.io` if using Gatling Enterprise Cloud).
 - the second one is named `frontline.apiTokenPassword`, and corresponds to the API token needs to authenticate to Gatling Enterprise:
-  - for Gatling Enterprise Cloud, the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
-  - for Gatling Enterprise Self-Hosted, the [API token]({{< ref "../../execute/self-hosted/admin/api-tokens" >}}) needs the **All** role.
+  - the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
 
 {{< img src="global-variable.png" alt="Global variable" >}}
 
