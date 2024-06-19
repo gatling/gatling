@@ -37,10 +37,9 @@ Once the plugin is uploaded, you need to enable it.
 
 The plugin needs a global configuration. Go to **Administration**, then **frontline-teamcity-plugin**:
 
-- the **Gatling Enterprise Address** is the address of Gatling Enterprise (use https://cloud.gatling.io for Gatling Enterprise Cloud).
-- the **Gatling Enterprise API Token** is needed to authenticate to Gatling Enterprise:
-  - for Gatling Enterprise Cloud, the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
-  - for Gatling Enterprise Self-Hosted, the [API token]({{< ref "../../execute/self-hosted/admin/api-tokens" >}}) needs the **All** role.
+- the **Gatling Enterprise Address** is the address of Gatling Enterprise Cloud (https://cloud.gatling.io).
+- the **Gatling Enterprise API Token** is needed to authenticate to Gatling Enterprise Cloud:
+  - the [API token]({{< ref "../../execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
 
 {{< img src="administration.png" alt="" >}}
 

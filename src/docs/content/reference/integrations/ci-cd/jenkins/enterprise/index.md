@@ -35,8 +35,7 @@ You need to be connected as an administrator of your Jenkins application to inst
 
 This plugin requires an API token to allow Jenkins to authenticate with Gatling Enterprise.
 
-- for Gatling Enterprise Cloud, the [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
-- for Gatling Enterprise Self-Hosted, the [API token]({{< ref "/reference/execute/self-hosted/admin/api-tokens" >}}) needs the **All** role.
+For Gatling Enterprise Cloud, the [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) needs the **Start** permission.
 
 We recommend storing the API token using [Jenkins credentials](https://www.jenkins.io/doc/book/using/using-credentials/). Go to **Manage Jenkins**, then **Manage credentials**. You will see your existing credentials, as well as the credentials stores and domains configured on your Jenkins instance.
 
@@ -56,7 +55,7 @@ The plugin needs some global configuration. Go to **Manage Jenkins**, **Configur
 
 Choose the Jenkins credentials where [you stored your API token]({{< ref "#api-token-and-jenkins-credentials" >}}).
 
-The **Address** is the address of Gatling Enterprise (use https://cloud.gatling.io for Gatling Enterprise Cloud). You can also configure it per CI project if you have several instances of Gatling Enterprise Self-Hosted.
+The **Address** is the address of Gatling Enterprise Cloud (use https://cloud.gatling.io).
 
 {{< img src="global-configuration.png" alt="Global Configuration" >}}
 
@@ -92,10 +91,6 @@ node {
 }
 ```
 {{< img src="pipeline-configuration.png" alt="Pipeline Configuration" >}}
-
-{{< alert tip >}}
-`gatlingFrontLineLauncherStep` can also take an optional `address` parameter, to override the address configured globally. This can be useful in some cases when using Gatling Enterprise Self-Hosted; when using Cloud only, the global setting is sufficient.
-{{< /alert >}}
 
 #### Passing parameters
 
@@ -138,10 +133,6 @@ Add a new build step called **Gatling Enterprise Plugin**.
 If you don't want to use the globally configured API token, you can chose another one [stored in a Jenkins secret text credential]({{< ref "#api-token-and-jenkins-credentials" >}}). Choose one of the simulations in the drop-down menu.
 
 {{< img src="build-configuration.png" alt="Build configuration" >}}
-
-{{< alert tip >}}
-The Address field allows overriding the address configured globally. This can be useful in some cases when using Gatling Enterprise Self-Hosted; when using Cloud only, the global setting is sufficient.
-{{< /alert >}}
 
 This step regularly prints a summary of the run's current status to the build logs. By default, the summary is printed every 5 seconds the first 12 times (i.e. for the first 60 seconds), and then every 60 seconds. You can configure this behavior (or disable it completely) by clicking on the Show run summary logging options button.
 

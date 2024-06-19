@@ -242,65 +242,6 @@ Gatling / enterpriseControlPlaneUrl := Some(URI.create("YOUR_CONTROL_PLANE_URL")
 
 Once configured, your private package can be created and uploaded using the [deploy command]({{< ref "#deploying-on-gatling-enterprise-cloud" >}}).
 
-### Running with Gatling Enterprise Self-Hosted
-
-#### Build from sources
-
-Once you have configured the sbt plugin on your project, Gatling Enterprise Self-Hosted can build it from sources
-without additional configuration.
-[Add your source repository]({{< ref "../../execute/self-hosted/user/repositories#downloading-from-sources" >}})
-and configure your simulation to
-[build from sources]({{< ref "../../execute/self-hosted/user/simulations#option-1-build-from-sources" >}})
-using sbt.
-
-To make sure your setup is correct, you can run the packaging command and check that you get a jar containing all the
-classes and extra dependencies of your project in `target/gatling/<artifactId>-gatling-enterprise-<version>.jar`:
-
-```shell
-sbt Gatling/enterprisePackage
-```
-
-{{< alert warning >}}
-If you use the `it` configuration, you will need to configure a custom build command in Gatling Enterprise, as the
-default one is for the `test` configuration:
-``sbt -J-Xss100M ;clean;GatlingIt/enterprisePackage -batch --error``
-{{< /alert >}}
-
-#### Publish to a binary repository
-
-Alternatively, you can package your simulations and publish them to a binary repository (JFrog Artifactory, Sonatype
-Nexus or AWS S3).
-
-{{< alert tip >}}
-Please refer to the [official documentation](https://www.scala-sbt.org/1.x/docs/Publishing.html) for generic
-configuration options. Please also check the standards within your organization for the best way to configure the
-credentials needed to access your binary repository.
-{{< /alert >}}
-
-Enable publishing the Gatling test artifact, then define the repository:
-
-```scala
-Gatling / publishArtifact := true
-publishTo := (
-  if (isSnapshot.value)
-    Some("private repo" at "REPLACE_WITH_YOUR_SNAPSHOTS_REPOSITORY_URL")
-  else
-    Some("private repo" at "REPLACE_WITH_YOUR_RELEASES_REPOSITORY_URL")
-)
-```
-
-The packaged artifact will be automatically attached to your project and deployed with the `tests` classifier when you publish it:
-
-```shell
-sbt publish
-```
-
-You can also set:
-- `GatlingIt / publishArtifact := true` to publish Gatling simulations from the `it` configuration, this artifact will be
-published with the `it` qualifier
-- `Compile / publishArtifact := false` e.g. if your project only contains Gatling simulations and you don't need to
-publish code from `src/main`.
-
 ### Additional tasks
 
 Gatling's sbt plugin also offers four additional tasks:

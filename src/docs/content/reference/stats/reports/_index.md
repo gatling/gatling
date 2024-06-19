@@ -5,5 +5,4 @@ lead: Reports
 ordering:
   - oss
   - cloud
-  - self-hosted
 ---

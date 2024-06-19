@@ -96,9 +96,8 @@ At the end, your template variables should be something like:
 ## Gatling Enterprise Metrics
 
 {{< alert tip >}}
-You can get the list of metrics and test the results via Gatling Enterprise's Public API.
-See either [Gatling Enterprise Cloud documentation]({{< ref "../execute/cloud/user/api" >}}) or
-[Gatling Enterprise Self-Hosted documentation]({{< ref "../execute/self-hosted/user/api" >}}).
+You can get the list of metrics and test the results via the
+[Gatling Enterprise's Public API]({{< ref "../execute/cloud/user/api" >}}).
 {{< /alert >}}
 
 Gatling Enterprise offers a large amount of metrics:
