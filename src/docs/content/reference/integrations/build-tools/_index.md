@@ -6,4 +6,5 @@ ordering:
   - maven-plugin
   - gradle-plugin
   - sbt-plugin
+  - js-cli
 ---
