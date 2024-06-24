@@ -64,7 +64,7 @@ object Dependencies {
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.18"            % Test
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                         % "3.2.19"            % Test
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-16"                   % "3.2.14.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                       % "3.2.10.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.0"            % Test
