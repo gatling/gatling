@@ -227,7 +227,7 @@ private[render] class SimulationTemplate(
            |""".stripMargin
 
       case RenderingFormat.JavaScript | RenderingFormat.TypeScript =>
-        s"""import { simulation, scenario, pause, atOnceUsers, RawFileBody } from "@gatling.io/core";
+        s"""import { simulation, scenario, pause, atOnceUsers, AllowList, DenyList, RawFileBody } from "@gatling.io/core";
            |import { http, status } from "@gatling.io/http";
            |
            |${protocolTemplate.render(protocol).indent(2)}
