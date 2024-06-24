@@ -20,6 +20,8 @@ import io.gatling.javaapi.mqtt.*;
 import static io.gatling.javaapi.mqtt.MqttDsl.*;
 //#imports
 import java.time.Duration;
+import java.util.Collections;
+
 import io.gatling.javaapi.core.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 
@@ -71,7 +73,10 @@ MqttProtocolBuilder mqttProtocol = mqtt
   // interval for timeout checker (default: 1 second)
   .timeoutCheckInterval(1)
   // check for pairing messages sent and messages received
-  .correlateBy((CheckBuilder) null);
+  .correlateBy((CheckBuilder) null)
+  // enable unmatched MQTT inbound messages buffering,
+  // with a max buffer size of 5
+  .unmatchedInboundMessageBufferSize(5);
 //#protocol-sample
 
   {
@@ -112,8 +117,28 @@ mqtt("Publishing")
 //#check
 
 //#waitForMessages
-exec(waitForMessages().timeout(Duration.ofMillis(100)));
+waitForMessages().timeout(Duration.ofMillis(100));
 //#waitForMessages
+
+//#process
+// store the unmatched messages in the Session
+processUnmatchedMessages("#{myTopic}", (messages, session) -> session.set("messages", messages));
+
+// collect the last text message and store it in the Session
+processUnmatchedMessages(
+    "#{myTopic}",
+    (messages, session) -> {
+      Collections.reverse(messages);
+      String lastTextMessage =
+          messages.stream()
+              .map(m -> m.payloadUtf8String())
+              .findFirst()
+              .orElse(null);
+      return lastTextMessage != null ?
+          session.set("lastTextMessage", lastTextMessage) :
+          session;
+    });
+//#process
   }
 
 //#example
