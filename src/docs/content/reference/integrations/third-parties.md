@@ -18,13 +18,13 @@ If you run into an issue, please contact their respective owners.
 
 ### Active
 
-* [AMQP plugin (Gatling 3.10)](https://github.com/galax-io/gatling-amqp-plugin) by jigarkhwar
+* [AMQP plugin (Gatling 3.11)](https://github.com/galax-io/gatling-amqp-plugin) by jigarkhwar
 * [Git plugin (Gatling 3.9)](https://github.com/GerritForge/gatling-git) by GerritForge
 * [Sftp plugin (Gatling 3.10)](https://github.com/fherbreteau/gatling-sftp) by François Herbreteau
 * [Ftp plugin (Gatling 3.10)](https://github.com/fherbreteau/gatling-ftp) by François Herbreteau
-* [JDBC plugin (Gatling 3.10)](https://github.com/galax-io/gatling-jdbc-plugin) by jigarkhwar
+* [JDBC plugin (Gatling 3.11)](https://github.com/galax-io/gatling-jdbc-plugin) by jigarkhwar
 * [Kafka plugin (Gatling 3.10)](https://github.com/Amerousful/gatling-kafka) by Amerousful (Bairov Pavel)
-* [Kafka plugin (Gatling 3.10)](https://github.com/galax-io/gatling-kafka-plugin) by jigarkhwar
+* [Kafka plugin (Gatling 3.11)](https://github.com/galax-io/gatling-kafka-plugin) by jigarkhwar
 
 ### Inactive
 
