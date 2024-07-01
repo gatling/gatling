@@ -22,8 +22,8 @@ For example, Gatling currently also ships JMS support.
 
 The following tutorials will help you get started with Gatling:  
 
-- [Introduction to scripting]({{< ref "tutorials/scripting-intro" >}})  
-- [Introduction to Gatling scripting with JavaScript]({{< ref "tutorials/scripting-intro-js" >}}) 
+- [Create a simulation with Java]({{< ref "tutorials/scripting-intro" >}})  
+- [Create a simulation with JavaScript]({{< ref "tutorials/scripting-intro-js" >}}) 
 - [Introduction to the Recorder]({{< ref "tutorials/recorder" >}})  
 - [Writing realistic tests]({{< ref "tutorials/advanced" >}})  
 
