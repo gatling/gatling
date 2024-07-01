@@ -11,13 +11,15 @@ lastmod: 2023-12-16T21:30:56+02:00
 This guide is only intended for the  Gatling JavaScript SDK version `{{< var gatlingJsVersion >}}`.
 {{< /alert >}}
 
-Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, Scala, JavaScript, and
-TypeScript, or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise.
+Gatling is a highly flexible load-testing platform. You can write load tests in Java, Kotlin, Scala, JavaScript, and TypeScript, or use our [no-code feature](https://gatling.io/features/no-code-generator/) with Gatling Enterprise.
+
 In this guide, we cover a "Hello world"-style example for JavaScript of how to:
 
  - [install and setup your local dev environment]({{< ref "#install-gatling" >}}),
  - [write your first simulation]({{< ref "#simulation-construction" >}}),
- - [run your simulation locally]({{< ref "#run-the-simulation-locally" >}}).
+ - [Package and upload your simulation to Gatling Enterprise]({{< ref "#package" >}}),
+ - [Create and run a new test on Gatling Enterprise]({{< ref "#test" >}})
+ - [test your simulation locally]({{< ref "#run-local" >}}).
 
 {{< alert tip >}}
 Join the [Gatling Community Forum](https://community.gatling.io) to discuss load testing with other users. Please try to find answers in the Documentation before asking for help.
@@ -27,16 +29,20 @@ Join the [Gatling Community Forum](https://community.gatling.io) to discuss load
 
 This section guides you through installation and setting up your developer environment. This guide uses JavaScript and the `gatling-js-demo` project. The JavaScript SDK is currently available for the `HTTP` protocol only. 
 
+### Sign up for Gatling Enterprise Cloud
+
+Gatling Enterprise Cloud is a fully managed SaaS solution for load testing. Sign up for a [trial account](https://auth.gatling.io/auth/realms/gatling/protocol/openid-connect/registrations?client_id=gatling-enterprise-cloud-public&response_type=code&scope=openid&redirect_uri=https%3A%2F%2Fcloud.gatling.io%2Fr%2Fgatling) to run your first test on Gatling Enterprise Cloud. The [Gatling website](https://gatling.io/features) has a full list of Enterprise features.
+
 ### Install Gatling 
 
 {{< alert info >}}
 **Prerequisites**  
-[Node.js](https://nodejs.org/) v18 or later (LTS versions only) and npm v8 or later.
+- [Node.js](https://nodejs.org/) v18 or later (LTS versions only) and npm v8 or later.
 {{< /alert >}}
 
 Then, use the following procedure to install Gatling:
 
-1. Download the Gatling JS demo project zip file using the following download button:
+1. Download the JavaScript SDK zip file using the following download button:
 {{< button title="Download Gatling for JavaScript" >}}
 https://github.com/gatling/gatling-js-demo/archive/refs/heads/main.zip{{< /button >}}  
 
@@ -89,9 +95,7 @@ this example, the `baseUrl` property is hardcoded as the Gatling computer databa
 
 #### Write the scenario
 
-The next step is to describe the user journey. For a web application, this usually consists of a user arriving at the
-application and then a series of interactions with the application. The following scenario mocks a user arriving on the
-home page of the [Gatling sample application](https://computer-database.gatling.io). Add the scenario:
+The next step is to describe the user journey. For a web application, this usually consists of a user arriving at the application and then a series of interactions with the application. The following scenario mocks a user arriving on the home page of the [Gatling sample application](https://computer-database.gatling.io). Add the scenario:
 
 {{< include-code "ScriptingIntro3Sample#write-the-scenario" js >}}
 
@@ -106,7 +110,7 @@ The following example adds 2 users per second for 60 seconds and each user execu
 
 {{< include-code "ScriptingIntro4Sample#define-the-injection-profile" js >}}
 
-Congrats! You have written your first Gatling simulation. The next step is to learn how to run the simulation locally. 
+Congrats! You have written your first Gatling simulation. The next step is to learn how to run the simulation. 
 
 ## Test execution
 
@@ -114,10 +118,40 @@ Now, you should have a completed simulation that looks like the following:
 
 {{< include-code "ComputerDatabaseSimulation#full-example" js >}}
 
+### Package and upload your simulation to Gatling Enterprise { #package }
 
-### Run the Simulation locally 
+To run your simulation on Gatling Enterprise, you need to package the script with all of the required files. The output of this step is a file named `package.zip` in the `target` folder. To upload your simulation to Gatling Enterprise: 
 
-The open-source version of Gatling allows you to run simulations locally, generating load from your computer.
+1. Run the following command in your terminal:
+  ```console
+  npx gatling enterprise-package
+  ```
+2. Log in to your Gatling Enterprise account.
+3. Click on **Packages** in the left-side menu.
+4. Click the **Create** button.
+5. Name the package and choose a team (default is typical for trial accounts) 
+6. Upload the `package.zip` file you created in step 1.
+7. Click **Save** to save your package to Gatling Enterprise.
+
+### Create and run a new test on Gatling Enterprise { #test }
+
+An executable test on Gatling Enterprise is called a Simulation. To run your first simulation, you need to select some minimum settings. 
+
+1. Click **Simulations** in the left-side menu.
+2. Click **Create a simulation**.
+3. Click **Create a simulation with a package**
+4. Fill in the **General** section including selecting the package you created in the [Package and upload your simulation to Gatling Enterprise]({{< ref "#package" >}}) section.
+5. Choose a location for generating virtual users from (load). The sample application provided by Gatling is hoasted near Paris, so this location will usually yield the fastest response times.
+6. Click **Save and launch** to start your test! 
+
+{{< alert info >}}
+Learn about how to read your load test results in the [Reports documenation]({{< ref "reference/stats/reports/cloud" >}}).
+{{</ alert >}}
+
+### (optional) Test the simulation locally { #run-local }
+
+The open-source version of Gatling allows you to run simulations locally, generating load from your computer. This is ideal for learning, crafting, and debugging simulations. 
+
 Using the terminal, you can launch your test with the following command in the `javascript` project directory:
 
 ```console
@@ -127,4 +161,3 @@ npx gatling run --simulation myfirstsimulation
 ```
 
 When the test has finished, there is an HTML link in the terminal that you can use to access the static report. 
-
