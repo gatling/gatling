@@ -16,7 +16,7 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ BufferedInputStream, BufferedOutputStream, File, FileOutputStream }
+import java.io.{ BufferedInputStream, BufferedOutputStream, File, FileNotFoundException, FileOutputStream }
 import java.net.URI
 
 import scala.collection.immutable.ArraySeq
@@ -52,13 +52,13 @@ trait FeederSupport extends ResourceCache {
   ): BatchableFeederBuilder[String] =
     cachedResource(filePath) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
-      case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
+      case Failure(message)  => throw new FileNotFoundException(s"Could not locate feeder file: $message")
     }
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
     cachedResource(filePath) match {
       case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers), configuration)
-      case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
+      case Failure(message)  => throw new FileNotFoundException(s"Could not locate feeder file: $message")
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
