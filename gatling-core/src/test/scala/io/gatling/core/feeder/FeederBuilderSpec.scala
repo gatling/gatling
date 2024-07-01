@@ -16,6 +16,8 @@
 
 package io.gatling.core.feeder
 
+import java.io.FileNotFoundException
+
 import scala.collection.immutable
 
 import io.gatling.BaseSpec
@@ -25,7 +27,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "FeederSupport.separatedValues" should "throw an exception when provided with bad resource" in {
-    an[IllegalArgumentException] should be thrownBy
+    an[FileNotFoundException] should be thrownBy
       separatedValues("fileDoesNotExist", SeparatedValuesParser.CommaSeparator, quoteChar = '\'')
   }
 
