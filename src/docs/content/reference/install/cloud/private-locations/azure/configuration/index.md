@@ -78,7 +78,7 @@ control-plane {
       # Virtual machine size, as listed by Azure CLI:
       # az vm list-sizes --location "westeurope"
       size = "Standard_A4_v2"
-      # Certified AMI configuration
+      # Certified image configuration
       image {
         type = "certified"
         java = "latest" # Possible values : 11, 17, 21 or latest
