@@ -7,6 +7,5 @@ lead: Extra official and community modules
 ordering:
   - build-tools
   - ci-cd
-  - grafana
   - third-parties
 ---
