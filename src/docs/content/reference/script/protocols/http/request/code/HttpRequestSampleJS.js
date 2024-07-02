@@ -308,7 +308,7 @@ const params = {
   "key2": "value2"
 };
 
-http("name").get("/")
+http("name").post("/")
   .formParamMap(params);
 //#formParam-multiple
 

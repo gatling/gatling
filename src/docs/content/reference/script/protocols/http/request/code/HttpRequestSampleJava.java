@@ -317,7 +317,7 @@ http("name").post("/")
 //#multivaluedFormParam
 
 //#formParam-multiple
-http("name").get("/")
+http("name").post("/")
   .formParamSeq(List.of(
       Map.entry("key1", "value1"),
       Map.entry("key2", "value2")
@@ -328,7 +328,7 @@ Map<String, Object> params = new HashMap<>();
 params.put("key1", "value1");
 params.put("key2", "value2");
 
-http("name").get("/")
+http("name").post("/")
   .formParamMap(params);
 //#formParam-multiple
 
