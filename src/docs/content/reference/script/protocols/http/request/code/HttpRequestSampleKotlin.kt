@@ -314,13 +314,13 @@ http("name").post("/") // with a function
 //#multivaluedFormParam
 
 //#formParam-multiple
-  http("name").get("/")
+  http("name").post("/")
     .formParamSeq(listOf(
       AbstractMap.SimpleEntry<String, String>("key1", "value1"),
       AbstractMap.SimpleEntry<String, String>("key2", "value2")
     ))
 
-  http("name").get("/")
+  http("name").post("/")
     .formParamMap(mapOf("key1" to "value1", "key2" to "value2"))
 //#formParam-multiple
 
