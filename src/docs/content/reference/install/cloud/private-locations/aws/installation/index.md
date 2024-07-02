@@ -218,6 +218,22 @@ Keep the configuration as default, and update deployment configuration with:
 
 {{< img src="ecs-service.png" alt="Service creation" >}}
 
+### Update
+
+In order to update your control plane container to the latest version,
+go to the service package (here, `gatling-control-plane-service`) and click on `Update service` button.
+
+{{< img src="ecs-service-update.png" alt="Service update" >}}
+
+Then, check the `Force new deployment` checkbox and click on `Update`.
+
+{{< img src="ecs-service-force-deployment.png" alt="Service update" >}}
+
+{{< alert warning >}}
+The new tasks launched by the deployment pull the current `latest` image of the `gatlingcorp/control-plane` when they start.
+If you need to target a specific version tag, you'll have to create a new revision of your task definition with the updated version and then redeploy it.
+{{< /alert >}}
+
 ## Your Control Plane is up and running!
 
 If you kept the default logging configuration, the control plane's logs are sent to Amazon CloudWatch, in a log group named `/ecs/<task definition name>`.
