@@ -216,3 +216,19 @@ Be sure to select the currently active revision logs.
 Now that your control plane is up and running, after a short time you should see your control plane with {{< badge success >}}up{{< /badge >}} status in Gatling Enterprise Cloud.
 
 {{< img src="azure-cp-status.png" alt="Checking out the Control Plane's status in Gatling Enterprise Cloud" >}}
+
+## Update your control plane
+
+To update your control plane, restart your Azure Container App.
+
+Being configured with the image `gatlingcorp/control-plane:latest`, it will automatically pull the latest published version:
+
+1. Go on your **Container App** page
+2. Click on the running revision
+3. Hit the **Restart** button
+
+Your control plane restarts, using the latest image published on Docker Hub.
+
+{{< img src="azure-cp-update-image.png" alt="Update control plane instance installed on Azure Container App" >}}
+
+If you did not use the tag `latest`, you will have to [create a new revision](https://learn.microsoft.com/en-us/azure/container-apps/revisions-manage?tabs=bash#updating-your-container-app) and specify the control plane image you want to deploy.
