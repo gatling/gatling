@@ -26,22 +26,25 @@ you will provide.
 
 {{< img src="schema.png" alt="Infrastructure schema" >}}
 
-The control plane will periodically poll our API gateway to find out if a new simulation run has been started using locations handled by this control plane.
+The control plane will periodically poll our API to find out if a new simulation run has been started using locations handled by this control plane.
 
 If so, it will start new instances (based on the locations configurations) and start the simulation run on them. 
-Those instances will send stats through the API gateway as well.
+Those instances will send stats through the API as well.
 
 ## Control plane
 
-### Network
+### Network prerequisites
 
-{{< alert info >}}
-Your network must allow the following outbound domains:
-- the Gatling Cloud API Gateway: `https://api.gatling.io`
-- The AWS S3 domains used to download Gatling libraries:
-  - `https://cloud-probes-eu-west-3.s3.eu-west-3.amazonaws.com`
-  - `https://frontline-cloud-prod-eu-west3.s3.eu-west-3.amazonaws.com`
-{{< /alert >}}
+Ensure the control plane network permits outbound access to the following domain:
+- Gatling Cloud API: `https://api.gatling.io`
+  - This is used to register the control plane to the Gatling Enterprise Cloud application and to receive deployment orders.
+
+Your private locations, as configured by the control plane, must permit outbound access to these domains:
+- Gatling Cloud API: `https://api.gatling.io`
+  - This is used to communicate metrics from the run.
+- AWS S3 domains for downloading Gatling dependencies and simulations:
+  - `https://cloud-probes-eu-west-3.s3.eu-west-3.amazonaws.com` (for Gatling libraries)
+  - `https://frontline-cloud-prod-eu-west3.s3.eu-west-3.amazonaws.com` (for simulation files)
 
 ### Token
 
