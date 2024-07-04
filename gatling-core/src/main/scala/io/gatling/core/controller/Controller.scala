@@ -80,7 +80,7 @@ private final class Controller private (
 
   private def started(data: Data.Init): Behavior[Command] = {
     case Command.RunTerminated =>
-      logger.info(s"Injector has stopped, initiating graceful stop")
+      logger.info("Injector has stopped, initiating graceful stop")
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, None)
 
@@ -89,7 +89,7 @@ private final class Controller private (
       stopGracefully(data, None)
 
     case Command.Crash(exception) =>
-      logger.error(s"Simulation crashed", exception)
+      logger.info("Simulation crashed", exception)
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, Some(exception))
 
