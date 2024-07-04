@@ -74,7 +74,7 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
 
   when(Started) {
     case Event(RunTerminated, data: StartedData) =>
-      logger.info(s"Injector has stopped, initiating graceful stop")
+      logger.info("Injector has stopped, initiating graceful stop")
       cancelTimer(maxDurationTimer)
       stopGracefully(data, None)
 
@@ -83,7 +83,7 @@ private class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler
       stopGracefully(data, None)
 
     case Event(Crash(exception), data: StartedData) =>
-      logger.error(s"Simulation crashed", exception)
+      logger.info("Simulation crashed", exception)
       cancelTimer(maxDurationTimer)
       stopGracefully(data, Some(exception))
 
