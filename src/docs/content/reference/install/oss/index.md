@@ -41,8 +41,7 @@ Make sure to use the latest version of Gatling: `{{< var gatlingVersion >}}`.
 In particular, don't use milestones (M versions) you could find on Maven Central;
 those are not documented and are released only for internal use or [Gatling Enterprise](https://gatling.io/products/) customers.
 
-
-## Install Gatling using a `ZIP` file for build tools
+## Install Gatling using a `ZIP` file for build tools { #zip-install}
 
 Build tools are the preferred way for Gatling users to launch and run their scripts. From Gatling 3.11, the build tool plugins have similar functionality and commands while respecting each tool's conventions. Additionally, the Maven and Gradle tools have wrappers that allow you to run Gatling without installing Maven or Gradle on your computer. The following download buttons provide links for Maven-Java and Gradle-Java projects. Installation instructions for Kotlin and Scala are located in the [Maven]({{< ref "../integrations/build-tools/maven-plugin" >}}), [Gradle]({{< ref "../integrations/build-tools/gradle-plugin" >}}), and [sbt]({{< ref "../integrations/build-tools/sbt-plugin" >}}) plugin documentation. 
 
@@ -52,8 +51,6 @@ To install Gatling:
 1. Download your preferred configuration.
 2. Unzip the folder. 
 3. Open the folder in your IDE.
-
-
 
 {{< button title="Download Gatling for Maven-Java" >}}
 https://github.com/gatling/gatling-maven-plugin-demo-java/archive/refs/heads/main.zip{{< /button >}}  
@@ -69,7 +66,6 @@ You can install and configure Gatling manually by following instructions in the 
 - [Maven]({{< ref "../integrations/build-tools/maven-plugin" >}})
 - [Gradle]({{< ref "../integrations/build-tools/gradle-plugin" >}})
 - [sbt]({{< ref "../integrations/build-tools/sbt-plugin" >}}) 
-
 
 ## Use a JavaScript package manager
 
@@ -95,12 +91,10 @@ https://github.com/gatling/gatling-js-demo/archive/refs/heads/main.zip{{< /butto
 
 You can run the pre-configured demo simulation from the `src/` folder with the following command:
 
-
 {{< code-toggle console >}}
 JavaScript: npx gatling run --simulation computerdatabase
 TypeScript: npx gatling run --typescript --simulation computerdatabase
 {{</ code-toggle >}}
-
 
 {{< alert info >}}
 To learn more about developing Gatling tests in JavaScript/TypeScript, follow the [Intro to scripting]({{< ref "/tutorials/scripting-intro/" >}}) tutorial.
@@ -116,9 +110,8 @@ From Gatling 3.11, the bundle is based on a Maven wrapper, and we recommend usin
 https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip
 {{< /button >}}
 
-
 {{< alert warning >}}
-The bundle only supports Java and Scala, not Kotlin. To use Kotlin, you'll need [Maven or Gradle]({{< ref "#install-gatling-using-a-zip-file-for-build-tools" >}}) project.
+The bundle only supports Java not, Scala and  Kotlin. To use Kotlin or Scala, you need [Maven, Gradle, or sbt]({{< ref "#zip-install" >}}) project.
 {{</ alert >}}
 
 {{< alert warning >}}
@@ -163,7 +156,6 @@ We recommend that you have a look at the official documentation for setting up V
 * [with Java](https://code.visualstudio.com/docs/java/java-build)
 * [with Kotlin](https://kotlinlang.org/docs/jvm-get-started.html)
 * [with Scala](https://scalameta.org/metals/)
-
 
 ## Run a demo load test
 
