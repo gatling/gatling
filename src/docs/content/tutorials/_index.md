@@ -10,4 +10,5 @@ ordering:
   - recorder
   - advanced
   - faq
+  - trial-plan
 ---
