@@ -150,6 +150,28 @@ After a short time, you should see your Control Plane get the "up" status in Gat
 
 You can now configure a simulation to run on one or more of this Control Plane's locations!
 
+## Update your control plane
+
+To update your control plane, reset your GCP VM Instance.
+
+Being configured with the image `gatlingcorp/control-plane:latest`, it automatically pulls the latest published version:
+
+1. Go to the **Compute Engine VM Instances** page.
+2. Click on the control plane instance.
+3. Click the **Reset** button.
+
+Your control plane resets and restarts using the latest image published on Docker Hub.
+
+{{< alert warning >}}
+Be aware that this operation resets your instance data, which prevents old control plane images from piling up.
+{{< /alert >}}
+
+{{< img src="gcp-cp-update-image.png" alt="Update control plane instance installed on GCP VM Instance" >}}
+
+If you did not use the `latest` tag, you can create a new instance and specify the control plane image you want to deploy. To create a new instance, follow the [create a similar VM](https://cloud.google.com/compute/docs/instances/create-vm-from-similar-instance) instructions and only replace the image configuration.
+
+Directly updating the control plane image is possible but not recommended since you have to start it manually instead of letting GCP manage it.
+
 ## Troubleshooting
 
 ### Deployment failed
