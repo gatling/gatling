@@ -83,6 +83,11 @@ control-plane {
         type = "certified"
         java = "latest" # Possible values : 11, 17, 21 or latest
       }
+      # Custom image configuration (alternative to certified image)
+      # image = {
+      #   type = custom
+      #   image = "/subscriptions/4c3f1827-1a32-4d18-8e8e-c8abb129f0fe/resourceGroups/<MyResourceGroup>/providers/Microsoft.Compute/galleries/customImages/images/<MyImage>"
+      # }
       # Azure subscription id as returned by Azure CLI:
       # az account show
       subscription = "<MySubscription UUID>"
@@ -96,6 +101,10 @@ control-plane {
       subnet-name = "default"
       # Associate a public IP to network interface (optional)
       associate-public-ip = true
+      # Virtual machine tags (optional)
+      tags {
+        # ExampleKey = ExampleValue 
+      }
       # Java configuration (following configuration properties are optional)
       # System properties (optional)
       system-properties {
