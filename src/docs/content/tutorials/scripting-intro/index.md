@@ -1,6 +1,6 @@
 ---
-menutitle: Introduction to scripting
-title: Introduction to Gatling scripting
+menutitle: Create a simulation with Java
+title: Create your first Java-based simulation
 description: "Get started with Gatling: install, write your first load test, and execute it."
 lead: Learn how to get started with Gatling and create a Gatling simulation.
 date: 2023-12-16T18:30:56+02:00
@@ -30,7 +30,7 @@ This section guides you through installation and setting up your developer envir
 - CI/CD integrations,
 - Java, Kotlin, and Scala SDKs
 
-This guide uses Java and the Maven-based Gatling bundle. Gatling recommends that developers use the Java SDK unless they are already experienced with Scala or Kotlin. Java is widely taught in CS courses, requires less CPU for compiling, and is easier to configure in Maven and Gradle. You can adapt the steps to your development environment using reference documentation links provided throughout the guide. 
+This guide uses the Java SDK with the Maven wrapper. Gatling recommends that developers use the Java SDK unless they are already experienced with Scala or Kotlin. Java is widely taught in CS courses, requires less CPU for compiling, and is easier to configure in Maven and Gradle. You can adapt the steps to your development environment using reference documentation links provided throughout the guide. 
 
 ### Sign up for Gatling Enterprise Cloud
 
@@ -43,10 +43,10 @@ Gatling Enterprise Cloud is a fully managed SaaS solution for load testing. Sign
 Java 11, 17, or 21 64-bit OpenJDK LTS (Long Term Support) version installed on your local machine. We recommend the [Azul JDK](https://www.azul.com/downloads/?package=jdk#zulu).
 {{< /alert >}}
 
-This guide uses the Gatling bundle, which is accessed by downloading and extracting the following `zip`file:
+This guide uses the Gatling Java SDK with Maven, which is accessed by downloading and extracting the following `zip`file:
 
 {{< button title="Download Gatling" >}}
-https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip
+https://github.com/gatling/gatling-maven-plugin-demo-java/archive/refs/heads/main.zip
 {{< /button >}}
 
 ## Simulation construction 
@@ -152,7 +152,7 @@ Watch the Simulation deploy automatically and generate real-time reports.
 
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a
 new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
-Using the bundle, you can launch your test with the following command in the project root directory:
+Using the Java SDK, you can launch your test with the following command in the project root directory:
 
 {{< code-toggle console >}}
 Linux/MacOS: ./mvnw gatling:test
