@@ -106,6 +106,12 @@ npx gatling run --simulation "my-simulation"
 Runs a simulation defined in `src/my-simulation.gatling.js` or `src/my-simulation.gatling.ts`, and write the report
 inside the folder `target/gatling`.
 
+You can pass options to you simulation using a `key=value` format, then read them using the `getOption` function in your code (see [the Passing parameters guide]({{< ref "/guides/passing-parameters#javascript" >}})):
+
+```shell
+npx gatling run key1=value1 key2=value2
+```
+
 You can check out other options with `npx gatling run --help`.
 
 ### Running the Gatling Recorder
