@@ -14,7 +14,7 @@ lastmod: 2024-06-20T14:00:00+02:00
 
 ## Versions
 
-Check out available versions on [npm](https://www.npmjs.com/package/@gatling.io/cli).
+Check out available versions on [the npm registry](https://www.npmjs.com/package/@gatling.io/cli).
 
 ## Pre-requisites and compatibility
 
@@ -40,14 +40,15 @@ npm install --save "@gatling.io/core"
 npm install --save "@gatling.io/http"
 ```
 
-The `@gatling.io/cli` contains the `gatling` command-line interface (CLI) tool. Once added to your project's dev
-dependencies, you can execute it with the command `npx gatling` without having to install it globally or add it to your shell's path.
+The `@gatling.io/cli` package contains the `gatling` command-line interface (CLI) tool. Once added to your project's dev
+dependencies, you can execute it with the command `npx gatling` without having to install it globally or add it to your
+shell's path (see also [the `npx` documentation](https://docs.npmjs.com/cli/v10/commands/npx)).
 
 You can explore all available commands with `npx gatling --help`, and all options for a given command with
 `npx gatling command-name --help`. The most typical usages are explained below.
 
 Remember that you can define aliases for commonly used commands in the `scripts` section of you `package.json` file, as
-shown [in the npm documentation](https://docs.npmjs.com/cli/v10/using-npm/scripts). 
+shown [in the npm documentation](https://docs.npmjs.com/cli/v10/using-npm/scripts).
 
 ### Project layout
 
@@ -96,17 +97,24 @@ Use the following procedure to upgrade your SDK version:
 
 ### Running your simulations
 
-Use the `gatling run` command to execute Gatling simulations. Specify which simulation to run with the `--simulation`
-option. For instance:
+Use the `gatling run` command to execute Gatling simulations. For instance:
+
+```shell
+npx gatling run
+```
+
+Runs a simulation defined in a file matching the pattern `src/*.gatling.js` or `src/*.gatling.ts`, and writes the report
+inside the folder `target/gatling`. If several simulations are found, you will be asked to choose one.
+
+You can also specify which simulation to run with the `--simulation` option; for instance, to run a simulation defined
+in `src/my-simulation.gatling.js` or `src/my-simulation.gatling.ts`:
 
 ```shell
 npx gatling run --simulation "my-simulation"
 ```
 
-Runs a simulation defined in `src/my-simulation.gatling.js` or `src/my-simulation.gatling.ts`, and write the report
-inside the folder `target/gatling`.
-
-You can pass options to you simulation using a `key=value` format, then read them using the `getOption` function in your code (see [the Passing parameters guide]({{< ref "/guides/passing-parameters#javascript" >}})):
+You can pass options to you simulation using a `key=value` format, then read them using the `getOption` function in your
+code (see [the Passing parameters guide]({{< ref "/guides/passing-parameters#javascript" >}})):
 
 ```shell
 npx gatling run key1=value1 key2=value2
@@ -124,7 +132,7 @@ npx gatling recorder
 
 You can check out other options with `npx gatling recorder --help`.
 
-### Running your simulations for Gatling Enterprise Cloud
+### Running your simulations on Gatling Enterprise Cloud
 
 #### Prerequisites
 
