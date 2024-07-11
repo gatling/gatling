@@ -18,13 +18,15 @@ This is useful, for example, if your target system performs some sort of IP addr
 To access the dedicated IP addresses section, click on **Dedicated IP Addresses** in the navigation bar.
 
 {{< alert tip >}}
-You can request dedicated IP addresses through [technical support](https://gatlingcorp.atlassian.net/servicedesk/customer/portal/8/group/12/create/59).
+You can request dedicated IP addresses through [technical support](https://gatlingcorp.atlassian.net/servicedesk/customer/portal/8/group/12/create/91).
 
 Please provide:
-- Organization SLUG
-- Desired number of dedicated IP addresses per location
-- Contact Email
-- GitHub username
+
+- Organization slug,
+- Desired number of dedicated IP addresses per location([available locations]( {{< ref "reference/execute/cloud/user/simulations/#step-2-locations-configuration" >}})),
+- Contact Email,
+- GitHub username.
+
 A sales person will contact you.
 {{< /alert >}}
 
