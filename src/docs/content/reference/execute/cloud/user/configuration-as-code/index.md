@@ -122,13 +122,13 @@ gatling.enterprise.package {
   team = "My team name"
   simulations = [
     {
-      classname = "com.example.SimulationA"
+      simulation = "com.example.SimulationA"
     }
   ]
 }
 ```
 
-`classname` is the only mandatory field of `simulations` when specified, other fields (see below) can still be inferred by [Default Behavior]({{< ref "#default-behavior" >}}).
+`simulation` is the only mandatory field of `simulations` when specified, other fields (see below) can still be inferred by [Default Behavior]({{< ref "#default-behavior" >}}).
 
 ### Consistent deployment with ID
 
@@ -156,7 +156,7 @@ gatling.enterprise.package {
     {
       id = "00000000-0000-0000-0000-000000000001"
       name = "My new simulation name"
-      classname = "com.example.SimulationA"
+      simulation = "com.example.SimulationA"
     }
   ]
 }
@@ -164,7 +164,7 @@ gatling.enterprise.package {
 
 ### Simulation configurations
 
-As we mention in the [Default Behavior]({{< ref "#default-behavior" >}}) section, a [Simulation]({{< ref "/reference/execute/cloud/user/simulations/" >}}) includes more than just a classname.
+As we mention in the [Default Behavior]({{< ref "#default-behavior" >}}) section, a [Simulation]({{< ref "/reference/execute/cloud/user/simulations/" >}}) includes more than just a simulation.
 
 Each property of a [Simulation]({{< ref "/reference/execute/cloud/user/simulations/" >}}), can be configured individually or left to default settings, allowing for customization either through configuration or via the Web UI.
 
@@ -177,7 +177,7 @@ gatling.enterprise.package {
     {
       # id = "00000000-0000-0000-0000-000000000001"
       name = "My simulation name"
-      classname = "com.example.SimulationA"
+      simulation = "com.example.SimulationA"
       locations = [
         {
           name: "Europe - Paris",
@@ -289,11 +289,11 @@ gatling.enterprise.package {
   simulations = [
     {
       # id = "00000000-0000-0000-0000-000000000001"
-      classname = "com.example.SimulationA"
+      simulation = "com.example.SimulationA"
     },
     {
       # id = "00000000-0000-0000-0000-000000000002"
-      classname = "com.example.SimulationB"
+      simulation = "com.example.SimulationB"
       parameters {
         ignoreDefaults = true
         systemProperties {
@@ -320,7 +320,7 @@ For **`com.example.SimulationB`** in the example, its properties are combined wi
 ```hocon
 {
   # id = "00000000-0000-0000-0000-000000000002"
-  classname = "com.example.SimulationB"
+  simulation = "com.example.SimulationB"
   parameters {
     ignoreDefaults = true
     systemProperties {
