@@ -85,7 +85,7 @@ object Dependencies {
   // Docs dependencies
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.14.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.0"
-  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.26.16"
+  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.26.20"
   
   // format: ON
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
