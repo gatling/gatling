@@ -825,6 +825,10 @@ public final class DefaultHttpClient implements HttpClient {
               //
               //
               // [e]
+              LOGGER.debug(
+                  "Connected to remoteAddress={} from localAddress={}",
+                  remoteAddress,
+                  whenChannel.channel().localAddress());
               channelPromise.setSuccess(whenChannel.channel());
 
             } else {
