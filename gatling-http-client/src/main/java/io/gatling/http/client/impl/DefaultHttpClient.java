@@ -401,21 +401,21 @@ public final class DefaultHttpClient implements HttpClient {
                 }
 
                 if (whenRemoteAddresses.isSuccess()) {
-                  List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
+                  List<InetSocketAddress> remoteAddresses = whenRemoteAddresses.getNow();
 
                   if (tryHttp2 && tx.channelState != HttpTx.ChannelState.RETRY) {
                     String domain = requestUri.getHost();
                     Channel coalescedChannel =
                         resources.channelPool.pollCoalescedChannel(
-                            tx.key.clientId, domain, addresses);
+                            tx.key.clientId, domain, remoteAddresses);
                     if (coalescedChannel != null) {
                       tx.listener.onProtocolAwareness(true);
                       sendTxWithChannel(tx, coalescedChannel);
                     } else {
-                      sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
+                      sendTxWithNewChannel(tx, resources, eventLoop, remoteAddresses, logProxyAddress);
                     }
                   } else {
-                    sendTxWithNewChannel(tx, resources, eventLoop, addresses, logProxyAddress);
+                    sendTxWithNewChannel(tx, resources, eventLoop, remoteAddresses, logProxyAddress);
                   }
                 }
               });
@@ -562,7 +562,7 @@ public final class DefaultHttpClient implements HttpClient {
       HttpTx tx,
       EventLoopResources resources,
       EventLoop eventLoop,
-      List<InetSocketAddress> addresses,
+      List<InetSocketAddress> remoteAddresses,
       boolean logProxyAddress) {
     tx.channelState = HttpTx.ChannelState.NEW;
     openNewChannel(
@@ -571,7 +571,7 @@ public final class DefaultHttpClient implements HttpClient {
             logProxyAddress,
             eventLoop,
             resources,
-            addresses,
+            remoteAddresses,
             tx.listener,
             tx.requestTimeout)
         .addListener(
@@ -629,7 +629,7 @@ public final class DefaultHttpClient implements HttpClient {
       List<HttpTx> txs,
       EventLoopResources resources,
       EventLoop eventLoop,
-      List<InetSocketAddress> addresses,
+      List<InetSocketAddress> remoteAddresses,
       boolean logProxyAddress) {
     HttpTx tx = txs.get(0);
     openNewChannel(
@@ -638,7 +638,7 @@ public final class DefaultHttpClient implements HttpClient {
             logProxyAddress,
             eventLoop,
             resources,
-            addresses,
+            remoteAddresses,
             tx.listener,
             tx.requestTimeout)
         .addListener(
