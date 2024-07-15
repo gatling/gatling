@@ -412,10 +412,12 @@ public final class DefaultHttpClient implements HttpClient {
                       tx.listener.onProtocolAwareness(true);
                       sendTxWithChannel(tx, coalescedChannel);
                     } else {
-                      sendTxWithNewChannel(tx, resources, eventLoop, remoteAddresses, logProxyAddress);
+                      sendTxWithNewChannel(
+                          tx, resources, eventLoop, remoteAddresses, logProxyAddress);
                     }
                   } else {
-                    sendTxWithNewChannel(tx, resources, eventLoop, remoteAddresses, logProxyAddress);
+                    sendTxWithNewChannel(
+                        tx, resources, eventLoop, remoteAddresses, logProxyAddress);
                   }
                 }
               });
