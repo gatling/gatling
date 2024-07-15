@@ -44,7 +44,7 @@ private[http] object InetAddresses extends LazyLogging {
 
   private val AllLocalAddresses =
     for {
-      networkInterface <- NetworkInterface.getNetworkInterfaces.asScala.toList
+      networkInterface <- NetUtil.NETWORK_INTERFACES.asScala.toList
       inetAddress <- networkInterface.getInetAddresses.asScala
       if !inetAddress.isLoopbackAddress &&
         !inetAddress.isLinkLocalAddress &&
