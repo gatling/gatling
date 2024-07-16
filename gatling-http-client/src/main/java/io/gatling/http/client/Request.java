@@ -24,7 +24,6 @@ import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.Cookie;
-import java.net.InetAddress;
 import java.util.List;
 import java.util.function.Function;
 
@@ -38,8 +37,7 @@ public final class Request {
   private final RequestBody body;
   private final long requestTimeout;
   private final boolean autoOrigin;
-  private final InetAddress localIpV4Address;
-  private final InetAddress localIpV6Address;
+  private final LocalAddresses localAddresses;
   private final Realm realm;
   private final ProxyServer proxyServer;
   private final Function<Request, Request> signatureCalculator;
@@ -57,8 +55,7 @@ public final class Request {
       RequestBody body,
       long requestTimeout,
       boolean autoOrigin,
-      InetAddress localIpV4Address,
-      InetAddress localIpV6Address,
+      LocalAddresses localAddresses,
       Realm realm,
       ProxyServer proxyServer,
       Function<Request, Request> signatureCalculator,
@@ -74,8 +71,7 @@ public final class Request {
     this.body = body;
     this.requestTimeout = requestTimeout;
     this.autoOrigin = autoOrigin;
-    this.localIpV4Address = localIpV4Address;
-    this.localIpV6Address = localIpV6Address;
+    this.localAddresses = localAddresses;
     this.realm = realm;
     this.proxyServer = proxyServer;
     this.signatureCalculator = signatureCalculator;
@@ -95,8 +91,7 @@ public final class Request {
         this.body,
         this.requestTimeout,
         this.autoOrigin,
-        this.localIpV4Address,
-        this.localIpV6Address,
+        this.localAddresses,
         this.realm,
         this.proxyServer,
         this.signatureCalculator,
@@ -116,8 +111,7 @@ public final class Request {
         this.body,
         this.requestTimeout,
         this.autoOrigin,
-        this.localIpV4Address,
-        this.localIpV6Address,
+        this.localAddresses,
         this.realm,
         this.proxyServer,
         this.signatureCalculator,
@@ -137,8 +131,7 @@ public final class Request {
         body,
         this.requestTimeout,
         this.autoOrigin,
-        this.localIpV4Address,
-        this.localIpV6Address,
+        this.localAddresses,
         this.realm,
         this.proxyServer,
         this.signatureCalculator,
@@ -158,8 +151,7 @@ public final class Request {
         this.body,
         this.requestTimeout,
         this.autoOrigin,
-        this.localIpV4Address,
-        this.localIpV6Address,
+        this.localAddresses,
         this.realm,
         this.proxyServer,
         this.signatureCalculator,
@@ -201,12 +193,8 @@ public final class Request {
     return autoOrigin;
   }
 
-  public InetAddress getLocalIpV4Address() {
-    return localIpV4Address;
-  }
-
-  public InetAddress getLocalIpV6Address() {
-    return localIpV6Address;
+  public LocalAddresses getLocalAddresses() {
+    return localAddresses;
   }
 
   public Realm getRealm() {
@@ -252,10 +240,8 @@ public final class Request {
         + body
         + ", requestTimeout="
         + requestTimeout
-        + ", localIpV4Address="
-        + localIpV4Address
-        + ", localIpV6Address="
-        + localIpV6Address
+        + ", localAddresses="
+        + localAddresses
         + ", realm="
         + realm
         + ", proxyServer="

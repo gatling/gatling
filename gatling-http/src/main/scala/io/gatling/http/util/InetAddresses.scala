@@ -26,6 +26,7 @@ import scala.util.control.NonFatal
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.util.NetUtil
 
+@SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
 private[http] object InetAddresses extends LazyLogging {
   private def isBindable(localAddress: InetAddress): Boolean = {
     val socket = new Socket
@@ -42,18 +43,15 @@ private[http] object InetAddresses extends LazyLogging {
     }
   }
 
-  private val AllLocalAddresses =
+  val AllLocalAddresses: List[InetAddress] =
     for {
       networkInterface <- NetUtil.NETWORK_INTERFACES.asScala.toList
       inetAddress <- networkInterface.getInetAddresses.asScala
       if !inetAddress.isLoopbackAddress &&
-        !inetAddress.isLinkLocalAddress &&
         !inetAddress.isMulticastAddress &&
-        isBindable(inetAddress)
+        isBindable(inetAddress) &&
+        (inetAddress.isInstanceOf[Inet4Address] || !NetUtil.isIpV4StackPreferred)
     } yield inetAddress
-
-  val AllIpV4LocalAddresses: List[InetAddress] = AllLocalAddresses.filter(_.isInstanceOf[Inet4Address])
-  val AllIpV6LocalAddresses: List[InetAddress] = if (NetUtil.isIpV4StackPreferred) Nil else AllLocalAddresses.filter(_.isInstanceOf[Inet6Address])
 
   @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf", "org.wartremover.warts.AnyVal"))
   def shuffleInetAddresses(originalAddresses: ju.List[InetAddress], isIpV4StackPreferred: Boolean, isIpV6AddressesPreferred: Boolean): ju.List[InetAddress] =

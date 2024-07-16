@@ -44,12 +44,10 @@ import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
-import io.netty.util.NetUtil;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -709,10 +707,6 @@ public final class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private static InetSocketAddress localAddressWithRandomPort(InetAddress localAddress) {
-    return localAddress != null ? new InetSocketAddress(localAddress, 0) : null;
-  }
-
   private Future<Channel> openNewChannel(
       HttpTx tx,
       Request request,
@@ -722,7 +716,10 @@ public final class DefaultHttpClient implements HttpClient {
       List<InetSocketAddress> remoteAddresses,
       HttpListener listener,
       RequestTimeout requestTimeout) {
-    LOGGER.debug("Opening new channel");
+    LOGGER.debug(
+        "Opening new channel to remote={} from local={}",
+        remoteAddresses,
+        request.getLocalAddresses());
     Bootstrap bootstrap = bootstrap(tx, request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
     InetSocketAddress loggedProxyAddress =
@@ -730,8 +727,7 @@ public final class DefaultHttpClient implements HttpClient {
     openNewChannelRec(
         remoteAddresses,
         loggedProxyAddress,
-        localAddressWithRandomPort(request.getLocalIpV4Address()),
-        localAddressWithRandomPort(request.getLocalIpV6Address()),
+        request.getLocalAddresses(),
         0,
         channelPromise,
         bootstrap,
@@ -751,8 +747,7 @@ public final class DefaultHttpClient implements HttpClient {
   private void openNewChannelRec(
       List<InetSocketAddress> remoteAddresses,
       InetSocketAddress loggedProxyAddress,
-      InetSocketAddress localIpV4Address,
-      InetSocketAddress localIpV6Address,
+      LocalAddresses localAddresses,
       int i,
       Promise<Channel> channelPromise,
       Bootstrap bootstrap,
@@ -767,23 +762,19 @@ public final class DefaultHttpClient implements HttpClient {
     InetSocketAddress localAddress;
     boolean forceMoveToNextRemoteAddress = false;
 
-    if (localIpV4Address == null && localIpV6Address == null) {
+    if (localAddresses == null) {
       // non explicit local addresses, skip
       localAddress = null;
-    } else if (remoteAddress.getAddress() instanceof Inet6Address) {
-      if (localIpV6Address == null) {
-        // forcing local IPv4 while remote is IPv6 is bound to fail => move to next address
+    } else {
+      InetSocketAddress localAddressForRemote =
+          localAddresses.getLocalAddressForRemote(remoteAddress.getAddress());
+      if (localAddressForRemote == null) {
+        // no match
         localAddress = null;
         forceMoveToNextRemoteAddress = true;
       } else {
-        localAddress = localIpV6Address;
+        localAddress = localAddressForRemote;
       }
-    } else {
-      // IPv4
-      localAddress =
-          NetUtil.isIpV6AddressesPreferred() && localIpV6Address != null
-              ? localIpV6Address
-              : localIpV4Address;
     }
 
     if (forceMoveToNextRemoteAddress) {
@@ -792,8 +783,7 @@ public final class DefaultHttpClient implements HttpClient {
         openNewChannelRec(
             remoteAddresses,
             loggedProxyAddress,
-            localIpV4Address,
-            null,
+            localAddresses,
             nextI,
             channelPromise,
             bootstrap,
@@ -804,10 +794,7 @@ public final class DefaultHttpClient implements HttpClient {
         requestTimeout.cancel();
         Exception cause =
             new UnsupportedOperationException(
-                "Can't connect to IPv6 remote "
-                    + remoteAddress
-                    + " + from IPv4 local one "
-                    + localIpV4Address);
+                "Can't connect to remote " + remoteAddresses + " + from local " + localAddresses);
         listener.onThrowable(cause);
         channelPromise.setFailure(cause);
       }
@@ -856,8 +843,7 @@ public final class DefaultHttpClient implements HttpClient {
                 openNewChannelRec(
                     remoteAddresses,
                     loggedProxyAddress,
-                    localIpV4Address,
-                    localIpV6Address,
+                    localAddresses,
                     nextI,
                     channelPromise,
                     bootstrap,

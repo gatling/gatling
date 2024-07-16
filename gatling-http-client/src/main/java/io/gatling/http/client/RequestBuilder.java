@@ -36,7 +36,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.util.AsciiString;
-import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
@@ -55,8 +54,7 @@ public final class RequestBuilder {
   private RequestBodyBuilder bodyBuilder;
   private long requestTimeout;
   private boolean autoOrigin;
-  private InetAddress localIpV4Address;
-  private InetAddress localIpV6Address;
+  private LocalAddresses localAddresses;
   private Realm realm;
   private ProxyServer proxyServer;
   private Function<Request, Request> signatureCalculator;
@@ -107,13 +105,8 @@ public final class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setLocalIpV4Address(InetAddress localIpV4Address) {
-    this.localIpV4Address = localIpV4Address;
-    return this;
-  }
-
-  public RequestBuilder setLocalIpV6Address(InetAddress localIpV6Address) {
-    this.localIpV6Address = localIpV6Address;
+  public RequestBuilder setLocalAddresses(LocalAddresses localAddresses) {
+    this.localAddresses = localAddresses;
     return this;
   }
 
@@ -228,8 +221,7 @@ public final class RequestBuilder {
         body,
         requestTimeout,
         autoOrigin,
-        localIpV4Address,
-        localIpV6Address,
+        localAddresses,
         realm,
         proxyServer,
         signatureCalculator,
