@@ -60,10 +60,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def shareConnections: HttpProtocolBuilder = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
   def localAddress(address: String): HttpProtocolBuilder = localAddresses(address :: Nil)
   def localAddresses(addresses: String*): HttpProtocolBuilder = localAddresses(addresses.toList)
-  def localAddresses(addresses: List[String]): HttpProtocolBuilder = {
-    val (ipV4Addresses, ipV6Addresses) = addresses.map(InetAddress.getByName).partition(_.isInstanceOf[Inet4Address])
-    localAddresses(ipV4Addresses, ipV6Addresses)
-  }
+  def localAddresses(addresses: List[String]): HttpProtocolBuilder =
+    localAddresses0(addresses.map(InetAddress.getByName))
   def useAllLocalAddresses: HttpProtocolBuilder = useAllLocalAddressesMatching()
   def useAllLocalAddressesMatching(patterns: String*): HttpProtocolBuilder = {
     val compiledPatterns = patterns.map(_.r.pattern)
@@ -78,15 +76,13 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
         }
       }
 
-    localAddresses(filter(InetAddresses.AllIpV4LocalAddresses), filter(InetAddresses.AllIpV6LocalAddresses))
+    localAddresses0(filter(InetAddresses.AllLocalAddresses))
   }
 
-  private def localAddresses(ipV4Addresses: List[InetAddress], ipV6Addresses: List[InetAddress]): HttpProtocolBuilder =
+  private def localAddresses0(localAddresses: List[InetAddress]): HttpProtocolBuilder =
     this
-      .modify(_.protocol.enginePart.localIpV4Addresses)
-      .setTo(ipV4Addresses)
-      .modify(_.protocol.enginePart.localIpV6Addresses)
-      .setTo(ipV6Addresses)
+      .modify(_.protocol.enginePart.localAddresses)
+      .setTo(localAddresses)
 
   def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = this.modify(_.protocol.enginePart.maxConnectionsPerHost).setTo(max)
   def perUserKeyManagerFactory(f: Long => KeyManagerFactory): HttpProtocolBuilder = this.modify(_.protocol.enginePart.perUserKeyManagerFactory).setTo(Some(f))

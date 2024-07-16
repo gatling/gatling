@@ -183,16 +183,11 @@ abstract class RequestExpressionBuilder(
       case _ => Validation.unit
     }
 
-  private val hasIpV4Addresses = httpProtocol.enginePart.localIpV4Addresses.nonEmpty
-  private val hasIpV6Addresses = httpProtocol.enginePart.localIpV6Addresses.nonEmpty
-  private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit = {
-    if (hasIpV4Addresses) {
-      LocalAddressSupport.localIpV4Address(session).foreach(requestBuilder.setLocalIpV4Address)
+  private val hasLocalAddresses = httpProtocol.enginePart.localAddresses.nonEmpty
+  private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit =
+    if (hasLocalAddresses) {
+      LocalAddressSupport.localAddresses(session).foreach(requestBuilder.setLocalAddresses)
     }
-    if (hasIpV6Addresses) {
-      LocalAddressSupport.localIpV6Address(session).foreach(requestBuilder.setLocalIpV6Address)
-    }
-  }
 
   private val maybeSignatureCalculator: Option[(Request, Session) => Validation[Request]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)

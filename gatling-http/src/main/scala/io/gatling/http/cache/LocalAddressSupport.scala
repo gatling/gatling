@@ -16,64 +16,91 @@
 
 package io.gatling.http.cache
 
-import java.net.InetAddress
+import java.net.{ Inet4Address, Inet6Address, InetAddress, InetSocketAddress }
 
 import scala.collection.immutable.ArraySeq
 
 import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.client.LocalAddresses
 import io.gatling.http.protocol.HttpProtocol
 
 private[http] object LocalAddressSupport {
-  private val LocalIpV4AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV4Address")
-  private val LocalIpV6AddressAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localIpV6Address")
+  private val LocalAddressesAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.localAddresses")
 
-  def setLocalAddresses(httpProtocol: HttpProtocol): Session => Session = {
-    val ipV4Addresses = httpProtocol.enginePart.localIpV4Addresses
-    val ipV6Addresses = httpProtocol.enginePart.localIpV6Addresses
-
-    ipV4Addresses match {
-      case Nil =>
-        ipV6Addresses match {
-          case Nil =>
-            Session.Identity
-          case singleIpV6Address :: Nil =>
-            _.set(LocalIpV6AddressAttributeName, singleIpV6Address)
-          case ipV6Addresses =>
-            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
-            _.set(LocalIpV6AddressAttributeName, itV6.next())
-        }
-      case singleIpV4Address :: Nil =>
-        ipV6Addresses match {
-          case Nil =>
-            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
-          case singleIpV6Address :: Nil =>
-            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
-              .set(LocalIpV6AddressAttributeName, singleIpV6Address)
-          case _ =>
-            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
-            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
-              .set(LocalIpV6AddressAttributeName, itV6.next())
-        }
-
-      case _ =>
-        val itV4 = CircularIterator(ArraySeq.from(ipV4Addresses), threadSafe = true)
-        ipV6Addresses match {
-          case Nil =>
-            _.set(LocalIpV4AddressAttributeName, itV4.next())
-          case singleIpV6Address :: Nil =>
-            _.set(LocalIpV4AddressAttributeName, itV4.next())
-              .set(LocalIpV6AddressAttributeName, singleIpV6Address)
-          case _ =>
-            val itV6 = CircularIterator(ArraySeq.from(ipV6Addresses), threadSafe = true)
-            _.set(LocalIpV4AddressAttributeName, itV4.next())
-              .set(LocalIpV6AddressAttributeName, itV6.next())
-        }
+  private def inetSocketAddressesIterator(inetAddresses: List[InetAddress]): Iterator[InetSocketAddress] = {
+    val inetSocketAddressesWithRandomLocalPort = inetAddresses.map(new InetSocketAddress(_, 0))
+    inetSocketAddressesWithRandomLocalPort match {
+      case Nil           => Iterator.continually(null)
+      case single :: Nil => Iterator.continually(single)
+      case _             => CircularIterator(ArraySeq.from(inetSocketAddressesWithRandomLocalPort), threadSafe = true)
     }
   }
 
-  def localIpV4Address(session: Session): Option[InetAddress] =
-    session.attributes.get(LocalIpV4AddressAttributeName).map(_.asInstanceOf[InetAddress])
-  def localIpV6Address(session: Session): Option[InetAddress] =
-    session.attributes.get(LocalIpV6AddressAttributeName).map(_.asInstanceOf[InetAddress])
+  def setLocalAddresses(httpProtocol: HttpProtocol): Session => Session = {
+    val allLocalAddresses = httpProtocol.enginePart.localAddresses
+
+    if (allLocalAddresses.isEmpty) {
+      Session.Identity
+    } else {
+      val allLinkLocalIpV4Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet4Address => addr.isLinkLocalAddress
+          case _                  => false
+        }
+
+      val allSiteLocalIpV4Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet4Address => addr.isSiteLocalAddress
+          case _                  => false
+        }
+
+      val allPublicIpV4Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet4Address => !addr.isLinkLocalAddress && !addr.isSiteLocalAddress
+          case _                  => false
+        }
+
+      val allLinkLocalIpV6Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet6Address => addr.isLinkLocalAddress
+          case _                  => false
+        }
+
+      val allSiteLocalIpV6Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet6Address => addr.isSiteLocalAddress
+          case _                  => false
+        }
+
+      val allPublicIpV6Addresses = allLocalAddresses
+        .filter {
+          case addr: Inet6Address => !addr.isLinkLocalAddress && !addr.isSiteLocalAddress
+          case _                  => false
+        }
+
+      val allLinkLocalIpV4AddressesIt = inetSocketAddressesIterator(allLinkLocalIpV4Addresses)
+      val allSiteLocalIpV4AddressesIt = inetSocketAddressesIterator(allSiteLocalIpV4Addresses)
+      // WARN: if we don't have any public local IPv4 and try to connect to a IPv4 destination, we can hope we have a NAT64 to do the translation
+      val allPublicIpV4AddressesIt = inetSocketAddressesIterator(if (allPublicIpV4Addresses.nonEmpty) allPublicIpV4Addresses else allPublicIpV6Addresses)
+      val allLinkLocalIpV6AddressesIt = inetSocketAddressesIterator(allLinkLocalIpV6Addresses)
+      val allSiteLocalIpV6AddressesIt = inetSocketAddressesIterator(allSiteLocalIpV6Addresses)
+      val allPublicIpV6AddressesIt = inetSocketAddressesIterator(allPublicIpV6Addresses)
+
+      _.set(
+        LocalAddressesAttributeName,
+        new LocalAddresses(
+          allLinkLocalIpV4AddressesIt.next(),
+          allSiteLocalIpV4AddressesIt.next(),
+          allPublicIpV4AddressesIt.next(),
+          allLinkLocalIpV6AddressesIt.next(),
+          allSiteLocalIpV6AddressesIt.next(),
+          allPublicIpV6AddressesIt.next()
+        )
+      )
+    }
+  }
+
+  def localAddresses(session: Session): Option[LocalAddresses] =
+    session.attributes.get(LocalAddressesAttributeName).map(_.asInstanceOf[LocalAddresses])
 }
