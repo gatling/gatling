@@ -46,6 +46,6 @@ languages:
   default: java
   labels:
     - java: Java
+    - js: JavaScript
     - kt: Kotlin
     - scala: Scala
-    - js: JavaScript
