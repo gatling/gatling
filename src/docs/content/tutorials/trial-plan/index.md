@@ -24,7 +24,7 @@ You have 2 options to evaluate the capabilities of Gatling Enterprise:
 
 - Do not automatically convert to a paid plan when the trial ends.
 
-### Sales-assisted 
+### Sales-assisted
 
 - The Sales team supports you with a professional process and customized terms and conditions,
 
@@ -53,9 +53,9 @@ Load testing is a way of ensuring that your digital service (website, web app, A
 
 We recommend that you quickly create a straightforward load test simulating the activity of a small part of your desired virtual users.
 
-- Create a test in 1-min [specifying a website ]({{< ref "/quickstart/" >}}) URL
+- Create a test in 1-min [specifying a website ]({{< ref "/tutorials/quickstart" >}}) URL
 
-- [Use your existing Gatling script]({{< ref "/scripting-intro/#run-the-simulation-on-gatling-enterprise-cloud" >}})
+- [Use your existing Gatling script]({{< ref "/tutorials/scripting-intro#run-the-simulation-on-gatling-enterprise-cloud" >}})
 
 To test the following features:
 
@@ -136,7 +136,7 @@ The sales-assisted trial as the following limits:
 |          Support         |      Sales Team      |                                                                                                      |
 |            SLA           | Evaluation agreement |                                                                                                      |
 
-With 1 load generator, you can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. See our [FAQ]({{< ref "/faq/#how-much-load-can-1-load-injector-generate-with-gatling" >}}).
+With 1 load generator, you can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. See our [FAQ]({{< ref "/tutorials/faq#how-much-load-can-1-load-injector-generate-with-gatling" >}}).
 
 So you can run tests with many concurrent virtual users during the trial.
 
