@@ -90,3 +90,4 @@ security:
       - ^babel$
       - ^go$
       - ^npx$
+      - ^postcss$
