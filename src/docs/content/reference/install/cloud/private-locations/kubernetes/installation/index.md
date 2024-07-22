@@ -35,7 +35,7 @@ rules:
     verbs: ["create", "get", "patch", "update", "delete"]
   - apiGroups: ["batch"]
     resources: ["jobs"]
-    verbs: ["create", "deletecollection"]
+    verbs: ["create", "get", "deletecollection"]
 ```
 
 ### Example
@@ -67,7 +67,7 @@ rules:
     verbs: ["create", "get", "patch", "update", "delete"]
   - apiGroups: ["batch"]
     resources: ["jobs"]
-    verbs: ["create", "deletecollection"]
+    verbs: ["create", "get", "deletecollection"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
