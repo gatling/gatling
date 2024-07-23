@@ -9,6 +9,6 @@ ordering:
   - scripting-intro-js
   - recorder
   - advanced
-  - faq
   - trial-plan
+  - faq
 ---
