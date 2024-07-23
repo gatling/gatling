@@ -12,10 +12,10 @@ Either way, the Recorder generates a simple simulation that mimics your recorded
 
 If you're using the bundle or the Maven plugin, you can launch the Recorder with the following command:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:recorder
 Windows: mvnw.cmd gatling:recorder
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 For the JavaScript SDK:
 

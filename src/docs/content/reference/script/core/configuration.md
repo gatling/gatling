@@ -83,17 +83,17 @@ Setting environment variables works for each of the Gatling programming language
 
 In a shell session (MacOS and Linux) or CMD session (Windows) use the following command to set an environment variable:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<API-token-value>
 Windows: set GATLING_ENTERPRISE_API_TOKEN=<API-token-value>
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 You can confirm the environment variable is properly set with the following command: 
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: echo $GATLING_ENTERPRISE_API_TOKEN
 Windows: echo %GATLING_ENTERPRISE_API_TOKEN%
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 ### Pass a Java system property
 
@@ -101,17 +101,17 @@ To pass a Java system property, use `-Dprop=value` with any of the JVM build too
 
 #### Maven
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
 Windows: mvnw.cmd -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 #### Gradle
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
 Windows: gradle.bat -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 #### sbt
 

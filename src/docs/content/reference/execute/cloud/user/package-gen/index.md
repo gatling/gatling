@@ -33,23 +33,24 @@ To use the `enterpriseDeploy` command:
     - the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html).
 3. Run the `enterpriseDeploy` command:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:enterpriseDeploy
 Windows: mvnw.cmd gatling:enterpriseDeploy
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 {{< alert info >}}
-Learn how to work with environment variables, Java system properties, and JavaScript parameters in the [Configuration docummentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
+Learn how to work with environment variables, Java system properties, and JavaScript parameters in the
+[Configuration documentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
 {{< /alert >}}
 
 Alternatively, you can package your simulation and then upload it using the Gatling Enterprise UI. To package and upload your simulation:
 
 1. Run the command `enterprisePackage` in your local terminal:
 
-{{< code-toggle console >}}
-Linux/MacOS: ./mvnw gatling:enterprisePackage
-Windows: mvnw.cmd gatling:enterprisePackage
-{{</ code-toggle >}}
+    {{< platform-toggle >}}
+    Linux/MacOS: ./mvnw gatling:enterprisePackage
+    Windows: mvnw.cmd gatling:enterprisePackage
+    {{</ platform-toggle >}}
 
 2. Log in to Gatling Enterprise and go to the **Packages** page from the left-side navigation menu.
 3. Click **+ Create**. 
@@ -59,10 +60,10 @@ Windows: mvnw.cmd gatling:enterprisePackage
 
 Finally, you can get the list of all the available options with the `help` command:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:help
 Windows: mvnw.cmd gatling:help
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 {{< alert warning >}}
 These commands are only available since Gatling `3.11`. If you're using an older version, you'll have to upgrade.

@@ -54,10 +54,10 @@ The following is an example of what a real user might do with the application.
 
 Using the Recorder requires running Gatling in your local development environment. To install Gatling, follow the [Gatling installation]({{< ref "/reference/install/oss" >}}) instructions. Once you have installed Gatling, open the project in your IDE or terminal and launch the recorder:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:recorder
 Windows: mvnw.cmd gatling:recorder
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 For the JavaScript SDK:
 
@@ -115,7 +115,7 @@ Based on the scenario described in [Launch the Recorder](#launch-the-recorder) p
 
 The simulation is generated in the folder:
 
-{{< code-toggle console >}}
+{{< code-toggle >}}
 Java: src/test/java/
 JavaScript: src/
 {{</ code-toggle >}}
@@ -136,29 +136,29 @@ To deploy and run your simulation on Gatling Enterprise Cloud, use the following
 1. Generate an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) with the `Create` permission in your Gatling Enterprise Cloud account. 
 2. Add the API token to your current terminal session by replacing `<your-API-token>` with the API token generated in step 1 and running the following command:
 
-{{< code-toggle console >}}
-Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
-Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
-{{</ code-toggle >}}
+    {{< platform-toggle >}}
+    Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+    Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+    {{</ platform-toggle >}}
 
-JavaScript SDK: 
+    JavaScript SDK:
 
-```console
-Coming soon
-```
+    ```console
+    Coming soon
+    ```
 
 3. Run the following command in your terminal to deploy and start your simulation:
 
-{{< code-toggle console >}}
-Linux/MacOS: ./mvnw gatling:enterpriseStart
-Windows: mvnw.cmd gatling:enterpriseStart
-{{</ code-toggle >}}
+    {{< platform-toggle >}}
+    Linux/MacOS: ./mvnw gatling:enterpriseStart
+    Windows: mvnw.cmd gatling:enterpriseStart
+    {{</ platform-toggle >}}
 
-JavaScript SDK: 
+    JavaScript SDK:
 
-```console
-Coming soon
-```
+    ```console
+    Coming soon
+    ```
 
 Watch the Simulation deploy automatically and generate real-time reports.
 
@@ -167,19 +167,17 @@ Watch the Simulation deploy automatically and generate real-time reports.
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. Running a new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
 Using the terminal, you can launch your test with the following command in the project root directory:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:test
 Windows: mvnw.cmd gatling:test
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 JavaScript SDK: 
 
-{{< code-toggle console >}}
+{{< code-toggle >}}
 JavaScript: npx gatling run  --simulation  <simulation-name>
 TypeScript: npx gatling run  --typescript --simulation  <simulation-name>
 {{</ code-toggle >}}
-
-
 
 The Gatling interactive CLI starts and asks a series of questions. Answer the questions as follows: 
 

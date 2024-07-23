@@ -138,17 +138,17 @@ To deploy and run your simulation on Gatling Enterprise Cloud, use the following
 1. Generate an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) with the `Configure` permission in your Gatling Enterprise Cloud account. 
 2. Add the API token to your current terminal session by replacing `<your-API-token>` with the API token generated in step 1 and running the following command:
 
-{{< code-toggle console >}}
-Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
-Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
-{{</ code-toggle >}}
+    {{< platform-toggle >}}
+    Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+    Windows: set GATLING_ENTERPRISE_API_TOKEN=<your-API-token>
+    {{</ platform-toggle >}}
 
 3. Run the following command in your terminal to deploy and start your simulation:
 
-{{< code-toggle console >}}
-Linux/MacOS: ./mvnw gatling:enterpriseStart
-Windows: mvnw.cmd gatling:enterpriseStart
-{{</ code-toggle >}}
+    {{< platform-toggle >}}
+    Linux/MacOS: ./mvnw gatling:enterpriseStart
+    Windows: mvnw.cmd gatling:enterpriseStart
+    {{</ platform-toggle >}}
 
 Watch the Simulation deploy automatically and generate real-time reports.
 
@@ -158,10 +158,10 @@ The open-source version of Gatling allows you to run simulations locally, genera
 new or modified simulation locally is often useful to ensure it works before launching it on Gatling Enterprise Cloud.
 Using the Java SDK, you can launch your test with the following command in the project root directory:
 
-{{< code-toggle console >}}
+{{< platform-toggle>}}
 Linux/MacOS: ./mvnw gatling:test
 Windows: mvnw.cmd gatling:test
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Select `1 Run the Simulation locally` to start the test.
 

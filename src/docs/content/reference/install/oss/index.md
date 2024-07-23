@@ -91,7 +91,7 @@ https://github.com/gatling/gatling-js-demo/archive/refs/heads/main.zip{{< /butto
 
 You can run the pre-configured demo simulation from the `src/` folder with the following command:
 
-{{< code-toggle console >}}
+{{< code-toggle >}}
 JavaScript: npx gatling run --simulation computerdatabase
 TypeScript: npx gatling run --typescript --simulation computerdatabase
 {{</ code-toggle >}}
@@ -165,20 +165,19 @@ If you installed Gatling using a `ZIP` file download it comes pre-loaded with a 
 
 Use the following command to start Gatling in interactive mode:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:test
 Windows: mvnw.cmd gatling:test
-
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 ### Start the Gatling Recorder
 
 The [Gatling Recorder]({{< ref "/reference/script/protocols/http/recorder/" >}}) allows you to capture browser-based actions and convert them into a script. Use the following command to launch the Recorder:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:recorder
 Windows: mvnw.cmd gatling:recorder
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 For the JavaScript SDK:
 

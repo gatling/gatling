@@ -74,10 +74,10 @@ See each goal's section below for the relevant configuration options.
 
 You can directly launch the `gatling-maven-plugin` with the `test` goal:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:test
 Windows: mvnw.cmd gatling:test
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Use `mvn gatling:help -Ddetail=true -Dgoal=test` to print the description of all the available configuration options on
 the `test` goal.
@@ -93,10 +93,10 @@ The `gatling:test` goal runs in interactive mode and suggests the simulation cla
 
 You can launch the [Gatling Recorder]({{< ref "../../script/protocols/http/recorder" >}}):
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:recorder
 Windows: mvnw.cmd gatling:recorder
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Use `gatling:help -Ddetail=true -Dgoal=recorder` to print the description of all the available configuration options
 on the `recorder` goal.
@@ -163,10 +163,10 @@ You can, using the `gatling:enterpriseStart` command:
 By default, the Gatling plugin prompts the user to choose a simulation to start from amongst the deployed simulations.
 However, users can also specify the simulation name directly to bypass the prompt using the following command:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
 Windows: mvnw.cmd gatling:enterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
@@ -186,10 +186,10 @@ Here are additional options for this command:
 
 You can directly package your simulations for Gatling Enterprise Cloud using:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:enterprisePackage
 Windows: mvnw.cmd gatling:enterprisePackage
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 This will generate the `target/<artifactId>-<version>-shaded.jar` package which you can then
 [upload to the Cloud]({{< ref "reference/execute/cloud/user/package-conf" >}}).
@@ -220,10 +220,10 @@ You can also configure either of those using [Java System properties](https://do
 
 Then package and upload your simulation to Gatling Enterprise Cloud:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./mvnw gatling:enterpriseUpload
 Windows: mvnw.cmd gatling:enterpriseUpload
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 #### Private packages
 

@@ -183,23 +183,24 @@ By default, the `gatlingRun` task runs in interactive mode and suggests the simu
 
 For example, to run a simulation:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingRun
 Windows: gradlew.bat gatlingRun
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Run a single simulation by its FQN (fully qualified class name):
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingRun --simulation com.project.simu.MySimulation
 Windows: gradlew.bat gatlingRun --simulation com.project.simu.MySimulation
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 You can run all simulations with the `--all` option:
-{{< code-toggle console >}}
+
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingRun --all
 Windows: gradlew.bat gatlingRun --all
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 The following configuration options are available. Those options are similar to
 global `gatling` configurations. Options are used in a fallback manner, i.e. if
@@ -216,10 +217,10 @@ an option is not set the value from the `gatling` global config is taken.
 
 You can launch the [Gatling Recorder]({{< ref "../../script/protocols/http/recorder" >}}):
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingRecorder
 Windows: gradlew.bat gatlingRecorder
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 ### Running your simulations on Gatling Enterprise Cloud
 
@@ -281,10 +282,10 @@ You can, using the `gatlingEnterpriseStart` command:
 By default, the Gatling plugin prompts the user to choose a simulation to start from amongst the deployed simulations.
 However, users can also specify the simulation name directly to bypass the prompt using the following command:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingEnterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
 Windows: gradlew.bat gatlingEnterpriseStart -Dgatling.enterprise.simulationName="<simulation name>"
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
@@ -308,10 +309,10 @@ Here are additional options for this command:
 
 You can directly package your simulations for Gatling Enterprise Cloud using:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingEnterprisePackage
 Windows: gradlew.bat gatlingEnterprisePackage
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 This will generate the `build/libs/<artifactId>-<version>-tests.jar` package which you can then
 [upload to the Cloud]({{< ref "reference/execute/cloud/user/package-conf" >}}).
@@ -338,10 +339,10 @@ You can also configure either of those using [Java System properties](https://do
 
 Then package and upload your simulation to Gatling Enterprise Cloud:
 
-{{< code-toggle console >}}
+{{< platform-toggle >}}
 Linux/MacOS: ./gradlew gatlingEnterpriseUpload
 Windows: gradlew.bat gatlingEnterpriseUpload
-{{</ code-toggle >}}
+{{</ platform-toggle >}}
 
 #### Private packages
 
