@@ -28,7 +28,9 @@ Once you have created a simulation you want to upload, you can use the `enterpri
 To use the `enterpriseDeploy` command:
 
 1. Create an [API token]({{< ref "/reference/execute/cloud/admin/api-tokens" >}}) in Gatling Enterprise. 
-2. Set the API token in your local environment.
+2. Set the API token in your local environment using either:
+    - the `GATLING_ENTERPRISE_API_TOKEN` environment variable,
+    - the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html).
 3. Run the `enterpriseDeploy` command:
 
 {{< code-toggle console >}}
