@@ -140,6 +140,10 @@ Since you probably don’t want to include you secret token in your source code,
 - the `GATLING_ENTERPRISE_API_TOKEN` environment variable
 - the `gatling.enterprise.apiToken` [Java System property](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
 
+{{< alert info >}}
+Learn how to work with environment variables and Java system properties in the [Configuration docummentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
+{{< /alert >}}
+
 If really needed, you can also configure it in your build.sbt:
 ```scala
 Gatling / enterpriseApiToken := "YOUR_API_TOKEN"

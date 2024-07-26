@@ -148,6 +148,10 @@ Since you probably don't want to include you secret token in your source code, y
 - the `GATLING_ENTERPRISE_API_TOKEN` environment variable
 - the `--api-token` option
 
+{{< alert info >}}
+Learn how to work with environment variables and JavaScript parameters in the [Configuration docummentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
+{{< /alert >}}
+
 #### Packaging your simulations for Gatling Enterprise Cloud
 
 Use the `enterprise-package` command to create a package of your simulations to deploy on Gatling Enterprise.

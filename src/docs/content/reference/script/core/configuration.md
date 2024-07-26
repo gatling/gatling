@@ -40,14 +40,14 @@ Gatling uses a fallback strategy, where:
 
 `gatling-defaults.conf` is shipped in the gatling-core jar and must not be tampered.
 
-`gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a maven/gradle/sbt project and in `conf` in the bundle distribution.
+`gatling.conf` is the default name of the user defined file. It's resolved from the ClassLoader, not the filesystem, meaning it must be placed in `src/test/resources` for a Maven, Gradle, or sbt project.
 
 This file name can be changed with a System property named `gatling.conf.file`, eg `-Dgatling.conf.file=gatling-special.conf`. Again, beware it's loaded from the ClassLoader, not the filesystem, eg:
 
 * `-Dgatling.conf.file=src/test/resource/gatling-special.conf` is incorrect
 * `-Dgatling.conf.file=gatling-special.conf` where `gatling-special.conf` is placed in `src/test/resource` is correct
 
-The bundle distribution and the maven/gradle/sbt plugins demo projects contain an easy-to-edit `gatling.conf` file with all the available properties commented with the default values.
+The bundle distribution and the Maven, Gradle, and sbt plugin demo projects contain an easy-to-edit `gatling.conf` file with all the available properties commented with the default values.
 
 If you want to override default values, you have two possibilities:
 
@@ -58,54 +58,74 @@ If you want to override default values, you have two possibilities:
 When editing `gatling.conf`, don't forget to remove the leading `#` that comments the line, otherwise your change will be ineffective.
 {{< /alert >}}
 
-## Zip Bundle Command Line Options {#cli-options}
+## Command Line Options {#cli-options}
 
-The Zip bundle can be used to start Gatling locally, or with the Enterprise cloud edition. Run the `gatling.bat` file if you run on Windows, or the `gatling.sh` file if you run on MacOS or Linux.
+Each distribution of Gatling comes with a CLI which can be used to select run time options. Use the following commands to access the full list of available options:
 
-Gatling can be started with several options listed below:
+| Build tool                                   | Plugin or Package manager      | Wrapper (Windows)          | Wrapper (MacOS/Linux)    |
+|----------------------------------------------|-----------------------|----------------------------|--------------------------|
+| Maven </br>(including the standalone bundle) | `mvn gatling:help`    | `mvnw.cmd gatling:help`    | `./mvnw gatling:help`    |
+| NPM                                          | `npx gatling --help`  |             --             |            --            |
+| Gradle                                       | `gradle tasks` | `gradlew.bat tasks` | `./gradlew tasks` |
+| sbt                                          | `sbt help Gatling`      |             --             |            --            |
 
-Common options:
+## Manage configuration values
 
-| Option (short)     | Option (long)                      | Description                                                                                                                                          |
-| --- | --- | --- |
-| `-h`               | `--help`                           | Show help (this message) and exit                                                                                                                    |
-| `-rm <value>`      | `--run-mode <value>`               | Specify if you want to run the Simulation locally, on Gatling Enterprise or package the simulation. Options are `local`, `enterprise` and `package`  |
+Some Gatling functionalities require environment variables or Java system properties. This guide provides instructions for how you can apply specific values to your project. This guide does not cover setting environment variables permanently. If you wish to do this, you need to consult the documentation for your chosen shell. 
 
-Options used when compiling your Gatling simulations:
+All of the following examples demonstrate the API token use case.
 
-| Option (short)  | Option (long)                      | Description                                                                                        |
-| --- | --- | --- |
-| `-sf <path>`    | `--simulations-folder <path>`      | Uses `<path>` as the folder where simulations are stored                                           |
-| `-bf <path>`    | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
-| `-eso <value>`  | `----extra-scalac-options <value>` | Defines additional scalac options for the compiler                                                 |
-| `-ecjo <value>` | `--extra-compiler-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when compiling your code (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
+### Export or set an environment variable 
 
-Options used when running Gatling locally:
+This procedure exports (MacOS and Linux) or sets (Windows), an environment variable for the duration of your session. Once you close or terminate the terminal session, you need to set the environment variable again. 
 
-| Option (short)     | Option (long)                      | Description                                                                                        |
-| --- | --- | --- |
-| `-nr`              | `--no-reports`                     | Runs simulation but does not generate reports                                                      |
-| `-ro <folderName>` | `--reports-only <folderName>`      | Generates the reports for the simulation log file located in `<gatling_home>/results/<folderName>` |
-| `-rf <path>`       | `--results-folder <path>`          | Uses `<path>` as the folder where results are stored                                               |
-| `-rsf <path>`      | `--resources-folder <path>`        | Uses `<path>` as the folder where resources are stored                                             |
-| `-bf <path>`       | `--binaries-folder <path>`         | Uses `<path>` as the folder where simulation binaries are stored                                   |
-| `-s <className>`   | `--simulation <className>`         | Uses `<className>` as the name of the simulation to be run                                         |
-| `-rd <description>`| `--run-description <description>`  | A short `<description>` of the run to include in the report                                        |
-| `-erjo`            | `--extra-run-jvm-options "-Option1 -Option2"` | Defines additional JVM options used when running your code locally (e.g. setting the heap size with "-Xms2G -Xmx4G"). See https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html for available options. |
+Setting environment variables works for each of the Gatling programming language SDKs. 
 
-Options used when running Gatling on Gatling Enterprise:
+In a shell session (MacOS and Linux) or CMD session (Windows) use the following command to set an environment variable:
 
-| Option (short) | Option (long)                                    | Description                                                                         |
-|----------------|--------------------------------------------------|-------------------------------------------------------------------------------------|
-| `-bm`          | `--batch-mode`                                   | No interactive user input will be asked                                             |
-| `-wre`         | `--wait-for-run-end`                             | Wait for the result after starting the simulation on Gatling Enterprise             |
-| `-at <token>`  | `--api-token <token>`                            | Gatling Enterprise's API token with the 'Configure' role                            |
-| `-sid <id>`    | `--simulation-id <id>`                           | Specifies the Gatling Enterprise Simulation, when creating a new Simulation         |
-| `-pid`         | `--package-id <id>`                              | Specifies the Gatling Enterprise Package, when creating a new Simulation            |
-| `-tid`         | `--team-id <id>`                                 | Specifies the Gatling Enterprise Team, when creating a new Simulation               |
-| `-s`           | `--simulation <className>`                       | Runs `<className>` simulation                                                       |
-| `-ssp`         | `--simulation-system-properties k1=v1,k2=v2`     | Optional System Properties used when starting the Gatling Enterprise simulation     |
-| `-sev`         | `--simulation-environment-variables k1=v1,k2=v2` | Optional Environment Variables used when starting the Gatling Enterprise simulation |
+{{< code-toggle console >}}
+Linux/MacOS: export GATLING_ENTERPRISE_API_TOKEN=<API-token-value>
+Windows: set GATLING_ENTERPRISE_API_TOKEN=<API-token-value>
+{{</ code-toggle >}}
+
+You can confirm the environment variable is properly set with the following command: 
+
+{{< code-toggle console >}}
+Linux/MacOS: echo $GATLING_ENTERPRISE_API_TOKEN
+Windows: echo %GATLING_ENTERPRISE_API_TOKEN%
+{{</ code-toggle >}}
+
+### Pass a Java system property
+
+To pass a Java system property, use `-Dprop=value` with any of the JVM build tools. The following example passes and API token and starts a simulation on Gatling Enterprise:
+
+#### Maven
+
+{{< code-toggle console >}}
+Linux/MacOS: ./mvnw -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
+Windows: mvnw.cmd -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
+{{</ code-toggle >}}
+
+#### Gradle
+
+{{< code-toggle console >}}
+Linux/MacOS: ./gradlew -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
+Windows: gradle.bat -Dgatling.enterprise.apiToken=<API-token-value> gatling:enterpriseStart
+{{</ code-toggle >}}
+
+#### sbt
+
+```
+sbt -Dgatling.enterprise.apiToken=<API-token-value> Gatling/enterpriseStart
+```
+
+### Pass a JavaScript parameter 
+
+The JavaScript and Typescript SDK allows you to pass command line arguments to set parameters such as an API token. To pass a parameter, use the appropriate flag and value. The following example is for an API token with the `enterprise-deploy` command:
+
+``` console
+npx gatling enterprise-deploy --api-token <API-token-value>
+```
 
 ## $JAVA_OPTS
 
