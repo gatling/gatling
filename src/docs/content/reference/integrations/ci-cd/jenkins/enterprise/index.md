@@ -78,7 +78,7 @@ pipeline {
     stages {
         stage("Gatling Enterprise simulation") {
             steps {
-                gatlingFrontLineLauncherStep credentialId: 'MY_JENKINS_CREDENTIAL_ID', simulationId: '00eacd1c-ef91-4076-ad57-99b4c6675a9e'
+                gatlingFrontLineLauncherStep credentialId: 'GATLING_API_TOKEN', simulationId: '00eacd1c-ef91-4076-ad57-99b4c6675a9e'
             }
         }
     }
@@ -89,7 +89,7 @@ pipeline {
 ```groovy
 node {
     stage("Gatling Enterprise simulation") {
-        gatlingFrontLineLauncherStep credentialId: 'MY_JENKINS_CREDENTIAL_ID', simulationId: '00eacd1c-ef91-4076-ad57-99b4c6675a9e'
+        gatlingFrontLineLauncherStep credentialId: 'GATLING_API_TOKEN', simulationId: '00eacd1c-ef91-4076-ad57-99b4c6675a9e'
     }
 }
 ```
