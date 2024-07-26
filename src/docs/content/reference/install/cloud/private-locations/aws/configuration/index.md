@@ -14,7 +14,7 @@ The follow recommendations help you to select the best instances and tune them f
 
 - We recommend instances with at least 4 cores for your load generators.
 - As Gatling load tests tend to be CPU bound, we recommend using instances from the "Compute Optimized" family.
-- In our experience, it seems that Intel CPUs perform better than AMD and ARM Graviton ones when it comes to TLS. As a result, we recommend using `c6i.xlarge` instances or larger.
+- In our experience, it seems that Intel CPUs perform better than AMD and ARM Graviton ones when it comes to TLS. As a result, we recommend using `c7i.xlarge` instances or larger.
 - You might want to tune the `Xmx` JVM options to half of the physical memory. See `jvm-options` configuration below. If you don't, the JVM will use a max heap size of 1/4th of the physical memory.
 
 {{<alert tip >}}
@@ -78,7 +78,7 @@ control-plane {
       # Security groups
       security-groups = ["sg-mysecuritygroup"]
       # Instance type
-      instance-type = "c6i.xlarge"
+      instance-type = "c7i.xlarge"
       # Spot instances (optional, default: false)
       # spot = true
       # Subnets
