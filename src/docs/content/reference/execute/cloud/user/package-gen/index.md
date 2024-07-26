@@ -38,6 +38,9 @@ Linux/MacOS: ./mvnw gatling:enterpriseDeploy
 Windows: mvnw.cmd gatling:enterpriseDeploy
 {{</ code-toggle >}}
 
+{{< alert info >}}
+Learn how to work with environment variables, Java system properties, and JavaScript parameters in the [Configuration docummentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
+{{< /alert >}}
 
 Alternatively, you can package your simulation and then upload it using the Gatling Enterprise UI. To package and upload your simulation:
 
