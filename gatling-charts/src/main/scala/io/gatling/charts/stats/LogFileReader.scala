@@ -16,20 +16,20 @@
 
 package io.gatling.charts.stats
 
-import java.io.InputStream
+import java.io.File
 import java.nio.ByteBuffer
-import java.nio.file.{ Files, Path }
+import java.nio.file.Path
 import java.util.Base64
 
 import scala.collection.mutable
 import scala.io.Source
+import scala.util.Using
 
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer._
-import io.gatling.shared.util.PathHelper
 
 import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
@@ -37,25 +37,22 @@ import com.typesafe.scalalogging.StrictLogging
 private[gatling] object LogFileReader extends StrictLogging {
   private val LogStep = 100000
   private val SecMillisecRatio: Double = 1000.0
-  private val SimulationFilesNamePattern = """.*\.log"""
 
   def apply(runUuid: String, resultsDirectory: Path, configuration: GatlingConfiguration): LogFileReader = {
-    val inputFiles = PathHelper
-      .deepFiles(simulationLogDirectory(runUuid, create = false, resultsDirectory))
-      .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
+    val logFile = LogFileDataWriter.logFile(resultsDirectory, runUuid, create = false).toFile
 
-    logger.info(s"Collected $inputFiles from $runUuid")
-    require(inputFiles.nonEmpty, "simulation directory doesn't contain any log file.")
+    logger.info(s"Collected $logFile from $runUuid")
+    require(logFile.exists(), s"Could not locate log file for $runUuid.")
 
-    new LogFileReader(inputFiles, configuration)
+    new LogFileReader(logFile, configuration)
   }
 }
 
-private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration: GatlingConfiguration) extends StrictLogging {
+private[gatling] final class LogFileReader(logFile: File, configuration: GatlingConfiguration) extends StrictLogging {
   import LogFileReader._
 
   def read(): LogFileData = {
-    val runInfo = parseInputFiles(firstPass)
+    val runInfo = parseLogFile(firstPass)
 
     val step = StatsHelper.step(
       math.floor(runInfo.injectStart / SecMillisecRatio).toInt,
@@ -66,19 +63,13 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
     val buckets = StatsHelper.buckets(0, runInfo.injectEnd - runInfo.injectStart, step)
     val bucketFunction = StatsHelper.timeToBucketNumber(runInfo.injectStart, step, buckets.length)
 
-    val resultsHolder = parseInputFiles(secondPass(runInfo, buckets, bucketFunction, _))
+    val resultsHolder = parseLogFile(secondPass(runInfo, buckets, bucketFunction, _))
 
     new LogFileData(runInfo, resultsHolder, step)
   }
 
-  private def parseInputFiles[T](f: Iterator[String] => T): T = {
-    def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
-      streams.map(Source.fromInputStream(_)(configuration.core.charset).getLines()).reduce((first, second) => first ++ second)
-
-    val streams = inputFiles.map(path => Files.newInputStream(path))
-    try f(multipleFileIterator(streams))
-    finally streams.foreach(_.close)
-  }
+  private def parseLogFile[T](f: Iterator[String] => T): T =
+    Using.resource(Source.fromFile(logFile)(configuration.core.charset))(source => f(source.getLines()))
 
   private def firstPass(records: Iterator[String]): RunInfo = {
     logger.info("First pass")
@@ -139,7 +130,7 @@ private[gatling] final class LogFileReader(inputFiles: Seq[Path], configuration:
 
     logger.info(s"First pass done: read $count lines")
 
-    val runMessage = runMessages.headOption.getOrElse(throw new UnsupportedOperationException(s"Files $inputFiles don't contain any valid run record"))
+    val runMessage = runMessages.headOption.getOrElse(throw new UnsupportedOperationException(s"Log file $logFile don't contain any valid run record"))
     assert(injectStart != Long.MaxValue, "Undefined run start")
     assert(injectEnd != Long.MinValue, "Undefined run end")
     assert(injectEnd > injectStart, s"Run didn't last")

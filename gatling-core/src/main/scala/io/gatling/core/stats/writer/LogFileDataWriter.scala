@@ -34,18 +34,7 @@ import io.gatling.core.util.Longs
 
 import com.typesafe.scalalogging.StrictLogging
 
-object BufferedFileChannelWriter {
-  def apply(runId: String, resultsDirectory: Path, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
-    val encoder = configuration.core.charset.newEncoder
-    val simulationLog = simulationLogDirectory(runId, create = true, resultsDirectory).resolve("simulation.log")
-    val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
-    val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
-
-    new BufferedFileChannelWriter(channel, encoder, bb)
-  }
-}
-
-final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEncoder, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
+private[writer] final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEncoder, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
   def flush(): Unit = {
     bb.flip()
     while (bb.hasRemaining) {
@@ -257,11 +246,20 @@ final class FileData(
     val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
+object LogFileDataWriter {
+  def logFile(resultsDirectory: Path, runId: String, create: Boolean): Path =
+    simulationLogDirectory(runId, create, resultsDirectory).resolve("simulation.log")
+}
+
 final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData]("file-data-writer") {
   override def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
-    val writer = BufferedFileChannelWriter(runMessage.runId, resultsDirectory, configuration)
+    val simulationLog = LogFileDataWriter.logFile(resultsDirectory, runMessage.runId, create = true).resolve("simulation.log")
+    val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
+    val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
+    val encoder = configuration.core.charset.newEncoder
+    val writer = new BufferedFileChannelWriter(channel, encoder, bb)
     val assertionSerializer = new AssertionSerializer(writer)
     assertions.foreach(assertion => assertionSerializer.serialize(assertion))
     new RunMessageSerializer(writer).serialize(runMessage)
