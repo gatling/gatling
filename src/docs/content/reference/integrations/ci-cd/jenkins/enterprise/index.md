@@ -70,8 +70,9 @@ You can use the Pipeline Snippet Generator to help you use the Jenkins Plugin. C
 {{< img src="pipeline-generator.png" alt="Snippet Generator" >}}
 
 If you don't want to use the globally configured API token, you can chose another one [stored in a Jenkins secret text credential]({{< ref "#api-token-and-jenkins-credentials" >}}). Choose one of the simulations in the drop-down menu, then click Generate Groovy. Copy and paste the result in your Pipeline script, eg:
+
+##### Declarative Pipeline Syntax:
 ```groovy
-// Declarative Pipeline Syntax
 pipeline {
     agent any
     stages {
@@ -82,8 +83,10 @@ pipeline {
         }
     }
 }
+```
 
-// Scripted Pipeline Syntax
+##### Scripted Pipeline Syntax:
+```groovy
 node {
     stage("Gatling Enterprise simulation") {
         gatlingFrontLineLauncherStep credentialId: 'MY_JENKINS_CREDENTIAL_ID', simulationId: '00eacd1c-ef91-4076-ad57-99b4c6675a9e'
