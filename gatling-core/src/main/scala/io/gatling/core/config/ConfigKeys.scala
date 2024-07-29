@@ -128,15 +128,6 @@ object ConfigKeys {
       val Light = "gatling.data.console.light"
       val WritePeriod = "gatling.data.console.writePeriod"
     }
-    object graphite {
-      val Light = "gatling.data.graphite.light"
-      val Host = "gatling.data.graphite.host"
-      val Port = "gatling.data.graphite.port"
-      val Protocol = "gatling.data.graphite.protocol"
-      val RootPathPrefix = "gatling.data.graphite.rootPathPrefix"
-      val BufferSize = "gatling.data.graphite.bufferSize"
-      val WritePeriod = "gatling.data.graphite.writePeriod"
-    }
     val EnableAnalytics = "gatling.data.enableAnalytics"
   }
 }

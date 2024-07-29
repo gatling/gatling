@@ -215,15 +215,6 @@ object GatlingConfiguration extends StrictLogging {
       leak = new LeakDataWriterConfiguration(
         noActivityTimeout = config.getInt(data.leak.NoActivityTimeout).seconds
       ),
-      graphite = new GraphiteDataWriterConfiguration(
-        light = config.getBoolean(data.graphite.Light),
-        host = config.getString(data.graphite.Host),
-        port = config.getInt(data.graphite.Port),
-        protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
-        rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
-        bufferSize = config.getInt(data.graphite.BufferSize),
-        writePeriod = config.getInt(data.graphite.WritePeriod).seconds
-      ),
       enableAnalytics = config.getBoolean(data.EnableAnalytics)
     )
 
@@ -348,7 +339,6 @@ final class DataConfiguration(
     val file: FileDataWriterConfiguration,
     val leak: LeakDataWriterConfiguration,
     val console: ConsoleDataWriterConfiguration,
-    val graphite: GraphiteDataWriterConfiguration,
     val enableAnalytics: Boolean
 ) {
   def fileDataWriterEnabled: Boolean = dataWriters.contains(DataWriterType.File)
@@ -364,16 +354,6 @@ final class LeakDataWriterConfiguration(
 
 final class ConsoleDataWriterConfiguration(
     val light: Boolean,
-    val writePeriod: FiniteDuration
-)
-
-final class GraphiteDataWriterConfiguration(
-    val light: Boolean,
-    val host: String,
-    val port: Int,
-    val protocol: TransportProtocol,
-    val rootPathPrefix: String,
-    val bufferSize: Int,
     val writePeriod: FiniteDuration
 )
 
