@@ -122,6 +122,7 @@ control-plane {
     type = "gcp"
     bucket = "bucket-name"
     path = "folder/to/upload" # (optional, default: root)
+    project = "project-name"
   }
 }
 ```
