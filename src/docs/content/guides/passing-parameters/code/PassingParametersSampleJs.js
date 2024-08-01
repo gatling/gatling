@@ -1,11 +1,11 @@
 //#injection-from-options
-import { getOption } from "@gatling.io/core";
+import { getParameter } from "@gatling.io/core";
 
-const nbUsers = parseInt(getOption(
+const nbUsers = parseInt(getParameter(
   "users", // Key used to identify the option
   "1" // Default value (optional)
 ));
-const myRamp = parseInt(getOption("ramp", "0"));
+const myRamp = parseInt(getParameter("ramp", "0"));
 
 setUp(scn.injectOpen(rampUsers(nbUsers).during(myRamp)));
 //#injection-from-options
