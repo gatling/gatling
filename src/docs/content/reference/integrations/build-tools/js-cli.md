@@ -113,7 +113,7 @@ in `src/my-simulation.gatling.js` or `src/my-simulation.gatling.ts`:
 npx gatling run --simulation "my-simulation"
 ```
 
-You can pass options to you simulation using a `key=value` format, then read them using the `getOption` function in your
+You can pass options to you simulation using a `key=value` format, then read them using the `getParameter` function in your
 code (see [the Passing parameters guide]({{< ref "/guides/passing-parameters#javascript" >}})):
 
 ```shell

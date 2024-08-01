@@ -31,7 +31,7 @@ The Gatling command-line tool allows you to pass options to your simulation usin
 npx gatling run users=500 ramp=3600
 ```
 
-You can resolve these options directly in your code with the `getOption` function:
+You can resolve these options directly in your code with the `getParameter` function:
 
 {{< include-code "injection-from-options" js >}}
 
