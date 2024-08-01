@@ -86,6 +86,12 @@ You can either use the managed locations provided by Gatling Enterprise Cloud, o
 It is not currently possible to mix managed and private locations in the same simulation.
 {{< /alert >}}
 
+Managed location load generators have the following specifications:
+
+- 4 cores
+- 8GB of RAM
+- bandwidth up to 10 Gbit/s
+
 Gatling Enterprise managed locations are available in the following regions:
 
 - AP Pacific (Hong kong)
