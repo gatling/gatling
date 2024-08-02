@@ -40,7 +40,7 @@ Currently, Private Packages support the following underlying storages:
 Before going further, ensure that your repository is ready to hold your packages.
 {{< /alert >}}
 
-### Control plane server
+### Control plane server {#control-plane-server}
 
 The control plane with a private repository has a server to manage uploads to the repository, secured by a Gatling Enterprise Cloud API Token with `Configure` role.
 
@@ -83,6 +83,8 @@ This configuration includes the following parameters:
 Control plane with private repository needs AWS permissions `s3:PutObject`, `s3:DeleteObject` and `s3:GetObject` on the bucket.
 
 To download a private package, the location requires outbound connection access to `https://<bucket>.s3.<region>.amazonaws.com`.
+
+To upload a private package using HTTPS, please check this [section]({{< ref "#enableHttps" >}})
 {{< /alert >}}
 
 Once it is done, add the private repository configuration section in your [control plane configuration]({{< ref "introduction" >}}) file:
@@ -103,7 +105,7 @@ This configuration includes the following parameters:
 - **path:** The path of a folder in AWS S3 bucket. (optional)
 
 {{<alert tip>}}
-Simplify and speed up your AWS installation and configuration with Gatling's pre-built [Terraform modules]({{< ref "#configure-private-packages-with-terraform-aws-s3-only" >}})
+Simplify and speed up your AWS installation and configuration with Gatling's pre-built [Terraform modules]({{< ref "#configure-private-packages-with-terraform-aws" >}})
 {{</alert>}}
 
 #### GCP Cloud Storage
@@ -113,6 +115,8 @@ Control plane with private repository needs GCP service account role with permis
 `storage.objects.delete` and `iam.serviceAccounts.signBlob` on the bucket.
 
 To download a private package, the location requires outbound connection access to `https://storage.googleapis.com/<bucket>`.
+
+To upload a private package using HTTPS, please check this [section]({{< ref "#enableHttps" >}})
 {{< /alert >}}
 
 ```bash
@@ -186,28 +190,73 @@ This configuration includes the following parameters:
 - **location.download-base-url**: The access URL for the control-plane. This URL will be provided to the load-generators so that they can download your simulations. 
 
 
-## Configure private packages with Terraform (AWS S3-only)
+### Configure Private Packages with Terraform
 
-Gatling provides Terraform modules to set up AWS infrastructure for Private Locations with Private Packages. There are three required modules for a successful setup:
+Gatling provides Terraform modules to set up your infrastructure for Private Locations with Private Packages. There are three required modules for a successful setup:
 
 - specify the load generator location(s),
 - specify the private package,
 - deploy the control plane.
 
-To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment).
+#### AWS S3 {#configure-private-packages-with-terraform-aws}
+
+To use the Terraform module to setup your AWS Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AWS-private-package/main.tf).
+
+### Upload Private Packages using HTTPS {#enableHttps}
+
+#### AWS
+
+To enable HTTPS for your Control Plane container, there are two options:
+
+- Using an Application Load Balancer (ALB) (Recommended for production)
+  - Obtain a valid Domain Name and TLS Certificate. You can use AWS Certificate Manager for simplicity.
+  - Create an Application Load Balancer and configure it to listen on port 443.
+  - Attach TLS Certificate to the Application Load Balancer.
+  - If you optionally wish to implement TLS encryption on the traffic between ALB and Control Plane server, generate a certificate for the server and update [repository server configuration]({{< ref "#control-plane-server" >}}) in the Control Plane configuration with the generated certificate.
+  - Register your Control Plane as a target group associated with the ALB.
+  - Update ALB Security Group to allow inbound traffic on port 443 and allow outbound on your server's port (default: 8080) for the Control Plane Security Group.
+  - Update your Route53 or DNS provider settings to point domain or subdomain to the ALB using a CNAME record.
+- Direct IP Aliasing
+  - Obtain a valid Domain Name and TLS Certificate.
+  - Update the [repository server configuration]({{< ref "#control-plane-server" >}}) in the Control Plane configuration with the generated certificate.
+  - Update your Route53 or DNS provider settings to point domain or subdomain to the Control Plane's public IP using an A record.
+
+#### Azure
+
+By default, HTTPS is enabled for your Control Plane container on Azure when Ingress is enabled.
+
+- Use the Application URL with the following: `https://<app-name>.<region>.azurecontainerapps.io`
+- Modify Ingress settings in order adjust the Control Plane's Ingress configuration as needed.
+
+#### GCP
+
+To enable HTTPS for your Control Plane container on GCP, there are two options:
+
+- Using a Google Cloud HTTPS Load Balancer (Recommended for production)
+  - Obtain a valid domain name and TLS certificate. You can use Google-managed certificates for simplicity.
+  - Create a Google Cloud HTTPS Load Balancer and configure it to listen on port 443.
+  - Attach the TLS certificate to the HTTPS Load Balancer.
+  - If you optionally wish to implement TLS encryption on the traffic between Google Cloud HTTPS Load Balancer and Control Plane server, generate a certificate for the server and update [repository server configuration]({{< ref "#control-plane-server" >}}) in the Control Plane configuration with the generated certificate.
+  - Register your Control Plane as a backend service associated with the Load Balancer.
+  - Update the firewall rules to allow inbound traffic on port 443 and allow outbound traffic on your server's port (default: 8080) for the Control Plane's network.
+  - Update your Cloud DNS settings or your DNS provider to point your domain or subdomain to the Load Balancer's IP address using a CNAME or A record.
+- Direct IP Aliasing
+  - Obtain a valid domain name and TLS certificate.
+  - Update the [repository server configuration]({{< ref "#control-plane-server" >}}) in the Control Plane configuration with the generated certificate.
+  - Update your Cloud DNS settings or your DNS provider to point your domain or subdomain to the Control Plane's public IP address using an A record.
 
 ## Usage 
 
 After configuration, restart the control plane to start the server.
 
-### Creating a private package
+### Create a private package
 
 To create a private package, use Gatling Plugin deployment commands with control plane URL configured:
 - [Maven plugin]({{< ref "/reference/integrations/build-tools/maven-plugin#private-packages" >}})
 - [Gradle plugin]({{< ref "/reference/integrations/build-tools/gradle-plugin#private-packages" >}})
 - [sbt plugin]({{< ref "/reference/integrations/build-tools/sbt-plugin#private-packages" >}})
 
-### Deleting a private package
+### Delete a private package
 
 To delete a private package, delete the package within Gatling Enterprise Cloud. 
 The control plane will receive the order to delete the package on the configured private repository.
