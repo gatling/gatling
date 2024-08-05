@@ -140,7 +140,7 @@ Use the following JSON for the Amazon ECS Task, but first replace the following 
     "family": "gatling-control-plane-task",
     "containerDefinitions": [
         {
-            "name": "conf-loader-side-car",
+            "name": "conf-loader-init-container",
             "image": "amazon/aws-cli",
             "cpu": 0,
             "portMappings": [],
@@ -180,7 +180,7 @@ Use the following JSON for the Amazon ECS Task, but first replace the following 
             "volumesFrom": [],
             "dependsOn": [
                 {
-                    "containerName": "conf-loader-side-car",
+                    "containerName": "conf-loader-init-container",
                     "condition": "SUCCESS"
                 }
             ],
