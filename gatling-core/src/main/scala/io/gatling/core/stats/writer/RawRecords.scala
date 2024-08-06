@@ -29,7 +29,7 @@ private sealed abstract class RecordHeader(val value: String)
 
 sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
   def unapply(array: Array[String]): Option[Array[String]] =
-    if (array.length >= recordLength && array(0) == header.value) Some(array) else None
+    if (array.length == recordLength && array(0) == header.value) Some(array) else None
 }
 
 object RawRunRecord extends RawRecord(RecordHeader.Run, 6)
