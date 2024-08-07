@@ -106,3 +106,7 @@ You can either protect it with backticks `` `in` `` or use the `within` alias in
 To help you understand how to use assertions, here is a list of examples:
 
 {{< include-code "examples" >}}
+
+{{< alert tip >}}
+Gatling Enterprise includes ramp up and ramp down [time window options]({{< ref= /reference/execute/cloud/user/simulations/#step-4-time-window" >}}), which allow you to exclude warmup times from the assertions calculation. 
+{{< /alert >}}
