@@ -25,8 +25,8 @@ import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.LazyLogging
 
 object PopulationBuilder {

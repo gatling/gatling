@@ -20,8 +20,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 final case class SseSetCheckBuilder(
     requestName: Expression[String],

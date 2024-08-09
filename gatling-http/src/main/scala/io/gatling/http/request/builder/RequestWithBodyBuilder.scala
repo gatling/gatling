@@ -19,8 +19,8 @@ package io.gatling.http.request.builder
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.session._
 import io.gatling.http.request.BodyPart
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 
 object BodyAttributes {

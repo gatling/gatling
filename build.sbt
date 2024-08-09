@@ -29,6 +29,7 @@ lazy val root = Project("gatling-parent", file("."))
     commons,
     docSamples,
     jsonpath,
+    quicklens,
     core,
     coreJava,
     jdbc,
@@ -104,8 +105,11 @@ lazy val jsonpath = gatlingModule("gatling-jsonpath")
   .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 
+lazy val quicklens = gatlingModule("gatling-quicklens")
+  .settings(libraryDependencies ++= quicklensDependencies(scalaVersion.value))
+
 lazy val core = gatlingModule("gatling-core")
-  .dependsOn(nettyUtil)
+  .dependsOn(nettyUtil, quicklens)
   .dependsOn(commons % "compile->compile;test->test")
   .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)

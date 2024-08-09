@@ -4,6 +4,7 @@ object Dependencies {
   // Compile dependencies
 
   // format: OFF
+  private def scalaReflect(version: String)  = "org.scala-lang"                       % "scala-reflect"                     % version            % Provided
   private val gatlingSharedUtil              = "io.gatling"                          %% "gatling-shared-util"               % "0.0.8"
   private val gatlingSharedModel             = "io.gatling"                          %% "gatling-shared-model"              % "0.0.6"
   private val gatlingSharedCli               = "io.gatling"                           % "gatling-shared-cli"                % "0.0.3"
@@ -55,7 +56,6 @@ object Dependencies {
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
   private val bouncyCastle                   = "io.gatling"                           % "gatling-recorder-bc-shaded"        % "1.78.1"
-  private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                         % "1.9.7"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                         % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.2"
   private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.6"
@@ -123,6 +123,9 @@ object Dependencies {
   val jsonpathDependencies =
     Seq(gatlingSharedUtil, scalaParserCombinators, jackson) ++ testDeps
 
+  def quicklensDependencies(scalaVersion: String) =
+    Seq(scalaReflect(scalaVersion))
+
   val coreDependencies =
     Seq(
       gatlingSharedModel,
@@ -139,8 +142,7 @@ object Dependencies {
       nettyTcNativeBoringSslLinuxArm,
       nettyTcNativeBoringSslOsXX86,
       nettyTcNativeBoringSslOsXArm,
-      nettyTcNativeBoringSslWindows,
-      quicklens
+      nettyTcNativeBoringSslWindows
     ) ++
       parserDeps ++ testDeps
 
@@ -194,7 +196,7 @@ object Dependencies {
 
   val benchmarkDependencies = Seq(jmh)
 
-  val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, netty, quicklens) ++ testDeps
+  val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, netty) ++ testDeps
 
   val testFrameworkDependencies = Seq(gatlingSharedCli, testInterface)
 

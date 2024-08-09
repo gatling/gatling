@@ -27,8 +27,8 @@ import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, ResourceTx }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.DefaultHttpHeaders
 
 class HttpTxSpec extends BaseSpec {

@@ -20,8 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
   require(checks.nonEmpty, "Can't pass an empty check sequence")

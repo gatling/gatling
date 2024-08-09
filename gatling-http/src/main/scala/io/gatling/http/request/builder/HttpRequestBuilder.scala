@@ -34,8 +34,8 @@ import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
 import io.gatling.http.response.Response
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
 object HttpAttributes {

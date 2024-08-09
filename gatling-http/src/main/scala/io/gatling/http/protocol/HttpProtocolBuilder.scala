@@ -36,8 +36,8 @@ import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.{ HttpHelper, InetAddresses }
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }

@@ -23,8 +23,7 @@ import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.action.ws.{ OnConnectedChainEndActionBuilder, WsAwaitActionBuilder, WsConnect, WsFrameCheckSequenceBuilder }
 import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 final case class WsConnectRequestBuilder(
     commonAttributes: CommonAttributes,

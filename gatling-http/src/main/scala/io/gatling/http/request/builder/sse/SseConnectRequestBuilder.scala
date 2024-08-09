@@ -24,8 +24,8 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.action.sse.{ SseAwaitActionBuilder, SseConnect, SseMessageCheckSequenceBuilder }
 import io.gatling.http.request.builder.{ BodyAttributes, CommonAttributes, HttpAttributes, HttpRequestExpressionBuilder, RequestWithBodyBuilder }
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
 
 object SseConnectRequestBuilder {

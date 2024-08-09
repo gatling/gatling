@@ -30,8 +30,8 @@ import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
+import io.gatling.internal.quicklens._
 
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
 object CommonAttributes {

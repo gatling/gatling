@@ -17,8 +17,7 @@
 package io.gatling.http.protocol
 
 import io.gatling.commons.model.Credentials
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 object ProxyBuilder {
   def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, HttpProxy, None))

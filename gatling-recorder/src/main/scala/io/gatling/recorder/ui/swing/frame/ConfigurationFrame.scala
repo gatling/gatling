@@ -30,6 +30,7 @@ import scala.util.Try
 
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.core.filter.{ AllowList, DenyList }
+import io.gatling.internal.quicklens._
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
@@ -43,8 +44,6 @@ import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
-
-import com.softwaremill.quicklens._
 
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing

@@ -19,10 +19,10 @@ package io.gatling.recorder.render
 import scala.concurrent.duration.{ Duration, DurationLong }
 
 import io.gatling.http.util.HttpHelper
+import io.gatling.internal.quicklens._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.util.collection.RichSeq
 
-import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 

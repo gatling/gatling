@@ -17,8 +17,7 @@
 package io.gatling.core.feeder
 
 import io.gatling.core.config.GatlingConfiguration
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 private[gatling] trait NamedFeederBuilder extends FeederBuilder {
   def name: String

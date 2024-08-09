@@ -21,8 +21,7 @@ import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.ws.WsFrameCheck
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 final case class WsSendTextFrameBuilder(
     requestName: Expression[String],

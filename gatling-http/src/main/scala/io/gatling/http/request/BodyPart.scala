@@ -24,8 +24,7 @@ import io.gatling.core.body._
 import io.gatling.core.session._
 import io.gatling.http.client.Param
 import io.gatling.http.client.body.multipart._
-
-import com.softwaremill.quicklens._
+import io.gatling.internal.quicklens._
 
 object BodyPart {
   def rawFileBodyPart(
