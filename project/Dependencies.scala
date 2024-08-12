@@ -83,7 +83,7 @@ object Dependencies {
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
 
   // Docs dependencies
-  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.15.0"
+  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.16.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.1"
   private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.26.29"
   
