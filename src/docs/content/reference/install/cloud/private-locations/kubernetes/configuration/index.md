@@ -82,73 +82,9 @@ control-plane {
       #   type = custom
       #   image = "gatlingcorp/classic-openjdk:latest"
       # }
-      #
-      # Image pull secret
-      # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-      # image-pull-secret = "<your secret name>"
-      #
-      # Clean up finished jobs resources after given time (optional)
-      ttl-after-finished = 10 minutes
-      # Service account used for load generator pods (optional)
-      # service-account-name = "myServiceAccount"
-      # Labels of initiated resources (optional)
-      labels {
-        # ExampleKey = ExampleValue
-      }
-      # Annotations of initiated resources (optional)
-      annotations {
-        # ExampleKey = ExampleValue
-      }
-      # Node selector of initiated pods (optional)
-      node-selector {
-        # ExampleKey = ExampleValue
-      }
-      # Environment variables of initiated pods (optional)
-      environment-variables {
-        # ExampleKey = ExampleValue
-      }
-      # Resources configuration for created pods (optional).
-      # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container
-      # Even though this configuration is optional (when undefined, the default values for your cluster will be used),
-      # we STRONGLY recommend using specifications that are equal or above to the following values.
-      # We also recommend to set both requests and limits to the same values.
-      # 
-      resources {
-        limits {
-          # memory = "1Gi"
-          # cpu = "4.0"
-        }
-        requests {
-          # memory = "1Gi"
-          # cpu = "4.0"
-        }
-      }
-      # Tolerations (optional)
-      tolerations = [
-      #  {
-      #    key = key1
-      #    operator = Equal
-      #    # Value is not needed when effect is Exists (optional)
-      #    value = value1 
-      #    # An empty effect matches all effects with key (optional)
-      #    effect = NoSchedule
-      #  }
-      ]
-      
-      # Init Containers (optional)
-      init-containers = [
-      #  {
-      #     Name of the init container
-      #     name = "init-container-name-1"
-      #     Image of the init container
-      #     image = "init-container-image-1"
-      #     Override entrypoint of the image (optional)
-      #     command = ["printenv"]
-      #     Pass arguments to the entrypoint of the image (optional)  
-      #     args = ["HOSTNAME", "KUBERNETES_PORT"]
-      #  }
-        ]
-      
+      # Job definition (optional)
+      # See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#job-v1-batch for properties
+      job = { include "job.json" }
       # Java configuration (following configuration properties are optional)
       # System properties (optional)
       system-properties {
@@ -172,8 +108,89 @@ control-plane {
 }
 ```
 
-{{< alert info >}}
-The service account is optional; the control-plane Kubernetes defaults will be utilized instead.
-For example, in [Kubernetes installation]({{< ref "installation#example" >}}), the service account is configured on the control-plane container.
-{{< /alert >}}
+### Example JSON Job Definition
 
+When configuring the control plane, you may include a job definition that adheres to the [Kubernetes Job API schema](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#job-v1-batch). 
+This job definition manages the deployment and execution of Gatling simulations on Kubernetes.
+
+Several aspects of this job schema are enforced by the control plane:
+* `spec.parallelism`: Automatically set to match the number of instances configured for the simulation at the specified location, ensuring the workload is distributed as intended.
+* `spec.backoffLimit`: Set to 0 to disable any retries, ensuring that failed simulations do not automatically restart.
+* `spec.template.spec.restartPolicy`: Enforced as Never to prevent the creation of unintended instances.
+* `spec.template.spec.containers`: The job is restricted to a single container in the pod specification, which will run the Gatling simulation.
+* `spec.template.spec.containers[0].image`: The container image is determined by your configuration (certified or custom) and cannot be set within the job definition itself.
+* `spec.template.spec.containers[0].command`: Reserved for initiating the Gatling script and should not be modified within the job definition.
+
+Here is an example of a basic JSON job definition:
+```json
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "generateName": "gatling-job-",
+    "namespace": "gatling"
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "annotations": {
+          "example-key": "example-value"
+        },
+        "labels": {
+          "example-key": "example-value"
+        },
+        "namespace": "gatling"
+      },
+      "spec": {
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "env-key",
+                "value": "env-value"
+              }
+            ],
+            "name": "gatling-container",
+            "resources": {
+              "limits": {
+                "memory": "512Mi",
+                "cpu": "4"
+              },
+              "requests": {
+                "memory": "512Mi",
+                "cpu": "4"
+              }
+            }
+          }
+        ],
+        "securityContext": {
+          "sysctls": [
+            {
+              "name": "net.ipv4.tcp_tw_reuse",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    "ttlSecondsAfterFinished": 60
+  }
+}
+```
+
+#### Key Elements of the Example Job Definition
+
+* `apiVersion`: Specifies the API version for the Job resource, which is batch/v1 in this case.
+* `kind`: Indicates that this is a Job resource.
+* `metadata.generateName`: A prefix for the name of the job. Kubernetes will append a unique suffix to ensure the job name is unique.
+* `metadata.namespace`: The namespace in which the job will be created. Ensure this matches your configuration.
+* `spec.template.metadata`: Contains metadata such as annotations and labels for the job template.
+* `spec.template.spec.containers`: The container definition, including environment variables and resource limits.
+* `resources.limits and resources.requests`: Specify the resources (memory and CPU) the container can use and the minimum resources it is guaranteed.
+* `securityContext.sysctls`: Configures kernel parameters for the container, such as enabling TCP connection time wait reuse.
+* `ttlSecondsAfterFinished`: The job's time-to-live after completion. After this time, the job will be automatically deleted by Kubernetes.
+
+{{< alert info >}}
+This job definition is based on the Kubernetes Job API schema.
+For more details on the available properties and their configurations, please refer to the [Kubernetes Job API schema](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#job-v1-batch).
+{{< /alert >}}
