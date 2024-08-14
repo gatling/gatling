@@ -43,12 +43,20 @@ rules:
 The control plane requires a configuration under `/app/conf/control-plane.conf`, see [control plane configuration]({{< ref "configuration#control-plane-configuration-file" >}}).
 
 {{< alert tip >}}
-To do so, we'll create a config map named `control-plane-config` with a file named `control-plane.conf`, which will be mounted on the container:
+To accomplish this, create a config map called `control-plane-config` that includes a file named `control-plane.conf`. 
+This file is be mounted into the container using the following command:
 ```bash
 kubectl create configmap control-plane-config \
         --from-file=control-plane.conf
 ```
+If your configuration references additional files, you can include them as well:
+```bash
+kubectl create configmap control-plane-config \
+        --from-file=control-plane.conf \
+        --from-file=job.json
+```
 {{< /alert >}}
+
 ```yaml
 apiVersion: v1
 kind: ServiceAccount
