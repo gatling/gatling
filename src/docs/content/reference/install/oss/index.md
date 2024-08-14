@@ -111,7 +111,7 @@ https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-b
 {{< /button >}}
 
 {{< alert warning >}}
-The bundle only supports Java not, Scala and  Kotlin. To use Kotlin or Scala, you need [Maven, Gradle, or sbt]({{< ref "#zip-install" >}}) project.
+The bundle only supports Java, not Scala and Kotlin. To use Kotlin or Scala, you need [Maven, Gradle, or sbt]({{< ref "#zip-install" >}}) project.
 {{</ alert >}}
 
 {{< alert warning >}}
