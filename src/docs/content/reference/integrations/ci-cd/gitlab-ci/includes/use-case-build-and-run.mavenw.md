@@ -20,7 +20,7 @@ build-gatling-simulation:
   # for other useful options for Maven builds.
   image: azul/zulu-openjdk:17-latest
   script:
-    - mvn gatling:enterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
+    - ./mvnw gatling:enterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
 
 # Run the simulation on Gatling Enterprise
 run-gatling-enterprise:

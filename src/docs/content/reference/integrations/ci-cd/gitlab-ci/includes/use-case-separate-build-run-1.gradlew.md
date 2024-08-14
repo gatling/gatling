@@ -19,5 +19,5 @@ build-gatling-simulation:
   # for other useful options for Gradle builds.
   image: azul/zulu-openjdk:17-latest
   script:
-    - gradle gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
+    - ./gradlew gatlingEnterpriseUpload -Dgatling.enterprise.simulationId=$SIMULATION_ID
 ```
