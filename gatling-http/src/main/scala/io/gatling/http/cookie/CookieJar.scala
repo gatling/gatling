@@ -17,6 +17,7 @@
 package io.gatling.http.cookie
 
 import java.util.Locale
+import java.util.regex.Pattern
 
 import io.gatling.http.client.uri.Uri
 
@@ -66,6 +67,18 @@ private[cookie] object CookieJar {
       (requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 
   def apply(uri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = Empty.add(uri, cookies, nowMillis)
+
+  private val Ipv4LoopbackRegex = Pattern.compile("127.\\d{1,3}.\\d{1,3}.\\d{1,3}")
+  private def isLocalhost(host: String): Boolean =
+    host != null &&
+      (
+        host == "localhost" || host == "localhost." ||
+          host.endsWith(".localhost") || host.endsWith(".localhost.") ||
+          // The host matches a CIDR notation of ::1/128
+          host == "[::1]" || host == "[0000:0000:0000:0000:0000:0000:0000:0001]" ||
+          // The host matches a CIDR notation of 127.0.0.0/8
+          Ipv4LoopbackRegex.matcher(host).matches
+      )
 }
 
 private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
@@ -118,12 +131,12 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     } else {
       val domain = requestDomain(requestUri)
       val path = requestUri.getNonEmptyPath
-      val secure = requestUri.isSecured
+      val secureContext = isSecureContext(requestUri)
 
       val matchingCookies = store.filter { case (key, storedCookie) =>
         domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
         pathsMatch(key.path, path) &&
-        (secure || !storedCookie.cookie.isSecure)
+        (secureContext || !storedCookie.cookie.isSecure)
       }
 
       matchingCookies.toList
@@ -138,4 +151,9 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
         }
         .map(_._2.cookie)
     }
+
+  private def isSecureContext(uri: Uri): Boolean =
+    uri.getScheme == Uri.HTTPS ||
+      uri.getScheme == Uri.WSS ||
+      isLocalhost(uri.getHost)
 }

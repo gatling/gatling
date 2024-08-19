@@ -284,6 +284,17 @@ class CookieJarSpec extends BaseSpec {
     cookies.head.isSecure shouldBe true
   }
 
+  it should "should send secure cookies to localhost" in {
+    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    val cookie1 = decode("cookie1=VALUE1; Path=/; Secure")
+    val cookieStore = CookieJar(Uri.create("http://localhost/moodle/"), List(cookie1), System.currentTimeMillis())
+
+    val cookies = cookieStore.get(Uri.create("http://localhost/moodle/login"))
+    cookies should have size 1
+    cookies.head.value shouldBe "VALUE1"
+    cookies.head.isSecure shouldBe true
+  }
+
   it should "should also serve non secure cookies based on the uri scheme" in {
     // https://datatracker.ietf.org/doc/html/rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
     val cookie1 = decode("cookie1=VALUE1; Path=/")
