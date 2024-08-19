@@ -118,12 +118,12 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     } else {
       val domain = requestDomain(requestUri)
       val path = requestUri.getNonEmptyPath
-      val secure = requestUri.isSecured
+      val secureContext = isSecureContext(requestUri)
 
       val matchingCookies = store.filter { case (key, storedCookie) =>
         domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
         pathsMatch(key.path, path) &&
-        (secure || !storedCookie.cookie.isSecure)
+        (secureContext || !storedCookie.cookie.isSecure)
       }
 
       matchingCookies.toList
@@ -138,4 +138,27 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
         }
         .map(_._2.cookie)
     }
+
+  private def isSecureContext(uri: Uri): Boolean =
+    if (uri.getScheme == Uri.HTTPS || uri.getScheme == Uri.WSS) {
+      true
+    } else {
+      val host: String = uri.getHost
+      if (host == null) {
+        false
+      } else if (host == "[::1]" || host == "[0000:0000:0000:0000:0000:0000:0000:0001]") {
+        // The host matches a CIDR notation of ::1/128// The host matches a CIDR notation of ::1/128
+        true
+      } else if (host.matches("127.\\d{1,3}.\\d{1,3}.\\d{1,3}")) {
+        // The host matches a CIDR notation of 127.0.0.0/8// The host matches a CIDR notation of 127.0.0.0/8
+        true
+      } else if (host == "localhost" || host == "localhost.") {
+        true
+      } else if (host.endsWith(".localhost") || host.endsWith(".localhost.")) {
+        true
+      } else {
+        false
+      }
+    }
+
 }
