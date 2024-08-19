@@ -51,7 +51,7 @@ object Dependencies {
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.6"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.7"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
