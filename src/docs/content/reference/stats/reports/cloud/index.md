@@ -164,7 +164,7 @@ The DNS panel shows metrics related to DNS requests made during the run executio
 
 {{< img src="report-dns.png" alt="Report DNS panel" >}}
 
-### Load Generators
+### Load generators
 
 This panel shows metrics related to the CPU, heap, GC, and TCP events of the load generators VMs used for your run and configured in your [simulation]({{< ref "../../execute/cloud/user/simulations#creating-a-simulation" >}}).
 
@@ -187,11 +187,11 @@ Logs are archived and are inaccessible for successfully completed runs.
 The page header lets you edit your run title by clicking the {{< icon pencil >}} icon and gives you access to general actions:
 
 - [Public links]({{< ref "#shareable-links" >}})
-- [Print to PDF]({{< ref "#print-to-pdf" >}})
+- [Create custom report]({{< ref "#create-custom-report" >}})
 - [View properties]({{< ref "#properties" >}})
 
 
-### Generate Shareable Links {#shareable-links}
+### Generate shareable links {#shareable-links}
 
 A shareable link is a link to the current report that is accessible to anyone without having to log in to Gatling Enterprise. To generate a shareable link, click on the **Share** button in the **Actions** dropdown at the top right of your page and choose the expiration date of your link.
 
@@ -207,15 +207,15 @@ Choose an expiration date, then click the generate button.
 
 You can copy the shareable link to share your report to non-Gatling Enterprise users, or click on the **Shareable link** itself to access it. Click on the **OK** button to close this modal.
 
-### Print to PDF
+### Create custom report
 
-The "Print to PDF" option lets you create your own custom report. This custom report is visible online or in a PDF file that you can easily save and share.
+The "Create custom report" option lets you create your own custom report. This custom report is visible online or in a PDF file that you can easily save and share.
 
 All metrics and charts displayed in the [Report tab]({{< ref "#report" >}}) are available for your custom report. You can also create reusable templates for your future needs.
 
-Click the "Print to PDF" button in the **Actions** dropdown to access the configure and print PDF page.
+Click the **Create custom report** button in the dropdown menu to access the configure and print PDF page.
 
-{{< img src="report-print-button.png" alt="Print to PDF button" >}}
+{{< img src="create-custom-report.png" alt="Create custom report button" >}}
 
 This report is initialized with:
 
@@ -273,7 +273,7 @@ The **View properties** button, located in the top right action bar, shows every
 {{< img src="report-properties.png" alt="Run properties" >}}
 
 
-## Useful Tips {#tips}
+## Useful tips {#tips}
 
 ### Zoom
 
@@ -290,26 +290,26 @@ To ease your analysis, right-click on the charts to create markers. Click on the
 
 {{< img src="marker.png" alt="Marker" >}}
 
-### Multiple Highlights
+### Multiple highlights
 
 In the top right menu, you can activate the *Multiple Highlights* setting which allows the tooltip to be displayed on every chart at the same time.
 
 {{< img src="multiplehighlight.png" alt="Multiple" >}}
 
-### Percentiles Mask
+### Percentiles mask
 
 In the top right menu, you can click on the **Percentiles** setting to be able to choose which percentiles to display in the chart.
 
 {{< img src="percentilesmask.png" alt="Percentiles mask" >}}
 {{< img src="percentileschart.png" alt="Percentiles chart" >}}
 
-### Date Time / Elapsed Time
+### Date time / elapsed time
 
 In the top right menu, you can activate the **Date Time** setting which lets you switch from elapsed time to date time.
 
 {{< img src="datetime.png" alt="Multiple" >}}
 
-### Highlight Legend
+### Highlight legend
 
 If you hover your mouse over a label on the percentiles chart legend, you will be able to highlight the curve on the chart, leading to a better view of that curve.
 The highlight legend option is enabled for every "non stacked" graph.
