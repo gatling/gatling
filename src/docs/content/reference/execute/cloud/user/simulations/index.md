@@ -156,6 +156,10 @@ You can configure some ramp up/down time windows to be excluded when computing a
 Ramp up/down parameters will only be applied if the run duration is longer than the sum of the two.
 {{< /alert >}}
 
+{{< alert tip >}}
+Ramp up/down parameters can also be specified with the [public API]({{< ref "/reference/execute/cloud/user/api/" >}}) and the [package descriptor]({{< ref "/reference/execute/cloud/user/configuration-as-code/" >}}). 
+{{< /alert >}}
+
 ## Simulations table
 
 Once you have created a simulation, you can start it by clicking on the {{< icon play >}} icon.
