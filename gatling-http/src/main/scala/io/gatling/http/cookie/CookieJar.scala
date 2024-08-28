@@ -68,7 +68,7 @@ private[cookie] object CookieJar {
 
   def apply(uri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = Empty.add(uri, cookies, nowMillis)
 
-  private val Ipv4LoopbackRegex = Pattern.compile("127.\\d{1,3}.\\d{1,3}.\\d{1,3}")
+  private val Ipv4LoopbackRegex = Pattern.compile("""127\.\d{1,3}\.\d{1,3}\.\d{1,3}""")
   private def isLocalhost(host: String): Boolean =
     host != null &&
       (
