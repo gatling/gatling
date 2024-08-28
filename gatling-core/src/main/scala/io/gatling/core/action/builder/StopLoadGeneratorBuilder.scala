@@ -16,11 +16,11 @@
 
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.{ Action, StopInjector }
+import io.gatling.core.action.{ Action, StopLoadGenerator }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 
-private[core] class StopInjectorBuilder(message: Expression[String], condition: Expression[Boolean]) extends ActionBuilder {
+private[core] class StopLoadGeneratorBuilder(message: Expression[String], condition: Expression[Boolean]) extends ActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new StopInjector(message, condition, ctx.coreComponents.statsEngine, ctx.coreComponents.controller, next)
+    new StopLoadGenerator(message, condition, ctx.coreComponents.statsEngine, ctx.coreComponents.controller, next)
 }

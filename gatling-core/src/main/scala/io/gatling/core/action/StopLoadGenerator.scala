@@ -22,7 +22,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-final class StopInjector(
+final class StopLoadGenerator(
     message: Expression[String],
     condition: Expression[Boolean],
     val statsEngine: StatsEngine,
@@ -30,7 +30,7 @@ final class StopInjector(
     val next: Action
 ) extends ChainableAction
     with NameGen {
-  override val name: String = genName("stopInjector")
+  override val name: String = genName("stopLoadGenerator")
 
   override def execute(session: Session): Unit = recover(session) {
     for {
@@ -38,8 +38,8 @@ final class StopInjector(
       msg <- message(session)
     } yield {
       if (condition) {
-        logger.error(s"Requested injector to stop: $msg")
-        controller ! Controller.Command.StopInjector
+        logger.error(s"Requested load generator to stop: $msg")
+        controller ! Controller.Command.StopLoadGenerator
       } else {
         next ! session
       }

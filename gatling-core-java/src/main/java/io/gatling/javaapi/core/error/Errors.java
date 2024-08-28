@@ -25,7 +25,7 @@ import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.errors.ScalaExitBlockOnFail;
 import io.gatling.javaapi.core.internal.errors.ScalaExitHereIf;
-import io.gatling.javaapi.core.internal.errors.ScalaStopInjectorIf;
+import io.gatling.javaapi.core.internal.errors.ScalaStopLoadGeneratorIf;
 import io.gatling.javaapi.core.internal.errors.ScalaTryMax;
 import java.util.UUID;
 import java.util.function.Function;
@@ -228,73 +228,73 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the injector
+   * Have the virtual user abruptly stop the load generator
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjector(String message) {
-    return make(wrapped -> wrapped.stopInjector(toStringExpression(message)));
+  default T stopLoadGenerator(String message) {
+    return make(wrapped -> wrapped.stopLoadGenerator(toStringExpression(message)));
   }
 
   /**
-   * Have the virtual user abruptly stop the injector
+   * Have the virtual user abruptly stop the load generator
    *
    * @param message the message, expressed as a function
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjector(Function<Session, String> message) {
-    return make(wrapped -> wrapped.stopInjector(javaFunctionToExpression(message)));
+  default T stopLoadGenerator(Function<Session, String> message) {
+    return make(wrapped -> wrapped.stopLoadGenerator(javaFunctionToExpression(message)));
   }
 
   /**
-   * Have the virtual user abruptly stop the injector if a condition is met
+   * Have the virtual user abruptly stop the load generator if a condition is met
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjectorIf(String message, @NonNull String condition) {
-    return ScalaStopInjectorIf.apply(this, message, condition);
+  default T stopLoadGeneratorIf(String message, @NonNull String condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
-   * Have the virtual user abruptly stop the injector if a condition is met
+   * Have the virtual user abruptly stop the load generator if a condition is met
    *
    * @param message the message, expressed as a function
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjectorIf(
+  default T stopLoadGeneratorIf(
       Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
-    return ScalaStopInjectorIf.apply(this, message, condition);
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
-   * Have the virtual user abruptly stop the injector if a condition is met
+   * Have the virtual user abruptly stop the load generator if a condition is met
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjectorIf(String message, @NonNull Function<Session, Boolean> condition) {
-    return ScalaStopInjectorIf.apply(this, message, condition);
+  default T stopLoadGeneratorIf(String message, @NonNull Function<Session, Boolean> condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
-   * Have the virtual user abruptly stop the injector if a condition is met
+   * Have the virtual user abruptly stop the load generator if a condition is met
    *
    * @param message the message, expressed as a function
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
   @NonNull
-  default T stopInjectorIf(Function<Session, String> message, @NonNull String condition) {
-    return ScalaStopInjectorIf.apply(this, message, condition);
+  default T stopLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 }

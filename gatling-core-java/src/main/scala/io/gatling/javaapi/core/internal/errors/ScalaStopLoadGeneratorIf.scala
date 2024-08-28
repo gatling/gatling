@@ -24,33 +24,33 @@ import io.gatling.javaapi.core.error.Errors
 import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
 
-object ScalaStopInjectorIf {
+object ScalaStopLoadGeneratorIf {
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Errors[T, W],
       message: String,
       condition: String
   ): T =
-    context.make(_.stopInjectorIf(message.el, condition.el))
+    context.make(_.stopLoadGeneratorIf(message.el, condition.el))
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Errors[T, W],
       message: JavaExpression[jl.String],
       condition: JavaExpression[jl.Boolean]
   ): T =
-    context.make(_.stopInjectorIf(javaFunctionToExpression(message), javaBooleanFunctionToExpression(condition)))
+    context.make(_.stopLoadGeneratorIf(javaFunctionToExpression(message), javaBooleanFunctionToExpression(condition)))
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Errors[T, W],
       message: String,
       condition: JavaExpression[jl.Boolean]
   ): T =
-    context.make(_.stopInjectorIf(message.el, javaBooleanFunctionToExpression(condition)))
+    context.make(_.stopLoadGeneratorIf(message.el, javaBooleanFunctionToExpression(condition)))
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Errors[T, W],
       message: JavaExpression[jl.String],
       condition: String
   ): T =
-    context.make(_.stopInjectorIf(javaFunctionToExpression(message), condition.el))
+    context.make(_.stopLoadGeneratorIf(javaFunctionToExpression(message), condition.el))
 
 }

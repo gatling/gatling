@@ -345,7 +345,7 @@ content:
 
           - keyword: shard
             frontline: true
-            description: Distribute data amongst nodes when running a cluster of injectors
+            description: Distribute data amongst nodes when running a cluster of load generators
 
           - keyword: readRecords
             description: Return the feeder content as a <code>Seq[Map[String, Any]]</code>

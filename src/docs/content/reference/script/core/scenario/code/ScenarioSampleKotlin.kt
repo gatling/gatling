@@ -412,15 +412,15 @@ exitHereIf { session -> true }
 exitHereIfFailed()
 //#exitHereIfFailed
 
-//#stopInjector
-stopInjector("#{someErrorMessage}")
-stopInjector { session -> "someErrorMessage"}
-//#stopInjector
+//#stopLoadGenerator
+stopLoadGenerator("#{someErrorMessage}")
+stopLoadGenerator { session -> "someErrorMessage"}
+//#stopLoadGenerator
 
-//#stopInjectorIf
-stopInjectorIf("#{someErrorMessage}", "#{condition}")
-stopInjectorIf( { session -> "someErrorMessage"}, { session -> true })
-//#stopInjectorIf
+//#stopLoadGeneratorIf
+stopLoadGeneratorIf("#{someErrorMessage}", "#{condition}")
+stopLoadGeneratorIf( { session -> "someErrorMessage"}, { session -> true })
+//#stopLoadGeneratorIf
 
 //#group
 group("foo").on(

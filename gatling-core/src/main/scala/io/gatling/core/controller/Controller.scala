@@ -45,7 +45,7 @@ private[gatling] object Controller {
     private[gatling] final case object RunTerminated extends Command
     private[gatling] final case class Crash(exception: Exception) extends Command
     private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
-    private[gatling] final case object StopInjector extends Command
+    private[gatling] final case object StopLoadGenerator extends Command
     private[gatling] final case object StatsEngineStopped extends Command
     // [e]
     private[gatling] final case object Kill extends Command
@@ -93,8 +93,8 @@ private final class Controller private (
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, Some(exception))
 
-    case Command.StopInjector =>
-      logger.info("Injector was forcefully stopped")
+    case Command.StopLoadGenerator =>
+      logger.info("Load Generator was forcefully stopped")
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, None)
 
@@ -124,10 +124,6 @@ private final class Controller private (
   private def waitingForResourcesToStop(data: Data.End): Behavior[Command] = {
     case Command.StatsEngineStopped =>
       logger.debug("StatsEngine was stopped")
-      stop(data)
-
-    case Command.StopInjector =>
-      logger.info("Injector was forcefully stopped")
       stop(data)
 
     // [e]

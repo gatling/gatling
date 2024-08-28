@@ -57,9 +57,7 @@ Instead, if you want to simulate server to server traffic where the actual clien
 
 #### `enableHttp2`
 
-HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
-
-Note that you'll either need your injectors to run with Java 9+, or make sure that `gatling.http.ahc.useOpenSsl` wasn't turned to `false` in Gatling configuration.
+HTTP/2 support can be enabled with the `.enableHttp2` option.
 
 {{< include-code "enableHttp2" >}}
 

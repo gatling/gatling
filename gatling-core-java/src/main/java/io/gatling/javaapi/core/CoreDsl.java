@@ -2602,44 +2602,44 @@ public final class CoreDsl {
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
-   * Errors#stopInjector(String)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGenerator block, see {@link
+   * Errors#stopLoadGenerator(String)}.
    *
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjector(String message) {
-    return ChainBuilder.EMPTY.stopInjector(message);
+  public static ChainBuilder stopLoadGenerator(String message) {
+    return ChainBuilder.EMPTY.stopLoadGenerator(message);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjector block, see {@link
-   * Errors#stopInjector(Function)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGenerator block, see {@link
+   * Errors#stopLoadGenerator(Function)}.
    *
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjector(Function<Session, String> message) {
-    return ChainBuilder.EMPTY.stopInjector(message);
+  public static ChainBuilder stopLoadGenerator(Function<Session, String> message) {
+    return ChainBuilder.EMPTY.stopLoadGenerator(message);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
-   * Errors#stopInjectorIf(Function, Function)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGeneratorIf block, see {@link
+   * Errors#stopLoadGeneratorIf(Function, Function)}.
    *
    * @param message the message, expressed as a function
    * @param condition the condition to trigger the stop injector, expressed as a function
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjectorIf(
+  public static ChainBuilder stopLoadGeneratorIf(
       Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
-    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+    return ChainBuilder.EMPTY.stopLoadGeneratorIf(message, condition);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
-   * Errors#stopInjectorIf(String, String)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGeneratorIf block, see {@link
+   * Errors#stopLoadGeneratorIf(String, String)}.
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
@@ -2647,27 +2647,27 @@ public final class CoreDsl {
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjectorIf(String message, @NonNull String condition) {
-    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+  public static ChainBuilder stopLoadGeneratorIf(String message, @NonNull String condition) {
+    return ChainBuilder.EMPTY.stopLoadGeneratorIf(message, condition);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
-   * Errors#stopInjectorIf(String, Function)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGeneratorIf block, see {@link
+   * Errors#stopLoadGeneratorIf(String, Function)}.
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition to trigger the stop injector, expressed as a function
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjectorIf(
+  public static ChainBuilder stopLoadGeneratorIf(
       String message, @NonNull Function<Session, Boolean> condition) {
-    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+    return ChainBuilder.EMPTY.stopLoadGeneratorIf(message, condition);
   }
 
   /**
-   * Bootstrap a new ChainBuilder with a stopInjectorIf block, see {@link
-   * Errors#stopInjectorIf(Function, String)}.
+   * Bootstrap a new ChainBuilder with a stopLoadGeneratorIf block, see {@link
+   * Errors#stopLoadGeneratorIf(Function, String)}.
    *
    * @param message the message, expressed as a function
    * @param condition the condition to trigger the stop injector, expressed as a Gatling Expression
@@ -2675,9 +2675,9 @@ public final class CoreDsl {
    * @return a new ChainBuilder
    */
   @NonNull
-  public static ChainBuilder stopInjectorIf(
+  public static ChainBuilder stopLoadGeneratorIf(
       Function<Session, String> message, @NonNull String condition) {
-    return ChainBuilder.EMPTY.stopInjectorIf(message, condition);
+    return ChainBuilder.EMPTY.stopLoadGeneratorIf(message, condition);
   }
 
   ////////// StructureBuilder.Groups

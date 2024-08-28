@@ -71,7 +71,7 @@ There are 3 main reasons to consider using additional load generators:
 - you want more than 50,000 concurrent virtual users,
 - you want to add virtual users from different geographic locations to better mimic your real usage patterns. 
 
-### How much load can 1 load injector generate with Gatling?
+### How much load can 1 load generator generate with Gatling?
 
 This is the most common question we receive from people interested in Gatling Enterprise.
 
@@ -86,7 +86,7 @@ For example, if 1 user = 1 request, you can generate 64K users /second on your l
 
 Larger loads are possible with Gatling Enterprise by utilizing distributed testing and the ability to add additional load generators.
 
-For Gatling Enterprise Cloud, we use AWS EC2 instances as load injectors, which can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. However, not all requests are built equally and some may take more work from the injectors than others. To figure out how many injectors you need, we recommend starting with as few injectors as possible and checking the injector monitoring tab of your reports. You can determine if you need additional injectors based on metrics like CPU usage. 
+For Gatling Enterprise Cloud, we use AWS EC2 instances as load generators, which can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. However, not all requests are built equally and some may take more work from the injectors than others. To figure out how many injectors you need, we recommend starting with as few injectors as possible and checking the injector monitoring tab of your reports. You can determine if you need additional injectors based on metrics like CPU usage. 
 
 
 ### Can Gatling launch several simulations sequentially?

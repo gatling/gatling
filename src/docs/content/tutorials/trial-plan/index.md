@@ -136,7 +136,7 @@ The sales-assisted trial as the following limits:
 |          Support         |      Sales Team      |                                                                                                      |
 |            SLA           | Evaluation agreement |                                                                                                      |
 
-With 1 load generator, you can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. See our [FAQ]({{< ref "/tutorials/faq#how-much-load-can-1-load-injector-generate-with-gatling" >}}).
+With 1 load generator, you can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. See our [FAQ]({{< ref "/tutorials/faq#how-much-load-can-1-load-generator-generate-with-gatling" >}}).
 
 So you can run tests with many concurrent virtual users during the trial.
 

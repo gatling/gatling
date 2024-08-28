@@ -34,7 +34,7 @@ Don't reason in terms of  concurrent users if your system can't push excess traf
 
 If you're using a closed workload model in your load tests while your system actually is an open one, your test is broken, and you're testing some different imaginary behavior.
 In such case, when the system under test starts to have some trouble, response times will increase, journey time will become longer, so number of concurrent users will increase
-and injector will slow down to match the imaginary cap you've set.
+and the virtual users injection will slow down to match the imaginary cap you've set.
 {{< /alert >}}
 
 You can read more about open and closed models [here](https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf).
@@ -112,7 +112,7 @@ When chaining `andThen` calls, Gatling will define the new children to only star
 
 ## Disabling Gatling Enterprise Load Sharding
 
-By default, Gatling Enterprise will distribute your injection profile amongst all injectors when running a distributed test from multiple nodes.
+By default, Gatling Enterprise will distribute your injection profile amongst all load generators when running a distributed test from multiple nodes.
 
 This might not be the desired behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
 Indeed, only one node would run this user, leaving the other nodes without an initialized token.
