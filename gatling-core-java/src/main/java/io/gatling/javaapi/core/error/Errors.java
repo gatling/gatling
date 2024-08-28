@@ -228,7 +228,7 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator
+   * Have the virtual user abruptly stop the load generator with a successful status
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
@@ -239,7 +239,7 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator
+   * Have the virtual user abruptly stop the load generator with a successful status
    *
    * @param message the message, expressed as a function
    * @return a new {@link StructureBuilder}
@@ -250,7 +250,8 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator if a condition is met
+   * Have the virtual user abruptly stop the load generator with a successful status if a condition
+   * is met
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition, expressed as a Gatling Expression Language String
@@ -262,7 +263,8 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator if a condition is met
+   * Have the virtual user abruptly stop the load generator with a successful status if a condition
+   * is met
    *
    * @param message the message, expressed as a function
    * @param condition the condition, expressed as a function
@@ -275,7 +277,8 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator if a condition is met
+   * Have the virtual user abruptly stop the load generator with a successful status if a condition
+   * is met
    *
    * @param message the message, expressed as a Gatling Expression Language String
    * @param condition the condition, expressed as a function
@@ -287,7 +290,8 @@ public interface Errors<
   }
 
   /**
-   * Have the virtual user abruptly stop the load generator if a condition is met
+   * Have the virtual user abruptly stop the load generator with a successful status if a condition
+   * is met
    *
    * @param message the message, expressed as a function
    * @param condition the condition, expressed as a Gatling Expression Language String
@@ -295,6 +299,81 @@ public interface Errors<
    */
   @NonNull
   default T stopLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly stop the load generator with a failed status
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGenerator(String message) {
+    return make(wrapped -> wrapped.crashLoadGenerator(toStringExpression(message)));
+  }
+
+  /**
+   * Have the virtual user abruptly crash the load generator with a failed status
+   *
+   * @param message the message, expressed as a function
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGenerator(Function<Session, String> message) {
+    return make(wrapped -> wrapped.crashLoadGenerator(javaFunctionToExpression(message)));
+  }
+
+  /**
+   * Have the virtual user abruptly crash the load generator with a failed status if a condition is
+   * met
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGeneratorIf(String message, @NonNull String condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly crash the load generator with a failed status if a condition is
+   * met
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition, expressed as a function
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGeneratorIf(
+      Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly crash the load generator with a failed status if a condition is
+   * met
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition, expressed as a function
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGeneratorIf(String message, @NonNull Function<Session, Boolean> condition) {
+    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+  }
+
+  /**
+   * Have the virtual user abruptly crash the load generator with a failed status if a condition is
+   * met
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition, expressed as a Gatling Expression Language String
+   * @return a new {@link StructureBuilder}
+   */
+  @NonNull
+  default T crashLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
     return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 }

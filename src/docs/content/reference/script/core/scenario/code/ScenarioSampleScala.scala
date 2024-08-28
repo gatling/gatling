@@ -379,11 +379,15 @@ exitHereIfFailed
 //#stopLoadGenerator
 stopLoadGenerator("#{someErrorMessage}")
 stopLoadGenerator(session => "someErrorMessage")
+crashLoadGenerator("#{someErrorMessage}")
+crashLoadGenerator(session => "someErrorMessage")
 //#stopLoadGenerator
 
 //#stopLoadGeneratorIf
 stopLoadGeneratorIf("#{someErrorMessage}", "#{condition}")
 stopLoadGeneratorIf(session => "someErrorMessage", session => true)
+crashLoadGeneratorIf("#{someErrorMessage}", "#{condition}")
+crashLoadGeneratorIf(session => "someErrorMessage", session => true)
 //#stopLoadGeneratorIf
 
 //#group

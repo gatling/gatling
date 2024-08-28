@@ -36,5 +36,13 @@ private[structure] trait Errors[B] extends Execs[B] {
 
   def stopLoadGenerator(message: Expression[String]): B = stopLoadGeneratorIf(message, TrueExpressionSuccess)
 
-  def stopLoadGeneratorIf(message: Expression[String], condition: Expression[Boolean]): B = exec(new StopLoadGeneratorBuilder(message, condition))
+  def stopLoadGeneratorIf(message: Expression[String], condition: Expression[Boolean]): B = exec(
+    new StopLoadGeneratorBuilder(message, condition, crash = false)
+  )
+
+  def crashLoadGenerator(message: Expression[String]): B = crashLoadGeneratorIf(message, TrueExpressionSuccess)
+
+  def crashLoadGeneratorIf(message: Expression[String], condition: Expression[Boolean]): B = exec(
+    new StopLoadGeneratorBuilder(message, condition, crash = true)
+  )
 }

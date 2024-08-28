@@ -45,7 +45,7 @@ private[gatling] object Controller {
     private[gatling] final case object RunTerminated extends Command
     private[gatling] final case class Crash(exception: Exception) extends Command
     private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
-    private[gatling] final case object StopLoadGenerator extends Command
+    private[gatling] final case class StopLoadGenerator(message: String, crash: Boolean) extends Command
     private[gatling] final case object StatsEngineStopped extends Command
     // [e]
     private[gatling] final case object Kill extends Command
@@ -89,14 +89,20 @@ private final class Controller private (
       stopGracefully(data, None)
 
     case Command.Crash(exception) =>
-      logger.info("Simulation crashed", exception)
+      logger.error("Simulation crashed", exception)
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, Some(exception))
 
-    case Command.StopLoadGenerator =>
-      logger.info("Load Generator was forcefully stopped")
+    case Command.StopLoadGenerator(message, crash) =>
       data.maxDurationTimer.foreach(_.cancel())
-      stopGracefully(data, None)
+      if (crash) {
+        val msg = s"Load Generator was forcefully crashed: $message"
+        logger.error(msg)
+        stopGracefully(data, Some(new Exception(msg)))
+      } else {
+        logger.info(s"Load Generator was forcefully stopped: $message")
+        stopGracefully(data, None)
+      }
 
     // [e]
     //

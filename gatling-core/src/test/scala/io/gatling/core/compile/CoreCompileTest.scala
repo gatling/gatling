@@ -315,7 +315,11 @@ class CoreCompileTest extends Simulation {
     .stopLoadGeneratorIf("#{message}", "#{condition}")
     .stopLoadGeneratorIf(session => "message", session => true)
     .stopLoadGeneratorIf("#{message}", session => true)
-    .stopLoadGeneratorIf(session => "message", "#{condition}");
+    .stopLoadGeneratorIf(session => "message", "#{condition}")
+    // crashLoadGenerator
+    .crashLoadGenerator("#{message}")
+    // crashLoadGeneratorIf
+    .crashLoadGeneratorIf("#{message}", session => true)
 
   registerPebbleExtensions(null.asInstanceOf[io.pebbletemplates.pebble.extension.Extension])
   setUp(

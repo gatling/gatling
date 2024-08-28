@@ -20,7 +20,7 @@ import io.gatling.core.action.{ Action, StopLoadGenerator }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 
-private[core] class StopLoadGeneratorBuilder(message: Expression[String], condition: Expression[Boolean]) extends ActionBuilder {
+private[core] class StopLoadGeneratorBuilder(message: Expression[String], condition: Expression[Boolean], crash: Boolean) extends ActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new StopLoadGenerator(message, condition, ctx.coreComponents.statsEngine, ctx.coreComponents.controller, next)
+    new StopLoadGenerator(message, condition, crash, ctx.coreComponents.statsEngine, ctx.coreComponents.controller, next)
 }

@@ -2680,6 +2680,85 @@ public final class CoreDsl {
     return ChainBuilder.EMPTY.stopLoadGeneratorIf(message, condition);
   }
 
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGenerator block, see {@link
+   * Errors#crashLoadGenerator(String)}.
+   *
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGenerator(String message) {
+    return ChainBuilder.EMPTY.crashLoadGenerator(message);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGenerator block, see {@link
+   * Errors#crashLoadGenerator(Function)}.
+   *
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGenerator(Function<Session, String> message) {
+    return ChainBuilder.EMPTY.crashLoadGenerator(message);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGeneratorIf block, see {@link
+   * Errors#crashLoadGeneratorIf(Function, Function)}.
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the crash injector, expressed as a function
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGeneratorIf(
+      Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.crashLoadGeneratorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGeneratorIf block, see {@link
+   * Errors#crashLoadGeneratorIf(String, String)}.
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the crash injector, expressed as a Gatling Expression
+   *     Language String
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGeneratorIf(String message, @NonNull String condition) {
+    return ChainBuilder.EMPTY.crashLoadGeneratorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGeneratorIf block, see {@link
+   * Errors#crashLoadGeneratorIf(String, Function)}.
+   *
+   * @param message the message, expressed as a Gatling Expression Language String
+   * @param condition the condition to trigger the crash injector, expressed as a function
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGeneratorIf(
+      String message, @NonNull Function<Session, Boolean> condition) {
+    return ChainBuilder.EMPTY.crashLoadGeneratorIf(message, condition);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a crashLoadGeneratorIf block, see {@link
+   * Errors#crashLoadGeneratorIf(Function, String)}.
+   *
+   * @param message the message, expressed as a function
+   * @param condition the condition to trigger the crash injector, expressed as a Gatling Expression
+   *     Language String
+   * @return a new ChainBuilder
+   */
+  @NonNull
+  public static ChainBuilder crashLoadGeneratorIf(
+      Function<Session, String> message, @NonNull String condition) {
+    return ChainBuilder.EMPTY.crashLoadGeneratorIf(message, condition);
+  }
+
   ////////// StructureBuilder.Groups
   /**
    * Bootstrap a new ChainBuilder with a group block, see {@link Groups#group(String)}.

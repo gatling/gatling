@@ -25,6 +25,7 @@ import io.gatling.core.util.NameGen
 final class StopLoadGenerator(
     message: Expression[String],
     condition: Expression[Boolean],
+    crash: Boolean,
     val statsEngine: StatsEngine,
     controller: ActorRef[Controller.Command],
     val next: Action
@@ -38,8 +39,7 @@ final class StopLoadGenerator(
       msg <- message(session)
     } yield {
       if (condition) {
-        logger.error(s"Requested load generator to stop: $msg")
-        controller ! Controller.Command.StopLoadGenerator
+        controller ! Controller.Command.StopLoadGenerator(msg, crash)
       } else {
         next ! session
       }

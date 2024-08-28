@@ -324,24 +324,28 @@ Make the user exit the scenario from this point if it previously had an error.
 
 {{< include-code "exitHereIfFailed" >}}
 
-#### `stopLoadGenerator`
+#### `stopLoadGenerator` and `crashLoadGenerator`
 
 Make the user exit abruptly stop the load generator.
 
 It takes one single parameter:
-* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log an ERROR message
+* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log a message
 
 {{< include-code "stopLoadGenerator" >}}
 
-#### `stopLoadGeneratorIf`
+The `crash` flavor causes Gatling to exit with a failure code.
+
+#### `stopLoadGeneratorIf` and `crashLoadGeneratorIf`
 
 Make the user exit abruptly stop the load generator.
 
 It takes 2 parameters:
-* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log an ERROR message
+* `message`: can be a static String, a Gatling EL String resolving a String or a function, used to log a message
 * `condition`: can be a boolean, a Gatling EL String resolving a boolean or a function
 
 {{< include-code "stopLoadGeneratorIf" >}}
+
+The `crash` flavor causes Gatling to exit with a failure code.
 
 ### Groups
 
