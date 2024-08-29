@@ -21,7 +21,7 @@ Once the API token is created, make sure to copy the token, as you won't be able
 
 There are three permissions available for API Tokens:
 
-- The Read permission, allowing to read all the data (typically useful in Grafana)
+- The Read permission, allowing to read all the data
 - The Start permission, allowing to start simulations + Read permissions (typically useful in a CI plugin)
 - The Configure permission, allowing to create / upload packages and create simulations + Start permissions (typically useful in our build plugins)
 
