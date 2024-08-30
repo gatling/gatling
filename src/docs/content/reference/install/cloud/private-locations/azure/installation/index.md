@@ -115,49 +115,54 @@ Refer to [private location introduction]({{< ref "../introduction/#installation"
 
 {{< img src="azure-cp-installation-create-app2.png" alt="Create application step 2" >}}
 
-{{< alert info >}}
-Check [Azure credentials]({{< ref "#option-2-environment-variables" >}}) setup section before creating your application if you want to use environment variables for credentials.
-{{< /alert >}}
-
 Finally, review and create your control plane application. This will create two new resources in the configured resource group:
 * The Container App itself
 * A Container App Environment, associated to the Container App
 
 ### Azure credentials
 
-#### Option 1: managed identity
+#### Required Permissions
 
-Azure managed identities allow you to configure control plane credentials through an Active Directory identity, automatically setup at application start. Refer to [Azure managed identities for container apps documentation](https://learn.microsoft.com/en-us/azure/container-apps/managed-identity?tabs=portal%2Cdotnet) for details.
+Before configuring Azure credentials, it's important to ensure that your application has the necessary permissions 
+to manage Azure virtual machines throughout the control plane lifecycle.
 
-* Go to your application page
-* Click on "Identity" in the side menu
-* Set status to "On"
-* Wait a bit for automatic managed identity setup
+The required actions are as follows:
+* `Microsoft.MarketplaceOrdering/agreements/offers/plans/read`
+* `Microsoft.MarketplaceOrdering/agreements/offers/plans/sign/action`
+* `Microsoft.Resources/subscriptions/resourceGroups/write`
+* `Microsoft.Resources/subscriptions/resourceGroups/delete`
+* `Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/read`
+* `Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/write`
+* `Microsoft.Network/virtualNetworks/read`
+* `Microsoft.Network/virtualNetworks/subnets/join/action`
+* `Microsoft.Network/publicIPAddresses/write`
+* `Microsoft.Network/networkInterfaces/write`
+* `Microsoft.Network/networkInterfaces/join/action`
+* `Microsoft.Storage/storageAccounts/read`
+* `Microsoft.Storage/storageAccounts/listkeys/action`
+* `Microsoft.Compute/galleries/images/versions/read`
+* `Microsoft.Compute/virtualMachines/read`
+* `Microsoft.Compute/virtualMachines/write`
+
+To grant these permissions, create a new role and assign it to the managed identity as detailed below.
+
+#### Managed identity
+
+Azure managed identities enable you to automatically configure control plane credentials using an Active Directory identity, 
+which is automatically set up when the application starts. 
+
+For more information, refer to the [Azure managed identities for container apps documentation](https://learn.microsoft.com/en-us/azure/container-apps/managed-identity?tabs=portal%2Cdotnet).
+
+Steps to configure:
+1. Navigate to your application page.
+2. Click on "Identity" in the side menu.
+3. Set the status to "On."
+4. Wait for the automatic setup of the managed identity.
+5. Click on Azure role assignments and set role with required permissions
 
 {{< img src="azure-cp-installation-crendentials-identity.png" alt="Setup Azure credentials with managed identity" >}}
 
-A managed identity will be automatically assigned to your application instances and used by the control plane application to manage Azure resources.
-
-#### Option 2: environment variables
-
-You can directly set environment variables needed for Azure private locations during application creation. Please refer to [Azure private locations configuration]({{< ref "configuration/" >}}) for more details.
-
-You can also set it later from your application page if you need.
-
-Credentials can be set through environment variables in your control plane.
-
-| name                  | value             |
-| --------------------- | ----------------- |
-| AZURE_CLIENT_ID       | Client UUID       |
-| AZURE_CLIENT_SECRET   | Client secret key |
-| AZURE_TENANT_ID       | Tenant UUID       |
-
-Check Azure documentation pages to find these values:
-* [Tenant id](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant)
-* [Client id and secret](https://learn.microsoft.com/en-us/answers/questions/834401/hi-i-want-my-client-id-and-client-secret-key)
-* [Subscription id](https://learn.microsoft.com/en-us/azure/azure-portal/get-subscription-tenant-id)
-
-{{< img src="azure-cp-installation-crendentials-env.png" alt="Setup Azure credentials with environment variables" >}}
+A managed identity is automatically assigned to your application instances and will be used by the control plane to manage Azure resources.
 
 ### Mounting configuration file share
 
