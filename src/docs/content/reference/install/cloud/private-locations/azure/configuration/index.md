@@ -78,10 +78,12 @@ control-plane {
       # Virtual machine size, as listed by Azure CLI:
       # az vm list-sizes --location "westeurope"
       size = "Standard_A4_v2"
+      # Engine (optional, default classic)
+      engine = "classic" # Possible values: classic or javascript
       # Certified image configuration
       image {
         type = "certified"
-        java = "latest" # Possible values : 11, 17, 21 or latest
+        java = "latest" # See engine section
       }
       # Custom image configuration (alternative to certified image)
       # image = {
@@ -127,3 +129,20 @@ control-plane {
   ]
 }
 ```
+
+### Engine
+
+The engine specified for a location determines the compatible package formats (JavaScript or JVM) for Gatling packages.
+
+Each engine (`classic` or `javascript`) supports specific Java versions, where `latest` is defaulted.
+
+The table below outlines the supported Java versions for certified Gatling images:
+
+| Engine      | Supported Java Versions |
+|-------------|-------------------------|
+| classic     | 11, 17, 21 or latest    |
+| javascript  | latest                  |
+
+{{< alert info >}}
+For the `javascript` engine, only the latest Java version is supported, which corresponds to the GraalVM version used to run Gatling with JavaScript.
+{{< /alert >}}

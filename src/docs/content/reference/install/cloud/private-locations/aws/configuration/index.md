@@ -65,10 +65,12 @@ control-plane {
       type = "aws"
       # Configuration specific to AWS type configuration
       region = "eu-west-1"
+      # Engine (optional, default classic)
+      engine = "classic" # Possible values: classic or javascript
       # Certified AMI configuration
       ami {
         type = "certified"
-        java = latest # Possible values : 11, 17, 21 or latest
+        # java = latest # See engine section
       }
       # Custom AMI configuration (alternative to certified AMI)
       # ami = {
@@ -130,6 +132,24 @@ control-plane {
   ]
 }
 ```
+
+### Engine
+
+The engine specified for a location determines the compatible package formats (JavaScript or JVM) for Gatling packages.
+
+Each engine (`classic` or `javascript`) supports specific Java versions, where `latest` is defaulted.
+
+The table below outlines the supported Java versions for certified Gatling images:
+
+| Engine      | Supported Java Versions |
+|-------------|-------------------------|
+| classic     | 11, 17, 21 or latest    |
+| javascript  | latest                  |
+
+{{< alert info >}}
+For the `javascript` engine, only the latest Java version is supported, which corresponds to the GraalVM version used to run Gatling with JavaScript.
+{{< /alert >}}
+
 ## Configure instances using Terraform {#terraform}
 
 Gatling provides Terraform modules to set up AWS infrastructure for Private Locations. One module specifies the load generator location(s), and the second module deploys the control plane. To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment)
