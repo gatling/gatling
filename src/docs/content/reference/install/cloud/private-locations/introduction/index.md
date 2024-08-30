@@ -12,6 +12,10 @@ A location describes where to start load generators:
 - Public locations are available by default, and listed by regions.
 - Private locations must be configured, and allow you to deploy load generators on your own infrastructure.
 
+{{< alert warning >}}
+Private locations are not compatible with the no-code test builder.
+{{< /alert >}}
+
 {{< alert info >}}
 Private locations allow you to load test in a private infrastructure, without any inbound connection or credentials sharing.
 To access this feature, please contact our [technical support](https://gatlingcorp.atlassian.net/servicedesk/customer/portal/8/group/12/create/59?summary=Private+Locations&description=Contact%20email%3A%20%3Cemail%3E%0A%0AHello%2C%20we%20would%20like%20to%20enable%20the%20private%20locations%20feature%20on%20our%20organization.).
