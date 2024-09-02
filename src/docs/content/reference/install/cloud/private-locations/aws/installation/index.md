@@ -51,7 +51,7 @@ We need an IAM role which will allow an ECS task to:
 In the AWS management console, from the Services menu, open IAM (or search for "IAM" in the search bar). 
 Click on Access management > Policies, and then on Create policy.
 
-`GatlingControlPlaneConfSidecarPolicy` allows sidecar to download [Control Plane configuration]({{< ref "configuration" >}}) from S3.
+`GatlingControlPlaneConfInitContainerPolicy` allows init container to download [Control Plane configuration]({{< ref "configuration" >}}) from S3.
 ```
 {
     "Version": "2012-10-17",
@@ -233,6 +233,62 @@ Then, check the `Force new deployment` checkbox and click on `Update`.
 The new tasks launched by the deployment pull the current `latest` image of the `gatlingcorp/control-plane` when they start.
 If you need to target a specific version tag, you'll have to create a new revision of your task definition with the updated version and then redeploy it.
 {{< /alert >}}
+
+### Enable CloudWatch Logs
+
+You can use Amazon CloudWatch Logs to monitor, store, and access log files from your Control Plane deployed on Amazon ECS, which is useful for debugging.
+
+#### Add CloudWatch Logs Policy
+
+In the AWS Management Console, open the IAM service from the Services menu or by searching for "IAM" in the search bar. Navigate to Access management > Policies, then click Create policy. `GatlingControlPlaneLogsPolicy` allows the Control Plane service to push its logs to CloudWatch.
+Finally, attach the policy to the control plane role. 
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+#### Modify JSON Task Definition
+
+Go to **Amazon Elastic Container Service**, under task definitions, select your task definition and its latest revision, then click **Create new revision > Create new revision with JSON**.
+
+Here’s how you can modify the JSON for the Amazon ECS task definition by adding the `logConfiguration` object to the control-plane container definition.
+Make sure to replace {ServiceName} and {Region} with the actual service name and region values.
+
+```json
+{
+    "family": "gatling-control-plane-task",
+    "containerDefinitions": [
+        // Init container definition
+        {
+            // Existing control plane container definition
+            "name": "control-plane",
+            // Add the logConfiguration object
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/{ServiceName}",
+                    "awslogs-region": "{Region}",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+}
+
+```
 
 ## Your Control Plane is up and running!
 
