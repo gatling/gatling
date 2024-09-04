@@ -108,5 +108,5 @@ To help you understand how to use assertions, here is a list of examples:
 {{< include-code "examples" >}}
 
 {{< alert tip >}}
-Gatling Enterprise includes ramp up and ramp down [time window options]({{< ref= /reference/execute/cloud/user/simulations/#step-4-time-window" >}}), which allow you to exclude warmup times from the assertions calculation. 
+Gatling Enterprise includes ramp up and ramp down [time window options]({{< ref "/reference/execute/cloud/user/simulations/#step-4-time-window" >}}), which allows you to exclude warmup times from the assertions calculation. 
 {{< /alert >}}
