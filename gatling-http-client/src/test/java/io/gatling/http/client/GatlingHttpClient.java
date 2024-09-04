@@ -20,16 +20,14 @@ import io.gatling.http.client.impl.DefaultHttpClient;
 import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.resolver.InetAddressNameResolverWrapper;
 import io.gatling.http.client.uri.Uri;
+import io.gatling.netty.util.Transports;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.resolver.dns.DnsNameResolverBuilder;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import javax.net.ssl.SSLException;
 
 public class GatlingHttpClient implements AutoCloseable {
@@ -41,11 +39,9 @@ public class GatlingHttpClient implements AutoCloseable {
 
   public GatlingHttpClient(HttpClientConfig config) {
     this.client = new DefaultHttpClient(config);
-    DefaultThreadFactory threadFactory = new DefaultThreadFactory("gatling-http");
     eventLoopGroup =
-        config.isUseNativeTransport()
-            ? new EpollEventLoopGroup(0, threadFactory)
-            : new NioEventLoopGroup(0, threadFactory);
+        Transports.newEventLoopGroup(
+            config.isUseNativeTransport(), config.isUseIoUring(), 0, "gatling-http");
     try {
       sslContext =
           SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
