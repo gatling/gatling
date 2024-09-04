@@ -16,7 +16,9 @@
 
 package io.gatling.netty.util;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFactory;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollDatagramChannel;
@@ -89,5 +91,13 @@ public final class Transports {
       }
     }
     return NIO_DATAGRAM_CHANNEL_FACTORY;
+  }
+
+  public static void configureOptions(
+      Bootstrap bootstrap, int connectTimeout, boolean tcpNoDelay, boolean soKeepAlive) {
+    bootstrap
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
+        .option(ChannelOption.TCP_NODELAY, tcpNoDelay)
+        .option(ChannelOption.SO_KEEPALIVE, soKeepAlive);
   }
 }

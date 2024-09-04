@@ -157,18 +157,21 @@ public final class DefaultHttpClient implements HttpClient {
                   Transports.newSocketChannelFactory(
                       config.isUseNativeTransport(), config.isUseIoUring()))
               .group(eventLoop)
-              .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
-              .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
-              .option(ChannelOption.SO_KEEPALIVE, config.isSoKeepAlive())
               .resolver(NoopAddressResolverGroup.INSTANCE)
               .handler(
-                  new ChannelInitializer<Channel>() {
+                  new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel channel) {
                       channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
                       addHttpHandlers(channel);
                     }
                   });
+
+      Transports.configureOptions(
+          http1Bootstrap,
+          (int) config.getConnectTimeout(),
+          config.isTcpNoDelay(),
+          config.isSoKeepAlive());
 
       http2Bootstrap =
           http1Bootstrap
