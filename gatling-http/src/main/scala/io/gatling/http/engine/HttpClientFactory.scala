@@ -16,7 +16,6 @@
 
 package io.gatling.http.engine
 
-import io.gatling.commons.util.SystemProps._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient
@@ -32,8 +31,6 @@ private[gatling] final class HttpClientFactory(
   private val socketConfig = configuration.socket
   private val sslConfig = configuration.ssl
   private val nettyConfig = configuration.netty
-  setSystemPropertyIfUndefined("io.netty.allocator.type", nettyConfig.allocator)
-  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", nettyConfig.maxThreadLocalCharBufferSize)
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
     val defaultSslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)

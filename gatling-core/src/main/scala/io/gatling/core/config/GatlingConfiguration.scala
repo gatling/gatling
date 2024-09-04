@@ -25,6 +25,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.util.SystemProps.setSystemPropertyIfUndefined
 import io.gatling.core.stats.writer._
 import io.gatling.shared.util.Ssl
 
@@ -148,13 +149,15 @@ object GatlingConfiguration extends StrictLogging {
     )
   }
 
-  private def nettyConfiguration(config: Config) =
+  private def nettyConfiguration(config: Config) = {
+    config.getStringOption(netty.Allocator).foreach(setSystemPropertyIfUndefined("io.netty.allocator.type", _))
+    setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", config.getString(netty.MaxThreadLocalCharBufferSize))
+
     new NettyConfiguration(
       useNativeTransport = config.getBoolean(netty.UseNativeTransport),
-      useIoUring = config.getBoolean(netty.UseIoUring),
-      allocator = config.getString(netty.Allocator),
-      maxThreadLocalCharBufferSize = config.getInt(netty.MaxThreadLocalCharBufferSize)
+      useIoUring = config.getBoolean(netty.UseIoUring)
     )
+  }
 
   private def chartingConfiguration(config: Config) =
     new ReportsConfiguration(
@@ -293,9 +296,7 @@ final class SslConfiguration(
 
 final class NettyConfiguration(
     val useNativeTransport: Boolean,
-    val useIoUring: Boolean,
-    val allocator: String,
-    val maxThreadLocalCharBufferSize: Int
+    val useIoUring: Boolean
 )
 
 final class ReportsConfiguration(
