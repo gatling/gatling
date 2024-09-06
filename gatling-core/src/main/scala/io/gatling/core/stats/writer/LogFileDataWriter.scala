@@ -254,7 +254,7 @@ final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConf
   override def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
-    val simulationLog = LogFileDataWriter.logFile(resultsDirectory, runMessage.runId, create = true).resolve("simulation.log")
+    val simulationLog = LogFileDataWriter.logFile(resultsDirectory, runMessage.runId, create = true)
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
     val encoder = configuration.core.charset.newEncoder
