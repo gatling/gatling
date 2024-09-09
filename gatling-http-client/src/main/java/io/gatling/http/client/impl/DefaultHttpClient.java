@@ -32,6 +32,7 @@ import io.gatling.http.client.util.Pair;
 import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.HttpClientCodec;
@@ -171,7 +172,8 @@ public final class DefaultHttpClient implements HttpClient {
           http1Bootstrap,
           (int) config.getConnectTimeout(),
           config.isTcpNoDelay(),
-          config.isSoKeepAlive());
+          config.isSoKeepAlive(),
+          config.isUseNativeTransport() && !config.isUseIoUring() && Epoll.isAvailable());
 
       http2Bootstrap =
           http1Bootstrap
