@@ -19,8 +19,7 @@ export default simulation((setUp) => {
 
   const httpProtocol =
     http.baseUrl("https://computer-database.gatling.io")
-      .acceptHeader("application/json")
-      .contentTypeHeader("application/json");
+      .acceptHeader("application/json");
 
   const myScenario = scenario("My Scenario")
     .exec(

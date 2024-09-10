@@ -26,8 +26,7 @@ class ScriptingIntro3SampleJava {
 
     HttpProtocolBuilder httpProtocol =
       http.baseUrl("https://computer-database.gatling.io")
-        .acceptHeader("application/json")
-        .contentTypeHeader("application/json");
+        .acceptHeader("application/json");
 
     // Add the ScenarioBuilder:
     ScenarioBuilder myScenario = scenario("My Scenario")

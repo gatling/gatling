@@ -27,8 +27,7 @@ class ScriptingIntro2SampleJava {
     // Add the HttpProtocolBuilder:
     HttpProtocolBuilder httpProtocol =
       http.baseUrl("https://computer-database.gatling.io")
-        .acceptHeader("application/json")
-        .contentTypeHeader("application/json");
+        .acceptHeader("application/json");
   }
   //#define-the-protocol-class
 }
