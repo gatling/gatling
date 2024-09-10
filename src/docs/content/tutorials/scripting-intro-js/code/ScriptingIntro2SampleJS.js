@@ -20,6 +20,7 @@ export default simulation((setUp) => {
   // Add the HttpProtocolBuilder:
   const httpProtocol =
     http.baseUrl("https://computer-database.gatling.io")
-      .acceptHeader("application/json");
+      // set the "accept" header to a value suited for the expected response
+      .acceptHeader("text/html");
 });
 //#define-the-protocol-class
