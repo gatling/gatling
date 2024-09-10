@@ -96,7 +96,8 @@ public final class WebSocketHandler extends ChannelDuplexHandler {
                 true, // performMasking
                 false, // allowMaskMismatch
                 -1, // forceCloseTimeoutMillis
-                absoluteUpgradeUrl);
+                absoluteUpgradeUrl,
+                tx.request.isAutoOrigin());
 
         handshaker.handshake(ctx.channel());
 
