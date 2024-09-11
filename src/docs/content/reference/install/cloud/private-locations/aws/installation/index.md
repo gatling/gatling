@@ -301,6 +301,6 @@ Cloud.
 
 You can now configure a simulation to run on one or more of this Control Plane's locations!
 
-## Install instances using Terraform {#terraform}
+## Deploy infrastructure using Terraform {#terraform}
 
-Gatling provides Terraform modules to set up AWS infrastructure for Private Locations. One module specifies the load generator location(s), and the second module deploys the control plane. To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment)
+Gatling provides Terraform modules to set up AWS infrastructure for Private Locations. One module specifies the load generator location(s), and the second module deploys the control plane. To use the Terraform module, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/tree/main/terraform/examples/AWS-private-location)

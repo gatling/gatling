@@ -156,6 +156,10 @@ control-plane {
 }
 ```
 
+{{<alert tip>}}
+Simplify and speed up your Azure installation and configuration with Gatling's pre-built [Terraform modules]({{< ref "#configure-private-packages-with-terraform-azure" >}})
+{{</alert>}}
+
 #### Filesystem Storage
 
 {{< alert warning >}}
@@ -201,6 +205,10 @@ Gatling provides Terraform modules to set up your infrastructure for Private Loc
 #### AWS S3 {#configure-private-packages-with-terraform-aws}
 
 To use the Terraform module to setup your AWS Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AWS-private-package/main.tf).
+
+#### Azure Blob Storage {#configure-private-packages-with-terraform-azure}
+
+To use the Terraform module to setup your Azure Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AZURE-private-package/main.tf).
 
 ### Upload Private Packages using HTTPS {#enableHttps}
 
