@@ -4,7 +4,7 @@ seotitle: Gatling HTTP protocol reference - TLS
 description: How to configure TLS/HTTPS features, such as SSLContext, SNI, keystore and truststore.
 lead: Configure the SSLContext, SNI, keystore and truststore
 date: 2021-04-20T18:30:56+02:00
-lastmod: 2022-12-14T21:30:56+02:00
+lastmod: 2024-09-12T13:29:56+02:00
 ---
 
 ## KeyManager and TrustManager
@@ -14,7 +14,7 @@ By default, Gatling uses:
 * a fake TrustManager that trust everything. The reason is we want to work out of the box with any server certificate, even when it's issued from a custom Authority. Gatling is a load test tool, not your application managing sensible data to be protected against a man-in-the-middle.
 
 You can override this behavior, typically for forcing your own KeyStore because your server requires mutual TLS.
-You'll have to edit the `ssl` block in [`gatling.conf`](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf#L63-L74).
+You'll have to edit the `ssl` block in [`gatling.conf`](https://github.com/gatling/gatling/blob/main/gatling-core/src/main/resources/gatling-defaults.conf#L53-L64).
 
 Gatling accepts files in jks and p12 formats.
 
@@ -31,7 +31,7 @@ By default, Gatling uses [BoringSSL](https://opensource.google.com/projects/bori
 This implementation is more efficient than the JDK's one, especially on JDK8.
 It's also the only supported solution for HTTP/2 in Gatling with JDK8.
 
-If you want to revert to using JDK's implementation, you can set the `gatling.http.ahc.useOpenSsl` property to `false` in `gatling.conf`
+If you want to revert to using JDK's implementation, you can set the `gatling.ssl.useOpenSsl` property to `false` in `gatling.conf`
 
 ## Disabling SNI
 
@@ -39,7 +39,7 @@ By default, since JDK7, JDK enables [SNI](http://en.wikipedia.org/wiki/Server_Na
 This can cause TLS handshake exceptions, such as `handshake alert:  unrecognized_name` when server names are not properly configured on the server side.
 Browsers are more loose than JDK regarding this.
 
-If you want to disable SNI, you can set the `gatling.http.ahc.enableSni` property to `false` in `gatling.conf`.
+If you want to disable SNI, you can set the `gatling.ssl.enableSni` property to `false` in `gatling.conf`.
 
 ## TLSv1.3
 
