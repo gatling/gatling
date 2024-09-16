@@ -1,16 +1,16 @@
 ---
 menutitle: Notifications
 title: Notifications configuration
-seotitle: Configure notifications in Gatling Enterprise Cloud
-description: Get notified about your simulations running in Gatling Enterprise Cloud.
-lead: Get notified about your simulations running in Gatling Enterprise Cloud.
+seotitle: Configure Gatling run notifications for Slack and Microsoft Teams 
+description: Get notified about your Gatling simulations in Slack or Microsoft Teams.
+lead: Get notified about your simulations with Slack or Microsoft Teams.
 date: 2021-11-07T14:29:04+00:00
 lastmod: 2023-04-03T12:00:00+00:00
 ---
 
 ## Introduction
 
-You can configure your Gatling Cloud to send notifications about your simulation runs results directly in your favourite text communication tool.
+You can configure Gatling Enterprise to send notifications about your simulation runs results directly with Slack or Microsoft Teams. 
 
 Notifications will be sent as soon as a simulation run ends, and will display:
 - A summary of your simulation info
@@ -34,7 +34,7 @@ Teams: includes/preparation.teams.md
 
 ## Configuration
 
-Navigate to your organization configuration page, and to the "Notifications" tab.
+Navigate to your organization configuration page, and to the **Notifications** tab.
 
 From there, you will be able to activate and configure notifications for your communication tools:
 
@@ -50,8 +50,8 @@ Paste your webhook URL in the text field, then you can test and save it:
 
 {{< img src="notifications-configuration-teams-1.png" alt="Notifications Teams 1" >}}
 
-- The "Test" button sends a hello world message to your webhook before saving it.
-- "Save" persists your configuration. The next simulation runs will send a notification at the end.
+- The **Test** button sends a hello world message to your webhook before saving it.
+- **Save** persists your configuration. The next simulation runs will send a notification at the end.
 
 To deactivate notifications, click on the toggle, and confirm your choice.
 
