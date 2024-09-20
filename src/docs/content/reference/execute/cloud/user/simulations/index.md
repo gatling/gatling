@@ -15,43 +15,36 @@ The Simulations view contains all the simulations configured by your organizatio
 
 {{< img src="simulations-table.png" alt="Simulation table" >}}
 
-If you don't have any simulations configured yet and don't know where to start, you can download some Gatling Enterprise pre-configured projects by clicking on the **Sample simulations** button at the top right corner of the page.
+If you don't have any simulations configured yet and don't know where to start, follow the helper that guides you through the creation process:
 
-{{< img src="samples-bar.png" alt="Samples" >}}
+{{< img src="helper.png" alt="Helper" >}}
 
-Samples are distributed under:
-- **Scala** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-scala), [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-scala), [**sbt**](https://github.com/gatling/gatling-sbt-plugin-demo) and [**Gatling Enterprise Bundle**](https://gatling.io/products/)
-- **Java** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-java), [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-java) and [**Gatling Enterprise Bundle**](https://gatling.io/products/)
-- **Kotlin** with [**Maven**](https://github.com/gatling/gatling-maven-plugin-demo-kotlin) and [**Gradle**](https://github.com/gatling/gatling-gradle-plugin-demo-kotlin)
-- [**Javascript** and **Typescript**](https://github.com/gatling/gatling-js-demo)
+- Build your simulation in-app: leads you to the [in-app simulation builder]({{<ref "/tutorials/quickstart" >}})
+- Build a test as code project: leads you to the [Get-started guide]({{<ref "#getting-started-guide" >}}) explaining how you can build a package from sources, upload it, and execute it using Gatling Enterprise
 
-{{< img src="samples.png" alt="Samples" >}}
+## Getting started guide
 
-Back to the Simulations section, at the top, there is an action bar which allows several actions:
+{{< img src="getting-started.png" alt="Getting started" >}}
 
-- Filter the simulations by name, or team name
-- [Create a simulation]({{< ref "#creating-a-simulation" >}})
-- Edit [default load generator parameters]({{< ref "#default-load-generator-parameters" >}})
-- Delete selected simulations
+Depending on which programming language you are using, follow the steps to create your first package.
+Once this is done, you're ready to upload it and [create you first test-as-code simulation]({{<ref "#creating-a-test-as-code-simulation" >}}).
 
-{{< img src="action-bar.png" alt="Action bar" >}}
+{{<alert tip >}}
+If you need to find this guide later on, you can navigate to it using our [simulation creation modal]({{<ref "#creating-a-test-as-code-simulation" >}})
 
-## Default Load Generator Parameters
+{{< img src="modal-getting-started.png" alt="Modal getting started" >}}
+{{</alert>}}
 
-Default load generator parameters contains every Java system properties and environment variables used by all of your simulations by default.
-Editing those properties will be propagated to all the simulations. You can access the form by clicking the button in the top right corner of the page.
 
-If you want to define such properties, check `Enable default properties`.
+## Creating a test-as-code simulation
 
-{{< img src="default-load-generator-properties.png" alt="Properties" >}}
+Use the **Create a simulation** button (either coming from the [Simulations page]({{<ref "#managing-simulations" >}}) or the [Getting started guide]({{<ref "#getting-started-guide" >}})) to open the simulation creation modal:
 
-If you want specific properties for a simulation, you will be allowed to ignore those properties by checking the `Ignore defaults` box when creating or editing the simulation:
+{{< img src="simulation-creation-modal.png" alt="Simulation creation modal" >}}
 
-{{< img src="override-load-generator-properties.png" alt="Override" >}}
+From here, you can either import a package, select an existing one, or go to the [in-app simulation builder]({{<ref "/tutorials/quickstart" >}}).
 
-## Creating a simulation
-
-In order to create a simulation click on the "Create" button in the simulations table. There are 4 steps to create a simulation, 2 of which are optional.
+Once you've selected your package, click the **Create** button to configure your simulation
 
 {{< alert warning >}}
 Gatling Enterprise has a hard limit for run durations of 7 days and will stop any test running for longer than that.
@@ -59,31 +52,24 @@ This limit exists for both performance reasons (to avoid data growing too large 
 reasons (to avoid a forgotten test running forever).
 {{< /alert >}}
 
-### Step 1: General
+### Step 1: name, package and simulation
 
-In this step, you will define the simulation's general parameters.
+In this step, define the simulation's general parameters.
 
-{{< img src="create-simulation-general.png" alt="Create simulation - Step 1" >}}
+{{< img src="step1.png" alt="Create simulation - Step 1" >}}
 
 - **Name**: the name that will appear on the simulations table.
-- **Team**: the team which owns the simulation.
-
-#### Package and Class name
-
-If you already have created the package you want to use, you can select it via the **Package** dropdown menu (it must belong to the selected team).
-
-If you did not create your package before, you can click the `Create a new package` button. You will then be prompted with the [package creation form]({{< ref "package-conf/#creation" >}}).
-
-Once your package is selected you will be able to select the **Class name**, the simulation's fully qualified name, detected in the selected package.
+- **Package**: the actual package the simulation will run.
+- **Simulation**: the simulation to run in this package.
 
 ### Step 2: Locations configuration
 
-In this step, you'll configure the locations used for the Gatling Enterprise load generators.
+In this step, configure the Gatling Enterprise load generator locations.
 
-You can either use the managed locations provided by Gatling Enterprise Cloud, or use your own [private locations]({{< ref "../../../install/cloud" >}})
+You can either use the managed locations provided by Gatling Enterprise, use your own [private locations]({{< ref "../../../install/cloud" >}}), or [dedicated IP addresses]({{< ref "dedicated-ips" >}}) for your load generators.
 
 {{< alert info >}}
-It is not currently possible to mix managed and private locations in the same simulation.
+It is not currently possible to mix managed, private locations and dedicated IPs in the same simulation.
 {{< /alert >}}
 
 Managed location load generators have the following specifications:
@@ -107,27 +93,26 @@ Gatling Enterprise managed locations are available in the following regions:
 
 If you want to use private locations, please refer to the [specific documentation]({{< ref "../../../install/cloud" >}}).
 
-In order to get the best results from your simulation you should select the load generators that best represent your user base.
+To get the best results from your simulation you should select the load generator locations that best match your user base.
 
-{{< img src="create-simulation-locations.png" alt="Create simulation - Step 2" >}}
+{{< img src="step2.png" alt="Create simulation - Step 2" >}}
 
 - **Location**: defines the locations to be used when initiating the Gatling Enterprise load generators.
 - **Number of load generators**: number of load generators for this location.
 - **Weight distribution**: by default, every load generator will produce the same load. If enabled, you must set the weight in % for each location (e.g. the first location does 20% of the requests, and the second does 80%). The sum of all weights must be 100%.
-- **Dedicated IP Addresses**: Check if you want to enable [dedicated IP addresses]({{< ref "dedicated-ips" >}}) for your load generators. Only available for public locations.
 
 You can add several locations with different numbers of load generators to run your simulation.
 
-After this step, you can already save the simulation, or continue with optional configurations.
+After this step, you can save the simulation, or continue with optional configurations.
 
 ### Step 3: Load Generator Parameters {{% badge info "Optional" /%}} {#step-3-load-generators-parameters}
 
-This step allows you to define the Java system properties and environment variables used when running this particular simulation. Properties/variables entered here will add to the defaults, unless you choose to ignore the defaults. If you keep the defaults, and you add a property/variable with the same key as one from the defaults, the simulation's value will be used (it overrides the default).
+This step allows you to define the Java system properties or JS parameters and environment variables used when running this particular simulation. Properties/variables entered here will add to the defaults, unless you choose to ignore the defaults. If you keep the defaults, and you add a property/variable with the same key as one from the defaults, the simulation's value will be used (it overrides the default). See the [Default Load Generator Parameters]({{<ref "#default-load-generator-parameters">}}) section for more information.
 
-{{< img src="create-simulation-load-generator-parameters.png" alt="Create simulation - Step 3" >}}
+{{< img src="step3.png" alt="Create simulation - Step 3" >}}
 
 {{< alert tip >}}
-JVM options, Java System Properties and environment variables will be saved in a snapshot that will be available in the run. This information will be visible by anyone who has read access.
+JVM options, Java System Properties or JS parameters and environment variables will be saved in a snapshot that will be available in the run. This information will be visible by anyone who has read access.
 You can exclude some system properties from being copied if you prefix them with `sensitive.`, and environment variables if you prefix them with `SENSITIVE_`.
 {{< /alert >}}
 
@@ -145,9 +130,9 @@ Environment variables can be retrieved in your Gatling simulation with `System.g
 
 ### Step 4: Time window {{% badge info "Optional" /%}} {#step-4-time-window}
 
-You can configure some ramp up/down time windows to be excluded when computing assertions. This is typically useful when you know that at the beginning of your test run you're going to expect higher response times than when your system is warm (JIT compiler has kicked in, autoscaling has done its work, caches are filled...) and don’t want them to cause your assertions to fail.
+You can configure ramp-up and ramp-down time windows to be excluded from computed assertions. This is typically useful when you know that at the beginning of your test run you expect higher response times than when your system is warm (JIT compiler has kicked in, autoscaling has done its work, caches are filled, etc.) and don’t want them the warm-up time to cause your assertions to fail.
 
-{{< img src="create-simulation-timewindow.png" alt="Create simulation - Step 4" >}}
+{{< img src="step4.png" alt="Create simulation - Step 4" >}}
 
 - **Ramp Up**: the number of seconds you want to exclude at the beginning of the run.
 - **Ramp Down**: the number of seconds you want to exclude at the end of the run.
@@ -160,41 +145,51 @@ Ramp up/down parameters will only be applied if the run duration is longer than 
 Ramp up/down parameters can also be specified with the [public API]({{< ref "/reference/execute/cloud/user/api/" >}}) and the [package descriptor]({{< ref "/reference/execute/cloud/user/configuration-as-code/" >}}). 
 {{< /alert >}}
 
-## Simulations table
+## Simulation execution
 
-Once you have created a simulation, you can start it by clicking on the {{< icon play >}} icon.
+Using the [simulations table]({{<ref "#managing-simulations" >}}), you can control your simulation execution.
 
-{{< img src="start.png" alt="Start" >}}
+Start or stop your run using the respective {{< icon play >}} or {{< icon stop >}} buttons.
 
-A run has the following life cycle:
+{{< img src="start-table.png" alt="Start your run" >}}
 
-- **Building**: in which it will download the simulation package and prepare the hosts.
-- **Deploying**: in which it will deploy the simulation to run on all the load generators.
-- **Injecting**: in which the simulation is running and can be viewed from the Reports. 
+### Lifecycle
 
-{{< img src="injecting.png" alt="Injecting" >}}
+Once you have created and started a simulation, your run will go through the following life cycle:
+
+- **Building**: download the simulation package and prepare the hosts.
+- **Deploying**: deploy the simulation to the load generators.
+- **Injecting**: the simulation is active and can be viewed in Reports. 
+
+{{< img src="building.png" alt="Injecting" >}}
 
 ### Logs
 
-By clicking on the second icon on last column, Gatling Enterprise will display the build logs of the simulation. There is a limit of 1000 logs for a run.
+By clicking on the **Last run** column of your simulation, you are redirected to the build logs for your run. There is a limit of 1,000 logs for a run.
 
-Viewing the Log can also be helpful in determining why a run failed and what errors you will need to correct to successfully run your simulation.
+{{< img src="go-to-logs.png" alt="Go to your logs" >}}
 
-The logs can also be viewed in the Reports, while the simulation is building.
+Viewing the Logs can also help determine why a run failed and what errors you need to correct to successfully run your simulation.
 
 {{< img src="logs.png" alt="Logs" >}}
 
-You can click on the third icon on last column to display the assertions of the run.
-Assertions are the assumptions made at the beginning of the simulation to be verified at the end:
-
-{{< img src="assertions.png" alt="Assertions" >}}
-
-## Useful tips
+### Useful tips
 
 - You can edit, copy the ID, duplicate and delete the simulation by clicking on the kebab menu icon
 - You can search a simulation by its name, or its team name
 - You can sort the simulations by any column
 - A **Delete** button will appear on the action bar when you select a simulation, you will be able to delete all the selected simulations
-- When a simulation is running, you can stop the ongoing run by clicking on the Stop button
+- You can edit [default load generator parameters]({{< ref "#default-load-generator-parameters" >}}) using the corresponding button at the top of the page
 
 Be aware that deleting a simulation will delete all the associated runs.
+
+### Default load generator parameters
+
+Default load generator parameters contain every Java system property or JS parameter and environment variable used in your simulations by default.
+Editing these properties propagates to all simulations. You can access the form by clicking the button in the top right corner of the [simulation page]({{<ref "#managing-simulations" >}}).
+
+{{< img src="default-load-generator-properties.png" alt="Properties" >}}
+
+If you want specific properties for a simulation, you can ignore the default properties by unchecking the `Default properties` box when creating or editing the simulation:
+
+{{< img src="override-load-generator-properties.png" alt="Override" >}}

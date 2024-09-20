@@ -9,7 +9,7 @@ date: 2021-03-10T14:29:43+00:00
 lastmod: 2023-10-12T09:41:48+00:00
 ---
 
-Click on the {{< icon chart-area >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}) or in the [runs table]({{< ref "../trends#simulation-runs" >}}) to access the reports.
+Click on the {{< icon chart-area >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#managing-simulations" >}}) or in the [runs table]({{< ref "../trends#simulation-runs" >}}) to access the reports.
 
 This view displays all the metrics available for a specific run.
 
@@ -166,7 +166,7 @@ The DNS panel shows metrics related to DNS requests made during the run executio
 
 ### Load generators
 
-This panel shows metrics related to the CPU, heap, GC, and TCP events of the load generators VMs used for your run and configured in your [simulation]({{< ref "../../execute/cloud/user/simulations#creating-a-simulation" >}}).
+This panel shows metrics related to the CPU, heap, GC, and TCP events of the load generators VMs used for your run and configured in your [simulation]({{< ref "../../execute/cloud/user/simulations#creating-a-test-as-code-simulation" >}}).
 
 {{< img src="report-load-generators.png" alt="Report Load Generators panel" >}}
 

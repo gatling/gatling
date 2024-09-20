@@ -11,7 +11,7 @@ badge:
 
 ## Run / Trends
 
-The runs list and trends for a simulation can be accessed by clicking on the {{< icon history >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}).
+The runs list and trends for a simulation can be accessed by clicking on the {{< icon history >}} icon in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#managing-simulations" >}}).
 
 This view contains the list of your simulation's runs which can be filtered by status and the trends which are displaying information between those runs.
 {{< img src="trends-overview.png" alt="Run trends" >}}
@@ -20,7 +20,7 @@ This view contains the list of your simulation's runs which can be filtered by s
 
 {{< img src="run-table.png" alt="Run table" >}}
 
-As with the results of the latest run in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#simulations-table" >}}), you
+As with the results of the latest run in the [simulations table]({{< ref "/reference/execute/cloud/user/simulations#managing-simulations" >}}), you
 can access the [logs]({{< ref "/reference/execute/cloud/user/simulations#logs" >}}) of the run by clicking on the status badge. 
 
 {{< img src="logs-badge.png" alt="Logs badge" >}}
