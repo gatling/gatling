@@ -61,6 +61,8 @@ control-plane {
       description = "Private Location on Dedicated Machines"
       # Private location type
       type = "dedicated"
+      # Engine (optional, default classic)
+      engine = "classic" # Possible values: classic or javascript
       ssh {
         # SSH user
         user = "gatling"
