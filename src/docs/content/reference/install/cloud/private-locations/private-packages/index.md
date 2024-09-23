@@ -204,11 +204,15 @@ Gatling provides Terraform modules to set up your infrastructure for Private Loc
 
 #### AWS S3 {#configure-private-packages-with-terraform-aws}
 
-To use the Terraform module to setup your AWS Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AWS-private-package/main.tf).
+To use the Terraform module to setup your AWS Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AWS-private-package).
 
 #### Azure Blob Storage {#configure-private-packages-with-terraform-azure}
 
-To use the Terraform module to setup your Azure Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AZURE-private-package/main.tf).
+To use the Terraform module to setup your Azure Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/AZURE-private-package).
+
+#### GCP Cloud Storage {#configure-private-packages-with-terraform-gcp}
+
+To use the Terraform module to setup your GCP Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/GCP-private-package).
 
 ### Upload Private Packages using HTTPS {#enableHttps}
 
