@@ -146,23 +146,27 @@ private object LatestGatlingRelease extends StrictLogging {
       }
   }
 
-  def load(): Option[GatlingVersion] = {
-    val now = System.currentTimeMillis()
-    loadPersisted().logDebugOnFailure("Failed to load persisted latest release") match {
-      case Success(lastCheck) if lastCheck.valid(now) =>
-        lastCheck match {
-          case FetchResult.Success(_, latestRelease) => Some(latestRelease)
-          case _                                     => None
-        }
+  def load(): Option[GatlingVersion] =
+    if (java.lang.Boolean.getBoolean("disableLatestVersionCheck")) {
+      logger.debug("Latest release check disabled by disableLatestVersionCheck system property.")
+      None
+    } else {
+      val now = System.currentTimeMillis()
+      loadPersisted().logDebugOnFailure("Failed to load persisted latest release") match {
+        case Success(lastCheck) if lastCheck.valid(now) =>
+          lastCheck match {
+            case FetchResult.Success(_, latestRelease) => Some(latestRelease)
+            case _                                     => None
+          }
 
-      case _ =>
-        val maybeFetched = fetchLatestReleaseFromMavenCentral().logDebugOnFailure("Failed to fetch latest release from maven central")
-        val fetchResult = maybeFetched.fold(
-          _ => FetchResult.Failure(now),
-          FetchResult.Success(now, _)
-        )
-        persist(fetchResult).logDebugOnFailure("Failed to persist last version check")
-        maybeFetched.toOption
+        case _ =>
+          val maybeFetched = fetchLatestReleaseFromMavenCentral().logDebugOnFailure("Failed to fetch latest release from maven central")
+          val fetchResult = maybeFetched.fold(
+            _ => FetchResult.Failure(now),
+            FetchResult.Success(now, _)
+          )
+          persist(fetchResult).logDebugOnFailure("Failed to persist last version check")
+          maybeFetched.toOption
+      }
     }
-  }
 }
