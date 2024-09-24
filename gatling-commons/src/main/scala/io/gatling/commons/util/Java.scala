@@ -19,9 +19,11 @@ package io.gatling.commons.util
 import scala.util.Properties
 
 object Java {
+  val FullVersion: String = Properties.javaSpecVersion
+
   val MajorVersion: Int =
-    (Properties.javaSpecVersion.split('.').toList match {
+    (FullVersion.split('.').toList match {
       case major :: _ => major
-      case _          => throw new IllegalArgumentException(s"Malformed java.specification.version System property value: ${Properties.javaSpecVersion}")
+      case _          => throw new IllegalArgumentException(s"Malformed java.specification.version System property value: $FullVersion")
     }).toInt
 }

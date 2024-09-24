@@ -64,6 +64,7 @@ object Analytics {
 
     val userPropertiesBase = Map(
       "java_version_major" -> Java.MajorVersion.toString,
+      "java_version_full" -> Java.FullVersion,
       "gatling_version_major" -> GatlingVersion.ThisVersion.majorVersion,
       "gatling_version_minor" -> GatlingVersion.ThisVersion.minorVersion,
       "gatling_version_full" -> GatlingVersion.ThisVersion.fullVersion,
