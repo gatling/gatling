@@ -90,6 +90,20 @@ control-plane {
           type = "certified"
           java = "latest" # See engine section
         }
+        # Custom image configuration (alternative to certified image)
+        # Base your location on a custom image from its name
+        # image {
+        #   type = "custom"
+        #   project = "my-project"
+        #   id = "image-name"
+        # }
+        # Custom image configuration (alternative to certified image)
+        # Base your location on a custom image from its image family
+        # image {
+        #   type = "custom"
+        #   project = "my-project"
+        #   family = "image-family"
+        # }
         # Storage configuration
         disk {
           # Disk size in Gb (mininum 20Gb)
