@@ -9,8 +9,8 @@ badge:
   label: Enterprise
 aliases:
   - /reference/extensions/ci-cd/azure-devops
-date: 2023-11-09T15:25:27:+0000
-lastmod: 2023-11-09T15:25:27:+0000
+date: 2023-11-09T15:25:27+0000
+lastmod: 2024-10-01T13:00:00+0000
 ---
 
 We do not currently provide an official Azure Pipelines extension.
@@ -53,21 +53,20 @@ trigger: none
 pool: AzurePipelinesPool # Name of the agent pool configured in Azure DevOps
 
 steps:
-- task: Bash@3
-  displayName: Install JQ
-  inputs:
-    targetType: 'inline'
-    # Curl and JQ are required by the CI script
-    # In this example, we use Ubuntu agents which come with curl but not jq
-    script: 'sudo apt-get update && sudo apt-get -y install jq'
-- task: Bash@3
-  displayName: Start simulation
-  inputs:
-    filePath: 'start_simulation.sh'
-    arguments: >
-      $(gatlingEnterpriseUrl)
-      $(apiToken)
-      $(simulationId)
+  - task: Bash@3
+    displayName: Install JQ
+    inputs:
+      targetType: 'inline'
+      # Curl and JQ are required by the CI script
+      # In this example, we use Ubuntu agents which come with curl but not jq
+      script: 'sudo apt-get update && sudo apt-get -y install jq'
+  - task: Bash@3
+    displayName: Start simulation
+    env:
+      GATLING_ENTERPRISE_API_TOKEN: $(GATLING_ENTERPRISE_API_TOKEN)
+    inputs:
+      filePath: 'start_simulation.sh'
+      arguments: $(simulationId)
 ```
 
 {{< alert info >}}
@@ -92,8 +91,7 @@ From here, you will follow a 4 steps process: Connect -> Select -> Configure -> 
 
 4. On the **Review** step, create three variables by clicking **New variable** on the top right, then:
 
-    - `gatlingEnterpriseUrl`: use `https://cloud.gatling.io`
-    - `apiToken`: make sure **Keep this value secret** is enabled
+    - `GATLING_ENTERPRISE_API_TOKEN`: make sure **Keep this value secret** is enabled
     - `simulationId`: use the ID of the simulation you want to run
 
 Here is what it looks like:
