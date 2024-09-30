@@ -145,6 +145,28 @@ Ramp up/down parameters will only be applied if the run duration is longer than 
 Ramp up/down parameters can also be specified with the [public API]({{< ref "/reference/execute/cloud/user/api/" >}}) and the [package descriptor]({{< ref "/reference/execute/cloud/user/configuration-as-code/" >}}). 
 {{< /alert >}}
 
+### Step 5: Stop Criteria {{% badge info "Optional" /%}} {#step-5-stop-criteria}
+
+In this step, you can configure specific stop criteria to end the run earlier if certain thresholds are exceeded. 
+This is particularly useful for terminating test runs once key performance metrics exceed acceptable limits.
+
+Each stop criterion must include:
+* **Metric**: The metric over which the metric is evaluated. _(Mean CPU, Global Error Ratio or Global Response Time)_
+* **Threshold**: The value that, when reached or exceeded, will trigger the stop condition. _(eg: over 30% / 300ms on 99.9 percentile)_
+* **Timeframe (in seconds)**: The period during which the **metric** must exceed the **threshold** for the entire duration to trigger the stop. _(eg: last 60 seconds)_
+
+You can base stop criteria on the following metrics:
+* **Mean CPU Usage**: The average CPU usage of the load generators, measured as a percentage.
+* **Global Error Ratio**: The percentage of failed requests across all test scenarios.
+* **Global Response Time**: The response time of all requests, measured at a specific percentile, in milliseconds.
+
+{{< img src="step5.png" alt="Create simulation - Step 5" >}}
+
+{{< alert tip >}}
+If you set a stop criterion to monitor the **mean CPU** over a **timeframe of 60 seconds** with a **threshold of 80%**, 
+the **run will stop if the mean CPU exceeds 80% for the last 60 seconds**.
+{{< /alert >}}
+
 ## Simulation execution
 
 Using the [simulations table]({{<ref "#managing-simulations" >}}), you can control your simulation execution.
