@@ -3,8 +3,8 @@ title: gRPC Messages
 seotitle: Gatling gRPC protocol reference - messages
 description: Request and response message with Gatling gRPC
 lead: Learn how to handle gRPC request and response messages in Gatling simulations
-date: 2023-09-07T12:00:00:+0200
-lastmod: 2023-09-07T12:00:00:+0200
+date: 2023-09-07T12:00:00+0200
+lastmod: 2023-09-07T12:00:00+0200
 ---
 
 Gatling gRPC requests are constructed based on a `MethodDescriptor` which describes all information required to call the

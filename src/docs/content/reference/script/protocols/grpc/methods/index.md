@@ -3,8 +3,8 @@ title: gRPC Methods
 seotitle: Gatling gRPC protocol reference - DSL methods
 description: All methods of the Gatling gRPC DSL
 lead: Learn how to use each method offered by the Gatling gRPC DSL
-date: 2023-08-24T11:27:53:+0200
-lastmod: 2023-08-24T11:27:53:+0200
+date: 2023-08-24T11:27:53+0200
+lastmod: 2023-08-24T11:27:53+0200
 ---
 
 {{< alert warning >}}
