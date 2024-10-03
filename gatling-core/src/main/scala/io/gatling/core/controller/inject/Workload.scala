@@ -41,7 +41,7 @@ private abstract class Workload(
   private def incrementScheduledUsers(): Unit = scheduled += 1
 
   protected def setAllScheduled(): Unit = {
-    logger.info(s"Scenario $scenario has finished injecting")
+    logger.info(s"Scenario ${scenario.name} has finished injecting")
     allScheduled = true
   }
 
