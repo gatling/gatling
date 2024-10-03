@@ -44,15 +44,14 @@ object DataWritersStatsEngine {
   ): DataWritersStatsEngine = {
     val dataWriters = configuration.data.dataWriters
       .map {
-        case DataWriterType.Console => system.actorOf(new ConsoleDataWriter(clock, configuration))
+        case DataWriterType.Console => new ConsoleDataWriter(clock, configuration)
         case DataWriterType.File =>
-          system.actorOf(
-            new LogFileDataWriter(
-              resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
-              configuration
-            )
+          new LogFileDataWriter(
+            resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
+            configuration
           )
       }
+      .map(system.actorOf)
 
     val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
 
