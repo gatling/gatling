@@ -47,7 +47,7 @@ object Dependencies {
   private val lagarto                        = "org.jodd"                             % "jodd-lagarto"                      % "6.0.6"
   private val joddUtil                       = "org.jodd"                             % "jodd-util"                         % "6.3.0"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.6.0"
-  private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.4.0"
+  private val boopickle                      = "io.suzaku"                           %% "boopickle"                         % "1.5.0"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
