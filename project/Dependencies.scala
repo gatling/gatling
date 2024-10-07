@@ -54,7 +54,7 @@ object Dependencies {
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.8"
-  private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.1"
+  private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.3"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
   private val bouncyCastle                   = "io.gatling"                           % "gatling-recorder-bc-shaded"        % "1.78.1"

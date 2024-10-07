@@ -111,7 +111,7 @@ class LogFileReaderSpec extends BaseSpec {
       charting.indicators.Percentile1 -> 99,
       charting.indicators.Percentile2 -> 100
     )
-    fileData.requestGeneralStats(None, None, None).percentile(99) shouldBe 8860
+    fileData.requestGeneralStats(None, None, None).percentile(99) shouldBe 9000
     fileData.requestGeneralStats(None, None, None).percentile(100) shouldBe 9000
   }
 
