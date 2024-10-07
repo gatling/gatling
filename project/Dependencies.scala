@@ -36,7 +36,9 @@ object Dependencies {
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
-  private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.9"
+  private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "12.5"
+  private val xmlresolver                    = "org.xmlresolver"                      % "xmlresolver"                       % "6.0.10"
+  private val xmlresolverData                = xmlresolver                                                                                           classifier "data"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "2.0.16"
   private val cfor                           = "io.github.metarank"                  %% "cfor"                              % "0.3"
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
@@ -93,7 +95,7 @@ object Dependencies {
     scalaCheck,
     mockitoCore
   )
-  private val parserDeps = Seq(jackson, saxon, lagarto, joddUtil, jmespath)
+  private val parserDeps = Seq(jackson, saxon, xmlresolver, xmlresolverData, lagarto, joddUtil, jmespath)
 
   // Dependencies by module
   private val gatlingGrpcVersion = "3.12.0.3"
@@ -186,7 +188,7 @@ object Dependencies {
     jettyProxy
   ) ++ loggingDeps
 
-  val httpDependencies = Seq(saxon) ++ testDeps
+  val httpDependencies = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
 

@@ -24,7 +24,7 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 import net.sf.saxon.Configuration
-import net.sf.saxon.lib.{ ParseOptions, Validation }
+import net.sf.saxon.lib.Validation
 import net.sf.saxon.om.TreeModel
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmNode, XdmValue }
 import org.xml.sax.InputSource
@@ -53,15 +53,11 @@ private final class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: L
 object XmlParsers {
   private val config = new Configuration
   private val processor = new Processor(config)
-  private val options = {
-    val opt = new ParseOptions(config.getParseOptions)
-    opt.setDTDValidationMode(Validation.SKIP)
-    opt.setSchemaValidationMode(Validation.SKIP)
-    opt.setModel(TreeModel.TINY_TREE)
-    opt
-  }
-
-  private def newXPathCompiler: XPathCompiler = processor.newXPathCompiler
+  private val options =
+    config.getParseOptions
+      .withDTDValidationMode(Validation.SKIP)
+      .withSchemaValidationMode(Validation.SKIP)
+      .withModel(TreeModel.TINY_TREE)
 
   def parse(text: String): XdmNode =
     parse(new InputSource(new StringReader(text)))
