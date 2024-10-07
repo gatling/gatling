@@ -97,7 +97,7 @@ class LogFileReaderSpec extends BaseSpec {
     error shouldBe <=(0.06)
   }
 
-  it should "return expected responseTimePercentile for the (0, 0.7) percentiles" in {
+  it should "return expected responseTimePercentile for the p0 and p70" in {
     val fileData = logFileData(
       charting.indicators.Percentile1 -> 0,
       charting.indicators.Percentile2 -> 70
@@ -106,7 +106,7 @@ class LogFileReaderSpec extends BaseSpec {
     fileData.requestGeneralStats(None, None, None).percentile(70) shouldBe 5000
   }
 
-  it should "return expected result for the (99.99, 100) percentiles" in {
+  it should "return expected result for the p99 and p100" in {
     val fileData = logFileData(
       charting.indicators.Percentile1 -> 99,
       charting.indicators.Percentile2 -> 100
