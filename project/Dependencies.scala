@@ -36,7 +36,7 @@ object Dependencies {
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val config                         = "com.typesafe"                         % "config"                            % "1.4.3"
-  private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.6"
+  private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                          % "10.9"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                         % "2.0.16"
   private val cfor                           = "io.github.metarank"                  %% "cfor"                              % "0.3"
   private val scopt                          = "com.github.scopt"                    %% "scopt"                             % "3.7.1"
