@@ -1270,13 +1270,10 @@ public interface CheckBuilder {
   }
 
   /** An implementation of {@link CaptureGroupCheckBuilder} for regex applied on Strings */
-  final class Regex
-      extends CaptureGroupCheckBuilder.Default<io.gatling.core.check.regex.RegexCheckType, String> {
+  final class Regex extends CaptureGroupCheckBuilder.Default<RegexCheckType, String> {
 
     public Regex(
-        io.gatling.core.check.CheckBuilder.MultipleFind<
-                io.gatling.core.check.regex.RegexCheckType, String, String>
-            wrapped) {
+        io.gatling.core.check.CheckBuilder.MultipleFind<RegexCheckType, String, String> wrapped) {
       super(wrapped, CoreCheckType.Regex);
     }
 
@@ -1373,86 +1370,58 @@ public interface CheckBuilder {
 
       @NonNull
       protected abstract <X> io.gatling.core.check.CheckBuilder.Find<T, JsonNode, X> ofType(
-          io.gatling.core.check.jsonpath.JsonFilter<X> filter);
+          JsonFilter<X> filter);
 
       @Override
       @NonNull
       public Find<String> ofString() {
-        return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
-            type,
-            String.class,
-            null);
+        return new Find.Default<>(ofType(JsonFilter.stringJsonFilter()), type, String.class, null);
       }
 
       @Override
       @NonNull
       public Find<Boolean> ofBoolean() {
         return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
-            type,
-            Boolean.class,
-            Boolean.class::cast);
+            ofType(JsonFilter.jBooleanJsonFilter()), type, Boolean.class, Boolean.class::cast);
       }
 
       @Override
       @NonNull
       public Find<Integer> ofInt() {
         return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
-            type,
-            Integer.class,
-            Integer.class::cast);
+            ofType(JsonFilter.jIntegerJsonFilter()), type, Integer.class, Integer.class::cast);
       }
 
       @Override
       @NonNull
       public Find<Long> ofLong() {
         return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
-            type,
-            Long.class,
-            Long.class::cast);
+            ofType(JsonFilter.jLongJsonFilter()), type, Long.class, Long.class::cast);
       }
 
       @Override
       @NonNull
       public Find<Double> ofDouble() {
         return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
-            type,
-            Double.class,
-            Double.class::cast);
+            ofType(JsonFilter.jDoubleJsonFilter()), type, Double.class, Double.class::cast);
       }
 
       @Override
       @NonNull
       public Find<List<Object>> ofList() {
-        return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
-            type,
-            List.class,
-            null);
+        return new Find.Default<>(ofType(JsonFilter.jListJsonFilter()), type, List.class, null);
       }
 
       @Override
       @NonNull
       public Find<Map<String, Object>> ofMap() {
-        return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
-            type,
-            Map.class,
-            null);
+        return new Find.Default<>(ofType(JsonFilter.jMapJsonFilter()), type, Map.class, null);
       }
 
       @Override
       @NonNull
       public Find<Object> ofObject() {
-        return new Find.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
-            type,
-            Object.class,
-            null);
+        return new Find.Default<>(ofType(JsonFilter.jObjectJsonFilter()), type, Object.class, null);
       }
     }
   }
@@ -1539,86 +1508,62 @@ public interface CheckBuilder {
 
       @NonNull
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, JsonNode, X> ofType(
-          io.gatling.core.check.jsonpath.JsonFilter<X> filter);
+          JsonFilter<X> filter);
 
       @Override
       @NonNull
       public MultipleFind<String> ofString() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.stringJsonFilter()),
-            type,
-            String.class,
-            null);
+            ofType(JsonFilter.stringJsonFilter()), type, String.class, null);
       }
 
       @Override
       @NonNull
       public MultipleFind<Boolean> ofBoolean() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jBooleanJsonFilter()),
-            type,
-            Boolean.class,
-            Boolean.class::cast);
+            ofType(JsonFilter.jBooleanJsonFilter()), type, Boolean.class, Boolean.class::cast);
       }
 
       @Override
       @NonNull
       public MultipleFind<Integer> ofInt() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jIntegerJsonFilter()),
-            type,
-            Integer.class,
-            Integer.class::cast);
+            ofType(JsonFilter.jIntegerJsonFilter()), type, Integer.class, Integer.class::cast);
       }
 
       @Override
       @NonNull
       public MultipleFind<Long> ofLong() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jLongJsonFilter()),
-            type,
-            Long.class,
-            Long.class::cast);
+            ofType(JsonFilter.jLongJsonFilter()), type, Long.class, Long.class::cast);
       }
 
       @Override
       @NonNull
       public MultipleFind<Double> ofDouble() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jDoubleJsonFilter()),
-            type,
-            Double.class,
-            Double.class::cast);
+            ofType(JsonFilter.jDoubleJsonFilter()), type, Double.class, Double.class::cast);
       }
 
       @Override
       @NonNull
       public MultipleFind<List<Object>> ofList() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jListJsonFilter()),
-            type,
-            List.class,
-            null);
+            ofType(JsonFilter.jListJsonFilter()), type, List.class, null);
       }
 
       @Override
       @NonNull
       public MultipleFind<Map<String, Object>> ofMap() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jMapJsonFilter()),
-            type,
-            Map.class,
-            null);
+            ofType(JsonFilter.jMapJsonFilter()), type, Map.class, null);
       }
 
       @Override
       @NonNull
       public MultipleFind<Object> ofObject() {
         return new MultipleFind.Default<>(
-            ofType(io.gatling.core.check.jsonpath.JsonFilter.jObjectJsonFilter()),
-            type,
-            Object.class,
-            null);
+            ofType(JsonFilter.jObjectJsonFilter()), type, Object.class, null);
       }
     }
   }
@@ -1628,13 +1573,10 @@ public interface CheckBuilder {
    *
    * @see <a href="https://jmespath.org/">https://jmespath.org/</a>
    */
-  final class JmesPath
-      extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JmesPathCheckType> {
+  final class JmesPath extends JsonOfTypeFind.Default<JmesPathCheckType> {
 
     public JmesPath(
-        io.gatling.core.check.CheckBuilder.Find<
-                io.gatling.core.check.jmespath.JmesPathCheckType, JsonNode, String>
-            wrapped) {
+        io.gatling.core.check.CheckBuilder.Find<JmesPathCheckType, JsonNode, String> wrapped) {
       super(wrapped, CoreCheckType.JmesPath);
     }
 
@@ -1654,13 +1596,11 @@ public interface CheckBuilder {
    *
    * @see <a href="https://jmespath.org/">https://jmespath.org/</a>
    */
-  final class JsonpJmesPath
-      extends JsonOfTypeFind.Default<io.gatling.core.check.jmespath.JsonpJmesPathCheckType> {
+  final class JsonpJmesPath extends JsonOfTypeFind.Default<JsonpJmesPathCheckType> {
 
     public JsonpJmesPath(
         @NonNull
-            io.gatling.core.check.CheckBuilder.Find<
-                    io.gatling.core.check.jmespath.JsonpJmesPathCheckType, JsonNode, String>
+            io.gatling.core.check.CheckBuilder.Find<JsonpJmesPathCheckType, JsonNode, String>
                 wrapped) {
       super(wrapped, CoreCheckType.JsonpJmesPath);
     }
@@ -1678,18 +1618,16 @@ public interface CheckBuilder {
   }
 
   /**
-   * An implementation of {@link JsonOfTypeFind} for JsonPath.
+   * An implementation of {@link JsonOfTypeMultipleFind} for JsonPath.
    *
    * @see <a
    *     href="https://goessner.net/articles/JsonPath/">https://goessner.net/articles/JsonPath/</a>
    */
-  final class JsonPath
-      extends JsonOfTypeMultipleFind.Default<io.gatling.core.check.jsonpath.JsonPathCheckType> {
+  final class JsonPath extends JsonOfTypeMultipleFind.Default<JsonPathCheckType> {
 
     public JsonPath(
         @NonNull
-            io.gatling.core.check.CheckBuilder.MultipleFind<
-                    io.gatling.core.check.jsonpath.JsonPathCheckType, JsonNode, String>
+            io.gatling.core.check.CheckBuilder.MultipleFind<JsonPathCheckType, JsonNode, String>
                 wrapped) {
       super(wrapped, CoreCheckType.JsonPath);
     }
@@ -1707,19 +1645,17 @@ public interface CheckBuilder {
   }
 
   /**
-   * An implementation of {@link JsonOfTypeFind} for JSONP + JsonPath.
+   * An implementation of {@link JsonOfTypeMultipleFind} for JSONP + JsonPath.
    *
    * @see <a
    *     href="https://goessner.net/articles/JsonPath/">https://goessner.net/articles/JsonPath/</a>
    */
-  final class JsonpJsonPath
-      extends JsonOfTypeMultipleFind.Default<
-          io.gatling.core.check.jsonpath.JsonpJsonPathCheckType> {
+  final class JsonpJsonPath extends JsonOfTypeMultipleFind.Default<JsonpJsonPathCheckType> {
 
     public JsonpJsonPath(
         @NonNull
             io.gatling.core.check.CheckBuilder.MultipleFind<
-                    io.gatling.core.check.jsonpath.JsonpJsonPathCheckType, JsonNode, String>
+                    JsonpJsonPathCheckType, JsonNode, String>
                 wrapped) {
       super(wrapped, CoreCheckType.JsonpJsonPath);
     }
@@ -1796,11 +1732,10 @@ public interface CheckBuilder {
   }
 
   /** An implementation of {@link CssOfTypeMultipleFind} for css selectors applied on Strings */
-  final class Css extends CssOfTypeMultipleFind.Default<io.gatling.core.check.css.CssCheckType> {
+  final class Css extends CssOfTypeMultipleFind.Default<CssCheckType> {
 
     public Css(
-        io.gatling.core.check.CheckBuilder.MultipleFind<
-                io.gatling.core.check.css.CssCheckType, NodeSelector, String>
+        io.gatling.core.check.CheckBuilder.MultipleFind<CssCheckType, NodeSelector, String>
             wrapped) {
       super(wrapped, CoreCheckType.Css);
     }
