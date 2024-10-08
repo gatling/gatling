@@ -52,7 +52,7 @@ public class GatlingHttpClient implements AutoCloseable {
     this.nameResolver =
         new InetAddressNameResolverWrapper(
             new DnsNameResolverBuilder(eventLoopGroup.next())
-                .channelFactory(NioDatagramChannel::new)
+                .datagramChannelFactory(NioDatagramChannel::new)
                 .build());
   }
 
