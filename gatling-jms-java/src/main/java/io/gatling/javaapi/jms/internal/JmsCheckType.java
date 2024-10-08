@@ -19,5 +19,6 @@ package io.gatling.javaapi.jms.internal;
 import io.gatling.javaapi.core.CheckBuilder;
 
 public enum JmsCheckType implements CheckBuilder.CheckType {
-  Simple
+  Simple,
+  JmsProperty
 }

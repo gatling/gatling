@@ -17,6 +17,7 @@
 package io.gatling.javaapi.jms.internal
 
 import java.{ util => ju }
+import javax.jms.Message
 
 import scala.jdk.CollectionConverters._
 
@@ -31,6 +32,7 @@ import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.javaapi.core.internal.CoreCheckType
 import io.gatling.jms.{ Predef => JmsPredef }
 import io.gatling.jms.JmsCheck
+import io.gatling.jms.check.JmsPropertyCheckType
 
 import com.fasterxml.jackson.databind.JsonNode
 import net.sf.saxon.s9api.XdmNode
@@ -57,6 +59,10 @@ object JmsChecks {
           .asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]]
           .build(JmsPredef.jmsJmesPathCheckMaterializer(CorePredef.defaultJsonParsers))
       case JmsCheckType.Simple => scalaCheck.build(null).asInstanceOf[JmsCheck]
+      case JmsCheckType.JmsProperty =>
+        scalaCheck
+          .asInstanceOf[CheckBuilder[JmsPropertyCheckType, Message]]
+          .build(JmsPredef.jmsPropertyCheckMaterializer)
 
       case unknown => throw new IllegalArgumentException(s"JMS DSL doesn't support $unknown")
     }

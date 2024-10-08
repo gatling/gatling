@@ -117,6 +117,8 @@ class JmsCompileTest extends Simulation {
         .check(bodyLength.lte(50))
         .check(bodyBytes.transform(_.length).lte(50))
         .check(bodyString)
+        .check(jmsProperty("header").is("foo"))
+        .check(jmsProperty("header").ofType[Int].is(1))
         .check(
           bodyString.is("hello"),
           substring("he").count.is(1),

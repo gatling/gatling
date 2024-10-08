@@ -122,4 +122,8 @@ public final class JmsDsl {
       }
     };
   }
+
+  public static JmsCheckBuilder.JmsPropertyOfTypeFind jmsProperty(String propertyName) {
+    return new JmsCheckBuilder.JmsProperty(io.gatling.jms.Predef.jmsProperty(propertyName));
+  }
 }

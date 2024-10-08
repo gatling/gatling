@@ -124,6 +124,8 @@ public class JmsJavaCompileTest extends Simulation {
                   .check(bodyBytes().transform(bytes -> bytes.length).lte(50))
                   .check(bodyString())
                   .check(bodyString().is("hello"), substring("he").count().is(1))
+                  .check(jmsProperty("header").is("foo"))
+                  .check(jmsProperty("header").ofInt().is(1))
                   .checkIf("#{bool}")
                   .then(jsonPath("$..foo"))
                   .checkIf((message, session) -> true)

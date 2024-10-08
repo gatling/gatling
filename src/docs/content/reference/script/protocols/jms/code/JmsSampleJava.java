@@ -105,6 +105,17 @@ jms("name").send().queue("queueName")
   .jmsType("type")
   .property("foo", "bar");
 //#extra
+
+//#jmsPropertyCheck
+jms("name").requestReply().queue("queueName")
+  .textMessage("message")
+  // check a String property
+  .check(jmsProperty("foo").is("bar"))
+  // check an int property
+  .check(jmsProperty("foo").ofInt().is(1))
+  // save a property
+  .check(jmsProperty("foo").saveAs("fooProperty"));
+//#jmsPropertyCheck
 }
 
 //#simple

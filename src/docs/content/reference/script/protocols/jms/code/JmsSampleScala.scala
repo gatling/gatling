@@ -103,6 +103,17 @@ jms("name").send.queue("queueName")
 //#extra
   }
 
+//#jmsPropertyCheck
+jms("name").requestReply.queue("queueName")
+  .textMessage("message")
+  // check a String property
+  .check(jmsProperty("foo").is("bar"))
+  // check an int property
+  .check(jmsProperty("foo").ofType[Int].is(1))
+  // save a property
+  .check(jmsProperty("foo").saveAs("fooProperty"))
+//#jmsPropertyCheck
+
 //#simple
 def checkBodyTextCorrect(m: Message) = {
   // this assumes that the service just does an "uppercase" transform on the text

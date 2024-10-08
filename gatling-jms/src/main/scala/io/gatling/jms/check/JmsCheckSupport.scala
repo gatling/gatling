@@ -49,6 +49,9 @@ trait JmsCheckSupport {
       None
     )
 
+  def jmsProperty(propertyName: String): CheckBuilder.Find.Default[JmsPropertyCheckType, Message, String] with JmsPropertyOfType =
+    JmsPropertyCheckBuilder.jmsProperty(propertyName)
+
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
   implicit def checkBuilder2JmsCheck[T, P](
       checkBuilder: CheckBuilder[T, P]
@@ -99,6 +102,9 @@ trait JmsCheckSupport {
       jsonParsers: JsonParsers
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
     JmsCheckMaterializer.jmesPath(jsonParsers)
+
+  implicit val jmsPropertyCheckMaterializer: CheckMaterializer[JmsPropertyCheckType, JmsCheck, Message, Message] =
+    JmsCheckMaterializer.JmsProperty
 
   implicit val jmsUntypedCheckIfMaker: UntypedCheckIfMaker[JmsCheck] = _.checkIf(_)
 

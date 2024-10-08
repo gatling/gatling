@@ -91,6 +91,10 @@ Gatling JMS's support only current supports the following checks:
 * [`jmesPath`]({{< ref "../core/checks#jmespath" >}})
 * [`xpath`]({{< ref "../core/checks#xpath" >}})
 
+It also supports `jmsProperty` for checking JMS properties on reply messages.
+
+{{< include-code "jmsPropertyCheck" java kt scala >}}
+
 In addition, there's `simpleCheck`:
 
 {{< include-code "simple" java kt scala >}}

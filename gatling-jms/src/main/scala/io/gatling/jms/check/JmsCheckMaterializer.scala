@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 import javax.jms.{ BytesMessage, Message, TextMessage }
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ CheckMaterializer, Preparer }
+import io.gatling.core.check.{ identityPreparer, CheckMaterializer, Preparer }
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
@@ -101,4 +101,7 @@ object JmsCheckMaterializer {
 
     new JmsCheckMaterializer(preparer)
   }
+
+  val JmsProperty: CheckMaterializer[JmsPropertyCheckType, JmsCheck, Message, Message] =
+    new JmsCheckMaterializer(identityPreparer)
 }
