@@ -44,7 +44,7 @@ object JsonPathCheckBuilder {
     new JsonPathCheckBuilder[String](path, jsonPaths) with JsonPathOfType
 }
 
-class JsonPathCheckBuilder[X: JsonFilter](
+class JsonPathCheckBuilder[X: JsonFilter] private[jsonpath] (
     path: Expression[String],
     jsonPaths: JsonPaths
 ) extends JsonPathCheckBuilderBase[JsonPathCheckType, X]("jsonPath", path, jsonPaths)

@@ -41,7 +41,7 @@ object HttpHeaderRegexCheckBuilder {
     new HttpHeaderRegexCheckBuilder[String](headerName, pattern, patterns) with HttpHeaderRegexOfType
 }
 
-class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
+class HttpHeaderRegexCheckBuilder[X: GroupExtractor] private[header] (
     private[header] val headerName: Expression[CharSequence],
     private[header] val pattern: Expression[String],
     private[header] val patterns: Patterns

@@ -33,7 +33,7 @@ object CssCheckBuilder {
     new CssCheckBuilder[String](expression, nodeAttribute, selectors) with CssOfType
 }
 
-class CssCheckBuilder[X: NodeConverter](
+class CssCheckBuilder[X: NodeConverter] private[css] (
     private[css] val expression: Expression[String],
     private[css] val nodeAttribute: Option[String],
     private[css] val selectors: CssSelectors

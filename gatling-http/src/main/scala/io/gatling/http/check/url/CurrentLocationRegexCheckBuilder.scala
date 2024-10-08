@@ -38,7 +38,7 @@ object CurrentLocationRegexCheckBuilder {
     new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
 }
 
-class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
+class CurrentLocationRegexCheckBuilder[X: GroupExtractor] private[url] (
     private[url] val pattern: Expression[String],
     private[url] val patterns: Patterns
 ) extends CheckBuilder.MultipleFind.Default[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {

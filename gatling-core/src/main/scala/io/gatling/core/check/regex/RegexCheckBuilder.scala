@@ -31,7 +31,7 @@ object RegexCheckBuilder {
     new RegexCheckBuilder[String](pattern, patterns) with RegexOfType
 }
 
-class RegexCheckBuilder[X: GroupExtractor](
+class RegexCheckBuilder[X: GroupExtractor] private[regex] (
     private[regex] val pattern: Expression[String],
     private[regex] val patterns: Patterns
 ) extends CheckBuilder.MultipleFind.Default[RegexCheckType, String, X](displayActualValue = true) {

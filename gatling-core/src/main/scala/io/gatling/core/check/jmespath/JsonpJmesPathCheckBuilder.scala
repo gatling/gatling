@@ -36,7 +36,7 @@ object JsonpJmesPathCheckBuilder {
     new JsonpJmesPathCheckBuilder[String](path, jmesPaths) with JsonpJmesPathOfType
 }
 
-class JsonpJmesPathCheckBuilder[X: JsonFilter](
+class JsonpJmesPathCheckBuilder[X: JsonFilter] private[jmespath] (
     path: Expression[String],
     jmesPaths: JmesPaths
 ) extends JmesPathCheckBuilderBase[JsonpJmesPathCheckType, X]("jsonpJmesPath", path, jmesPaths)
