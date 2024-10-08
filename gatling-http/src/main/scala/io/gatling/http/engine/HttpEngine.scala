@@ -188,7 +188,7 @@ final class HttpEngine(
       new DnsNameResolverBuilder(eventLoop)
         .datagramChannelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport, configuration.netty.useIoUring))
         .nameServerProvider(
-          if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault
+          if (dnsServers.isEmpty) DnsServerAddressStreamProviders.platformDefault
           else new SequentialDnsServerAddressStreamProvider(dnsServers: _*)
         )
         .queryTimeoutMillis(configuration.http.dns.queryTimeout.toMillis.toInt)
