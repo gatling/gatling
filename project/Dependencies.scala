@@ -87,7 +87,6 @@ object Dependencies {
   private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.28.16"
   
   // format: ON
-  private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(
     scalaTest,
     scalaTestScalacheck,
@@ -120,7 +119,7 @@ object Dependencies {
   val commonsSharedUnstableDependencies = testDeps
 
   val commonsDependencies =
-    Seq(gatlingSharedUtil, config, cfor) ++ loggingDeps ++ testDeps
+    Seq(gatlingSharedUtil, config, cfor, slf4jApi, scalaLogging, logback) ++ testDeps
 
   val jsonpathDependencies =
     Seq(gatlingSharedUtil, scalaParserCombinators, jackson) ++ testDeps
@@ -185,8 +184,10 @@ object Dependencies {
     junitEngine,
     jupiterInterface,
     jetty,
-    jettyProxy
-  ) ++ loggingDeps
+    jettyProxy,
+    slf4jApi,
+    logback
+  )
 
   val httpDependencies = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
