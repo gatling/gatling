@@ -104,14 +104,14 @@ Based on the scenario described in [Launch the Recorder](#launch-the-recorder) p
 4. Select 'Macbook pro'.
 5. Return to the Recorder application.
 6. Enter a 'Browse' tag and click **Add**
-6. Go back to the home page.
-7. Browse through the model pages by clicking on the **Next** button.
-8. Return to the Recorder application.
-8. Enter an 'Edit' tag and click **Add**.
-9. Return to the browser and Click on **Add new computer**.
-10. Fill the form.
-11. Click on **Create this computer**.
-12. Return to the Recorder application and click **Stop**
+7. Go back to the home page.
+8. Browse through the model pages by clicking on the **Next** button.
+9. Return to the Recorder application.
+10. Enter an 'Edit' tag and click **Add**.
+11. Return to the browser and Click on **Add new computer**.
+12. Fill the form.
+13. Click on **Create this computer**.
+14. Return to the Recorder application and click **Stop**
 
 The simulation is generated in the folder:
 
