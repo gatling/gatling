@@ -18,11 +18,12 @@ package io.gatling.charts.stats
 
 import io.gatling.commons.stats.assertion.Assertion
 
-private[charts] final case class RunInfo(
-    injectStart: Long,
-    injectEnd: Long,
-    simulationClassName: String,
-    simulationId: String,
-    runDescription: String,
-    assertions: List[Assertion]
+private[charts] final class RunInfo(
+    val injectStart: Long,
+    val injectEnd: Long,
+    val simulationClassName: String,
+    val runDescription: String,
+    val runStart: Long,
+    val scenarios: Array[String],
+    val assertions: List[Assertion]
 )

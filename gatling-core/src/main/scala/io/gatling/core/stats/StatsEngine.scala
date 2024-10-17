@@ -26,7 +26,7 @@ import io.gatling.core.session.GroupBlock
 import io.netty.channel.ChannelHandler
 
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
-  def start(): Unit
+  private[gatling] def start(): Unit
 
   private[gatling] def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit
 

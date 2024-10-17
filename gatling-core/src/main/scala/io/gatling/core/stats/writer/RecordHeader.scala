@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.core.stats.message
+package io.gatling.core.stats.writer
 
-private[gatling] object MessageEvent {
-  def apply(name: String): MessageEvent = name match {
-    case Start.name => Start
-    case End.name   => End
-    case _          => throw new IllegalArgumentException(s"Illegal MessageEvent value $name")
-  }
-
-  case object Start extends MessageEvent("START")
-  case object End extends MessageEvent("END")
+private[gatling] object RecordHeader {
+  private[gatling] object Run extends RecordHeader(0)
+  private[gatling] object Request extends RecordHeader(1)
+  private[gatling] object User extends RecordHeader(2)
+  private[gatling] object Group extends RecordHeader(3)
+  private[gatling] object Error extends RecordHeader(4)
 }
 
-private[gatling] sealed abstract class MessageEvent(val name: String) extends Serializable with Product
+private[gatling] sealed abstract class RecordHeader(val value: Byte)

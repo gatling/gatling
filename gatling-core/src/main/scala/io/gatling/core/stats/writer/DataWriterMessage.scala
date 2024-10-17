@@ -76,6 +76,6 @@ private[gatling] object DataWriterMessage {
       val duration: Int = (endTimestamp - startTimestamp).toInt
     }
 
-    final case class Error(message: String, date: Long) extends LoadEvent
+    final case class Error(message: String, timestamp: Long) extends LoadEvent
   }
 }

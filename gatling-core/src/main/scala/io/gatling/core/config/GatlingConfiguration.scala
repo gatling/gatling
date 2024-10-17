@@ -114,7 +114,7 @@ object GatlingConfiguration extends StrictLogging {
             s"BoringSSL is enabled in your configuration, yet it's not available for your platform ${PlatformDependent
                 .normalizedOs()}_${PlatformDependent.normalizedArch()}.",
             OpenSsl.unavailabilityCause()
-          );
+          )
         }
       }
     val enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList match {
