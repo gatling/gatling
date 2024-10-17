@@ -104,9 +104,9 @@ final class DataWritersStatsEngine(
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
-  override def logUserStart(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserStart(scenario, clock.nowMillis))
+  override def logUserStart(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.User(scenario, clock.nowMillis, start = true))
 
-  override def logUserEnd(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.UserEnd(scenario, clock.nowMillis))
+  override def logUserEnd(scenario: String): Unit = dispatch(DataWriterMessage.LoadEvent.User(scenario, clock.nowMillis, start = false))
 
   override def logResponse(
       scenario: String,

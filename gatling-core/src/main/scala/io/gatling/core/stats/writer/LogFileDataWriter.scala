@@ -144,35 +144,25 @@ final class RunMessageSerializer(writer: BufferedFileChannelWriter)
   }
 }
 
-final class UserStartMessageSerializer(writer: BufferedFileChannelWriter, start: Long, scenarios: ju.Map[String, Int])
-    extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.UserStart](writer, RecordHeader.User.value) {
-  override protected def serialize0(user: DataWriterMessage.LoadEvent.UserStart): Unit = {
+final class UserMessageSerializer(writer: BufferedFileChannelWriter, runStart: Long, scenarios: ju.Map[String, Int])
+    extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.User](writer, RecordHeader.User.value) {
+  override protected def serialize0(user: DataWriterMessage.LoadEvent.User): Unit = {
     import user._
     writer.writeInt(scenarios.get(scenario))
-    writer.writeBoolean(true)
-    writer.writeInt((timestamp - start).toInt)
+    writer.writeBoolean(start)
+    writer.writeInt((timestamp - runStart).toInt)
   }
 }
 
-final class UserEndMessageSerializer(writer: BufferedFileChannelWriter, start: Long, scenarios: ju.Map[String, Int])
-    extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.UserEnd](writer, RecordHeader.User.value) {
-  override protected def serialize0(user: DataWriterMessage.LoadEvent.UserEnd): Unit = {
-    import user._
-    writer.writeInt(scenarios.get(scenario))
-    writer.writeBoolean(false)
-    writer.writeInt((timestamp - start).toInt)
-  }
-}
-
-final class ResponseMessageSerializer(writer: BufferedFileChannelWriter, start: Long)
+final class ResponseMessageSerializer(writer: BufferedFileChannelWriter, runStart: Long)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.Response](writer, RecordHeader.Request.value) {
 
   override protected def serialize0(response: DataWriterMessage.LoadEvent.Response): Unit = {
     import response._
     writeGroups(groupHierarchy)
     writer.writeString(name)
-    writer.writeInt((startTimestamp - start).toInt)
-    writer.writeInt((endTimestamp - start).toInt)
+    writer.writeInt((startTimestamp - runStart).toInt)
+    writer.writeInt((endTimestamp - runStart).toInt)
     writer.writeBoolean(status == OK)
     writer.writeString(message.getOrElse(""))
   }
@@ -200,8 +190,7 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter, start: Long)
 }
 
 final class FileData(
-    val userStartMessageSerializer: UserStartMessageSerializer,
-    val userEndMessageSerializer: UserEndMessageSerializer,
+    val userMessageSerializer: UserMessageSerializer,
     val responseMessageSerializer: ResponseMessageSerializer,
     val groupMessageSerializer: GroupMessageSerializer,
     val errorMessageSerializer: ErrorMessageSerializer,
@@ -230,8 +219,7 @@ final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConf
     new RunMessageSerializer(writer).serialize(runMessage, assertions, scenarios)
 
     new FileData(
-      new UserStartMessageSerializer(writer, init.runMessage.start, scenarios),
-      new UserEndMessageSerializer(writer, init.runMessage.start, scenarios),
+      new UserMessageSerializer(writer, init.runMessage.start, scenarios),
       new ResponseMessageSerializer(writer, init.runMessage.start),
       new GroupMessageSerializer(writer, init.runMessage.start),
       new ErrorMessageSerializer(writer, init.runMessage.start),
@@ -243,12 +231,10 @@ final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConf
 
   override def onMessage(message: DataWriterMessage.LoadEvent, data: FileData): Unit =
     message match {
-      case user: DataWriterMessage.LoadEvent.UserStart    => data.userStartMessageSerializer.serialize(user)
-      case user: DataWriterMessage.LoadEvent.UserEnd      => data.userEndMessageSerializer.serialize(user)
+      case user: DataWriterMessage.LoadEvent.User         => data.userMessageSerializer.serialize(user)
       case group: DataWriterMessage.LoadEvent.Group       => data.groupMessageSerializer.serialize(group)
       case response: DataWriterMessage.LoadEvent.Response => data.responseMessageSerializer.serialize(response)
       case error: DataWriterMessage.LoadEvent.Error       => data.errorMessageSerializer.serialize(error)
-      case _                                              =>
     }
 
   override def onCrash(cause: String, data: FileData): Unit = {}

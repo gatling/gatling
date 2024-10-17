@@ -83,29 +83,18 @@ private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: Gatl
   }
 
   override def onMessage(message: DataWriterMessage.LoadEvent, data: ConsoleData): Unit = message match {
-    case user: DataWriterMessage.LoadEvent.UserStart    => onUserStartMessage(user, data)
-    case user: DataWriterMessage.LoadEvent.UserEnd      => onUserEndMessage(user, data)
+    case user: DataWriterMessage.LoadEvent.User         => onUserMessage(user, data)
     case response: DataWriterMessage.LoadEvent.Response => onResponseMessage(response, data)
     case error: DataWriterMessage.LoadEvent.Error       => onErrorMessage(error, data)
     case _                                              =>
   }
 
-  private def onUserStartMessage(user: DataWriterMessage.LoadEvent.UserStart, data: ConsoleData): Unit = {
+  private def onUserMessage(user: DataWriterMessage.LoadEvent.User, data: ConsoleData): Unit = {
     import data._
     import user._
 
     usersCounters.get(scenario) match {
-      case Some(userCounters) => userCounters.userStart()
-      case _                  => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
-    }
-  }
-
-  private def onUserEndMessage(user: DataWriterMessage.LoadEvent.UserEnd, data: ConsoleData): Unit = {
-    import data._
-    import user._
-
-    usersCounters.get(scenario) match {
-      case Some(userCounters) => userCounters.userDone()
+      case Some(userCounters) => if (user.start) userCounters.userStart() else userCounters.userDone()
       case _                  => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
     }
   }
