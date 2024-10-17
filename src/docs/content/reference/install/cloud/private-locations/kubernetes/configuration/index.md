@@ -46,6 +46,7 @@ So when using a custom image, make sure following are available:
 
 {{< alert tip >}}
 Learn how to tune the OS for more performance, configure the open files limit, the kernel and the network [here]({{< ref "../../../../script/core/operations#os-tuning" >}}).
+Please refer to [safe and unsafe sysctls](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/#safe-and-unsafe-sysctls) and [enabling unsafe sysctls](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/#enabling-unsafe-sysctls) before tuning.
 {{< /alert >}}
 
 ## Control plane configuration file
@@ -183,12 +184,7 @@ Here is an example of a basic JSON job definition:
           }
         ],
         "securityContext": {
-          "sysctls": [
-            {
-              "name": "net.ipv4.tcp_tw_reuse",
-              "value": "1"
-            }
-          ]
+          "sysctls": []
         }
       }
     },
