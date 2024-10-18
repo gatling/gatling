@@ -39,6 +39,10 @@ private object BufferedFileChannelWriter {
 private[writer] final class BufferedFileChannelWriter(channel: FileChannel, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
 
   private val encoder = UTF_8.newEncoder
+  // we must start at 1 because we use the opposite value for a cache hit
+  // but as -0 == 0, it would always result on a cache miss on the read side
+  private var stringCacheCurrentIndex = 1
+  private val stringCache = new ju.HashMap[String, jl.Integer]
 
   def flush(): Unit = {
     bb.flip()
@@ -71,6 +75,18 @@ private[writer] final class BufferedFileChannelWriter(channel: FileChannel, bb: 
     ensureCapacity(jl.Integer.BYTES + src.remaining)
     bb.putInt(src.remaining)
     bb.put(src)
+  }
+
+  def writeCachedString(string: String): Unit = {
+    val cachedIndex = stringCache.get(string)
+    if (cachedIndex == null) {
+      writeInt(stringCacheCurrentIndex)
+      writeString(string)
+      stringCache.put(string, stringCacheCurrentIndex)
+      stringCacheCurrentIndex += 1
+    } else {
+      writeInt(-cachedIndex.intValue)
+    }
   }
 
   def writeString(string: String): Unit = {
@@ -113,7 +129,7 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
 
   def writeGroups(groupHierarchy: List[String]): Unit = {
     writer.writeInt(groupHierarchy.length)
-    groupHierarchy.foreach(writer.writeString)
+    groupHierarchy.foreach(writer.writeCachedString)
   }
 
   def serialize(m: T): Unit = {
@@ -160,11 +176,11 @@ final class ResponseMessageSerializer(writer: BufferedFileChannelWriter, runStar
   override protected def serialize0(response: DataWriterMessage.LoadEvent.Response): Unit = {
     import response._
     writeGroups(groupHierarchy)
-    writer.writeString(name)
+    writer.writeCachedString(name)
     writer.writeInt((startTimestamp - runStart).toInt)
     writer.writeInt((endTimestamp - runStart).toInt)
     writer.writeBoolean(status == OK)
-    writer.writeString(message.getOrElse(""))
+    writer.writeCachedString(message.getOrElse(""))
   }
 }
 
@@ -184,7 +200,7 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter, start: Long)
     extends DataWriterMessageSerializer[DataWriterMessage.LoadEvent.Error](writer, RecordHeader.Error.value) {
   override protected def serialize0(error: DataWriterMessage.LoadEvent.Error): Unit = {
     import error._
-    writer.writeString(message)
+    writer.writeCachedString(message)
     writer.writeInt((timestamp - start).toInt)
   }
 }

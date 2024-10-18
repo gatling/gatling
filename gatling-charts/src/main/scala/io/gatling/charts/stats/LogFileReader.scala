@@ -16,7 +16,7 @@
 
 package io.gatling.charts.stats
 
-import java.{ lang => jl }
+import java.{ lang => jl, util => ju }
 import java.io.{ BufferedInputStream, DataInputStream, EOFException, File }
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets.UTF_8
@@ -43,6 +43,7 @@ private object LogFileParser {
 private abstract class LogFileParser[T](logFile: File) extends AutoCloseable {
   private val is = new DataInputStream(new BufferedInputStream(Files.newInputStream(logFile.toPath)))
   private val skipBuffer = new Array[Byte](1024)
+  private val stringCache = new ju.HashMap[Int, String]
 
   protected def read(): Int = is.read()
   protected def readByte(): Byte = is.readByte()
@@ -51,7 +52,20 @@ private abstract class LogFileParser[T](logFile: File) extends AutoCloseable {
   protected def readByteArray(): Array[Byte] = is.readNBytes(readInt())
   protected def readLong(): Long = is.readLong()
   protected def readString(): String = new String(is.readNBytes(readInt()), UTF_8)
-  protected def readSanitizedString(): String = readString().replaceIf(c => c == '\n' || c == '\r' || c == '\t', ' ')
+  private def sanitize(s: String): String = s.replaceIf(c => c == '\n' || c == '\r' || c == '\t', ' ')
+  protected def readSanitizedString(): String = sanitize(readString())
+  protected def readCachedSanitizedString(): String = {
+    val cachedIndex = readInt()
+    if (cachedIndex >= 0) {
+      val string = sanitize(readString())
+      stringCache.put(cachedIndex, string)
+      string
+    } else {
+      val cachedString = stringCache.get(-cachedIndex)
+      assert(cachedString != null, s"Cached string missing for ${-cachedIndex} index")
+      cachedString
+    }
+  }
 
   protected def skip(len: Int): Unit = {
     var n = 0
@@ -67,6 +81,11 @@ private abstract class LogFileParser[T](logFile: File) extends AutoCloseable {
   protected def skipInt(): Unit = skip(jl.Integer.BYTES)
   protected def skipLong(): Unit = skip(jl.Long.BYTES)
   protected def skipString(): Unit = skip(readInt())
+  protected def skipCachedString(): Unit =
+    // cachedIndex
+    if (readInt() >= 0) {
+      skipString()
+    }
 
   override def close(): Unit = is.close()
 
@@ -128,15 +147,15 @@ private final class FirstPassParser(logFile: File, zoneId: ZoneId) extends LogFi
   private def parseRequestRecord(startTimeStamp: Long): Unit = {
     // group
     val groupsSize = readInt()
-    cfor(0 until groupsSize)(_ => skipString())
+    cfor(0 until groupsSize)(_ => skipCachedString())
     // name
-    skipString()
+    skipCachedString()
     val startTimestamp = readInt() + startTimeStamp
     val endTimestamp = readInt() + startTimeStamp
     // status
     skipByte()
     // message
-    skipString()
+    skipCachedString()
 
     updateInjectStart(startTimestamp)
     updateInjectEnd(endTimestamp)
@@ -145,7 +164,7 @@ private final class FirstPassParser(logFile: File, zoneId: ZoneId) extends LogFi
   private def parseGroupRecord(startTimeStamp: Long): Unit = {
     // group
     val groupsSize = readInt()
-    cfor(0 until groupsSize)(_ => skipString())
+    cfor(0 until groupsSize)(_ => skipCachedString())
     val startTimestamp = readInt() + startTimeStamp
     val endTimestamp = readInt() + startTimeStamp
     // cumulatedResponseTime
@@ -159,7 +178,7 @@ private final class FirstPassParser(logFile: File, zoneId: ZoneId) extends LogFi
 
   private def parseErrorRecord(): Unit = {
     // message
-    skipString()
+    skipCachedString()
     // timestamp
     skipInt()
   }
@@ -244,12 +263,12 @@ private final class SecondPassParser(logFile: File, runInfo: RunInfo, step: Doub
 
   private def parseRequestRecord(): RequestRecord = {
     val groupsSize = readInt()
-    val group = Option.when(groupsSize > 0)(Group(List.fill(groupsSize)(readSanitizedString())))
-    val name = readSanitizedString()
+    val group = Option.when(groupsSize > 0)(Group(List.fill(groupsSize)(readCachedSanitizedString())))
+    val name = readCachedSanitizedString()
     val startTimestamp = readInt() + runInfo.runStart
     val endTimestamp = readInt() + runInfo.runStart
     val status = if (readBoolean()) OK else KO
-    val errorMessage = readSanitizedString().trimToOption
+    val errorMessage = readCachedSanitizedString().trimToOption
 
     if (endTimestamp != Long.MinValue) {
       // regular request
@@ -272,7 +291,7 @@ private final class SecondPassParser(logFile: File, runInfo: RunInfo, step: Doub
 
   private def parseGroupRecord(): GroupRecord = {
     val groupsSize = readInt()
-    val group = Group(List.fill(groupsSize)(readSanitizedString()))
+    val group = Group(List.fill(groupsSize)(readCachedSanitizedString()))
     val startTimestamp = readInt() + runInfo.runStart
     val endTimestamp = readInt() + runInfo.runStart
     val cumulatedResponseTime = readInt()
@@ -282,7 +301,7 @@ private final class SecondPassParser(logFile: File, runInfo: RunInfo, step: Doub
   }
 
   private def parseErrorRecord(): ErrorRecord = {
-    val message = readSanitizedString()
+    val message = readCachedSanitizedString()
     val timestamp = readInt() + runInfo.runStart
     ErrorRecord(message, timestamp)
   }

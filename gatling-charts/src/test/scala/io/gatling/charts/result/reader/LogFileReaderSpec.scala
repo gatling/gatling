@@ -64,11 +64,11 @@ class LogFileReaderSpec extends BaseSpec {
   }
 
   "When reading a single log file with known statistics, FileDataReader" should "return expected minResponseTime for correct request data" in {
-    logFileData().requestGeneralStats(None, None, None).min shouldBe 89
+    logFileData().requestGeneralStats(None, None, None).min shouldBe 87
   }
 
   it should "return expected maxResponseTime for correct request data" in {
-    logFileData().requestGeneralStats(None, None, None).max shouldBe 341
+    logFileData().requestGeneralStats(None, None, None).max shouldBe 407
   }
 
   it should "return expected responseTimeStandardDeviation for correct request data" in {
@@ -84,8 +84,8 @@ class LogFileReaderSpec extends BaseSpec {
       charting.indicators.Percentile1 -> 0,
       charting.indicators.Percentile2 -> 70
     )
-    fileData.requestGeneralStats(None, None, None).percentile(0.0) shouldBe 89
-    fileData.requestGeneralStats(None, None, None).percentile(70.0) shouldBe 108
+    fileData.requestGeneralStats(None, None, None).percentile(0.0) shouldBe 87
+    fileData.requestGeneralStats(None, None, None).percentile(70.0) shouldBe 103
   }
 
   it should "return expected result for the p99 and p100" in {
@@ -93,8 +93,8 @@ class LogFileReaderSpec extends BaseSpec {
       charting.indicators.Percentile1 -> 99,
       charting.indicators.Percentile2 -> 100
     )
-    fileData.requestGeneralStats(None, None, None).percentile(99.0) shouldBe 340
-    fileData.requestGeneralStats(None, None, None).percentile(100.0) shouldBe 341
+    fileData.requestGeneralStats(None, None, None).percentile(99.0) shouldBe 318
+    fileData.requestGeneralStats(None, None, None).percentile(100.0) shouldBe 407
   }
 
   it should "indicate that all the request have their response time in between 0 and 100000" in {
@@ -104,7 +104,7 @@ class LogFileReaderSpec extends BaseSpec {
     )
     val ranges = fileData.numberOfRequestInResponseTimeRanges(None, None)
     ranges.lowCount shouldBe 0
-    ranges.middleCount shouldBe 106
+    ranges.middleCount shouldBe 103
     ranges.highCount shouldBe 0
     ranges.koCount shouldBe 2
   }
@@ -114,7 +114,7 @@ class LogFileReaderSpec extends BaseSpec {
       charting.indicators.LowerBound -> 2500,
       charting.indicators.HigherBound -> 5000
     )
-    fileData.numberOfRequestInResponseTimeRanges(None, None).lowCount shouldBe 106
+    fileData.numberOfRequestInResponseTimeRanges(None, None).lowCount shouldBe 103
   }
 
   it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
