@@ -50,9 +50,9 @@ private abstract class Workload(
   private def startUser(userId: Long, eventLoop: EventLoop): Unit = {
     val rawSession = Session(scenario.name, userId, scenario.onExit, eventLoop)
     val session = scenario.onStart(rawSession)
-    scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
     statsEngine.logUserStart(scenario.name)
+    scenario.entry ! session
   }
 
   protected def injectUser(delay: FiniteDuration): Unit = {
