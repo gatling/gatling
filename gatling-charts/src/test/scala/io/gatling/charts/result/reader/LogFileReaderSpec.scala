@@ -32,16 +32,15 @@ import io.gatling.core.stats.writer.LogFileDataWriter
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class LogFileReaderSpec extends BaseSpec {
-  private def logFileData(props: (String, _ <: Any)*): LogFileData = {
-    val runUuid = "known_stats"
-
+  private val runUuid = "known_stats"
+  private val resultsDirectory = {
     // we need a log file whose version matches Gatling's
     // the sample contains a static value while Gatling's is computed by sbt based on git
     // so we need to replace it
     val rawLogFile = Paths.get(Thread.currentThread().getContextClassLoader.getResource(s"$runUuid/${LogFileDataWriter.LogFileName}").toURI)
 
-    val resultsDirectory = Files.createTempDirectory("gatling")
-    val runDirectory = resultsDirectory.resolve(runUuid).toFile
+    val tmpResultsDirectory = Files.createTempDirectory("gatling")
+    val runDirectory = tmpResultsDirectory.resolve(runUuid).toFile
     runDirectory.mkdir()
     val logFileWithMatchingLibraryVersion = new File(runDirectory, LogFileDataWriter.LogFileName)
     logFileWithMatchingLibraryVersion.deleteOnExit()
@@ -59,6 +58,10 @@ class LogFileReaderSpec extends BaseSpec {
       os.write(sampleBytes, offset, sampleBytes.length - offset)
     }
 
+    tmpResultsDirectory
+  }
+
+  private def logFileData(props: (String, _ <: Any)*): LogFileData = {
     val configuration = GatlingConfiguration.loadForTest(props: _*)
     LogFileReader(runUuid, resultsDirectory, configuration).read()
   }
