@@ -1184,6 +1184,16 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
 
   // proxyPart
   /**
+   * Define a Proxy to be used for all requests
+   *
+   * @param proxy the proxy
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder proxy(Proxy proxy) {
+    return new HttpProtocolBuilder(wrapped.proxy(proxy.asScala()));
+  }
+
+  /**
    * Ignore any configured proxy for some hosts
    *
    * @param hosts the hosts that must be connected directly without the proxy
@@ -1194,13 +1204,47 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Define a Proxy to be used for all requests
+   * Enable Proxy Protocol for IPv4
    *
-   * @param proxy the proxy
+   * @param address a fake local address in IPv4 format
    * @return a new HttpProtocolBuilder instance
    */
-  public HttpProtocolBuilder proxy(Proxy proxy) {
-    return new HttpProtocolBuilder(wrapped.proxy(proxy.asScala()));
+  public HttpProtocolBuilder proxyProtocolSourceIpV4Address(String address) {
+    return new HttpProtocolBuilder(
+        wrapped.proxyProtocolSourceIpV4Address(toStringExpression(address)));
+  }
+
+  /**
+   * Enable Proxy Protocol for IPv4
+   *
+   * @param address a fake local address in IPv4 format
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder proxyProtocolSourceIpV4Address(Function<Session, String> address) {
+    return new HttpProtocolBuilder(
+        wrapped.proxyProtocolSourceIpV4Address(javaFunctionToExpression(address)));
+  }
+
+  /**
+   * Enable Proxy Protocol for IPv6
+   *
+   * @param address a fake local address in IPv6 format
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder proxyProtocolSourceIpV6Address(String address) {
+    return new HttpProtocolBuilder(
+        wrapped.proxyProtocolSourceIpV4Address(toStringExpression(address)));
+  }
+
+  /**
+   * Enable Proxy Protocol for IPv6
+   *
+   * @param address a fake local address in IPv6 format
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder proxyProtocolSourceIpV6Address(Function<Session, String> address) {
+    return new HttpProtocolBuilder(
+        wrapped.proxyProtocolSourceIpV4Address(javaFunctionToExpression(address)));
   }
 
   // dnsPart

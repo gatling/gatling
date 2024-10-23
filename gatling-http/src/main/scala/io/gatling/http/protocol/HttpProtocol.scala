@@ -112,7 +112,9 @@ object HttpProtocol extends StrictLogging {
       ),
       proxyPart = HttpProtocolProxyPart(
         proxy = None,
-        proxyExceptions = Nil
+        proxyExceptions = Nil,
+        proxyProtocolSourceIpV4Address = None,
+        proxyProtocolSourceIpV6Address = None
       ),
       dnsPart = HttpProtocolDnsPart(
         dnsNameResolution = JavaDnsNameResolution,
@@ -202,7 +204,9 @@ final case class HttpProtocolSsePart(
 
 final case class HttpProtocolProxyPart(
     proxy: Option[ProxyServer],
-    proxyExceptions: Seq[String]
+    proxyExceptions: Seq[String],
+    proxyProtocolSourceIpV4Address: Option[Expression[String]],
+    proxyProtocolSourceIpV6Address: Option[Expression[String]]
 )
 
 final case class HttpProtocolDnsPart(

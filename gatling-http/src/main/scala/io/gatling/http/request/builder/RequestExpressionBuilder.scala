@@ -135,11 +135,30 @@ abstract class RequestExpressionBuilder(
   }
 
   private val maybeProxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
-  private def configureProxy(requestBuilder: ClientRequestBuilder): Unit =
-    maybeProxy.foreach { proxy =>
-      if (!httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
-        requestBuilder.setProxyServer(proxy)
-      }
+  private val proxyProtocolEnabled =
+    httpProtocol.proxyPart.proxyProtocolSourceIpV4Address.isDefined || httpProtocol.proxyPart.proxyProtocolSourceIpV6Address.isDefined
+  private def configureProxy(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+    maybeProxy match {
+      case Some(proxy) =>
+        if (httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
+          Validation.unit
+        } else {
+          requestBuilder.setProxyServer(proxy)
+
+          if (proxyProtocolEnabled) {
+            for {
+              proxyProtocolSourceIpV4AddressOpt <- resolveOptionalExpression(httpProtocol.proxyPart.proxyProtocolSourceIpV4Address, session)
+              proxyProtocolSourceIpV6AddressOpt <- resolveOptionalExpression(httpProtocol.proxyPart.proxyProtocolSourceIpV6Address, session)
+            } yield requestBuilder
+              .setProxyProtocolSourceIpV4Address(proxyProtocolSourceIpV4AddressOpt.orNull)
+              .setProxyProtocolSourceIpV6Address(proxyProtocolSourceIpV6AddressOpt.orNull)
+          } else {
+            Validation.unit
+          }
+        }
+
+      case _ =>
+        Validation.unit
     }
 
   private def configureCookies(session: Session, requestBuilder: ClientRequestBuilder): Unit = {
@@ -220,7 +239,6 @@ abstract class RequestExpressionBuilder(
               .setDefaultCharset(charset)
               .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
 
-            configureProxy(rb)
             configureRequestTimeout(rb)
             configureCookies(session, rb)
             configureLocalAddress(session, rb)
@@ -228,6 +246,7 @@ abstract class RequestExpressionBuilder(
             rb
           }
 
+          _ <- configureProxy(session, requestBuilder)
           _ <- configureHeaders(session, requestBuilder)
           _ <- configureRealm(session, requestBuilder)
           _ <- configureProtocolSpecific(session, requestBuilder)

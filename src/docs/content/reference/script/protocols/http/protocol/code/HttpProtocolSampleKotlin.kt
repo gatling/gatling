@@ -297,5 +297,23 @@ http
   .proxy(Proxy("myProxyHost", 8080))
   .noProxyFor("www.github.com", "gatling.io")
 //#noProxyFor
+
+//#proxyProtocolSource
+  http
+    // use a Gatling EL to pass the IPV4 local address
+    // to be used to generate a PROXY protocol header
+    // when the connection uses IPv4
+    .proxyProtocolSourceIpV4Address("#{myIpV4AddressString}")
+    // use a function instead,
+    // but it will be resolved on each request execution
+    .proxyProtocolSourceIpV4Address { session -> "199.60.103.60" }
+  // use a Gatling EL to pass the IPV6 local address
+  // to be used to generate a PROXY protocol header
+  // when the connection uses IPv6
+  .proxyProtocolSourceIpV6Address("#{myIpV6AddressString}")
+    // use a function instead,
+    // but it will be resolved on each request execution
+    .proxyProtocolSourceIpV6Address { session -> "2a00:1450:4007:810::200e" }
+//#proxyProtocolSource
   }
 }

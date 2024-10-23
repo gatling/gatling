@@ -165,6 +165,8 @@ class CacheSupportSpec extends BaseSpec with EmptySession {
       null,
       null,
       null,
+      null,
+      null,
       false,
       null,
       null

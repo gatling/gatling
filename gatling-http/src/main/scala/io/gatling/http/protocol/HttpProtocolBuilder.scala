@@ -207,6 +207,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
   def proxy(proxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(proxy.proxyServer))
+  def proxyProtocolSourceIpV4Address(address: Expression[String]): HttpProtocolBuilder =
+    this.modify(_.protocol.proxyPart.proxyProtocolSourceIpV4Address).setTo(Some(address))
+  def proxyProtocolSourceIpV6Address(address: Expression[String]): HttpProtocolBuilder =
+    this.modify(_.protocol.proxyPart.proxyProtocolSourceIpV6Address).setTo(Some(address))
 
   // dnsPart
   def asyncNameResolution(dnsServers: String*): HttpProtocolBuilder =

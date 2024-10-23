@@ -40,6 +40,8 @@ public final class Request {
   private final LocalAddresses localAddresses;
   private final Realm realm;
   private final ProxyServer proxyServer;
+  private final String proxyProtocolSourceIpV4Address;
+  private final String proxyProtocolSourceIpV6Address;
   private final Function<Request, Request> signatureCalculator;
   private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
@@ -58,6 +60,8 @@ public final class Request {
       LocalAddresses localAddresses,
       Realm realm,
       ProxyServer proxyServer,
+      String proxyProtocolSourceIpV4Address,
+      String proxyProtocolSourceIpV6Address,
       Function<Request, Request> signatureCalculator,
       InetAddressNameResolver nameResolver,
       boolean http2Enabled,
@@ -74,6 +78,8 @@ public final class Request {
     this.localAddresses = localAddresses;
     this.realm = realm;
     this.proxyServer = proxyServer;
+    this.proxyProtocolSourceIpV4Address = proxyProtocolSourceIpV4Address;
+    this.proxyProtocolSourceIpV6Address = proxyProtocolSourceIpV6Address;
     this.signatureCalculator = signatureCalculator;
     this.nameResolver = nameResolver;
     this.http2Enabled = http2Enabled;
@@ -94,6 +100,8 @@ public final class Request {
         this.localAddresses,
         this.realm,
         this.proxyServer,
+        this.proxyProtocolSourceIpV4Address,
+        this.proxyProtocolSourceIpV6Address,
         this.signatureCalculator,
         this.nameResolver,
         this.http2Enabled,
@@ -114,6 +122,8 @@ public final class Request {
         this.localAddresses,
         this.realm,
         this.proxyServer,
+        this.proxyProtocolSourceIpV4Address,
+        this.proxyProtocolSourceIpV6Address,
         this.signatureCalculator,
         this.nameResolver,
         this.http2Enabled,
@@ -134,6 +144,8 @@ public final class Request {
         this.localAddresses,
         this.realm,
         this.proxyServer,
+        this.proxyProtocolSourceIpV4Address,
+        this.proxyProtocolSourceIpV6Address,
         this.signatureCalculator,
         this.nameResolver,
         this.http2Enabled,
@@ -154,6 +166,8 @@ public final class Request {
         this.localAddresses,
         this.realm,
         this.proxyServer,
+        this.proxyProtocolSourceIpV4Address,
+        this.proxyProtocolSourceIpV6Address,
         this.signatureCalculator,
         this.nameResolver,
         this.http2Enabled,
@@ -205,6 +219,14 @@ public final class Request {
     return proxyServer;
   }
 
+  public String getProxyProtocolSourceIpV4Address() {
+    return proxyProtocolSourceIpV4Address;
+  }
+
+  public String getProxyProtocolSourceIpV6Address() {
+    return proxyProtocolSourceIpV6Address;
+  }
+
   public Function<Request, Request> getSignatureCalculator() {
     return signatureCalculator;
   }
@@ -246,6 +268,10 @@ public final class Request {
         + realm
         + ", proxyServer="
         + proxyServer
+        + ", proxyProtocolSourceIpV4Address="
+        + proxyProtocolSourceIpV4Address
+        + ", proxyProtocolSourceIpV6Address="
+        + proxyProtocolSourceIpV6Address
         + ", signatureCalculator="
         + signatureCalculator
         + ", nameResolver="

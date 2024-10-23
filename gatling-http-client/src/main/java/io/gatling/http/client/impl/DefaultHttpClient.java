@@ -25,6 +25,7 @@ import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
 import io.gatling.http.client.proxy.HttpProxyServer;
+import io.gatling.http.client.proxy.ProxyProtocolHandler;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.ssl.Tls;
 import io.gatling.http.client.uri.Uri;
@@ -74,6 +75,7 @@ public final class DefaultHttpClient implements HttpClient {
   private static final String PINNED_HANDLER = "pinned";
   private static final String PROXY_SSL_HANDLER = "ssl-proxy";
   private static final String PROXY_HANDLER = "proxy";
+  private static final String PROXY_PROTOCOL_HANDLER = "proxy-protocol";
   private static final String SSL_HANDLER = "ssl";
   public static final String HTTP_CLIENT_CODEC = "http";
   private static final String HTTP2_HANDLER = "http2";
@@ -136,6 +138,15 @@ public final class DefaultHttpClient implements HttpClient {
                       ch.close();
                     }
                   });
+        }
+
+        if (tx.request.getProxyProtocolSourceIpV4Address() != null
+            || tx.request.getProxyProtocolSourceIpV6Address() != null) {
+          pipeline.addLast(
+              PROXY_PROTOCOL_HANDLER,
+              new ProxyProtocolHandler(
+                  tx.request.getProxyProtocolSourceIpV4Address(),
+                  tx.request.getProxyProtocolSourceIpV6Address()));
         }
       }
 

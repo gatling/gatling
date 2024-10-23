@@ -57,6 +57,8 @@ public final class RequestBuilder {
   private LocalAddresses localAddresses;
   private Realm realm;
   private ProxyServer proxyServer;
+  private String proxyProtocolSourceIpV4Address;
+  private String proxyProtocolSourceIpV6Address;
   private Function<Request, Request> signatureCalculator;
   private boolean http2Enabled;
   private Http2PriorKnowledge http2PriorKnowledge;
@@ -117,6 +119,16 @@ public final class RequestBuilder {
 
   public RequestBuilder setProxyServer(ProxyServer proxyServer) {
     this.proxyServer = proxyServer;
+    return this;
+  }
+
+  public RequestBuilder setProxyProtocolSourceIpV4Address(String proxyProtocolSourceIpV4Address) {
+    this.proxyProtocolSourceIpV4Address = proxyProtocolSourceIpV4Address;
+    return this;
+  }
+
+  public RequestBuilder setProxyProtocolSourceIpV6Address(String proxyProtocolSourceIpV6Address) {
+    this.proxyProtocolSourceIpV6Address = proxyProtocolSourceIpV6Address;
     return this;
   }
 
@@ -224,6 +236,8 @@ public final class RequestBuilder {
         localAddresses,
         realm,
         proxyServer,
+        proxyProtocolSourceIpV4Address,
+        proxyProtocolSourceIpV6Address,
         signatureCalculator,
         nameResolver,
         http2Enabled,

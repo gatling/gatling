@@ -41,6 +41,8 @@ class HttpCompileTest extends Simulation {
     .proxy(Proxy("172.31.76.106", 8080).socks4)
     .proxy(Proxy("172.31.76.106", 8080).socks5)
     .noProxyFor("localhost")
+    .proxyProtocolSourceIpV4Address("#{proxyProtocolSourceIpV4Address}")
+    .proxyProtocolSourceIpV6Address("#{proxyProtocolSourceIpV6Address}")
     .acceptHeader("*/*")
     .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
     .acceptEncodingHeader("gzip,deflate,sdch")

@@ -332,3 +332,7 @@ You can optionally set a different port for HTTPS and credentials:
 You can also disable the use of proxy for some hosts with `noProxyFor`:
 
 {{< include-code "noProxyFor" >}}
+
+Finally, you can use `proxyProtocolSourceIpV4Address` and `proxyProtocolSourceIpV6Address` to generate fake [PROXY protocol](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt) headers.
+
+{{< include-code "proxyProtocolSource" >}}
