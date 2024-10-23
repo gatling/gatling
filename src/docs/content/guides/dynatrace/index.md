@@ -9,7 +9,7 @@ lastmod: 2021-04-20T18:30:56+02:00
 
 ## Use Case
 
-While executing a load test from Gatling, each simulated HTTP request can be tagged with additional HTTP headers that contain test-transaction information (for example, script name, test step name, and virtual user ID). Dynatrace can analyze incoming HTTP headers and extract such contextual information from the header values and tag the captured requests with request attributes. Request attributes enable you to filter your monitoring data based on defined tags. Check more information on [Dynatrace's documentation](https://www.dynatrace.com/support/help/setup-and-configuration/integrations/third-party-integrations/test-automation-frameworks/dynatrace-and-load-testing-tools-integration/).
+While executing a load test from Gatling, each simulated HTTP request can be tagged with additional HTTP headers that contain test-transaction information (for example, script name, test step name, and virtual user ID). Dynatrace can analyze incoming HTTP headers, extract such contextual information from the header values, and tag the captured requests with request attributes. Request attributes enable you to filter your monitoring data based on defined tags. 
 
 You can use any (or multiple) HTTP headers or HTTP parameters to pass context information. The [extraction rules](https://docs.dynatrace.com/docs/platform-modules/applications-and-microservices/services/request-attributes/capture-request-attributes-based-on-web-request-data) can be configured via Settings > Server-side service monitoring > Request attributes.
 
