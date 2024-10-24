@@ -308,7 +308,15 @@ Gatling currently only provides one single pre-processor: `gzipBody`.
 
 ## Resources
 
-Gatling can fetch a main request's resources in parallel to emulate the behavior of a real web browser.
+Gatling provides a way to simulate a web browser fetching static.
+
+A `resources` can be attached to a main request to define a list of HTTP requests to be executed once the main request completes.
+
+Concurrency is defined by the HTTP version you're using:
+* Over HTTP/1.1 (default), the number of concurrent requests per domain is capped by the maximum number of connections per domain, as defined by [`maxConnectionsPerHost`]({{< ref "protocol#maxconnectionsperhost" >}}). When the limit is reached, resources are fetched in the order they are passed to the `resources` block.
+* Over HTTP/2, the number of concurrent requests per domain is uncapped and all resources are always fetched concurrently.
+
+The next step in the scenario will only be executed once all the resources have completed.
 
 {{< include-code "resources" >}}
 
