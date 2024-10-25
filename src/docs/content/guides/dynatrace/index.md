@@ -7,13 +7,23 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2021-04-20T18:30:56+02:00
 ---
 
-## Use Case
+## Using Gatling and Dynatrace to capture request attributes
 
-While executing a load test from Gatling, each simulated HTTP request can be tagged with additional HTTP headers that contain test-transaction information (for example, script name, test step name, and virtual user ID). Dynatrace can analyze incoming HTTP headers, extract such contextual information from the header values, and tag the captured requests with request attributes. Request attributes enable you to filter your monitoring data based on defined tags. 
+Pass Gatling load test request attributes to Dynatrace using additional HTTP headers. Dynatrace can handle, extract, and tag information from incoming HTTP headers containing information such as:
 
-You can use any (or multiple) HTTP headers or HTTP parameters to pass context information. The [extraction rules](https://docs.dynatrace.com/docs/platform-modules/applications-and-microservices/services/request-attributes/capture-request-attributes-based-on-web-request-data) can be configured via Settings > Server-side service monitoring > Request attributes.
+- script name, 
+- test step name, and 
+- virtual user ID.
 
-The header `x-dynatrace-test` is used in the following examples with the following set of key/value pairs for the header:
+ You can then filter your monitoring data based on the defined tags. 
+
+### Configure Dynatrace extraction rules
+
+You can use any HTTP headers or HTTP parameters to pass contextual information. To configure the extraction rules in Dynatrace reference the [extraction rules](https://docs.dynatrace.com/docs/platform-modules/applications-and-microservices/services/request-attributes/capture-request-attributes-based-on-web-request-data) documentation.
+
+### Add contextual information to headers 
+
+The header `x-dynatrace-test` is used in the following example with the following set of key/value pairs for the header:
 | **Acronym** | **Full Term**            | **Description**                                                                                              |
 |-------------|--------------------------|--------------------------------------------------------------------------------------------------------------|
 | **VU**      | Virtual User ID          | A unique identifier for the virtual user who sent the request.                                               |
@@ -25,7 +35,7 @@ The header `x-dynatrace-test` is used in the following examples with the followi
 
 {{< img src="dynatrace.png" alt="Dynatrace Report" >}}
 
-## Suggested Solution
+## Defining a global signing function (example)
 
 The idea here is to use [`sign`]({{< ref "/reference/script/protocols/http/protocol#sign" >}}) on the HttpProtocol to define a global signing function to be applied on all generated requests.
 
