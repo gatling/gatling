@@ -229,7 +229,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
     def getMostFrequentHeaderValue(headerName: String): Option[String] = {
       val headerValues = requestElements.flatMap(_.headers.getAll(headerName).asScala)
 
-      if (headerValues.isEmpty || headerValues.length != requestElements.length)
+      if (headerValues.isEmpty || headerValues.lengthCompare(requestElements) != 0)
         // a header has to be defined on all requestElements to be turned into a common one
         None
       else {
