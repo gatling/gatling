@@ -55,6 +55,6 @@ object BuildSettings {
 
   lazy val chartTestsSettings = Seq(
     fork := true,
-    Test / javaOptions := Seq("-DGATLING_HOME=gatling-charts") // Allows LogFileReaderSpec to run
+    Test / javaOptions += "--add-opens=java.base/java.lang=ALL-UNNAMED" // Allows LogFileReaderSpec to run
   )
 }

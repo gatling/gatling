@@ -19,7 +19,6 @@ package io.gatling.charts.stats
 import java.{ lang => jl, util => ju }
 import java.io.{ BufferedInputStream, DataInputStream, EOFException, File }
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{ Files, Path }
 import java.time.ZoneId
 
@@ -51,7 +50,16 @@ private abstract class LogFileParser[T](logFile: File) extends AutoCloseable {
   protected def readInt(): Int = is.readInt()
   protected def readByteArray(): Array[Byte] = is.readNBytes(readInt())
   protected def readLong(): Long = is.readLong()
-  protected def readString(): String = new String(is.readNBytes(readInt()), UTF_8)
+  protected def readString(): String = {
+    val length = readInt()
+    if (length == 0) {
+      ""
+    } else {
+      val value = is.readNBytes(length)
+      val coder = readByte()
+      StringInternals.newString(value, coder)
+    }
+  }
   private def sanitize(s: String): String = s.replaceIf(c => c == '\n' || c == '\r' || c == '\t', ' ')
   protected def readSanitizedString(): String = sanitize(readString())
   protected def readCachedSanitizedString(): String = {
@@ -80,7 +88,13 @@ private abstract class LogFileParser[T](logFile: File) extends AutoCloseable {
   protected def skipByte(): Unit = skip(jl.Byte.BYTES)
   protected def skipInt(): Unit = skip(jl.Integer.BYTES)
   protected def skipLong(): Unit = skip(jl.Long.BYTES)
-  protected def skipString(): Unit = skip(readInt())
+  protected def skipString(): Unit = {
+    val length = readInt()
+    if (length > 0) {
+      // value (byte[]) + coder (byte)
+      skip(length + 1)
+    }
+  }
   protected def skipCachedString(): Unit =
     // cachedIndex
     if (readInt() >= 0) {
@@ -346,6 +360,7 @@ private[gatling] object LogFileReader extends StrictLogging {
   private val SecMillisecRatio: Double = 1000.0
 
   def apply(runUuid: String, resultsDirectory: Path, configuration: GatlingConfiguration): LogFileReader = {
+    StringInternals.checkAvailability()
     val logFile = LogFileDataWriter.logFile(resultsDirectory, runUuid, create = false).toFile
 
     logger.info(s"Collected $logFile from $runUuid")

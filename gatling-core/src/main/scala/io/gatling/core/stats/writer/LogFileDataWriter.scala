@@ -18,9 +18,8 @@ package io.gatling.core.stats.writer
 
 import java.{ lang => jl, util => ju }
 import java.io.RandomAccessFile
-import java.nio.{ ByteBuffer, CharBuffer }
+import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Path
 
 import scala.jdk.CollectionConverters.MapHasAsScala
@@ -32,13 +31,8 @@ import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 
 import com.typesafe.scalalogging.StrictLogging
 
-private object BufferedFileChannelWriter {
-  private val Utf8MaxBytesPerChar = 4
-}
-
 private[writer] final class BufferedFileChannelWriter(channel: FileChannel, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
 
-  private val encoder = UTF_8.newEncoder
   // we must start at 1 because we use the opposite value for a cache hit
   // but as -0 == 0, it would always result on a cache miss on the read side
   private var stringCacheCurrentIndex = 1
@@ -89,22 +83,20 @@ private[writer] final class BufferedFileChannelWriter(channel: FileChannel, bb: 
     }
   }
 
-  def writeString(string: String): Unit = {
-    ensureCapacity(jl.Integer.BYTES + string.length * BufferedFileChannelWriter.Utf8MaxBytesPerChar)
-    val lenPosition = bb.position()
-    val stringStartPosition = lenPosition + jl.Integer.BYTES
-
-    // leave room for stringLen
-    bb.position(stringStartPosition)
-
-    val coderResult = encoder.encode(CharBuffer.wrap(string), bb, false)
-    if (coderResult.isOverflow) {
-      logger.error("Buffer overflow, you shouldn't be logging that much data. Truncating.")
+  def writeString(string: String): Unit =
+    if (string.isEmpty) {
+      bb.putInt(0)
+    } else {
+      val value = StringInternals.value(string)
+      val valueLength = value.length
+      val coder = StringInternals.coder(string)
+      ensureCapacity(jl.Byte.BYTES + jl.Integer.BYTES + valueLength)
+      bb.putInt(value.length)
+      val originalPosition = bb.position
+      System.arraycopy(value, 0, bb.array, originalPosition, valueLength)
+      bb.position(originalPosition + valueLength)
+      bb.put(coder)
     }
-
-    val stringLen = bb.position() - stringStartPosition
-    bb.putInt(lenPosition, stringLen)
-  }
 
   def writeInt(l: Int): Unit = {
     ensureCapacity(jl.Integer.BYTES)
@@ -221,6 +213,8 @@ object LogFileDataWriter {
 }
 
 final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData]("file-data-writer") {
+  StringInternals.checkAvailability()
+
   override def onInit(init: DataWriterMessage.Init): FileData = {
     import init._
 
