@@ -9,7 +9,7 @@ lastmod: 2022-12-14T21:30:56+02:00
 
 ## Concept
 
-### Going Stateful
+### Going stateful
 
 {{< alert tip >}}
 In order to build realistic tests and draw conclusions that are valid for your live system, you must ensure your virtual users use application data in a realistic fashion.
@@ -32,7 +32,7 @@ A Gatling scenario is a workflow where every step is an `Action`.
 `Session`s are the messages that are passed along a scenario workflow.
 {{< /alert >}}
 
-### Injecting Data
+### Injecting data
 
 The first step is to inject state into the virtual users.
 
@@ -42,7 +42,7 @@ There's 3 ways of doing that:
 * extracting data from responses and saving them, e.g. with [Check's saveAs]({{< ref "../../core/checks#saving" >}})
 * programmatically with the Session API
 
-### Fetching Data
+### Fetching data
 
 Once you have injected data into your virtual users, you'll naturally want to retrieve and use it.
 
@@ -61,7 +61,7 @@ If Gatling complains that an attribute could not be found, check that:
 
 ## Session API
 
-### Setting Attributes
+### Setting attributes
 
 {{< include-code "set" >}}
 
@@ -71,14 +71,14 @@ If Gatling complains that an attribute could not be found, check that:
 
 {{< include-code "sessions-are-immutable" >}}
 
-### Getting Attributes
+### Getting attributes
 
 {{< include-code "get" >}}
 
-### Virtual User Properties
+### Virtual user properties
 
 {{< include-code "properties" >}}
 
-### Handling Session State
+### Handling session state
 
 {{< include-code "state" >}}

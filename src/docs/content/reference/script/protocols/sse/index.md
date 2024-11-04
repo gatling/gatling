@@ -48,7 +48,7 @@ Beware of not missing messages that would be received prior to setting the check
 
 Gatling currently only supports blocking checks that will wait until receiving expected message or timing out.
 
-### Set a Check
+### Set a check
 
 You can set a check right after connecting:
 

@@ -50,7 +50,7 @@ Once you're done with a WebSocket, you can close it:
 
 {{< include-code "close" java kt scala >}}
 
-## Send a Message
+## Send a message
 
 You may send text or binary messages:
 
@@ -72,7 +72,7 @@ See [HTTP request body]({{< ref "http/request#request-body" >}}) for more inform
 
 Gatling currently only supports blocking checks that will wait until receiving expected message or timing out.
 
-### Set a Check
+### Set a check
 
 You can set a check right after connecting:
 

@@ -48,7 +48,7 @@ The previous `${}` syntax is deprecated because it was clashing with Scala and K
 Please make sure to use the `#{}` syntax from now on.
 {{< /alert >}}
 
-## Built-in Functions
+## Built-in functions
 
 Gatling EL provide the following built-in functions:
 

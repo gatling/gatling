@@ -23,7 +23,7 @@ You have to manually add the following imports:
 
 {{< include-code "imports" java kt scala >}}
 
-## MQTT Protocol
+## MQTT protocol
 
 Use the `mqtt` object in order to create a MQTT protocol.
 
@@ -51,7 +51,7 @@ Use the `publish` method to publish a message. You can use the same `Body` API a
 
 {{< include-code "publish" java kt scala >}}
 
-## MQTT Checks
+## MQTT checks
 
 You can define blocking checks with `await` and non-blocking checks with `expect`.
 Those can be set right after subscribing, or after publishing:

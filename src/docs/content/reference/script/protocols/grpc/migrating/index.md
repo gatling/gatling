@@ -231,7 +231,7 @@ exec(
 )
 ```
 
-## Response Time policy
+## Response time policy
 
 In the community plugin, the response time policy is called a timestamp extractor and must be defined on the `connect`:
 

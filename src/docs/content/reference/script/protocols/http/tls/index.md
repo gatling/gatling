@@ -7,7 +7,7 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2024-09-12T13:29:56+02:00
 ---
 
-## KeyManager and TrustManager
+## KeyManager and trustManager
 
 By default, Gatling uses:
 * the JVM's default KeyManager
@@ -46,7 +46,7 @@ If you want to disable SNI, you can set the `gatling.ssl.enableSni` property to 
 Gatling supports TLSv1.3 as long as your Java version supports it as well, which means running **at least 1.8.0_262**.
 TLSv1.3 is enabled by default.
 
-## Configuring KeyStore and TrustStore
+## Configuring keystore and truststore
 
 Default Gatling TrustStore is very permissive and doesn't validate certificates,
 meaning that it works out of the box with self-signed certificates.

@@ -36,7 +36,7 @@ This API provides a dedicated DSL for chaining the following steps:
 5. [naming]({{< ref "#naming" >}})
 6. [saving]({{< ref "#saving" >}})
 
-## Generic Check Types {#check-type}
+## Generic check types {#check-type}
 
 The following check types are generic and usually implemented on most official Gatling supported protocols.
 
@@ -420,7 +420,7 @@ It takes one single parameter:
 
 {{< include-code "saveAs" >}}
 
-## Conditional Checking
+## Conditional checking
 
 #### `checkIf`
 
@@ -432,7 +432,7 @@ Only perform the checks when some condition holds.
 
 {{< include-code "checkIf" >}}
 
-## Putting It All Together
+## Putting it all together
 
 To help you understand the checks, here is a list of examples.
 

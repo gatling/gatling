@@ -24,7 +24,7 @@ This is done thanks to the following statements:
 
 {{< include-code "bootstrapping" >}}
 
-## HTTP Engine
+## HTTP engine
 
 #### `warmUp`
 

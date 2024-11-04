@@ -101,7 +101,7 @@ You can either protect it with backticks `` `is` `` or use the `shouldBe` alias 
 You can either protect it with backticks `` `in` `` or use the `within` alias instead.
 {{< /alert >}}
 
-## Putting It All Together
+## Putting it all together
 
 To help you understand how to use assertions, here is a list of examples:
 

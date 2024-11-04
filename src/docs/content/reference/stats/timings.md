@@ -20,7 +20,7 @@ At a given second, active users are computed as:
 
 ## Requests
 
-### Response Time
+### Response time
 
 The response time is the elapsed time between:
 
@@ -37,7 +37,7 @@ The response time is the elapsed time between:
 
 The counts are the number of group executions, not the sum of the counts of each individual request in that group.
 
-### Response Time
+### Response time
 
 This metric provides the response times for all the requests belonging to the specified group.
 
@@ -47,7 +47,7 @@ In Gatling Enterprise, this metric is available in the "Request" stats.
 This metric is only available in Gatling Enterprise, not in Gatling open-source HTML reports.
 {{< /alert >}}
 
-### Cumulated Response Time
+### Cumulated response time
 
 Group cumulated response time is the time in a group when requests are flying: requests' response time and resources start to end duration.
 In short, it's the group duration minus the pauses.

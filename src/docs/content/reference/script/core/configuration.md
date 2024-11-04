@@ -58,7 +58,7 @@ If you want to override default values, you have two possibilities:
 When editing `gatling.conf`, don't forget to remove the leading `#` that comments the line, otherwise your change will be ineffective.
 {{< /alert >}}
 
-## Command Line Options {#cli-options}
+## Command line options {#cli-options}
 
 Each distribution of Gatling comes with a CLI which can be used to select run time options. Use the following commands to access the full list of available options:
 

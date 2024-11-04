@@ -18,7 +18,7 @@ IPv6 (enabled by default on Java) was found to sometimes cause some performance 
 
 If you really need to prefer IPv6, please edit the launch scripts.
 
-## OS Tuning
+## OS tuning
 
 {{< alert tip >}}
 Those instructions below are excerpts from the great Riak documentation.
@@ -30,7 +30,7 @@ sections for more details or for instructions for macOS.
 Gatling can consume a very large number of open file handles during normal operation.
 Typically, operating systems limit this number, so you may have to tweak a few options in your chosen OS so that you can open *many* new sockets and achieve heavy load.
 
-### Open Files Limit
+### Open files limit
 
 Most operating systems can change the open-files limit using the `ulimit -n` command. Example:
 
@@ -68,7 +68,7 @@ echo 300000 | sudo tee /proc/sys/fs/nr_open
 echo 300000 | sudo tee /proc/sys/fs/file-max
 ```
 
-### Kernel and Network Tuning
+### Kernel and network tuning
 
 Consider tuning kernel and network and add settings such as the following in `/etc/sysctl.conf`.
 

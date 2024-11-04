@@ -180,7 +180,7 @@ And a bidi stream:
 
 {{< include-code "bidiStreamChecks" java kt scala >}}
 
-## Limitations to the gRPC Checks API
+## Limitations to the gRPC checks API
 
 It is not currently possible to apply different checks to specific incoming messages in the same stream. Be wary that
 `saveAs` will overwrite previously saved values:

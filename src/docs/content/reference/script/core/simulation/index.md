@@ -47,7 +47,7 @@ For more information regarding scenarios, see the dedicated section [here]({{< r
 
 For more information regarding injection profiles, see the dedicated section [here]({{< ref "injection" >}}).
 
-## Protocols Configuration
+## Protocols configuration
 
 Protocols configurations can be attached
 * either on the setUp, in which case they are applied on all the populations
@@ -57,7 +57,7 @@ Protocols configurations can be attached
 
 For more information regarding protocols configurations, see the HttpProtocol section [here]({{< ref "../../script/protocols/http/protocol" >}}).
 
-## Acceptance Criteria
+## Acceptance criteria
 
 Assertions are configured on the setUp.
 
@@ -65,13 +65,13 @@ Assertions are configured on the setUp.
 
 For more information regarding assertions, see the dedicated section [here]({{< ref "assertions" >}}).
 
-## Global Pause configuration
+## Global pause configuration
 
 The pauses can be configured on `Simulation` with a bunch of methods:
 
 {{< include-code "pauses" >}}
 
-## Shaping Throughput
+## Shaping throughput
 
 Some users might want to reason in terms of throughput/requests per second instead of virtual users.
 
@@ -108,7 +108,7 @@ The building blocks for throttling are:
 You can either protect it with backticks `` `in` `` or use the `during` alias instead.
 {{< /alert >}}
 
-## Maximum Duration
+## Maximum duration
 
 Finally, with `maxDuration` you can force your run to terminate based on a duration limit, even if some virtual users are still running.
 
@@ -141,7 +141,7 @@ You won't be able to use Gatling DSL in there, as it's only intended for load te
 If you're looking for executing Gatling DSL, you might consider using [sequential scenarios]({{< ref "injection#sequential-scenarios" >}}).
 {{< /alert >}}
 
-## Deployment Information (Gatling Enterprise only) {#deployment-info}
+## Deployment information (Gatling Enterprise only) {#deployment-info}
 
 When running tests on Gatling Enterprise, you might be interested in some information about the Load Generator running the test.
 

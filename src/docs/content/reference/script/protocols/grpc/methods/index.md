@@ -33,7 +33,7 @@ depending on the type of the gRPC method.
 | [Cancel stream]({{< ref "#method-cancel" >}})                  | :x:                                               | `cancel`                                                   | `cancel`                                                   | `cancel`                                               |
 {{< /table >}}
 
-## gRPC Method Descriptor {#method-descriptor}
+## gRPC method descriptor {#method-descriptor}
 
 The Gatling gRPC DSL will need a method descriptor, of type `io.grpc.MethodDescriptor`, to define each gRPC method used.
 The most common use case is to use [generated code](https://grpc.io/docs/languages/java/generated-code/) from a .proto
@@ -73,7 +73,7 @@ For streaming gRPC methods, Gatling gRPC requests are declared with the `serverS
 keyword. Including one of them in a scenario creates a gRPC stream which may stay open for a long time, and allows you
 to perform several actions on the same stream at various times during the scenario's execution.
 
-#### Server Stream {#instantiate-server-stream}
+#### Server stream {#instantiate-server-stream}
 
 `grpc(requestName)` is the entrypoint for any gRPC request with the Gatling gRPC DSL. `serverStream(methodDescriptor)` then
 takes a [method descriptor]({{< ref "#method-descriptor" >}}) describing the gRPC method to call (which must describe a
@@ -94,7 +94,7 @@ differentiate them:
 
 {{< include-code "serverStreamNames" java kt scala >}}
 
-#### Client Stream {#instantiate-client-stream}
+#### Client stream {#instantiate-client-stream}
 
 `grpc(requestName)` is the entrypoint for any gRPC request with the Gatling gRPC DSL. `clientStream(methodDescriptor)` then
 takes a [method descriptor]({{< ref "#method-descriptor" >}}) describing the gRPC method to call (which must describe a
@@ -116,7 +116,7 @@ differentiate them:
 
 {{< include-code "clientStreamNames" java kt scala >}}
 
-#### Bidirectional Stream {#instantiate-bidi-stream}
+#### Bidirectional stream {#instantiate-bidi-stream}
 
 `grpc(requestName)` is the entrypoint for any gRPC request with the Gatling gRPC DSL. `bidiStream(methodDescriptor)` then
 takes a [method descriptor]({{< ref "#method-descriptor" >}}) describing the gRPC method to call (which must describe a

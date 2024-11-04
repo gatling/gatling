@@ -11,7 +11,7 @@ lastmod: 2022-12-14T21:30:56+02:00
 Note that most method can take static value, [Gatling Expression Language (EL)]({{< ref "../../core/session/el" >}}) strings and functions for parameters.
 {{</ alert >}}
 
-## Request Name
+## Request name
 
 HTTP support has a dedicated DSL, whose entry point is the `http(requestName)` method.
 
@@ -40,7 +40,7 @@ Gatling provides built-ins for the most common methods. Those are simply the met
 Gatling also supports relative URLs; see [baseUrl]({{< ref "protocol#baseurl" >}}).
 {{< /alert >}}
 
-## Query Parameters
+## Query parameters
 
 Frameworks and developers often pass additional information in the query, which is the part of the URL after the `?`. A query is composed of *key=value* pairs, separated by `&`. Those are named *query parameters*.
 
@@ -112,9 +112,9 @@ For a given request, you can also disable common checks that were defined on the
 
 {{< include-code "ignoreProtocolChecks" >}}
 
-## Request Body
+## Request body
 
-### Full Body
+### Full body
 
 In this section, you can find the various methods for setting the full request body.
 
@@ -297,7 +297,7 @@ Similar to [PebbleFileBody]({{< ref "#pebblefilebody" >}}).
 
 Similar to [ByteArrayBody]({{< ref "#bytearraybody" >}}).
 
-### Pre-Processing
+### Pre-processing
 
 #### `processRequestBody`
 
@@ -320,7 +320,7 @@ The next step in the scenario will only be executed once all the resources have 
 
 {{< include-code "resources" >}}
 
-## Advanced Options
+## Advanced options
 
 #### `requestTimeout`
 

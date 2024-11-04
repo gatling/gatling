@@ -43,7 +43,7 @@ You can also click on the {{< icon gear >}} icon to see the properties of the ru
 The Java system properties beginning with `sensitive.` and environment variables beginning with `SENSITIVE_` will not be displayed.
 {{< /alert >}}
 
-### Run Comparison
+### Run comparison
 
 {{< img src="compare-runs.png" alt="Compare runs" >}}
 

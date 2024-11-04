@@ -16,7 +16,7 @@ This is the reference of the different components available to write scenarios w
 
 You can use any character in the name of the scenario **except** tabulations: **\t**.
 
-## Structure Elements
+## Structure elements
 
 All the components in this section can be either:
 * attached to a scenario

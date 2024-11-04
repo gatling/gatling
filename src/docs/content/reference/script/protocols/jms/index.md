@@ -21,7 +21,7 @@ You have to manually add the following imports:
 
 {{< include-code "imprts" java kt scala >}}
 
-## JMS Protocol {#protocol}
+## JMS protocol {#protocol}
 
 Use the `jms` object in order to create a JMS protocol.
 
@@ -37,15 +37,15 @@ or directly instantiate one with your JMS broker's Java client library, eg:
 
 {{< include-code "prog" java kt scala >}}
 
-#### Other Options
+#### Other options
 
 {{< include-code "options" java kt scala >}}
 
-## JMS Request
+## JMS request
 
 Use the `jms("requestName")` method in order to create a JMS request.
 
-### Request Type
+### Request type
 
 Currently, `requestReply` and `send` (fire and forget) requests are supported.
 
@@ -73,14 +73,14 @@ See below for a few examples:
 
 {{< include-code "message" java kt scala >}}
 
-### Extra Options
+### Extra options
 
 * `jmsType`
 * `property`
 
 {{< include-code "extra" java kt scala >}}
 
-## JMS Check
+## JMS check
 
 Gatling JMS's support only current supports the following checks:
 * [`bodyBytes`]({{< ref "../core/checks#bodybytes" >}})

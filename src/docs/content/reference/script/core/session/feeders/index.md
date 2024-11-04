@@ -38,13 +38,13 @@ When using the default `queue` or `shuffle` strategies, make sure that your data
 If your feeder runs out of records, Gatling will self shut down.
 {{< /alert >}}
 
-## Using Arrays and Lists
+## Using arrays and lists
 
 Gatling provides some converters to use in-memory datastructures as Feeders.
 
 {{< include-code "feeder-in-memory" >}}
 
-## File Based Feeders
+## File based feeders
 
 Gatling provides various file based feeders.
 
@@ -61,7 +61,7 @@ In order to locate the file, Gatling tries the following strategies in sequence:
 Don't use relative filesystem paths such as ~~`src/main/resources/data/file.csv`~~, instead use a classpath path `data/file.csv`.
 {{< /alert >}}
 
-## CSV Feeders
+## CSV feeders
 
 Gatling provides several built-ins for reading character-separated values files.
 
@@ -71,7 +71,7 @@ The only difference is that header fields get trimmed of wrapping whitespaces.
 
 {{< include-code "sep-values-feeders" >}}
 
-## Loading Mode
+## Loading mode
 
 CSV files feeders provide several options for how data should be loaded in memory.
 
@@ -94,7 +94,7 @@ The default size of this buffer is 2,000 and can be changed.
 Default behavior is an adaptive policy based on (unzipped, sharded) file size, see `gatling.core.feederAdaptiveLoadModeThreshold` in config file.
 Gatling will use `eager` below threshold and `batch` above.
 
-## Zipped Files
+## Zipped files
 
 If your files are very large, you can provide them zipped and ask gatling to `unzip` them on the fly:
 
@@ -102,7 +102,7 @@ If your files are very large, you can provide them zipped and ask gatling to `un
 
 Supported formats are gzip and zip (but archive must contain only one single file).
 
-## Distributed Files (Gatling Enterprise only)
+## Distributed files (Gatling Enterprise only)
 
 If you want to run distributed with [Gatling Enterprise](https://gatling.io/products/)
 and you want to distribute data so that users don't use the same data when they run on different cluster nodes, you can use the `shard` option.
@@ -114,7 +114,7 @@ For example, if you have a file with 30,000 records deployed on 3 nodes, each wi
 
 {{< include-code "shard" >}}
 
-## JSON Feeders
+## JSON feeders
 
 Some users might want to use data in JSON format instead of CSV:
 
@@ -144,7 +144,7 @@ Map("id" -> 19435, "foo" -> 2) // record #2
 
 Note that the root element has of course to be an array.
 
-## JDBC Feeder
+## JDBC feeder
 
 Gatling also provides a builtin that reads from a JDBC connection.
 
@@ -162,7 +162,7 @@ Only JDBC4 drivers are supported, so that they automatically register to the Dri
 Do not forget to add the required JDBC driver jar in the classpath (`lib` folder in the bundle)
 {{< /alert >}}
 
-## Sitemap Feeder
+## Sitemap feeder
 
 Gatling supports a feeder that reads data from a [Sitemap](http://www.sitemaps.org/protocol.html) file.
 
@@ -218,7 +218,7 @@ Map(
 ) 
 ```
 
-## Redis Feeder {#redis}
+## Redis feeder {#redis}
 
 This feature was originally contributed by Krishnen Chedambarum.
 
@@ -243,7 +243,7 @@ You can create a circular feeder by using the same keys with RPOPLPUSH
 
 {{< include-code "redis-RPOPLPUSH" >}}
 
-## Transforming Records {#transform}
+## Transforming records {#transform}
 
 Sometimes, you might want to transform the raw data you receive from your feeder.
 
@@ -257,7 +257,7 @@ For example:
 
 {{< include-code "transform" >}}
 
-## Loading All the Records in Memory {#read-records}
+## Loading all the records in memory {#read-records}
 
 Sometimes, you might just want to reuse a convenient built-in feeder for custom needs and get your hands on the actual records.
 
@@ -267,7 +267,7 @@ Sometimes, you might just want to reuse a convenient built-in feeder for custom 
 Beware that each `readRecords` call will read the underlying source, eg parse the CSV file.
 {{< /alert >}}
 
-## Count the Number of Records {#recordsCount}
+## Count the number of records {#recordsCount}
 
 Sometimes, you want to know the size of your feeder without having to use `readRecords` and copy all the data in memory.
 

@@ -7,13 +7,13 @@ date: 2021-04-20T18:30:56+02:00
 lastmod: 2022-12-14T21:30:56+02:00
 ---
 
-## Dealing with Cookies
+## Dealing with cookies
 
 Gatling supports cookies out-of-the-box and transparently, just like a browser would.
 
 However, some use cases require a more fine grain control.
 
-### Adding a Cookie
+### Adding a cookie
 
 One might want to manually add or compute a cookie:
 
@@ -28,7 +28,7 @@ Cookie can also take more optional parameters:
 * `maxAge` is and optional number of seconds, defaulting to `Long.MinValue`
 * `secure` is optional, defaulting to false, meaning it's valid for both http and https urls
 
-### Getting a Cookie Value {#getting-cookie-value}
+### Getting a cookie Value {#getting-cookie-value}
 
 Get the cookie value and put it in the session
 
@@ -43,22 +43,20 @@ CookieKey can also take more optional parameters:
 * `secure` is optional. If defined, match based on the cookie's secure attribute. Otherwise, always match.
 * `saveAs` is optional, defaults to `name` param
 
-### Flushing Session Cookies
+### Flushing session cookies
 
 Simulate closing a browser, so session cookies are dropped but not permanent cookies.
 
 {{< include-code "flushSessionCookies" >}}
 
-### Flushing All Cookies
+### Flushing all cookies
 
 Flush the whole CookieJar.
 
 {{< include-code "flushCookieJar" >}}
 
-## Dealing with Caching
+## Flushing the HTTP cache
 
-### Flushing the Cache
-
-Flush the virtual user's whole HTTP cache.
+Flush the virtual user's whole HTTP cache: known redirects, known expires and ETag.
 
 {{< include-code "flushHttpCache" >}}
