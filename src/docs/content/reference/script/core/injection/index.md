@@ -9,7 +9,7 @@ lastmod: 2022-12-14T21:30:56+02:00
 
 The definition of the injection profile of users is done with the `injectOpen` and `injectClosed` methods (just `inject` in Scala). This method takes as an argument a sequence of injection steps that will be processed sequentially.
 
-## Open vs Closed Workload Models
+## Open vs closed workload models
 
 When it comes to load model, systems behave in 2 different ways:
 
@@ -43,7 +43,7 @@ You can read more about open and closed models [here](https://www.usenix.org/leg
 Open and closed workload models are antinomical and you can't mix them in the same injection profile.
 {{< /alert >}}
 
-## Open Model
+## Open model
 
 {{< include-code "open-injection" >}}
 
@@ -62,7 +62,7 @@ The building blocks for open model profile injection are:
 Rates can be expressed as fractional values.
 {{< /alert >}}
 
-## Closed Model
+## Closed model
 
 {{< include-code "closed-injection" >}}
 
@@ -96,13 +96,13 @@ But there is now an alternative using the meta DSL.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
 If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
 
-## Concurrent Scenarios
+## Concurrent scenarios
 
 You can configure multiple scenarios in the same `setUp` block to start at the same time and execute concurrently.
 
 {{< include-code "multiple" >}}
 
-## Sequential Scenarios
+## Sequential scenarios
 
 It's also possible with `andThen` to chain scenarios, so that children scenarios start once all the users in the parent scenario terminate.
 
@@ -110,7 +110,7 @@ It's also possible with `andThen` to chain scenarios, so that children scenarios
 
 When chaining `andThen` calls, Gatling will define the new children to only start once all the users of the previous children have terminated, descendants included.
 
-## Disabling Gatling Enterprise Load Sharding
+## Disabling Gatling Enterprise load sharding
 
 By default, Gatling Enterprise will distribute your injection profile amongst all load generators when running a distributed test from multiple nodes.
 
