@@ -74,17 +74,39 @@ setUp(
 );
 //#incrementUsersPerSec
 
+//#chainingInjectionSteps
+// open model
+setUp(
+  scn.injectOpen(
+    // first ramp the arrival rate to 100 users/s in 1 minute
+    rampUsersPerSec(0.0).to(100.0).during(60),
+    // then keep a steady rate of 100 users/s during 10 minutes
+    constantUsersPerSec(100.0).during(600)
+  )
+);
+
+// closed model
+setUp(
+  scn.injectClosed(
+    // first ramp the number of concurrent users to 100 users in 1 minute
+    rampConcurrentUsers(0).to(100).during(60),
+    // then keep a steady number of concurrent users of 100 users during 10 minutes
+    constantConcurrentUsers(100).during(600)
+  )
+);
+//#chainingInjectionSteps
+
 const scenario1 = scenario("scenario1");
 const scenario2 = scenario("scenario2");
 const injectionProfile1 = atOnceUsers(1);
 const injectionProfile2 = atOnceUsers(1);
 
-//#multiple
+//#concurrentScenarios
 setUp(
   scenario1.injectOpen(injectionProfile1),
   scenario2.injectOpen(injectionProfile2)
 );
-//#multiple
+//#concurrentScenarios
 
 const parent = scenario("parent");
 const child1 = scenario("child1");

@@ -96,11 +96,19 @@ But there is now an alternative using the meta DSL.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
 If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
 
+## Chaining injection steps
+
+For a given scenario, you can pass a sequence of injection steps.
+They must all be of the model kind.
+The next injection step will start when all the virtual users defined by the current one have started.
+
+{{< include-code "chainingInjectionSteps" >}}
+
 ## Concurrent scenarios
 
 You can configure multiple scenarios in the same `setUp` block to start at the same time and execute concurrently.
 
-{{< include-code "multiple" >}}
+{{< include-code "concurrentScenarios" >}}
 
 ## Sequential scenarios
 

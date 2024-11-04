@@ -79,17 +79,39 @@ setUp(
 )
 //#incrementUsersPerSec
 
+//#chainingInjectionSteps
+// open model
+setUp(
+  scn.inject(
+    // first ramp the arrival rate to 100 users/s in 1 minute
+    rampUsersPerSec(0.0).to(100.0).during(1.minute),
+    // then keep a steady rate of 100 users/s during 10 minutes
+    constantUsersPerSec(100.0).during(10.minutes)
+  )
+)
+
+// closed model
+setUp(
+  scn.inject(
+    // first ramp the number of concurrent users to 100 users in 1 minute
+    rampConcurrentUsers(0).to(100).during(1.minute),
+    // then keep a steady number of concurrent users of 100 users during 10 minutes
+    constantConcurrentUsers(100).during(10.minutes)
+  )
+)
+//#chainingInjectionSteps
+
 private val scenario1 = scenario("scenario1")
 private val scenario2 = scenario("scenario2")
 private val injectionProfile1 = atOnceUsers(1)
 private val injectionProfile2 = atOnceUsers(1)
 
-//#multiple
+//#concurrentScenarios
 setUp(
   scenario1.inject(injectionProfile1),
   scenario2.inject(injectionProfile2)
 )
-//#multiple
+//#concurrentScenarios
 
 private val parent = scenario("parent")
 private val child1 = scenario("child1")
