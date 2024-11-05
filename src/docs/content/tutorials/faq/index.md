@@ -11,7 +11,6 @@ Below are answers to some of the questions we receive regularly from Gatling and
 
 If you can't find a solution here or in the rest of documentation, post your question in the [Gatling Community Forum](https://community.gatling.io).
 
-
 ## Scripting scenarios
 
 ### Which languages can I use to write scripts? 
@@ -24,7 +23,6 @@ At present Gatling Enterprise supports the following languages:
 - Typescript
 
 We typically recommend Java because it is widely taught in Computer Science programs and makes including additional developers easier. Gatling is constantly evolving, and more SDKs will likely be added in the future.
-
 
 ### Can I migrate my Gatling open-source scripts to Gatling Enterprise?
 
@@ -88,6 +86,9 @@ Larger loads are possible with Gatling Enterprise by utilizing distributed testi
 
 For Gatling Enterprise Cloud, we use AWS EC2 instances as load generators, which can simulate up to 40,000 virtual users per second or the equivalent of 300,000 requests per second. However, not all requests are built equally and some may take more work from the injectors than others. To figure out how many injectors you need, we recommend starting with as few injectors as possible and checking the injector monitoring tab of your reports. You can determine if you need additional injectors based on metrics like CPU usage. 
 
+### Can I use Gatling's open-source edition with multiple load generators? 
+
+Multiple load generators, also known as distributed testing, is a key feature in Gatling Enterprise. We don't support using the open-source edition for distributed testing. If you need distributed testing for either heavy traffic, or geographic distribution, we strongly encourage you to consider an enterprise license. 
 
 ### Can Gatling launch several simulations sequentially?
 
@@ -95,8 +96,6 @@ No.
 
 However, just like scheduling, that's something very easy to achieve outside Gatling.
 For example, one can configure [multiple executions](http://maven.apache.org/guides/mini/guide-default-execution-ids.html) of the Gatling maven plugin, or multiple Jenkins jobs.
-
-
 
 ## Understanding test results
 
@@ -124,8 +123,6 @@ As traffic increases, prioritizing faster response times for users in the higher
 
 To ensure a more accurate understanding of user experience, it is advisable to examine response time percentiles, especially in scenarios with varying user loads. This approach provides a more nuanced perspective on performance and helps identify potential issues that might be masked by a simple average.
 
-
-
 ## Gatling project
 
 ### Why is gatling-highcharts a dedicated project/repository and why does it use a different license?
@@ -138,5 +135,3 @@ We really want to keep as much code as possible under Apache 2, so we move the r
 If anyone can come with an Apache 2 licensed solution that's as sexy and plug-and-play as Highcharts and Highstock, we'd gladly make it the default implementation and integrate it into the main project!
 
 See [License section]({{< ref "licenses" >}})
-
-
