@@ -17,22 +17,17 @@
 package io.gatling.netty.util;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollDatagramChannel;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.*;
+import io.netty.channel.epoll.*;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.incubator.channel.uring.IOUring;
-import io.netty.incubator.channel.uring.IOUringDatagramChannel;
-import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
-import io.netty.incubator.channel.uring.IOUringSocketChannel;
+import io.netty.channel.uring.IoUring;
+import io.netty.channel.uring.IoUringDatagramChannel;
+import io.netty.channel.uring.IoUringIoHandler;
+import io.netty.channel.uring.IoUringSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.concurrent.ThreadFactory;
 
@@ -43,28 +38,34 @@ public final class Transports {
   public static EventLoopGroup newEventLoopGroup(
       boolean useNativeTransport, boolean useIoUring, int nThreads, String poolName) {
     ThreadFactory threadFactory = new DefaultThreadFactory(poolName);
+
+    IoHandlerFactory ioHandlerFactory = null;
     if (useNativeTransport) {
-      if (useIoUring && IOUring.isAvailable()) {
-        return new IOUringEventLoopGroup(nThreads, threadFactory);
+      if (useIoUring && IoUring.isAvailable()) {
+        ioHandlerFactory = IoUringIoHandler.newFactory();
       } else if (Epoll.isAvailable()) {
-        return new EpollEventLoopGroup(nThreads, threadFactory);
+        ioHandlerFactory = EpollIoHandler.newFactory();
       }
     }
-    return new NioEventLoopGroup(nThreads, threadFactory);
+    if (ioHandlerFactory == null) {
+      ioHandlerFactory = NioIoHandler.newFactory();
+    }
+
+    return new MultiThreadIoEventLoopGroup(nThreads, threadFactory, ioHandlerFactory);
   }
 
   private static final ChannelFactory<? extends SocketChannel> EPOLL_SOCKET_CHANNEL_FACTORY =
       EpollSocketChannel::new;
 
   private static final ChannelFactory<? extends SocketChannel> IOURING_SOCKET_CHANNEL_FACTORY =
-      IOUringSocketChannel::new;
+      IoUringSocketChannel::new;
   private static final ChannelFactory<? extends SocketChannel> NIO_SOCKET_CHANNEL_FACTORY =
       NioSocketChannel::new;
 
   public static ChannelFactory<? extends SocketChannel> newSocketChannelFactory(
       boolean useNativeTransport, boolean useIoUring) {
     if (useNativeTransport) {
-      if (useIoUring && IOUring.isAvailable()) {
+      if (useIoUring && IoUring.isAvailable()) {
         return IOURING_SOCKET_CHANNEL_FACTORY;
       } else if (Epoll.isAvailable()) {
         return EPOLL_SOCKET_CHANNEL_FACTORY;
@@ -77,14 +78,14 @@ public final class Transports {
       EpollDatagramChannel::new;
 
   private static final ChannelFactory<? extends DatagramChannel> IOURING_DATAGRAM_CHANNEL_FACTORY =
-      IOUringDatagramChannel::new;
+      IoUringDatagramChannel::new;
   private static final ChannelFactory<? extends DatagramChannel> NIO_DATAGRAM_CHANNEL_FACTORY =
       NioDatagramChannel::new;
 
   public static ChannelFactory<? extends DatagramChannel> newDatagramChannelFactory(
       boolean useNativeTransport, boolean useIoUring) {
     if (useNativeTransport) {
-      if (useIoUring && IOUring.isAvailable()) {
+      if (useIoUring && IoUring.isAvailable()) {
         return IOURING_DATAGRAM_CHANNEL_FACTORY;
       } else if (Epoll.isAvailable()) {
         return EPOLL_DATAGRAM_CHANNEL_FACTORY;

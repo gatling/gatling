@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel._
 import io.netty.channel.ChannelHandler.Sharable
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http._
 import io.netty.handler.logging.{ LogLevel, LoggingHandler }
@@ -62,8 +62,8 @@ private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, 
   InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
 
   val serverHandler = new ServerHandler(requestHandler, requests)
-  val bossGroup = new NioEventLoopGroup(1)
-  val workerGroup = new NioEventLoopGroup
+  val bossGroup = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory)
+  val workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory)
 
   val serverBootstrap = new ServerBootstrap()
     .group(bossGroup, workerGroup)
