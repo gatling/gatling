@@ -46,6 +46,9 @@ object Expressions {
   def javaFunctionToExpression[T](f: JavaExpression[T]): Expression[T] =
     session => safely()(f.apply(new Session(session)).success)
 
+  def javaSessionFunctionToExpression(f: JavaExpression[Session]): Expression[ScalaSession] =
+    session => safely()(f.apply(new Session(session)).asScala.success)
+
   def javaBiFunctionToExpression[U, R](f: juf.BiFunction[U, Session, R]): (U, ScalaSession) => Validation[R] =
     (u, session) => safely()(f.apply(u, new Session(session)).success)
 

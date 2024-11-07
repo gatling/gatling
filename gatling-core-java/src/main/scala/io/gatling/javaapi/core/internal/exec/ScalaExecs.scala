@@ -20,17 +20,16 @@ import java.{ util => ju }
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.validation.{ safely, SuccessWrapper }
 import io.gatling.javaapi.core.{ ChainBuilder, Session, StructureBuilder }
 import io.gatling.javaapi.core.exec.Execs
-import io.gatling.javaapi.core.internal.JavaExpression
+import io.gatling.javaapi.core.internal.{ Expressions, JavaExpression }
 
 object ScalaExecs {
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
       f: JavaExpression[Session]
   ): T =
-    context.make(_.exec(session => safely()(f.apply(new Session(session)).asScala.success)))
+    context.make(_.exec(Expressions.javaSessionFunctionToExpression(f)))
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
