@@ -134,6 +134,12 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
 
 final class RunMessageSerializer(writer: BufferedFileChannelWriter)
     extends DataWriterMessageSerializer[(RunMessage, Seq[Assertion], ju.Map[String, Int])](writer, RecordHeader.Run.value) {
+
+  // WARNING do not remove or serialization will happen with a wrong format
+  import io.gatling.shared.model.assertion.AssertionPicklers._
+
+  import boopickle.Default._
+
   override protected def serialize0(init: (RunMessage, Seq[Assertion], ju.Map[String, Int])): Unit = {
     val (runMessage, assertions, scenarios) = init
     import runMessage._
@@ -145,7 +151,6 @@ final class RunMessageSerializer(writer: BufferedFileChannelWriter)
     scenarios.asScala.toSeq.sortBy(_._2).map(_._1).foreach(writer.writeString)
     writer.writeInt(assertions.size)
     assertions.foreach { assertion =>
-      import boopickle.Default._
       val byteBuffer = Pickle.intoBytes(assertion)
       writer.writeByteBuffer(byteBuffer)
     }
