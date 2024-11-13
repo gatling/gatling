@@ -80,7 +80,7 @@ See below for a few examples:
 
 {{< include-code "extra" java kt scala >}}
 
-## JMS check
+## JMS check {#check}
 
 Gatling JMS's support only current supports the following checks:
 * [`bodyBytes`]({{< ref "../core/checks#bodybytes" >}})
