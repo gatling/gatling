@@ -7,6 +7,10 @@ lead: Run a Control Plane on Kubernetes, to set up your Private Locations and ru
 lastmod: 2023-09-25T08:15:00+00:00
 ---
 
+{{<alert tip >}}
+Simplify and speed up installation and configuration with Gatling's pre-built [Helm chart]({{< ref "#helm" >}}).
+{{</alert>}}
+
 ## Introduction
 
 A control plane, installed on a kubernetes cluster with the needed roles will be able to deploy kubernetes private locations.
@@ -148,3 +152,7 @@ If no resources are found, examine events related to jobs:
 ```
 kubectl get events --namespace=gatling --field-selector involvedObject.kind=Job
 ```
+
+## Deploy resources using Helm {#helm}
+
+Gatling provides Helm chart to set up Kubernetes resources for Private Locations, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/tree/main/helm-chart)

@@ -214,6 +214,10 @@ To use the Terraform module to setup your Azure Private Package infrastructure, 
 
 To use the Terraform module to setup your GCP Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/blob/main/terraform/examples/GCP-private-package).
 
+#### Helm chart for Kubernetes {#configure-private-packages-with-helm-chart}
+
+To use the Helm chart to setup your Private Package infrastructure, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/tree/main/helm-chart).
+
 ### Upload Private Packages using HTTPS {#enableHttps}
 
 #### AWS

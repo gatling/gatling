@@ -20,6 +20,10 @@ Also, if you're deploying your load generators in the same cluster as the applic
 we recommend that you isolate the load generators on their dedicated nodes, using taints and tolerations.
 See `tolerations` configuration below.
 
+{{<alert tip >}}
+Simplify and speed up configuration and deployment with Gatling's pre-built [Helm chart]({{< ref "#helm" >}}).
+{{</alert>}}
+
 ## Permissions
 
 To use Kubernetes private locations, the control plane must have access to your Kubernetes cluster.
@@ -209,3 +213,7 @@ Here is an example of a basic JSON job definition:
 This job definition is based on the Kubernetes Job API schema.
 For more details on the available properties and their configurations, please refer to the [Kubernetes Job API schema](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#job-v1-batch).
 {{< /alert >}}
+
+## Deploy resources using Helm {#helm}
+
+Gatling provides Helm chart to set up Kubernetes resources for Private Locations, visit our dedicated [GitHub repository](https://github.com/gatling/gatling-enterprise-control-plane-deployment/tree/main/helm-chart)
