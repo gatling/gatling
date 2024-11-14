@@ -297,5 +297,5 @@ http
   .proxyProtocolSourceIpV6Address("#{myIpV6AddressString}")
   // use a function instead,
   // but it will be resolved on each request execution
-  .proxyProtocolSourceIpV6Address(session) => "2a00:1450:4007:810::200e")
+  .proxyProtocolSourceIpV6Address((session) => "2a00:1450:4007:810::200e")
 //#proxyProtocolSource
