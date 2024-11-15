@@ -22,7 +22,7 @@ The Gatling MQTT protocol can be used with both the [Open Source](https://gatlin
 Its usage is unlimited when running on [Gatling Enterprise](https://gatling.io/products). When used with
 [Gatling Open Source](https://gatling.io/products), usage is limited to:
 
-- 5 users max
+- 5 users maximum
 - 5 minute duration tests
 
 Limits after which the test will stop.

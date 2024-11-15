@@ -54,9 +54,9 @@ init {
 //#methods
 // with an absolute static url
 http("name").get("https://gatling.io")
-// with an absolute static url
+// with a dynamic value computed from a Gatling Expression Language String
 http("name").get("#{url}")
-// with an absolute static url
+// with a dynamic value computed from a function
 http("name").get { session -> session.getString("url") }
 
 http("name").put("https://gatling.io")

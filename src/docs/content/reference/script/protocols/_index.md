@@ -10,4 +10,5 @@ ordering:
   - jms
   - mqtt
   - grpc
+  - postman
 ---

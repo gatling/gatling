@@ -47,7 +47,7 @@ Then, use the following procedure to install Gatling:
 https://github.com/gatling/gatling-js-demo/archive/refs/heads/main.zip{{< /button >}}  
 
 2. Unzip and open the project in your IDE or terminal.
-3. navigate to the `/javascript` folder for JavaScript projects in your terminal. 
+3. Navigate to the `/javascript` folder for JavaScript projects in your terminal. 
 4. Run `npm install` to install the packages and dependencies including the `gatling` command. 
 
 ## Simulation construction 
@@ -60,16 +60,16 @@ using the JavaScript SDK.
 
 A Gatling simulation consists of the following:
 
-- importing Gatling functions, 
-- configuring the protocol (commonly HTTP),
-- describing a scenario, 
-- setting up the injection profile (virtual users profile).
+- Importing Gatling functions.
+- Configuring the protocol (commonly HTTP).
+- Describing a scenario.
+- Setting up the injection profile (virtual users profile).
 
 The following procedure teaches you to develop the simulation from each constituent component. If you want to skip ahead
 and copy the final simulation, jump to [Test execution]({{< ref "#test-execution" >}}). Learn more about simulations in the
 [Documentation]({{< ref "/reference/script/core/simulation" >}}). 
 
-#### Setup the file 
+#### Set up the file 
 
 To set up the test file use the following procedure: 
 
@@ -123,9 +123,11 @@ Now, you should have a completed simulation that looks like the following:
 To run your simulation on Gatling Enterprise, you need to package the script with all of the required files. The output of this step is a file named `package.zip` in the `target` folder. To upload your simulation to Gatling Enterprise: 
 
 1. Run the following command in your terminal:
-  ```console
-  npx gatling enterprise-package
-  ```
+
+    ```console
+    npx gatling enterprise-package
+    ```
+
 2. Log in to your Gatling Enterprise account.
 3. Click on **Packages** in the left-side menu.
 4. Click the **Create** button.
@@ -145,10 +147,10 @@ An executable test on Gatling Enterprise is called a Simulation. To run your fir
 6. Click **Save and launch** to start your test! 
 
 {{< alert info >}}
-Learn about how to read your load test results in the [Reports documenation]({{< ref "reference/stats/reports/cloud" >}}).
+Learn about how to read your load test results in the [Reports documentation]({{< ref "reference/stats/reports/cloud" >}}).
 {{</ alert >}}
 
-### (optional) Test the simulation locally { #run-local }
+### Test the simulation locally {{% badge info "Optional" /%}} {#run-local}
 
 The open-source version of Gatling allows you to run simulations locally, generating load from your computer. This is ideal for learning, crafting, and debugging simulations. 
 
