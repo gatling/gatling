@@ -27,13 +27,19 @@ sealed abstract class SimulationClass(clazz: Class[_]) extends Product with Seri
 }
 
 object SimulationClass {
-  def fromClass(clazz: Class[_]): Option[SimulationClass] =
+  def fromClass(clazz: Class[_], simulationName: Option[String]): Option[SimulationClass] =
     if (clazz.isInterface || Modifier.isAbstract(clazz.getModifiers)) {
       None
     } else if (classOf[Simulation].isAssignableFrom(clazz)) {
       Some(SimulationClass.Scala(clazz.asInstanceOf[Class[Simulation]]))
     } else if (classOf[JavaSimulation].isAssignableFrom(clazz)) {
-      Some(SimulationClass.Java(clazz.asInstanceOf[Class[JavaSimulation]]))
+      val javaClass = clazz.asInstanceOf[Class[JavaSimulation]]
+      if (clazz.getName == "io.gatling.js.JsSimulation") {
+        val name = simulationName.getOrElse(throw new IllegalArgumentException("Missing simulation name"))
+        Some(SimulationClass.JavaScript(javaClass, name))
+      } else {
+        Some(SimulationClass.Java(javaClass))
+      }
     } else {
       None
     }
@@ -44,6 +50,10 @@ object SimulationClass {
   }
   final case class Java(clazz: Class[JavaSimulation]) extends SimulationClass(clazz) {
     override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getConstructor().newInstance().params(configuration)
+      clazz.getConstructor().newInstance().params(configuration, null)
+  }
+  final case class JavaScript(clazz: Class[JavaSimulation], simulationName: String) extends SimulationClass(clazz) {
+    override def params(configuration: GatlingConfiguration): SimulationParams =
+      clazz.getConstructor().newInstance().params(configuration, simulationName)
   }
 }

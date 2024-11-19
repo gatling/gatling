@@ -19,6 +19,7 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.gatling.core.config.GatlingConfiguration;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.core.scenario.SimulationParams;
@@ -281,9 +282,10 @@ public abstract class Simulation {
     }
   }
 
-  public SimulationParams params(GatlingConfiguration configuration) {
+  public SimulationParams params(
+      GatlingConfiguration configuration, @Nullable String simulationName) {
     return io.gatling.core.scenario.Simulation$.MODULE$.params(
-        getClass().getName(),
+        simulationName != null ? simulationName : getClass().getName(),
         toScalaSeq(
                 _populationBuilders.stream()
                     .map(PopulationBuilder::asScala)

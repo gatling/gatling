@@ -40,6 +40,9 @@ private[app] final class GatlingArgsParser(args: Array[String]) {
     opt[String](Simulation)
       .foreach(value => gatlingArgs = gatlingArgs.copy(simulationClass = value.trimToOption))
 
+    opt[String](SimulationName)
+      .foreach(value => gatlingArgs = gatlingArgs.copy(simulationName = value.trimToOption))
+
     opt[String](RunDescription)
       .foreach(value => gatlingArgs = gatlingArgs.copy(runDescription = value.trimToOption.map(tryDecodeBase64)))
 

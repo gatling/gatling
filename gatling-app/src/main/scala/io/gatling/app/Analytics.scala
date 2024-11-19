@@ -35,16 +35,13 @@ object Analytics {
   def send(simulationClass: SimulationClass, explicitLauncher: Option[String], buildToolVersion: Option[String]): Unit = {
     val apiKey = if (GatlingVersion.ThisVersion.isDev) ApiKeyDev else ApiKeyProd
     val programmingLanguage = simulationClass match {
-      case SimulationClass.Java(clazz) =>
-        if (clazz.getName == "io.gatling.js.JsSimulation") {
-          "javascript"
-        } else {
-          Try {
-            getClass.getClassLoader.loadClass("kotlin.KotlinVersion")
-            "kotlin"
-          }.toOption.getOrElse("java")
-        }
-      case SimulationClass.Scala(_) => "scala"
+      case SimulationClass.Java(_) =>
+        Try {
+          getClass.getClassLoader.loadClass("kotlin.KotlinVersion")
+          "kotlin"
+        }.toOption.getOrElse("java")
+      case SimulationClass.Scala(_)         => "scala"
+      case SimulationClass.JavaScript(_, _) => "javascript"
     }
     val launcher = explicitLauncher
       .orElse(
