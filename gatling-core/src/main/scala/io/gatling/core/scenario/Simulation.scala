@@ -80,10 +80,8 @@ object Simulation {
       val globalThrottlingMaxDuration = globalThrottling.map(_.duration)
       val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
 
-      _maxDuration.map(List(_)).getOrElse(Nil) ::: globalThrottlingMaxDuration.map(List(_)).getOrElse(Nil) ::: scenarioThrottlingMaxDurations match {
-        case Nil => None
-        case nel => Some(nel.min)
-      }
+      (_maxDuration.map(_ :: Nil).getOrElse(Nil) ::: globalThrottlingMaxDuration.map(_ :: Nil).getOrElse(Nil) ::: scenarioThrottlingMaxDurations)
+        .reduceLeftOption(_ min _)
     }
 
     new SimulationParams(
