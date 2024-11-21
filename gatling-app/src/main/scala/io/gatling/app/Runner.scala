@@ -52,10 +52,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(gatlingArgs)
+    val (simulationParams, runMessage, coreComponents, scenarioFlows) = load(selection)
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
-
-    val (simulationParams, runMessage, coreComponents, scenarioFlows) = load(selection)
 
     start(simulationParams, scenarioFlows, coreComponents) match {
       case Failure(t) => throw t

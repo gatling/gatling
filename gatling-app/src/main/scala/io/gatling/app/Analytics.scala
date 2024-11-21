@@ -59,6 +59,23 @@ object Analytics {
         }
       )
 
+    val findLoadedClassMethod = classOf[ClassLoader].getDeclaredMethod("findLoadedClass", classOf[String])
+    findLoadedClassMethod.setAccessible(true)
+
+    val httpUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.http.protocol.HttpProtocol") != null
+    val jmsUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.jms.protocol.JmsProtocol") != null
+    val mqttUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.mqtt.protocol.MqttProtocol") != null
+    val grpcUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.grpc.protocol.GrpcProtocol") != null
+    val postmanUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.postman.enterprise.Usage") != null
+
+    val modules = List(
+      Option.when(httpUsed)("http"),
+      Option.when(jmsUsed)("jms"),
+      Option.when(mqttUsed)("mqtt"),
+      Option.when(grpcUsed)("grpc"),
+      Option.when(postmanUsed)("postman")
+    ).flatten
+
     val userPropertiesBase = Map(
       "java_version_major" -> Java.MajorVersion.toString,
       "java_version_full" -> Java.FullVersion,
@@ -66,6 +83,7 @@ object Analytics {
       "gatling_version_minor" -> GatlingVersion.ThisVersion.minorVersion,
       "gatling_version_full" -> GatlingVersion.ThisVersion.fullVersion,
       "gatling_version_enterprise" -> GatlingVersion.ThisVersion.isEnterprise,
+      "gatling_modules" -> Json.stringify(modules, isRootObject = false),
       "programming_language" -> programmingLanguage,
       "system_os" -> PlatformDependent.normalizedOs,
       "system_arch" -> PlatformDependent.normalizedArch
