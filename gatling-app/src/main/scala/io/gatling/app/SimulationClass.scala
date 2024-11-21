@@ -27,7 +27,7 @@ sealed abstract class SimulationClass(clazz: Class[_]) extends Product with Seri
 }
 
 object SimulationClass {
-  def fromClass(clazz: Class[_], simulationName: Option[String]): Option[SimulationClass] =
+  def fromClass(clazz: Class[_]): Option[SimulationClass] =
     if (clazz.isInterface || Modifier.isAbstract(clazz.getModifiers)) {
       None
     } else if (classOf[Simulation].isAssignableFrom(clazz)) {
@@ -35,7 +35,7 @@ object SimulationClass {
     } else if (classOf[JavaSimulation].isAssignableFrom(clazz)) {
       val javaClass = clazz.asInstanceOf[Class[JavaSimulation]]
       if (clazz.getName == "io.gatling.js.JsSimulation") {
-        val name = simulationName.getOrElse(throw new IllegalArgumentException("Missing simulation name"))
+        val name = sys.props.getOrElse("gatling.js.simulation", throw new IllegalArgumentException("Missing JavaScript simulation name"))
         Some(SimulationClass.JavaScript(javaClass, name))
       } else {
         Some(SimulationClass.Java(javaClass))

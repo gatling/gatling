@@ -26,8 +26,7 @@ object GatlingArgs {
     reportsOnly = None,
     resultsDirectory = None,
     launcher = None,
-    buildToolVersion = None,
-    simulationName = None
+    buildToolVersion = None
   )
 }
 final case class GatlingArgs(
@@ -37,6 +36,5 @@ final case class GatlingArgs(
     reportsOnly: Option[String],
     resultsDirectory: Option[Path],
     launcher: Option[String],
-    buildToolVersion: Option[String],
-    simulationName: Option[String]
+    buildToolVersion: Option[String]
 )

@@ -27,7 +27,7 @@ object Selection {
     gatlingArgs.simulationClass match {
       case Some(simulationClassName) =>
         val simulationClass = SimulationClass
-          .fromClass(getClass.getClassLoader.loadClass(simulationClassName), gatlingArgs.simulationName)
+          .fromClass(getClass.getClassLoader.loadClass(simulationClassName))
           .getOrElse(throw new IllegalArgumentException(s"Simulation class $simulationClassName is not a Simulation"))
         new Selection(simulationClass, simulationClass.simpleName.clean, gatlingArgs.runDescription.getOrElse(""))
 
