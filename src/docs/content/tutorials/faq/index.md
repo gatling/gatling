@@ -34,10 +34,13 @@ JavaScript and TypeScript users can use their preferred package manager to creat
 
 ## Running simulations
 
-### What is the format of the log file Gatling generates?
+### Can I parse the simulation.log file myself? {#logfile}
 
-This file is an implementation detail and is subject to change any time without any further notice.
-We strongly recommend against writing your own parser and parse it for your own needs.
+No.
+
+This file is an implementation detail whose sole purpose is the generation of the official HTML reports.\
+Its format is not documented and is subject to change any time without any further notice.\
+Don't use it for building in-house integrations.
 
 ### I get a "StackOverflowError" when compiling
 
