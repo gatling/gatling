@@ -59,11 +59,6 @@ Typically, you have to move your chains out of your Simulation class, for exampl
 
 {{< include-code "FaqSample.scala#chains" scala >}}
 
-### How can I override the maven-gatling-plugin log level?
-
-* either set a JVM param `-Dlogback.configurationFile=/path/to/config.xml`
-* or add a `logback-test.xml` to your classpath that will have precedence over the embedded `logback.xml` file
-
 ### When should I use more load generators?
 
 There are 3 main reasons to consider using additional load generators:
