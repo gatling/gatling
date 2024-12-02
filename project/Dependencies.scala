@@ -97,7 +97,7 @@ object Dependencies {
 
   // Dependencies by module
   private val gatlingGrpcVersion = "3.13.1"
-  private val gatlingMqttVersion = "3.13.1"
+  private val gatlingMqttVersion = "3.13.1.2"
 
   val nettyUtilDependencies =
     Seq(
