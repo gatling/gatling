@@ -50,7 +50,6 @@ Your private locations, as configured by the control plane, must permit outbound
   * `https://cloud-probes-eu-west-3.s3.eu-west-3.amazonaws.com` (for Gatling libraries)
   * `https://frontline-cloud-prod-eu-west3.s3.eu-west-3.amazonaws.com` (for simulation files)
 
-
 `https://api.gatling.io` uses the following static IPv4 addresses that you can allow in your network configuration:
 * 15.236.15.177
 * 51.44.121.66
