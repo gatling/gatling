@@ -40,15 +40,21 @@ Those instances will send stats through the API as well.
 ### Network prerequisites
 
 Ensure the control plane network permits outbound access to the following domain:
-- Gatling Cloud API: `https://api.gatling.io`
-  - This is used to register the control plane to the Gatling Enterprise Cloud application and to receive deployment orders.
+* Gatling Cloud API: `https://api.gatling.io`
+  * This is used to register the control plane to the Gatling Enterprise Cloud application and to receive deployment orders.
 
 Your private locations, as configured by the control plane, must permit outbound access to these domains:
-- Gatling Cloud API: `https://api.gatling.io`
-  - This is used to communicate metrics from the run.
-- AWS S3 domains for downloading Gatling dependencies and simulations:
-  - `https://cloud-probes-eu-west-3.s3.eu-west-3.amazonaws.com` (for Gatling libraries)
-  - `https://frontline-cloud-prod-eu-west3.s3.eu-west-3.amazonaws.com` (for simulation files)
+* Gatling Cloud API: `https://api.gatling.io`
+  * This is used to communicate metrics from the run.
+* AWS S3 domains for downloading Gatling dependencies and simulations:
+  * `https://cloud-probes-eu-west-3.s3.eu-west-3.amazonaws.com` (for Gatling libraries)
+  * `https://frontline-cloud-prod-eu-west3.s3.eu-west-3.amazonaws.com` (for simulation files)
+
+
+`https://api.gatling.io` uses the following static IPv4 addresses that you can allow in your network configuration:
+* 15.236.15.177
+* 51.44.121.66
+* 52.47.87.192
 
 ### Token
 
