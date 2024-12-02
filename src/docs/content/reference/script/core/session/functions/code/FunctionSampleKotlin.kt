@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import java.util.Locale
 import io.gatling.javaapi.core.*
 import io.gatling.javaapi.core.CoreDsl.*
 import io.gatling.javaapi.http.HttpDsl.*
@@ -24,11 +23,11 @@ class FunctionSampleKotlin {
 //#function-sample
 // inline usage with a Kotlin lambda
 exec(http("name")
-  .get { session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" })
+  .get { session -> "/foo/${session.getString("param")!!.lowercase()}" })
 
 // passing a reference to a function
 val f =
-  { session: Session -> "/foo/${session.getString("param")!!.toLowerCase(Locale.getDefault())}" }
+  { session: Session -> "/foo/${session.getString("param")!!.lowercase()}" }
 exec(http("name").get(f))
 //#function-sample
   }
