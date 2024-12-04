@@ -10,4 +10,6 @@ ordering:
   - kubernetes
   - dedicated
   - private-packages
+  - networking
 ---
+
