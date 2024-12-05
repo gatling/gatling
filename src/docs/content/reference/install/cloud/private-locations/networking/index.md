@@ -22,7 +22,7 @@ section of the [Private Locations Introduction]({{< ref "reference/install/cloud
 The Control Plane configuration supports the setup of a reverse proxy. 
 
 {{< alert info >}}
-When configuring the proxy, you must ensure it rewrites the `Host` header to `api.gatling.io`.
+When configuring the proxy, you must ensure it rewrites the `Host` header to `api.gatling.io` and forwards all other headers.
 {{< /alert >}}
 
 Here’s how to configure it in the control-plane section of your configuration:
