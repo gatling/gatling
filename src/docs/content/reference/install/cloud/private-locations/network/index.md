@@ -24,13 +24,13 @@ You must permit outbound access to the Gatling Cloud API served from `https://ap
 * 51.44.121.66
 * 52.47.87.192
 
-## Configuring a Reverse Proxy
+## Configuring a Forward Proxy
 
-This section describes how to have all the outbound requests from Gatling Enterprise components go through a reverse proxy or an API gateway.
+This section describes how to have all the outbound requests from Gatling Enterprise components go through a forward proxy or an API gateway.
 
-### Reverse Proxy for the Control Plane
+### Forward Proxy for the Control Plane
 
-The Control Plane configuration supports the setup of a reverse proxy. 
+The Control Plane configuration supports the setup of a forward proxy. 
 
 {{< alert info >}}
 When configuring the proxy, you must ensure it rewrites the `Host` header to `api.gatling.io` and forwards all other headers.
@@ -43,28 +43,28 @@ control-plane {
   token = "cpt_example_c7oze5djp3u14a5xqjanh..." 
   # Enterprise Cloud Network Configuration
   enterprise-cloud {
-    # Reverse Proxy URL
-    url = "http://private-control-plane-reverse-proxy/gatling"
+    # Forward Proxy URL
+    url = "http://private-control-plane-forward-proxy/gatling"
   }
   locations = [] 
 }
 ```
 
-### Reverse Proxy for Private Locations
+### Forward Proxy for Private Locations
 
-Private Locations can also be configured to use a reverse proxy. You have two options:
+Private Locations can also be configured to use a forward proxy. You have two options:
 
-#### 1. Use the Same Reverse Proxy as the Control Plane
+#### 1. Use the Same Forward Proxy as the Control Plane
 
-You can reuse the Control Plane's reverse proxy configuration by leveraging [HOCON substitutions](https://github.com/lightbend/config/blob/main/HOCON.md#substitutions).
+You can reuse the Control Plane's forward proxy configuration by leveraging [HOCON substitutions](https://github.com/lightbend/config/blob/main/HOCON.md#substitutions).
 ```bash
 control-plane {
   # Authentication token
   token = "cpt_example_c7oze5djp3u14a5xqjanh..." 
   # Control Plane Enterprise Cloud Network Configuration
   enterprise-cloud {
-    # Reverse Proxy URL
-    url = "http://private-control-plane-reverse-proxy/gatling"
+    # Forward Proxy URL
+    url = "http://private-control-plane-forward-proxy/gatling"
   }
   # Private Locations
   locations = [
@@ -78,12 +78,12 @@ control-plane {
 }
 ```
 
-#### 2. Use a Dedicated Reverse Proxy for Private Locations
+#### 2. Use a Dedicated Forward Proxy for Private Locations
 
 If you prefer separate proxies, define a substitution for the private locations and reference it in their configuration.
 ```bash
 location-enterprise-cloud = {
-  url = "https://location-reverse-proxy/gatling"
+  url = "https://location-forward-proxy/gatling"
 }
 
 control-plane {
@@ -91,8 +91,8 @@ control-plane {
   token = "cpt_example_c7oze5djp3u14a5xqjanh..." 
   # Control Plane Enterprise Cloud Network Configuration
   enterprise-cloud {
-    # Reverse Proxy URL
-    url = "http://private-control-plane-reverse-proxy/gatling"
+    # Forward Proxy URL
+    url = "http://private-control-plane-forward-proxy/gatling"
   }
   # Private Locations
   locations = [
@@ -114,6 +114,6 @@ control-plane {
 
 ### Key Notes
 
-* **Host Header Rewriting**: Ensure all configured reverse proxies rewrite the host header to api.gatling.io. This is a mandatory requirement for proper communication.
+* **Host Header Rewriting**: Ensure all configured forward proxies rewrite the host header to api.gatling.io. This is a mandatory requirement for proper communication.
 * **Configuration Simplification**: Take advantage of HOCON substitutions to reuse and simplify configuration settings, minimizing redundancy and reducing maintenance effort.
 * **Proxy Separation**: Decide whether to use a single proxy for both the Control Plane and Private Locations or separate proxies for each, based on your infrastructure needs.
