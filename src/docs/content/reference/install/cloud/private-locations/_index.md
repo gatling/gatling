@@ -4,12 +4,12 @@ seotitle: Private locations for Gatling Enterprise Cloud
 description: Learn how to setup private locations on your own accounts.
 ordering:
   - introduction
+  - network
   - aws
   - azure
   - gcp
   - kubernetes
   - dedicated
   - private-packages
-  - networking
 ---
 

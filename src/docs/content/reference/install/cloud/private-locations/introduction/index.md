@@ -37,17 +37,6 @@ Those instances will send stats through the API as well.
 
 ## Control plane
 
-### Network prerequisites
-
-You must permit outbound access to the Gatling Cloud API served from `https://api.gatling.io` from the following components:
-* your control plane
-* your private locations, as configured by the control plane
-
-`api.gatling.io` uses the following static IPv4 addresses that you can allow in your network configuration:
-* 15.236.15.177
-* 51.44.121.66
-* 52.47.87.192
-
 ### Token
 
 Access the private locations section by clicking on the Private locations in the navigation bar (only visible if the feature is activated on your organization).

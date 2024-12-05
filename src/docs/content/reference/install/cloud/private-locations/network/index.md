@@ -1,21 +1,32 @@
 ---
-title: Networking Gatling Control Plane and Private Locations
-menutitle: Reverse Proxy
-description: Learn how to configure a reverse proxy on your Control Plane and Private Locations
-lead: Reverse Proxy Configuration
+title: Network Requirements for Gatling Control Plane and Private Locations
+menutitle: Network
+description: Learn how to configure network configuration your Control Plane and Private Locations
+lead: Network Configuration
 date: 2021-11-07T14:29:04+00:00
 lastmod: 2023-04-03T12:00:00+00:00
 ---
 
-This guide provides clear instructions for configuring a reverse proxy for both the Control Plane and Private Locations within your Gatling setup.
+This guide provides clear instructions for configuring network access for both the Control Plane and Private Locations.
 
-## Overview
+## Network Requirements
 
-To ensure seamless network communication, it’s crucial to understand the connections outlined in 
-the [Network Prerequisites]({{< ref "reference/install/cloud/private-locations/introduction/#network-prerequisites" >}}) 
-section of the [Private Locations Introduction]({{< ref "reference/install/cloud/private-locations/introduction/#introduction" >}}).
+{{< alert info >}}
+Make sure to first check the architecture diagram section in the [Private Locations Introduction section]({{< ref "reference/install/cloud/private-locations/introduction/#introduction" >}})
+{{< /alert >}}
+
+You must permit outbound access to the Gatling Cloud API served from `https://api.gatling.io` from the following components:
+* your control plane
+* your private locations, as configured by the control plane
+
+`api.gatling.io` uses the following static IPv4 addresses that you can allow in your network configuration:
+* 15.236.15.177
+* 51.44.121.66
+* 52.47.87.192
 
 ## Configuring a Reverse Proxy
+
+This section describes how to have all the outbound requests from Gatling Enterprise components go through a reverse proxy or an API gateway.
 
 ### Reverse Proxy for the Control Plane
 
@@ -43,7 +54,7 @@ control-plane {
 
 Private Locations can also be configured to use a reverse proxy. You have two options:
 
-#### 1. Use the Same Proxy as the Control Plane
+#### 1. Use the Same Reverse Proxy as the Control Plane
 
 You can reuse the Control Plane's reverse proxy configuration by leveraging [HOCON substitutions](https://github.com/lightbend/config/blob/main/HOCON.md#substitutions).
 ```bash
@@ -67,7 +78,7 @@ control-plane {
 }
 ```
 
-#### 2. Use a Dedicated Proxy for Private Locations
+#### 2. Use a Dedicated Reverse Proxy for Private Locations
 
 If you prefer separate proxies, define a substitution for the private locations and reference it in their configuration.
 ```bash
