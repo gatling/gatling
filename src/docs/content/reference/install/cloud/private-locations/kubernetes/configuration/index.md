@@ -145,6 +145,10 @@ Several aspects of this job schema are enforced by the control plane:
 * `spec.template.spec.containers[0].image`: The container image is determined by your configuration (certified or custom) and cannot be set within the job definition itself.
 * `spec.template.spec.containers[0].command`: Reserved for initiating the Gatling script and should not be modified within the job definition.
 
+{{< alert tip >}}
+We recommend aligning resource requests with limits to maintain consistent thread pool sizing and prevent unpredictable performance fluctuations. Without this alignment, it can be challenging to differentiate genuine application issues from resource throttling caused by Kubernetes resource allocation.
+{{< /alert >}}
+
 Here is an example of a basic JSON job definition:
 ```json
 {
