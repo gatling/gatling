@@ -7,6 +7,7 @@ ordering:
   - quickstart
   - scripting-intro
   - scripting-intro-js
+  - postman
   - recorder
   - advanced
   - trial-plan
