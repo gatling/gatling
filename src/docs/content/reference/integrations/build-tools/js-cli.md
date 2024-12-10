@@ -93,6 +93,27 @@ Use the following procedure to upgrade your SDK version:
 
 2. Run `npm install`
 
+### About the Gatling runtime bundle
+
+The `gatling` CLI tool automatically downloads the Gatling runtime bundle, required to execute your Gatling
+simulations, when needed. By default, it:
+
+- Follows the proxy settings detected from your NPM configuration (`.npmrc` file) or environment variables
+  (`http_proxy` or `https_proxy`), if any, to access the Internet and download the runtime bundle.
+- Installs the runtime bundle in the folder `~/.gatling` (Linux/macOS) or `%USERPROFILE%\.gatling` (Windows). You can
+  override this with the `--gatling-home` option.
+
+The `gatling` CLI tool doesn't download the Gatling runtime bundle if it cannot access the address
+`https://github.com/gatling/gatling-js/releases/`. Alternatively, you can try manually downloading the file from
+[the releases page](https://github.com/gatling/gatling-js/releases/), being careful to choose the same version
+configured in your `package.json` file and the correct variant for your system: we use the same names for the
+[system type](https://nodejs.org/api/os.html#ostype) and [architecture](https://nodejs.org/api/os.html#osarch) as in the
+Node `os` library. Then install it with the command:
+
+```shell
+npx gatling install <path-to-downloaded-file.zip>
+```
+
 ## Commands
 
 ### Running your simulations
@@ -149,7 +170,7 @@ Since you probably don't want to include you secret token in your source code, y
 - the `--api-token` option
 
 {{< alert info >}}
-Learn how to work with environment variables and JavaScript parameters in the [Configuration docummentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}). 
+Learn how to work with environment variables and JavaScript parameters in the [Configuration documentation]({{< ref "/reference/script/core/configuration#manage-configuration-values" >}}).
 {{< /alert >}}
 
 #### Packaging your simulations for Gatling Enterprise Cloud

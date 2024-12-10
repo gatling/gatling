@@ -157,9 +157,7 @@ The open-source version of Gatling allows you to run simulations locally, genera
 Using the terminal, you can launch your test with the following command in the `javascript` project directory:
 
 ```console
-
 npx gatling run --simulation myfirstsimulation
-
 ```
 
 When the test has finished, there is an HTML link in the terminal that you can use to access the static report. 
