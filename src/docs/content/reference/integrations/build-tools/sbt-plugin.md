@@ -160,7 +160,7 @@ This command automatically checks your simulation project and performs the deplo
 By default, `enterpriseDeploy` searches for the package descriptor in `.gatling/package.conf`.
 However, you can target a different filename in `.gatling` by using the following command:
 ```shell
-sbt Gatling/enterpriseDeploy --package-descriptor-filename "<file name>"
+sbt 'Gatling/enterpriseDeploy --package-descriptor-filename "<file name>"'
 ```
 
 {{< alert info >}}
@@ -178,7 +178,7 @@ You can, using the `gatling:enterpriseStart` command:
 By default, the Gatling plugin prompts the user to choose a simulation to start from among the deployed simulations.
 However, users can also specify the simulation name directly to bypass the prompt using the following command:
 ```shell
-sbt Gatling/enterpriseStart "<simulation name>"
+sbt 'Gatling/enterpriseStart "<simulation name>"'
 ```
 Replace `<simulation name>` with the desired name of the simulation you want to start.
 
