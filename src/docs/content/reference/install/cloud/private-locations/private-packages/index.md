@@ -47,6 +47,8 @@ The control plane with a private repository has a server to manage uploads to th
 The server is accessible on port 8080 by default when a repository is configured.
 The following **optional server configuration** with the default settings is provided for your reference.
 
+If you intend to put some reverse proxy in front of it, you can use the `/info` path as a healthcheck URL.
+
 ```bash
 control-plane {
   repository {
