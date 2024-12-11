@@ -205,6 +205,30 @@ gatling.enterprise.package {
         rampUp = 10
         rampDown = 10
       }
+      stopCriteria = [
+        {
+          type = "meanCpu",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxPercentage = 90
+          }
+        },
+        {
+          type = "globalResponseTime",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxMilliseconds = 90,
+            percentile = 50
+          }
+        },
+        {
+          type = "globalErrorRatio",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxPercentage = 90
+          }
+        }
+      ]
     }
   ]
 }
@@ -248,6 +272,16 @@ Environment variables prefix with `SENSITIVE_` will not be displayed on dashboar
 - `rampUp` *(optional)* : number of second at the beginning of the test to ignore *(default: 0, or existing)*
 - `rampDown` *(optional)* : number of second at the end of the test to ignore *(default: 0, or existing)*
 
+`stopCriteria` *(optional)*
+- `type`: `meanCpu`, `globalResponseTime` or `globalErrorRatio`
+- `timeframeInSeconds`: the timeframe during which the threshold must be reached to stop the simulation.
+- `threshold`, if `globalResponseTime`:
+  - `percentile`: defines the percentile from which you want to check the response time.
+  - `maxMilliseconds`: the max response time, in milliseconds. Run stops if exceeded.
+- `threshold`, if `meanCpu` or `globalErrorRation`
+  - `maxPercentage`: percentage of mean Load Generators CPU usage or requests error rate at which you want the test to stop.
+
+
 ### Common settings for simulations
 
 If you need to set up multiple simulations with similar settings, doing so individually can become time-consuming.
@@ -284,6 +318,30 @@ gatling.enterprise.package {
         rampUp = 10
         rampDown = 10
       }
+      stopCriteria = [
+        {
+          type = "meanCpu",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxPercentage = 90
+          }
+        },
+        {
+          type = "globalResponseTime",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxMilliseconds = 90,
+            percentile = 50
+          }
+        },
+        {
+          type = "globalErrorRatio",
+          timeframeInSeconds = 10,
+          threshold = {
+            maxPercentage = 90
+          }
+        }
+      ]
     }
   }
   simulations = [
@@ -306,6 +364,15 @@ gatling.enterprise.package {
       timeWindow {
         rampDown = 20
       }
+      stopCriteria = [
+        {
+          type = "meanCpu",
+          timeframeInSeconds = 15,
+          threshold = {
+            maxPercentage = 95
+          }
+        }
+      ]
     }
   ]
 }
@@ -336,5 +403,14 @@ For **`com.example.SimulationB`** in the example, its properties are combined wi
     rampUp = 10
     rampDown = 20
   }
+  stopCriteria = [
+    {
+      type = "meanCpu",
+      timeframeInSeconds = 15,
+      threshold = {
+        maxPercentage = 95
+      }
+    }
+  ]
 }
 ```
