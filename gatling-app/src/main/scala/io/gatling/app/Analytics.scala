@@ -32,6 +32,22 @@ object Analytics {
   private val ApiKeyDev = "27a3799b1445c6ab08674c6b8fa3b956"
   private val ApiKeyProd = "4ba61bcc5dc0854ac5ee8cafa62e403b"
 
+  val UsedGatlingModules: Set[String] = {
+    val findLoadedClassMethod = classOf[ClassLoader].getDeclaredMethod("findLoadedClass", classOf[String])
+    findLoadedClassMethod.setAccessible(true)
+    def isClassLoaded(className: String): Boolean = findLoadedClassMethod.invoke(getClass.getClassLoader, className) != null
+
+    Set(
+      Option.when(isClassLoaded("io.gatling.http.action.HttpRequestAction"))("http"),
+      Option.when(isClassLoaded("io.gatling.http.action.ws.WsAction"))("ws"),
+      Option.when(isClassLoaded("io.gatling.http.action.sse.SseAction"))("sse"),
+      Option.when(isClassLoaded("io.gatling.jms.protocol.JmsProtocol"))("jms"),
+      Option.when(isClassLoaded("io.gatling.mqtt.protocol.MqttProtocol"))("mqtt"),
+      Option.when(isClassLoaded("io.gatling.grpc.protocol.GrpcProtocol"))("grpc"),
+      Option.when(isClassLoaded("io.gatling.postman.enterprise.Usage"))("postman")
+    ).flatten
+  }
+
   def send(simulationClass: SimulationClass, explicitLauncher: Option[String], buildToolVersion: Option[String]): Unit = {
     val apiKey = if (GatlingVersion.ThisVersion.isDev) ApiKeyDev else ApiKeyProd
     val programmingLanguage = simulationClass match {
@@ -59,23 +75,6 @@ object Analytics {
         }
       )
 
-    val findLoadedClassMethod = classOf[ClassLoader].getDeclaredMethod("findLoadedClass", classOf[String])
-    findLoadedClassMethod.setAccessible(true)
-
-    val httpUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.http.protocol.HttpProtocol") != null
-    val jmsUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.jms.protocol.JmsProtocol") != null
-    val mqttUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.mqtt.protocol.MqttProtocol") != null
-    val grpcUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.grpc.protocol.GrpcProtocol") != null
-    val postmanUsed = findLoadedClassMethod.invoke(getClass.getClassLoader, "io.gatling.postman.enterprise.Usage") != null
-
-    val modules = List(
-      Option.when(httpUsed)("http"),
-      Option.when(jmsUsed)("jms"),
-      Option.when(mqttUsed)("mqtt"),
-      Option.when(grpcUsed)("grpc"),
-      Option.when(postmanUsed)("postman")
-    ).flatten
-
     val userPropertiesBase = Map(
       "java_version_major" -> Java.MajorVersion.toString,
       "java_version_full" -> Java.FullVersion,
@@ -83,7 +82,7 @@ object Analytics {
       "gatling_version_minor" -> GatlingVersion.ThisVersion.minorVersion,
       "gatling_version_full" -> GatlingVersion.ThisVersion.fullVersion,
       "gatling_version_enterprise" -> GatlingVersion.ThisVersion.isEnterprise,
-      "gatling_modules" -> Json.stringify(modules, isRootObject = false),
+      "gatling_modules" -> Json.stringify(UsedGatlingModules, isRootObject = false),
       "programming_language" -> programmingLanguage,
       "system_os" -> PlatformDependent.normalizedOs,
       "system_arch" -> PlatformDependent.normalizedArch
