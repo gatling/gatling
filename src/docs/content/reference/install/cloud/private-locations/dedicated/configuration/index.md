@@ -5,7 +5,7 @@ seotitle: Configure dedicated locations in Gatling Enterprise Cloud
 description: Deploy load generators on dedicated machines that you manage.
 lead: Deploy load generators on dedicated machines that you manage.
 date: 2023-01-12T16:46:04+00:00
-lastmod: 2023-10-13T08:10:39+00:00
+lastmod: 2024-12-19T10:38:00+00:00
 ---
 
 ## Instance specifications
@@ -34,7 +34,11 @@ So, make sure following are available on the location configured hosts:
 - `bash` the GNU Project's shell
 - [jq](https://jqlang.github.io/jq/download/) a lightweight and flexible command-line JSON processor.
 - [curl](https://curl.se/download.html) a command line tool and library for transferring data with URLs
-- [Java runtime environment](https://openjdk.org/install/): OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../../oss#java-version" >}}))
+- [Java runtime environment](https://openjdk.org/install/):
+  - For Gatling Java and Scala support: OpenJDK 64bits LTS versions: 11, 17 or 21 (see [Gatling prerequisites]({{< ref "../../../oss#java-version" >}}))
+  - For Gatling JS and Postman support: either [GraalVM CE](https://github.com/graalvm/graalvm-ce-builds/releases)
+    or [Oracle GraalVM](https://www.graalvm.org/downloads/). You need at least GraalVM for JDK 21.0.2, but we recommend
+    installing the latest version.
 - `~/.ssh/authorized_keys` with control plane public key
 
 {{< alert tip >}}
