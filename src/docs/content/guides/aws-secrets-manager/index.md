@@ -43,6 +43,34 @@ For more information, visit: [Gatling AWS Locations Configuration]({{< ref "refe
 To retrieve secrets in batches, ensure you have the `secretsmanager:GetSecretValue` permission for each secret. Additionally, the `secretsmanager:BatchGetSecretValue` permission is required.
 {{< /alert >}}
 
+### Pass Role Policy
+
+{{< alert tip >}}
+Next policy is required to pass the created role as an iam-instance-profile to AWS private location.
+
+IAM Instance Profile on AWS private location allow to assign that role to all load generator instances spawned for that private location.
+{{< /alert >}}
+
+`GatlingIAMPolicy` allows the Control Plane to pass an IAM instance profile role to a deployed a load generator on EC2.
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "iam:PassRole"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:iam::{Account}:role/{RoleNameWithPath}"
+            ]
+        }
+    ]
+}
+```
+{{< alert info >}}
+The resources are the Amazon Resource Names (ARN) of the IAM instance-profile roles you configured on some of your private locations.
+{{< /alert >}}
 
 ## Installation
 
