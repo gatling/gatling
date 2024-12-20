@@ -107,7 +107,7 @@ The Gatling bundle is primarily intended for users who don't have internet acces
 From Gatling 3.11, the bundle is based on a Maven wrapper, and we recommend using it with an IDE such as IntelliJ. 
 
 {{< button title="Download for Gatling bundle" >}}
-https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/{{< var gatlingVersion >}}/gatling-charts-highcharts-bundle-{{< var gatlingVersion >}}.zip
+https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/3.13.1.1/gatling-charts-highcharts-bundle-3.13.1.1.zip
 {{< /button >}}
 
 {{< alert warning >}}
