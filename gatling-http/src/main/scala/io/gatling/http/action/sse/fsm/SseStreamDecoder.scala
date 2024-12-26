@@ -41,7 +41,7 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
   private[this] var pendingId: Option[String] = None
   private[this] var pendingRetry: Option[Int] = None
 
-  private[this] var pendingEvents = collection.mutable.ArrayBuffer.empty[ServerSentEvent]
+  private[this] val pendingEvents = collection.mutable.ArrayBuffer.empty[ServerSentEvent]
   private[this] var firstEvent = true
   private[this] var previousBufferLastCharWasCr = false
   private[this] var position = 0
