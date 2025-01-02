@@ -33,7 +33,7 @@ class FeederSampleJava {
 // import org.apache.commons.lang3.RandomStringUtils
 Iterator<Map<String, Object>> feeder =
   Stream.generate((Supplier<Map<String, Object>>) () -> {
-      String email = RandomStringUtils.randomAlphanumeric(20) + "@foo.com";
+      String email = RandomStringUtils.insecure().nextAlphanumeric(20) + "@foo.com";
       return Map.of("email", email);
     }
   ).iterator();

@@ -27,7 +27,7 @@ class FeederSampleKotlin {
 //#random-mail-generator
 // import org.apache.commons.lang3.RandomStringUtils
 val feeder = generateSequence {
-  val email = RandomStringUtils.randomAlphanumeric(20) + "@foo.com"
+  val email = RandomStringUtils.insecure().nextAlphanumeric(20) + "@foo.com"
   mapOf("email" to email)
 }.iterator()
 //#random-mail-generator
