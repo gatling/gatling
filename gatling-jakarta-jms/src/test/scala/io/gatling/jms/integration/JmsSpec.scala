@@ -16,8 +16,6 @@
 
 package io.gatling.jms.integration
 
-import javax.jms.{ Session => JmsSession, _ }
-
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.DefaultClock
@@ -36,6 +34,7 @@ import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
 import io.netty.channel.EventLoopGroup
+import jakarta.jms.{ Session => JmsSession, _ }
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 

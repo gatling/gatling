@@ -17,7 +17,6 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.{ Connection, Destination }
 
 import io.gatling.commons.model.Credentials
 import io.gatling.commons.util.Clock
@@ -27,6 +26,8 @@ import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.protocol.JmsMessageMatcher
 import io.gatling.jms.request._
+
+import jakarta.jms.{ Connection, Destination }
 
 final class JmsConnection(
     connection: Connection,

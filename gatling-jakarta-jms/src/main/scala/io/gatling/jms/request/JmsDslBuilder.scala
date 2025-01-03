@@ -17,7 +17,6 @@
 package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
-import javax.jms.Message
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.builder.ActionBuilder
@@ -25,6 +24,8 @@ import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper, Session }
 import io.gatling.internal.quicklens._
 import io.gatling.jms.JmsCheck
 import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
+
+import jakarta.jms.Message
 
 final class JmsDslBuilderBase(requestName: Expression[String]) {
   def send: SendDslBuilder.Queue = new SendDslBuilder.Queue(requestName)

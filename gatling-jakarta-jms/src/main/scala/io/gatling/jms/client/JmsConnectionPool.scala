@@ -17,7 +17,6 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.ConnectionFactory
 
 import scala.jdk.CollectionConverters._
 
@@ -26,6 +25,8 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.actor.ActorSystem
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
+
+import jakarta.jms.ConnectionFactory
 
 final class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]

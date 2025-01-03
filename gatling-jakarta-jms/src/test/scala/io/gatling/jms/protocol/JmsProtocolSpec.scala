@@ -16,13 +16,13 @@
 
 package io.gatling.jms.protocol
 
-import javax.jms.ConnectionFactory
-
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
+
+import jakarta.jms.ConnectionFactory
 
 class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()

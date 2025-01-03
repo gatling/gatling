@@ -16,8 +16,6 @@
 
 package io.gatling.jms.check
 
-import javax.jms.Message
-
 import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation.FailureWrapper
@@ -35,6 +33,7 @@ import io.gatling.core.session.Session
 import io.gatling.jms.JmsCheck
 
 import com.fasterxml.jackson.databind.JsonNode
+import jakarta.jms.Message
 import net.sf.saxon.s9api.XdmNode
 
 trait JmsCheckSupport {

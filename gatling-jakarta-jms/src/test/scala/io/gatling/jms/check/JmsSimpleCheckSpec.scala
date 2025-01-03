@@ -17,12 +17,13 @@
 package io.gatling.jms.check
 
 import java.util.{ HashMap => JHashMap }
-import javax.jms._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation._
 import io.gatling.core.EmptySession
 import io.gatling.jms._
+
+import jakarta.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage with EmptySession {
   private val check = simpleCheck {

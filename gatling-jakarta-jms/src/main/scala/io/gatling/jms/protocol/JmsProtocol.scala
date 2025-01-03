@@ -16,8 +16,6 @@
 
 package io.gatling.jms.protocol
 
-import javax.jms.ConnectionFactory
-
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.model.Credentials
@@ -25,6 +23,8 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.jms.client.JmsConnectionPool
+
+import jakarta.jms.ConnectionFactory
 
 object JmsProtocol {
   val JmsProtocolKey: ProtocolKey[JmsProtocol, JmsComponents] = new ProtocolKey[JmsProtocol, JmsComponents] {

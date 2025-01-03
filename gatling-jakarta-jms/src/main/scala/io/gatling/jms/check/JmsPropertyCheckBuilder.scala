@@ -16,14 +16,14 @@
 
 package io.gatling.jms.check
 
-import javax.jms.Message
-
 import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation._
 import io.gatling.commons.validation.{ Success, Validation }
 import io.gatling.core.check.{ CheckBuilder, FindCriterionExtractor }
 import io.gatling.core.session._
+
+import jakarta.jms.Message
 
 sealed trait LowPriorityJmsPropertyFilterImplicits {
   private def newJmsPropertyFilter[T](f: (Message, String) => T): JmsPropertyFilter[T] =

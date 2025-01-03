@@ -16,11 +16,11 @@
 
 package io.gatling.jms.protocol
 
-import javax.jms.{ ConnectionFactory, DeliveryMode }
-
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.model.Credentials
+
+import jakarta.jms.{ ConnectionFactory, DeliveryMode }
 
 /**
  * JmsProtocolBuilder allows building of the JMS protocol <p> This allows multiple scenarios or jms methods to refer to a single protocol configuration. <p> See

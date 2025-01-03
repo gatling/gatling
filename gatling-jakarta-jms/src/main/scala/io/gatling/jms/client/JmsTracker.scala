@@ -16,8 +16,6 @@
 
 package io.gatling.jms.client
 
-import javax.jms.Message
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 
@@ -31,6 +29,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms._
+
+import jakarta.jms.Message
 
 object JmsTracker {
   def actor(actorName: String, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration): Actor[Command] =

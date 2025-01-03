@@ -18,7 +18,6 @@ package io.gatling.jms.check
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
-import javax.jms.{ BytesMessage, Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.{ identityPreparer, CheckMaterializer, Preparer }
@@ -33,6 +32,7 @@ import io.gatling.jms.JmsCheck
 import io.gatling.jms.client.CachingMessage
 
 import com.fasterxml.jackson.databind.JsonNode
+import jakarta.jms.{ BytesMessage, Message, TextMessage }
 import net.sf.saxon.s9api.XdmNode
 
 final class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)

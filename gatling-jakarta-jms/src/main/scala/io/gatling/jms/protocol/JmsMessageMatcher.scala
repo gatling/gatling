@@ -17,9 +17,9 @@
 package io.gatling.jms.protocol
 
 import java.util.UUID
-import javax.jms.Message
 
 import com.eatthepath.uuid.FastUUID
+import jakarta.jms.Message
 
 /**
  * define trait for message matching logic with separate request/response to see how it can be used check JmsDefaultMessageMatcher
