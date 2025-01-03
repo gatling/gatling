@@ -52,6 +52,7 @@ object Dependencies {
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
+  private val jakartaJmsApi                  = "jakarta.jms"                          % "jakarta.jms-api"                   % "3.1.0"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.15"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.3"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
@@ -69,6 +70,7 @@ object Dependencies {
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.1"            % Test
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "5.14.2"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.18.6"            % Test)
+  private val activemqJakartaBroker          = ("org.apache.activemq"                 % "activemq-broker"                   % "6.1.4"             % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                                % "2.3.232"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.37"              % Test
@@ -188,6 +190,8 @@ object Dependencies {
   val httpDependencies = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
+
+  val jakartaJmsDependencies = Seq(jakartaJmsApi, fastUuid, activemqJakartaBroker) ++ testDeps
 
   val jdbcDependencies = h2 +: testDeps
 

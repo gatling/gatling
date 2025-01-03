@@ -41,6 +41,8 @@ lazy val root = Project("gatling-parent", file("."))
     httpJava,
     jms,
     jmsJava,
+    jakartaJms,
+    jakartaJmsJava,
     charts,
     app,
     recorder,
@@ -145,6 +147,15 @@ lazy val http = gatlingModule("gatling-http")
 
 lazy val httpJava = gatlingModule("gatling-http-java")
   .dependsOn(coreJava, http % "compile->compile;test->test")
+  .settings(libraryDependencies ++= defaultJavaDependencies)
+
+lazy val jakartaJms = gatlingModule("gatling-jakarta-jms")
+  .dependsOn(core % "compile->compile;test->test")
+  .settings(libraryDependencies ++= jakartaJmsDependencies)
+  .settings(Test / parallelExecution := false)
+
+lazy val jakartaJmsJava = gatlingModule("gatling-jakarta-jms-java")
+  .dependsOn(coreJava, jms % "compile->compile;test->test")
   .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")

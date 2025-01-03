@@ -33,7 +33,7 @@ object PebbleBenchmark {
   private val session: Session = Session("Scenario", 0, null).set("id", 3)
   private val SinglePlaceHolderPebbleBody = PebbleStringBody(resourceAsString("sample-peeble.json", charset), charset)
 
-  private val session2: Session = Session("Scenario", 0, null).setAll("id" -> 3, "friends" -> Seq.fill(20)(Random.nextInt))
+  private val session2: Session = Session("Scenario", 0, null).setAll("id" -> 3, "friends" -> Seq.fill(20)(Random.nextInt()))
   private val LoopPebbleBody = PebbleStringBody(resourceAsString("sample-peeble2.json", charset), charset)
 }
 
