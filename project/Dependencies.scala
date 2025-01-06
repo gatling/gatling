@@ -53,7 +53,7 @@ object Dependencies {
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
   private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
   private val jakartaJmsApi                  = "jakarta.jms"                          % "jakarta.jms-api"                   % "3.1.0"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.15"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.16"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.3"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                          % "3.1.8"
@@ -68,7 +68,7 @@ object Dependencies {
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-18"                   % "3.2.19.0"          % Test
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-5-12"                      % "3.2.19.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.1"            % Test
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "5.14.2"            % Test
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "5.15.2"            % Test
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.18.6"            % Test)
   private val activemqJakartaBroker          = ("org.apache.activemq"                 % "activemq-broker"                   % "6.1.4"             % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
@@ -85,7 +85,7 @@ object Dependencies {
   // Docs dependencies
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.17.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.1"
-  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.29.43"
+  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.29.45"
   
   // format: ON
   private val testDeps = Seq(
