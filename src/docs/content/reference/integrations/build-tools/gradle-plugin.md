@@ -24,7 +24,7 @@ Check out available versions on [Gradle Plugins Portal](https://plugins.gradle.o
 ### Gradle version
 
 {{< alert warning >}}
-This plugin requires at least Gradle 7.1.
+This plugin requires at least Gradle 7.6.
 {{< /alert >}}
 
 The latest version of this plugin is tested against Gradle versions ranging from 7.1 to 8.6.
