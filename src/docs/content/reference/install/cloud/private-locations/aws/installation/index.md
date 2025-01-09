@@ -72,20 +72,52 @@ Replace `{BucketName}` with the bucket where you uploaded the [Control Plane con
 {{< /alert >}}
 
 `GatlingControlPlaneEc2Policy` allows the Control Plane to deploy a load generator on EC2.
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Action": [
-                "ec2:Describe*",
-                "ec2:CreateTags",
-                "ec2:RunInstances",
-                "ec2:TerminateInstances",
-                "ec2:AssociateAddress",
-                "ec2:DisassociateAddress"
-            ],
             "Effect": "Allow",
+            "Action": [
+                "ec2:CreateTags",
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:instance/*",
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:*:*:subnet/*",
+                "arn:aws:ec2:*:*:volume/*",
+                "arn:aws:ec2:*::image/*"
+            ]
+        },
+        {
+            "Sid": "EnforceGatlingTag",
+            "Effect": "Deny",
+            "Action": "ec2:RunInstances",
+            "Resource": "arn:aws:ec2:*:*:instance/*",
+            "Condition": {
+                "StringNotLike": {
+                    "aws:RequestTag/Name": "GATLING_LG_*"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:TerminateInstances",
+            "Resource": "arn:aws:ec2:*:*:instance/*",
+            "Condition": {
+                "StringLike": {
+                    "ec2:ResourceTag/Name": "GATLING_LG_*"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeImages",
+                "ec2:DescribeInstances"
+            ],
             "Resource": "*"
         }
     ]
@@ -93,13 +125,57 @@ Replace `{BucketName}` with the bucket where you uploaded the [Control Plane con
 ```
 
 {{< alert tip >}}
-Next policy is only required when you configured some iam-instance-profile on AWS private location in [Control Plane configuration]({{< ref "configuration" >}}).
+The following policy is required only if you have configured some **elastic-ips** in the AWS private location in [Control Plane configuration]({{< ref "configuration" >}}).
+{{< /alert >}}
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DisassociateAddress",
+        "ec2:AssociateAddress"
+      ],
+      "Resource": "arn:aws:ec2:*:*:instance/*",
+      "Condition": {
+        "StringLike": {
+          "ec2:ResourceTag/Name": "GATLING_LG_*"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DisassociateAddress",
+        "ec2:AssociateAddress"
+      ],
+      "Resource": [
+        "arn:aws:ec2:{Region}:{Account}:elastic-ip/{ElasticIpAllocationId}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ec2:DescribeAddresses",
+      "Resource": "*"
+    }
+  ]
+}
+```
+{{< alert info >}}
+The resources `arn:aws:ec2:{Region}:{Account}:elastic-ip/{ElasticIpAllocationId}` are the Amazon Resource Names (ARN) of the allocated elastic IPs you configured in the private locations.
+{{< /alert >}}
+
+
+{{< alert tip >}}
+The following policy is required only if you have configured an **iam-instance-profile** in the AWS private location in [Control Plane configuration]({{< ref "configuration" >}}).
 
 IAM Instance Profile on AWS private location allow to assign that role to all load generator instances spawned for that private location
 {{< /alert >}}
 
 `GatlingControlPlaneIAMPolicy` allows the Control Plane to pass an IAM instance profile role to a deployed a load generator on EC2.
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -243,7 +319,7 @@ You can use Amazon CloudWatch Logs to monitor, store, and access log files from 
 In the AWS Management Console, open the IAM service from the Services menu or by searching for "IAM" in the search bar. Navigate to Access management > Policies, then click Create policy. `GatlingControlPlaneLogsPolicy` allows the Control Plane service to push its logs to CloudWatch.
 Finally, attach the policy to the control plane role. 
 
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -285,7 +361,7 @@ Make sure to replace {ServiceName} and {Region} with the actual service name and
                 }
             }
         }
-    ],
+    ]
 }
 
 ```
