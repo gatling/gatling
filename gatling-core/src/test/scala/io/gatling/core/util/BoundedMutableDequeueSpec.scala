@@ -16,9 +16,10 @@
 
 package io.gatling.core.util
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-final class BoundedMutableDequeueSpec extends BaseSpec {
+final class BoundedMutableDequeueSpec extends AnyFlatSpecLike with Matchers {
 
   "BoundedMutableDequeue" should "have a max size and removeAll return elements in insert order" in {
     val q = new BoundedMutableDequeue[Int](2)

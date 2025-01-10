@@ -20,13 +20,14 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
 import io.gatling.core.filter.Filters
 
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class HarReaderSpec extends BaseSpec {
+class HarReaderSpec extends AnyFlatSpecLike with Matchers {
   private def readHar(file: String, filters: Option[Filters]): Seq[HttpTransaction] =
     Using.resource(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
       HarReader.readStream(is, filters)

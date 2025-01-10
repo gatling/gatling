@@ -16,9 +16,10 @@
 
 package io.gatling.core.util.cache
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CacheSpec extends BaseSpec {
+class CacheSpec extends AnyFlatSpecLike with Matchers {
   "ImmutableCache.get" should "return the value wrapped in an Option if key present in cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
     val cacheWithValue = cache.put("key", "value")

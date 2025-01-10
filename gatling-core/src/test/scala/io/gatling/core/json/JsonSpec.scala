@@ -22,12 +22,14 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-import io.gatling.BaseSpec
 import io.gatling.core.json.Json._
+
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 private final case class Foo(bar: String, baz: Int)
 
-class JsonSpec extends BaseSpec {
+class JsonSpec extends AnyFlatSpecLike with Matchers {
   "stringify" should "be able to stringify strings" in {
     stringify("Foo", isRootObject = true) shouldBe "Foo"
   }

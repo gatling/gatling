@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
@@ -28,8 +28,10 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 import com.fasterxml.jackson.databind.JsonNode
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
+class HttpBodyJsonpJsonPathCheckSpec extends AnyFlatSpecLike with Matchers with ValidationValues with CoreDsl with HttpDsl with EmptySession {
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)

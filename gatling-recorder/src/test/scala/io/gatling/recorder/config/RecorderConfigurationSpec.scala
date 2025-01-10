@@ -19,11 +19,11 @@ package io.gatling.recorder.config
 import java.io.{ File, FileNotFoundException }
 import java.nio.file.{ Files, Paths }
 
-import io.gatling.BaseSpec
-
 import org.scalatest.BeforeAndAfter
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class RecorderConfigurationSpec extends BaseSpec with BeforeAndAfter {
+class RecorderConfigurationSpec extends AnyFlatSpecLike with Matchers with BeforeAndAfter {
   private val nonExistingDir = "nonExistingDir"
   private val existingDir = "existingDir"
   private val fileName = "file"

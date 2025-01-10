@@ -16,11 +16,13 @@
 
 package io.gatling.jdbc.feeder
 
-import io.gatling.BaseSpec
 import io.gatling.jdbc.JdbcSpec
 
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class JdbcFeederSourceSpec extends BaseSpec with JdbcSpec {
+class JdbcFeederSourceSpec extends AnyFlatSpecLike with Matchers with JdbcSpec {
 
   "JdbcFeederSource" should "be able to fetch data into a feeder" in withDatabase("customers", "feeder.sql") { url =>
     val feeder = JdbcFeederSource(url, Username, Password, "SELECT * FROM CUSTOMERS")

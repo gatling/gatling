@@ -16,12 +16,14 @@
 
 package io.gatling.http.feeder
 
-import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
-class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class SitemapFeederSupportSpec extends AnyFlatSpecLike with Matchers with SitemapFeederSupport {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "create sitemap feeder" should "get file resource" in {

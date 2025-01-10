@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
@@ -26,7 +26,10 @@ import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
-class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class HttpBodySubstringCheckSpec extends AnyFlatSpecLike with Matchers with ValidationValues with CoreDsl with HttpDsl with EmptySession {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] =
     HttpBodySubstringCheckMaterializer.Instance

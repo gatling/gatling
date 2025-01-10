@@ -16,15 +16,17 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.BaseSpec
 import io.gatling.core.feeder.Record
 import io.gatling.redis.Predef._
 
 import com.redis._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class RedisFeederSpec extends BaseSpec {
+class RedisFeederSpec extends AnyFlatSpecLike with Matchers with MockitoSugar {
   val KEY = "key"
   val KEYDEST = "key2"
 

@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.validation.Success
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
@@ -27,7 +27,10 @@ import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
-class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ConditionalCheckSpec extends AnyFlatSpecLike with Matchers with ValidationValues with CoreDsl with HttpDsl with EmptySession {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "checkIf.true.succeed" should "perform the succeed nested check" in {

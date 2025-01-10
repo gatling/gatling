@@ -20,9 +20,10 @@ import java.security.MessageDigest
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class HexSpec extends BaseSpec {
+class HexSpec extends AnyFlatSpecLike with Matchers {
   private val fileBytes = Using.resource(getClass.getResourceAsStream("/emoticon.png"))(_.readAllBytes())
 
   "toHexString" should "correctly compute file sha-1" in {

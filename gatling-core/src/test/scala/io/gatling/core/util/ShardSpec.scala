@@ -16,11 +16,12 @@
 
 package io.gatling.core.util
 
-import io.gatling.BaseSpec
-
 import org.scalacheck.Gen
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class ShardSpec extends BaseSpec {
+class ShardSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks {
   "Shard.shards" should "return the proper count" in {
     forAll(Gen.choose(1, Int.MaxValue)) { total =>
       whenever(total >= 1) {
@@ -59,7 +60,7 @@ class ShardSpec extends BaseSpec {
     Shard.shard(3, 7, 8) shouldBe Shard(3, 0)
   }
 
-  private def forAllPairs(min: Int, max: Int)(f: (Int, Int) => Unit) =
+  private def forAllPairs(min: Int, max: Int)(f: (Int, Int) => Unit): Unit =
     forAll(Gen.choose(min, max), Gen.choose(min, max)) { (a, b) =>
       whenever(a >= min && a <= max && b >= min && b <= max) {
         f(a, b)

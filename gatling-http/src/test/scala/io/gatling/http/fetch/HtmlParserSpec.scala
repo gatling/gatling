@@ -20,10 +20,12 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 
-class HtmlParserSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class HtmlParserSpec extends AnyFlatSpecLike with Matchers {
   private val htmlContent = Using.resource(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
     new String(is.readAllBytes(), UTF_8).toCharArray
   }

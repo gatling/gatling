@@ -19,12 +19,14 @@ package io.gatling.jms.check
 import java.util.{ HashMap => JHashMap }
 import javax.jms._
 
-import io.gatling.BaseSpec
 import io.gatling.commons.validation._
 import io.gatling.core.EmptySession
 import io.gatling.jms._
 
-class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class JmsSimpleCheckSpec extends AnyFlatSpecLike with Matchers with JmsDsl with MockMessage with EmptySession {
   private val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
     case _               => false

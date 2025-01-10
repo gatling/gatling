@@ -16,9 +16,10 @@
 
 package io.gatling.recorder.render.template
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class PackageSpec extends BaseSpec {
+class PackageSpec extends AnyFlatSpecLike with Matchers {
   "protectWithTripleQuotes" should "wrap a String containing double quotes with triple quotes" in {
     val string = "foo\"bar"
     string.protect(RenderingFormat.Scala) shouldBe s"$TripleQuotes$string$TripleQuotes"

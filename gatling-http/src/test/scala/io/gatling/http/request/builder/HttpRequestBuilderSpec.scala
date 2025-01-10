@@ -18,7 +18,7 @@ package io.gatling.http.request.builder
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
@@ -38,8 +38,10 @@ import io.gatling.http.protocol.HttpProtocol
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySession {
+class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock

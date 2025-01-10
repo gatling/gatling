@@ -29,7 +29,7 @@ class FeedSpec extends ActorSpec {
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
 
-    val feed = new Feed(feedActor, None, mock[StatsEngine], clock, next)
+    val feed = new Feed(feedActor, None, null, clock, next)
 
     feed ! emptySession
 

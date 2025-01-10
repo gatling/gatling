@@ -18,9 +18,10 @@ package io.gatling.http.util
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ListsSpec extends BaseSpec {
+class ListsSpec extends AnyFlatSpecLike with Matchers {
   "isSameSetAssumingNoDuplicate" should "return false when lists don't have the same size" in {
     Lists.isSameSetAssumingNoDuplicate(List(1, 2).asJava, List(1).asJava) shouldBe false
   }

@@ -20,11 +20,13 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 
 import net.sf.saxon.s9api.XdmNode
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class XPathExtractorSpec extends BaseSpec with ValidationValues {
+class XPathExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   private val namespaces = Map("foo" -> "http://foo/foo")
 
   private val xmlParsers = new XmlParsers(Long.MaxValue)

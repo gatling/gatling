@@ -68,7 +68,7 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter {
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, mock[EventLoopGroup], null, None, mock[StatsEngine], clock, mock[Action], configuration)
+      new CoreComponents(actorSystem, null, null, None, null, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)

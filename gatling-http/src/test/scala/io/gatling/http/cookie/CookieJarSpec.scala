@@ -16,14 +16,15 @@
 
 package io.gatling.http.cookie
 
-import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder.LAX.encode
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class CookieJarSpec extends BaseSpec {
+class CookieJarSpec extends AnyFlatSpecLike with Matchers {
   "storeCookies" should "return nothing when it's empty" in {
     new CookieJar(Map.empty).get(Uri.create("http://docs.foo.com")) shouldBe empty
   }

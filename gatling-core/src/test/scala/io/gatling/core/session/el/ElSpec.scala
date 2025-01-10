@@ -19,11 +19,14 @@ package io.gatling.core.session.el
 import java.{ util => ju }
 import java.util.UUID
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.validation.Success
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.el
+
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 private final case class Foo(bar: String)
 
@@ -42,7 +45,7 @@ final case class Primitives(
     char: Char
 )
 
-class ElSpec extends BaseSpec with ValidationValues with EmptySession {
+class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private def newSession(attributes: Map[String, Any]) =

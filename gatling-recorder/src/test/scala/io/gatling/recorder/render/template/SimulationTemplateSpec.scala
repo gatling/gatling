@@ -16,9 +16,10 @@
 
 package io.gatling.recorder.render.template
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class SimulationTemplateSpec extends BaseSpec {
+class SimulationTemplateSpec extends AnyFlatSpecLike with Matchers {
   "renderNonBaseUrls template" should "generate empty string if no variables" in {
     SimulationTemplate.renderNonBaseUrls(Nil, RenderingFormat.Scala) shouldBe empty
   }

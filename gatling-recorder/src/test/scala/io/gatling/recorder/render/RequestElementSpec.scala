@@ -16,10 +16,12 @@
 
 package io.gatling.recorder.render
 
-import io.gatling.BaseSpec
 import io.gatling.recorder.render.RequestElement.extractCharsetFromContentType
 
-class RequestElementSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class RequestElementSpec extends AnyFlatSpecLike with Matchers {
   "extractCharsetFromContentType" should "extract unwrapped charset from Content-Type" in {
     extractCharsetFromContentType("text/html; charset=utf-8") shouldBe Some("utf-8")
   }

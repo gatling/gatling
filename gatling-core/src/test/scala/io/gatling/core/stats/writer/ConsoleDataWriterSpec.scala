@@ -21,11 +21,13 @@ import java.time.format.DateTimeFormatter
 
 import scala.collection.mutable
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.config.GatlingConfiguration
 
-class ConsoleDataWriterSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
   private val configuration = GatlingConfiguration.loadForTest()
 
   private val time = LocalDateTime.of(2012, Month.SEPTEMBER, 24, 13, 37, 0)

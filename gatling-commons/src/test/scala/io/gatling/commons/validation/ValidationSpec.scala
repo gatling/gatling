@@ -18,9 +18,10 @@ package io.gatling.commons.validation
 
 import java.util.Locale
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ValidationSpec extends BaseSpec {
+class ValidationSpec extends AnyFlatSpecLike with Matchers {
   "SuccessWrapper" should "wrap a value in a Success" in {
     1.success shouldBe Success(1)
   }

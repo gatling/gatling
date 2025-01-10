@@ -16,11 +16,14 @@
 
 package io.gatling.core.body
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 
-class PebbleStringBodySpec extends BaseSpec with ValidationValues with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class PebbleStringBodySpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "Static String" should "return itself" in {

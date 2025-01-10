@@ -27,7 +27,7 @@ class RendezVousSpec extends ActorSpec {
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {
     val nextActor = mockActorRef[Session]("next")
-    val rendezVous = RendezVous(3, actorSystem, mock[StatsEngine], clock, new ActorDelegatingAction("next", nextActor))
+    val rendezVous = RendezVous(3, actorSystem, null, clock, new ActorDelegatingAction("next", nextActor))
 
     val session0 = emptySession.copy(userId = 0)
     val session1 = emptySession.copy(userId = 1)

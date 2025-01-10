@@ -16,10 +16,12 @@
 
 package io.gatling.commons.util
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.StringHelper.RichString
 
-class StringHelperSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class StringHelperSpec extends AnyFlatSpecLike with Matchers {
   "truncate" should "truncate the string when its length exceeds the max length" in {
     "hello".truncate(2) shouldBe "he..."
   }

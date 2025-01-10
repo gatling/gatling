@@ -16,10 +16,12 @@
 
 package io.gatling.core.util
 
-import io.gatling.BaseSpec
 import io.gatling.core.util.Html._
 
-class HtmlSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class HtmlSpec extends AnyFlatSpecLike with Matchers {
   "Html.unescape" should "return input when it doesn't contain any entity" in {
     unescape("foo bar") shouldBe "foo bar"
   }

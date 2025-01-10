@@ -16,11 +16,12 @@
 
 package io.gatling.core.stats.message
 
-import io.gatling.BaseSpec
-
 import org.scalacheck.Gen.alphaStr
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class MessageEventSpec extends BaseSpec {
+class MessageEventSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks {
   "MessageEvent.apply" should "return Start when passing 'START'" in {
     MessageEvent("START") shouldBe MessageEvent.Start
   }

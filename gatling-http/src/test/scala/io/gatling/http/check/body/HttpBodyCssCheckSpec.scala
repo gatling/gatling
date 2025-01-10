@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.css.{ CssCheckType, CssSelectors }
@@ -26,8 +26,10 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 import jodd.lagarto.dom.NodeSelector
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class HttpBodyCssCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
+class HttpBodyCssCheckSpec extends AnyFlatSpecLike with Matchers with ValidationValues with CoreDsl with HttpDsl with EmptySession {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
     HttpBodyCssCheckMaterializer.instance(new CssSelectors(1000))

@@ -16,7 +16,6 @@
 
 package io.gatling.core.action
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.core.EmptySession
@@ -26,8 +25,11 @@ import io.gatling.core.stats.StatsEngine
 
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class ExitHereSpec extends BaseSpec with EmptySession {
+class ExitHereSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with EmptySession {
   "ExitHereIfFailed" should "send the session to the next action if the session was not failed" in {
     val exit = mock[Action]
     val next = mock[Action]

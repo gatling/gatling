@@ -18,13 +18,16 @@ package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
-class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class JmsProtocolSpec extends AnyFlatSpecLike with Matchers with ValidationValues with MockMessage {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private val cf = mock[ConnectionFactory]
 

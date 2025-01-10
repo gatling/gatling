@@ -18,12 +18,15 @@ package io.gatling.core.session
 
 import java.util.Locale
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.validation._
 import io.gatling.core.EmptySession
 import io.gatling.core.session.el._
 
-class ExpressionUtilsSpec extends BaseSpec with ValidationValues with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ExpressionUtilsSpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
   "resolveOptionalExpression" should "return NoneSuccess if the expression was None" in {
     resolveOptionalExpression(None, emptySession) shouldBe Validation.NoneSuccess
   }

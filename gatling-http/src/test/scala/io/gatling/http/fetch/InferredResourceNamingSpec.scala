@@ -16,11 +16,13 @@
 
 package io.gatling.http.fetch
 
-import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming._
 
-class InferredResourceNamingSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class InferredResourceNamingSpec extends AnyFlatSpecLike with Matchers {
   "UrlTrailInferredResourceNaming" should "return the url trail, query included" in {
     UrlTailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
   }

@@ -16,9 +16,12 @@
 
 package io.gatling.core.check.regex
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 
-class RegexExtractorSpec extends BaseSpec with ValidationValues {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class RegexExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   private val patterns = new Patterns(Long.MaxValue)
 
   "count" should "return Some(0) when no results" in {

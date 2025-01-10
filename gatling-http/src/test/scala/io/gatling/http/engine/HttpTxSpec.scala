@@ -18,7 +18,6 @@ package io.gatling.http.engine
 
 import java.{ util => ju }
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
@@ -30,8 +29,10 @@ import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import io.gatling.internal.quicklens._
 
 import io.netty.handler.codec.http.DefaultHttpHeaders
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class HttpTxSpec extends BaseSpec {
+class HttpTxSpec extends AnyFlatSpecLike with Matchers {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   trait Context {

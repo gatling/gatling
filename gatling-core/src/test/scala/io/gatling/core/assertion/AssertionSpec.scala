@@ -16,11 +16,13 @@
 
 package io.gatling.core.assertion
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.shared.model.assertion.{ AssertionStatsRepository, AssertionValidator }
+
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class Stats(
@@ -30,7 +32,7 @@ final case class Stats(
     status: Option[Status] = None
 )
 
-class AssertionSpec extends BaseSpec with AssertionSupport {
+class AssertionSpec extends AnyFlatSpecLike with Matchers with AssertionSupport {
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private type Conditions[T] = List[AssertionWithPathAndTarget[T] => Assertion]

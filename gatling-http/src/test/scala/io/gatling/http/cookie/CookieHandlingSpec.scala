@@ -16,13 +16,14 @@
 
 package io.gatling.http.cookie
 
-import io.gatling.BaseSpec
 import io.gatling.core.EmptySession
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CookieHandlingSpec extends BaseSpec with EmptySession {
+class CookieHandlingSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private val uri = Uri.create("https://docs.foo.com/accounts")
 
   "getStoredCookies" should "be able to get a cookie from session" in {

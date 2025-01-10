@@ -16,9 +16,10 @@
 
 package io.gatling.commons.util
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ArraysSpec extends BaseSpec {
+class ArraysSpec extends AnyFlatSpecLike with Matchers {
   "shuffle" should "not introduce duplicate entries" in {
     val array = Iterator.from(0).take(100).toArray
     val original = array.toVector.toString

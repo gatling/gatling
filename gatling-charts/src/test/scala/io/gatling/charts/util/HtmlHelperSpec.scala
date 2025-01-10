@@ -16,10 +16,12 @@
 
 package io.gatling.charts.util
 
-import io.gatling.BaseSpec
 import io.gatling.charts.util.HtmlHelper._
 
-class HtmlHelperSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class HtmlHelperSpec extends AnyFlatSpecLike with Matchers {
   "htmlEscape" should "escape with entity chars" in {
     "fooYéfoo".htmlEscape shouldBe "fooY&eacute;foo"
   }

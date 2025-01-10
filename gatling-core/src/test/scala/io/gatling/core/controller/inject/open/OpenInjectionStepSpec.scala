@@ -18,11 +18,13 @@ package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.Collections._
 
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class OpenInjectionStepSpec extends BaseSpec {
+class OpenInjectionStepSpec extends AnyFlatSpecLike with Matchers {
   private def scheduling(steps: OpenInjectionStep*): List[FiniteDuration] =
     steps.reverse
       .foldLeft[Iterator[FiniteDuration]](Iterator.empty) { (it, step) =>

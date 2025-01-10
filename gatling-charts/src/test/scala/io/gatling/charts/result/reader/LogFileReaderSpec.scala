@@ -23,15 +23,17 @@ import java.nio.file.{ Files, Paths }
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
 import io.gatling.charts.stats.{ LogFileData, LogFileReader }
 import io.gatling.commons.util.GatlingVersion
 import io.gatling.core.config.ConfigKeys._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.LogFileDataWriter
 
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class LogFileReaderSpec extends BaseSpec {
+class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
   private val runUuid = "known_stats"
   private val resultsDirectory = {
     // we need a log file whose version matches Gatling's

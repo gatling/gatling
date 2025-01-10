@@ -19,7 +19,7 @@ package io.gatling.jms.check
 import java.util.{ HashMap => JHashMap }
 import javax.jms.Message
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.validation.Success
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
@@ -28,10 +28,13 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.jms.{ JmsCheck, MockMessage }
 
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class JmsConditionalCheckSpec
-    extends BaseSpec
+    extends AnyFlatSpecLike
+    with Matchers
     with ValidationValues
     with MockMessage
     with CoreDsl

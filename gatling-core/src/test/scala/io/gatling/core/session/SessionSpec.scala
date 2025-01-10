@@ -16,15 +16,17 @@
 
 package io.gatling.core.session
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.EmptySession
 import io.gatling.core.action.Action
 
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-class SessionSpec extends BaseSpec with EmptySession {
-  private val nextAction = mock[Action]
+class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
+  private val nextAction: Action = null
 
   "setAll" should "set all give key/values pairs in session" in {
     val session = emptySession.setAll("key" -> 1, "otherKey" -> 2)

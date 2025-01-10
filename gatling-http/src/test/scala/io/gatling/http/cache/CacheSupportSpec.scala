@@ -18,7 +18,6 @@ package io.gatling.http.cache
 
 import java.{ util => ju }
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
@@ -30,8 +29,10 @@ import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod }
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CacheSupportSpec extends BaseSpec with EmptySession {
+class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private val configuration = GatlingConfiguration.loadForTest()
   private val httpCaches = new HttpCaches(new DefaultClock, configuration)
 

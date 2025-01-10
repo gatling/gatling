@@ -66,12 +66,12 @@ trait ScenarioTestFixture extends ActorSpec {
     val coreComponents =
       new CoreComponents(
         actorSystem,
-        mock[EventLoopGroup],
-        mock[ActorRef[Controller.Command]],
+        null,
+        null,
         None,
         statsEngine,
         new DefaultClock,
-        mock[Action],
+        null,
         configuration
       )
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, Map.empty).scenarioRegistry(Map.empty)

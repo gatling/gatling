@@ -16,10 +16,12 @@
 
 package io.gatling.http.auth
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.HttpMethod
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 object DigestAuthSpec {
   implicit final class OneLine(val s: String) extends AnyVal {
@@ -27,7 +29,7 @@ object DigestAuthSpec {
   }
 }
 
-class DigestAuthSpec extends BaseSpec with ValidationValues {
+class DigestAuthSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   import DigestAuthSpec._
 
   "parse" should "parse a simple well-formed header" in {

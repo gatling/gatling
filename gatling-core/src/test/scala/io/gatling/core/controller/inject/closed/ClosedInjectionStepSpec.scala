@@ -18,9 +18,10 @@ package io.gatling.core.controller.inject.closed
 
 import scala.concurrent.duration._
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ClosedInjectionStepSpec extends BaseSpec {
+class ClosedInjectionStepSpec extends AnyFlatSpecLike with Matchers {
   "ConstantConcurrentUsersInjection" should "return the correct number of users target" in {
     val step = ConstantConcurrentUsersInjection(5, 2.second)
     step.valueAt(0.seconds) shouldBe 5

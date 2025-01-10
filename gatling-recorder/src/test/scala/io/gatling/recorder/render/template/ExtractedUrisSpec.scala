@@ -16,12 +16,13 @@
 
 package io.gatling.recorder.render.template
 
-import io.gatling.BaseSpec
 import io.gatling.recorder.render.RequestElement
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ExtractedUrisSpec extends BaseSpec {
+class ExtractedUrisSpec extends AnyFlatSpecLike with Matchers {
   private def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
   private def extractUris(uris: Seq[String]): ExtractedUris = ExtractedUris(uris.map(mockRequestElement), RenderingFormat.Scala)

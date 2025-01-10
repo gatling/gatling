@@ -16,11 +16,11 @@
 
 package io.gatling.core.check.css
 
-import io.gatling.BaseSpec
-
 import jodd.lagarto.dom.Node
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class FormExtractorSpec extends BaseSpec {
+class FormExtractorSpec extends AnyFlatSpecLike with Matchers {
   private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def formInputs(html: String): Map[String, Any] = {

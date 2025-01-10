@@ -16,9 +16,10 @@
 
 package io.gatling.core.feeder
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ArrayBasedMapSpec extends BaseSpec {
+class ArrayBasedMapSpec extends AnyFlatSpecLike with Matchers {
   "ArrayBasedMap" should "generate iterator with proper records" in {
     ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")).iterator.toArray shouldBe Array("col1" -> "val1", "col2" -> "val2")
   }

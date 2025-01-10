@@ -18,11 +18,13 @@ package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.controller.inject.Injector._
 
-class UserStreamSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class UserStreamSpec extends AnyFlatSpecLike with Matchers {
   "UserStream" should "stream users properly over a long period" in {
     val expectedTotalUsers = 9000
     val expectedDuration = 9.hours

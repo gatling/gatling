@@ -18,10 +18,12 @@ package io.gatling.charts.template
 
 import java.{ lang => jl }
 
-import io.gatling.BaseSpec
 import io.gatling.charts.component.Stats
 
-class ConsoleTemplateSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ConsoleTemplateSpec extends AnyFlatSpecLike with Matchers {
   "console template" should "format the request counters properly" in {
     val numberOfRequestsStatistics = new Stats("numberOfRequestsStatistics", 20L, 19L, 1L)
     val out = ConsoleTemplate.writeRequestCounters(new jl.StringBuilder, numberOfRequestsStatistics).toString

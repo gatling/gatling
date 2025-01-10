@@ -16,12 +16,10 @@
 
 package io.gatling.core.util
 
-import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 
-class RandomDistributionSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen {
+class RandomDistributionSpec extends AnyFlatSpec with Matchers {
   "uniform" should "work" in {
     val distribution = RandomDistribution.uniform(List("a", "b", "c", "d"))
 

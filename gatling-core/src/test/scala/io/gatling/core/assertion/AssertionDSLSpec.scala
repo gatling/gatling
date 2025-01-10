@@ -16,11 +16,13 @@
 
 package io.gatling.core.assertion
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
-class AssertionDSLSpec extends BaseSpec with AssertionSupport {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class AssertionDSLSpec extends AnyFlatSpecLike with Matchers with AssertionSupport {
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {
     implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 

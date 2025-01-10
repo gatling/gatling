@@ -21,15 +21,18 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.feeder.Record
 import io.gatling.core.util.Resource
 
 import net.sf.saxon.trans.XPathException
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class SitemapParserSpec extends BaseSpec with ValidationValues {
+class SitemapParserSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with ValidationValues {
   private def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {

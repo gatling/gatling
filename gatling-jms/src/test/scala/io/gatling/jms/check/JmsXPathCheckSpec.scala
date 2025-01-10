@@ -18,14 +18,17 @@ package io.gatling.jms.check
 
 import java.util.{ HashMap => JHashMap }
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.commons.validation._
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.{ JmsCheck, MockMessage }
 
-class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class JmsXPathCheckSpec extends AnyFlatSpecLike with Matchers with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with EmptySession {
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val check: JmsCheck = xpath("/ok").find

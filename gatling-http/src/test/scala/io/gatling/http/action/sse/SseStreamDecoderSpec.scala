@@ -18,12 +18,13 @@ package io.gatling.http.action.sse
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.BaseSpec
 import io.gatling.http.action.sse.fsm.{ ServerSentEvent, SseStreamDecoder }
 
 import io.netty.buffer.Unpooled
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class SseStreamDecoderSpec extends BaseSpec {
+class SseStreamDecoderSpec extends AnyFlatSpecLike with Matchers {
   private val longString = "x" * 920
 
   private val data =

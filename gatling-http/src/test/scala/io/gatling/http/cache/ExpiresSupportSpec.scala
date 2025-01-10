@@ -16,9 +16,10 @@
 
 package io.gatling.http.cache
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ExpiresSupportSpec extends BaseSpec {
+class ExpiresSupportSpec extends AnyFlatSpecLike with Matchers {
   "extractLongValue" should "throw an IllegalArgumentException if start < 0 or > the string length " in {
     an[IllegalArgumentException] should be thrownBy ExpiresSupport.extractLongValue("1234", -1)
     an[IllegalArgumentException] should be thrownBy ExpiresSupport.extractLongValue("1234", 4)

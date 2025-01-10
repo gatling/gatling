@@ -20,11 +20,13 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 
 import jodd.lagarto.dom.NodeSelector
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CssExtractorSpec extends BaseSpec with ValidationValues {
+class CssExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def prepared(file: String): NodeSelector = Using.resource(getClass.getResourceAsStream(file)) { is =>

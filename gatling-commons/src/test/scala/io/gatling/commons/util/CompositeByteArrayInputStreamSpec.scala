@@ -20,9 +20,10 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CompositeByteArrayInputStreamSpec extends BaseSpec {
+class CompositeByteArrayInputStreamSpec extends AnyFlatSpecLike with Matchers {
   "CompositeByteArrayInputStream" should "properly read full bytes" in {
     val bytes1 = "hello".getBytes(UTF_8)
     val bytes2 = " ".getBytes(UTF_8)

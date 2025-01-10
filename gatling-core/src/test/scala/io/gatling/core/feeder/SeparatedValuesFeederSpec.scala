@@ -22,12 +22,14 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.feeder.Utf8BomSkipReadableByteChannel._
 
-class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class SeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers with FeederSupport {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "csv" should "not handle file without quote char" in {

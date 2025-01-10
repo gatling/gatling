@@ -21,9 +21,10 @@ import java.nio.charset.StandardCharsets._
 
 import scala.util.Using
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class LineCounterSpec extends BaseSpec {
+class LineCounterSpec extends AnyFlatSpecLike with Matchers {
   private def testCount(text: String, expected: Int): Unit =
     Using.resource(new ByteArrayInputStream(text.getBytes(UTF_8))) { is =>
       new LineCounter(UTF_8, 5).countLines(is) shouldBe expected

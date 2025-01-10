@@ -18,9 +18,10 @@ package io.gatling.commons.validation
 
 import scala.util.control.NoStackTrace
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class SafelySpec extends BaseSpec {
+class SafelySpec extends AnyFlatSpecLike with Matchers {
   "safely" should "returned the provided Validation if it didn't throw exceptions" in {
     safely()(1.success) shouldBe 1.success
   }

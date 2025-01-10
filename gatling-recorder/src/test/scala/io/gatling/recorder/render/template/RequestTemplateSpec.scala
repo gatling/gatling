@@ -18,15 +18,16 @@ package io.gatling.recorder.render.template
 
 import java.nio.file.Path
 
-import io.gatling.BaseSpec
 import io.gatling.recorder.cli.RecorderArgs
 import io.gatling.recorder.config.ConfigKeys.http.{ UseMethodAndUriAsPostfix, UseSimulationAsPrefix }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.render.{ RequestBodyParams, RequestElement }
 
 import io.netty.handler.codec.http.EmptyHttpHeaders
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class RequestTemplateSpec extends BaseSpec {
+class RequestTemplateSpec extends AnyFlatSpecLike with Matchers {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def recorderConfig(extra: Map[String, _ <: Any] = Map.empty): RecorderConfiguration =
     RecorderConfiguration.testConfig(

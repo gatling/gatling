@@ -20,15 +20,17 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
-import io.gatling.BaseSpec
 import io.gatling.commons.util.Clock
 import io.gatling.core.scenario.Scenario
 
 import org.scalacheck.Gen
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 object OpenInjectionProfileSpec {
   private class FakeClock extends Clock {
-    var value: Long = System.currentTimeMillis()
+    private var value: Long = System.currentTimeMillis()
 
     override def nowMillis: Long = {
       val v = value
@@ -63,7 +65,7 @@ object OpenInjectionProfileSpec {
   }
 }
 
-class OpenInjectionProfileSpec extends BaseSpec {
+class OpenInjectionProfileSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks {
   import OpenInjectionProfileSpec._
 
   "Inserting a pause between steps" should "produce the right number of users" in {

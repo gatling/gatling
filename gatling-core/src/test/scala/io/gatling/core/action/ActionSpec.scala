@@ -16,11 +16,13 @@
 
 package io.gatling.core.action
 
-import io.gatling.BaseSpec
 import io.gatling.core.EmptySession
 import io.gatling.core.session.Session
 
-class ActionSpec extends BaseSpec with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ActionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   class TestAction extends Action {
     var hasRun = false
 

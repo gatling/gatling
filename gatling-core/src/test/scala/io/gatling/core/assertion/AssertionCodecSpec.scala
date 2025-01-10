@@ -16,11 +16,13 @@
 
 package io.gatling.core.assertion
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.assertion._
 
 import boopickle.Default._
 import org.scalacheck.{ Arbitrary, Gen }
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 trait AssertionGenerator {
   private val doubleGen = Arbitrary.arbitrary[Double]
@@ -76,7 +78,7 @@ trait AssertionGenerator {
     } yield Assertion(path, target, condition)
 }
 
-class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
+class AssertionCodecSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks with AssertionGenerator {
   override implicit val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 300)
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {

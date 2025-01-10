@@ -16,10 +16,12 @@
 
 package io.gatling.http.fetch
 
-import io.gatling.BaseSpec
 import io.gatling.http.client.uri.Uri
 
-class CssParserSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class CssParserSpec extends AnyFlatSpecLike with Matchers {
   private val rootURI = Uri.create("http://gatling.io/")
 
   private def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)

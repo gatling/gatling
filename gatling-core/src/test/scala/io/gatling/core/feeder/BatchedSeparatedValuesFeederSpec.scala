@@ -20,9 +20,10 @@ import java.io.ByteArrayInputStream
 import java.nio.channels.{ Channels, ReadableByteChannel }
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class BatchedSeparatedValuesFeederSpec extends BaseSpec {
+class BatchedSeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers {
   private val feederFactory = SeparatedValuesParser.feederFactory(',', '"', UTF_8)
 
   private val csvContent =

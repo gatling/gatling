@@ -20,6 +20,7 @@ import javax.jms.{ Session => JmsSession, _ }
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.stats.Status
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
@@ -28,7 +29,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Controller
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
-import io.gatling.core.session.{ Session, StaticValueExpression }
+import io.gatling.core.session.{ GroupBlock, Session, StaticValueExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
@@ -103,6 +104,31 @@ trait JmsSpec extends ActorSpec with JmsDsl {
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
+  private val noopStatsEngine = new StatsEngine {
+    override private[gatling] def start(): Unit = {}
+
+    override private[gatling] def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit = {}
+
+    override def logUserStart(scenario: String): Unit = {}
+
+    override def logUserEnd(scenario: String): Unit = {}
+
+    override def logResponse(
+        scenario: String,
+        groups: List[String],
+        requestName: String,
+        startTimestamp: Long,
+        endTimestamp: Long,
+        status: Status,
+        responseCode: Option[String],
+        message: Option[String]
+    ): Unit = {}
+
+    override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit = {}
+
+    override def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
+  }
+
   def jmsProtocol: JmsProtocolBuilder =
     jms
       .connectionFactory(cf)
@@ -114,7 +140,7 @@ trait JmsSpec extends ActorSpec with JmsDsl {
   ): Session = {
     val clock = new DefaultClock
     val coreComponents =
-      new CoreComponents(actorSystem, mock[EventLoopGroup], mock[ActorRef[Controller.Command]], None, mock[StatsEngine], clock, mock[Action], configuration)
+      new CoreComponents(actorSystem, null, null, None, noopStatsEngine, clock, null, configuration)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)

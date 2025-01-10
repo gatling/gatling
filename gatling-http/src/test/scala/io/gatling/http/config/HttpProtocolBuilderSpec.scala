@@ -16,11 +16,13 @@
 
 package io.gatling.http.config
 
-import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
-class HttpProtocolBuilderSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class HttpProtocolBuilderSpec extends AnyFlatSpecLike with Matchers {
   private val httpProtocolBuilder = HttpProtocolBuilder(GatlingConfiguration.loadForTest())
 
   "http protocol configuration builder" should "set a silent URI regex" in {

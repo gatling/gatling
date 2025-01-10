@@ -33,7 +33,7 @@ class PaceSpec extends ActorSpec {
 
   "pace" should "run actions with a minimum wait time" in {
     val nextActor = mockActorRef[Session]("next")
-    val pace = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", nextActor))
+    val pace = new Pace(interval, counterName, null, clock, new ActorDelegatingAction("next", nextActor))
 
     // Send session, expect response near-instantly
     pace ! emptySession
@@ -54,7 +54,7 @@ class PaceSpec extends ActorSpec {
   it should "run actions immediately if the minimum time has expired" in {
     val overrunTime = 1.second
     val nextActor = mockActorRef[Session]("next")
-    val pace = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", nextActor))
+    val pace = new Pace(interval, counterName, null, clock, new ActorDelegatingAction("next", nextActor))
 
     // Send session, expect response near-instantly
     pace ! emptySession

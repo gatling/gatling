@@ -19,18 +19,21 @@ package io.gatling.jms.check
 import java.util.{ HashMap => JHashMap }
 import javax.jms.Message
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.CoreDsl
 import io.gatling.core.EmptySession
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.MockMessage
 
+import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.{ MatchResult, Matcher }
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor2 }
 
 class JmsJsonPathCheckSpec
-    extends BaseSpec
+    extends AnyFlatSpecLike
+    with Matchers
     with ValidationValues
     with MockMessage
     with CoreDsl

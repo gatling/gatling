@@ -16,9 +16,10 @@
 
 package io.gatling.core.controller.inject
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class ScenarioFlowsSpec extends BaseSpec {
+class ScenarioFlowsSpec extends AnyFlatSpecLike with Matchers {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def node(key: String, childrenSequences: List[List[ScenarioFlows.Node[String, String]]] = Nil): ScenarioFlows.Node[String, String] =
     ScenarioFlows.Node(key, key, childrenSequences)

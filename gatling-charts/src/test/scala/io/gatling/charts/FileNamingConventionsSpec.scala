@@ -16,9 +16,10 @@
 
 package io.gatling.charts
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class FileNamingConventionsSpec extends BaseSpec {
+class FileNamingConventionsSpec extends AnyFlatSpecLike with Matchers {
   "toRequestFileName" should "generate non clashing names" in {
     val name1 = "Delete / Delete:16d8a886-add8-49ec-a481-1b41579256e9"
     val name2 = "Delete / Delete:bdfd117c-ee42-4572-b07c-a7e79da131ef"

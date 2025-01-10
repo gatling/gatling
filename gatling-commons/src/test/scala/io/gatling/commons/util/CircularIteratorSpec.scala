@@ -16,9 +16,10 @@
 
 package io.gatling.commons.util
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class CircularIteratorSpec extends BaseSpec {
+class CircularIteratorSpec extends AnyFlatSpecLike with Matchers {
   "CircularIterator" should "work fine with non empty Iterable with threadsafe on" in {
     val rr = CircularIterator(IndexedSeq(1, 2, 3), threadSafe = true)
 

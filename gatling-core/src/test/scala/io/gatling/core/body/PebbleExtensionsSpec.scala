@@ -18,13 +18,15 @@ package io.gatling.core.body
 
 import scala.util.{ Success, Try }
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 
 import io.pebbletemplates.pebble.extension.AbstractExtension
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
 object TestExtension extends AbstractExtension
 
-class PebbleExtensionsSpec extends BaseSpec with ValidationValues {
+class PebbleExtensionsSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   "PebbleExtensions" should "should allow registration" in {
     Try(PebbleExtensions.register(Seq(TestExtension))) shouldBe Success(())
   }

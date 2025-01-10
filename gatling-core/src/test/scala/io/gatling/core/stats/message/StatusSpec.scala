@@ -16,12 +16,14 @@
 
 package io.gatling.core.stats.message
 
-import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK, Status }
 
 import org.scalacheck.Gen.alphaStr
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class StatusSpec extends BaseSpec {
+class StatusSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks {
   "Status.apply" should "return OK when passing 'OK'" in {
     Status("OK") shouldBe OK
   }

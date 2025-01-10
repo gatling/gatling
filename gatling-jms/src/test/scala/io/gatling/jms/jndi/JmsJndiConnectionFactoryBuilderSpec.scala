@@ -21,10 +21,12 @@ import javax.naming.Context
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory
 
-class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class JmsJndiConnectionFactoryBuilderSpec extends AnyFlatSpecLike with Matchers {
   "jndi connection factory" should "pass all properties to InitialContext" in {
     val jndiCf = jmsJndiConnectionFactory
       .connectionFactoryName("DummyConnectionFactory")

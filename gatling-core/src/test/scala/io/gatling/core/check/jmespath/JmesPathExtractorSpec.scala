@@ -16,11 +16,14 @@
 
 package io.gatling.core.check.jmespath
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.check.jsonpath.JsonFilter
 import io.gatling.core.json.JsonParsers
 
-class JmesPathExtractorSpec extends BaseSpec with ValidationValues {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class JmesPathExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationValues {
   private val jsonParsers = new JsonParsers
   private val jmesPaths = new JmesPaths(Long.MaxValue)
 

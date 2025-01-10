@@ -18,9 +18,10 @@ package io.gatling.commons.util
 
 import java.nio.charset.StandardCharsets
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class FastByteArrayInputStreamSpec extends BaseSpec {
+class FastByteArrayInputStreamSpec extends AnyFlatSpecLike with Matchers {
   private val bytes = "test string".getBytes(StandardCharsets.UTF_8)
 
   "FastByteArrayInputStream" should "signal eof when all bytes are read" in {

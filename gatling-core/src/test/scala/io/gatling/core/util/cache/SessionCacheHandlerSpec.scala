@@ -16,12 +16,13 @@
 
 package io.gatling.core.util.cache
 
-import io.gatling.BaseSpec
 import io.gatling.core.EmptySession
 
 import org.scalatest.OptionValues
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class SessionCacheHandlerSpec extends BaseSpec with OptionValues with EmptySession {
+class SessionCacheHandlerSpec extends AnyFlatSpecLike with Matchers with OptionValues with EmptySession {
   private val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
 
   "getCache" should "return None if the cache does not exist" in {

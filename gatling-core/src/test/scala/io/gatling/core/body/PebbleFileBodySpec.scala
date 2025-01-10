@@ -18,11 +18,14 @@ package io.gatling.core.body
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.ValidationValues
 import io.gatling.core.EmptySession
 import io.gatling.core.session._
 
-class PebbleFileBodySpec extends BaseSpec with ValidationValues with EmptySession {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class PebbleFileBodySpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
   private val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies(Long.MaxValue)
 
   "PebbleFileBody" should "support templates inheritance" in {
