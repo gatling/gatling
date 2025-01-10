@@ -127,26 +127,55 @@ Finally, review and create your control plane application. This will create two 
 
 #### Required Permissions
 
-Before configuring Azure credentials, it's important to ensure that your application has the necessary permissions 
-to manage Azure virtual machines throughout the control plane lifecycle.
+Before configuring Azure credentials, ensure that your application has the required permissions to manage Azure virtual machines across the entire control plane lifecycle.
 
-The required actions are as follows:
-* `Microsoft.MarketplaceOrdering/agreements/offers/plans/read`
-* `Microsoft.MarketplaceOrdering/agreements/offers/plans/sign/action`
-* `Microsoft.Resources/subscriptions/resourceGroups/write`
-* `Microsoft.Resources/subscriptions/resourceGroups/delete`
-* `Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/read`
-* `Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/write`
-* `Microsoft.Network/virtualNetworks/read`
-* `Microsoft.Network/virtualNetworks/subnets/join/action`
-* `Microsoft.Network/publicIPAddresses/write`
-* `Microsoft.Network/networkInterfaces/write`
-* `Microsoft.Network/networkInterfaces/join/action`
-* `Microsoft.Storage/storageAccounts/read`
-* `Microsoft.Storage/storageAccounts/listkeys/action`
-* `Microsoft.Compute/galleries/images/versions/read`
-* `Microsoft.Compute/virtualMachines/read`
-* `Microsoft.Compute/virtualMachines/write`
+Refer to the Azure documentation on [Create or update Azure custom roles using the Azure portal](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles-portal), 
+specifically the [Start from JSON](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles-portal#start-from-json) section.
+
+Use the JSON below to configure the role by defining the required permission actions:
+```json
+{
+    "properties": {
+        "roleName": "GatlingControlPlane",
+        "description": "",
+        "assignableScopes": [
+            "/subscriptions/{SubscriptionId}"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "Microsoft.Compute/galleries/images/versions/read",
+                    "Microsoft.Compute/virtualMachines/read",
+                    "Microsoft.Compute/virtualMachines/write",
+                    "Microsoft.MarketplaceOrdering/agreements/offers/plans/read",
+                    "Microsoft.MarketplaceOrdering/agreements/offers/plans/sign/action",
+                    "Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/read",
+                    "Microsoft.MarketplaceOrdering/offertypes/publishers/offers/plans/agreements/write",
+                    "Microsoft.Network/networkInterfaces/join/action",
+                    "Microsoft.Network/networkInterfaces/write",
+                    "Microsoft.Network/publicIPAddresses/write",
+                    "Microsoft.Network/virtualNetworks/read",
+                    "Microsoft.Network/virtualNetworks/subnets/join/action",
+                    "Microsoft.Resources/subscriptions/resourceGroups/delete",
+                    "Microsoft.Resources/subscriptions/resourceGroups/read",
+                    "Microsoft.Resources/subscriptions/resourceGroups/write",
+                    "Microsoft.Storage/storageAccounts/listkeys/action",
+                    "Microsoft.Storage/storageAccounts/read"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
+```
+
+{{< alert warning >}}
+When creating the role, ensure that the `assignableScopes` property is pre-filled with your actual subscription ID. 
+Do not leave it as `/subscriptions/{SubscriptionId}` or overwrite it with the placeholder. 
+Replace it with the correct subscription ID.
+{{< /alert >}}
 
 To grant these permissions, create a new role and assign it to the managed identity as detailed below.
 
