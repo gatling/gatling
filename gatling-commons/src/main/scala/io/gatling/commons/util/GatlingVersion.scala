@@ -26,6 +26,8 @@ import java.util.prefs.Preferences
 import scala.util.{ Success, Try }
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
+
 import com.typesafe.scalalogging.StrictLogging
 
 object GatlingVersion {
@@ -141,7 +143,7 @@ private object LatestGatlingRelease extends StrictLogging {
   private implicit final class OnFailureTry[T](val t: Try[T]) extends AnyVal {
     def logDebugOnFailure(message: String): Try[T] =
       t.recoverWith { case NonFatal(e) =>
-        logger.debug(message, e)
+        logger.debug(s"$message: ${e.rootMessage}")
         t
       }
   }
