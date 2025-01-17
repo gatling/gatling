@@ -421,6 +421,8 @@ crashLoadGeneratorIf((session) => "someErrorMessage", (session) => true);
 
 //#group
 group("foo").on(
-  exec(http("name").get("/"))
+  http("request1").get("/"),
+  pause(1),
+  http("request2").get("/")
 );
 //#group
