@@ -426,3 +426,7 @@ group("foo").on(
   http("request2").get("/")
 );
 //#group
+
+//#dummy
+
+//#dummy

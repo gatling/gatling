@@ -301,7 +301,12 @@ public class CoreJavaCompileTest extends Simulation {
               stopLoadGeneratorIf("#{message}", "#{condition}"),
               stopLoadGeneratorIf(session -> "message", session -> true),
               stopLoadGeneratorIf("#{message}", session -> true),
-              stopLoadGeneratorIf(session -> "message", "#{condition}"));
+              stopLoadGeneratorIf(session -> "message", "#{condition}"),
+              // dummy
+              dummy("Dummy Request Name", 1000),
+              dummy("Dummy Request Name", 1000).withSuccess(false),
+              dummy("Dummy Request Name", 1000)
+                  .withSessionUpdate(session -> session.set("foo", "bar")));
 
   {
     registerPebbleExtensions((io.pebbletemplates.pebble.extension.Extension) null);

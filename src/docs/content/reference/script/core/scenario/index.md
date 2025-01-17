@@ -357,3 +357,10 @@ Groups can be nested.
 {{< alert warning >}}
 Beware that group names mustn't contain commas.
 {{< /alert >}}
+
+### Dummy
+
+Create a dummy action that simulation a call to a remote system, with response time, status outcome and session updates.
+Typically used when you can't call the actual remote system as part of your load tests while still measuring business processes metrics with groups.
+
+{{< include-code "dummy" >}}

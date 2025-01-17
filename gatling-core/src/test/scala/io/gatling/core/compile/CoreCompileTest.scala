@@ -321,6 +321,13 @@ class CoreCompileTest extends Simulation {
     // crashLoadGeneratorIf
     .crashLoadGeneratorIf("#{message}", session => true)
 
+  private val dummies = scenario("dummies")
+    .exec(
+      dummy("Dummy Request Name", 1000),
+      dummy("Dummy Request Name", 1000).withSuccess(false),
+      dummy("Dummy Request Name", 1000).withSessionUpdate(session => session.set("foo", "bar"))
+    )
+
   registerPebbleExtensions(null.asInstanceOf[io.pebbletemplates.pebble.extension.Extension])
   setUp(
     scn.inject(

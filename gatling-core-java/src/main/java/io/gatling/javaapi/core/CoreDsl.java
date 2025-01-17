@@ -27,10 +27,7 @@ import io.gatling.javaapi.core.exec.Execs;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.feed.Feeds;
 import io.gatling.javaapi.core.group.Groups;
-import io.gatling.javaapi.core.internal.Converters;
-import io.gatling.javaapi.core.internal.CoreCheckBuilders;
-import io.gatling.javaapi.core.internal.CoreCheckType;
-import io.gatling.javaapi.core.internal.Executables;
+import io.gatling.javaapi.core.internal.*;
 import io.gatling.javaapi.core.loop.*;
 import io.gatling.javaapi.core.pause.Paces;
 import io.gatling.javaapi.core.pause.Pauses;
@@ -4026,5 +4023,87 @@ public final class CoreDsl {
    */
   public static Choice.WithWeight.Then percent(double percent) {
     return new Choice.WithWeight.Then(percent);
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a Gatling EL String
+   * @param responseTime the response time of the action
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(@NonNull String actionName, int responseTime) {
+    return new DummyBuilder(
+        Expressions.toStringExpression(actionName),
+        Expressions.toStaticValueExpression(responseTime));
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a Gatling EL String
+   * @param responseTime the response time of the action, as a Gatling EL String
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(@NonNull String actionName, @NonNull String responseTime) {
+    return new DummyBuilder(
+        Expressions.toStringExpression(actionName), Expressions.toIntExpression(responseTime));
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a Gatling EL String
+   * @param responseTime the response time of the action, as a function
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(
+      @NonNull String actionName, @NonNull Function<Session, Integer> responseTime) {
+    return new DummyBuilder(
+        Expressions.toStringExpression(actionName),
+        Expressions.javaIntegerFunctionToExpression(responseTime));
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a function
+   * @param responseTime the response time of the action
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(
+      @NonNull Function<Session, String> actionName, int responseTime) {
+    return new DummyBuilder(
+        Expressions.javaFunctionToExpression(actionName),
+        Expressions.toStaticValueExpression(responseTime));
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a Gatling EL String
+   * @param responseTime the response time of the action, as function
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(
+      @NonNull Function<Session, String> actionName, @NonNull String responseTime) {
+    return new DummyBuilder(
+        Expressions.javaFunctionToExpression(actionName),
+        Expressions.toIntExpression(responseTime));
+  }
+
+  /**
+   * Bootstrap a builder for performing a dummy action that emulates a network remote call
+   *
+   * @param actionName the name of the action, as a function
+   * @param responseTime the response time of the action, as a function
+   * @return a DummyBuilder
+   */
+  public static DummyBuilder dummy(
+      @NonNull Function<Session, String> actionName,
+      @NonNull Function<Session, Integer> responseTime) {
+    return new DummyBuilder(
+        Expressions.javaFunctionToExpression(actionName),
+        Expressions.javaIntegerFunctionToExpression(responseTime));
   }
 }

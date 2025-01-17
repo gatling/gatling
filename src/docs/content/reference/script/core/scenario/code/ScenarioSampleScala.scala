@@ -397,4 +397,16 @@ group("foo")(
   http("request2").get("/")
 )
 //#group
+
+//#dummy
+// successful dummy action with a 1000ms response time
+dummy("Dummy Request Name", 1000)
+// failed dummy action with a response time Gatling EL expression
+dummy("Dummy Request Name", "#{responseTime}").withSuccess(false)
+// successful dummy action with a response time generated randomly
+dummy("Dummy Request Name", "#{randomInt(5,10)}")
+// dummy action that updates the Session
+dummy("Dummy Request Name", 1000)
+  .withSessionUpdate(session => session.set("foo", "bar"))
+//#dummy
 }

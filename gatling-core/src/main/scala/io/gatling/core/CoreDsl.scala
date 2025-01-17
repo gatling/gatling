@@ -22,6 +22,7 @@ import io.gatling.core.check.CheckSupport
 import io.gatling.core.controller.inject.closed.ClosedInjectionSupport
 import io.gatling.core.controller.inject.open.OpenInjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
+import io.gatling.core.dummy.DummySupport
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
@@ -36,6 +37,7 @@ trait CoreDsl
     with ThrottlingSupport
     with AssertionSupport
     with BodySupport
+    with DummySupport
     with CoreDefaultImplicits
     with ValidationImplicits {
   def scenario(name: String): ScenarioBuilder = new ScenarioBuilder(name.replaceAll("[\r\n\t]", " ").trim, Nil)
