@@ -26,6 +26,9 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Prepare environment
         env:
           SONATYPE_SBT: ${{ secrets.SONATYPE_SBT }}
