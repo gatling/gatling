@@ -83,7 +83,7 @@ object Dependencies {
   // Docs dependencies
   private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.17.0"
   private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.2"
-  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.29.50"
+  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.29.52"
   
   // format: ON
   private val testDeps = Seq(
