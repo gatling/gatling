@@ -59,7 +59,7 @@ object Dependencies {
   private val bouncyCastle                   = "io.gatling"                           % "gatling-recorder-bc-shaded"        % "1.79.0"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                         % "0.2.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                            % "3.2.2"
-  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.8.6"
+  private val spotbugs                       = "com.github.spotbugs"                  % "spotbugs-annotations"              % "4.9.0"
   private val typetools                      = "net.jodah"                            % "typetools"                         % "0.6.3"
 
   // Test dependencies
