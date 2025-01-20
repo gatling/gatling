@@ -26,10 +26,10 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.SystemProps.setSystemPropertyIfUndefined
+import io.gatling.core.config.ConfigKeys._
 import io.gatling.core.stats.writer._
 import io.gatling.shared.util.Ssl
 
-import ConfigKeys._
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl.OpenSsl
