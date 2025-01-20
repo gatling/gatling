@@ -21,7 +21,7 @@ import io.gatling.core.stats.ErrorStats
 import io.gatling.shared.util.NumberHelper._
 
 private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
-  def js: String = s"""
+  def js: String = """
 	    $$('#container_errors').sortable('#container_errors');
     """
 

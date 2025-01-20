@@ -27,13 +27,13 @@ class BatchedSeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers {
   private val feederFactory = SeparatedValuesParser.feederFactory(',', '"', UTF_8)
 
   private val csvContent =
-    s"""column1,column2
-       |line1_1,line1_2
-       |line2_1,line2_2
-       |line3_1,line3_2
-       |line4_1,line4_2
-       |line5_1,line5_2
-       |""".stripMargin
+    """column1,column2
+      |line1_1,line1_2
+      |line2_1,line2_2
+      |line3_1,line3_2
+      |line4_1,line4_2
+      |line5_1,line5_2
+      |""".stripMargin
 
   private def channelFactory(text: String): () => ReadableByteChannel =
     () => Channels.newChannel(new ByteArrayInputStream(text.getBytes(UTF_8)))
@@ -54,8 +54,8 @@ class BatchedSeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers {
 
   it should "return an empty feeder when there's no record" in {
     new QueueBatchedSeparatedValuesFeeder(
-      channelFactory(s"""column1,column2
-                        |""".stripMargin),
+      channelFactory("""column1,column2
+                       |""".stripMargin),
       feederFactory
     ).hasNext shouldBe false
   }

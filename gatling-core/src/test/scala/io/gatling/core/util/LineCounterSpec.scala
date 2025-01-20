@@ -32,21 +32,21 @@ class LineCounterSpec extends AnyFlatSpecLike with Matchers {
 
   "countLines" should "count lines when data is US_ASCII without empty lines" in {
     testCount(
-      s"""foo
-         |bar
-         |baz""".stripMargin,
+      """foo
+        |bar
+        |baz""".stripMargin,
       3
     )
   }
 
   it should "ignore empty lines" in {
     testCount(
-      s"""
-         |foo
-         |bar
-         |
-         |baz
-         |""".stripMargin,
+      """
+        |foo
+        |bar
+        |
+        |baz
+        |""".stripMargin,
       3
     )
   }

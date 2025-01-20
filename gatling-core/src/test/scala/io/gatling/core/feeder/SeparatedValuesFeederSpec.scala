@@ -88,12 +88,12 @@ class SeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers with Feede
 
   it should "skip empty lines" in {
     val bytes =
-      s"""header
-         |line1
-         |
-         |line2
-         |
-         |""".stripMargin.getBytes(UTF_8)
+      """header
+        |line1
+        |
+        |line2
+        |
+        |""".stripMargin.getBytes(UTF_8)
 
     feederFactory(CommaSeparator, quoteChar = '\'', UTF_8)(newChannel(bytes)).toVector shouldBe Vector(
       Map("header" -> "line1"),

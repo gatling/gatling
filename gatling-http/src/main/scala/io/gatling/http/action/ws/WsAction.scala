@@ -24,6 +24,6 @@ trait WsAction {
   final def fetchFsm(wsName: String, session: Session): Validation[WsFsm] =
     session.attributes.get(wsName) match {
       case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
-      case _           => s"Couldn't fetch open webSocket".failure
+      case _           => "Couldn't fetch open webSocket".failure
     }
 }

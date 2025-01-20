@@ -39,7 +39,7 @@ class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
   private val book3 = """{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99}"""
   private val book4 = """{"category":"fiction","author":"J. R. R. Tolkien","title":"The Lord of the Rings","isbn":"0-395-19395-8","price":22.99}"""
   private val allBooks = s"[$book1,$book2,$book3,$book4]"
-  private val bicycle = s"""{"color":"red","price":19.95}"""
+  private val bicycle = """{"color":"red","price":19.95}"""
   private val allStore = s"""{"book":$allBooks, "bicycle":$bicycle}"""
   private val goessnerData = s"""{"store":$allStore}"""
   private val goessnerJson = parseJson(goessnerData)

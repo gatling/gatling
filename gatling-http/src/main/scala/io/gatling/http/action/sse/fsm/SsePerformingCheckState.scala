@@ -39,7 +39,7 @@ final case class SsePerformingCheckState(
   import fsm._
 
   override def onTimeout(): NextSseState = {
-    logger.debug(s"Check timeout")
+    logger.debug("Check timeout")
     // check timeout
     // fail check, send next and goto Idle
     val errorMessage = s"Check ${currentCheck.name} timeout"
@@ -59,7 +59,7 @@ final case class SsePerformingCheckState(
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
-    logger.debug(s"Server notified of end of stream while in PerformingChecks state")
+    logger.debug("Server notified of end of stream while in PerformingChecks state")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, None, "End of stream")
   }

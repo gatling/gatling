@@ -28,9 +28,8 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
+import io.gatling.commons.util.{ TypeCaster, TypeHelper }
 import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.TypeCaster
-import io.gatling.commons.util.TypeHelper
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
@@ -291,7 +290,7 @@ object RandomAlphanumeric {
 }
 
 final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
-  require(length > 0, s"'length' should be greater than 0")
+  require(length > 0, "'length' should be greater than 0")
 
   def apply(session: Session): Validation[String] = {
     val sb = new jl.StringBuilder(length)

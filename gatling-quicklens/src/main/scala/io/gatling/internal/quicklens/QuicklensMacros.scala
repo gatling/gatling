@@ -101,7 +101,7 @@ object QuicklensMacros {
 
     val wrappedValue = c.macroApplication match {
       case Apply(TypeApply(Select(Apply(_, List(w)), _), _), _) => w
-      case _                                                    => c.abort(c.enclosingPosition, s"Unknown usage of ModifyPimp. Please file a bug.")
+      case _                                                    => c.abort(c.enclosingPosition, "Unknown usage of ModifyPimp. Please file a bug.")
     }
 
     val valueAlias = TermName(c.freshName())

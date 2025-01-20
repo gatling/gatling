@@ -78,7 +78,7 @@ class HtmlParserSpec extends AnyFlatSpecLike with Matchers {
 
   it should "ignore nested conditional comments" in {
     val html =
-      s"""<!DOCTYPE html>
+      """<!DOCTYPE html>
       <html>
         <body>
           <!--[if gt IE 5]>
@@ -93,7 +93,7 @@ class HtmlParserSpec extends AnyFlatSpecLike with Matchers {
 
   it should "extract prefetch links" in {
     val html =
-      s"""<!DOCTYPE html>
+      """<!DOCTYPE html>
       <html>
         <head>
           <title>Test page</title>

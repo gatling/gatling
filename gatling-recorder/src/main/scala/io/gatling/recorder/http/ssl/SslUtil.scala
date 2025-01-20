@@ -83,7 +83,7 @@ private[recorder] object SslUtil extends StrictLogging {
     assert(Files.isDirectory(dir), s"$dir isn't a directory")
 
     def generateCACertificate(pair: KeyPair): X509CertificateHolder = {
-      val dn = s"C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
+      val dn = "C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
       val now = System.currentTimeMillis()
 
       // has to be v1 for CA

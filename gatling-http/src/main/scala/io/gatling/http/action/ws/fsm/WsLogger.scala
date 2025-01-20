@@ -49,7 +49,7 @@ object WsLogger {
       .append(session)
       .append(Eol)
       .appendWithEol("=========================")
-      .appendWithEol(s"WebSocket check:")
+      .appendWithEol("WebSocket check:")
       .appendWithEol(checkName.getOrElse(""))
       .appendWithEol("=========================")
       .appendWithEol("WebSocket request:")

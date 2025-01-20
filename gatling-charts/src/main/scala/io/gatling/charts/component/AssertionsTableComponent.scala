@@ -20,7 +20,7 @@ import io.gatling.charts.util.HtmlHelper._
 import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult }
 
 private[charts] final class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
-  def js: String = s"""
+  def js: String = """
 	    $$('#container_exceptions').sortable('#container_exceptions');
     """
 

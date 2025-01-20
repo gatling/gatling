@@ -229,7 +229,7 @@ private final class FirstPassParser(logFile: File, zoneId: ZoneId) extends LogFi
     logger.info(s"First pass done: read $count records")
     assert(injectStart != Long.MaxValue, "Undefined run start")
     assert(injectEnd != Long.MinValue, "Undefined run end")
-    assert(injectEnd > injectStart, s"Run didn't last")
+    assert(injectEnd > injectStart, "Run didn't last")
     new RunInfo(injectStart, injectEnd, runMessage.simulationClassName, runMessage.runDescription, runMessage.start, scenarios, assertions)
   }
 }

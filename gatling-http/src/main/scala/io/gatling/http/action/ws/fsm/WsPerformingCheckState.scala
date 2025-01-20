@@ -45,7 +45,7 @@ final case class WsPerformingCheckState(
   import fsm._
 
   override def onTimeout(): NextWsState = {
-    logger.debug(s"Check timeout")
+    logger.debug("Check timeout")
     // check timeout
     // fail check, send next and goto Idle
     val errorMessage = s"Check ${currentCheck.resolvedName} timeout"

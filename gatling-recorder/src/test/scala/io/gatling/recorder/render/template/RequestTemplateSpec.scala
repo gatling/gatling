@@ -103,11 +103,11 @@ class RequestTemplateSpec extends AnyFlatSpecLike with Matchers {
       mockedRequest1,
       ExtractedUris(Seq(mockedRequest1), config.core.format)
     )
-    res1 should include(s"request_0:post_http://gatling.io/path1/file1")
+    res1 should include("request_0:post_http://gatling.io/path1/file1")
   }
 
   it should "escape bad characters in request postfix" in {
     val postfix = RequestTemplate.sanitizeRequestPostfix("POST_https://gatling.io/hello?to=\"john\\doe\"&hobbies={a,b;c\\d}")
-    postfix should equal(s"POST_https://gatling.io/hello?to=_john_doe_&hobbies=_a_b_c_d_")
+    postfix should equal("POST_https://gatling.io/hello?to=_john_doe_&hobbies=_a_b_c_d_")
   }
 }

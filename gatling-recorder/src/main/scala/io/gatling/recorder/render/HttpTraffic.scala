@@ -78,7 +78,7 @@ private[recorder] object HttpTraffic extends StrictLogging {
           .setTo(resources.map(_.arrivalTime).max)
           .modify(_.element.nonEmbeddedResources)
           .setTo(nonEmbeddedResources)
-      case _ => throw new IllegalArgumentException(s"groupChainedRequests shouldn't be empty")
+      case _ => throw new IllegalArgumentException("groupChainedRequests shouldn't be empty")
     }
   }
 
