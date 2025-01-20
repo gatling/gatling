@@ -31,8 +31,8 @@ object AST {
   final case class Field(name: String) extends FieldAccessor
   final case class RecursiveField(name: String) extends FieldAccessor
   final case class MultiField(names: List[String]) extends FieldAccessor
-  final case object AnyField extends FieldAccessor
-  final case object RecursiveAnyField extends FieldAccessor
+  case object AnyField extends FieldAccessor
+  case object RecursiveAnyField extends FieldAccessor
 
   sealed trait ArrayAccessor extends PathToken
 
@@ -54,7 +54,7 @@ object AST {
 
   // JsonPath Filter AST //////////////////////////////////////////////
 
-  final case object CurrentNode extends PathToken
+  case object CurrentNode extends PathToken
   sealed trait FilterValue extends AstToken
 
   object FilterDirectValue {

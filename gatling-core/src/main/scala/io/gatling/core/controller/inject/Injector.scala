@@ -40,7 +40,7 @@ private[gatling] object Injector {
     private[controller] final case class Start(controller: ActorRef[Controller.Command], scenarioFlows: ScenarioFlows[String, Scenario]) extends Command
     private[controller] final case class EmptyWorkloadComplete(scenario: String) extends Command
     private[core] final case class UserEnd(scenario: String) extends Command
-    private[controller] final case object Tick extends Command
+    private[controller] case object Tick extends Command
   }
 
   private final case class StartedData(

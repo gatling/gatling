@@ -42,13 +42,13 @@ private[gatling] object Controller {
   private[gatling] sealed trait Command
   private[gatling] object Command {
     private[gatling] final case class Start(scenarioFlows: ScenarioFlows[String, Scenario], runDonePromise: Promise[Unit]) extends Command
-    private[gatling] final case object RunTerminated extends Command
+    private[gatling] case object RunTerminated extends Command
     private[gatling] final case class Crash(exception: Exception) extends Command
     private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
     private[gatling] final case class StopLoadGenerator(message: String, crash: Boolean) extends Command
-    private[gatling] final case object StatsEngineStopped extends Command
+    private[gatling] case object StatsEngineStopped extends Command
     // [e]
-    private[gatling] final case object Kill extends Command
+    private[gatling] case object Kill extends Command
     // [e]
   }
 }
