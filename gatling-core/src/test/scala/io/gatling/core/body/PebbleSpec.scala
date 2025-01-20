@@ -18,8 +18,7 @@ package io.gatling.core.body
 
 import java.{ util => ju }
 
-import scala.collection.immutable
-import scala.collection.mutable
+import scala.collection.{ immutable, mutable }
 
 import io.gatling.core.session.SessionPrivateAttributes
 

@@ -18,8 +18,7 @@ package io.gatling.http.check.body
 
 import io.gatling.ValidationValues
 import io.gatling.commons.validation.Failure
-import io.gatling.core.CoreDsl
-import io.gatling.core.EmptySession
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.config.GatlingConfiguration

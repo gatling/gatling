@@ -26,8 +26,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
-import io.gatling.http.cache.DnsCacheSupport
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ DnsCacheSupport, HttpCaches }
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.client.{ HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody

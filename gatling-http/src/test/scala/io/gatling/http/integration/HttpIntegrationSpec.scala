@@ -20,8 +20,7 @@ import java.nio.charset.StandardCharsets
 
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.HttpDsl
-import io.gatling.http.HttpSpec
+import io.gatling.http.{ HttpDsl, HttpSpec }
 
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelFutureListener

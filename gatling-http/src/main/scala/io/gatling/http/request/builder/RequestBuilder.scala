@@ -21,8 +21,7 @@ import io.gatling.core.check.Validator
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.status.HttpStatusCheckBuilder
-import io.gatling.http.check.status.HttpStatusCheckMaterializer
+import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusCheckMaterializer }
 import io.gatling.http.client.Request
 import io.gatling.http.client.oauth.{ ConsumerKey, OAuthSignatureCalculator, RequestToken }
 import io.gatling.http.client.proxy.ProxyServer

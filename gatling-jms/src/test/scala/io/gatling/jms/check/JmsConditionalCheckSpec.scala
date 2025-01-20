@@ -21,8 +21,7 @@ import javax.jms.Message
 
 import io.gatling.ValidationValues
 import io.gatling.commons.validation.Success
-import io.gatling.core.CoreDsl
-import io.gatling.core.EmptySession
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session

@@ -19,8 +19,7 @@ package io.gatling.http.check.body
 import java.nio.charset.StandardCharsets._
 
 import io.gatling.ValidationValues
-import io.gatling.core.CoreDsl
-import io.gatling.core.EmptySession
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.config.GatlingConfiguration

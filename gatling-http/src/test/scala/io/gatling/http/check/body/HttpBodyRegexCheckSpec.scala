@@ -17,8 +17,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.ValidationValues
-import io.gatling.core.CoreDsl
-import io.gatling.core.EmptySession
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.config.GatlingConfiguration

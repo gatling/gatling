@@ -17,8 +17,7 @@
 package io.gatling.http.cookie
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session, SessionPrivateAttributes }
 import io.gatling.http.action.cookie.{ AddCookieBuilder, AddCookieDsl, GetCookieBuilder, GetCookieDsl }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.uri.Uri

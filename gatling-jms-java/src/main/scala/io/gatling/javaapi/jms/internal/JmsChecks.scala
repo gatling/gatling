@@ -30,8 +30,7 @@ import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.javaapi.core.internal.CoreCheckType
-import io.gatling.jms.{ Predef => JmsPredef }
-import io.gatling.jms.JmsCheck
+import io.gatling.jms.{ JmsCheck, Predef => JmsPredef }
 import io.gatling.jms.check.JmsPropertyCheckType
 
 import com.fasterxml.jackson.databind.JsonNode

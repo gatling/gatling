@@ -21,7 +21,6 @@ import javax.jms.Message
 import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation._
-import io.gatling.commons.validation.{ Success, Validation }
 import io.gatling.core.check.{ CheckBuilder, FindCriterionExtractor }
 import io.gatling.core.session._
 
