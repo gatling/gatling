@@ -25,13 +25,13 @@ import scala.util.Using
 
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
-import io.gatling.core.action.{ Action, ActorDelegatingAction }
+import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.NoopStatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.client.util.MimeTypes
 import io.gatling.http.protocol.HttpProtocolBuilder
@@ -68,7 +68,7 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter {
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, null, null, None, null, clock, null, configuration)
+      new CoreComponents(actorSystem, null, null, None, NoopStatsEngine, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
