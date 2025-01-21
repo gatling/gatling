@@ -133,32 +133,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
-  ignore should "fetch resources in conditional comments" in {
-    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
-      sendFile(path.drop(1)) // Drop leading slash in path
-    }
-
-    runWithHttpServer(handler) { implicit httpServer =>
-      val session = runScenario(
-        scenario("Resource downloads")
-          .exec(
-            http("/resourceTest/indexIE.html")
-              .get("/resourceTest/indexIE.html")
-              .header(
-                "User-Agent",
-                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)"
-              )
-          ),
-        protocolCustomizer = _.inferHtmlResources()
-      )
-
-      session.isFailed shouldBe false
-
-      verifyRequestTo("/resourceTest/indexIE.html")
-      verifyRequestTo("/resourceTest/stylesheet.css")
-    }
-  }
-
   override protected def afterAll(): Unit = {
     nioEventLoop.shutdownGracefully()
     super.afterAll()
