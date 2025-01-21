@@ -63,17 +63,18 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(
       sb: ScenarioBuilder,
+      defaultSession: Session = emptySession,
       timeout: FiniteDuration = 10.seconds,
       protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, null, null, None, NoopStatsEngine, clock, null, configuration)
+      new CoreComponents(actorSystem, defaultSession.eventLoop, null, None, NoopStatsEngine, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
     val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    action ! emptySession
+    action ! defaultSession
     nextActor.expectMsgType[Session](timeout)
   }
 
