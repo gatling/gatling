@@ -33,8 +33,11 @@ import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.NoopStatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
+import io.gatling.http.cache.DnsCacheSupport
+import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.util.MimeTypes
 import io.gatling.http.protocol.HttpProtocolBuilder
+import io.gatling.netty.util.Transports
 
 import io.netty.channel._
 import io.netty.handler.codec.http._
@@ -47,6 +50,7 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
 
   private val clock = new DefaultClock
   protected val mockHttpPort: Int = Using(new ServerSocket(0))(_.getLocalPort).getOrElse(8072)
+  private val eventLoopGroup = Transports.newEventLoopGroup(true, false, 1, "test")
 
   private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
@@ -68,12 +72,14 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, null, null, None, NoopStatsEngine, clock, null, configuration)
+      new CoreComponents(actorSystem, eventLoopGroup, null, None, NoopStatsEngine, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
     val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     action ! emptySession
+      .copy(eventLoop = eventLoopGroup.next())
+      .set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
     nextActor.expectMsgType[Session](timeout)
   }
 
@@ -132,5 +138,10 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
 
   object HttpRequest {
     def unapply(request: FullHttpRequest): HttpRequest = new HttpRequest(request)
+  }
+
+  override protected def afterAll(): Unit = {
+    eventLoopGroup.shutdownGracefully()
+    super.afterAll()
   }
 }

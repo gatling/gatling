@@ -32,7 +32,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
-  ignore should "send cookies returned in redirects in subsequent requests" in {
+  it should "send cookies returned in redirects in subsequent requests" in {
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
@@ -95,7 +95,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
-  ignore should "retrieve linked resources, when resource downloading is enabled" in {
+  it should "retrieve linked resources, when resource downloading is enabled" in {
     val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
       sendFile(path.drop(1)) // Drop leading slash in path
     }
@@ -121,32 +121,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       verifyRequestTo("/resourceTest/script.js")
       verifyRequestTo("/resourceTest/img.png")
       verifyRequestTo("/resourceTest/bad_resource.png", 0)
-    }
-  }
-
-  ignore should "fetch resources in conditional comments" in {
-    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
-      sendFile(path.drop(1)) // Drop leading slash in path
-    }
-
-    runWithHttpServer(handler) { implicit httpServer =>
-      val session = runScenario(
-        scenario("Resource downloads")
-          .exec(
-            http("/resourceTest/indexIE.html")
-              .get("/resourceTest/indexIE.html")
-              .header(
-                "User-Agent",
-                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)"
-              )
-          ),
-        protocolCustomizer = _.inferHtmlResources()
-      )
-
-      session.isFailed shouldBe false
-
-      verifyRequestTo("/resourceTest/indexIE.html")
-      verifyRequestTo("/resourceTest/stylesheet.css")
     }
   }
 }
