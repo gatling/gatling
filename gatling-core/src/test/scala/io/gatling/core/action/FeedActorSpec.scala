@@ -16,12 +16,13 @@
 
 package io.gatling.core.action
 
+import io.gatling.core.EmptySession
 import io.gatling.core.actor._
 import io.gatling.core.controller.Controller
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
 
-class FeedActorSpec extends ActorSpec {
+class FeedActorSpec extends ActorSpec with EmptySession {
   private def createFeedActor[T](feeder: Feeder[T], controller: ActorRef[Controller.Command]): ActorRef[FeedMessage] =
     actorSystem.actorOf(FeedActor.actor(feeder, "feeder", None, generateJavaCollection = false, controller))
 

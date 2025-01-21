@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
+import io.gatling.core.{ CoreComponents, EmptySession }
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
@@ -41,7 +41,7 @@ import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
 import org.scalatest.BeforeAndAfter
 
-abstract class HttpSpec extends ActorSpec with BeforeAndAfter {
+abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 

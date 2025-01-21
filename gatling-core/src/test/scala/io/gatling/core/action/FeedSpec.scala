@@ -17,11 +17,12 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
-class FeedSpec extends ActorSpec {
+class FeedSpec extends ActorSpec with EmptySession {
   private val clock = new DefaultClock
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {

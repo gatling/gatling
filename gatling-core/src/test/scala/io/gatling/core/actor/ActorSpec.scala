@@ -22,8 +22,7 @@ import scala.concurrent.Promise
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
 
-import io.gatling.core.EmptySession
-
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers._
@@ -46,7 +45,7 @@ final class MockActorRef[T](override val name: String) extends ActorRef[T] {
   }
 }
 
-abstract class ActorSpec extends AnyFlatSpecLike with Matchers with EmptySession {
+abstract class ActorSpec extends AnyFlatSpecLike with Matchers with BeforeAndAfterAll {
 
   protected val actorSystem = new ActorSystem
 

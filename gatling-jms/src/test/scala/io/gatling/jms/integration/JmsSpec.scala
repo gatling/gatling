@@ -21,7 +21,7 @@ import javax.jms.{ Session => JmsSession, _ }
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
+import io.gatling.core.{ CoreComponents, EmptySession }
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
@@ -64,7 +64,7 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
   t.start()
 }
 
-trait JmsSpec extends ActorSpec with JmsDsl {
+trait JmsSpec extends ActorSpec with JmsDsl with EmptySession {
   override def beforeAll(): Unit = {
     sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
     startBroker()

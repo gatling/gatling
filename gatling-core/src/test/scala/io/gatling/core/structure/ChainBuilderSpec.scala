@@ -18,13 +18,13 @@ package io.gatling.core.structure
 
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation._
-import io.gatling.core.CoreDsl
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.LoggingStatsEngine
 import io.gatling.core.test._
 
-class ChainBuilderSpec extends ScenarioTestFixture with CoreDsl {
+class ChainBuilderSpec extends ScenarioTestFixture with CoreDsl with EmptySession {
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "exec" should "wrap Scenarios in chains" in {

@@ -19,13 +19,14 @@ package io.gatling.core.action
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
-class PaceSpec extends ActorSpec {
+class PaceSpec extends ActorSpec with EmptySession {
   private val clock = new DefaultClock
 
   private val interval = 3.seconds

@@ -17,12 +17,13 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
 @SuppressWarnings(Array("org.wartremover.warts.ThreadSleep"))
-class RendezVousSpec extends ActorSpec {
+class RendezVousSpec extends ActorSpec with EmptySession {
   private val clock = new DefaultClock
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {

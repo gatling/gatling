@@ -18,7 +18,7 @@ package io.gatling.jms.action
 
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreDsl
+import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
@@ -26,7 +26,7 @@ import io.gatling.core.session.Session
 import io.gatling.jms._
 import io.gatling.jms.client.JmsTracker
 
-class JmsTrackerSpec extends ActorSpec with CoreDsl with JmsDsl with MockMessage {
+class JmsTrackerSpec extends ActorSpec with CoreDsl with JmsDsl with MockMessage with EmptySession {
   override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val clock = new DefaultClock

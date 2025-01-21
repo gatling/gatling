@@ -16,10 +16,11 @@
 
 package io.gatling.core.action
 
+import io.gatling.core.EmptySession
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.controller.inject.Injector
 
-class ExitSpec extends ActorSpec {
+class ExitSpec extends ActorSpec with EmptySession {
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
     var hasTerminated = false
 

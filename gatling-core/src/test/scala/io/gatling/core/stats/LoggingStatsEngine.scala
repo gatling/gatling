@@ -28,22 +28,21 @@ object LoggingStatsEngine {
 
   object Message {
     final case class LogResponse(
-                                  scenario: String,
-                                  groups: List[String],
-                                  requestName: String,
-                                  startTimestamp: Long,
-                                  endTimestamp: Long,
-                                  status: Status,
-                                  responseCode: Option[String],
-                                  message: Option[String]
-                                ) extends Message
+        scenario: String,
+        groups: List[String],
+        requestName: String,
+        startTimestamp: Long,
+        endTimestamp: Long,
+        status: Status,
+        responseCode: Option[String],
+        message: Option[String]
+    ) extends Message
 
     final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp: Long) extends Message
 
     final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends Message
   }
 }
-
 
 final class LoggingStatsEngine extends StatsEngine {
   import LoggingStatsEngine._
