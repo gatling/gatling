@@ -25,14 +25,12 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
-import io.gatling.core.actor.{ ActorRef, ActorSpec }
+import io.gatling.core.actor.ActorSpec
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.Controller
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.ProtocolComponentsRegistries
+import io.gatling.core.stats.LoggingStatsEngine
 import io.gatling.core.structure._
-
-import io.netty.channel.EventLoopGroup
 
 final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
   private[test] val expectations = new ArrayBuffer[PartialFunction[Any, Unit]]
