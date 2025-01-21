@@ -23,6 +23,7 @@ import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
+import io.gatling.javaapi.core.internal.errors.ScalaCrashLoadGeneratorIf;
 import io.gatling.javaapi.core.internal.errors.ScalaExitBlockOnFail;
 import io.gatling.javaapi.core.internal.errors.ScalaExitHereIf;
 import io.gatling.javaapi.core.internal.errors.ScalaStopLoadGeneratorIf;
@@ -334,7 +335,7 @@ public interface Errors<
    */
   @NonNull
   default T crashLoadGeneratorIf(String message, @NonNull String condition) {
-    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+    return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
@@ -348,7 +349,7 @@ public interface Errors<
   @NonNull
   default T crashLoadGeneratorIf(
       Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
-    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+    return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
@@ -361,7 +362,7 @@ public interface Errors<
    */
   @NonNull
   default T crashLoadGeneratorIf(String message, @NonNull Function<Session, Boolean> condition) {
-    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+    return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 
   /**
@@ -374,6 +375,6 @@ public interface Errors<
    */
   @NonNull
   default T crashLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
-    return ScalaStopLoadGeneratorIf.apply(this, message, condition);
+    return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 }
