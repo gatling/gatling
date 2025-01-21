@@ -33,10 +33,13 @@ import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.NoopStatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
+import io.gatling.http.cache.DnsCacheSupport
+import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.util.MimeTypes
 import io.gatling.http.protocol.HttpProtocolBuilder
 
 import io.netty.channel._
+import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
 import org.scalatest.BeforeAndAfter
@@ -47,6 +50,7 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
 
   private val clock = new DefaultClock
   protected val mockHttpPort: Int = Using(new ServerSocket(0))(_.getLocalPort).getOrElse(8072)
+  private val nioEventLoopGroup: NioEventLoopGroup = new NioEventLoopGroup()
 
   private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
@@ -63,18 +67,19 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(
       sb: ScenarioBuilder,
-      defaultSession: Session = emptySession,
       timeout: FiniteDuration = 10.seconds,
       protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, defaultSession.eventLoop, null, None, NoopStatsEngine, clock, null, configuration)
+      new CoreComponents(actorSystem, nioEventLoopGroup, null, None, NoopStatsEngine, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
     val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    action ! defaultSession
+    action ! emptySession
+      .copy(eventLoop = nioEventLoopGroup.next())
+      .set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
     nextActor.expectMsgType[Session](timeout)
   }
 
@@ -133,5 +138,10 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
 
   object HttpRequest {
     def unapply(request: FullHttpRequest): HttpRequest = new HttpRequest(request)
+  }
+
+  override protected def afterAll(): Unit = {
+    nioEventLoopGroup.shutdownGracefully()
+    super.afterAll()
   }
 }

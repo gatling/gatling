@@ -20,22 +20,15 @@ import java.nio.charset.StandardCharsets
 
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
 import io.gatling.http.{ HttpDsl, HttpSpec }
-import io.gatling.http.cache.DnsCacheSupport
-import io.gatling.http.client.resolver.InetAddressNameResolver
 
 import io.netty.buffer.Unpooled
-import io.netty.channel.{ ChannelFutureListener, EventLoop }
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.ChannelFutureListener
 import io.netty.handler.codec.http.{ DefaultFullHttpResponse, HttpHeaderNames => NettyHttpHeaderName, HttpMethod, HttpResponseStatus, HttpVersion }
 import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   private val regexCheck = super[CoreDsl].regex(_)
-  private val nioEventLoop: EventLoop = new NioEventLoopGroup().next()
-  private val emptyNioSession: Session = Session("Scenario", 0, nioEventLoop)
-    .set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
@@ -91,8 +84,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
               .check(
                 regexCheck("Hello Again")
               )
-          ),
-        defaultSession = emptyNioSession
+          )
       )
 
       session.isFailed shouldBe false
@@ -119,7 +111,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
                 regexCheck("<title>Resource Test</title>")
               )
           ),
-        defaultSession = emptyNioSession,
         protocolCustomizer = _.inferHtmlResources(DenyList(".*/bad_resource.png"))
       )
 
@@ -131,10 +122,5 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       verifyRequestTo("/resourceTest/img.png")
       verifyRequestTo("/resourceTest/bad_resource.png", 0)
     }
-  }
-
-  override protected def afterAll(): Unit = {
-    nioEventLoop.shutdownGracefully()
-    super.afterAll()
   }
 }
