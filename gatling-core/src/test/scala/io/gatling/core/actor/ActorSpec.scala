@@ -50,7 +50,10 @@ abstract class ActorSpec extends AnyFlatSpecLike with Matchers with EmptySession
 
   protected val actorSystem = new ActorSystem
 
-  override protected def afterAll(): Unit = actorSystem.close()
+  override protected def afterAll(): Unit = {
+    super.afterAll()
+    actorSystem.close()
+  }
 
   protected def mockActorRef[T](name: String) = new MockActorRef[T](name)
 }
