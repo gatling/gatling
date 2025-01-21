@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.core.test
+package io.gatling.core.stats
 
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -22,27 +22,33 @@ import io.gatling.commons.stats.Status
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.Controller
 import io.gatling.core.session.GroupBlock
-import io.gatling.core.stats.StatsEngine
 
-sealed trait StatsEngineMessage
+object LoggingStatsEngine {
+  sealed trait Message
 
-final case class LogResponse(
-    scenario: String,
-    groups: List[String],
-    requestName: String,
-    startTimestamp: Long,
-    endTimestamp: Long,
-    status: Status,
-    responseCode: Option[String],
-    message: Option[String]
-) extends StatsEngineMessage
+  object Message {
+    final case class LogResponse(
+                                  scenario: String,
+                                  groups: List[String],
+                                  requestName: String,
+                                  startTimestamp: Long,
+                                  endTimestamp: Long,
+                                  status: Status,
+                                  responseCode: Option[String],
+                                  message: Option[String]
+                                ) extends Message
 
-final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
+    final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp: Long) extends Message
 
-final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends StatsEngineMessage
+    final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends Message
+  }
+}
 
-class LoggingStatsEngine extends StatsEngine {
-  private[test] val msgQueue = new ConcurrentLinkedDeque[Any]
+
+final class LoggingStatsEngine extends StatsEngine {
+  import LoggingStatsEngine._
+
+  val msgQueue: ConcurrentLinkedDeque[Any] = new ConcurrentLinkedDeque[Any]
 
   override def start(): Unit = {}
 
@@ -62,11 +68,11 @@ class LoggingStatsEngine extends StatsEngine {
       responseCode: Option[String],
       message: Option[String]
   ): Unit =
-    msgQueue.addLast(LogResponse(scenario, groups, requestName, startTimestamp, endTimestamp, status, responseCode, message))
+    msgQueue.addLast(Message.LogResponse(scenario, groups, requestName, startTimestamp, endTimestamp, status, responseCode, message))
 
   override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
-    msgQueue.addLast(LogGroupEnd(scenario, groupBlock, exitTimestamp))
+    msgQueue.addLast(Message.LogGroupEnd(scenario, groupBlock, exitTimestamp))
 
   override def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
-    msgQueue.addLast(LogCrash(scenario, groups, requestName, error))
+    msgQueue.addLast(Message.LogCrash(scenario, groups, requestName, error))
 }

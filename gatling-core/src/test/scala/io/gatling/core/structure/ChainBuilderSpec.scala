@@ -21,6 +21,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+import io.gatling.core.stats.LoggingStatsEngine
 import io.gatling.core.test._
 
 class ChainBuilderSpec extends ScenarioTestFixture with CoreDsl {
@@ -74,7 +75,7 @@ class ChainBuilderSpec extends ScenarioTestFixture with CoreDsl {
         session.status shouldBe KO
       }
 
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.status shouldBe KO
       }
     }
@@ -120,31 +121,31 @@ class ChainBuilderSpec extends ScenarioTestFixture with CoreDsl {
 
       chain ! emptySession
       expectMsg(message(1, 0, 0))
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup, innerGroup)
         group.status shouldBe KO
       }
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup)
         group.status shouldBe KO
       }
       expectMsg(message(1, 1, 0))
       expectMsg(message(2, 1, 0))
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup, innerGroup)
         group.status shouldBe OK
       }
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup)
         group.status shouldBe OK
       }
       expectMsg(message(1, 1, 1))
       expectMsg(message(2, 1, 1))
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup, innerGroup)
         group.status shouldBe OK
       }
-      expectMsgPF { case LogGroupEnd(_, group, _) =>
+      expectMsgPF { case LoggingStatsEngine.Message.LogGroupEnd(_, group, _) =>
         group.groups shouldBe List(outerGroup)
         group.status shouldBe OK
       }
