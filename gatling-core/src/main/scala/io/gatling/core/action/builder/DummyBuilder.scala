@@ -23,13 +23,13 @@ import io.gatling.core.structure.ScenarioContext
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[core] object DummyBuilder {
+private[gatling] object DummyBuilder {
   def apply(requestName: Expression[String], responseTimeInMillis: Expression[Int]): DummyBuilder =
     new DummyBuilder(requestName, responseTimeInMillis, success = TrueExpressionSuccess, sessionUpdate = session => session.success)
 
 }
 
-private[core] final class DummyBuilder(
+private[gatling] final class DummyBuilder(
     requestName: Expression[String],
     responseTimeInMillis: Expression[Int],
     success: Expression[Boolean],
