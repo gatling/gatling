@@ -48,7 +48,7 @@ private[gatling] object Controller {
     private[gatling] final case class StopLoadGenerator(message: String, crash: Boolean) extends Command
     private[gatling] case object StatsEngineStopped extends Command
     // [e]
-    private[gatling] case object Kill extends Command
+    //
     // [e]
   }
 }
