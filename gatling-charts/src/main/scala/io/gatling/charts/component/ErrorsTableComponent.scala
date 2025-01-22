@@ -22,7 +22,7 @@ import io.gatling.shared.util.NumberHelper._
 
 private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
   def js: String = """
-	    $$('#container_errors').sortable('#container_errors');
+	    $('#container_errors').sortable('#container_errors');
     """
 
   def html: String =

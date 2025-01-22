@@ -21,7 +21,7 @@ import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult }
 
 private[charts] final class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
   def js: String = """
-	    $$('#container_exceptions').sortable('#container_exceptions');
+	    $('#container_exceptions').sortable('#container_exceptions');
     """
 
   private def line(assertionResult: AssertionResult, index: Int): String = {
