@@ -79,13 +79,8 @@ object Dependencies {
 
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "9.4.57.v20241219"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
-
-  // Docs dependencies
-  private val commonsLang                    = "org.apache.commons"                   % "commons-lang3"                     % "3.17.0"
-  private val commonsCodec                   = "commons-codec"                        % "commons-codec"                     % "1.17.2"
-  private val awsSecretsManager              = "software.amazon.awssdk"               % "secretsmanager"                    % "2.30.3"
-  
   // format: ON
+
   private val testDeps = Seq(
     scalaTest,
     scalaTestScalacheck,
@@ -96,8 +91,6 @@ object Dependencies {
   private val parserDeps = Seq(jackson, saxon, xmlresolver, xmlresolverData, lagarto, joddUtil, jmespath)
 
   // Dependencies by module
-  private val gatlingGrpcVersion = "3.13.3"
-  private val gatlingMqttVersion = "3.13.3"
 
   val nettyUtilDependencies =
     Seq(
@@ -198,16 +191,4 @@ object Dependencies {
   val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, netty) ++ testDeps
 
   val testFrameworkDependencies = Seq(gatlingSharedCli, testInterface)
-
-  val docSamplesDependencies =
-    Seq(
-      commonsLang,
-      commonsCodec,
-      awsSecretsManager,
-      activemqBroker,
-      "io.gatling" % "gatling-grpc"      % gatlingGrpcVersion,
-      "io.gatling" % "gatling-grpc-java" % gatlingGrpcVersion,
-      "io.gatling" % "gatling-mqtt"      % gatlingMqttVersion,
-      "io.gatling" % "gatling-mqtt-java" % gatlingMqttVersion
-    )
 }

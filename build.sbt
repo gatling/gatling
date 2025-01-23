@@ -27,7 +27,6 @@ lazy val root = Project("gatling-parent", file("."))
   .aggregate(
     nettyUtil,
     commons,
-    docSamples,
     jsonpath,
     quicklens,
     core,
@@ -50,47 +49,10 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(skipPublishing)
 
 // Modules
-lazy val docSamples = (project in file("src/docs"))
-  .disablePlugins(SbtSpotless)
-  .enablePlugins(AutomateHeaderPlugin)
-  .settings(
-    basicSettings,
-    skipPublishing,
-    Test / unmanagedSourceDirectories ++= (baseDirectory.value ** "code").get,
-    libraryDependencies ++= docSamplesDependencies,
-    headerLicense := ApacheV2License,
-    // Avoid formatting but avoid errors when calling this tasks with "all"
-    List(Compile, Test).flatMap { conf =>
-      inConfig(conf) {
-        List(
-          scalafmtSbtCheck := { true },
-          scalafmtCheckAll := { () },
-          scalafmt := { () },
-          scalafmtSbt := { () },
-          scalafixAll := { () }
-        )
-      }
-    },
-    List(
-      scalafmtSbtCheck := { true },
-      scalafmtCheckAll := { () },
-      scalafmt := { () },
-      scalafmtSbt := { () },
-      scalafixAll := { () }
-    ),
-    spotlessCheck := { () },
-    kotlinVersion := "2.1.0"
-  )
-  .dependsOn(
-    Seq(commons, jsonpath, core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava).map(
-      _ % "compile->compile;test->test"
-    ): _*
-  )
 
 def gatlingModule(id: String) =
   Project(id, file(id))
     .enablePlugins(GatlingOssPlugin)
-    .disablePlugins(KotlinPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")

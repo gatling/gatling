@@ -4,17 +4,7 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'src/docs/**'
-      - '!src/docs/**/*.java'
-      - '!src/docs/**/*.kt'
-      - '!src/docs/**/*.scala'
   pull_request:
-    paths-ignore:
-      - 'src/docs/**'
-      - '!src/docs/**/*.java'
-      - '!src/docs/**/*.kt'
-      - '!src/docs/**/*.scala'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,9 +48,9 @@ jobs:
       - name: Test
         run: |
           sbt \
-            "all headerCheckAll" \
-            "all scalafmtSbtCheck" \
-            "all scalafmtCheckAll" \
-            "all spotlessCheck" \
-            "all scalafixAll --check" \
+            "headerCheckAll" \
+            "scalafmtSbtCheck" \
+            "scalafmtCheckAll" \
+            "spotlessCheck" \
+            "scalafixAll --check" \
             "test"
