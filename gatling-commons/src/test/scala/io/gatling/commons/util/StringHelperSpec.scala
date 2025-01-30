@@ -23,7 +23,7 @@ import org.scalatest.matchers.should.Matchers
 
 class StringHelperSpec extends AnyFlatSpecLike with Matchers {
   "truncate" should "truncate the string when its length exceeds the max length" in {
-    "hello".truncate(2) shouldBe "he..."
+    "hello".truncate(2) shouldBe "he"
   }
 
   it should "left the string untouched when the string does not exceeds the max length" in {

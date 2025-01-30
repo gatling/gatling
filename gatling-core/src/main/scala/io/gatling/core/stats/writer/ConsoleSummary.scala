@@ -27,13 +27,13 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.ErrorStats
+import io.gatling.core.stats.writer.ConsoleStatsFormat._
+import io.gatling.shared.util.NumberHelper._
 
 private[gatling] object ConsoleSummary {
-  val OutputLength: Int = 80
-  val NewBlock: String = "=" * OutputLength
 
-  def writeSubTitle(sb: jl.StringBuilder, title: String): jl.StringBuilder =
-    sb.append(("---- " + title + " ").rightPad(OutputLength, "-"))
+  def formatSubTitle(title: String): String =
+    s"---- $title ".rightPad(ConsoleWidth, "-")
 
   def apply(
       runDuration: Long,
@@ -49,50 +49,31 @@ private[gatling] object ConsoleSummary {
       import userCounters._
       totalUserCount match {
         case Some(tot) if tot >= doneCount + activeCount =>
-          val width = OutputLength - 6 // []3d%
+          val width = ConsoleWidth - 8 // []99.99%
 
-          val donePercent = floor(100 * doneCount.toDouble / tot).toInt
+          val donePercent = 100 * doneCount.toDouble / tot
           val done = floor(width * doneCount.toDouble / tot).toInt
           val active = ceil(width * activeCount.toDouble / tot).toInt
           val waiting = width - done - active
-          writeSubTitle(sb, scenarioName)
-            .append(Eol)
-            .append('[')
-            .append("#" * done)
-            .append("-" * active)
-            .append(" " * waiting)
-            .append(']')
-            .append(donePercent.toString.leftPad(3))
-            .append('%')
-            .append(Eol)
-            .append("          waiting: ")
-            .append(waitingCount.toString.rightPad(6))
-            .append(" / active: ")
-            .append(activeCount.toString.rightPad(6))
-            .append(" / done: ")
-            .append(doneCount.toString.rightPad(6))
+          sb.append(
+            s"""${formatSubTitle(scenarioName)}
+               |[${"#" * done}${"|" * active}${" " * waiting}]${s"${donePercent.toPrintableString}%".leftPad(6)}
+               |          waiting: ${formatNumber(waitingCount)} / active: ${formatNumber(activeCount)}  / done: ${formatNumber(doneCount)}""".stripMargin
+          )
 
         case _ =>
           // Don't display progression for closed workload model, nor when tot is broken, it doesn't make sense
-          writeSubTitle(sb, scenarioName)
-            .append(Eol)
-            .append("          active: ")
-            .append(activeCount.toString.rightPad(6))
-            .append(" / done: ")
-            .append(doneCount.toString.rightPad(6))
+          sb.append(s"""${formatSubTitle(scenarioName)}
+                       |          active: ${formatNumber(activeCount)}  / done: ${formatNumber(doneCount)}""".stripMargin)
       }
     }
 
     def writeRequestsCounter(sb: jl.StringBuilder, actionName: String, requestCounters: RequestCounters): jl.StringBuilder = {
       import requestCounters._
-      val maxActionNameLength = OutputLength - 24
-      sb.append("> ")
-        .append(actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength))
-        .append(" (OK=")
-        .append(successfulCount.toString.rightPad(6))
-        .append(" KO=")
-        .append(failedCount.toString.rightPad(6))
-        .append(')')
+      val maxActionNameLength = ConsoleWidth - HeaderLength - 3 * (NumberLength + 3)
+      sb.append(
+        s"$Header${actionName.truncate(maxActionNameLength).rightPad(maxActionNameLength)} | ${formatNumber(successfulCount + failedCount)} | ${formatNumber(successfulCount)} | ${formatNumber(failedCount)}"
+      )
     }
 
     def writeDetailedRequestsCounter(sb: jl.StringBuilder): jl.StringBuilder = {
@@ -109,10 +90,10 @@ private[gatling] object ConsoleSummary {
       if (errorsCounters.nonEmpty) {
         val errorsTotal = errorsCounters.values.sum
 
-        writeSubTitle(sb, "Errors").append(Eol)
+        sb.append(formatSubTitle("Errors")).append(Eol)
 
         errorsCounters.toSeq.sortBy(-_._2).foreach { case (message, count) =>
-          ConsoleErrorsWriter.writeError(sb, new ErrorStats(message, count, errorsTotal)).append(Eol)
+          writeError(sb, new ErrorStats(message, count, errorsTotal)).append(Eol)
         }
       }
       sb
@@ -120,15 +101,12 @@ private[gatling] object ConsoleSummary {
 
     val formattedTime = dateTimeFormatter.format(time)
     val sb = new jl.StringBuilder()
-      .append(Eol)
-      .append(NewBlock)
-      .append(Eol)
-      .append(formattedTime)
-      .append(' ')
-      .append((runDuration.toString + "s elapsed").leftPad(OutputLength - formattedTime.length - 9))
-      .append(Eol)
+      .append(s"""
+                 |$NewBlock
+                 |$formattedTime ${(runDuration.toString + "s elapsed").leftPad(ConsoleWidth - formattedTime.length - 9)}
+                 |${formatSubTitleWithStatuses("Requests")}
+                 |""".stripMargin)
 
-    writeSubTitle(sb, "Requests").append(Eol)
     writeRequestsCounter(sb, "Global", globalRequestCounters).append(Eol)
     writeDetailedRequestsCounter(sb).append(Eol)
     writeErrors(sb).append(Eol)

@@ -17,9 +17,9 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.component.Stats.printable
-import io.gatling.charts.stats.GeneralStats
 import io.gatling.charts.util.JsHelper._
+import io.gatling.core.stats.NoPlotMagicValue
+import io.gatling.core.stats.writer.ConsoleStatsFormat
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
@@ -40,10 +40,10 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
     def style[T: Numeric](value: T) =
       if (raw) {
         // raw mode is used for JSON extract, non-raw for displaying in the reports
-        if (implicitly[Numeric[T]].toInt(value) == GeneralStats.NoPlotMagicValue) "0"
+        if (implicitly[Numeric[T]].toInt(value) == NoPlotMagicValue) "0"
         else value.toString
       } else
-        s""""${printable(value)}""""
+        s""""${ConsoleStatsFormat.formatNumber(value)}""""
 
     s"""{
     "name": "${escapeJsIllegalChars(name)}",

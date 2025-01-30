@@ -39,7 +39,7 @@ private[charts] class StatsReportGenerator(
 
   def generate(): Unit = {
     def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
-      new Stats(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
+      new Stats(title(rank) + " (ms)", total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
     def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
       val total = logFileData.requestGeneralStats(requestName, group, None)
@@ -57,16 +57,16 @@ private[charts] class StatsReportGenerator(
         name,
         path,
         numberOfRequestsStatistics = new Stats("request count", total.count, ok.count, ko.count),
-        minResponseTimeStatistics = new Stats("min response time", total.min, ok.min, ko.min),
-        maxResponseTimeStatistics = new Stats("max response time", total.max, ok.max, ko.max),
-        meanResponseTimeStatistics = new Stats("mean response time", total.mean, ok.mean, ko.mean),
-        stdDeviationStatistics = new Stats("std deviation", total.stdDev, ok.stdDev, ko.stdDev),
+        minResponseTimeStatistics = new Stats("min response time (ms)", total.min, ok.min, ko.min),
+        maxResponseTimeStatistics = new Stats("max response time (ms)", total.max, ok.max, ko.max),
+        meanResponseTimeStatistics = new Stats("mean response time (ms)", total.mean, ok.mean, ko.mean),
+        stdDeviationStatistics = new Stats("response time std deviation (ms)", total.stdDev, ok.stdDev, ko.stdDev),
         percentiles1 = percentiles(configuration.indicators.percentile1, percentilesTitle, total, ok, ko),
         percentiles2 = percentiles(configuration.indicators.percentile2, percentilesTitle, total, ok, ko),
         percentiles3 = percentiles(configuration.indicators.percentile3, percentilesTitle, total, ok, ko),
         percentiles4 = percentiles(configuration.indicators.percentile4, percentilesTitle, total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(requestName, group),
-        meanNumberOfRequestsPerSecondStatistics = new Stats("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        meanNumberOfRequestsPerSecondStatistics = new Stats("mean throughput (req/sec)", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
       )
     }
 

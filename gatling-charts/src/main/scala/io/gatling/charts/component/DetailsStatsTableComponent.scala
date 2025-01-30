@@ -16,18 +16,9 @@
 
 package io.gatling.charts.component
 
-import io.gatling.charts.stats.{ GeneralStats, Ranges }
+import io.gatling.charts.stats.Ranges
 import io.gatling.core.config.IndicatorsConfiguration
 import io.gatling.shared.util.NumberHelper._
-
-private[charts] object Stats {
-  def printable[T: Numeric](value: T): String =
-    value match {
-      case GeneralStats.NoPlotMagicValue => "-"
-      case _: Int | _: Long              => value.toString
-      case _                             => implicitly[Numeric[T]].toDouble(value).toPrintableString
-    }
-}
 
 private[charts] final class Stats[T: Numeric](val name: String, val total: T, val success: T, val failure: T)
 

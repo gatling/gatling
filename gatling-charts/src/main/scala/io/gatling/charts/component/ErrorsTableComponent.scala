@@ -47,7 +47,7 @@ private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extend
 		    <tr>
 		    	<td class="error-col-1 total ko">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total ko">${error.count}</td>
-		    	<td class="value error-col-3 total ko">${error.percentage.toPrintableString} %</td>
+		    	<td class="value error-col-3 total ko">${error.percentage.toPrintableString}%</td>
 		    </tr>"""
         }.mkString}
 		</tbody>

@@ -54,7 +54,8 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe false
-    progressBar(summary) shouldBe "[                                                                          ]  0%"
+
+    progressBar(summary) shouldBe "[                                                                                                                ]    0%"
   }
 
   it should "handle it correctly when all the users are active" in {
@@ -72,7 +73,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe false
-    progressBar(summary) shouldBe "[--------------------------------------------------------------------------]  0%"
+    progressBar(summary) shouldBe "[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||]    0%"
   }
 
   it should "handle it correctly when all the users are done" in {
@@ -91,7 +92,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe true
-    progressBar(summary) shouldBe "[##########################################################################]100%"
+    progressBar(summary) shouldBe "[################################################################################################################]  100%"
   }
 
   it should "handle it correctly when there are active and done users" in {
@@ -110,7 +111,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe false
-    progressBar(summary) shouldBe "[###################################################################-------] 90%"
+    progressBar(summary) shouldBe "[#####################################################################################################|||||||||||]90.91%"
   }
 
   "console summary" should "display requests without errors" in {
@@ -128,9 +129,9 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
     )
 
     val actual = requestsInfo(summary)
-    actual shouldBe """---- Requests ------------------------------------------------------------------
-                      |> Global                                                   (OK=20     KO=0     )
-                      |> request1                                                 (OK=20     KO=0     )""".stripMargin
+    actual shouldBe """---- Requests -----------------------------------------------------------------------|---Total---|-----OK----|----KO----
+                      |> Global                                                                             |        20 |        20 |         0
+                      |> request1                                                                           |        20 |        20 |         0""".stripMargin
   }
 
   it should "display requests with multiple errors" in {
@@ -150,10 +151,10 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
 
     val output = errorsInfo(summary1)
 
-    output shouldBe s"""|---- Errors --------------------------------------------------------------------
-                        |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
-                        |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)""".stripMargin
-    all(output.linesIterator.map(_.length).toSet) shouldBe <=(80)
+    output shouldBe """---- Errors ------------------------------------------------------------------------------------------------------------
+                      |> error1                                                                                                     19    (95%)
+                      |> error2                                                                                                      1     (5%)""".stripMargin
+    all(output.linesIterator.map(_.length).toSet) shouldBe <=(120)
   }
 
   it should "display requests with high number of errors" in {
@@ -173,10 +174,10 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
     )
 
     val output = errorsInfo(summary)
-
-    output shouldBe s"""|---- Errors --------------------------------------------------------------------
-                        |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
-                        |do eiusmod tempor incididunt ut labore et dolore magna aliqua....""".stripMargin
-    all(output.linesIterator.map(_.length).toSet) shouldBe <=(80)
+    println(output)
+    output shouldBe """---- Errors ------------------------------------------------------------------------------------------------------------
+                      |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labor   123,456   (100%)
+                      |e et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ...""".stripMargin
+    all(output.linesIterator.map(_.length).toSet) shouldBe <=(120)
   }
 }

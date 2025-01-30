@@ -44,7 +44,14 @@ object StringHelper {
       case s  => Some(s)
     }
 
-    def truncate(maxLength: Int): String = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
+    def truncate(maxLength: Int): String =
+      if (string.length <= maxLength) {
+        string
+      } else if (maxLength < 3) {
+        string.substring(0, maxLength)
+      } else {
+        string.substring(0, maxLength - 3) + "..."
+      }
 
     def leftPad(length: Int): String = leftPad(length, " ")
     def leftPad(length: Int, padder: String): String = {

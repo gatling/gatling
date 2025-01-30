@@ -19,68 +19,53 @@ package io.gatling.charts.template
 import java.{ lang => jl }
 
 import io.gatling.charts.component.{ RequestStatistics, Stats }
-import io.gatling.charts.component.Stats.printable
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.stats.ErrorStats
-import io.gatling.core.stats.writer.ConsoleErrorsWriter
+import io.gatling.core.stats.writer.ConsoleStatsFormat._
 import io.gatling.core.stats.writer.ConsoleSummary._
-import io.gatling.shared.util.NumberHelper._
 
 private[charts] object ConsoleTemplate {
-  private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Stats[T]): jl.StringBuilder = {
+  private[template] def writeRequestCounters[T: Numeric](statistics: Stats[T]): String = {
     import statistics._
-    sb.append("> ")
-      .append(name.rightPad(OutputLength - 32))
-      .append(' ')
-      .append(printable(total).leftPad(7))
-      .append(" (OK=")
-      .append(printable(success).rightPad(6))
-      .append(" KO=")
-      .append(printable(failure).rightPad(6))
-      .append(')')
+    s"$Header${name.rightPad(ConsoleWidth - HeaderLength - 3 * (NumberLength + 3))} | ${formatNumber(total)} | ${formatNumber(success)} | ${formatNumber(failure)}"
   }
 
-  private[template] def writeRange(sb: jl.StringBuilder, textLabel: String, count: Int, percentage: Double): jl.StringBuilder =
-    sb.append("> ")
-      .append(textLabel.rightPad(OutputLength - 32))
-      .append(' ')
-      .append(count.toString.leftPad(7))
-      .append(" (")
-      .append(percentage.toPrintableString.leftPad(6))
-      .append("%)")
+  private[template] def writeRange(textLabel: String, count: Int, percentage: Double): String =
+    s"$Header${textLabel.rightPad(ConsoleWidth - HeaderLength - NumberLength - PercentageLength - 2)} ${formatNumber(count)} ${formatPercentage(percentage)}"
 
-  private[template] def writeErrorsAndEndBlock(sb: jl.StringBuilder, errors: Seq[ErrorStats]): jl.StringBuilder = {
+  private[template] def writeErrorsBlock(sb: jl.StringBuilder, errors: Seq[ErrorStats]): jl.StringBuilder = {
     if (errors.nonEmpty) {
-      writeSubTitle(sb, "Errors").append(Eol)
-      errors.foreach(ConsoleErrorsWriter.writeError(sb, _).append(Eol))
+      sb.append(formatSubTitle("Errors")).append(Eol)
+      errors.foreach(writeError(sb, _).append(Eol))
     }
-    sb.append(NewBlock)
+    sb
   }
 
   def println(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]): String = {
     import requestStatistics._
 
     val sb = new jl.StringBuilder()
-      .append(Eol)
-      .append(NewBlock)
-      .append(Eol)
+      .append(s"""
+                 |$NewBlock
+                 |${formatSubTitleWithStatuses("Global Information")}
+                 |${writeRequestCounters(numberOfRequestsStatistics)}
+                 |${writeRequestCounters(minResponseTimeStatistics)}
+                 |${writeRequestCounters(maxResponseTimeStatistics)}
+                 |${writeRequestCounters(meanResponseTimeStatistics)}
+                 |${writeRequestCounters(stdDeviationStatistics)}
+                 |${writeRequestCounters(percentiles1)}
+                 |${writeRequestCounters(percentiles2)}
+                 |${writeRequestCounters(percentiles3)}
+                 |${writeRequestCounters(percentiles4)}
+                 |${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
+                 |${"---- Response Time Distribution ".rightPad(ConsoleWidth, "-")}
+                 |${writeRange(s"OK: t < ${ranges.lowerBound} ms", ranges.lowCount, ranges.lowPercentage)}
+                 |${writeRange(s"OK: ${ranges.lowerBound} ms <= t < ${ranges.higherBound} ms", ranges.middleCount, ranges.middlePercentage)}
+                 |${writeRange(s"OK: t >= ${ranges.higherBound} ms", ranges.highCount, ranges.highPercentage)}
+                 |${writeRange("KO", ranges.koCount, ranges.koPercentage)}
+                 |""".stripMargin)
 
-    writeSubTitle(sb, "Global Information").append(Eol)
-    writeRequestCounters(sb, numberOfRequestsStatistics).append(Eol)
-    writeRequestCounters(sb, minResponseTimeStatistics).append(Eol)
-    writeRequestCounters(sb, maxResponseTimeStatistics).append(Eol)
-    writeRequestCounters(sb, meanResponseTimeStatistics).append(Eol)
-    writeRequestCounters(sb, stdDeviationStatistics).append(Eol)
-    writeRequestCounters(sb, percentiles1).append(Eol)
-    writeRequestCounters(sb, percentiles2).append(Eol)
-    writeRequestCounters(sb, percentiles3).append(Eol)
-    writeRequestCounters(sb, percentiles4).append(Eol)
-    writeRequestCounters(sb, meanNumberOfRequestsPerSecondStatistics).append(Eol)
-    writeSubTitle(sb, "Response Time Distribution").append(Eol)
-    writeRange(sb, s"t < ${ranges.lowerBound} ms", ranges.lowCount, ranges.lowPercentage).append(Eol)
-    writeRange(sb, s"${ranges.lowerBound} ms <= t < ${ranges.higherBound} ms", ranges.middleCount, ranges.middlePercentage).append(Eol)
-    writeRange(sb, s"t >= ${ranges.higherBound} ms", ranges.highCount, ranges.highPercentage).append(Eol)
-    writeRange(sb, "failed", ranges.koCount, ranges.koPercentage).append(Eol)
-    writeErrorsAndEndBlock(sb, errors).append(Eol).toString
+    writeErrorsBlock(sb, errors)
+    sb.append(NewBlock).append(Eol).toString
   }
 }

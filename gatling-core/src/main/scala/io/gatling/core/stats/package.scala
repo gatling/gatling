@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package io.gatling.charts.stats
+package io.gatling.core
 
-import io.gatling.core.stats.NoPlotMagicValue
-
-object GeneralStats {
-  val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
+package object stats {
+  val NoPlotMagicValue: Int = -1
 }
-
-final case class GeneralStats(min: Int, max: Int, count: Long, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)
