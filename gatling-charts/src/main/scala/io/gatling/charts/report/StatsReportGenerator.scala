@@ -66,7 +66,7 @@ private[charts] class StatsReportGenerator(
         percentiles3 = percentiles(configuration.indicators.percentile3, percentilesTitle, total, ok, ko),
         percentiles4 = percentiles(configuration.indicators.percentile4, percentilesTitle, total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(requestName, group),
-        meanNumberOfRequestsPerSecondStatistics = new Stats("mean throughput (req/sec)", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        meanNumberOfRequestsPerSecondStatistics = new Stats("mean throughput (rps)", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
       )
     }
 
