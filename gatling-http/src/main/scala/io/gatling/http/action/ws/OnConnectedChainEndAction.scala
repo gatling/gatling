@@ -33,7 +33,7 @@ object OnConnectedChainEndAction {
   def setOnConnectedChainEndCallback(session: Session, callback: Session => Unit): Session =
     session.set(OnConnectedChainEndCallback, callback)
 
-  def removeOnConnectedChainEndCallback(session: Session): Session =
+  private def removeOnConnectedChainEndCallback(session: Session): Session =
     session.remove(OnConnectedChainEndAction.OnConnectedChainEndCallback)
 }
 

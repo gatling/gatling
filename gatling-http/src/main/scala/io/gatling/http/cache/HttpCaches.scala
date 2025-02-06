@@ -18,7 +18,6 @@ package io.gatling.http.cache
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.SuccessWrapper
-import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 

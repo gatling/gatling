@@ -32,7 +32,7 @@ import net.sf.saxon.s9api.XdmNodeKind
  * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
  */
 object SitemapParser {
-  val LocationTag = "loc"
+  private val LocationTag = "loc"
 
   /**
    * Parse file in sitemap format. Returns a Record for each location described in a sitemap file.
@@ -76,4 +76,4 @@ object SitemapParser {
   }
 }
 
-class SitemapFormatException(msg: String) extends Exception
+final class SitemapFormatException(msg: String) extends Exception(msg)

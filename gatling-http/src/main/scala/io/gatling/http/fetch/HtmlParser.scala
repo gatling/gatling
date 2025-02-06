@@ -28,7 +28,6 @@ import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
-import jodd.util.CharSequenceUtil
 
 private[fetch] sealed abstract class RawResource {
   def rawUrl: String
@@ -70,7 +69,7 @@ private[gatling] object HtmlParser extends StrictLogging {
   private val IconRelValue = "icon"
   private val ShortcutIconRelValue = "shortcut icon"
 
-  def logException(htmlContent: Array[Char], e: Throwable): Unit =
+  private def logException(htmlContent: Array[Char], e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
       logger.debug(
         s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
@@ -89,7 +88,7 @@ ${new String(htmlContent)}
 class HtmlParser extends StrictLogging {
   import HtmlParser._
 
-  var inStyle = false
+  private var inStyle = false
 
   private def parseHtml(htmlContent: Array[Char]): HtmlResources = {
     var base: Option[String] = None

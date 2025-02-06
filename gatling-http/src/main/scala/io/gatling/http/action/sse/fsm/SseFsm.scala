@@ -133,9 +133,6 @@ final class SseFsm(
   def onSseReceived(message: String): Unit =
     execute(currentState.onSseReceived(message, clock.nowMillis))
 
-  def onSseEndOfStream(): Unit =
-    execute(currentState.onSseStreamClosed(clock.nowMillis))
-
   def onSseStreamClosed(): Unit =
     execute(currentState.onSseStreamClosed(clock.nowMillis))
 

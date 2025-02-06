@@ -34,14 +34,14 @@ import io.gatling.http.util.HttpHelper._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
-private[http] object ResourceFetcher extends StrictLogging {
-  def applyResourceFilters(resources: List[ConcurrentResource], filters: Option[Filters]): List[ConcurrentResource] =
+private object ResourceFetcher extends StrictLogging {
+  private def applyResourceFilters(resources: List[ConcurrentResource], filters: Option[Filters]): List[ConcurrentResource] =
     filters match {
       case Some(f) => f.filter(resources)
       case _       => resources
     }
 
-  def resourcesToRequests(
+  private def resourcesToRequests(
       resources: List[ConcurrentResource],
       session: Session,
       httpCaches: HttpCaches,

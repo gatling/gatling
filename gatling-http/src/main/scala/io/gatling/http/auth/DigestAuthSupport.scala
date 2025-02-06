@@ -33,7 +33,7 @@ private[http] object DigestAuthSupport extends StrictLogging {
   private def getStore(session: Session): Option[DigestAuthChallengeStore] =
     session.attributes.get(DigestAuthChallengesAttributeName).map(_.asInstanceOf[DigestAuthChallengeStore])
 
-  def getAuthorization(session: Session, requestMethod: HttpMethod, requestUri: Uri, username: String, password: String): Option[String] =
+  private def getAuthorization(session: Session, requestMethod: HttpMethod, requestUri: Uri, username: String, password: String): Option[String] =
     for {
       store <- getStore(session)
       authorization <- store.getAuthorization(requestMethod, requestUri, username, password)

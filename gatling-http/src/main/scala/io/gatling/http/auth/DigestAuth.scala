@@ -57,7 +57,7 @@ object DigestAuth {
     Base64.getEncoder.encodeToString(b)
   }
 
-  def hash(s: String, md: MessageDigest): String = toHexString(md.digest(s.getBytes(UTF_8)))
+  private def hash(s: String, md: MessageDigest): String = toHexString(md.digest(s.getBytes(UTF_8)))
 
   def generateAuthorization(challenge: Challenge, username: String, password: String, requestMethod: HttpMethod, requestUri: Uri, nc: Int): String =
     generateAuthorization0(challenge, username, password, requestMethod, requestUri, nc, newCnonce())

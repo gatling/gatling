@@ -66,16 +66,16 @@ private[fetch] final class DefaultResourceAggregator(
   private val throttled = rootTx.request.requestConfig.throttled
   private val httpProtocol = rootTx.request.requestConfig.httpProtocol
   private val http2Enabled = httpProtocol.enginePart.enableHttp2
+  private val maxConnectionsPerHost = httpProtocol.enginePart.maxConnectionsPerHost
+  private val startTimestamp = clock.nowMillis
 
   // mutable state
   private var session: Session = _
   private val alreadySeen = mutable.Set.empty[Uri]
   private val bufferedResourcesByHost = mutable.LinkedHashMap.empty[Remote, List[HttpRequest]].withDefaultValue(Nil)
-  private val maxConnectionsPerHost = httpProtocol.enginePart.maxConnectionsPerHost
   private val availableTokensByHost = mutable.HashMap.empty[Remote, Int].withDefaultValue(maxConnectionsPerHost)
   private var pendingResourcesCount = 0
   private var globalStatus: Status = OK
-  private val startTimestamp = clock.nowMillis
 
   override def currentSession: Session = session
 

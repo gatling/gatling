@@ -34,7 +34,7 @@ final case class ServerSentEvent(
       sb.append("\"id\":\"").append(value).append("\",")
     }
     data.foreach { value =>
-      sb.append("\"data\":\"").append(Json.stringify(value, true)).append("\",")
+      sb.append("\"data\":\"").append(Json.stringify(value, isRootObject = true)).append("\",")
     }
     retry.foreach { value =>
       sb.append("\"retry\":").append(retry).append(",")

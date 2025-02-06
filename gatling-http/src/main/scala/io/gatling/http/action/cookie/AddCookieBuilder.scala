@@ -23,7 +23,7 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.storeCookie
 
-import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
+import io.netty.handler.codec.http.cookie.DefaultCookie
 
 object AddCookieBuilder {
   def apply(cookie: AddCookieDsl): AddCookieBuilder =
