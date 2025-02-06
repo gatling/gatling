@@ -107,6 +107,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {
     require(!res.contains(null), "resources can't contain null elements. Forward reference issue?")
+    require(!res.exists(_.httpAttributes.explicitResources.nonEmpty), "resources can't have resources themselves")
     this.modify(_.httpAttributes.explicitResources)(_ ::: res.toList)
   }
 
