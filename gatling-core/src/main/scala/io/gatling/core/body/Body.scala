@@ -51,29 +51,31 @@ final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends BodyWithB
 }
 
 object ElBody {
-  sealed trait ElBodyPart extends Product with Serializable
-  final case class StaticElBodyPart(stringWithCachedBytes: StringWithCachedBytes) extends ElBodyPart
-  final case class DynamicElBodyPart(string: Expression[String], charset: Charset) extends ElBodyPart
+  sealed trait Part extends Product with Serializable
+  object Part {
+    final case class Static(stringWithCachedBytes: StringWithCachedBytes) extends Part
+    final case class Dynamic(string: Expression[String], charset: Charset) extends Part
+  }
 
   @throws[ElParserException]
-  private[body] def toParts(string: String, charset: Charset): List[ElBody.ElBodyPart] =
+  private[body] def toParts(string: String, charset: Charset): List[ElBody.Part] =
     ElCompiler.parse(string).map {
-      case StaticPart(string) => StaticElBodyPart(new StringWithCachedBytes(string, charset))
-      case part               => DynamicElBodyPart(part.map(_.toString), charset)
+      case StaticPart(string) => Part.Static(new StringWithCachedBytes(string, charset))
+      case part               => Part.Dynamic(part.map(_.toString), charset)
     }
 
   def apply(string: String, charset: Charset): BodyWithStringExpression =
     ElBody(toParts(string, charset).expressionSuccess)
 }
 
-final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends BodyWithStringExpression {
+final case class ElBody(partsE: Expression[List[ElBody.Part]]) extends BodyWithStringExpression {
   override def apply(session: Session): Validation[String] =
     for {
       parts <- partsE(session)
       stringBuilder <- parts.foldLeft(StringBuilderPool.DEFAULT.get().success) { (sbV, elPart) =>
         elPart match {
-          case ElBody.StaticElBodyPart(stringWithCachedBytes) => sbV.map(_.append(stringWithCachedBytes.string))
-          case ElBody.DynamicElBodyPart(stringE, _) =>
+          case ElBody.Part.Static(stringWithCachedBytes) => sbV.map(_.append(stringWithCachedBytes.string))
+          case ElBody.Part.Dynamic(stringE, _) =>
             for {
               sb <- sbV
               string <- stringE(session)
@@ -88,8 +90,8 @@ final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Bod
         parts <- partsE(session)
         reversedBytes <- parts.foldLeft(List.empty[StringWithCachedBytes].success) { (accV, elPart) =>
           elPart match {
-            case ElBody.StaticElBodyPart(stringWithCachedBytes) => accV.map(stringWithCachedBytes :: _)
-            case ElBody.DynamicElBodyPart(stringE, charset) =>
+            case ElBody.Part.Static(stringWithCachedBytes) => accV.map(stringWithCachedBytes :: _)
+            case ElBody.Part.Dynamic(stringE, charset) =>
               for {
                 acc <- accV
                 string <- stringE(session)

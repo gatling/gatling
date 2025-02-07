@@ -41,7 +41,7 @@ sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
     }
   }
 
-  def safeGetGroupValue(matcher: Matcher, i: Int): String =
+  private def safeGetGroupValue(matcher: Matcher, i: Int): String =
     if (matcher.groupCount >= i)
       Option(matcher.group(i)).getOrElse("")
     else {

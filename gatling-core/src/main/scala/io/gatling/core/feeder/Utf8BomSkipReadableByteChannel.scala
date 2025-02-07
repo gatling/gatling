@@ -50,5 +50,5 @@ private class Utf8BomSkipReadableByteChannel(channel: ReadableByteChannel) exten
 
   override def close(): Unit = channel.close()
 
-  override def isOpen(): Boolean = channel.isOpen()
+  override def isOpen: Boolean = channel.isOpen
 }

@@ -26,7 +26,7 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 
 final class ElFileBodies(charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
-  private def compileFile(path: String): Validation[List[ElBody.ElBodyPart]] =
+  private def compileFile(path: String): Validation[List[ElBody.Part]] =
     cachedResource(path).flatMap { resource =>
       safely() {
         val string = resource.string(charset)
@@ -34,10 +34,10 @@ final class ElFileBodies(charset: Charset, cacheMaxCapacity: Long) extends Resou
       }
     }
 
-  private val elFileBodyPartsCache: LoadingCache[String, Validation[List[ElBody.ElBodyPart]]] =
+  private val elFileBodyPartsCache: LoadingCache[String, Validation[List[ElBody.Part]]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, compileFile)
 
-  def parse(filePath: Expression[String]): Expression[List[ElBody.ElBodyPart]] =
+  def parse(filePath: Expression[String]): Expression[List[ElBody.Part]] =
     filePath match {
       case StaticValueExpression(path) =>
         elFileBodyPartsCache.get(path) match {

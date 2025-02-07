@@ -20,6 +20,8 @@ import scala.util.control.NonFatal
 
 import io.gatling.core.actor.{ Actor, Behavior }
 
+private[gatling] trait DataWriterData
+
 /**
  * Abstract class for all DataWriters
  *

@@ -58,7 +58,7 @@ object NeitherValidableNorString {
   type DoesNotContain[X] = Exclude[NeitherValidableNorString, X]
 }
 
-class NoUnexpectedValidationLifting[T](value: T) {
+final class NoUnexpectedValidationLifting[T](value: T) {
   def map[A](f: T => A): Validation[A] = throw new UnsupportedOperationException("Not supposed to be ever called")
   def flatMap[A](f: T => Validation[A]): Validation[A] = throw new UnsupportedOperationException("Not supposed to be ever called")
   def mapError(f: String => String): Validation[T] = throw new UnsupportedOperationException("Not supposed to be ever called")

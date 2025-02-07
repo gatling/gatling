@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.PushbackIterator
 
 private object UserStreamBatchResult {
-  val Empty = UserStreamBatchResult(0, continue = false)
+  val Empty: UserStreamBatchResult = UserStreamBatchResult(0, continue = false)
 }
 
 private final case class UserStreamBatchResult(count: Long, continue: Boolean)

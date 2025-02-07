@@ -35,5 +35,5 @@ final class JsonPaths(cacheMaxCapacity: Long) {
   def extractAll[X: JsonFilter](json: JsonNode, expression: String): Validation[Iterator[X]] =
     compileJsonPath(expression).map(_.query(json).collect(JsonFilter[X].filter))
 
-  def compileJsonPath(expression: String): Validation[JsonPath] = jsonPathCache.get(expression)
+  private def compileJsonPath(expression: String): Validation[JsonPath] = jsonPathCache.get(expression)
 }

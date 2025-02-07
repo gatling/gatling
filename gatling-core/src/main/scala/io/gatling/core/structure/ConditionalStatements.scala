@@ -179,7 +179,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    *   the possible subchains
    * @param elseChain
    *   first fallback subchain
-   * @param elseChains
+   * @param otherChains
    *   other fallback subchains
    * @return
    *   a new builder with a random switch added to its actions
