@@ -25,7 +25,7 @@ import io.github.metarank.cfor._
 
 private[charts] object HtmlHelper {
   private val charToHtml: Map[Char, String] =
-    Using.resource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
+    Using.resource(Source.fromResource("html-entities.properties", getClass.getClassLoader)(Codec.UTF8)) { source =>
       source
         .getLines()
         .collect {

@@ -22,7 +22,7 @@ import scala.util.Using
 
 object Utils {
   def resourceAsString(res: String, charset: Charset): String = {
-    Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream(res)) { is =>
+    Using.resource(getClass.getClassLoader.getResourceAsStream(res)) { is =>
       is.toString(charset)
     }
   }

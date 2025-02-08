@@ -29,7 +29,7 @@ import org.scalatest.matchers.should.Matchers
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 class HarReaderSpec extends AnyFlatSpecLike with Matchers {
   private def readHar(file: String, filters: Option[Filters]): Seq[HttpTransaction] =
-    Using.resource(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
+    Using.resource(getClass.getClassLoader.getResourceAsStream("har/" + file)) { is =>
       HarReader.readStream(is, filters)
     }
 

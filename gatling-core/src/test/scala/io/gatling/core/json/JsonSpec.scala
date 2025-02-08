@@ -111,7 +111,7 @@ class JsonSpec extends AnyFlatSpecLike with Matchers {
   }
 
   "asScala" should "deep convert into Scala structures" in {
-    val input = Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
+    val input = Using.resource(getClass.getClassLoader.getResourceAsStream("test.json")) { is =>
       new JsonParsers().parse(is)
     }
 

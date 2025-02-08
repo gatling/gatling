@@ -32,7 +32,7 @@ class XPathExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationVa
   private val xmlParsers = new XmlParsers(Long.MaxValue)
 
   private def dom(file: String): XdmNode =
-    Using.resource(getClass.getResourceAsStream(file)) { is =>
+    Using.resource(getClass.getClassLoader.getResourceAsStream(file)) { is =>
       XmlParsers.parse(is, UTF_8)
     }
 
@@ -52,58 +52,58 @@ class XPathExtractorSpec extends AnyFlatSpecLike with Matchers with ValidationVa
   }
 
   "count" should "return expected result with anywhere expression" in {
-    testCount("//author", "/test.xml", 4)
+    testCount("//author", "test.xml", 4)
   }
 
   it should "return expected result with array expression" in {
-    testCount("/test/store/book[3]/author", "/test.xml", 1)
+    testCount("/test/store/book[3]/author", "test.xml", 1)
   }
 
   it should "return Some(0) when no results" in {
-    testCount("/foo", "/test.xml", 0)
+    testCount("/foo", "test.xml", 0)
   }
 
   "extractSingle" should "return expected result with anywhere expression and rank 0" in {
-    testSingle("//author", namespaces, 0, "/test.xml", Some("Nigel Rees"))
+    testSingle("//author", namespaces, 0, "test.xml", Some("Nigel Rees"))
   }
 
   it should "support name()" in {
-    testSingle("//*[name()='author']", namespaces, 0, "/test.xml", Some("Nigel Rees"))
+    testSingle("//*[name()='author']", namespaces, 0, "test.xml", Some("Nigel Rees"))
   }
 
   it should "return expected result with anywhere expression and rank 1" in {
-    testSingle("//author", namespaces, 1, "/test.xml", Some("Evelyn Waugh"))
+    testSingle("//author", namespaces, 1, "test.xml", Some("Evelyn Waugh"))
   }
 
   it should "return expected result with array expression" in {
-    testSingle("/test/store/book[3]/author", namespaces, 0, "/test.xml", Some("Herman Melville"))
+    testSingle("/test/store/book[3]/author", namespaces, 0, "test.xml", Some("Herman Melville"))
   }
 
   it should "return expected None with array expression" in {
-    testSingle("/test/store/book[3]/author", namespaces, 1, "/test.xml", None)
+    testSingle("/test/store/book[3]/author", namespaces, 1, "test.xml", None)
   }
 
   it should "return expected result with attribute expression" in {
-    testSingle("/test/store/book[@att = 'foo']/title", namespaces, 0, "/test.xml", Some("Sayings of the Century"))
+    testSingle("/test/store/book[@att = 'foo']/title", namespaces, 0, "test.xml", Some("Sayings of the Century"))
   }
 
   it should "return expected result with last function expression" in {
-    testSingle("//book[last()]/title", namespaces, 0, "/test.xml", Some("The Lord of the Rings"))
+    testSingle("//book[last()]/title", namespaces, 0, "test.xml", Some("The Lord of the Rings"))
   }
 
   it should "support default namespace" in {
-    testSingle("//pre:name", Map("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "/test2.xml", Some("HR"))
+    testSingle("//pre:name", Map("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "test2.xml", Some("HR"))
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {
-    testMultiple("//author", namespaces, "/test.xml", Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+    testMultiple("//author", namespaces, "test.xml", Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
 
   it should "return expected result with array expression" in {
-    testMultiple("/test/store/book[3]/author", namespaces, "/test.xml", Some(List("Herman Melville")))
+    testMultiple("/test/store/book[3]/author", namespaces, "test.xml", Some(List("Herman Melville")))
   }
 
   it should "return expected result with anywhere namespaced element" in {
-    testMultiple("//foo:bar", namespaces, "/test.xml", Some(List("fooBar")))
+    testMultiple("//foo:bar", namespaces, "test.xml", Some(List("fooBar")))
   }
 }

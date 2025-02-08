@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[charts] object ComponentLibrary extends StrictLogging {
   val Instance: ComponentLibrary =
-    ServiceLoader.load(classOf[ComponentLibrary]).iterator().asScala.toList match {
+    ServiceLoader.load(classOf[ComponentLibrary], getClass.getClassLoader).iterator().asScala.toList match {
       case Nil         => throw new IllegalStateException("Couldn't find a ComponentLibrary implementation")
       case single :: _ => single
       case multiple    => throw new IllegalStateException(s"Found multiple ComponentLibrary implementations: $multiple")

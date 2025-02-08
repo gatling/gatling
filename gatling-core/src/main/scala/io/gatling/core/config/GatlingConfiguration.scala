@@ -51,8 +51,8 @@ object GatlingConfiguration extends StrictLogging {
     val customConfigFile = sys.props.getOrElse(GatlingCustomConfigFileOverrideSystemProperty, GatlingCustomConfigFile)
     logger.info(s"Gatling will try to load '$customConfigFile' config file as ClassLoader resource.")
 
-    val defaultsConfig = ConfigFactory.parseResources(GatlingDefaultsConfigFile)
-    val customConfig = ConfigFactory.parseResources(customConfigFile)
+    val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
+    val customConfig = ConfigFactory.parseResources(getClass.getClassLoader, customConfigFile)
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, defaultsConfig)
     mapToGatlingConfig(config)
