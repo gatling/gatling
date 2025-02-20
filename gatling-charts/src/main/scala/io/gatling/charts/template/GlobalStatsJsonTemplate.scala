@@ -16,10 +16,20 @@
 
 package io.gatling.charts.template
 
+import java.text.{ DecimalFormat, DecimalFormatSymbols }
+import java.util.Locale
+
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.util.JsHelper._
 import io.gatling.core.stats.NoPlotMagicValue
-import io.gatling.core.stats.writer.ConsoleStatsFormat
+
+private object GlobalStatsJsonTemplate {
+
+  private val Formatter = new DecimalFormat("###.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH))
+
+  def formatNumber[T: Numeric](value: T): String =
+    Formatter.format(implicitly[Numeric[T]].toDouble(value))
+}
 
 @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
 private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
@@ -42,8 +52,13 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
         // raw mode is used for JSON extract, non-raw for displaying in the reports
         if (implicitly[Numeric[T]].toInt(value) == NoPlotMagicValue) "0"
         else value.toString
-      } else
-        s""""${ConsoleStatsFormat.formatNumber(value)}""""
+      } else {
+        val string = value match {
+          case NoPlotMagicValue => "-"
+          case _                => GlobalStatsJsonTemplate.formatNumber(value)
+        }
+        s""""$string""""
+      }
 
     s"""{
     "name": "${escapeJsIllegalChars(name)}",
