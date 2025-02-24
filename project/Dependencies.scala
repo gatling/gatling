@@ -73,9 +73,13 @@ object Dependencies {
   private val h2                             = "com.h2database"                       % "h2"                                % "2.3.232"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.37"              % Test
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.11.4"            % Test
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"                 % "5.12.0"            % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
-  private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"                 % "0.11.1"            % Test
+
+  // Derive the JUnit platform version similarly to how it's done in sbt-jupiter-interface, but with our own JUnit
+  // version so that we don't have to wait for sbt-jupiter-interface releases.
+  private val junitPlatformLauncher          = "org.junit.platform"                   % "junit-platform-launcher"           % junit.revision.replaceFirst("""^5\.""", "1.") % Test
+  private val jupiterInterface               = "com.github.sbt.junit"                 % "jupiter-interface"                 % "0.13.3"            % Test
 
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "9.4.57.v20241219"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
@@ -102,6 +106,7 @@ object Dependencies {
       nettyIoUringLinuxArm,
       junit,
       junitEngine,
+      junitPlatformLauncher,
       jupiterInterface
     )
 
@@ -137,7 +142,7 @@ object Dependencies {
       parserDeps ++ testDeps
 
   val defaultJavaDependencies =
-    Seq(spotbugs, junit, junitEngine, jupiterInterface) ++ testDeps
+    Seq(spotbugs, junit, junitEngine, junitPlatformLauncher, jupiterInterface) ++ testDeps
 
   val coreJavaDependencies =
     Seq(typetools) ++ defaultJavaDependencies
@@ -171,6 +176,7 @@ object Dependencies {
     brotli4jWindows,
     junit,
     junitEngine,
+    junitPlatformLauncher,
     jupiterInterface,
     jetty,
     jettyProxy,
