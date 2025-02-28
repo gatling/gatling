@@ -21,9 +21,8 @@ import java.nio.charset.Charset
 import scala.util.Using
 
 object Utils {
-  def resourceAsString(res: String, charset: Charset): String = {
+  def resourceAsString(res: String, charset: Charset): String =
     Using.resource(getClass.getClassLoader.getResourceAsStream(res)) { is =>
-      is.toString(charset)
+      new String(is.readAllBytes, charset)
     }
-  }
 }
