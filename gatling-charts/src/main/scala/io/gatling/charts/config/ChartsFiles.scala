@@ -24,9 +24,6 @@ import io.gatling.core.config.GatlingFiles
 private[charts] object ChartsFiles {
   private val AllSessionsFile = "all_sessions.js"
   private val StatsJsFile = "stats.js"
-  private val StatsJsonFile = "stats.json"
-  private val GlobalStatsJsonFile = "global_stats.json"
-  private val AssertionsJUnitFile = "assertions.xml"
   val GlobalPageName: String = "Global Information"
   val AllRequestLineTitle: String = "All Requests"
 
@@ -67,10 +64,4 @@ private[charts] class ChartsFiles(runUuid: String, resultsDirectory: Path) {
     resultDirectory.resolve(requestName.toGroupFileName + ".html")
 
   val statsJsFile: Path = jsDirectory.resolve(StatsJsFile)
-
-  val statsJsonFile: Path = jsDirectory.resolve(StatsJsonFile)
-
-  val globalStatsJsonFile: Path = jsDirectory.resolve(GlobalStatsJsonFile)
-
-  val assertionsJUnitFile: Path = jsDirectory.resolve(AssertionsJUnitFile)
 }

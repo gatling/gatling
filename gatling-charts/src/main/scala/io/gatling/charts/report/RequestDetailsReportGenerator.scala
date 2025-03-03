@@ -24,6 +24,7 @@ import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.Collections._
 import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class RequestDetailsReportGenerator(
@@ -76,9 +77,14 @@ private[charts] class RequestDetailsReportGenerator(
         val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
         val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
-        val okPieSlice = new PieSlice(Series.OK, count(counts, OK))
-        val koPieSlice = new PieSlice(Series.KO, count(counts, KO))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Color.Requests.Ok, Color.Requests.Ko))
+        val pieRequestsSeries = new Series[PieSlice](
+          Series.Distribution,
+          List(
+            new PieSlice(Series.OK, counts.sumBy(_.oks)),
+            new PieSlice(Series.KO, counts.sumBy(_.kos))
+          ),
+          List(Color.Requests.Ok, Color.Requests.Ko)
+        )
 
         componentFactory(logFileData.runInfo.injectStart, countsSeries, pieRequestsSeries)
       }

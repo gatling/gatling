@@ -22,7 +22,7 @@ import io.gatling.charts.component.{ RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, RequestPath, RequestStatsPath }
-import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
+import io.gatling.charts.template.{ ConsoleTemplate, StatsDotJsTemplate }
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.ReportsConfiguration
 import io.gatling.shared.util.NumberHelper._
@@ -34,10 +34,11 @@ private[charts] class StatsReportGenerator(
     chartsFiles: ChartsFiles,
     charset: Charset,
     configuration: ReportsConfiguration
-) extends StrictLogging {
+) extends ReportGenerator
+    with StrictLogging {
   import reportsGenerationInputs._
 
-  def generate(): Unit = {
+  override def generate(): Unit = {
     def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
       new Stats(title(rank) + " (ms)", total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
@@ -140,9 +141,7 @@ private[charts] class StatsReportGenerator(
       rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput, charset)
-    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput, charset)
-    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput, charset)
-    println(ConsoleTemplate.println(rootContainer.stats, logFileData.errors(None, None)))
+    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsDotJsTemplate(rootContainer).getOutput, charset)
+    println(new ConsoleTemplate(rootContainer.stats, logFileData.errors(None, None)).getOutput)
   }
 }

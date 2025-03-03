@@ -19,20 +19,21 @@ package io.gatling.charts.template
 import java.text.{ DecimalFormat, DecimalFormatSymbols }
 import java.util.Locale
 
+import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
+import io.gatling.charts.report.Container.{ Group, Request }
+import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.util.JsHelper._
 import io.gatling.core.stats.NoPlotMagicValue
 
-private object GlobalStatsJsonTemplate {
-
+private object StatsDotJsTemplate {
   private val Formatter = new DecimalFormat("###.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH))
 
-  def formatNumber[T: Numeric](value: T): String =
+  private def formatNumber[T: Numeric](value: T): String =
     Formatter.format(implicitly[Numeric[T]].toDouble(value))
 }
 
-@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
-private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
+private[charts] final class StatsDotJsTemplate(rootContainer: GroupContainer) {
 
   private def group(index: Int, label: String, count: Int, percentage: Double): String =
     group(index, label, label, count, percentage)
@@ -45,20 +46,15 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
        |    "percentage": $percentage
        |}""".stripMargin
 
-  def getOutput: String = {
+  private def renderRequestStats(stats: RequestStatistics): String = {
     import stats._
-    def style[T: Numeric](value: T) =
-      if (raw) {
-        // raw mode is used for JSON extract, non-raw for displaying in the reports
-        if (implicitly[Numeric[T]].toInt(value) == NoPlotMagicValue) "0"
-        else value.toString
-      } else {
-        val string = value match {
-          case NoPlotMagicValue => "-"
-          case _                => GlobalStatsJsonTemplate.formatNumber(value)
-        }
-        s""""$string""""
+    def style[T: Numeric](value: T) = {
+      val string = value match {
+        case NoPlotMagicValue => "-"
+        case _                => StatsDotJsTemplate.formatNumber(value)
       }
+      s""""$string""""
+    }
 
     s"""{
     "name": "${escapeJsIllegalChars(name)}",
@@ -139,4 +135,81 @@ private[charts] final class GlobalStatsJsonTemplate(stats: RequestStatistics, ra
     }
 }"""
   }
+
+  private def renderStats(request: RequestStatistics, path: String): String =
+    s"""name: "${escapeJsIllegalChars(request.name)}",
+path: "${escapeJsIllegalChars(request.path)}",
+pathFormatted: "$path",
+stats: ${renderRequestStats(request)}"""
+
+  private def renderSubGroups(group: GroupContainer): Iterable[String] =
+    group.groups.values.map { subGroup =>
+      s""""${subGroup.name.toGroupFileName}": {
+          ${renderGroup(subGroup)}
+     }"""
+    }
+
+  private def renderSubRequests(group: GroupContainer): Iterable[String] =
+    group.requests.values.map { request =>
+      s""""${request.name.toRequestFileName}": {
+        type: "$Request",
+        ${renderStats(request.stats, request.stats.path.toRequestFileName)}
+    }"""
+    }
+
+  private def renderGroup(group: GroupContainer): String =
+    s"""type: "$Group",
+${renderStats(group.stats, group.stats.path.toGroupFileName)},
+contents: {
+${(renderSubGroups(group) ++ renderSubRequests(group)).mkString(",")}
+}
+"""
+
+  def getOutput: String =
+    s"""var stats = {
+    ${renderGroup(rootContainer)}
+}
+
+function fillStats(stat){
+    $$("#numberOfRequests").append(stat.numberOfRequests.total);
+    $$("#numberOfRequestsOK").append(stat.numberOfRequests.ok);
+    $$("#numberOfRequestsKO").append(stat.numberOfRequests.ko);
+
+    $$("#minResponseTime").append(stat.minResponseTime.total);
+    $$("#minResponseTimeOK").append(stat.minResponseTime.ok);
+    $$("#minResponseTimeKO").append(stat.minResponseTime.ko);
+
+    $$("#maxResponseTime").append(stat.maxResponseTime.total);
+    $$("#maxResponseTimeOK").append(stat.maxResponseTime.ok);
+    $$("#maxResponseTimeKO").append(stat.maxResponseTime.ko);
+
+    $$("#meanResponseTime").append(stat.meanResponseTime.total);
+    $$("#meanResponseTimeOK").append(stat.meanResponseTime.ok);
+    $$("#meanResponseTimeKO").append(stat.meanResponseTime.ko);
+
+    $$("#standardDeviation").append(stat.standardDeviation.total);
+    $$("#standardDeviationOK").append(stat.standardDeviation.ok);
+    $$("#standardDeviationKO").append(stat.standardDeviation.ko);
+
+    $$("#percentiles1").append(stat.percentiles1.total);
+    $$("#percentiles1OK").append(stat.percentiles1.ok);
+    $$("#percentiles1KO").append(stat.percentiles1.ko);
+
+    $$("#percentiles2").append(stat.percentiles2.total);
+    $$("#percentiles2OK").append(stat.percentiles2.ok);
+    $$("#percentiles2KO").append(stat.percentiles2.ko);
+
+    $$("#percentiles3").append(stat.percentiles3.total);
+    $$("#percentiles3OK").append(stat.percentiles3.ok);
+    $$("#percentiles3KO").append(stat.percentiles3.ko);
+
+    $$("#percentiles4").append(stat.percentiles4.total);
+    $$("#percentiles4OK").append(stat.percentiles4.ok);
+    $$("#percentiles4KO").append(stat.percentiles4.ko);
+
+    $$("#meanNumberOfRequestsPerSecond").append(stat.meanNumberOfRequestsPerSecond.total);
+    $$("#meanNumberOfRequestsPerSecondOK").append(stat.meanNumberOfRequestsPerSecond.ok);
+    $$("#meanNumberOfRequestsPerSecondKO").append(stat.meanNumberOfRequestsPerSecond.ko);
+}
+"""
 }

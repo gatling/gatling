@@ -40,8 +40,13 @@ private[charts] object ConsoleTemplate {
     }
     sb
   }
+}
 
-  def println(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]): String = {
+private[charts] class ConsoleTemplate(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]) {
+
+  import ConsoleTemplate._
+
+  def getOutput: String = {
     import requestStatistics._
 
     val sb = new jl.StringBuilder()

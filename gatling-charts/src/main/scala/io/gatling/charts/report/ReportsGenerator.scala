@@ -39,10 +39,6 @@ private[gatling] final class ReportsGenerator(
     def hasAtLeastOneRequestReported: Boolean =
       reportsGenerationInputs.logFileData.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, charset, reportsConfiguration).generate()
-
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, charset).generate()
-
     def copyAssets(): Unit = {
       ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
       ScanHelper.deepCopyPackageContent(ChartsFiles.GatlingAssetsJsPackage, chartsFiles.jsDirectory)
@@ -53,7 +49,12 @@ private[gatling] final class ReportsGenerator(
 
     val reportGenerators =
       List(
-        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance, charset),
+        new AllSessionsReportGenerator(
+          reportsGenerationInputs,
+          chartsFiles,
+          ComponentLibrary.Instance,
+          charset
+        ),
         new GlobalReportGenerator(
           reportsGenerationInputs,
           chartsFiles,
@@ -75,13 +76,17 @@ private[gatling] final class ReportsGenerator(
           ComponentLibrary.Instance,
           charset,
           reportsConfiguration
+        ),
+        new StatsReportGenerator(
+          reportsGenerationInputs,
+          chartsFiles,
+          charset,
+          reportsConfiguration
         )
       )
 
     copyAssets()
     reportGenerators.foreach(_.generate())
-    generateStats()
-    generateAssertions()
 
     chartsFiles.globalFile
   }
