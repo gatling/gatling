@@ -18,9 +18,10 @@ package io.gatling.jms.client
 
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms._
 
 import scala.jdk.CollectionConverters._
+
+import jakarta.jms._
 
 final class JmsSessionPool(connection: Connection) {
   private val registeredJmsSessions = Collections.newSetFromMap(new ConcurrentHashMap[Session, java.lang.Boolean])

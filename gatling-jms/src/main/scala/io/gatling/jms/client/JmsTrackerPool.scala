@@ -17,7 +17,6 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.Destination
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.actor.{ ActorRef, ActorSystem }
@@ -28,6 +27,7 @@ import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
 import io.netty.util.concurrent.DefaultThreadFactory
+import jakarta.jms.Destination
 
 object JmsTrackerPool {
   private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")

@@ -22,8 +22,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.javaapi.core.ProtocolBuilder;
 import io.gatling.javaapi.jms.internal.JmsMessageMatchers;
+import jakarta.jms.ConnectionFactory;
 import java.time.Duration;
-import javax.jms.ConnectionFactory;
 
 /**
  * DSL for building <a href="https://en.wikipedia.org/wiki/Jakarta_Messaging">JMS</a> Protocol

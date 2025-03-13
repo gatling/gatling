@@ -17,19 +17,17 @@
 package io.gatling.http.client.test;
 
 import static io.gatling.http.client.test.TestUtils.*;
-import static io.netty.handler.codec.http.HttpHeaderNames.LOCATION;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
 public class TestServer implements Closeable {
 
@@ -69,10 +67,10 @@ public class TestServer implements Closeable {
   }
 
   public void enqueueOk() {
-    enqueueResponse(response -> response.setStatus(200));
+    enqueueResponse((request, response, callback) -> response.setStatus(200));
   }
 
-  public void enqueueResponse(HttpServletResponseConsumer c) {
+  public void enqueueResponse(TriConsumer<Request, Response, Callback> c) {
     handlers.offer(new ConsumerHandler(c));
   }
 
@@ -82,9 +80,8 @@ public class TestServer implements Closeable {
 
   public void enqueueRedirect(int status, String location) {
     enqueueResponse(
-        response -> {
-          response.setStatus(status);
-          response.setHeader(LOCATION.toString(), location);
+        (request, response, callback) -> {
+          Response.sendRedirect(request, response, callback, location, true);
         });
   }
 
@@ -119,172 +116,96 @@ public class TestServer implements Closeable {
     }
   }
 
-  @FunctionalInterface
-  public interface HttpServletResponseConsumer {
+  private static class ConsumerHandler extends Handler.Abstract {
 
-    void apply(HttpServletResponse response) throws IOException, ServletException;
-  }
+    private final TriConsumer<Request, Response, Callback> c;
 
-  public abstract static class AutoFlushHandler extends AbstractHandler {
-
-    private final boolean closeAfterResponse;
-
-    AutoFlushHandler() {
-      this(false);
-    }
-
-    AutoFlushHandler(boolean closeAfterResponse) {
-      this.closeAfterResponse = closeAfterResponse;
-    }
-
-    @Override
-    public void handle(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException, ServletException {
-      handle0(target, baseRequest, request, response);
-      response.getOutputStream().flush();
-      if (closeAfterResponse) {
-        response.getOutputStream().close();
-      }
-    }
-
-    protected abstract void handle0(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException, ServletException;
-  }
-
-  private static class ConsumerHandler extends AutoFlushHandler {
-
-    private final HttpServletResponseConsumer c;
-
-    ConsumerHandler(HttpServletResponseConsumer c) {
-      this(c, false);
-    }
-
-    ConsumerHandler(HttpServletResponseConsumer c, boolean closeAfterResponse) {
-      super(closeAfterResponse);
+    ConsumerHandler(TriConsumer<Request, Response, Callback> c) {
       this.c = c;
     }
 
     @Override
-    protected void handle0(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException, ServletException {
-      c.apply(response);
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      try {
+        c.accept(request, response, callback);
+      } catch (Exception e) {
+        callback.failed(e);
+        throw e;
+      } catch (Throwable e) {
+        callback.failed(e);
+        throw new Exception(e);
+      }
+      return true;
     }
   }
 
-  public static class EchoHandler extends AutoFlushHandler {
+  public static class EchoHandler extends Handler.Abstract {
 
     @Override
-    protected void handle0(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException, ServletException {
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
-      String delay = request.getHeader("X-Delay");
+      String delay = request.getHeaders().get("X-Delay");
       if (delay != null) {
         try {
           Thread.sleep(Long.parseLong(delay));
         } catch (NumberFormatException | InterruptedException e1) {
-          throw new ServletException(e1);
+          throw new Exception(e1);
         }
       }
 
       response.setStatus(200);
 
+      HttpFields requestHeaders = request.getHeaders();
+      HttpFields.Mutable responseHeaders = response.getHeaders();
+
       if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
-        response.addHeader("Allow", "GET,HEAD,POST,OPTIONS,TRACE");
+        responseHeaders.add(HttpHeader.ALLOW, "GET,HEAD,POST,OPTIONS,TRACE");
       }
 
-      response.setContentType(
-          request.getHeader("X-IsoCharset") != null
+      responseHeaders.add(
+          HttpHeader.CONTENT_TYPE,
+          requestHeaders.get("X-IsoCharset") != null
               ? TEXT_HTML_CONTENT_TYPE_WITH_ISO_8859_1_CHARSET
               : TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET);
 
-      response.addHeader("X-ClientPort", String.valueOf(request.getRemotePort()));
+      responseHeaders.add("X-ClientPort", String.valueOf(Request.getRemotePort(request)));
 
-      String pathInfo = request.getPathInfo();
-      if (pathInfo != null) response.addHeader("X-PathInfo", pathInfo);
+      String pathInfo = Request.getPathInContext(request);
+      if (pathInfo != null) responseHeaders.add("X-PathInfo", pathInfo);
 
-      String queryString = request.getQueryString();
-      if (queryString != null) response.addHeader("X-QueryString", queryString);
+      String queryString = request.getHttpURI().getQuery();
+      if (queryString != null) responseHeaders.add("X-QueryString", queryString);
 
-      Enumeration<String> headerNames = request.getHeaderNames();
-      while (headerNames.hasMoreElements()) {
-        String headerName = headerNames.nextElement();
-        response.addHeader("X-" + headerName, request.getHeader(headerName));
-      }
+      requestHeaders.forEach(it -> responseHeaders.add("X-" + it.getName(), it.getValue()));
 
-      for (Map.Entry<String, String[]> e : baseRequest.getParameterMap().entrySet()) {
-        response.addHeader("X-" + e.getKey(), e.getValue()[0]);
-      }
+      Request.getParameters(request)
+          .forEach(it -> responseHeaders.add("X-" + it.getName(), it.getValue()));
 
-      Cookie[] cs = request.getCookies();
-      if (cs != null) {
-        for (Cookie c : cs) {
-          response.addCookie(c);
-        }
-      }
+      Request.getCookies(request).forEach(c -> Response.addCookie(response, c));
 
-      Enumeration<String> parameterNames = request.getParameterNames();
-      StringBuilder requestBody = new StringBuilder();
-      while (parameterNames.hasMoreElements()) {
-        String param = parameterNames.nextElement();
-        response.addHeader("X-" + param, request.getParameter(param));
-        requestBody.append(param);
-        requestBody.append("_");
-      }
-      if (requestBody.length() > 0) {
-        response.getOutputStream().write(requestBody.toString().getBytes());
-      }
+      Content.copy(request, response, callback);
 
-      int size = 16384;
-      if (request.getContentLength() > 0) {
-        size = request.getContentLength();
-      }
-      if (size > 0) {
-        int read = 0;
-        while (read > -1) {
-          byte[] bytes = new byte[size];
-          read = request.getInputStream().read(bytes);
-          if (read > 0) {
-            response.getOutputStream().write(bytes, 0, read);
-          }
-        }
-      }
+      return true;
     }
   }
 
-  private class QueueHandler extends AbstractHandler {
+  private class QueueHandler extends Handler.Abstract {
 
     @Override
-    public void handle(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException, ServletException {
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
       Handler handler = TestServer.this.handlers.poll();
       if (handler == null) {
-        response.sendError(500, "No handler enqueued");
-        response.getOutputStream().flush();
-        response.getOutputStream().close();
-
+        Response.writeError(
+            request,
+            response,
+            callback,
+            HttpStatus.INTERNAL_SERVER_ERROR_500,
+            "No handler enqueued");
+        callback.succeeded();
+        return true;
       } else {
-        handler.handle(target, baseRequest, request, response);
+        return handler.handle(request, response, callback);
       }
     }
   }

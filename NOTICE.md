@@ -121,10 +121,10 @@ This product depends on zinc, distributed by Lightbend, Inc.:
   * License: license/LICENSE.zinc.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/typesafehub/zinc
 
-This product depends on JMS 1.1 spec, distributed by Geronimo:
+This product depends on Jakarta Messaging 3.1 spec, distributed by Eclipse Foundation:
 
-  * License: license/LICENSE.jms.al20.txt (Apache License v2.0)
-  * Homepage: https://http://geronimo.apache.org/
+  * License: license/LICENSE.jms.epl20.txt (Eclipse Public License v2.0)
+  * Homepage: https://jakarta.ee/specifications/messaging/3.1/
 
 This product depends on tdigest, distributed by Ted Dunings:
 

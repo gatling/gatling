@@ -17,10 +17,11 @@
 package io.gatling.jms.integration
 
 import java.util.Locale
-import javax.jms.TextMessage
 
 import io.gatling.core.CoreDsl
 import io.gatling.jms.request.JmsDestination
+
+import jakarta.jms.TextMessage
 
 class JmsIntegrationSpec extends JmsSpec with CoreDsl {
   "gatling-jms" should "send and receive JMS message" in {

@@ -18,7 +18,6 @@ package io.gatling.javaapi.jms.internal
 
 import java.{ lang => jl, util => ju }
 import java.util.{ function => juf }
-import javax.jms.Message
 
 import io.gatling.commons.validation.{ safely, SuccessWrapper, Validation }
 import io.gatling.core.session.{ Expression, Session => ScalaSession }
@@ -26,6 +25,8 @@ import io.gatling.javaapi.core.{ CheckBuilder, Session }
 import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.jms.JmsRequestReplyActionBuilder
+
+import jakarta.jms.Message
 
 object ScalaJmsRequestReplyActionBuilderConditions {
   def untyped(context: io.gatling.jms.request.RequestReplyDslBuilder, condition: String): Untyped =

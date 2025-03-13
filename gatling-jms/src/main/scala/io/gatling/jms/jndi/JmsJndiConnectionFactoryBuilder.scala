@@ -17,7 +17,6 @@
 package io.gatling.jms.jndi
 
 import java.util.{ Hashtable => JHashtable }
-import javax.jms.ConnectionFactory
 import javax.naming.{ Context, InitialContext }
 
 import scala.jdk.CollectionConverters._
@@ -25,6 +24,7 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.model.Credentials
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.jms.ConnectionFactory
 
 object JmsJndiConnectionFactoryBuilder {
   object Base {

@@ -17,7 +17,6 @@
 package io.gatling.javaapi.jms.internal
 
 import java.{ util => ju }
-import javax.jms.Message
 
 import scala.jdk.CollectionConverters._
 
@@ -34,6 +33,7 @@ import io.gatling.jms.{ JmsCheck, Predef => JmsPredef }
 import io.gatling.jms.check.JmsPropertyCheckType
 
 import com.fasterxml.jackson.databind.JsonNode
+import jakarta.jms.Message
 import net.sf.saxon.s9api.XdmNode
 
 object JmsChecks {

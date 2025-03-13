@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.UUID;
-import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -49,7 +48,7 @@ public class TestUtils {
   public static ServerConnector addHttpsConnector(Server server)
       throws IOException, URISyntaxException {
     String keyStoreFile = resourceAsFile("ssltest-keystore.jks").getAbsolutePath();
-    SslContextFactory sslContextFactory = new SslContextFactory.Server();
+    SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
     sslContextFactory.setKeyStorePath(keyStoreFile);
     sslContextFactory.setKeyStorePassword("changeit");
 
@@ -87,19 +86,22 @@ public class TestUtils {
     }
   }
 
-  public static void writeResponseBody(HttpServletResponse response, String body) {
-    response.setContentLength(body.length());
-    try {
-      response.getOutputStream().print(body);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public static void assertContentTypesEquals(String actual, String expected) {
     assertEquals(
         expected.replace("; ", "").toLowerCase(Locale.ROOT),
         actual.replace("; ", "").toLowerCase(Locale.ENGLISH),
         "Unexpected content-type");
+  }
+
+  @FunctionalInterface
+  public interface TriConsumer<T, U, V> {
+    void accept(T t, U u, V v) throws Exception;
+
+    default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
+      return (l, r, v) -> {
+        accept(l, r, v);
+        after.accept(l, r, v);
+      };
+    }
   }
 }

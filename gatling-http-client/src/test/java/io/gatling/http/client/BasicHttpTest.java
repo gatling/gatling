@@ -43,11 +43,13 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -86,10 +88,15 @@ class BasicHttpTest extends HttpTest {
                           final String sentBody = "Hello World";
 
                           server.enqueueResponse(
-                              response -> {
-                                response.setStatus(200);
-                                response.setContentType(TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET);
-                                writeResponseBody(response, sentBody);
+                              (request, response, callback) -> {
+                                response.setStatus(HttpStatus.OK_200);
+
+                                ByteBuffer content = UTF_8.encode("Hello World");
+
+                                // Explicit first write that writes the response status code,
+                                // headers and content.
+                                // When this write completes, the Handler callback is completed.
+                                response.write(true, content, callback);
                               });
 
                           Request request =

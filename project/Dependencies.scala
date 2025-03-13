@@ -51,7 +51,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.6.0"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
-  private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"
+  private val jmsApi                         = "jakarta.jms"                          % "jakarta.jms-api"                   % "3.1.0"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.17"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.3"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
@@ -68,8 +68,7 @@ object Dependencies {
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-5-12"                      % "3.2.19.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.1"            % Test
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "5.16.0"            % Test
-  private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.18.6"            % Test)
-    .exclude("jakarta.jms", "jakarta.jms-api")
+  private val activemqBroker                 = "org.apache.activemq"                  % "activemq-broker"                   % "6.1.6"            % Test
   private val h2                             = "com.h2database"                       % "h2"                                % "2.3.232"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.37"              % Test
 
@@ -80,8 +79,7 @@ object Dependencies {
   // version so that we don't have to wait for sbt-jupiter-interface releases.
   private val junitPlatformLauncher          = "org.junit.platform"                   % "junit-platform-launcher"           % junit.revision.replaceFirst("""^5\.""", "1.") % Test
   private val jupiterInterface               = "com.github.sbt.junit"                 % "jupiter-interface"                 % "0.13.3"            % Test
-
-  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "9.4.57.v20241219"  % Test
+  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "12.0.17"  % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
   // format: ON
 

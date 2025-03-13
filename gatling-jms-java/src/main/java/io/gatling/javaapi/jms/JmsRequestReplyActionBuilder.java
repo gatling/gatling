@@ -27,13 +27,13 @@ import io.gatling.javaapi.core.internal.Converters;
 import io.gatling.javaapi.jms.internal.JmsChecks;
 import io.gatling.javaapi.jms.internal.ScalaJmsRequestReplyActionBuilderConditions;
 import io.gatling.jms.request.RequestReplyDslBuilder;
+import jakarta.jms.Destination;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.jms.Destination;
 
 /**
  * DSL for building request-reply actions.
@@ -210,7 +210,7 @@ public class JmsRequestReplyActionBuilder implements ActionBuilder {
    */
   @NonNull
   public TypedCondition checkIf(
-      @NonNull BiFunction<javax.jms.Message, Session, Boolean> condition) {
+      @NonNull BiFunction<jakarta.jms.Message, Session, Boolean> condition) {
     return new TypedCondition(
         ScalaJmsRequestReplyActionBuilderConditions.typed(wrapped, condition));
   }
@@ -333,7 +333,7 @@ public class JmsRequestReplyActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Don't set the ReplyTo destination, see {@link javax.jms.Message#setJMSReplyTo(Destination)}
+     * Don't set the ReplyTo destination, see {@link jakarta.jms.Message#setJMSReplyTo(Destination)}
      *
      * @return the next DSL step
      */
@@ -376,7 +376,7 @@ public class JmsRequestReplyActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Define a JMS selector, see {@link javax.jms.Session#createConsumer(Destination, String)}
+     * Define a JMS selector, see {@link jakarta.jms.Session#createConsumer(Destination, String)}
      *
      * @param select the message selector, expressed as a Gatling Expression Language String
      * @return the next DSL step
@@ -387,7 +387,7 @@ public class JmsRequestReplyActionBuilder implements ActionBuilder {
     }
 
     /**
-     * Define a JMS selector, see {@link javax.jms.Session#createConsumer(Destination, String)}
+     * Define a JMS selector, see {@link jakarta.jms.Session#createConsumer(Destination, String)}
      *
      * @param select the message selector, expressed as a function
      * @return the next DSL step

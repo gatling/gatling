@@ -17,7 +17,7 @@
 package io.gatling.javaapi.jms;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 /**
  * DSL for building JNDI ConnectionFactory configurations
