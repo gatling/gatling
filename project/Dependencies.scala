@@ -80,8 +80,7 @@ object Dependencies {
   // version so that we don't have to wait for sbt-jupiter-interface releases.
   private val junitPlatformLauncher          = "org.junit.platform"                   % "junit-platform-launcher"           % junit.revision.replaceFirst("""^5\.""", "1.") % Test
   private val jupiterInterface               = "com.github.sbt.junit"                 % "jupiter-interface"                 % "0.13.3"            % Test
-
-  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "9.4.57.v20241219"  % Test
+  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                      % "12.0.17"           % Test
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                       % jetty.revision      % Test
   // format: ON
 

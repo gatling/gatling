@@ -28,33 +28,30 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class HttpRequestThroughHttpProxyTest extends HttpTest {
 
-  public static class ProxyHandler extends AbstractHandler {
-    public void handle(
-        String s,
-        org.eclipse.jetty.server.Request r,
-        HttpServletRequest request,
-        HttpServletResponse response)
-        throws IOException {
+  public static class ProxyHandler extends Handler.Abstract {
+    public boolean handle(
+        org.eclipse.jetty.server.Request request, Response response, Callback callback) {
       if ("GET".equalsIgnoreCase(request.getMethod())) {
-        response.addHeader("target", r.getHttpURI().getPath());
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.getHeaders().add("target", request.getHttpURI().getPath());
+        response.setStatus(HttpStatus.OK_200);
+        callback.succeeded();
       } else {
         // this handler is to handle POST request
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        Response.writeError(request, response, callback, HttpStatus.FORBIDDEN_403);
       }
-      r.setHandled(true);
+      return true;
     }
   }
 

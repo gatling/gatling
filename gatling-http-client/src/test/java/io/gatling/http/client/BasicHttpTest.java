@@ -19,7 +19,6 @@ package io.gatling.http.client;
 import static io.gatling.http.client.test.TestUtils.*;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,6 +47,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -86,10 +87,17 @@ class BasicHttpTest extends HttpTest {
                           final String sentBody = "Hello World";
 
                           server.enqueueResponse(
-                              response -> {
-                                response.setStatus(200);
-                                response.setContentType(TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET);
-                                writeResponseBody(response, sentBody);
+                              (request, response, callback) -> {
+                                response.setStatus(HttpStatus.OK_200);
+                                response
+                                    .getHeaders()
+                                    .add(
+                                        HttpHeader.CONTENT_TYPE,
+                                        TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET);
+                                // Explicit first write that writes the response status code,
+                                // headers and content.
+                                // When this write completes, the Handler callback is completed.
+                                response.write(true, UTF_8.encode(sentBody), callback);
                               });
 
                           Request request =
@@ -220,36 +228,6 @@ class BasicHttpTest extends HttpTest {
                                     public void onComplete0() {
                                       assertEquals(200, status.code());
                                       assertNull(chunks);
-                                    }
-                                  })
-                              .get(TIMEOUT_SECONDS, SECONDS);
-                        }));
-  }
-
-  @Test
-  void testJettyRespondsWithChunkedTransferEncoding() throws Throwable {
-    withClient()
-        .run(
-            client ->
-                withServer(server)
-                    .run(
-                        server -> {
-                          server.enqueueEcho();
-                          Request request =
-                              client
-                                  .newRequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl()))
-                                  .build();
-                          client
-                              .test(
-                                  request,
-                                  0,
-                                  new TestListener() {
-                                    @Override
-                                    public void onComplete0() {
-                                      assertEquals(200, status.code());
-                                      assertEquals(
-                                          HttpHeaderValues.CHUNKED.toString(),
-                                          headers.get(TRANSFER_ENCODING));
                                     }
                                   })
                               .get(TIMEOUT_SECONDS, SECONDS);
