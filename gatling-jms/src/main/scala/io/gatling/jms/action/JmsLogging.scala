@@ -16,9 +16,8 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
-
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.jms.Message
 
 trait JmsLogging extends StrictLogging {
   def logMessage(text: => String, msg: Message): Unit = {

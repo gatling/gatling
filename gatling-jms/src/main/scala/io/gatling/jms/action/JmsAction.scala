@@ -16,8 +16,6 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
-
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
 import io.gatling.core.actor.ActorRef
@@ -27,6 +25,8 @@ import io.gatling.core.util.NameGen
 import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool, JmsProducer }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
+
+import jakarta.jms.Message
 
 final class Around(before: () => Unit, after: () => Unit) {
   def apply(f: => Any): Unit = {

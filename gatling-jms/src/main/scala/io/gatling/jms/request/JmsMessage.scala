@@ -17,10 +17,11 @@
 package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
-import javax.jms.{ Message, Session => JmsSession }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
+
+import jakarta.jms.{ Message, Session => JmsSession }
 
 sealed trait JmsMessage {
   private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message]

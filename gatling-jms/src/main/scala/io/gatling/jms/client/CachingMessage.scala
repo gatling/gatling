@@ -17,7 +17,8 @@
 package io.gatling.jms.client
 
 import java.util
-import javax.jms.{ BytesMessage, Destination, Message, TextMessage }
+
+import jakarta.jms.{ BytesMessage, Destination, Message, TextMessage }
 
 private[jms] object CachingMessage {
 

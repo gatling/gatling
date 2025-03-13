@@ -17,12 +17,12 @@
 package io.gatling.jms.check
 
 import java.util.{ HashMap => JHashMap }
-import javax.jms._
 
 import io.gatling.commons.validation._
 import io.gatling.core.EmptySession
 import io.gatling.jms._
 
+import jakarta.jms._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 

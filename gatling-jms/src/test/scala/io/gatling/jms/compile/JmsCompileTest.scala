@@ -16,13 +16,13 @@
 
 package io.gatling.jms.compile
 
-import javax.jms._
-
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.protocol.JmsMessageMatcher
+
+import jakarta.jms._
 
 object HeaderMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}

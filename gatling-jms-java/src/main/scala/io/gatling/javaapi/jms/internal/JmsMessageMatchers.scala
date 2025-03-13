@@ -16,9 +16,9 @@
 
 package io.gatling.javaapi.jms.internal
 
-import javax.jms.Message
-
 import io.gatling.javaapi.jms.JmsMessageMatcher
+
+import jakarta.jms.Message
 
 object JmsMessageMatchers {
   def toScala(javaMatcher: JmsMessageMatcher): io.gatling.jms.protocol.JmsMessageMatcher =

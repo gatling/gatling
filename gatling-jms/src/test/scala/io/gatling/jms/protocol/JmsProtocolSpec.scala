@@ -16,14 +16,13 @@
 
 package io.gatling.jms.protocol
 
-import javax.jms.ConnectionFactory
-
 import io.gatling.ValidationValues
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
+import jakarta.jms.ConnectionFactory
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 

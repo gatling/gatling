@@ -21,7 +21,7 @@ import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.jms.internal.JmsCheckType;
 import io.gatling.jms.check.JmsPropertyCheckType;
 import io.gatling.jms.check.JmsPropertyFilter;
-import javax.jms.Message;
+import jakarta.jms.Message;
 
 public interface JmsCheckBuilder {
 

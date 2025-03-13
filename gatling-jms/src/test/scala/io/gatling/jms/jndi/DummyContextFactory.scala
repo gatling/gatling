@@ -17,10 +17,10 @@
 package io.gatling.jms.jndi
 
 import java.util
-import javax.jms.{ Connection, ConnectionFactory, JMSContext }
 import javax.naming.Context
 import javax.naming.spi.InitialContextFactory
 
+import jakarta.jms.{ Connection, ConnectionFactory, JMSContext }
 import org.apache.activemq.jndi.ReadOnlyContext
 
 class DummyContextFactory extends InitialContextFactory {

@@ -17,8 +17,8 @@
 package io.gatling.javaapi.jms;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.jms.JMSException;
-import javax.jms.Message;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 
 /**
  * A component in charge of preparing outbound messages and providing the matching strategy with

@@ -16,9 +16,9 @@
 
 package io.gatling
 
-import javax.jms.Message
-
 import io.gatling.core.check.Check
+
+import jakarta.jms.Message
 
 package object jms {
   type JmsCheck = Check[Message]

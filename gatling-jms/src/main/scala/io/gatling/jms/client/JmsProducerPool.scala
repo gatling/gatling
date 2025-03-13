@@ -18,9 +18,10 @@ package io.gatling.jms.client
 
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.{ Destination, MessageProducer }
 
 import scala.jdk.CollectionConverters._
+
+import jakarta.jms.{ Destination, MessageProducer }
 
 private[client] final case class CachedProducerKey(destination: Destination, deliveryMode: Int)
 

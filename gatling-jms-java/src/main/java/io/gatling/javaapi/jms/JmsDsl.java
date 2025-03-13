@@ -24,8 +24,8 @@ import io.gatling.core.check.CheckMaterializer;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.jms.internal.JmsCheckType;
+import jakarta.jms.Message;
 import java.util.function.Function;
-import javax.jms.Message;
 
 public final class JmsDsl {
   private JmsDsl() {}
