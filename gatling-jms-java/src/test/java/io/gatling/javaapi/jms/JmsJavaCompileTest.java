@@ -19,6 +19,7 @@ package io.gatling.javaapi.jms;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.jms.JmsDsl.*;
 
+import com.github.marschall.jakartajmsadapter.JakartaConnectionFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
@@ -50,7 +51,8 @@ public class JmsJavaCompileTest extends Simulation {
   // create JmsProtocol from standard ConnectionFactory
   private final JmsProtocolBuilder jmsProtocol =
       jms.connectionFactory(
-          new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"));
+          new JakartaConnectionFactory(
+              new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616")));
 
   // create JmsProtocol from JNDI based ConnectionFactory
   private JmsProtocolBuilder jmsProtocolWithJndiConnectionFactory =
