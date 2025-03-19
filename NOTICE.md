@@ -46,20 +46,10 @@ This product depends on scala-parser-combinators, distributed by the EPFL and Li
   * License: license/LICENSE.scala-parser-combinators.bsd3.txt (BSD 3 Clause License)
   * Homepage: https://github.com/scala/scala-parser-combinators
 
-This product depends on scala-java8-compat, distributed by the EPFL and Lightbend, Inc.:
-
-  * License: license/LICENSE.scala-java8-compat.bsd3.txt (BSD 3 Clause License)
-  * Homepage: https://github.com/scala/scala-java8-compat
-
 This product depends on Netty, distributed by the Netty Project:
 
   * License: license/LICENSE.netty.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/netty/netty
-
-This product depends on Akka, distributed by the Lightbend, Inc.:
-
-  * License: license/LICENSE.akka.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/akka/akka
 
 This product depends on Config, distributed by the Lightbend, Inc.:
 
@@ -70,11 +60,6 @@ This product depends on Saxon HE, distributed by the Saxonica:
 
   * License: license/LICENSE.saxon.mpl20.txt (Mozilla Public License 2.0)
   * Homepage: http://www.saxonica.com/download/opensource.xml
-
-This product depends on fastring, distributed by the Saxonica:
-
-  * License: license/LICENSE.fastring.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/Atry/fastring
 
 This product depends on slf4j, distributed by QOS:
 
@@ -115,11 +100,6 @@ This product depends on scala-redis, distributed by Debasish Ghosh:
 
   * License: license/LICENSE.scala-redis.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/debasishg/scala-redis
-
-This product depends on zinc, distributed by Lightbend, Inc.:
-
-  * License: license/LICENSE.zinc.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/typesafehub/zinc
 
 This product depends on Jakarta Messaging 3.1 spec, distributed by Eclipse Foundation:
 
