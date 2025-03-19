@@ -32,6 +32,7 @@ import io.gatling.jms._
 import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
+import com.github.marschall.jakartajmsadapter.JakartaConnectionFactory
 import jakarta.jms.{ Session => JmsSession, _ }
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
@@ -96,7 +97,7 @@ trait JmsSpec extends ActorSpec with JmsDsl with EmptySession {
     broker.waitUntilStopped()
   }
 
-  val cf = new ActiveMQConnectionFactory("vm://gatling?broker.persistent=false&broker.useJmx=false")
+  val cf = new JakartaConnectionFactory(new ActiveMQConnectionFactory("vm://gatling?broker.persistent=false&broker.useJmx=false"))
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 

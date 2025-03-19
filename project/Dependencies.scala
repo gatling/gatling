@@ -51,7 +51,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                  % "0.6.0"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                       % "3.42"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                    % "1.0"
-  private val jmsApi                         = "jakarta.jms"                          % "jakarta.jms-api"                   % "3.1.0"
+  private val jakartaJmsApi                  = "jakarta.jms"                          % "jakarta.jms-api"                   % "3.1.0"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                   % "1.5.18"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                          % "3.3"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                      % "2.2.1"
@@ -68,7 +68,10 @@ object Dependencies {
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-5-12"                      % "3.2.19.0"          % Test
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                        % "1.18.1"            % Test
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                      % "5.16.1"            % Test
-  private val activemqBroker                 = "org.apache.activemq"                  % "activemq-broker"                   % "6.1.6"             % Test
+  private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                   % "5.19.0"            % Test)
+    .exclude("jakarta.jms", "jakarta.jms-api")
+  private val javaxJmsApi                    = "javax.jms"                            % "javax.jms-api"                     % "2.0.1"             % Test
+  private val jakartaJmsAdapter              = "com.github.marschall"                 % "jakarta-jms-adapter"               % "1.5.0"             % Test
   private val h2                             = "com.h2database"                       % "h2"                                % "2.3.232"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                          % "1.37"              % Test
 
@@ -184,7 +187,7 @@ object Dependencies {
 
   val httpDependencies = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
-  val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
+  val jmsDependencies = Seq(jakartaJmsApi, fastUuid, activemqBroker, javaxJmsApi, jakartaJmsAdapter) ++ testDeps
 
   val jdbcDependencies = h2 +: testDeps
 

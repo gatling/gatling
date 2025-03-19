@@ -22,6 +22,7 @@ import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.protocol.JmsMessageMatcher
 
+import com.github.marschall.jakartajmsadapter.JakartaConnectionFactory
 import jakarta.jms._
 
 object HeaderMatcher extends JmsMessageMatcher {
@@ -33,7 +34,7 @@ object HeaderMatcher extends JmsMessageMatcher {
 class JmsCompileTest extends Simulation {
   // create JmsProtocol from standard ConnectionFactory
   private val jmsProtocolWithNativeConnectionFactory = jms
-    .connectionFactory(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"))
+    .connectionFactory(new JakartaConnectionFactory(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616")))
 
   // create JmsProtocol from JNDI based ConnectionFactory
   private val jmsProtocolWithJndiConnectionFactory = jms
