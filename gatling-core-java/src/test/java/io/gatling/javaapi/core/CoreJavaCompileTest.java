@@ -103,7 +103,7 @@ public class CoreJavaCompileTest extends Simulation {
                               })
                           .iterator()),
               feed(arrayFeeder(new Map[] {new HashMap<>(), new HashMap<>()}).circular()),
-              feed(listFeeder(Arrays.asList(new HashMap<>())).circular()),
+              feed(listFeeder(List.of(new HashMap<>())).circular()),
               // pauses
               pause(1),
               pause(Duration.ofMillis(100)),

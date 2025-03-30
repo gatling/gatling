@@ -41,8 +41,8 @@ object BuildSettings {
 
   lazy val utf8Encoding = Seq(
     fork := true,
-    Compile / javacOptions ++= Seq("-encoding", "utf8"),
-    Test / javacOptions ++= Seq("-encoding", "utf8")
+    Compile / javacOptions ++= Seq("-encoding", "utf8", "-Xlint:unchecked"),
+    Test / javacOptions ++= Seq("-encoding", "utf8", "-Xlint:unchecked")
   )
 
   // Documentation settings
