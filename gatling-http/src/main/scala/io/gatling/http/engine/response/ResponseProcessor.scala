@@ -146,9 +146,9 @@ final class DefaultResponseProcessor(
   def onComplete(result: HttpResult): Unit =
     result match {
       case rawResponse: Response =>
-        applyResponseTransformer(rawResponse) match {
-          case Success(response) =>
-            val result = ResponseProcessor.processResponse(tx, sessionProcessor, defaultCharset, response)
+        applyResponseTransformer(rawResponse, tx.currentSession) match {
+          case Success((response, session)) =>
+            val result = ResponseProcessor.processResponse(tx.copy(session = session), sessionProcessor, defaultCharset, response)
             proceed(response, result)
 
           case Failure(errorMessage) =>
@@ -178,12 +178,12 @@ final class DefaultResponseProcessor(
         nextExecutor.executeNextOnCrash(newSession)
     }
 
-  private def applyResponseTransformer(originalResponse: Response): Validation[Response] =
+  private def applyResponseTransformer(originalResponse: Response, originalSession: Session): Validation[(Response, Session)] =
     tx.request.requestConfig.responseTransformer match {
       case Some(transformer) =>
         safely("Response transformer crashed: " + _) {
-          transformer(originalResponse, tx.currentSession)
+          transformer(originalResponse, originalSession)
         }
-      case _ => originalResponse.success
+      case _ => (originalResponse, originalSession).success
     }
 }

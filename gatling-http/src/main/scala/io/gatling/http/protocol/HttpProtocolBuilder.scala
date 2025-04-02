@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ AllowList, DenyList, Filters }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.ResponseTransformer
+import io.gatling.http.{ ResponseBiTransformer, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.{ Http2PriorKnowledge, Request }
 import io.gatling.http.client.realm.Realm
@@ -163,8 +163,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def maxRedirects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling: HttpProtocolBuilder = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
   def redirectNamingStrategy(f: (Uri, String, Int) => String): HttpProtocolBuilder = this.modify(_.protocol.responsePart.redirectNamingStrategy).setTo(f)
-  def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder =
-    this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
+  def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder = {
+    val newResponseTransformer: ResponseBiTransformer = (response, session) => responseTransformer(response, session).map(newResponse => (newResponse, session))
+    this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(newResponseTransformer))
+  }
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks)(_ ::: checks.toList)
   def checkIf(condition: Expression[Boolean])(thenChecks: HttpCheck*): HttpProtocolBuilder =
     check(thenChecks.map(_.checkIf(condition)): _*)

@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.core.session._
-import io.gatling.http.ResponseTransformer
+import io.gatling.http.ResponseBiTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.{ Http2PriorKnowledge, Request }
@@ -184,7 +184,7 @@ final case class HttpProtocolResponsePart(
     maxRedirects: Int,
     strict302Handling: Boolean,
     redirectNamingStrategy: (Uri, String, Int) => String,
-    responseTransformer: Option[ResponseTransformer],
+    responseTransformer: Option[ResponseBiTransformer],
     checks: List[HttpCheck],
     inferHtmlResources: Boolean,
     inferredHtmlResourcesNaming: Uri => String,

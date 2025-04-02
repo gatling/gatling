@@ -18,17 +18,18 @@ package io.gatling.http.request.builder
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 import io.gatling.core.check.{ ChecksumAlgorithm, ChecksumCheck }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
-import io.gatling.http.ResponseTransformer
+import io.gatling.http.{ ResponseBiTransformer, ResponseTransformer }
 import io.gatling.http.action.{ HttpActionBuilder, HttpRequestAction }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
+import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
@@ -56,7 +57,7 @@ final case class HttpAttributes(
     ignoreProtocolChecks: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,
-    responseTransformer: Option[ResponseTransformer],
+    responseTransformer: Option[ResponseBiTransformer],
     explicitResources: List[HttpRequestBuilder],
     requestTimeout: Option[FiniteDuration]
 )
@@ -102,7 +103,12 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
    * @param responseTransformer
    *   transforms the response before it's handled to the checks pipeline
    */
-  def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder =
+  def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder = {
+    val newResponseTransformer: ResponseBiTransformer = (response, session) => responseTransformer(response, session).map(newResponse => (newResponse, session))
+    this.modify(_.httpAttributes.responseTransformer).setTo(Some(newResponseTransformer))
+  }
+
+  private[gatling] def transformResponseAndSession(responseTransformer: ResponseBiTransformer): HttpRequestBuilder =
     this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {

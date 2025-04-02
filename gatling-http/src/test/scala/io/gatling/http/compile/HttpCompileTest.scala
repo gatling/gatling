@@ -339,6 +339,13 @@ class HttpCompileTest extends Simulation {
       import io.gatling.http.response._
       response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.body.charset))
     })
+    // transformResponseAndSession
+    .exec(http("Request").get("/").transformResponseAndSession { (response, session) =>
+      import io.gatling.http.response._
+      val newResponse = response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.body.charset))
+      val newSession = session.set("key", "value")
+      (newResponse, newSession)
+    })
     // feeder
     .feed(sitemap("file"))
 
