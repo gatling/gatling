@@ -150,7 +150,7 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   private def nettyConfiguration(config: Config) = {
-    config.getStringOption(netty.Allocator).foreach(setSystemPropertyIfUndefined("io.netty.allocator.type", _))
+    setSystemPropertyIfUndefined("io.netty.allocator.type", config.getString(netty.Allocator))
     setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", config.getString(netty.MaxThreadLocalCharBufferSize))
 
     new NettyConfiguration(
