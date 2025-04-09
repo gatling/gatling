@@ -107,7 +107,16 @@ public final class WebSocketHandler extends ChannelDuplexHandler {
     } else {
       // all other messages are CONNECT request and WebSocket frames
       LOGGER.debug("ctx.write msg={}", msg);
-      ctx.write(msg, promise);
+      ctx.write(msg, promise)
+          .addListener(
+              future -> {
+                if (!future.isSuccess()) {
+                  ctx.channel()
+                      .eventLoop()
+                      // re-schedule so FSM can update state first
+                      .execute(() -> crash(ctx, future.cause(), true));
+                }
+              });
     }
   }
 
