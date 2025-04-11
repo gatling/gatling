@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.Promise
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.stats.assertion.Assertion
 
 private[stats] final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 
@@ -42,8 +41,7 @@ private[gatling] final case class RunMessage(
 
 private[gatling] sealed trait DataWriterMessage
 private[gatling] object DataWriterMessage {
-  final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription], startPromise: Promise[Unit])
-      extends DataWriterMessage
+  case object Init extends DataWriterMessage
   case object Flush extends DataWriterMessage
   private[stats] final case class Crash(cause: String) extends DataWriterMessage
   private[stats] final case class Stop(stopPromise: Promise[Unit]) extends DataWriterMessage

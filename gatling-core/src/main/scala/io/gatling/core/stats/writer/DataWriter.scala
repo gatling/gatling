@@ -29,7 +29,7 @@ private[gatling] trait DataWriterData
  */
 private[gatling] abstract class DataWriter[T <: DataWriterData](name: String) extends Actor[DataWriterMessage](name) {
 
-  def onInit(init: DataWriterMessage.Init): T
+  def onInit(): T
 
   def onFlush(data: T): Unit
 
@@ -40,17 +40,15 @@ private[gatling] abstract class DataWriter[T <: DataWriterData](name: String) ex
   def onMessage(message: DataWriterMessage.LoadEvent, data: T): Unit
 
   override def init(): Behavior[DataWriterMessage] = {
-    case init: DataWriterMessage.Init =>
+    case DataWriterMessage.Init =>
       logger.info("Initializing")
       try {
-        val newState = onInit(init)
+        val newState = onInit()
         logger.info("Initialized")
-        init.startPromise.trySuccess(())
         become(initialized(newState))
       } catch {
         case NonFatal(e) =>
           logger.error("DataWriter failed to initialize", e)
-          init.startPromise.tryFailure(e)
           die
       }
 

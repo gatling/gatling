@@ -210,34 +210,53 @@ final class FileData(
     val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
-object LogFileDataWriter {
+private[gatling] object LogFileDataWriter {
   private[gatling] val LogFileName = "simulation.log"
 
   def logFile(resultsDirectory: Path, runId: String, create: Boolean): Path =
     simulationLogDirectory(runId, create, resultsDirectory).resolve(LogFileName)
-}
 
-final class LogFileDataWriter(resultsDirectory: Path, configuration: GatlingConfiguration) extends DataWriter[FileData]("file-data-writer") {
-  StringInternals.checkAvailability()
-
-  override def onInit(init: DataWriterMessage.Init): FileData = {
-    import init._
-
+  def apply(
+      runMessage: RunMessage,
+      scenarios: Seq[ShortScenarioDescription],
+      assertions: Seq[Assertion],
+      resultsDirectory: Path,
+      configuration: GatlingConfiguration
+  ): LogFileDataWriter = {
+    StringInternals.checkAvailability()
     val simulationLog = LogFileDataWriter.logFile(resultsDirectory, runMessage.runId, create = true)
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
     val writer = new BufferedFileChannelWriter(channel, bb)
-    val scenarios = new ju.HashMap[String, Int]
-    init.scenarios.map(_.name).zipWithIndex.foreach { case (scenario, index) =>
-      scenarios.put(scenario, index)
+    val scenariosMap = new ju.HashMap[String, Int]
+    scenarios.map(_.name).zipWithIndex.foreach { case (scenario, index) =>
+      scenariosMap.put(scenario, index)
     }
-    new RunMessageSerializer(writer).serialize(runMessage, assertions, scenarios)
+
+    new LogFileDataWriter(
+      runMessage,
+      scenariosMap,
+      assertions,
+      writer
+    )
+  }
+}
+
+private[gatling] final class LogFileDataWriter private (
+    runMessage: RunMessage,
+    scenariosMap: ju.HashMap[String, Int],
+    assertions: Seq[Assertion],
+    writer: BufferedFileChannelWriter
+) extends DataWriter[FileData]("file-data-writer") {
+
+  override def onInit(): FileData = {
+    new RunMessageSerializer(writer).serialize(runMessage, assertions, scenariosMap)
 
     new FileData(
-      new UserMessageSerializer(writer, init.runMessage.start, scenarios),
-      new ResponseMessageSerializer(writer, init.runMessage.start),
-      new GroupMessageSerializer(writer, init.runMessage.start),
-      new ErrorMessageSerializer(writer, init.runMessage.start),
+      new UserMessageSerializer(writer, runMessage.start, scenariosMap),
+      new ResponseMessageSerializer(writer, runMessage.start),
+      new GroupMessageSerializer(writer, runMessage.start),
+      new ErrorMessageSerializer(writer, runMessage.start),
       writer
     )
   }

@@ -26,7 +26,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.actor.Cancellable
 import io.gatling.core.config.GatlingConfiguration
 
-private[gatling] final class UserCounters(val totalUserCount: Option[Long]) {
+private[writer] final class UserCounters(val totalUserCount: Option[Long]) {
   private var _activeCount: Long = 0
   private var _doneCount: Long = 0
 
@@ -45,9 +45,9 @@ private object RequestCounters {
   def empty: RequestCounters = new RequestCounters(0, 0)
 }
 
-private[gatling] final class RequestCounters(var successfulCount: Int, var failedCount: Int)
+private[writer] final class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
-private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter, val timer: Cancellable) extends DataWriterData {
+private[writer] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter, val timer: Cancellable) extends DataWriterData {
   var complete: Boolean = false
   val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
   val globalRequestCounters: RequestCounters = RequestCounters.empty
@@ -55,11 +55,14 @@ private[gatling] final class ConsoleData(val startUpTime: Long, val dateTimeForm
   val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 }
 
-private[gatling] final class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData]("console-data-writer") {
+private[gatling] final class ConsoleDataWriter(
+    runMessage: RunMessage,
+    scenarios: Seq[ShortScenarioDescription],
+    clock: Clock,
+    configuration: GatlingConfiguration
+) extends DataWriter[ConsoleData]("console-data-writer") {
 
-  override def onInit(init: DataWriterMessage.Init): ConsoleData = {
-    import init._
-
+  override def onInit(): ConsoleData = {
     val timer = scheduler.scheduleAtFixedRate(configuration.data.console.writePeriod) {
       self ! DataWriterMessage.Flush
     }

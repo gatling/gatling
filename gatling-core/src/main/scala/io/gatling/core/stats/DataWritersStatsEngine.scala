@@ -19,11 +19,10 @@ package io.gatling.core.stats
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 
-import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.duration._
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.Clock
 import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
@@ -42,23 +41,24 @@ object DataWritersStatsEngine {
       resultsDirectory: Option[Path],
       configuration: GatlingConfiguration
   ): DataWritersStatsEngine = {
+    val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
+    val scenarios = allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
+
     val dataWriters = configuration.data.dataWriters
       .map {
-        case DataWriterType.Console => new ConsoleDataWriter(clock, configuration)
+        case DataWriterType.Console => new ConsoleDataWriter(runMessage, scenarios, clock, configuration)
         case DataWriterType.File =>
-          new LogFileDataWriter(
+          LogFileDataWriter(
+            runMessage,
+            scenarios,
+            simulationParams.assertions,
             resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
             configuration
           )
       }
       .map(system.actorOf)
 
-    val allPopulationBuilders = PopulationBuilder.flatten(simulationParams.rootPopulationBuilders)
-
     new DataWritersStatsEngine(
-      simulationParams.assertions,
-      runMessage,
-      allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount)),
       dataWriters,
       system,
       clock
@@ -67,29 +67,13 @@ object DataWritersStatsEngine {
 }
 
 final class DataWritersStatsEngine(
-    assertions: Seq[Assertion],
-    runMessage: RunMessage,
-    scenarios: Seq[ShortScenarioDescription],
     dataWriters: Seq[ActorRef[DataWriterMessage]],
     system: ActorSystem,
     clock: Clock
 ) extends StatsEngine {
   private val active = new AtomicBoolean(true)
 
-  override def start(): Unit = {
-    val startTimeoutDuration = 5.seconds
-
-    val dataWriterInitResponses = dataWriters.map { dataWriter =>
-      val promise = dataWriter.replyPromise[Unit](startTimeoutDuration)
-      dataWriter ! DataWriterMessage.Init(assertions, runMessage, scenarios, promise)
-      promise.future
-    }
-
-    implicit val executionContext: ExecutionContext = system.executionContext
-    val statsEngineFuture = Future.sequence(dataWriterInitResponses)
-
-    Await.ready(statsEngineFuture, startTimeoutDuration)
-  }
+  override def start(): Unit = dataWriters.foreach(_ ! DataWriterMessage.Init)
 
   override def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {
