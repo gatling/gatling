@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import java.time.ZonedDateTime
+import java.time.{ Clock => JavaTimeClock, Instant, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 
 import scala.collection.mutable
@@ -24,7 +24,7 @@ import scala.collection.mutable
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.Clock
 import io.gatling.core.actor.Cancellable
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.ConsoleDataWriterConfiguration
 
 private[writer] final class UserCounters(val totalUserCount: Option[Long]) {
   private var _activeCount: Long = 0
@@ -59,11 +59,11 @@ private[gatling] final class ConsoleDataWriter(
     runMessage: RunMessage,
     scenarios: Seq[ShortScenarioDescription],
     clock: Clock,
-    configuration: GatlingConfiguration
+    configuration: ConsoleDataWriterConfiguration
 ) extends DataWriter[ConsoleData]("console-data-writer") {
 
   override def onInit(): ConsoleData = {
-    val timer = scheduler.scheduleAtFixedRate(configuration.data.console.writePeriod) {
+    val timer = scheduler.scheduleAtFixedRate(configuration.writePeriod) {
       self ! DataWriterMessage.Flush
     }
 
@@ -77,10 +77,20 @@ private[gatling] final class ConsoleDataWriter(
   override def onFlush(data: ConsoleData): Unit = {
     import data._
 
-    val runDuration = (clock.nowMillis - startUpTime) / 1000
+    val now = clock.nowMillis
+    val runDuration = (now - startUpTime) / 1000
 
     val summary =
-      ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, ZonedDateTime.now(), dateTimeFormatter)
+      ConsoleSummary(
+        runDuration,
+        usersCounters,
+        globalRequestCounters,
+        requestsCounters,
+        errorsCounters,
+        configuration.light,
+        ZonedDateTime.ofInstant(Instant.ofEpochMilli(now), JavaTimeClock.systemDefaultZone().getZone),
+        dateTimeFormatter
+      )
     complete = summary.complete
     println(summary.text)
   }

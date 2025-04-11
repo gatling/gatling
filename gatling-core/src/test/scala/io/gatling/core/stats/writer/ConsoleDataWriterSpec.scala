@@ -28,7 +28,7 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
-  private val configuration = GatlingConfiguration.loadForTest()
+  private val light = GatlingConfiguration.loadForTest().data.console.light
 
   private val time = LocalDateTime.of(2012, Month.SEPTEMBER, 24, 13, 37, 0)
 
@@ -49,7 +49,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       RequestCounters.empty,
       mutable.Map.empty,
       mutable.Map.empty,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -68,7 +68,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       RequestCounters.empty,
       mutable.Map.empty,
       mutable.Map.empty,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -87,7 +87,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       RequestCounters.empty,
       mutable.Map.empty,
       mutable.Map.empty,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -106,7 +106,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       RequestCounters.empty,
       mutable.Map.empty,
       mutable.Map.empty,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -123,7 +123,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       new RequestCounters(20, 0),
       requestCounters,
       mutable.Map.empty,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -144,7 +144,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       new RequestCounters(0, 20),
       requestCounters,
       errorsCounters1,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )
@@ -168,7 +168,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       new RequestCounters(0, 123456),
       requestCounters,
       errorsCounters,
-      configuration,
+      light,
       time,
       DateTimeFormatter.ISO_DATE_TIME
     )

@@ -46,14 +46,13 @@ object DataWritersStatsEngine {
 
     val dataWriters = configuration.data.dataWriters
       .map {
-        case DataWriterType.Console => new ConsoleDataWriter(runMessage, scenarios, clock, configuration)
+        case DataWriterType.Console => new ConsoleDataWriter(runMessage, scenarios, clock, configuration.data.console)
         case DataWriterType.File =>
           LogFileDataWriter(
             runMessage,
             scenarios,
             simulationParams.assertions,
-            resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory")),
-            configuration
+            resultsDirectory.getOrElse(throw new IllegalArgumentException("Can't use the file DataWriter without setting the results directory"))
           )
       }
       .map(system.actorOf)

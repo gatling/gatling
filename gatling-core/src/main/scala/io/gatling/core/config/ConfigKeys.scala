@@ -118,12 +118,6 @@ object ConfigKeys {
     val UtcDateTime = "gatling.data.utcDateTime"
     val Writers = "gatling.data.writers"
 
-    object file {
-      val BufferSize = "gatling.data.file.bufferSize"
-    }
-    object leak {
-      val NoActivityTimeout = "gatling.data.leak.noActivityTimeout"
-    }
     object console {
       val Light = "gatling.data.console.light"
       val WritePeriod = "gatling.data.console.writePeriod"

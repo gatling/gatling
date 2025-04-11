@@ -26,7 +26,6 @@ import scala.jdk.CollectionConverters.MapHasAsScala
 
 import io.gatling.commons.stats.OK
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 
 import com.typesafe.scalalogging.StrictLogging
@@ -212,6 +211,7 @@ final class FileData(
 
 private[gatling] object LogFileDataWriter {
   private[gatling] val LogFileName = "simulation.log"
+  private val BufferSize = 8192
 
   def logFile(resultsDirectory: Path, runId: String, create: Boolean): Path =
     simulationLogDirectory(runId, create, resultsDirectory).resolve(LogFileName)
@@ -220,13 +220,12 @@ private[gatling] object LogFileDataWriter {
       runMessage: RunMessage,
       scenarios: Seq[ShortScenarioDescription],
       assertions: Seq[Assertion],
-      resultsDirectory: Path,
-      configuration: GatlingConfiguration
+      resultsDirectory: Path
   ): LogFileDataWriter = {
     StringInternals.checkAvailability()
     val simulationLog = LogFileDataWriter.logFile(resultsDirectory, runMessage.runId, create = true)
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
-    val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
+    val bb = ByteBuffer.allocate(BufferSize)
     val writer = new BufferedFileChannelWriter(channel, bb)
     val scenariosMap = new ju.HashMap[String, Int]
     scenarios.map(_.name).zipWithIndex.foreach { case (scenario, index) =>

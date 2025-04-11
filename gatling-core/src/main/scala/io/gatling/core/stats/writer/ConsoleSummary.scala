@@ -25,7 +25,6 @@ import scala.math.{ ceil, floor }
 
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.ErrorStats
 import io.gatling.core.stats.writer.ConsoleStatsFormat._
 import io.gatling.shared.util.NumberHelper._
@@ -41,7 +40,7 @@ private[gatling] object ConsoleSummary {
       globalRequestCounters: RequestCounters,
       requestsCounters: mutable.Map[String, RequestCounters],
       errorsCounters: mutable.Map[String, Int],
-      configuration: GatlingConfiguration,
+      lightOutput: Boolean,
       time: TemporalAccessor,
       dateTimeFormatter: DateTimeFormatter
   ): ConsoleSummary = {
@@ -77,7 +76,7 @@ private[gatling] object ConsoleSummary {
     }
 
     def writeDetailedRequestsCounter(sb: jl.StringBuilder): jl.StringBuilder = {
-      if (!configuration.data.console.light) {
+      if (!lightOutput) {
         requestsCounters.foreachEntry((actionName, requestCounters) => writeRequestsCounter(sb, actionName, requestCounters).append(Eol))
         if (requestsCounters.nonEmpty) {
           sb.setLength(sb.length - Eol.length)

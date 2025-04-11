@@ -48,7 +48,7 @@ private[gatling] abstract class DataWriter[T <: DataWriterData](name: String) ex
         become(initialized(newState))
       } catch {
         case NonFatal(e) =>
-          logger.error("DataWriter failed to initialize", e)
+          logger.error(s"DataWriter ${getClass.getName} failed to initialize", e)
           die
       }
 

@@ -212,12 +212,6 @@ object GatlingConfiguration extends StrictLogging {
           value.seconds
         }
       ),
-      file = new FileDataWriterConfiguration(
-        bufferSize = config.getInt(data.file.BufferSize)
-      ),
-      leak = new LeakDataWriterConfiguration(
-        noActivityTimeout = config.getInt(data.leak.NoActivityTimeout).seconds
-      ),
       enableAnalytics = config.getBoolean(data.EnableAnalytics)
     )
 
@@ -337,21 +331,11 @@ final class DnsConfiguration(
 final class DataConfiguration(
     val zoneId: ZoneId,
     val dataWriters: Seq[DataWriterType],
-    val file: FileDataWriterConfiguration,
-    val leak: LeakDataWriterConfiguration,
     val console: ConsoleDataWriterConfiguration,
     val enableAnalytics: Boolean
 ) {
   def fileDataWriterEnabled: Boolean = dataWriters.contains(DataWriterType.File)
 }
-
-final class FileDataWriterConfiguration(
-    val bufferSize: Int
-)
-
-final class LeakDataWriterConfiguration(
-    val noActivityTimeout: FiniteDuration
-)
 
 final class ConsoleDataWriterConfiguration(
     val light: Boolean,
