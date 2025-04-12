@@ -46,7 +46,7 @@ private[http] object SslContextsFactory {
   )
 }
 
-private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends StrictLogging {
+private[gatling] final class SslContextsFactory(sslConfig: SslConfiguration, enableHostnameVerification: Boolean) extends StrictLogging {
   import SslContextsFactory._
 
   private val useOpenSsl =
@@ -79,7 +79,18 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
       val supportedCipherSuites = DefaultJavaSslParameters.getCipherSuites
       sslConfig.enabledCipherSuites.filter(supportedCipherSuites.contains).asJava
     }
-  private val sslProvider = if (useOpenSsl && sslConfig.useOpenSslFinalizers) SslProvider.OPENSSL else SslProvider.OPENSSL_REFCNT
+  private val sslProvider =
+    if (useOpenSsl) {
+      if (sslConfig.useOpenSslFinalizers) {
+        SslProvider.OPENSSL
+      } else {
+        SslProvider.OPENSSL_REFCNT
+      }
+    } else {
+      SslProvider.JDK
+    }
+
+  private val endpointIdentificationAlgorithm = if (enableHostnameVerification) "HTTPS" else null
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
     val kmf = perUserKeyManagerFactory.orElse(sslConfig.keyManagerFactory)
@@ -91,77 +102,47 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
       }
     }
 
-    if (useOpenSsl) {
-      val sslContextBuilder = SslContextBuilder.forClient.sslProvider(sslProvider)
+    val sslContextBuilder = SslContextBuilder.forClient
+      .sslProvider(sslProvider)
+      .endpointIdentificationAlgorithm(endpointIdentificationAlgorithm)
+      .secureRandom(DefaultSslSecureRandom)
 
-      if (sslConfig.sessionCacheSize > 0) {
-        sslContextBuilder.sessionCacheSize(sslConfig.sessionCacheSize)
-      }
-
-      if (sslConfig.sessionTimeout > Duration.Zero) {
-        sslContextBuilder.sessionTimeout(sslSessionTimeoutSeconds)
-      }
-
-      if (enabledProtocols.nonEmpty) {
-        sslContextBuilder.protocols(enabledProtocols: _*)
-      }
-
-      if (sslConfig.enabledCipherSuites.nonEmpty) {
-        sslContextBuilder.ciphers(enabledCipherSuites)
-      } else {
-        sslContextBuilder.ciphers(null, IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS)
-      }
-
-      kmf.foreach(sslContextBuilder.keyManager)
-      tmf.foreach(sslContextBuilder.trustManager)
-
-      new SslContexts(() => {
-        val sslContext = sslContextBuilder.build
-        val alpnSslContext =
-          if (http2Enabled) {
-            Some(sslContextBuilder.applicationProtocolConfig(Apn).build)
-          } else {
-            None
-          }
-        (sslContext, alpnSslContext)
-      })
-    } else {
-      new SslContexts(() => {
-        val jdkSslContext = SSLContext.getInstance("TLS")
-        jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)
-
-        val sslContext = newJdkSslContext(jdkSslContext, null)
-        val alpnSslContext =
-          if (http2Enabled) {
-            Some(newJdkSslContext(jdkSslContext, Apn))
-          } else {
-            None
-          }
-
-        (sslContext, alpnSslContext)
-      })
+    if (sslConfig.sessionCacheSize > 0) {
+      sslContextBuilder.sessionCacheSize(sslConfig.sessionCacheSize)
     }
-  }
 
-  private def newJdkSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext =
-    new JdkSslContext(
-      jdkSslContext,
-      true,
-      if (enabledCipherSuites.isEmpty) null else enabledCipherSuites,
-      IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS,
-      apn,
-      ClientAuth.NONE,
-      if (enabledProtocols.nonEmpty) enabledProtocols else null,
-      false
-    )
+    if (sslConfig.sessionTimeout > Duration.Zero) {
+      sslContextBuilder.sessionTimeout(sslSessionTimeoutSeconds)
+    }
+
+    if (enabledProtocols.nonEmpty) {
+      sslContextBuilder.protocols(enabledProtocols: _*)
+    }
+
+    if (sslConfig.enabledCipherSuites.nonEmpty) {
+      sslContextBuilder.ciphers(enabledCipherSuites)
+    } else {
+      sslContextBuilder.ciphers(null, IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS)
+    }
+
+    kmf.foreach(sslContextBuilder.keyManager)
+    tmf.foreach(sslContextBuilder.trustManager)
+
+    new SslContexts(sslContextBuilder, if (http2Enabled) Some(Apn) else None)
+  }
 }
 
-private[http] final class SslContexts(sslContextsF: () => (SslContext, Option[SslContext])) extends SslContextsHolder with AutoCloseable {
+private[http] final class SslContexts(sslContextBuilder: SslContextBuilder, apn: Option[ApplicationProtocolConfig])
+    extends SslContextsHolder
+    with AutoCloseable {
 
   private var loaded = false
   private lazy val (sslContext: SslContext, alpnSslContext: Option[SslContext]) = {
     loaded = true
-    sslContextsF()
+    (
+      sslContextBuilder.build,
+      apn.map(sslContextBuilder.applicationProtocolConfig(_).build)
+    )
   }
 
   override def close(): Unit =

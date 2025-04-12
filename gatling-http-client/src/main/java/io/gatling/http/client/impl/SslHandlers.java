@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLParameters;
 
 public final class SslHandlers {
 
@@ -37,13 +36,6 @@ public final class SslHandlers {
         config.isEnableSni()
             ? sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort)
             : sslContext.newEngine(allocator);
-
-    sslEngine.setUseClientMode(true);
-    if (config.isEnableHostnameVerification()) {
-      SSLParameters params = sslEngine.getSSLParameters();
-      params.setEndpointIdentificationAlgorithm("HTTPS");
-      sslEngine.setSSLParameters(params);
-    }
 
     SslHandler sslHandler = new SslHandler(sslEngine);
     if (config.getHandshakeTimeout() > 0)
