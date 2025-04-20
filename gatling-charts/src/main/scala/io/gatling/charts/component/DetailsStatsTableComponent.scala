@@ -130,7 +130,7 @@ private[charts] final class DetailsStatsTableComponent(configuration: Indicators
                         </div>
 """
 
-  val js = ""
+  override def js = ""
 
-  val jsFiles: Seq[String] = Nil
+  override def jsFiles: Seq[String] = Nil
 }

@@ -21,11 +21,11 @@ import io.gatling.core.stats.ErrorStats
 import io.gatling.shared.util.NumberHelper._
 
 private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
-  def js: String = """
+  override def js: String = """
 	    $('#container_errors').sortable('#container_errors');
     """
 
-  def html: String =
+  override def html: String =
     if (errors.isEmpty)
       ""
     else
@@ -55,5 +55,5 @@ private[charts] final class ErrorsTableComponent(errors: Seq[ErrorStats]) extend
 </div>
 """
 
-  def jsFiles: Seq[String] = Nil
+  override def jsFiles: Seq[String] = Nil
 }

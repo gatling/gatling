@@ -24,7 +24,7 @@ import io.gatling.shared.util.NumberHelper._
 
 private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsConfiguration) extends Component {
 
-  override val html: String = {
+  override def html: String = {
     def pctTitle(pct: Double) = pct.toRank + " pct"
 
     val responseTimeFields = List(
@@ -120,7 +120,7 @@ function closeStatisticsTableModal () {
 """
   }
 
-  val js = s"""
+  override def js = s"""
 
 function generateHtmlRow(request, level, index, parent, group) {
     if (request.name == '$AllRequestLineTitle')
@@ -208,5 +208,5 @@ if (lines.index < 30) {
 $$('.table-cell-tooltip').popover({trigger:'hover'});
 """
 
-  val jsFiles: Seq[String] = Nil
+  override def jsFiles: Seq[String] = Nil
 }

@@ -20,7 +20,7 @@ import io.gatling.charts.util.HtmlHelper._
 import io.gatling.shared.model.assertion.{ AssertionMessage, AssertionResult }
 
 private[charts] final class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
-  def js: String = """
+  override def js: String = """
 	    $('#container_exceptions').sortable('#container_exceptions');
     """
 
@@ -43,7 +43,7 @@ private[charts] final class AssertionsTableComponent(assertionResults: List[Asse
        |</tr>""".stripMargin
   }
 
-  def html: String =
+  override def html: String =
     if (assertionResults.isEmpty) {
       ""
     } else {
@@ -66,5 +66,5 @@ private[charts] final class AssertionsTableComponent(assertionResults: List[Asse
 """
     }
 
-  def jsFiles: Seq[String] = Seq.empty
+  override def jsFiles: Seq[String] = Nil
 }
