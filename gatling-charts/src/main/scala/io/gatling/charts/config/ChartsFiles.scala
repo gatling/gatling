@@ -28,7 +28,7 @@ private[charts] object ChartsFiles {
   val AllRequestLineTitle: String = "All Requests"
 
   val CommonJsFiles: Seq[String] = Seq(
-    "jquery-3.5.1.min.js",
+    "jquery-3.7.1.slim.min.js",
     "bootstrap.min.js",
     "gatling.js",
     "menu.js",
