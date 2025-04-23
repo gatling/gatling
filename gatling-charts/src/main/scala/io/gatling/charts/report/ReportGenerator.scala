@@ -16,6 +16,6 @@
 
 package io.gatling.charts.report
 
-private[charts] abstract class ReportGenerator {
+private[charts] trait ReportGenerator {
   def generate(): Unit
 }

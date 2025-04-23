@@ -16,10 +16,28 @@
 
 package io.gatling.charts.component
 
-private[gatling] trait Component {
+import java.text.{ DecimalFormat, DecimalFormatSymbols }
+import java.util.Locale
+
+import io.gatling.core.stats.NoPlotMagicValue
+
+private object Component {
+  private val Formatter = new DecimalFormat("###.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH))
+
+  private def formatNumber[T: Numeric](value: T): String =
+    Formatter.format(implicitly[Numeric[T]].toDouble(value))
+}
+
+private[gatling] abstract class Component {
   def html: String
 
   def js: String
 
   def jsFiles: Seq[String]
+
+  protected def style[T: Numeric](value: T) =
+    value match {
+      case NoPlotMagicValue => "-"
+      case _                => Component.formatNumber(value)
+    }
 }

@@ -18,19 +18,18 @@ package io.gatling.charts.template
 
 import java.time.{ ZoneOffset, ZonedDateTime }
 
-import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
-import io.gatling.charts.stats.{ Group, RunInfo }
+import io.gatling.charts.report.GroupContainer
+import io.gatling.charts.stats.RunInfo
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
 import io.gatling.commons.util.GatlingVersion
 import io.gatling.commons.util.StringHelper._
 
 private[charts] abstract class PageTemplate(
     runInfo: RunInfo,
     title: String,
-    isDetails: Boolean,
-    requestName: Option[String],
-    group: Option[Group],
+    rootContainer: GroupContainer,
     components: Component*
 ) {
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
@@ -41,20 +40,6 @@ private[charts] abstract class PageTemplate(
       case -1 => runInfo.simulationClassName
       case i  => runInfo.simulationClassName.substring(i + 1)
     }
-
-    val pageStats =
-      if (isDetails) {
-        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil).map(_.toGroupFileName)
-
-        val groupAndRequestHierarchy = requestName match {
-          case Some(req) => groupHierarchy :+ req.toRequestFileName
-          case _         => groupHierarchy
-        }
-
-        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.mkString("'].contents['")}'].stats;"""
-      } else {
-        "var pageStats = stats.stats;"
-      }
 
     val deprecationWarning = {
       val thisReleaseDate = GatlingVersion.ThisVersion.releaseDate
@@ -90,11 +75,11 @@ private[charts] abstract class PageTemplate(
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
-<link href="style/style.css" rel="stylesheet" type="text/css" />
-<link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico">
+<link href="style/style.css" rel="stylesheet" type="text/css">
+<link href="style/bootstrap.min.css" rel="stylesheet" type="text/css">
 ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)}
-<title>Gatling Stats - $title</title>
+<title>Gatling Stats - ${title.htmlEscape}</title>
 </head>
 <body>
 <script>
@@ -113,14 +98,14 @@ ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)
 <div class="frise"></div>
 <div class="head">
   <div class="gatling-open-source">
-    <a class="gatling-logo gatling-logo-light" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-light.svg"/></a>
-    <a class="gatling-logo gatling-logo-dark" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-dark.svg"/></a>
+    <a class="gatling-logo gatling-logo-light" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-light.svg"></a>
+    <a class="gatling-logo gatling-logo-dark" href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo-dark.svg"></a>
     <a class="gatling-documentation" href="https://gatling.io/docs/" target="_blank">Documentation</a>
   </div>
   <div class="nav spacer"></div>
   <a class="enterprise" href="https://gatling.io/enterprise/next-step/" target="_blank"><strong>Try</strong>
-    <img class="logo-enterprise-light" alt="Gatling Enterprise" src="style/logo-enterprise-light.svg"/>
-    <img class="logo-enterprise-dark" alt="Gatling Enterprise" src="style/logo-enterprise-dark.svg"/>
+    <img class="logo-enterprise-light" alt="Gatling Enterprise" src="style/logo-enterprise-light.svg">
+    <img class="logo-enterprise-dark" alt="Gatling Enterprise" src="style/logo-enterprise-dark.svg">
   </a>
   <button id="theme-toggle" class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle user interface mode">
     <span class="toggle-dark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
@@ -129,40 +114,36 @@ ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)
 </div>
 <div class="container details">
   <div class="nav">
-    <ul></ul>
+    <ul>$getMenu</ul>
   </div>
-    <div class="cadre">
-      <div class="content">
-        <div class="content-header">
-          <div class="onglet">
-            $simulationClassSimpleName
+  <div class="cadre">
+    <div class="content">
+      <div class="content-header">
+        <div class="onglet">
+          $simulationClassSimpleName
+        </div>
+        <div class="sous-menu" id="sousMenu">
+          <div class="sous-menu-spacer">
+            $getSubMenu
           </div>
-          <div class="sous-menu" id="sousMenu">
-            <div class="sous-menu-spacer">
-              <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">Global</a></div>
-                <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">Details</a></div>
-              </div>
-            </div>
-          </div>
-          <div class="content-in">
-            <div class="container-article">
-            <div class="article">
-              $deprecationWarning
-              ${components.map(_.html).mkString}
-            </div>
+        </div>
+      </div>
+      <div class="content-in">
+        <div class="container-article">
+          <div class="article">
+            $deprecationWarning
+            ${components.map(_.html).mkString}
           </div>
         </div>
       </div>
     </div>
+  </div>
 </div>
 <script>
-    $pageStats
     $$(document).ready(function() {
         $$('.simulation-tooltip').popover({trigger:'hover', placement:'left'});
-        setDetailsLinkUrl();
-        ${if (isDetails) "setDetailsMenu();" else "setGlobalMenu();"}
+        $onDocumentReady
         setActiveMenu();
-        fillStats(pageStats);
         ${components.map(_.js).mkString}
     });
 </script>
@@ -171,4 +152,13 @@ ${jsFiles.map(jsFile => s"""<script src="js/$jsFile"></script>""").mkString(Eol)
 </html>
 """
   }
+
+  protected def getSubMenu: String
+
+  protected def getMenu: String
+
+  protected def getFirstDetailPageUrl: String =
+    rootContainer.groups.values.headOption.getOrElse(rootContainer.requests.values.head).id + ".html"
+
+  protected def onDocumentReady: String
 }

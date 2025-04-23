@@ -20,18 +20,16 @@ import java.nio.charset.Charset
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.{ IntVsTimePlot, Series }
+import io.gatling.charts.stats.{ IntVsTimePlot, LogFileData, Series }
 import io.gatling.charts.util.Color
 
-private[charts] class AllSessionsReportGenerator(
-    reportsGenerationInputs: ReportsGenerationInputs,
+private[charts] final class AllSessionsReportGenerator(
+    logFileData: LogFileData,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
     charset: Charset
 ) extends ReportGenerator {
   def generate(): Unit = {
-    import reportsGenerationInputs._
-
     val series = new Series[IntVsTimePlot]("Active Users", logFileData.numberOfActiveSessionsPerSecond(None), List(Color.Users.All))
 
     val javascript = componentLibrary.getAllUsersJs(logFileData.runInfo.injectStart, series)

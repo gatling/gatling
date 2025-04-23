@@ -17,8 +17,21 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
-import io.gatling.charts.config.ChartsFiles.GlobalPageName
+import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.stats.RunInfo
 
-private[charts] final class GlobalPageTemplate(runInfo: RunInfo, components: Component*)
-    extends PageTemplate(runInfo, GlobalPageName, false, None, None, components: _*)
+private[charts] final class GlobalPageTemplate(runInfo: RunInfo, rootContainer: GroupContainer, components: Component*)
+    extends PageTemplate(runInfo, "Global Information", rootContainer, components: _*) {
+  override protected def getSubMenu: String =
+    s"""<div class="item ouvert"><a href="index.html">Global</a></div>
+       |<div class="item"><a id="details_link" href="$getFirstDetailPageUrl">Details</a></div>""".stripMargin
+
+  override protected def getMenu: String =
+    """<li><a class="item" href="#ranges"><span class="nav-label">Ranges</span></a></li>
+      |<li><a class="item" href="#stats"><span class="nav-label">Stats</span></a></li>
+      |<li><a class="item" href="#active_users"><span class="nav-label">Active Users</span></a></li>
+      |<li><a class="item" href="#requests"><span class="nav-label">Requests / sec</span></a></li>
+      |<li><a class="item" href="#responses"><span class="nav-label">Responses / sec</span></a></li>""".stripMargin
+
+  override protected def onDocumentReady: String = ""
+}

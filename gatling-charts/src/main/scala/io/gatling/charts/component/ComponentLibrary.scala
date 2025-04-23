@@ -20,6 +20,7 @@ import java.util.ServiceLoader
 
 import scala.jdk.CollectionConverters._
 
+import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.stats._
 
 import com.typesafe.scalalogging.StrictLogging
@@ -36,8 +37,8 @@ private[charts] object ComponentLibrary extends StrictLogging {
 private[gatling] trait ComponentLibrary {
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
   def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
-  def getRangesComponent(chartTitle: String, eventName: String, large: Boolean): Component
-  def getRequestCountPolarComponent: Component
+  def getRangesComponent(chartTitle: String, eventName: String, ranges: Ranges, large: Boolean): Component
+  def getRequestCountPolarComponent(rootContainer: GroupContainer): Component
   def getDistributionComponent(
       title: String,
       yAxisName: String,

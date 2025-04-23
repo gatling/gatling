@@ -19,31 +19,47 @@ package io.gatling.charts.report
 import scala.annotation.tailrec
 import scala.collection.mutable
 
+import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.stats.Group
+import io.gatling.charts.stats.{ Group, RequestPath }
 
-private[gatling] object Container {
-  val Group = "GROUP"
-  val Request = "REQUEST"
+private[charts] trait Container {
+  def name: String
+  def id: String
+  def stats: RequestStatistics
 }
 
-private[charts] trait Container
+private[charts] object RequestContainer {
+  def apply(name: String, group: Option[Group], stats: RequestStatistics): RequestContainer =
+    new RequestContainer(name, group, RequestPath.path(name, group).toRequestFileName, stats)
+}
 
-private[charts] final class RequestContainer(val name: String, val stats: RequestStatistics) extends Container
+private[charts] final class RequestContainer(
+    override val name: String,
+    val group: Option[Group],
+    override val id: String,
+    override val stats: RequestStatistics
+) extends Container
 
 private[charts] object GroupContainer {
-  def root(requestStats: RequestStatistics): GroupContainer = GroupContainer("ROOT", requestStats)
+  val RootId: String = "ROOT"
 
-  def apply(name: String, stats: RequestStatistics): GroupContainer =
-    new GroupContainer(name, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
+  def root(stats: RequestStatistics): GroupContainer =
+    new GroupContainer(Group.Root, RootId, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
+
+  def apply(group: Group, stats: RequestStatistics): GroupContainer =
+    new GroupContainer(group, RequestPath.path(group).toGroupFileName, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
 }
 
 private[charts] final class GroupContainer(
-    val name: String,
-    val stats: RequestStatistics,
+    val group: Group,
+    override val id: String,
+    override val stats: RequestStatistics,
     val requests: mutable.Map[String, RequestContainer],
     val groups: mutable.Map[String, GroupContainer]
 ) extends Container {
+  override def name: String = group.name
+
   private def findGroup(path: List[String]) = {
     @tailrec
     def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
@@ -56,11 +72,11 @@ private[charts] final class GroupContainer(
 
   def addGroup(group: Group, stats: RequestStatistics): Unit = {
     val parentGroup = group.hierarchy.dropRight(1)
-    findGroup(parentGroup).groups += (group.name -> GroupContainer(group.name, stats))
+    findGroup(parentGroup).groups += (group.name -> GroupContainer(group, stats))
   }
 
   def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics): Unit = {
     val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
-    findGroup(parentGroup).requests += (requestName -> new RequestContainer(requestName, stats))
+    findGroup(parentGroup).requests += (requestName -> RequestContainer(requestName, group, stats))
   }
 }

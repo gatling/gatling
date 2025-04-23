@@ -16,13 +16,20 @@
 
 package io.gatling.charts.component
 
-import io.gatling.charts.config.ChartsFiles.AllRequestLineTitle
-import io.gatling.charts.report.Container.{ Group, Request }
+import java.{ lang => jl }
+
+import io.gatling.charts.report.{ Container, GroupContainer }
+import io.gatling.charts.stats.Group
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.IndicatorsConfiguration
+import io.gatling.core.stats.NoPlotMagicValue
 import io.gatling.shared.util.NumberHelper._
 
-private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsConfiguration) extends Component {
+private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContainer, configuration: IndicatorsConfiguration) extends Component {
+
+  private val headContent = generateHtmlRow(rootContainer, 0, 0, None, group = false)
+  private val (bodyContent, bodyIndex) = generateHtmlRowsForGroup(rootContainer, 0, 0, None)
 
   override def html: String = {
     def pctTitle(pct: Double) = pct.toRank + " pct"
@@ -68,10 +75,10 @@ private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsC
         .mkString(Eol)}
                                       </tr>
                                   </thead>
-                                  <tbody></tbody>
+                                  <tbody>$headContent</tbody>
                               </table>
                               <table id="container_statistics_body" class="statistics-in extensible-geant">
-                                  <tbody></tbody>
+                                  <tbody>$bodyContent</tbody>
                               </table>
                             </div>
                         </div>
@@ -82,131 +89,102 @@ private[charts] final class GlobalStatsTableComponent(configuration: IndicatorsC
     <div id="statistics_table_modal_content" class="statistics-table-modal-content"></div>
   </div>
 </dialog>
-<script>
-function openStatisticsTableModal () {
-  const statsTable = document.getElementById("stats");
-  const statsTableModal = document.getElementById("statistics_table_modal");
-  const fullScreenButton = document.getElementById("statistics_full_screen");
-
-  fullScreenButton.disabled = true;
-
-  if (typeof statsTableModal.showModal === "function") {
-    const statsTableModalContent = document.getElementById("statistics_table_modal_content");
-
-    statsTableModalContent.innerHTML = "";
-    statsTableModalContent.appendChild(statsTable);
-    statsTableModal.showModal();
-
-    statsTableModal.addEventListener("close", function () {
-      const container = document.getElementById("statistics_table_container");
-
-      container.appendChild(statsTable);
-      fullScreenButton.disabled = false;
-    });
-  } else {
-    const incompatibleBrowserVersionMessage = document.createElement("div");
-
-    incompatibleBrowserVersionMessage.innerText = "Sorry, the <dialog> API is not supported by this browser.";
-    statsTable.insertBefore(incompatibleBrowserVersionMessage, statsTable.children[0]);
-  }
-}
-
-function closeStatisticsTableModal () {
-  const statsTableModal = document.getElementById("statistics_table_modal");
-
-  statsTableModal.close();
-}
-</script>
 """
+  }
+
+  private def generateHtmlRow(container: Container, level: Int, index: Int, parent: Option[String], group: Boolean): String = {
+    val url = container match {
+      case groupContainer: GroupContainer if groupContainer.group == Group.Root => "index.html"
+      case _                                                                    => s"${container.id}.html"
+    }
+
+    val expandButtonStyle = container match {
+      case _: GroupContainer => ""
+      case _                 => "hidden"
+    }
+
+    val koPercent =
+      if (container.stats.numberOfRequestsStatistics.total != 0) {
+        container.stats.numberOfRequestsStatistics.failure * 100.0 / container.stats.numberOfRequestsStatistics.total
+      } else {
+        NoPlotMagicValue
+      }
+
+    val dataParent = parent.map(p => s"""data-parent="$p"""").getOrElse("")
+
+    s"""<tr $dataParent>
+       |  <td class="total col-1">
+       |    <div class="expandable-container">
+       |      <span id="${container.id}" style="margin-left: ${level * 10}px;" class="expand-button $expandButtonStyle">&nbsp;</span>
+       |        <a href="$url" class="withTooltip">
+       |          <span class="table-cell-tooltip" id="parent-stats-table-${container.id}" data-toggle="popover" data-placement="right" data-container="body" data-content="">
+       |            <span onmouseover="isEllipsed('stats-table-${container.id}')" id="stats-table-${container.id}" class="ellipsed-name">${container.name.htmlEscape}</span>
+       |          </span>
+       |        </a>
+       |      <span class="value" style="display:none;">$index</span>
+       |    </div>
+       |  </td>
+       |  <td class="value total col-2">${style(container.stats.numberOfRequestsStatistics.total)}</td>
+       |  <td class="value ok col-3">${style(container.stats.numberOfRequestsStatistics.success)}</td>
+       |  <td class="value ko col-4">${style(container.stats.numberOfRequestsStatistics.failure)}</td>
+       |  <td class="value ko col-5">${style(koPercent)}</td>
+       |  <td class="value total col-6">${style(container.stats.meanNumberOfRequestsPerSecondStatistics.total)}</td>
+       |  <td class="value total col-7">${style(container.stats.minResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-8">${style(container.stats.percentiles1.total)}</td>
+       |  <td class="value total col-9">${style(container.stats.percentiles2.total)}</td>
+       |  <td class="value total col-10">${style(container.stats.percentiles3.total)}</td>
+       |  <td class="value total col-11">${style(container.stats.percentiles4.total)}</td>
+       |  <td class="value total col-12">${style(container.stats.maxResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-13">${style(container.stats.meanResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-14">${style(container.stats.stdDeviationStatistics.total)}</td>
+       |</tr>""".stripMargin
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  private def generateHtmlRowsForGroup(group: GroupContainer, level: Int, index: Int, parent: Option[String]): (String, Int) = {
+    val buffer = new jl.StringBuilder
+    var newIndex = index
+
+    val newParent =
+      if (parent.isEmpty) {
+        Some(GroupContainer.RootId)
+      } else {
+        buffer.append(generateHtmlRow(group, level - 1, index, parent, group = true))
+        newIndex += 1
+        Some(group.id)
+      }
+
+    group.groups.values.foreach { group =>
+      val (groupContent, groupIndex) = generateHtmlRowsForGroup(group, level + 1, index, newParent)
+      buffer.append(groupContent)
+      newIndex += groupIndex
+    }
+
+    group.requests.values.foreach { request =>
+      buffer.append(generateHtmlRow(request, level, index, newParent, group = false))
+      newIndex += 1
+    }
+
+    (buffer.toString, newIndex)
   }
 
   override def js = s"""
-
-function generateHtmlRow(request, level, index, parent, group) {
-    if (request.name == '$AllRequestLineTitle')
-        var url = 'index.html';
-    else
-        var url = request.pathFormatted + '.html';
-
-    if (group)
-        var expandButtonStyle = '';
-    else
-        var expandButtonStyle = ' hidden';
-
-    if (request.stats.numberOfRequests.total != 0)
-        var koPercent = (request.stats.numberOfRequests.ko * 100 / request.stats.numberOfRequests.total).toFixed(2);
-    else
-        var koPercent = '-'
-
-    return '<tr id="' + request.pathFormatted + '" data-parent=' + parent + '> \\
-        <td class="total col-1"> \\
-          <div class="expandable-container"> \\
-            <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
-            <a href="' + url +'" class="withTooltip">' + ellipsedLabel({ name: request.name, parentClass: "table-cell-tooltip" }) + '</a><span class="value" style="display:none;">' + index + '</span> \\
-          </div> \\
-        </td> \\
-        <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
-        <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
-        <td class="value ko col-4">' + request.stats.numberOfRequests.ko + '</td> \\
-        <td class="value ko col-5">' + koPercent + '</td> \\
-        <td class="value total col-6">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
-        <td class="value total col-7">' + request.stats.minResponseTime.total + '</td> \\
-        <td class="value total col-8">' + request.stats.percentiles1.total + '</td> \\
-        <td class="value total col-9">' + request.stats.percentiles2.total + '</td> \\
-        <td class="value total col-10">' + request.stats.percentiles3.total + '</td> \\
-        <td class="value total col-11">' + request.stats.percentiles4.total + '</td> \\
-        <td class="value total col-12">' + request.stats.maxResponseTime.total + '</td> \\
-        <td class="value total col-13">' + request.stats.meanResponseTime.total + '</td> \\
-        <td class="value total col-14">' + request.stats.standardDeviation.total + '</td> \\
-        </tr>';
-}
-
-function generateHtmlRowsForGroup(group, level, index, parent) {
-    var buffer = '';
-
-    if (!parent)
-        parent = 'ROOT';
-    else {
-        buffer += generateHtmlRow(group, level - 1, index, parent, true);
-        index++;
-        parent = group.pathFormatted;
-    }
-
-    $$.each(group.contents, function(contentName, content) {
-        if (content.type == '$Group') {
-            var result = generateHtmlRowsForGroup(content, level + 1, index, parent);
-            buffer += result.html;
-            index = result.index;
-        }
-        else if (content.type == '$Request') {
-            buffer += generateHtmlRow(content, level, index, parent);
-            index++;
-        }
-    });
-
-    return { html: buffer, index: index };
-}
-
-$$('#container_statistics_head tbody').append(generateHtmlRow(stats, 0, 0));
-
-var lines = generateHtmlRowsForGroup(stats, 0, 0);
-$$('#container_statistics_body tbody').append(lines.html);
-
 $$('#container_statistics_head').sortable('#container_statistics_body');
 $$('.statistics').expandable();
 
-if (lines.index < 30) {
-    $$('#statistics_title span').attr('style', 'display: none;');
-} else {
-    $$('#statistics_title').addClass('title_collapsed');
-    $$('#statistics_title').click(function() {
-        $$('#toggle-stats').toggleClass("off");
-        $$(this).toggleClass('title_collapsed').toggleClass('title_expanded');
-        $$('#container_statistics_body').parent().toggleClass('scrollable').toggleClass('');
-    });
-}
+${if (bodyIndex < 30) {
+      "$('#statistics_title span').attr('style', 'display: none;');"
+    } else {
+      """$('#statistics_title').addClass('title_collapsed');
+        |$('#statistics_title').click(function() {
+        |    $('#toggle-stats').toggleClass("off");
+        |    $(this).toggleClass('title_collapsed').toggleClass('title_expanded');
+        |    $('#container_statistics_body').parent().toggleClass('scrollable').toggleClass('');
+        |});""".stripMargin
+    }}
+
 $$('.table-cell-tooltip').popover({trigger:'hover'});
 """
 
-  override def jsFiles: Seq[String] = Nil
+  override def jsFiles: Seq[String] = "stats.js" :: Nil
 }

@@ -21,25 +21,24 @@ import java.nio.charset.Charset
 import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
-import io.gatling.charts.template.RequestDetailsPageTemplate
+import io.gatling.charts.template.DetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Collections._
 import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class RequestDetailsReportGenerator(
-    reportsGenerationInputs: ReportsGenerationInputs,
+    logFileData: LogFileData,
+    rootContainer: GroupContainer,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
     charset: Charset,
     configuration: ReportsConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
-    import reportsGenerationInputs._
-
-    def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
+    def generateDetailPage(requestContainer: RequestContainer): Unit = {
       def responseTimeDistributionChartComponent: Component = {
-        val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, Some(requestName), group)
+        val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, Some(requestContainer.name), requestContainer.group)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
         val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
 
@@ -58,7 +57,7 @@ private[charts] class RequestDetailsReportGenerator(
           componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
           title: String
       ): Component = {
-        val successData = dataSource(OK, Some(requestName), group)
+        val successData = dataSource(OK, Some(requestContainer.name), requestContainer.group)
         val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, Color.Requests.Percentiles)
 
         componentFactory(logFileData.runInfo.injectStart, successSeries)
@@ -74,7 +73,7 @@ private[charts] class RequestDetailsReportGenerator(
           dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
           componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
       ): Component = {
-        val counts = dataSource(Some(requestName), group).sortBy(_.time)
+        val counts = dataSource(Some(requestContainer.name), requestContainer.group).sortBy(_.time)
 
         val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
         val pieRequestsSeries = new Series[PieSlice](
@@ -99,25 +98,29 @@ private[charts] class RequestDetailsReportGenerator(
           dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
           componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
       ): Component = {
-        val scatterPlotSuccessData = dataSource(OK, requestName, group)
-        val scatterPlotFailuresData = dataSource(KO, requestName, group)
+        val scatterPlotSuccessData = dataSource(OK, requestContainer.name, requestContainer.group)
+        val scatterPlotFailuresData = dataSource(KO, requestContainer.name, requestContainer.group)
         val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(Color.Requests.Ok))
         val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(Color.Requests.Ko))
 
         componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
       }
 
+      val ranges = logFileData.numberOfRequestInResponseTimeRanges(Some(requestContainer.name), requestContainer.group)
+
+      val path = RequestPath.path(requestContainer.name, requestContainer.group)
+
       val template =
-        new RequestDetailsPageTemplate(
+        new DetailsPageTemplate(
           logFileData.runInfo,
           path,
-          requestName,
-          group,
+          requestContainer,
+          rootContainer,
           new SchemaContainerComponent(
-            componentLibrary.getRangesComponent("Response Time Ranges", "requests", large = true),
-            new DetailsStatsTableComponent(configuration.indicators)
+            componentLibrary.getRangesComponent("Response Time Ranges", "requests", ranges, large = true),
+            new DetailsStatsTableComponent(requestContainer.stats, configuration.indicators)
           ),
-          new ErrorsTableComponent(logFileData.errors(Some(requestName), group)),
+          new ErrorsTableComponent(logFileData.errors(Some(requestContainer.name), requestContainer.group)),
           responseTimeDistributionChartComponent,
           responseTimeChartComponent,
           requestsChartComponent,
@@ -128,9 +131,14 @@ private[charts] class RequestDetailsReportGenerator(
       new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput, charset)
     }
 
-    logFileData.statsPaths.foreach {
-      case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
-      case _                                =>
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+    def generateDetailPageRec(groupContainer: GroupContainer): Unit = {
+      groupContainer.requests.values.foreach { requestContainer =>
+        generateDetailPage(requestContainer)
+      }
+      groupContainer.groups.values.foreach(generateDetailPageRec)
     }
+
+    generateDetailPageRec(rootContainer)
   }
 }

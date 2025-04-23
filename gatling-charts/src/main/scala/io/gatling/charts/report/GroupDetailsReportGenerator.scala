@@ -18,27 +18,26 @@ package io.gatling.charts.report
 
 import java.nio.charset.Charset
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent }
+import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent, RequestStatistics }
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.{ Group, GroupStatsPath, PercentilesVsTimePlot, RequestPath, Series }
-import io.gatling.charts.template.GroupDetailsPageTemplate
+import io.gatling.charts.stats.{ Group, LogFileData, PercentilesVsTimePlot, RequestPath, Series }
+import io.gatling.charts.template.DetailsPageTemplate
 import io.gatling.charts.util.Color
 import io.gatling.commons.stats.OK
 import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class GroupDetailsReportGenerator(
-    reportsGenerationInputs: ReportsGenerationInputs,
+    logFileData: LogFileData,
+    rootContainer: GroupContainer,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary,
     charset: Charset,
     configuration: ReportsConfiguration
 ) extends ReportGenerator {
   def generate(): Unit = {
-    import reportsGenerationInputs._
-
-    def generateDetailPage(path: String, group: Group): Unit = {
+    def generateDetailPage(groupContainer: GroupContainer): Unit = {
       def cumulatedResponseTimeChartComponent: Component = {
-        val dataSuccess = logFileData.groupCumulatedResponseTimePercentilesOverTime(OK, group)
+        val dataSuccess = logFileData.groupCumulatedResponseTimePercentilesOverTime(OK, groupContainer.group)
         val seriesSuccess =
           new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (OK)", dataSuccess, Color.Requests.Percentiles)
 
@@ -50,7 +49,7 @@ private[charts] class GroupDetailsReportGenerator(
       }
 
       def cumulatedResponseTimeDistributionChartComponent: Component = {
-        val (distributionSuccess, distributionFailure) = logFileData.groupCumulatedResponseTimeDistribution(100, group)
+        val (distributionSuccess, distributionFailure) = logFileData.groupCumulatedResponseTimeDistribution(100, groupContainer.group)
         val distributionSeriesSuccess = new Series(Series.OK, distributionSuccess, List(Color.Requests.Ok))
         val distributionSeriesFailure = new Series(Series.KO, distributionFailure, List(Color.Requests.Ko))
 
@@ -63,14 +62,14 @@ private[charts] class GroupDetailsReportGenerator(
       }
 
       def durationChartComponent: Component = {
-        val dataSuccess = logFileData.groupDurationPercentilesOverTime(OK, group)
+        val dataSuccess = logFileData.groupDurationPercentilesOverTime(OK, groupContainer.group)
         val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Duration Percentiles over Time (OK)", dataSuccess, Color.Requests.Percentiles)
 
         componentLibrary.getPercentilesOverTimeComponent("Duration", logFileData.runInfo.injectStart, seriesSuccess)
       }
 
       def durationDistributionChartComponent: Component = {
-        val (distributionSuccess, distributionFailure) = logFileData.groupDurationDistribution(100, group)
+        val (distributionSuccess, distributionFailure) = logFileData.groupDurationDistribution(100, groupContainer.group)
         val distributionSeriesSuccess = new Series(Series.OK, distributionSuccess, List(Color.Requests.Ok))
         val distributionSeriesFailure = new Series(Series.KO, distributionFailure, List(Color.Requests.Ko))
 
@@ -82,14 +81,20 @@ private[charts] class GroupDetailsReportGenerator(
         )
       }
 
-      val template = new GroupDetailsPageTemplate(
+      val ranges = logFileData.numberOfRequestInResponseTimeRanges(None, Some(groupContainer.group))
+
+      val path = RequestPath.path(groupContainer.group)
+
+      val template = new DetailsPageTemplate(
         logFileData.runInfo,
-        group,
+        path,
+        groupContainer,
+        rootContainer,
         new SchemaContainerComponent(
-          componentLibrary.getRangesComponent("Group Duration Ranges", "groups", large = true),
-          new DetailsStatsTableComponent(configuration.indicators)
+          componentLibrary.getRangesComponent("Group Duration Ranges", "groups", ranges, large = true),
+          new DetailsStatsTableComponent(groupContainer.stats, configuration.indicators)
         ),
-        new ErrorsTableComponent(logFileData.errors(None, Some(group))),
+        new ErrorsTableComponent(logFileData.errors(None, Some(groupContainer.group))),
         durationDistributionChartComponent,
         durationChartComponent,
         cumulatedResponseTimeDistributionChartComponent,
@@ -99,9 +104,13 @@ private[charts] class GroupDetailsReportGenerator(
       new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput, charset)
     }
 
-    logFileData.statsPaths.foreach {
-      case GroupStatsPath(group) => generateDetailPage(RequestPath.path(group), group)
-      case _                     =>
-    }
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+    def generateDetailPageRec(groupContainers: Iterable[GroupContainer]): Unit =
+      groupContainers.foreach { groupContainer =>
+        generateDetailPage(groupContainer)
+        generateDetailPageRec(groupContainer.groups.values)
+      }
+
+    generateDetailPageRec(rootContainer.groups.values)
   }
 }

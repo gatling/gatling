@@ -16,7 +16,10 @@
 
 package io.gatling.charts.stats
 
-// FIXME move in charts
+object Group {
+  val Root: Group = Group(Nil)
+}
+
 final case class Group(hierarchy: List[String]) {
-  val name: String = hierarchy.last
+  val name: String = hierarchy.lastOption.getOrElse("All Requests")
 }

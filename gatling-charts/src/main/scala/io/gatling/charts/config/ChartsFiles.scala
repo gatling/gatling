@@ -23,9 +23,6 @@ import io.gatling.core.config.GatlingFiles
 
 private[charts] object ChartsFiles {
   private val AllSessionsFile = "all_sessions.js"
-  private val StatsJsFile = "stats.js"
-  val GlobalPageName: String = "Global Information"
-  val AllRequestLineTitle: String = "All Requests"
 
   val CommonJsFiles: Seq[String] = Seq(
     "jquery-3.7.1.slim.min.js",
@@ -33,8 +30,7 @@ private[charts] object ChartsFiles {
     "gatling.js",
     "menu.js",
     "ellipsis.js",
-    AllSessionsFile,
-    StatsJsFile
+    AllSessionsFile
   )
 
   private val GatlingJsFolder: Path = Paths.get("js")
@@ -62,6 +58,4 @@ private[charts] class ChartsFiles(runUuid: String, resultsDirectory: Path) {
 
   def groupFile(requestName: String): Path =
     resultDirectory.resolve(requestName.toGroupFileName + ".html")
-
-  val statsJsFile: Path = jsDirectory.resolve(StatsJsFile)
 }
