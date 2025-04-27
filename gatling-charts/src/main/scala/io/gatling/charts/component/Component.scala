@@ -23,9 +23,6 @@ import io.gatling.core.stats.NoPlotMagicValue
 
 private object Component {
   private val Formatter = new DecimalFormat("###.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH))
-
-  private def formatNumber[T: Numeric](value: T): String =
-    Formatter.format(implicitly[Numeric[T]].toDouble(value))
 }
 
 private[gatling] abstract class Component {
@@ -35,9 +32,9 @@ private[gatling] abstract class Component {
 
   def jsFiles: Seq[String]
 
-  protected def style[T: Numeric](value: T) =
+  protected def style[T: Numeric](value: T): String =
     value match {
       case NoPlotMagicValue => "-"
-      case _                => Component.formatNumber(value)
+      case _                => Component.Formatter.format(implicitly[Numeric[T]].toDouble(value))
     }
 }
