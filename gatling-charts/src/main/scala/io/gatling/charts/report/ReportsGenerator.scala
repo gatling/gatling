@@ -22,7 +22,7 @@ import java.time.ZoneId
 
 import io.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Stats }
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, LogFileData, RequestPath, RequestStatsPath }
+import io.gatling.charts.stats.{ GeneralStats, Group, GroupStatsPath, LogFileData, RequestStatsPath }
 import io.gatling.charts.template.ConsoleTemplate
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.ReportsConfiguration
@@ -98,8 +98,8 @@ private[gatling] final class ReportsGenerator(
     chartsFiles.globalFile
   }
 
-  private def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
-    new Stats(title(rank) + " (ms)", total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
+  private def percentiles(rank: Double, title: Double => String, total: Option[GeneralStats], ok: Option[GeneralStats], ko: Option[GeneralStats]) =
+    new Stats(title(rank) + " (ms)", total.map(_.percentile(rank)), ok.map(_.percentile(rank)), ko.map(_.percentile(rank)))
 
   private def computeRootContainer(logFileData: LogFileData, configuration: ReportsConfiguration): GroupContainer = {
 
@@ -111,22 +111,23 @@ private[gatling] final class ReportsGenerator(
       val percentilesTitle = (rank: Double) => s"response time ${rank.toRank} percentile"
 
       new RequestStatistics(
-        numberOfRequestsStatistics = new Stats("request count", total.count, ok.count, ko.count),
-        minResponseTimeStatistics = new Stats("min response time (ms)", total.min, ok.min, ko.min),
-        maxResponseTimeStatistics = new Stats("max response time (ms)", total.max, ok.max, ko.max),
-        meanResponseTimeStatistics = new Stats("mean response time (ms)", total.mean, ok.mean, ko.mean),
-        stdDeviationStatistics = new Stats("response time std deviation (ms)", total.stdDev, ok.stdDev, ko.stdDev),
+        numberOfRequestsStatistics = new Stats("request count", total.map(_.count), ok.map(_.count), ko.map(_.count)),
+        minResponseTimeStatistics = new Stats("min response time (ms)", total.map(_.min), ok.map(_.min), ko.map(_.min)),
+        maxResponseTimeStatistics = new Stats("max response time (ms)", total.map(_.max), ok.map(_.max), ko.map(_.max)),
+        meanResponseTimeStatistics = new Stats("mean response time (ms)", total.map(_.mean), ok.map(_.mean), ko.map(_.mean)),
+        stdDeviationStatistics = new Stats("response time std deviation (ms)", total.map(_.stdDev), ok.map(_.stdDev), ko.map(_.stdDev)),
         percentiles1 = percentiles(configuration.indicators.percentile1, percentilesTitle, total, ok, ko),
         percentiles2 = percentiles(configuration.indicators.percentile2, percentilesTitle, total, ok, ko),
         percentiles3 = percentiles(configuration.indicators.percentile3, percentilesTitle, total, ok, ko),
         percentiles4 = percentiles(configuration.indicators.percentile4, percentilesTitle, total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(requestName, group),
-        meanNumberOfRequestsPerSecondStatistics = new Stats("mean throughput (rps)", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        meanNumberOfRequestsPerSecondStatistics =
+          new Stats("mean throughput (rps)", total.map(_.meanRequestsPerSec), ok.map(_.meanRequestsPerSec), ko.map(_.meanRequestsPerSec))
       )
     }
 
     def computeGroupStats(group: Group): RequestStatistics = {
-      def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
+      def groupStatsFunction: (Group, Option[Status]) => Option[GeneralStats] =
         if (configuration.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
           logFileData.groupDurationGeneralStats
@@ -140,18 +141,18 @@ private[gatling] final class ReportsGenerator(
       val ko = groupStatsFunction(group, Some(KO))
 
       new RequestStatistics(
-        numberOfRequestsStatistics = new Stats("numberOfRequests", total.count, ok.count, ko.count),
-        minResponseTimeStatistics = new Stats("minResponseTime", total.min, ok.min, ko.min),
-        maxResponseTimeStatistics = new Stats("maxResponseTime", total.max, ok.max, ko.max),
-        meanResponseTimeStatistics = new Stats("meanResponseTime", total.mean, ok.mean, ko.mean),
-        stdDeviationStatistics = new Stats("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev),
+        numberOfRequestsStatistics = new Stats("numberOfRequests", total.map(_.count), ok.map(_.count), ko.map(_.count)),
+        minResponseTimeStatistics = new Stats("minResponseTime", total.map(_.min), ok.map(_.min), ko.map(_.min)),
+        maxResponseTimeStatistics = new Stats("maxResponseTime", total.map(_.max), ok.map(_.max), ko.map(_.max)),
+        meanResponseTimeStatistics = new Stats("meanResponseTime", total.map(_.mean), ok.map(_.mean), ko.map(_.mean)),
+        stdDeviationStatistics = new Stats("stdDeviation", total.map(_.stdDev), ok.map(_.stdDev), ko.map(_.stdDev)),
         percentiles1 = percentiles(configuration.indicators.percentile1, _ => "percentiles1", total, ok, ko),
         percentiles2 = percentiles(configuration.indicators.percentile2, _ => "percentiles2", total, ok, ko),
         percentiles3 = percentiles(configuration.indicators.percentile3, _ => "percentiles3", total, ok, ko),
         percentiles4 = percentiles(configuration.indicators.percentile4, _ => "percentiles4", total, ok, ko),
         ranges = logFileData.numberOfRequestInResponseTimeRanges(None, Some(group)),
         meanNumberOfRequestsPerSecondStatistics =
-          new Stats("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+          new Stats("meanNumberOfRequestsPerSecond", total.map(_.meanRequestsPerSec), ok.map(_.meanRequestsPerSec), ko.map(_.meanRequestsPerSec))
       )
     }
 

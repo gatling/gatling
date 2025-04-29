@@ -69,15 +69,15 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
   }
 
   "When reading a single log file with known statistics, FileDataReader" should "return expected minResponseTime for correct request data" in {
-    logFileData().requestGeneralStats(None, None, None).min shouldBe 87
+    logFileData().requestGeneralStats(None, None, None).map(_.min).getOrElse(throw new IllegalStateException) shouldBe 87
   }
 
   it should "return expected maxResponseTime for correct request data" in {
-    logFileData().requestGeneralStats(None, None, None).max shouldBe 368
+    logFileData().requestGeneralStats(None, None, None).map(_.max).getOrElse(throw new IllegalStateException) shouldBe 368
   }
 
   it should "return expected responseTimeStandardDeviation for correct request data" in {
-    val computedValue = logFileData().requestGeneralStats(None, None, None).stdDev
+    val computedValue = logFileData().requestGeneralStats(None, None, None).map(_.stdDev).getOrElse(throw new IllegalStateException)
     val expectedValue = 2138
     val error = (computedValue.toDouble - expectedValue) / expectedValue
 
@@ -89,8 +89,8 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
       charting.indicators.Percentile1 -> 0,
       charting.indicators.Percentile2 -> 70
     )
-    fileData.requestGeneralStats(None, None, None).percentile(0.0) shouldBe 87
-    fileData.requestGeneralStats(None, None, None).percentile(70.0) shouldBe 113
+    fileData.requestGeneralStats(None, None, None).map(_.percentile(0.0)).getOrElse(throw new IllegalStateException) shouldBe 87
+    fileData.requestGeneralStats(None, None, None).map(_.percentile(70.0)).getOrElse(throw new IllegalStateException) shouldBe 113
   }
 
   it should "return expected result for the p99 and p100" in {
@@ -98,8 +98,8 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
       charting.indicators.Percentile1 -> 99,
       charting.indicators.Percentile2 -> 100
     )
-    fileData.requestGeneralStats(None, None, None).percentile(99.0) shouldBe 368
-    fileData.requestGeneralStats(None, None, None).percentile(100.0) shouldBe 368
+    fileData.requestGeneralStats(None, None, None).map(_.percentile(99.0)).getOrElse(throw new IllegalStateException) shouldBe 368
+    fileData.requestGeneralStats(None, None, None).map(_.percentile(100.0)).getOrElse(throw new IllegalStateException) shouldBe 368
   }
 
   it should "indicate that all the request have their response time in between 0 and 100000" in {

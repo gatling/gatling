@@ -23,7 +23,7 @@ import org.scalatest.matchers.should.Matchers
 
 class ConsoleTemplateSpec extends AnyFlatSpecLike with Matchers {
   "console template" should "format the request counters properly" in {
-    val numberOfRequestsStatistics = new Stats("numberOfRequestsStatistics", 20L, 19L, 1L)
+    val numberOfRequestsStatistics = new Stats("numberOfRequestsStatistics", Some(20L), Some(19L), Some(1L))
     val out = ConsoleTemplate.writeRequestCounters(numberOfRequestsStatistics)
     out shouldBe "> numberOfRequestsStatistics                                                         |        20 |        19 |         1"
   }

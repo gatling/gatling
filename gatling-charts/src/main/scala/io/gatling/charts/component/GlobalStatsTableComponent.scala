@@ -23,7 +23,6 @@ import io.gatling.charts.stats.Group
 import io.gatling.charts.util.HtmlHelper.HtmlRichString
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.IndicatorsConfiguration
-import io.gatling.core.stats.NoPlotMagicValue
 import io.gatling.shared.util.NumberHelper._
 
 private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContainer, configuration: IndicatorsConfiguration) extends Component {
@@ -103,12 +102,12 @@ private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContai
       case _                 => "hidden"
     }
 
-    val koPercent =
-      if (container.stats.numberOfRequestsStatistics.total != 0) {
-        container.stats.numberOfRequestsStatistics.failure * 100.0 / container.stats.numberOfRequestsStatistics.total
-      } else {
-        NoPlotMagicValue
-      }
+    val koPercent = container.stats.numberOfRequestsStatistics.total match {
+      case Some(total) if total != 0 =>
+        Some(container.stats.numberOfRequestsStatistics.failure.getOrElse(0L) * 100.0 / total)
+      case _ =>
+        None
+    }
 
     val dataParent = parent.map(p => s"""data-parent="$p"""").getOrElse("")
 

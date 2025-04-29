@@ -49,16 +49,21 @@ private[gatling] final class LogFileData(
       case GroupStatsPath(group) if group.hierarchy == parts => AssertionStatsRepository.StatsPath.Group(group.hierarchy)
     }
 
-  private def toAssertionStats(generalStats: GeneralStats): AssertionStatsRepository.Stats =
-    AssertionStatsRepository.Stats(
-      min = generalStats.min,
-      max = generalStats.max,
-      count = generalStats.count,
-      mean = generalStats.mean,
-      stdDev = generalStats.stdDev,
-      percentile = generalStats.percentile,
-      meanRequestsPerSec = generalStats.meanRequestsPerSec
-    )
+  private def toAssertionStats(generalStats: Option[GeneralStats]): AssertionStatsRepository.Stats =
+    generalStats match {
+      case Some(stats) =>
+        AssertionStatsRepository.Stats(
+          min = stats.min,
+          max = stats.max,
+          count = stats.count,
+          mean = stats.mean,
+          stdDev = stats.stdDev,
+          percentile = stats.percentile,
+          meanRequestsPerSec = stats.meanRequestsPerSec
+        )
+      case _ =>
+        AssertionStatsRepository.Stats.NoData
+    }
 
   override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): AssertionStatsRepository.Stats =
     toAssertionStats(requestGeneralStats(request, if (group.nonEmpty) Some(Group(group)) else None, status))
@@ -109,44 +114,47 @@ private[gatling] final class LogFileData(
       allBuffer: GeneralStatsBuffer,
       okBuffers: GeneralStatsBuffer,
       koBuffer: GeneralStatsBuffer
-  ): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
-    // get main and max for request/all status
-    val size = allBuffer.stats.count
-    val ok = okBuffers.distribution
-    val ko = koBuffer.distribution
-    val min = allBuffer.stats.min
-    val max = allBuffer.stats.max
+  ): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
+    allBuffer.stats match {
+      case Some(stats) =>
+        val size = stats.count
+        val min = stats.min
+        val max = stats.max
+        val ok = okBuffers.distribution
+        val ko = koBuffer.distribution
 
-    def percent(s: Int) = s * 100.0 / size
+        def percent(s: Int) = s * 100.0 / size
 
-    if (max - min <= maxPlots) {
-      // use exact values
-      def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => new PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
-      (plotsToPercents(ok), plotsToPercents(ko))
-    } else {
-      // use buckets
-      val step = StatsHelper.step(min, max, maxPlots)
-      val buckets = StatsHelper.buckets(min, max, step)
+        if (max - min <= maxPlots) {
+          // use exact values
+          def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => new PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
+          (plotsToPercents(ok), plotsToPercents(ko))
+        } else {
+          // use buckets
+          val step = StatsHelper.step(min, max, maxPlots)
+          val buckets = StatsHelper.buckets(min, max, step)
 
-      val halfStep = step / 2
-      val bucketFunction = (t: Int) => {
-        val value = t min (max - 1)
-        (value - (value - min) % step + halfStep).round.toInt
-      }
+          val halfStep = step / 2
+          val bucketFunction = (t: Int) => {
+            val value = t min (max - 1)
+            (value - (value - min) % step + halfStep).round.toInt
+          }
 
-      def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
-        val bucketsWithValues: Map[Int, Double] =
-          buffer
-            .groupMapReduce(record => bucketFunction(record.time))(record => percent(record.value))(_ + _)
+          def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
+            val bucketsWithValues: Map[Int, Double] =
+              buffer
+                .groupMapReduce(record => bucketFunction(record.time))(record => percent(record.value))(_ + _)
 
-        ArraySeq.unsafeWrapArray(buckets).map { bucket =>
-          new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
+            ArraySeq.unsafeWrapArray(buckets).map { bucket =>
+              new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
+            }
+          }
+
+          (process(ok), process(ko))
         }
-      }
 
-      (process(ok), process(ko))
+      case _ => (Nil, Nil)
     }
-  }
 
   def responseTimeDistribution(maxPlots: Int, requestName: Option[String], group: Option[Group]): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
     distribution(
@@ -172,17 +180,17 @@ private[gatling] final class LogFileData(
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO))
     )
 
-  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats =
+  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): Option[GeneralStats] =
     resultsHolder
       .getRequestGeneralStatsBuffers(requestName, group, status)
       .stats
 
-  def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats =
+  def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): Option[GeneralStats] =
     resultsHolder
       .getGroupCumulatedResponseTimeGeneralStatsBuffers(group, status)
       .stats
 
-  def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats =
+  def groupDurationGeneralStats(group: Group, status: Option[Status]): Option[GeneralStats] =
     resultsHolder
       .getGroupDurationGeneralStatsBuffers(group, status)
       .stats

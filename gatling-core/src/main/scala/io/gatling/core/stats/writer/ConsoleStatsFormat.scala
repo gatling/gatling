@@ -19,7 +19,7 @@ package io.gatling.core.stats.writer
 import java.{ lang => jl }
 
 import io.gatling.commons.util.StringHelper.{ Eol, RichString }
-import io.gatling.core.stats.{ ErrorStats, NoPlotMagicValue }
+import io.gatling.core.stats.ErrorStats
 import io.gatling.shared.util.NumberHelper._
 
 private[gatling] object ConsoleStatsFormat {
@@ -31,11 +31,16 @@ private[gatling] object ConsoleStatsFormat {
   val HeaderLength: Int = Header.length
   val NewBlock: String = "=" * ConsoleWidth
 
-  def formatNumber[T: Numeric](value: T): String = {
+  def formatNumber[T: Numeric](value: Option[T]): String = {
     val string = value match {
-      case NoPlotMagicValue => "-"
-      case _                => implicitly[Numeric[T]].toDouble(value).toPrintableString
+      case Some(v) => implicitly[Numeric[T]].toDouble(v).toPrintableString
+      case _       => "-"
     }
+    string.leftPad(NumberLength)
+  }
+
+  def formatNumber[T: Numeric](value: T): String = {
+    val string = implicitly[Numeric[T]].toDouble(value).toPrintableString
     string.leftPad(NumberLength)
   }
 

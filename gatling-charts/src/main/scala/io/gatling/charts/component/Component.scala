@@ -19,8 +19,6 @@ package io.gatling.charts.component
 import java.text.{ DecimalFormat, DecimalFormatSymbols }
 import java.util.Locale
 
-import io.gatling.core.stats.NoPlotMagicValue
-
 private object Component {
   private val Formatter = new DecimalFormat("###.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH))
 }
@@ -32,9 +30,9 @@ private[gatling] abstract class Component {
 
   def jsFiles: Seq[String]
 
-  protected def style[T: Numeric](value: T): String =
+  protected def style[T: Numeric](value: Option[T]): String =
     value match {
-      case NoPlotMagicValue => "-"
-      case _                => Component.Formatter.format(implicitly[Numeric[T]].toDouble(value))
+      case Some(v) => Component.Formatter.format(implicitly[Numeric[T]].toDouble(v))
+      case _       => "-"
     }
 }

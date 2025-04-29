@@ -20,7 +20,7 @@ import io.gatling.charts.stats.Ranges
 import io.gatling.core.config.IndicatorsConfiguration
 import io.gatling.shared.util.NumberHelper._
 
-private[charts] final class Stats[T: Numeric](val name: String, val total: T, val success: T, val failure: T)
+private[charts] final class Stats[T: Numeric](val name: String, val total: Option[T], val success: Option[T], val failure: Option[T])
 
 private[charts] final class RequestStatistics(
     val numberOfRequestsStatistics: Stats[Long],

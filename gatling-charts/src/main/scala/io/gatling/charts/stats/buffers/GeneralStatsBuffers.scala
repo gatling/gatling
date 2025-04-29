@@ -73,10 +73,10 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
     sum += time
   }
 
-  lazy val stats: GeneralStats = {
+  lazy val stats: Option[GeneralStats] = {
     val valuesCount = digest.size
     if (valuesCount == 0) {
-      GeneralStats.NoPlot
+      None
     } else {
       val count = digest.size
       val mean = sum.toDouble / count
@@ -88,7 +88,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
 
       val percentile: Double => Int = (rank: Double) => math.round(digest.quantile(rank / 100.0)).toInt
 
-      GeneralStats(min, max, valuesCount, math.round(mean).toInt, math.round(stdDev).toInt, percentile, meanRequestsPerSec)
+      Some(GeneralStats(min, max, valuesCount, math.round(mean).toInt, math.round(stdDev).toInt, percentile, meanRequestsPerSec))
     }
   }
 
