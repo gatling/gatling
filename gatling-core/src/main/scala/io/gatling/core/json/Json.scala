@@ -20,6 +20,7 @@ import java.{ lang => jl, util => ju }
 import java.io.InputStream
 
 import scala.annotation.switch
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
@@ -263,25 +264,35 @@ private[gatling] object Json {
         (node.size: @switch) match {
           case 0 => Nil
           case 1 =>
-            Array(asScala(node.get(0))).toSeq
+            ArraySeq.unsafeWrapArray(
+              Array(
+                asScala(node.get(0))
+              )
+            )
           case 2 =>
-            Array(
-              asScala(node.get(0)),
-              asScala(node.get(1))
-            ).toSeq
+            ArraySeq.unsafeWrapArray(
+              Array(
+                asScala(node.get(0)),
+                asScala(node.get(1))
+              )
+            )
           case 3 =>
-            Array(
-              asScala(node.get(0)),
-              asScala(node.get(1)),
-              asScala(node.get(2))
-            ).toSeq
+            ArraySeq.unsafeWrapArray(
+              Array(
+                asScala(node.get(0)),
+                asScala(node.get(1)),
+                asScala(node.get(2))
+              )
+            )
           case 4 =>
-            Array(
-              asScala(node.get(0)),
-              asScala(node.get(1)),
-              asScala(node.get(2)),
-              asScala(node.get(3))
-            ).toSeq
+            ArraySeq.unsafeWrapArray(
+              Array(
+                asScala(node.get(0)),
+                asScala(node.get(1)),
+                asScala(node.get(2)),
+                asScala(node.get(3))
+              )
+            )
           case _ =>
             node.elements.asScala.map(asScala).toVector
         }
