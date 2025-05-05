@@ -40,7 +40,7 @@ final case class VisitedArray(it: ju.Iterator[JsonNode]) extends VisitedIterator
  *
  * Originally contributed by Nicolas Rémond.
  */
-class RecursiveFieldIterator(root: JsonNode, name: String) extends RecursiveIterator[VisitedIterator](root) {
+final class RecursiveFieldIterator(root: JsonNode, name: String) extends RecursiveIterator[VisitedIterator](root) {
   override def visit(t: VisitedIterator): Unit = t match {
     case VisitedObject(it) => visitObject(it)
     case VisitedArray(it)  => visitArray(it)
@@ -73,7 +73,7 @@ class RecursiveFieldIterator(root: JsonNode, name: String) extends RecursiveIter
   protected def visitNode(node: JsonNode): Unit =
     node.getNodeType match {
       case OBJECT =>
-        val it = node.fields
+        val it = node.properties.iterator
         stack = VisitedObject(it) :: stack
         visitObject(it)
       case ARRAY =>
