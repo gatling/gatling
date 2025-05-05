@@ -55,15 +55,13 @@ class AssertionSpec extends AnyFlatSpecLike with Matchers with AssertionSupport 
           case Stats(_, group, None, _) if group == parts                             => AssertionStatsRepository.StatsPath.Group(group)
         }
 
-      override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): AssertionStatsRepository.Stats =
+      override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): Option[AssertionStatsRepository.Stats] =
         stats
           .collectFirst { case Stats(stats, `group`, `request`, `status`) => stats }
-          .getOrElse(AssertionStatsRepository.Stats.NoData)
 
-      override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): AssertionStatsRepository.Stats =
+      override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): Option[AssertionStatsRepository.Stats] =
         stats
           .collectFirst { case Stats(stats, `group`, None, `status`) => stats }
-          .getOrElse(AssertionStatsRepository.Stats.NoData)
     }
 
   private def validateAssertions(repository: AssertionStatsRepository, assertions: Assertion*): Boolean =

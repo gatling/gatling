@@ -49,27 +49,22 @@ private[gatling] final class LogFileData(
       case GroupStatsPath(group) if group.hierarchy == parts => AssertionStatsRepository.StatsPath.Group(group.hierarchy)
     }
 
-  private def toAssertionStats(generalStats: Option[GeneralStats]): AssertionStatsRepository.Stats =
-    generalStats match {
-      case Some(stats) =>
-        AssertionStatsRepository.Stats(
-          min = stats.min,
-          max = stats.max,
-          count = stats.count,
-          mean = stats.mean,
-          stdDev = stats.stdDev,
-          percentile = stats.percentile,
-          meanRequestsPerSec = stats.meanRequestsPerSec
-        )
-      case _ =>
-        AssertionStatsRepository.Stats.NoData
-    }
+  private def toAssertionStats(generalStats: GeneralStats): AssertionStatsRepository.Stats =
+    AssertionStatsRepository.Stats(
+      min = generalStats.min,
+      max = generalStats.max,
+      count = generalStats.count,
+      mean = generalStats.mean,
+      stdDev = generalStats.stdDev,
+      percentile = generalStats.percentile,
+      meanRequestsPerSec = generalStats.meanRequestsPerSec
+    )
 
-  override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): AssertionStatsRepository.Stats =
-    toAssertionStats(requestGeneralStats(request, if (group.nonEmpty) Some(Group(group)) else None, status))
+  override def requestGeneralStats(group: List[String], request: Option[String], status: Option[Status]): Option[AssertionStatsRepository.Stats] =
+    requestGeneralStats(request, if (group.nonEmpty) Some(Group(group)) else None, status).map(toAssertionStats)
 
-  override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): AssertionStatsRepository.Stats =
-    toAssertionStats(groupCumulatedResponseTimeGeneralStats(Group(group), status))
+  override def groupCumulatedResponseTimeGeneralStats(group: List[String], status: Option[Status]): Option[AssertionStatsRepository.Stats] =
+    groupCumulatedResponseTimeGeneralStats(Group(group), status).map(toAssertionStats)
 
   //// END AssertionStatsRepository
 
