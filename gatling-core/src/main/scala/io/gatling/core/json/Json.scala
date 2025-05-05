@@ -147,7 +147,7 @@ private[gatling] object Json {
 
     def appendMap(node: JsonNode): jl.StringBuilder = {
       sb.append('{')
-      node.fields.asScala.foreach { e =>
+      node.properties.iterator.asScala.foreach { e =>
         sb.append('"').append(e.getKey).append("\":")
         appendStringified(e.getValue, rootLevel = false).append(',')
       }
@@ -290,10 +290,10 @@ private[gatling] object Json {
         (node.size: @switch) match {
           case 0 => Map.empty
           case 1 =>
-            val entry0 = node.fields.next()
+            val entry0 = node.properties.iterator.next()
             new Map.Map1(entry0.getKey, asScala(entry0.getValue))
           case 2 =>
-            val it = node.fields
+            val it = node.properties.iterator
             val entry0 = it.next()
             val entry1 = it.next()
             new Map.Map2(
@@ -303,7 +303,7 @@ private[gatling] object Json {
               asScala(entry1.getValue)
             )
           case 3 =>
-            val it = node.fields
+            val it = node.properties.iterator
             val entry0 = it.next()
             val entry1 = it.next()
             val entry2 = it.next()
@@ -316,7 +316,7 @@ private[gatling] object Json {
               asScala(entry2.getValue)
             )
           case 4 =>
-            val it = node.fields
+            val it = node.properties.iterator
             val entry0 = it.next()
             val entry1 = it.next()
             val entry2 = it.next()
@@ -332,7 +332,7 @@ private[gatling] object Json {
               asScala(entry3.getValue)
             )
           case _ =>
-            node.fields.asScala.map(e => e.getKey -> asScala(e.getValue)).toMap
+            node.properties.iterator.asScala.map(e => e.getKey -> asScala(e.getValue)).toMap
         }
 
       case STRING  => node.textValue
