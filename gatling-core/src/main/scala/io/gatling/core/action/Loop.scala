@@ -54,7 +54,7 @@ private final class Loop(
     }
 }
 
-class InnerLoop(
+final class InnerLoop(
     continueCondition: Expression[Boolean],
     loopNext: Action,
     counterIncrement: Session => Session,
@@ -96,7 +96,7 @@ class InnerLoop(
       val newSession = incrementedSession.blockStack match {
         case LoopBlock(counterName) :: tail => incrementedSession.exitLoop(counterName, tail)
         case blockStack =>
-          logger.error(s"exitLoop called but stack $blockStack head isn't a Loop Block, please report.")
+          logger.error(s"Loop $name called exitLoop but stack $blockStack head isn't a Loop Block, please report.")
           incrementedSession
       }
 
