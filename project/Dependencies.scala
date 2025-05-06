@@ -10,7 +10,7 @@ object Dependencies {
   private val gatlingSharedCli               = "io.gatling"                           % "gatling-shared-cli"                % "0.0.6"
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                       % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"          % "2.4.0"
-  private val nettyHttp                      = ("io.netty"                            % "netty-codec-http"                  % "4.2.0.Final")
+  private val nettyHttp                      = ("io.netty"                            % "netty-codec-http"                  % "4.2.1.Final")
     .exclude("io.netty", "netty-codec-marshalling")
     .exclude("io.netty", "netty-codec-protobuf")
   private val nettyBuffer                    = nettyHttp.withName("netty-buffer")
