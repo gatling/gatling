@@ -6,7 +6,7 @@ object Dependencies {
   // scalafmt: { align.tokens = ["=", "%", "%%", "classifier"], maxColumn = 250 }
   private def scalaReflect(version: String)  = "org.scala-lang"                                               % "scala-reflect"            % version % Provided
   private val gatlingSharedUtil              = "io.gatling"                                                  %% "gatling-shared-util"      % "0.0.12"
-  private val gatlingSharedModel             = "io.gatling"                                                  %% "gatling-shared-model"     % "0.1.0"
+  private val gatlingSharedModel             = "io.gatling"                                                  %% "gatling-shared-model"     % "0.1.1"
   private val gatlingSharedCli               = "io.gatling"                                                   % "gatling-shared-cli"       % "0.0.6"
   private val scalaSwing                     = "org.scala-lang.modules"                                      %% "scala-swing"              % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"                                      %% "scala-parser-combinators" % "2.4.0"
