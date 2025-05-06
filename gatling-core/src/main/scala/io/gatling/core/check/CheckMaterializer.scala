@@ -18,5 +18,5 @@ package io.gatling.core.check
 
 abstract class CheckMaterializer[T, C <: Check[R], R, P](specializer: Specializer[C, R]) {
   protected def preparer: Preparer[R, P]
-  final def materialize[X](f: Preparer[R, P] => Check[R]): C = specializer(f(preparer))
+  final def materialize(f: Preparer[R, P] => Check[R]): C = specializer(f(preparer))
 }
