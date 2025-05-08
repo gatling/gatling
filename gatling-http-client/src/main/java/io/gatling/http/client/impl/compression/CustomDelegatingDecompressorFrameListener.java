@@ -28,7 +28,7 @@ public final class CustomDelegatingDecompressorFrameListener
 
   public CustomDelegatingDecompressorFrameListener(
       Http2Connection connection, Http2FrameListener listener) {
-    super(connection, listener);
+    super(connection, listener, 0);
   }
 
   @Override

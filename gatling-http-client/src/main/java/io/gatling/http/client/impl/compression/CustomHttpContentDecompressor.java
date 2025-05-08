@@ -20,6 +20,10 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 
 public final class CustomHttpContentDecompressor extends HttpContentDecompressor {
 
+  public CustomHttpContentDecompressor() {
+    super(0);
+  }
+
   @Override
   protected String getTargetContentEncoding(String contentEncoding) {
     return contentEncoding;

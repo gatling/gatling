@@ -38,8 +38,13 @@ public final class AllowClientNoContextWebSocketClientCompressionHandler
   private AllowClientNoContextWebSocketClientCompressionHandler() {
     super(
         new PerMessageDeflateClientExtensionHandshaker(
-            6, ZlibCodecFactory.isSupportingWindowSizeAndMemLevel(), MAX_WINDOW_SIZE, true, false),
-        new DeflateFrameClientExtensionHandshaker(false),
-        new DeflateFrameClientExtensionHandshaker(true));
+            6,
+            ZlibCodecFactory.isSupportingWindowSizeAndMemLevel(),
+            MAX_WINDOW_SIZE,
+            true,
+            false,
+            0),
+        new DeflateFrameClientExtensionHandshaker(false, 0),
+        new DeflateFrameClientExtensionHandshaker(true, 0));
   }
 }
