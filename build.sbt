@@ -142,11 +142,3 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
   .disablePlugins(SbtSpotless)
   .dependsOn(app)
   .settings(libraryDependencies ++= testFrameworkDependencies)
-
-lazy val publicSamples = Project("gatling-samples", file("gatling-samples"))
-  .dependsOn(app)
-  .enablePlugins(GatlingOssPlugin)
-  .settings(gatlingModuleSettings)
-  .settings(
-    skipPublishing
-  )
