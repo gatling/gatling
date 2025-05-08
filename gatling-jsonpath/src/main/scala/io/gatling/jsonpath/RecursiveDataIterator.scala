@@ -42,7 +42,7 @@ final class RecursiveDataIterator(root: JsonNode) extends RecursiveIterator[ju.I
     node.getNodeType match {
       case OBJECT =>
         if (node.size > 0) {
-          // only non empty objects
+          // only non-empty objects
           val it = node.elements
           stack = it :: stack
           nextNode = node

@@ -33,9 +33,7 @@ public final class MimeTypes {
     try (BufferedReader reader =
         new BufferedReader(
             new InputStreamReader(
-                Thread.currentThread()
-                    .getContextClassLoader()
-                    .getResourceAsStream("gatling-mime.types")))) {
+                MimeTypes.class.getClassLoader().getResourceAsStream("gatling-mime.types")))) {
 
       String line;
       while ((line = reader.readLine()) != null) {

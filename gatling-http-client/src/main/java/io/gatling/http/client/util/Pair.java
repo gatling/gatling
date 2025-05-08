@@ -20,8 +20,8 @@ import java.util.Objects;
 
 public final class Pair<L, R> {
 
-  protected final L left;
-  protected final R right;
+  private final L left;
+  private final R right;
 
   public Pair(L left, R right) {
     this.left = left;

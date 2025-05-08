@@ -24,7 +24,7 @@ import sbt.testing.SubclassFingerprint
  * Gatling's specific fingerprint, which defines which classes are to be picked up by the test framework from the test ClassLoader as test classes, in this case
  * Gatling simulations.
  */
-class GatlingFingerprint extends SubclassFingerprint {
+final class GatlingFingerprint extends SubclassFingerprint {
 
   /** Matches only Scala classes, as simulation objects are not supported. */
   override val isModule: Boolean = false

@@ -19,7 +19,7 @@ package io.gatling.javaapi.redis;
 import javax.net.ssl.SSLContext;
 import scala.Option;
 
-public class RedisClientPool {
+public final class RedisClientPool {
 
   private final String host;
   private final int port;

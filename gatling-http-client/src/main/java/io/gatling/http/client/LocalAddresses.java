@@ -20,7 +20,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-public class LocalAddresses {
+public final class LocalAddresses {
 
   private final InetSocketAddress linkLocalIpV4;
   private final InetSocketAddress siteLocalIpV4;

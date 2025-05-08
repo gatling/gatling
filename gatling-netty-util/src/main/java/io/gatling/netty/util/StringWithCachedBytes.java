@@ -24,7 +24,7 @@ import io.netty.buffer.Unpooled;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class StringWithCachedBytes {
+public final class StringWithCachedBytes {
 
   public static ByteBuf toByteBuf(List<StringWithCachedBytes> chunks) {
     switch (chunks.size()) {

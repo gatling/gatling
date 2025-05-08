@@ -40,7 +40,7 @@ import java.util.function.Function;
  *
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
-public class JmsRequestReplyActionBuilder implements ActionBuilder {
+public final class JmsRequestReplyActionBuilder implements ActionBuilder {
 
   private final io.gatling.jms.request.RequestReplyDslBuilder wrapped;
 

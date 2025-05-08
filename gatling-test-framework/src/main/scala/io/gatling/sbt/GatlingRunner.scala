@@ -16,7 +16,7 @@
 
 package io.gatling.sbt
 
-import sbt.testing.{ Runner, TaskDef }
+import sbt.testing.{ Runner, Task, TaskDef }
 
 /**
  * As there is no further special handling needed or simulations to reject, [[GatlingRunner]] simply creates a [[GatlingTask]] for each discovered simulation.
@@ -28,8 +28,8 @@ import sbt.testing.{ Runner, TaskDef }
  * @param testClassLoader
  *   the test ClassLoader, provided by SBT.
  */
-class GatlingRunner(val args: Array[String], val remoteArgs: Array[String], testClassLoader: ClassLoader) extends Runner {
-  def tasks(taskDefs: Array[TaskDef]) = taskDefs.map(new GatlingTask(_, testClassLoader, args, remoteArgs))
+final class GatlingRunner(val args: Array[String], val remoteArgs: Array[String], testClassLoader: ClassLoader) extends Runner {
+  def tasks(taskDefs: Array[TaskDef]): Array[Task] = taskDefs.map(new GatlingTask(_, testClassLoader, args, remoteArgs))
 
   def done = "Simulation(s) execution ended."
 

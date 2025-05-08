@@ -19,7 +19,7 @@ package io.gatling.http.engine.response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpTracing {
+public final class HttpTracing {
   public static final Logger LOGGER =
       LoggerFactory.getLogger(HttpTracing.class.getPackage().getName());
   public static final boolean IS_HTTP_DEBUG_ENABLED = LOGGER.isDebugEnabled();

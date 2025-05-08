@@ -37,7 +37,7 @@ import sbt.testing.{ EventHandler, Logger, OptionalThrowable, Task, TaskDef, Tes
  * @param remoteArgs
  *   the arguments for the run in a forked JVM
  */
-class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Array[String], remoteArgs: Array[String]) extends Task {
+final class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Array[String], remoteArgs: Array[String]) extends Task {
   override val tags: Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {

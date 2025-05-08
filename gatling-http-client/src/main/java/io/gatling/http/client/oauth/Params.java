@@ -39,7 +39,7 @@ import java.util.List;
 
 final class Params {
 
-  private List<Param> parameters = new ArrayList<>();
+  private final List<Param> parameters = new ArrayList<>();
 
   public Params add(String key, String value) {
     parameters.add(new Param(key, value));

@@ -21,7 +21,7 @@ import io.gatling.commons.validation.Validation;
 import io.gatling.core.session.Session;
 import scala.Function1;
 
-public class Jms {
+public final class Jms {
   private final io.gatling.jms.request.JmsDslBuilderBase wrapped;
 
   public Jms(Function1<Session, Validation<String>> name) {
