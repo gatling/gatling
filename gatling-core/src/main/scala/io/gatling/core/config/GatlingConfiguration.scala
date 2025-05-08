@@ -150,6 +150,7 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   private def nettyConfiguration(config: Config) = {
+    // must be called first before Netty loads it
     setSystemPropertyIfUndefined("io.netty.allocator.type", config.getString(netty.Allocator))
     setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", config.getString(netty.MaxThreadLocalCharBufferSize))
 
@@ -217,6 +218,7 @@ object GatlingConfiguration extends StrictLogging {
 
   private def mapToGatlingConfig(config: Config) =
     new GatlingConfiguration(
+      netty = nettyConfiguration(config),
       // [e]
       //
       //
@@ -224,7 +226,6 @@ object GatlingConfiguration extends StrictLogging {
       core = coreConfiguration(config),
       socket = socketConfiguration(config),
       ssl = sslConfiguration(config),
-      netty = nettyConfiguration(config),
       reports = chartingConfiguration(config),
       http = httpConfiguration(config),
       jms = jmsConfiguration(config),
