@@ -190,7 +190,7 @@ public final class DefaultHttpClient implements HttpClient {
           http1Bootstrap
               .clone()
               .handler(
-                  new ChannelInitializer<Channel>() {
+                  new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel channel) {
                       channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
@@ -201,7 +201,7 @@ public final class DefaultHttpClient implements HttpClient {
           http1Bootstrap
               .clone()
               .handler(
-                  new ChannelInitializer<Channel>() {
+                  new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel channel) {
                       channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
