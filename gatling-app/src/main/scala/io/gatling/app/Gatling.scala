@@ -55,7 +55,7 @@ object Gatling extends StrictLogging {
         logger.debug("Could not terminate ActorSystem", e)
     }
 
-  private def start(gatlingArgs: GatlingArgs) =
+  private def start(gatlingArgs: GatlingArgs): Int =
     try {
       // [e]
       //
