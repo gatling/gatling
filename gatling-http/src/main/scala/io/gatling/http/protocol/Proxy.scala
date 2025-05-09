@@ -16,27 +16,16 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.commons.model.Credentials
-import io.gatling.http.client.proxy._
+import io.gatling.core.session.Expression
 import io.gatling.http.client.realm.BasicRealm
 
 final case class Proxy(
     host: String,
     port: Int,
     proxyType: ProxyType,
-    credentials: Option[Credentials]
-) {
-  def proxyServer: ProxyServer = {
-    def basicRealm: Option[BasicRealm] = credentials.map(c => new BasicRealm(c.username, c.password))
-
-    proxyType match {
-      case HttpProxy   => new HttpProxyServer(host, port, basicRealm.orNull, false)
-      case HttpsProxy  => new HttpProxyServer(host, port, basicRealm.orNull, true)
-      case Socks4Proxy => new SocksProxyServer(host, port, basicRealm.orNull, false)
-      case Socks5Proxy => new SocksProxyServer(host, port, basicRealm.orNull, true)
-    }
-  }
-}
+    basicRealm: Option[Expression[BasicRealm]],
+    connectHeaders: Map[CharSequence, Expression[String]]
+)
 
 sealed trait ProxyType
 case object HttpProxy extends ProxyType

@@ -16,11 +16,13 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.commons.model.Credentials
+import io.gatling.core.session.Expression
+import io.gatling.core.session.el.El
+import io.gatling.http.util.HttpHelper._
 import io.gatling.internal.quicklens._
 
 object ProxyBuilder {
-  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, HttpProxy, None))
+  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, HttpProxy, None, Map.empty))
 
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }
@@ -38,6 +40,16 @@ final class ProxyBuilder(val proxy: Proxy) {
   def socks5: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks5Proxy))
 
-  def credentials(username: String, password: String): ProxyBuilder =
-    new ProxyBuilder(proxy.modify(_.credentials).setTo(Some(Credentials(username, password))))
+  def basicAuth(username: Expression[String], password: Expression[String]): ProxyBuilder =
+    new ProxyBuilder(proxy.modify(_.basicRealm).setTo(Some(buildBasicAuthRealm(username, password))))
+
+  def connectHeader(name: CharSequence, value: Expression[String]): ProxyBuilder = {
+    require(proxy.proxyType == HttpProxy || proxy.proxyType == HttpsProxy, "Proxy CONNECT headers are only supported on HTTP(S) proxies")
+    new ProxyBuilder(proxy.modify(_.connectHeaders)(_ + (name -> value)))
+  }
+
+  def connectHeaders(headers: Map[_ <: CharSequence, String]): ProxyBuilder = {
+    require(proxy.proxyType == HttpProxy || proxy.proxyType == HttpsProxy, "Proxy CONNECT headers are only supported on HTTP(S) proxies")
+    new ProxyBuilder(proxy.modify(_.connectHeaders)(_ ++ headers.view.mapValues(_.el[String])))
+  }
 }

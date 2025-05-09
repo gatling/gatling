@@ -29,15 +29,16 @@ import io.gatling.core.session._
 import io.gatling.http.auth.DigestAuthSupport
 import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches, LocalAddressSupport }
 import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.proxy.{ HttpProxyServer, ProxyServer, SocksProxyServer }
 import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.client.uri.{ Uri, UriEncoder }
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, HttpProxy, HttpsProxy, Proxy, Socks4Proxy, Socks5Proxy }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.LazyLogging
-import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpHeaderNames, HttpHeaders }
 import io.netty.util.AsciiString
 
 object RequestExpressionBuilder {
@@ -137,29 +138,51 @@ abstract class RequestExpressionBuilder(
   private val maybeProxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
   private val proxyProtocolEnabled =
     httpProtocol.proxyPart.proxyProtocolSourceIpV4Address.isDefined || httpProtocol.proxyPart.proxyProtocolSourceIpV6Address.isDefined
-  private def configureProxy(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
+  private def configureProxy(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] = {
+    def computeProxyServer(proxy: Proxy): Validation[ProxyServer] =
+      for {
+        basicRealm <- resolveOptionalExpression(proxy.basicRealm, session)
+        connectHeaders <-
+          if (proxy.connectHeaders.isEmpty) {
+            EmptyHttpHeaders.INSTANCE.success
+          } else {
+            proxy.connectHeaders.foldLeft((new DefaultHttpHeaders(false): HttpHeaders).success) { case (accV, (headerName, headerValue)) =>
+              for {
+                acc <- accV
+                resolvedHeaderValue <- headerValue(session)
+              } yield acc.add(headerName, resolvedHeaderValue)
+            }
+          }
+      } yield proxy.proxyType match {
+        case HttpProxy   => new HttpProxyServer(proxy.host, proxy.port, basicRealm.orNull, false, connectHeaders)
+        case HttpsProxy  => new HttpProxyServer(proxy.host, proxy.port, basicRealm.orNull, true, connectHeaders)
+        case Socks4Proxy => new SocksProxyServer(proxy.host, proxy.port, basicRealm.orNull, false)
+        case Socks5Proxy => new SocksProxyServer(proxy.host, proxy.port, basicRealm.orNull, true)
+      }
+
     maybeProxy match {
       case Some(proxy) =>
         if (httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
           Validation.unit
         } else {
-          requestBuilder.setProxyServer(proxy)
-
+          val requestBuilderWithProxyServerV = computeProxyServer(proxy).map(requestBuilder.setProxyServer)
           if (proxyProtocolEnabled) {
             for {
+              requestBuilderWithProxyServer <- requestBuilderWithProxyServerV
               proxyProtocolSourceIpV4AddressOpt <- resolveOptionalExpression(httpProtocol.proxyPart.proxyProtocolSourceIpV4Address, session)
               proxyProtocolSourceIpV6AddressOpt <- resolveOptionalExpression(httpProtocol.proxyPart.proxyProtocolSourceIpV6Address, session)
-            } yield requestBuilder
+            } yield requestBuilderWithProxyServer
               .setProxyProtocolSourceIpV4Address(proxyProtocolSourceIpV4AddressOpt.orNull)
               .setProxyProtocolSourceIpV6Address(proxyProtocolSourceIpV6AddressOpt.orNull)
           } else {
-            Validation.unit
+            requestBuilderWithProxyServerV
           }
         }
 
       case _ =>
         Validation.unit
     }
+  }
 
   private def configureCookies(session: Session, requestBuilder: ClientRequestBuilder): Unit = {
     val cookies = CookieSupport.getStoredCookies(session, requestBuilder.getUri)

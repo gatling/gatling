@@ -48,14 +48,14 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
       .to(List)
 
-  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
+  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[BasicRealm] =
     (session: Session) =>
       for {
         usernameValue <- username(session)
         passwordValue <- password(session)
       } yield new BasicRealm(usernameValue, passwordValue)
 
-  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
+  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]): Expression[DigestRealm] =
     (session: Session) =>
       for {
         usernameValue <- username(session)

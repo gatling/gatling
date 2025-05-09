@@ -16,7 +16,7 @@
 
 package io.gatling.http.protocol
 
-import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
+import java.net.{ InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
 import scala.jdk.CollectionConverters._
@@ -208,7 +208,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
-  def proxy(proxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(proxy.proxyServer))
+  def proxy(proxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(proxy))
   def proxyProtocolSourceIpV4Address(address: Expression[String]): HttpProtocolBuilder =
     this.modify(_.protocol.proxyPart.proxyProtocolSourceIpV4Address).setTo(Some(address))
   def proxyProtocolSourceIpV6Address(address: Expression[String]): HttpProtocolBuilder =

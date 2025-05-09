@@ -80,9 +80,9 @@ object FollowUpProcessor {
         .setDefaultCharset(defaultCharset)
 
     if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
-      val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
-      val protocolProxy = httpProtocol.proxyPart.proxy
-      originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
+      requestBuilder.setProxyServer(originalRequest.getProxyServer)
+      requestBuilder.setProxyProtocolSourceIpV4Address(originalRequest.getProxyProtocolSourceIpV4Address)
+      requestBuilder.setProxyProtocolSourceIpV6Address(originalRequest.getProxyProtocolSourceIpV6Address)
     }
 
     if (keepBody) {

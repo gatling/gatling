@@ -24,10 +24,7 @@ import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.TestServer;
 import io.gatling.http.client.test.listener.TestListener;
 import io.gatling.http.client.uri.Uri;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Response;
@@ -123,7 +120,11 @@ public class HttpRequestThroughHttpProxyTest extends HttpTest {
                                   .setHeaders(h)
                                   .setProxyServer(
                                       new HttpProxyServer(
-                                          "localhost", proxy.getPort(), null, false))
+                                          "localhost",
+                                          proxy.getPort(),
+                                          null,
+                                          false,
+                                          EmptyHttpHeaders.INSTANCE))
                                   .build();
 
                           client

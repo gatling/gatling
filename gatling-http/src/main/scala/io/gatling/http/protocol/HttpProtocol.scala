@@ -31,7 +31,6 @@ import io.gatling.http.ResponseBiTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.{ Http2PriorKnowledge, Request }
-import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
@@ -203,7 +202,7 @@ final case class HttpProtocolSsePart(
 )
 
 final case class HttpProtocolProxyPart(
-    proxy: Option[ProxyServer],
+    proxy: Option[Proxy],
     proxyExceptions: Seq[String],
     proxyProtocolSourceIpV4Address: Option[Expression[String]],
     proxyProtocolSourceIpV6Address: Option[Expression[String]]

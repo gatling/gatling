@@ -17,7 +17,7 @@
 package io.gatling.http.client.proxy;
 
 import io.gatling.http.client.realm.BasicRealm;
-import io.netty.handler.codec.http.EmptyHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.ProxyHandler;
 import java.net.UnknownHostException;
@@ -25,11 +25,14 @@ import java.net.UnknownHostException;
 public final class HttpProxyServer extends ProxyServer {
 
   private final boolean secured;
+  private final HttpHeaders connectHeaders;
 
-  public HttpProxyServer(String host, int port, BasicRealm realm, boolean secured)
+  public HttpProxyServer(
+      String host, int port, BasicRealm realm, boolean secured, HttpHeaders connectHeaders)
       throws UnknownHostException {
     super(host, port, realm);
     this.secured = secured;
+    this.connectHeaders = connectHeaders;
   }
 
   public boolean isSecured() {
@@ -44,8 +47,8 @@ public final class HttpProxyServer extends ProxyServer {
   public ProxyHandler newProxyHandler() {
     return realm != null
         ? new HttpProxyHandler(
-            getAddress(), realm.getUsername(), realm.getPassword(), EmptyHttpHeaders.INSTANCE, true)
-        : new HttpProxyHandler(getAddress(), EmptyHttpHeaders.INSTANCE, true);
+            getAddress(), realm.getUsername(), realm.getPassword(), connectHeaders, true)
+        : new HttpProxyHandler(getAddress(), connectHeaders, true);
   }
 
   @Override

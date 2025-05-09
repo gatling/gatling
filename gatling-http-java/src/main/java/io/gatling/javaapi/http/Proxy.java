@@ -16,7 +16,14 @@
 
 package io.gatling.javaapi.http;
 
+import static io.gatling.javaapi.core.internal.Converters.toScalaMap;
+import static io.gatling.javaapi.core.internal.Expressions.javaFunctionToExpression;
+import static io.gatling.javaapi.core.internal.Expressions.toStringExpression;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.gatling.javaapi.core.Session;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * DSL for bootstrapping Proxies.
@@ -77,12 +84,88 @@ public final class Proxy {
   /**
    * Define some Basic Auth credentials for this proxy
    *
-   * @param username the username
-   * @param password the password
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
   @NonNull
-  public Proxy credentials(@NonNull String username, @NonNull String password) {
-    return new Proxy(wrapped.credentials(username, password));
+  public Proxy basicAuth(@NonNull String username, @NonNull String password) {
+    return new Proxy(wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
+  }
+
+  /**
+   * Define some Basic Auth credentials for this proxy
+   *
+   * @param username the username, expressed as a Gatling Expression Language String
+   * @param password the password, expressed as a function
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy basicAuth(@NonNull String username, @NonNull Function<Session, String> password) {
+    return new Proxy(
+        wrapped.basicAuth(toStringExpression(username), javaFunctionToExpression(password)));
+  }
+
+  /**
+   * Define some Basic Auth credentials for this proxy
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a Gatling Expression Language String
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy basicAuth(@NonNull Function<Session, String> username, @NonNull String password) {
+    return new Proxy(
+        wrapped.basicAuth(javaFunctionToExpression(username), toStringExpression(password)));
+  }
+
+  /**
+   * Define some Basic Auth credentials for this proxy
+   *
+   * @param username the username, expressed as a function
+   * @param password the password, expressed as a function
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy basicAuth(
+      @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
+    return new Proxy(
+        wrapped.basicAuth(javaFunctionToExpression(username), javaFunctionToExpression(password)));
+  }
+
+  /**
+   * Set a header for the CONNECT request (HTTP(S) proxies only)
+   *
+   * @param name the static header name
+   * @param value the header value, expressed as a Gatling Expression Language String
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy connectHeader(@NonNull CharSequence name, @NonNull String value) {
+    return new Proxy(wrapped.connectHeader(name, toStringExpression(value)));
+  }
+
+  /**
+   * Set a header for the CONNECT request (HTTP(S) proxies only)
+   *
+   * @param name the static header name
+   * @param value the header value, expressed as a function
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy connectHeader(@NonNull CharSequence name, @NonNull Function<Session, String> value) {
+    return new Proxy(wrapped.connectHeader(name, javaFunctionToExpression(value)));
+  }
+
+  /**
+   * Set a header for the CONNECT request (HTTP(S) proxies only)
+   *
+   * @param headers the headers, names are static but values are expressed as a Gatling Expression
+   *     Language String
+   * @return a new Proxy instance
+   */
+  @NonNull
+  public Proxy connectHeaders(Map<? extends CharSequence, String> headers) {
+    return new Proxy(wrapped.connectHeaders(toScalaMap(headers)));
   }
 }

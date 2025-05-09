@@ -24,7 +24,6 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusCheckMaterializer }
 import io.gatling.http.client.Request
 import io.gatling.http.client.oauth.{ ConsumerKey, OAuthSignatureCalculator, RequestToken }
-import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.Proxy
@@ -57,7 +56,7 @@ final case class CommonAttributes(
     queryParams: List[HttpParam],
     headers: Map[CharSequence, Expression[String]],
     realm: Option[Expression[Realm]],
-    proxy: Option[ProxyServer],
+    proxy: Option[Proxy],
     signatureCalculator: Option[(Request, Session) => Validation[Request]],
     ignoreProtocolHeaders: Boolean
 )
@@ -153,7 +152,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
 
-  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy.proxyServer)))
+  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy)))
 
   def sign(calculator: (Request, Session) => Validation[Request]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
 

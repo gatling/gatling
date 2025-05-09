@@ -99,7 +99,6 @@ final class HttpEngine(
         .setRequestTimeout(1000)
         .setDefaultCharset(configuration.core.charset)
 
-      httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
       val eventLoop = eventLoopGroup.next()
       // load ciphers
       val sslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
