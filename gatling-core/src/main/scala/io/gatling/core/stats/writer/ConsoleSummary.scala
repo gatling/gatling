@@ -48,7 +48,7 @@ private[gatling] object ConsoleSummary {
       import userCounters._
       totalUserCount match {
         case Some(tot) if tot >= doneCount + activeCount =>
-          val width = ConsoleWidth - 8 // []99.99%
+          val width = ConsoleWidth - 9 // [] 99.99%
 
           val donePercent = 100 * doneCount.toDouble / tot
           val done = floor(width * doneCount.toDouble / tot).toInt
@@ -56,7 +56,7 @@ private[gatling] object ConsoleSummary {
           val waiting = width - done - active
           sb.append(
             s"""${formatSubTitle(scenarioName)}
-               |[${"#" * done}${"|" * active}${" " * waiting}]${s"${donePercent.toPrintableString}%".leftPad(6)}
+               |[${"#" * done}${"|" * active}${" " * waiting}] ${s"${donePercent.toPrintableString}%".leftPad(6)}
                |          waiting: ${formatNumber(waitingCount)} / active: ${formatNumber(activeCount)}  / done: ${formatNumber(doneCount)}""".stripMargin
           )
 

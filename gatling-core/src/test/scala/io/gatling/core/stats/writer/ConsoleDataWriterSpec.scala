@@ -55,7 +55,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
     )
     summary.complete shouldBe false
 
-    progressBar(summary) shouldBe "[                                                                                                                ]    0%"
+    progressBar(summary) shouldBe "[                                                                                                               ]     0%"
   }
 
   it should "handle it correctly when all the users are active" in {
@@ -73,7 +73,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe false
-    progressBar(summary) shouldBe "[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||]    0%"
+    progressBar(summary) shouldBe "[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||]     0%"
   }
 
   it should "handle it correctly when all the users are done" in {
@@ -92,7 +92,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe true
-    progressBar(summary) shouldBe "[################################################################################################################]  100%"
+    progressBar(summary) shouldBe "[###############################################################################################################]   100%"
   }
 
   it should "handle it correctly when there are active and done users" in {
@@ -111,7 +111,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
       DateTimeFormatter.ISO_DATE_TIME
     )
     summary.complete shouldBe false
-    progressBar(summary) shouldBe "[#####################################################################################################|||||||||||]90.91%"
+    progressBar(summary) shouldBe "[####################################################################################################|||||||||||] 90.91%"
   }
 
   "console summary" should "display requests without errors" in {
