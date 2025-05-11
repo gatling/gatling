@@ -26,6 +26,7 @@ import io.gatling.netty.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
+import io.netty.handler.codec.http.HttpContent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +71,7 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
 
   @Override
   public byte[] getBytes() {
-    MultipartChunkedInput content = toChunkedInput();
+    MultipartChunkedInput chunkedInput = toChunkedInput();
 
     CompositeByteBuf composite =
         new CompositeByteBuf(ByteBufAllocator.DEFAULT, false, Integer.MAX_VALUE);
@@ -78,8 +79,13 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
     try {
       ByteBuf chunk;
       do {
-        chunk = content.readChunk(ByteBufAllocator.DEFAULT).content();
-        composite.addComponent(true, chunk);
+        HttpContent content = chunkedInput.readChunk(ByteBufAllocator.DEFAULT);
+        if (content != null) {
+          chunk = content.content();
+          composite.addComponent(true, chunk);
+        } else {
+          chunk = null;
+        }
       } while (chunk != null);
       return ByteBufUtils.byteBuf2Bytes(composite);
 
