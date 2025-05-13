@@ -90,7 +90,8 @@ public final class Proxy {
    */
   @NonNull
   public Proxy credentials(@NonNull String username, @NonNull String password) {
-    return new Proxy(wrapped.credentials(toStringExpression(username), toStringExpression(password)));
+    return new Proxy(
+        wrapped.credentials(toStringExpression(username), toStringExpression(password)));
   }
 
   /**
@@ -130,7 +131,8 @@ public final class Proxy {
   public Proxy credentials(
       @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return new Proxy(
-        wrapped.credentials(javaFunctionToExpression(username), javaFunctionToExpression(password)));
+        wrapped.credentials(
+            javaFunctionToExpression(username), javaFunctionToExpression(password)));
   }
 
   /**
