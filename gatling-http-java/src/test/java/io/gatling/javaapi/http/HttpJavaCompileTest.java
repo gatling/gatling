@@ -122,7 +122,7 @@ public class HttpJavaCompileTest extends Simulation {
           .nameInferredHtmlResourcesAfterLastPathElement()
           .nameInferredHtmlResources(uri -> "foo")
           .proxy(Proxy("172.31.76.106", 8080))
-          .proxy(Proxy("172.31.76.106", 8080).basicAuth("username", "password"))
+          .proxy(Proxy("172.31.76.106", 8080).credentials("username", "password"))
           .proxy(Proxy("172.31.76.106", 8080).http())
           .proxy(Proxy("172.31.76.106", 8080).https())
           .proxy(Proxy("172.31.76.106", 8080).socks4())

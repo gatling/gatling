@@ -40,7 +40,7 @@ final class ProxyBuilder(val proxy: Proxy) {
   def socks5: ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks5Proxy))
 
-  def basicAuth(username: Expression[String], password: Expression[String]): ProxyBuilder =
+  def credentials(username: Expression[String], password: Expression[String]): ProxyBuilder =
     new ProxyBuilder(proxy.modify(_.basicRealm).setTo(Some(buildBasicAuthRealm(username, password))))
 
   def connectHeader(name: CharSequence, value: Expression[String]): ProxyBuilder = {

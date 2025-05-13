@@ -82,41 +82,41 @@ public final class Proxy {
   }
 
   /**
-   * Define some Basic Auth credentials for this proxy
+   * Define some username-password credentials for this proxy
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
   @NonNull
-  public Proxy basicAuth(@NonNull String username, @NonNull String password) {
-    return new Proxy(wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
+  public Proxy credentials(@NonNull String username, @NonNull String password) {
+    return new Proxy(wrapped.credentials(toStringExpression(username), toStringExpression(password)));
   }
 
   /**
-   * Define some Basic Auth credentials for this proxy
+   * Define some username-password credentials for this proxy
    *
    * @param username the username, expressed as a Gatling Expression Language String
    * @param password the password, expressed as a function
    * @return a new Proxy instance
    */
   @NonNull
-  public Proxy basicAuth(@NonNull String username, @NonNull Function<Session, String> password) {
+  public Proxy credentials(@NonNull String username, @NonNull Function<Session, String> password) {
     return new Proxy(
-        wrapped.basicAuth(toStringExpression(username), javaFunctionToExpression(password)));
+        wrapped.credentials(toStringExpression(username), javaFunctionToExpression(password)));
   }
 
   /**
-   * Define some Basic Auth credentials for this proxy
+   * Define some username-password credentials for this proxy
    *
    * @param username the username, expressed as a function
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
   @NonNull
-  public Proxy basicAuth(@NonNull Function<Session, String> username, @NonNull String password) {
+  public Proxy credentials(@NonNull Function<Session, String> username, @NonNull String password) {
     return new Proxy(
-        wrapped.basicAuth(javaFunctionToExpression(username), toStringExpression(password)));
+        wrapped.credentials(javaFunctionToExpression(username), toStringExpression(password)));
   }
 
   /**
@@ -127,10 +127,10 @@ public final class Proxy {
    * @return a new Proxy instance
    */
   @NonNull
-  public Proxy basicAuth(
+  public Proxy credentials(
       @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return new Proxy(
-        wrapped.basicAuth(javaFunctionToExpression(username), javaFunctionToExpression(password)));
+        wrapped.credentials(javaFunctionToExpression(username), javaFunctionToExpression(password)));
   }
 
   /**
