@@ -16,7 +16,6 @@
 
 package io.gatling.jms.client
 
-import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.jdk.CollectionConverters._
@@ -26,7 +25,7 @@ import jakarta.jms.{ Destination, MessageProducer }
 private[client] final case class CachedProducerKey(destination: Destination, deliveryMode: Int)
 
 final class JmsProducerPool(sessionPool: JmsSessionPool) {
-  private val registeredProducers = Collections.newSetFromMap(new ConcurrentHashMap[MessageProducer, java.lang.Boolean])
+  private val registeredProducers = ConcurrentHashMap.newKeySet[MessageProducer]
   private val producers = new ConcurrentHashMap[CachedProducerKey, ThreadLocal[JmsProducer]]
 
   def producer(destination: Destination, deliveryMode: Int): JmsProducer =
