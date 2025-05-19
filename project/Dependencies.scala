@@ -36,7 +36,7 @@ object Dependencies {
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val config                         = "com.typesafe"                                                 % "config"                   % "1.4.3"
-  private val saxon                          = "net.sf.saxon"                                                 % "Saxon-HE"                 % "12.6"
+  private val saxon                          = "net.sf.saxon"                                                 % "Saxon-HE"                 % "12.7"
   private val xmlresolver                    = "org.xmlresolver"                                              % "xmlresolver"              % "6.0.14"
   private val xmlresolverData                = xmlresolver                                           classifier "data"
   private val slf4jApi                       = "org.slf4j"                                                    % "slf4j-api"                % "2.0.17"
