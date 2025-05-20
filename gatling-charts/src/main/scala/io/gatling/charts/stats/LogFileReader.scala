@@ -348,7 +348,7 @@ private final class SecondPassParser(logFile: File, runInfo: RunInfo, step: Doub
       }
     }
 
-    resultsHolder.endDandlingStartedUser()
+    resultsHolder.flushTrailingConcurrentUsers()
 
     logger.info(s"Second pass: read $count records")
 

@@ -35,8 +35,8 @@ private[charts] object ComponentLibrary extends StrictLogging {
 }
 
 private[gatling] trait ComponentLibrary {
-  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
-  def getActiveSessionsComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
+  def getUserStartRateComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
+  def getMaxConcurrentUsersComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
   def getRangesComponent(chartTitle: String, eventName: String, ranges: Ranges, large: Boolean): Component
   def getRequestCountPolarComponent(rootContainer: GroupContainer): Component
   def getDistributionComponent(

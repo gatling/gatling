@@ -56,12 +56,6 @@ private[gatling] final class ReportsGenerator(
 
     val reportGenerators =
       List(
-        new AllSessionsReportGenerator(
-          reportsGenerationInputs.logFileData,
-          chartsFiles,
-          ComponentLibrary.Instance,
-          charset
-        ),
         new GlobalReportGenerator(
           reportsGenerationInputs.logFileData,
           reportsGenerationInputs.assertionResults,

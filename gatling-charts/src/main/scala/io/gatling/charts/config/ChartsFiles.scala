@@ -22,15 +22,12 @@ import io.gatling.charts.FileNamingConventions
 import io.gatling.core.config.GatlingFiles
 
 private[charts] object ChartsFiles {
-  private val AllSessionsFile = "all_sessions.js"
-
   val CommonJsFiles: Seq[String] = Seq(
     "jquery-3.7.1.slim.min.js",
     "bootstrap.min.js",
     "gatling.js",
     "menu.js",
-    "ellipsis.js",
-    AllSessionsFile
+    "ellipsis.js"
   )
 
   private val GatlingJsFolder: Path = Paths.get("js")
@@ -48,8 +45,6 @@ private[charts] class ChartsFiles(runUuid: String, resultsDirectory: Path) {
   val jsDirectory: Path = resultDirectory.resolve(GatlingJsFolder)
 
   val styleDirectory: Path = resultDirectory.resolve(GatlingStyleFolder)
-
-  val allSessionsFile: Path = jsDirectory.resolve(AllSessionsFile)
 
   val globalFile: Path = resultDirectory.resolve("index.html")
 

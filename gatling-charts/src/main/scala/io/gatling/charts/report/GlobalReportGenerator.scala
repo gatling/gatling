@@ -40,18 +40,36 @@ private[charts] final class GlobalReportGenerator(
     configuration: ReportsConfiguration
 ) extends ReportGenerator {
 
-  private def activeSessionsChartComponent(logFileData: LogFileData) = {
+  private def userStartRateComponent(logFileData: LogFileData) = {
     val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileData.scenarioNames.size).toList
 
-    val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
+    val userStartRateSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
       .map { scenarioName =>
-        scenarioName -> logFileData.numberOfActiveSessionsPerSecond(Some(scenarioName))
+        scenarioName -> logFileData.userStartRatePerSecond(Some(scenarioName))
       }
       .reverse
       .zip(seriesColors)
-      .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
+      .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) } ::: List(
+      new Series[IntVsTimePlot]("All users", logFileData.userStartRatePerSecond(None), List(Color.Users.All))
+    )
 
-    componentLibrary.getActiveSessionsComponent(logFileData.runInfo.injectStart, activeSessionsSeries)
+    componentLibrary.getUserStartRateComponent(logFileData.runInfo.injectStart, userStartRateSeries)
+  }
+
+  private def maxNumberOfConcurrentUsersComponent(logFileData: LogFileData) = {
+    val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileData.scenarioNames.size).toList
+
+    val userStartRateSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
+      .map { scenarioName =>
+        scenarioName -> logFileData.maxNumberOfConcurrentUsersPerSecond(Some(scenarioName))
+      }
+      .reverse
+      .zip(seriesColors)
+      .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) } ::: List(
+      new Series[IntVsTimePlot]("All users", logFileData.maxNumberOfConcurrentUsersPerSecond(None), List(Color.Users.All))
+    )
+
+    componentLibrary.getMaxConcurrentUsersComponent(logFileData.runInfo.injectStart, userStartRateSeries)
   }
 
   private def responseTimeDistributionChartComponent(logFileData: LogFileData): Component = {
@@ -109,7 +127,8 @@ private[charts] final class GlobalReportGenerator(
       new AssertionsTableComponent(assertionResults),
       new GlobalStatsTableComponent(rootContainer, configuration.indicators),
       new ErrorsTableComponent(logFileData.errors(None, None)),
-      activeSessionsChartComponent(logFileData),
+      userStartRateComponent(logFileData),
+      maxNumberOfConcurrentUsersComponent(logFileData),
       responseTimeDistributionChartComponent(logFileData),
       responseTimeChartComponent(logFileData),
       requestsChartComponent(logFileData),

@@ -29,7 +29,10 @@ private[charts] final class GlobalPageTemplate(runInfo: RunInfo, rootContainer: 
   override protected def getMenu: String =
     """<li><a class="item" href="#ranges"><span class="nav-label">Ranges</span></a></li>
       |<li><a class="item" href="#stats"><span class="nav-label">Stats</span></a></li>
-      |<li><a class="item" href="#active_users"><span class="nav-label">Active Users</span></a></li>
+      |<li><a class="item" href="#userStartRateDiv"><span class="nav-label">Users start rate</span></a></li>
+      |<li><a class="item" href="#concurrentUsersDiv"><span class="nav-label">Concurrent users</span></a></li>
+      |<li><a class="item" href="#responsetimeDistributionContainer"><span class="nav-label">Response time distribution</span></a></li>
+      |<li><a class="item" href="#responsetimepercentilesovertimeokPercentilesContainer"><span class="nav-label">Response time percentiles</span></a></li>
       |<li><a class="item" href="#requests"><span class="nav-label">Requests / sec</span></a></li>
       |<li><a class="item" href="#responses"><span class="nav-label">Responses / sec</span></a></li>""".stripMargin
 

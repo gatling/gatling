@@ -16,57 +16,72 @@
 
 package io.gatling.charts.stats.buffers
 
-import java.util.concurrent.atomic.LongAdder
-
 import scala.collection.mutable
 
 import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
 import io.gatling.core.stats.message.MessageEvent
 
-private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int], runDurationInSeconds: Int) {
-  private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
-  private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
+private[stats] final class SessionCounters(minTimestamp: Long, maxTimestamp: Long, bucketToMillis: Array[Int]) {
+  private val bucketWidthInMillis = ((maxTimestamp - minTimestamp) / bucketToMillis.length).toInt
 
-  def addStart(second: Int): Unit = startCounts(second) += 1
+  private var currentBuffer = 0
+  private val startCounts: Array[Int] = Array.fill(bucketToMillis.length)(0)
+  private val concurrentUsers: Array[Int] = Array.fill(bucketToMillis.length)(0)
+  private val maxConcurrentUsers: Array[Int] = Array.fill(bucketToMillis.length)(0)
 
-  def addEnd(second: Int): Unit = endCounts(second) += 1
-
-  def endDandling(): Unit = addEnd(runDurationInSeconds - 1)
-
-  private val bucketWidthInMillis = ((maxTimestamp - minTimestamp) / buckets.length).toInt
-  private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, buckets.length - 1)
-
-  def distribution: List[IntVsTimePlot] = {
-    val eachSecondActiveSessions = Array.fill(runDurationInSeconds)(0)
-
-    for (second <- 0 until runDurationInSeconds) {
-      val previousSessions = if (second == 0) 0 else eachSecondActiveSessions(second - 1)
-      val previousEnds = if (second == 0) 0 else endCounts(second - 1)
-      val bucketSessions = previousSessions - previousEnds + startCounts(second)
-      eachSecondActiveSessions.update(second, bucketSessions)
-    }
-
-    eachSecondActiveSessions.zipWithIndex.view
-      .groupMap { case (_, second) => secondToBucket(second) } { case (sessions, _) => sessions }
-      .map { case (bucket, sessionCounts) =>
-        val averageSessionCount = sessionCounts.sum / sessionCounts.size
-        val time = buckets(bucket)
-        new IntVsTimePlot(time, averageSessionCount)
+  // assume timestamps are always moving forward
+  private def updateCurrentBucket(second: Int): Unit = {
+    val bucket = secondToBucket(second)
+    if (bucket > currentBuffer) {
+      // moving currentBuffer forward, initialize all buffers between old and new position
+      for (i <- currentBuffer + 1 to bucket) {
+        concurrentUsers(i) = concurrentUsers(currentBuffer)
+        maxConcurrentUsers(i) = maxConcurrentUsers(currentBuffer)
       }
-      .to(List)
-      .sortBy(_.time)
+      currentBuffer = bucket
+    }
   }
+
+  def addStart(second: Int): Unit = {
+    updateCurrentBucket(second)
+    startCounts(currentBuffer) += 1
+    concurrentUsers(currentBuffer) += 1
+    if (concurrentUsers(currentBuffer) > maxConcurrentUsers(currentBuffer)) {
+      maxConcurrentUsers(currentBuffer) = concurrentUsers(currentBuffer)
+    }
+  }
+
+  def addEnd(second: Int): Unit = {
+    updateCurrentBucket(second)
+    concurrentUsers(currentBuffer) -= 1
+  }
+
+  private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, bucketToMillis.length - 1)
+
+  def userStartRateSeries: List[IntVsTimePlot] =
+    startCounts.zipWithIndex.map { case (startCount, bucket) =>
+      new IntVsTimePlot(bucketToMillis(bucket), (startCount.toDouble * 1000 / bucketWidthInMillis).round.toInt)
+    }.toList
+
+  def maxConcurrentUsersSeries: List[IntVsTimePlot] =
+    maxConcurrentUsers.zipWithIndex.map { case (max, bucket) =>
+      new IntVsTimePlot(bucketToMillis(bucket), max)
+    }.toList
+
+  def flushTrailingConcurrentUsers(): Unit =
+    for (i <- currentBuffer + 1 until bucketToMillis.length) {
+      concurrentUsers(i) = concurrentUsers(currentBuffer)
+      maxConcurrentUsers(i) = maxConcurrentUsers(currentBuffer)
+    }
 }
 
 private[stats] trait SessionDeltaPerSecBuffers {
   this: Buckets with RunTimes =>
 
-  private val sessionDeltaPerSecBuffers = mutable.Map.empty[Option[String], SessionDeltaBuffer]
-  private val userCountByScenario = mutable.Map.empty[String, LongAdder]
-  private val runDurationInSeconds = math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt
+  private val sessionDeltaPerSecBuffers = mutable.Map.empty[Option[String], SessionCounters]
 
-  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer =
-    sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(minTimestamp, maxTimestamp, buckets, runDurationInSeconds))
+  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionCounters =
+    sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionCounters(minTimestamp, maxTimestamp, buckets))
 
   private def timestamp2SecondOffset(timestamp: Long) = {
     val millisOffset = timestamp - minTimestamp
@@ -86,23 +101,13 @@ private[stats] trait SessionDeltaPerSecBuffers {
         val startSecond = timestamp2SecondOffset(record.timestamp)
         getSessionDeltaPerSecBuffers(None).addStart(startSecond)
         getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(startSecond)
-        userCountByScenario.getOrElseUpdate(record.scenario, new LongAdder).increment()
 
       case MessageEvent.End =>
         val endSecond = timestamp2SecondOffset(record.timestamp)
         getSessionDeltaPerSecBuffers(None).addEnd(endSecond)
         getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(endSecond)
-        userCountByScenario.getOrElseUpdate(record.scenario, new LongAdder).decrement()
     }
 
-  @SuppressWarnings(Array("org.wartremover.warts.ForeachEntry"))
-  def endDandlingStartedUser(): Unit =
-    for {
-      (scenario, count) <- userCountByScenario
-      sum = count.sum().toInt
-      _ <- 0 until sum
-    } {
-      getSessionDeltaPerSecBuffers(None).endDandling()
-      getSessionDeltaPerSecBuffers(Some(scenario)).endDandling()
-    }
+  def flushTrailingConcurrentUsers(): Unit =
+    sessionDeltaPerSecBuffers.values.foreach(_.flushTrailingConcurrentUsers())
 }

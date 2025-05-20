@@ -85,12 +85,17 @@ private[gatling] final class LogFileData(
       .sortBy(_._2)
       .map(_._1)
 
-  def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] =
+  def userStartRatePerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] =
     resultsHolder
       .getSessionDeltaPerSecBuffers(scenarioName)
-      .distribution
+      .userStartRateSeries
 
-  private def toNumberPerSec(value: Int) = (value / step * secMillisecRatio).round.toInt
+  def maxNumberOfConcurrentUsersPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] =
+    resultsHolder
+      .getSessionDeltaPerSecBuffers(scenarioName)
+      .maxConcurrentUsersSeries
+
+  private def toNumberPerSec(value: Int): Int = (value / step * secMillisecRatio).round.toInt
 
   private def countBuffer2IntVsTimePlots(buffer: CountsBuffer): Seq[CountsVsTimePlot] =
     buffer.distribution
