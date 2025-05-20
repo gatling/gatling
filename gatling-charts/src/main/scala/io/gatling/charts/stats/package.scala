@@ -16,8 +16,6 @@
 
 package io.gatling.charts.stats
 
-import io.gatling.charts.util.Color
-
 object Series {
   val OK = "OK"
   val KO = "KO"
@@ -25,15 +23,10 @@ object Series {
   val Distribution = "Distribution"
 }
 
-final class Series[X](val name: String, val data: Iterable[X], val colors: List[Color])
+final class UserSeries(val name: String, val data: Seq[IntVsTimePlot])
 final class IntVsTimePlot(val time: Int, val value: Int)
-final class CountsVsTimePlot(val time: Int, val oks: Int, val kos: Int) {
-  def total: Int = oks + kos
-}
-final class PercentVsTimePlot(val time: Int, val value: Double) {
-  def roundedUpValue: Double = (value * 100).toInt / 100.0
-}
-final class PieSlice(val name: String, val value: Double)
+final class CountsVsTimePlot(val time: Int, val oks: Int, val kos: Int)
+final class PercentVsTimePlot(val time: Int, val value: Double)
 final class PercentilesVsTimePlot(val time: Int, val percentiles: Option[Percentiles])
 final class Percentiles(
     val percentile0: Int,

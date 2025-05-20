@@ -35,18 +35,18 @@ private[charts] object ComponentLibrary extends StrictLogging {
 }
 
 private[gatling] trait ComponentLibrary {
-  def getUserStartRateComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
-  def getMaxConcurrentUsersComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
+  def getUserStartRateComponent(runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
+  def getMaxConcurrentUsersComponent(runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
   def getRangesComponent(chartTitle: String, eventName: String, ranges: Ranges, large: Boolean): Component
   def getRequestCountPolarComponent(rootContainer: GroupContainer): Component
   def getDistributionComponent(
       title: String,
       yAxisName: String,
-      durationsSuccess: Series[PercentVsTimePlot],
-      durationsFailure: Series[PercentVsTimePlot]
+      durationsSuccess: Seq[PercentVsTimePlot],
+      durationsFailure: Seq[PercentVsTimePlot]
   ): Component
-  def getPercentilesOverTimeComponent(yAxisName: String, runStart: Long, successSeries: Series[PercentilesVsTimePlot]): Component
-  def getRequestsComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
-  def getResponsesComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
-  def getResponseTimeScatterComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component
+  def getPercentilesOverTimeComponent(title: String, yAxisName: String, runStart: Long, data: Seq[PercentilesVsTimePlot]): Component
+  def getRequestsComponent(runStart: Long, counts: Seq[CountsVsTimePlot]): Component
+  def getResponsesComponent(runStart: Long, counts: Seq[CountsVsTimePlot]): Component
+  def getResponseTimeScatterComponent(successData: Seq[IntVsTimePlot], failuresData: Seq[IntVsTimePlot]): Component
 }

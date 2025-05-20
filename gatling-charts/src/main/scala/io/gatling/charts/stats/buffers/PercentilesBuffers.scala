@@ -32,25 +32,24 @@ private[stats] class PercentilesBuffers(buckets: Array[Int]) {
         digests(bucketNumber) = Some(digest)
     }
 
-  def percentiles: Iterable[PercentilesVsTimePlot] =
-    digests.view.zipWithIndex
-      .map { case (digestO, bucketNumber) =>
-        val time = buckets(bucketNumber)
-        val percentiles = digestO.map { digest =>
-          new Percentiles(
-            digest.quantile(0).toInt,
-            digest.quantile(0.25).toInt,
-            digest.quantile(0.5).toInt,
-            digest.quantile(0.75).toInt,
-            digest.quantile(0.80).toInt,
-            digest.quantile(0.85).toInt,
-            digest.quantile(0.90).toInt,
-            digest.quantile(0.95).toInt,
-            digest.quantile(0.99).toInt,
-            digest.quantile(1.0).toInt
-          )
-        }
-
-        new PercentilesVsTimePlot(time, percentiles)
+  def percentiles: Seq[PercentilesVsTimePlot] =
+    digests.view.zipWithIndex.map { case (digestO, bucketNumber) =>
+      val time = buckets(bucketNumber)
+      val percentiles = digestO.map { digest =>
+        new Percentiles(
+          digest.quantile(0).toInt,
+          digest.quantile(0.25).toInt,
+          digest.quantile(0.5).toInt,
+          digest.quantile(0.75).toInt,
+          digest.quantile(0.80).toInt,
+          digest.quantile(0.85).toInt,
+          digest.quantile(0.90).toInt,
+          digest.quantile(0.95).toInt,
+          digest.quantile(0.99).toInt,
+          digest.quantile(1.0).toInt
+        )
       }
+
+      new PercentilesVsTimePlot(time, percentiles)
+    }.toSeq
 }

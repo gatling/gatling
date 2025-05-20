@@ -207,7 +207,7 @@ private[gatling] final class LogFileData(
     )
   }
 
-  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
+  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers): Seq[IntVsTimePlot] = {
@@ -218,7 +218,7 @@ private[gatling] final class LogFileData(
         val count = globalCountsByBucket(bucketNumber)
         new IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
-      .to(Seq)
+      .toSeq
       .sortBy(_.time)
   }
 
@@ -227,10 +227,10 @@ private[gatling] final class LogFileData(
     timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer)
   }
 
-  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot] =
+  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
     resultsHolder.getGroupCumulatedResponseTimePercentilesBuffers(group, status).percentiles
 
-  def groupDurationPercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot] =
+  def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
     resultsHolder.getGroupDurationPercentilesBuffers(group, status).percentiles
 
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {

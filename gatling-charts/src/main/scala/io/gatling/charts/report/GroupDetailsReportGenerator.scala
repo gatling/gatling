@@ -18,11 +18,10 @@ package io.gatling.charts.report
 
 import java.nio.charset.Charset
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent, RequestStatistics }
+import io.gatling.charts.component.{ Component, ComponentLibrary, DetailsStatsTableComponent, ErrorsTableComponent }
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.{ Group, LogFileData, PercentilesVsTimePlot, RequestPath, Series }
+import io.gatling.charts.stats.{ LogFileData, RequestPath }
 import io.gatling.charts.template.DetailsPageTemplate
-import io.gatling.charts.util.Color
 import io.gatling.commons.stats.OK
 import io.gatling.core.config.ReportsConfiguration
 
@@ -36,48 +35,41 @@ private[charts] class GroupDetailsReportGenerator(
 ) extends ReportGenerator {
   def generate(): Unit = {
     def generateDetailPage(groupContainer: GroupContainer): Unit = {
-      def cumulatedResponseTimeChartComponent: Component = {
-        val dataSuccess = logFileData.groupCumulatedResponseTimePercentilesOverTime(OK, groupContainer.group)
-        val seriesSuccess =
-          new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (OK)", dataSuccess, Color.Requests.Percentiles)
-
+      def cumulatedResponseTimeChartComponent: Component =
         componentLibrary.getPercentilesOverTimeComponent(
+          "Group Cumulated Response Time Percentiles over Time (OK)",
           "Cumulated Response Time",
           logFileData.runInfo.injectStart,
-          seriesSuccess
+          logFileData.groupCumulatedResponseTimePercentilesOverTime(OK, groupContainer.group)
         )
-      }
 
       def cumulatedResponseTimeDistributionChartComponent: Component = {
         val (distributionSuccess, distributionFailure) = logFileData.groupCumulatedResponseTimeDistribution(100, groupContainer.group)
-        val distributionSeriesSuccess = new Series(Series.OK, distributionSuccess, List(Color.Requests.Ok))
-        val distributionSeriesFailure = new Series(Series.KO, distributionFailure, List(Color.Requests.Ko))
 
         componentLibrary.getDistributionComponent(
           "Group Cumulated Response Time",
           "Groups",
-          distributionSeriesSuccess,
-          distributionSeriesFailure
+          distributionSuccess,
+          distributionFailure
         )
       }
 
-      def durationChartComponent: Component = {
-        val dataSuccess = logFileData.groupDurationPercentilesOverTime(OK, groupContainer.group)
-        val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Duration Percentiles over Time (OK)", dataSuccess, Color.Requests.Percentiles)
-
-        componentLibrary.getPercentilesOverTimeComponent("Duration", logFileData.runInfo.injectStart, seriesSuccess)
-      }
+      def durationChartComponent: Component =
+        componentLibrary.getPercentilesOverTimeComponent(
+          "Group Duration Percentiles over Time (OK)",
+          "Duration",
+          logFileData.runInfo.injectStart,
+          logFileData.groupDurationPercentilesOverTime(OK, groupContainer.group)
+        )
 
       def durationDistributionChartComponent: Component = {
         val (distributionSuccess, distributionFailure) = logFileData.groupDurationDistribution(100, groupContainer.group)
-        val distributionSeriesSuccess = new Series(Series.OK, distributionSuccess, List(Color.Requests.Ok))
-        val distributionSeriesFailure = new Series(Series.KO, distributionFailure, List(Color.Requests.Ko))
 
         componentLibrary.getDistributionComponent(
           "Group Duration",
           "Groups",
-          distributionSeriesSuccess,
-          distributionSeriesFailure
+          distributionSuccess,
+          distributionFailure
         )
       }
 

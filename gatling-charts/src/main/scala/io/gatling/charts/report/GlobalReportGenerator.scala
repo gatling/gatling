@@ -23,9 +23,7 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.GlobalPageTemplate
-import io.gatling.charts.util.Color
 import io.gatling.commons.stats.OK
-import io.gatling.commons.util.Collections._
 import io.gatling.core.config.ReportsConfiguration
 import io.gatling.shared.model.assertion.AssertionResult
 
@@ -41,77 +39,53 @@ private[charts] final class GlobalReportGenerator(
 ) extends ReportGenerator {
 
   private def userStartRateComponent(logFileData: LogFileData) = {
-    val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileData.scenarioNames.size).toList
+    val userStartRateSeries = logFileData.scenarioNames.map { scenarioName =>
+      new UserSeries(scenarioName, logFileData.userStartRatePerSecond(Some(scenarioName)))
+    }.reverse
 
-    val userStartRateSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
-      .map { scenarioName =>
-        scenarioName -> logFileData.userStartRatePerSecond(Some(scenarioName))
-      }
-      .reverse
-      .zip(seriesColors)
-      .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) } ::: List(
-      new Series[IntVsTimePlot]("All users", logFileData.userStartRatePerSecond(None), List(Color.Users.All))
+    componentLibrary.getUserStartRateComponent(
+      logFileData.runInfo.injectStart,
+      new UserSeries("All users", logFileData.userStartRatePerSecond(None)),
+      userStartRateSeries
     )
-
-    componentLibrary.getUserStartRateComponent(logFileData.runInfo.injectStart, userStartRateSeries)
   }
 
   private def maxNumberOfConcurrentUsersComponent(logFileData: LogFileData) = {
-    val seriesColors = Iterator.continually(Color.Users.Base).flatten.take(logFileData.scenarioNames.size).toList
+    val userStartRateSeries: Seq[UserSeries] = logFileData.scenarioNames.map { scenarioName =>
+      new UserSeries(scenarioName, logFileData.maxNumberOfConcurrentUsersPerSecond(Some(scenarioName)))
+    }.reverse
 
-    val userStartRateSeries: Seq[Series[IntVsTimePlot]] = logFileData.scenarioNames
-      .map { scenarioName =>
-        scenarioName -> logFileData.maxNumberOfConcurrentUsersPerSecond(Some(scenarioName))
-      }
-      .reverse
-      .zip(seriesColors)
-      .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) } ::: List(
-      new Series[IntVsTimePlot]("All users", logFileData.maxNumberOfConcurrentUsersPerSecond(None), List(Color.Users.All))
+    componentLibrary.getMaxConcurrentUsersComponent(
+      logFileData.runInfo.injectStart,
+      new UserSeries("All users", logFileData.maxNumberOfConcurrentUsersPerSecond(None)),
+      userStartRateSeries
     )
-
-    componentLibrary.getMaxConcurrentUsersComponent(logFileData.runInfo.injectStart, userStartRateSeries)
   }
 
   private def responseTimeDistributionChartComponent(logFileData: LogFileData): Component = {
     val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, None, None)
-    val okDistributionSeries = new Series(Series.OK, okDistribution, List(Color.Requests.Ok))
-    val koDistributionSeries = new Series(Series.KO, koDistribution, List(Color.Requests.Ko))
-
-    componentLibrary.getDistributionComponent("Response Time", "Requests", okDistributionSeries, koDistributionSeries)
+    componentLibrary.getDistributionComponent("Response Time", "Requests", okDistribution, koDistribution)
   }
 
-  private def responseTimeChartComponent(logFileData: LogFileData): Component = {
-    val successData = logFileData.responseTimePercentilesOverTime(OK, None, None)
-    val successSeries = new Series[PercentilesVsTimePlot](s"Response Time Percentiles over Time (${Series.OK})", successData, Color.Requests.Percentiles)
-
-    componentLibrary.getPercentilesOverTimeComponent("Response Time", logFileData.runInfo.injectStart, successSeries)
-  }
-
-  private def requestsChartComponent(logFileData: LogFileData): Component =
-    countsChartComponent(logFileData.numberOfRequestsPerSecond, componentLibrary.getRequestsComponent, logFileData.runInfo.injectStart)
-
-  private def responsesChartComponent(logFileData: LogFileData): Component =
-    countsChartComponent(logFileData.numberOfResponsesPerSecond, componentLibrary.getResponsesComponent, logFileData.runInfo.injectStart)
-
-  private def countsChartComponent(
-      dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-      componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component,
-      injectStart: Long
-  ): Component = {
-    val counts = dataSource(None, None).sortBy(_.time)
-
-    val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Color.Requests.All, Color.Requests.Ok, Color.Requests.Ko))
-    val pieRequestsSeries = new Series[PieSlice](
-      Series.Distribution,
-      List(
-        new PieSlice(Series.OK, counts.sumBy(_.oks)),
-        new PieSlice(Series.KO, counts.sumBy(_.kos))
-      ),
-      List(Color.Requests.Ok, Color.Requests.Ko)
+  private def responseTimeChartComponent(logFileData: LogFileData): Component =
+    componentLibrary.getPercentilesOverTimeComponent(
+      s"Response Time Percentiles over Time (${Series.OK})",
+      "Response Time",
+      logFileData.runInfo.injectStart,
+      logFileData.responseTimePercentilesOverTime(OK, None, None)
     )
 
-    componentFactory(injectStart, countsSeries, pieRequestsSeries)
-  }
+  private def requestsChartComponent(logFileData: LogFileData): Component =
+    componentLibrary.getRequestsComponent(
+      logFileData.runInfo.injectStart,
+      logFileData.numberOfRequestsPerSecond(None, None).sortBy(_.time)
+    )
+
+  private def responsesChartComponent(logFileData: LogFileData): Component =
+    componentLibrary.getResponsesComponent(
+      logFileData.runInfo.injectStart,
+      logFileData.numberOfResponsesPerSecond(None, None).sortBy(_.time)
+    )
 
   def generate(): Unit = {
     val ranges = logFileData.numberOfRequestInResponseTimeRanges(None, None)
