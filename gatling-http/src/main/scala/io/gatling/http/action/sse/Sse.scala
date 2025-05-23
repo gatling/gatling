@@ -34,7 +34,7 @@ object Sse {
   def checkMessage(name: String): SseMessageCheck = SseMessageCheck(name, Nil, Nil)
 
   def processUnmatchedMessages(f: (List[SseInboundMessage], Session) => Validation[Session]): ActionBuilder =
-    new SseProcessUnmatchedInboundMessagesBuilder(DefaultSseName, f)
+    processUnmatchedMessages(DefaultSseName, f)
 
   def processUnmatchedMessages(sseName: Expression[String], f: (List[SseInboundMessage], Session) => Validation[Session]): ActionBuilder =
     new SseProcessUnmatchedInboundMessagesBuilder(sseName, f)
