@@ -64,7 +64,7 @@ class JmsStringBodyCheckSpec
     s"bodyString.isNull for $msgType" should "fail when response not empty" in {
       bodyString.isNull
         .check(response, emptySession, jmap[Any, Any])
-        .failed shouldBe """bodyString.find.isNull, found [{"id":"1072920417"},"id":"1072920418"]"""
+        .failed shouldBe """bodyString.find.isNull, failed"""
     }
   }
 }

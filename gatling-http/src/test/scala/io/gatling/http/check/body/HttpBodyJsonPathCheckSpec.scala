@@ -108,7 +108,7 @@ class HttpBodyJsonPathCheckSpec extends AnyFlatSpecLike with Matchers with Valid
       .find
       .isNull
       .check(response, emptySession, Check.newPreparedCache)
-      .failed shouldBe "jsonPath($.foo).find.isNull, but actually found bar"
+      .failed shouldBe "jsonPath($.foo).find.isNull, found bar"
   }
 
   it should "succeed when expecting a non-null value and getting a non-null one" in {
@@ -123,7 +123,7 @@ class HttpBodyJsonPathCheckSpec extends AnyFlatSpecLike with Matchers with Valid
       .find
       .notNull
       .check(response, emptySession, Check.newPreparedCache)
-      .failed shouldBe "jsonPath($.foo).find.notNull, but actually found null"
+      .failed shouldBe "jsonPath($.foo).find.notNull, failed"
   }
 
   it should "not fail on empty array" in {

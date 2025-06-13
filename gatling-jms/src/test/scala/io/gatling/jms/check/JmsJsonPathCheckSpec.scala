@@ -130,7 +130,7 @@ class JmsJsonPathCheckSpec
         .find
         .isNull
         .check(response, emptySession, new JHashMap[Any, Any])
-        .failed shouldBe "jsonPath($.not_null_value).find.isNull, but actually found bar"
+        .failed shouldBe "jsonPath($.not_null_value).find.isNull, found bar"
     }
 
     it should "succeed when expecting a non-null value and getting a non-null one" in {
@@ -146,7 +146,7 @@ class JmsJsonPathCheckSpec
         .find
         .notNull
         .check(response, emptySession, new JHashMap[Any, Any])
-        .failed shouldBe "jsonPath($.null_value).find.notNull, but actually found null"
+        .failed shouldBe "jsonPath($.null_value).find.notNull, failed"
     }
 
     it should "not fail on empty array" in {
