@@ -22,7 +22,7 @@ object Dependencies {
   private val nettyHttp2                     = nettyHttp.withName("netty-codec-http2")
   private val nettyResolverNativeOsXX86      = nettyHttp.withName("netty-resolver-dns-native-macos") classifier "osx-x86_64"
   private val nettyResolverNativeOsXArm      = nettyResolverNativeOsXX86                             classifier "osx-aarch_64"
-  private val nettyTcNative                  = nettyHttp.organization                                         % "netty-tcnative-classes"    % "2.0.72.Final"
+  private val nettyTcNative                  = nettyHttp.organization                                         % "netty-tcnative-classes"   % "2.0.72.Final"
   private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
   private val nettyTcNativeBoringSslLinuxX86 = nettyTcNativeBoringSsl                                classifier "linux-x86_64"
   private val nettyTcNativeBoringSslLinuxArm = nettyTcNativeBoringSsl                                classifier "linux-aarch_64"
@@ -35,9 +35,9 @@ object Dependencies {
   private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
-  private val config                         = "com.typesafe"                                                 % "config"                    % "1.4.3"
-  private val saxon                          = "net.sf.saxon"                                                 % "Saxon-HE"                  % "12.7"
-  private val xmlresolver                    = "org.xmlresolver"                                              % "xmlresolver"               % "6.0.17"
+  private val config                         = "com.typesafe"                                                 % "config"                   % "1.4.3"
+  private val saxon                          = "net.sf.saxon"                                                 % "Saxon-HE"                 % "12.7"
+  private val xmlresolver                    = "org.xmlresolver"                                              % "xmlresolver"              % "6.0.17"
   private val xmlresolverData                = xmlresolver                                           classifier "data"
   private val slf4jApi                       = "org.slf4j"                                                    % "slf4j-api"                % "2.0.17"
   private val cfor                           = "io.github.metarank"                                          %% "cfor"                     % "0.3"
