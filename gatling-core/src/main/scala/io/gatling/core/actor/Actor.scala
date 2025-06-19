@@ -16,9 +16,9 @@
 
 package io.gatling.core.actor
 
-import com.typesafe.scalalogging.StrictLogging
-
 import java.util.concurrent.atomic.AtomicLong
+
+import com.typesafe.scalalogging.StrictLogging
 
 abstract class Actor[Message](val name: String) extends StrictLogging {
 
