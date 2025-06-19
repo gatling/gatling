@@ -18,6 +18,8 @@ package io.gatling.core.actor
 
 import com.typesafe.scalalogging.StrictLogging
 
+import java.util.concurrent.atomic.AtomicLong
+
 abstract class Actor[Message](val name: String) extends StrictLogging {
 
   private var schedulerRef: Option[Scheduler] = None
@@ -35,9 +37,14 @@ abstract class Actor[Message](val name: String) extends StrictLogging {
 
   final val stay: Effect[Message] = identity
 
-  final val die: Effect[Message] = become { msg =>
-    logger.info(s"Dropping msg '$msg' as actor is dead")
-    stay
+  final val die: Effect[Message] = {
+    val droppedMsgCount = new AtomicLong()
+    become { msg =>
+      if (droppedMsgCount.incrementAndGet() <= 20) {
+        logger.info(s"Dropping msg '$msg' as actor is dead")
+      }
+      stay
+    }
   }
 
   def dropUnexpected(msg: Message): Effect[Message] = {
