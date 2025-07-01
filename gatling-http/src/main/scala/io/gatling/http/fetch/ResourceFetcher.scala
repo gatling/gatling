@@ -139,7 +139,7 @@ private[http] final class ResourceFetcher(
         // resource was already cached
         httpCaches.getCachedInferredResources(httpProtocol, uri) match {
           case null =>
-            logger.warn(s"Got a 304 for $uri but could find cache entry?!")
+            logger.warn(s"Got a 304 for $uri but could not find cache entry. Cache max capacity reached?")
             Nil
           case inferredPageResources => inferredPageResources.requests
         }
