@@ -36,7 +36,7 @@ private[stats] final class SessionCounters(minTimestamp: Long, maxTimestamp: Lon
       // moving currentBuffer forward, initialize all buffers between old and new position
       for (i <- currentBuffer + 1 to bucket) {
         concurrentUsers(i) = concurrentUsers(currentBuffer)
-        maxConcurrentUsers(i) = maxConcurrentUsers(currentBuffer)
+        maxConcurrentUsers(i) = concurrentUsers(currentBuffer)
       }
       currentBuffer = bucket
     }
