@@ -106,17 +106,20 @@ object GatlingConfiguration extends StrictLogging {
 
   private def sslConfiguration(config: Config) = {
     val useOpenSsl =
-      config.getBoolean(ssl.UseOpenSsl) && {
-        if (OpenSsl.isAvailable) {
-          true
-        } else {
-          throw new UnsupportedOperationException(
-            s"BoringSSL is enabled in your configuration, yet it's not available for your platform ${PlatformDependent
+      if (config.getBoolean(ssl.UseOpenSsl)) {
+        val available = OpenSsl.isAvailable
+        if (!available) {
+          logger.warn(
+            s"OpenSSL is enabled in the Gatling configuration but it's not available on your platform ${PlatformDependent
                 .normalizedOs()}_${PlatformDependent.normalizedArch()}.",
             OpenSsl.unavailabilityCause()
           )
         }
+        available
+      } else {
+        false
       }
+
     val enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList match {
       case Nil                  => defaultEnabledProtocols(useOpenSsl)
       case userDefinedProtocols => userDefinedProtocols

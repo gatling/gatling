@@ -49,16 +49,6 @@ private[http] object SslContextsFactory {
 private[gatling] final class SslContextsFactory(sslConfig: SslConfiguration, enableHostnameVerification: Boolean) extends StrictLogging {
   import SslContextsFactory._
 
-  private val useOpenSsl =
-    if (sslConfig.useOpenSsl) {
-      val available = OpenSsl.isAvailable
-      if (!available) {
-        logger.warn("OpenSSL is enabled in the Gatling configuration but it's not available on your architecture.")
-      }
-      available
-    } else {
-      false
-    }
   private val sslSessionTimeoutSeconds = sslConfig.sessionTimeout.toSeconds
   private lazy val DefaultJavaSslParameters = {
     val context = SSLContext.getInstance("TLS")
@@ -66,21 +56,21 @@ private[gatling] final class SslContextsFactory(sslConfig: SslConfiguration, ena
     context.getDefaultSSLParameters
   }
   private val enabledProtocols: Array[String] =
-    if (useOpenSsl) {
+    if (sslConfig.useOpenSsl) {
       sslConfig.enabledProtocols.toArray
     } else {
       val supportedProtocols = DefaultJavaSslParameters.getProtocols.toSet
       sslConfig.enabledProtocols.toArray.filter(supportedProtocols.contains)
     }
   private val enabledCipherSuites: ju.List[String] =
-    if (useOpenSsl) {
+    if (sslConfig.useOpenSsl) {
       sslConfig.enabledCipherSuites.asJava
     } else {
       val supportedCipherSuites = DefaultJavaSslParameters.getCipherSuites
       sslConfig.enabledCipherSuites.filter(supportedCipherSuites.contains).asJava
     }
   private val sslProvider =
-    if (useOpenSsl) {
+    if (sslConfig.useOpenSsl) {
       if (sslConfig.useOpenSslFinalizers) {
         SslProvider.OPENSSL
       } else {
