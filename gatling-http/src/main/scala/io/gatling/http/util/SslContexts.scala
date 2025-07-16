@@ -53,7 +53,7 @@ private[gatling] final class SslContextsFactory(sslConfig: SslConfiguration, ena
     if (sslConfig.useOpenSsl) {
       val available = OpenSsl.isAvailable
       if (!available) {
-        logger.error("OpenSSL is enabled in the Gatling configuration but it's not available on your architecture.")
+        logger.warn("OpenSSL is enabled in the Gatling configuration but it's not available on your architecture.")
       }
       available
     } else {
