@@ -73,7 +73,7 @@ object Dependencies {
   private val h2                  = "com.h2database"                  % "h2"              % "2.3.232"  % Test
   private val jmh                 = "org.openjdk.jmh"                 % "jmh-core"        % "1.37"     % Test
 
-  private val junit       = "org.junit.jupiter" % "junit-jupiter-api" % "5.13.3" % Test
+  private val junit       = "org.junit.jupiter" % "junit-jupiter-api" % "5.13.4" % Test
   private val junitEngine = junit.withName("junit-jupiter-engine")
 
   // Derive the JUnit platform version similarly to how it's done in sbt-jupiter-interface, but with our own JUnit
