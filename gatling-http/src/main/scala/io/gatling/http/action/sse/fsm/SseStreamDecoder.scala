@@ -84,7 +84,7 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
     if (lineLength == 0) {
       // empty line, flushing event
       if (pendingName.isDefined || pendingData.isDefined || pendingId.isDefined || pendingRetry.isDefined) {
-        // non empty event (eg just a comment)
+        // non-empty event (eg just a comment)
         pendingEvents += ServerSentEvent(
           name = pendingName,
           data = pendingData,
