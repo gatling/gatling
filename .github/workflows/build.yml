@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -22,7 +25,7 @@ jobs:
       JAVA_OPTS: "-Xmx6G"
       SBT_OPTS: "-Dsbt.ci=true -Xss100M"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup JDK
         uses: actions/setup-java@v4

@@ -9,6 +9,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   release:
     if: github.repository == 'gatling/gatling'
@@ -18,7 +21,7 @@ jobs:
       JAVA_OPTS: "-Xmx6G"
       SBT_OPTS: "-Dsbt.ci=true -Xss100M"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup JDK
         uses: actions/setup-java@v4
