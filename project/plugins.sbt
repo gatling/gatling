@@ -1,7 +1,7 @@
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 addSbtPlugin("io.gatling"           % "gatling-build-plugin"  % "6.4.2")
-addSbtPlugin("com.github.sbt"       % "sbt-native-packager"   % "1.11.1")
+addSbtPlugin("com.github.sbt"       % "sbt-native-packager"   % "1.11.3")
 addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.4.7")
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.15.1")
 addSbtPlugin("org.wartremover"      % "sbt-wartremover"       % "3.4.0")
