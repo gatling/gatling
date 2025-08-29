@@ -17,7 +17,7 @@
 :root {
   --gatling-background-color: #f2f2f2;
   --gatling-background-light-color: #f7f7f7;
-  --gatling-border-color: #dddddd;
+  --gatling-border-color: #ddd;
   --gatling-blue-color: #4a9fe5;
   --gatling-dark-blue-color: #24275e;
   --gatling-danger-color: #f15b4f;
@@ -27,17 +27,15 @@
   --gatling-gray-medium-color: #bbb;
   --gatling-hover-color: #e6e6e6;
   --gatling-hover-background-color: #e6e6e6;
-  --gatling-light-color: #ffffff;
+  --gatling-light-color: #fff;
   --gatling-orange-color: #f78557;
   --gatling-success-color: #68b65c;
   --gatling-text-color: #1f2024;
   --gatling-total-color: #ffa900;
-
   --gatling-border-radius: 2px;
   --gatling-spacing-small: 5px;
   --gatling-spacing: 10px;
   --gatling-spacing-layout: 20px;
-
   --gatling-font-weight-normal: 400;
   --gatling-font-weight-medium: 500;
   --gatling-font-weight-bold: 700;
@@ -46,15 +44,14 @@
   --gatling-font-size-heading: 16px;
   --gatling-font-size-section: 22px;
   --gatling-font-size-header: 34px;
-
   --gatling-media-desktop-large: 1920px;
 }
 
 html[data-theme="dark"] {
   --gatling-background-color: #1e2225;
   --gatling-background-light-color: #272c30;
-  --gatling-border-color: #555555;
-  --gatling-blue-color: #1188ff;
+  --gatling-border-color: #555;
+  --gatling-blue-color: #18f;
   --gatling-dark-blue-color: #17223B;
   --gatling-danger-color: #d9534f;
   --gatling-danger-light-color: #c9302c;
@@ -91,7 +88,6 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-
   height: 100%;
   width: 100%;
 }
@@ -101,9 +97,7 @@ body {
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
-
   flex: 1;
-
   background-color: var(--gatling-light-color);
   border-bottom: 1px solid var(--gatling-border-color);
   min-height: 69px;
@@ -150,7 +144,6 @@ body .toggle-light {
 .gatling-documentation {
   display: flex;
   align-items: center;
-
   background-color: var(--gatling-light-color);
   border-radius: var(--gatling-border-radius);
   color: var(--gatling-orange-color);
@@ -158,7 +151,6 @@ body .toggle-light {
   text-align: center;
   padding: var(--gatling-spacing-small) var(--gatling-spacing);
   height: 23px;
-
   font-size: var(--gatling-font-size-default);
 }
 
@@ -204,7 +196,7 @@ body .toggle-light {
   }
 }
 
-@media screen and (min-width: 1920px) {
+@media screen and (width >= 1920px) {
   .nav {
     min-width: 310px;
     width: 310px;
@@ -214,7 +206,6 @@ body .toggle-light {
 .nav ul {
   display: flex;
   flex-direction: column;
-
   padding: 0;
   margin: 0;
 }
@@ -229,7 +220,6 @@ body .toggle-light {
 .nav .item {
   display: inline-flex;
   align-items: center;
-  margin: 0 auto;
   white-space: nowrap;
   color: var(--gatling-text-color);
   font-size: var(--gatling-font-size-default);
@@ -271,7 +261,6 @@ body .toggle-light {
   position: absolute;
   top: 60px;
   z-index: -1;
-
   background-color: var(--gatling-background-color);
   height: 530px;
 }
@@ -316,7 +305,6 @@ h1 span {
   cursor: pointer;
   overflow: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
-
   background-color: #000;
   color: #fff;
 }
@@ -372,10 +360,8 @@ html[data-theme="dark"] .enterprise {
 .simulation-version-information {
   display: flex;
   flex-direction: column;
-
   gap: var(--gatling-spacing);
   font-size: var(--gatling-font-size-default);
-
   background-color: var(--gatling-background-light-color);
   border: 1px solid var(--gatling-border-color);
   border-radius: var(--gatling-border-radius);
@@ -407,7 +393,6 @@ html[data-theme="dark"] div.popover.right .arrow {
 
 .ellipsed-name {
   display: block;
-
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -454,7 +439,6 @@ html[data-theme="dark"] div.popover.right .arrow {
 .content-in {
   width: 100%;
   height: 100%;
-
   overflow-x: scroll;
 }
 
@@ -472,7 +456,6 @@ html[data-theme="dark"] .content-in {
   display: flex;
   flex-direction: column;
   gap: var(--gatling-spacing-layout);
-
   min-width: 1050px;
   width: 1050px;
   margin: 0 auto;
@@ -480,7 +463,7 @@ html[data-theme="dark"] .content-in {
   box-sizing: border-box;
 }
 
-@media screen and (min-width: 1920px) {
+@media screen and (width >= 1920px) {
   .container-article {
     min-width: 1350px;
     width: 1350px;
@@ -495,7 +478,6 @@ html[data-theme="dark"] .content-in {
   display: flex;
   flex-direction: column;
   gap: var(--gatling-spacing-layout);
-
   background-color: var(--gatling-background-light-color);
   border-bottom: 1px solid var(--gatling-border-color);
   padding: var(--gatling-spacing-layout) var(--gatling-spacing-layout) 0;
@@ -526,7 +508,6 @@ html[data-theme="dark"] .content-in {
 
 .sous-menu a {
   display: block;
-
   font-size: var(--gatling-font-size-heading);
   font-weight: var(--gatling-font-weight-normal);
   padding: var(--gatling-spacing-small) var(--gatling-spacing) var(--gatling-spacing);
@@ -547,7 +528,6 @@ html[data-theme="dark"] .content-in {
 
 .article {
   position: relative;
-
   display: flex;
   flex-direction: column;
   gap: var(--gatling-spacing-layout);
@@ -747,7 +727,6 @@ html[data-theme="dark"] .highcharts-range-selector-buttons text {
 .statistics {
   display: flex;
   flex-direction: column;
-
   background-color: var(--gatling-background-light-color);
   border-radius: var(--gatling-border-radius);
   border-collapse: collapse;
@@ -759,10 +738,8 @@ html[data-theme="dark"] .highcharts-range-selector-buttons text {
   display: flex;
   text-align: center;
   justify-content: space-between;
-
   min-height: 49.5px;
   box-sizing: border-box;
-
   border: 1px solid var(--gatling-border-color);
   color: var(--gatling-text-color);
   font-size: var(--gatling-font-size-heading);
@@ -835,23 +812,22 @@ html[data-theme="dark"] .highcharts-range-selector-buttons text {
 #container_statistics_head {
   position: sticky;
   top: -1px;
-
   background: var(--gatling-background-light-color);
   margin-top: -1px;
-  padding: var(--gatling-spacing-small) var(--gatling-spacing-small) 0px var(--gatling-spacing-small);
+  padding: var(--gatling-spacing-small) var(--gatling-spacing-small) 0 var(--gatling-spacing-small);
 }
 
 #container_statistics_body {
   border-bottom-left-radius: var(--gatling-border-radius);
   border-bottom-right-radius: var(--gatling-border-radius);
   margin-top: -1px;
-  padding: 0px var(--gatling-spacing-small) var(--gatling-spacing-small) var(--gatling-spacing-small);
+  padding: 0 var(--gatling-spacing-small) var(--gatling-spacing-small) var(--gatling-spacing-small);
 }
 
 #container_errors {
   border-bottom-left-radius: var(--gatling-border-radius);
   border-bottom-right-radius: var(--gatling-border-radius);
-  padding: var(--gatling-spacing-small) var(--gatling-spacing-small) 0px var(--gatling-spacing-small);
+  padding: var(--gatling-spacing-small) var(--gatling-spacing-small) 0 var(--gatling-spacing-small);
   margin-top: -1px;
 }
 
@@ -962,7 +938,7 @@ html[data-theme="dark"] .response-time::before {
   max-width: 175px;
 }
 
-@media screen and (min-width: 1200px) {
+@media screen and (width >= 1200px) {
   .statistics-in .col-1 {
     width: 50%;
   }
@@ -1127,7 +1103,6 @@ html[data-theme="dark"] .nav .expand-button.collapse {
   position: absolute;
   z-index: 10;
   display: none;
-
   background: var(--gatling-orange-color);
   -webkit-box-shadow: 1px 2px 4px 0px rgba(47, 47, 47, 0.2);
   -moz-box-shadow: 1px 2px 4px 0px rgba(47, 47, 47, 0.2);
@@ -1164,18 +1139,16 @@ html[data-theme="dark"] .button-modal>img {
 
 .statistics-table-modal::backdrop {
   position: fixed;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
-
-  background-color: rgba(100, 100, 100, 0.9);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgb(100 100 100 / 90%);
 }
 
 .statistics-table-modal-container {
   display: flex;
   flex-direction: column;
-
   width: 100%;
   height: calc(100% - 35px);
   overflow-x: auto;
@@ -1183,10 +1156,8 @@ html[data-theme="dark"] .button-modal>img {
 
 .button-modal {
   cursor: pointer;
-
   height: 25px;
   width: 25px;
-
   border: 1px solid var(--gatling-border-color);
   background-color: var(--gatling-light-color);
   border-radius: var(--gatling-border-radius);
@@ -1201,7 +1172,6 @@ html[data-theme="dark"] .button-modal>img {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-
   padding-bottom: var(--gatling-spacing);
 }
 
@@ -1215,6 +1185,5 @@ html[data-theme="dark"] .button-modal>img {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-
   padding-top: var(--gatling-spacing);
 }
