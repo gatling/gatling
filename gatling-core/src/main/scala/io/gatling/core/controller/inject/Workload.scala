@@ -34,8 +34,8 @@ private abstract class Workload(
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine
 ) extends StrictLogging {
-  private var scheduled = 0
-  private var stopped = 0
+  private var scheduled = 0L
+  private var stopped = 0L
   private var allScheduled = false
 
   private def incrementScheduledUsers(): Unit = scheduled += 1
@@ -68,7 +68,7 @@ private abstract class Workload(
     }
   }
 
-  protected def getConcurrentUsers: Int = scheduled - stopped
+  protected def getConcurrentUsers: Int = (scheduled - stopped).toInt
 
   def scenarioName: String = scenario.name
 
