@@ -31,8 +31,13 @@ private[core] object FeedBuilder {
   private val Instances = new ju.HashMap[Long, ActorRef[FeedMessage]].asScala
 }
 
-private[core] final class FeedBuilder(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean)
-    extends ActionBuilder
+private[core] final class FeedBuilder(
+    feederBuilder: FeederBuilder,
+    feederBuilderKey: Long,
+    number: Option[Expression[Int]],
+    generateJavaCollection: Boolean,
+    feedCallSite: Option[String]
+) extends ActionBuilder
     with NameGen {
   private def newFeedActor(ctx: ScenarioContext): ActorRef[FeedMessage] = {
     val feederName = feederBuilder match {
@@ -47,7 +52,7 @@ private[core] final class FeedBuilder(feederBuilder: FeederBuilder, feederBuilde
       case _                        =>
     }
 
-    val props = FeedActor.actor(feeder, genName("feed"), feederName, generateJavaCollection, ctx.coreComponents.controller)
+    val props = FeedActor.actor(feeder, genName("feed"), feederName, generateJavaCollection, ctx.coreComponents.controller, feedCallSite)
     ctx.coreComponents.actorSystem.actorOf(props)
   }
 

@@ -16,6 +16,10 @@
 
 package io.gatling.core.structure
 
+import java.{ util => ju }
+
+import scala.jdk.OptionConverters._
+
 import io.gatling.core.action.builder.FeedBuilder
 import io.gatling.core.feeder._
 import io.gatling.core.session._
@@ -43,8 +47,22 @@ private[structure] trait Feeds[B] extends Execs[B] {
   def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
     feed0(feederBuilder, System.identityHashCode(feederBuilder), Some(number), generateJavaCollection = false)
 
-  private[gatling] def feed0(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean): B =
-    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number, generateJavaCollection))
+  private[gatling] def feed0(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean): B = {
+    val feedCallSite = StackWalker
+      .getInstance(ju.Collections.emptySet(), 4)
+      .walk(s =>
+        // grab first non-Gatling frame
+        s.filter { frame =>
+          val className = frame.getClassName
+          !className.startsWith("io.gatling.core.") && !className.startsWith("io.gatling.javaapi.core.")
+        }.findFirst
+      )
+      .toScala
+      // give up on JS, we have no way of finding the JS source
+      .collect { case frame if !frame.getClassName.startsWith("com.oracle.truffle.") => frame.toString }
+
+    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number, generateJavaCollection, feedCallSite))
+  }
 
   /**
    * Chain an action that will inject a single data record into the virtual users' Session

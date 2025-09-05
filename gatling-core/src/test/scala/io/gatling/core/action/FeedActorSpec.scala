@@ -24,7 +24,7 @@ import io.gatling.core.session._
 
 class FeedActorSpec extends ActorSpec with EmptySession {
   private def createFeedActor[T](feeder: Feeder[T], controller: ActorRef[Controller.Command]): ActorRef[FeedMessage] =
-    actorSystem.actorOf(FeedActor.actor(feeder, "feeder", None, generateJavaCollection = false, controller))
+    actorSystem.actorOf(FeedActor.actor(feeder, "feeder", None, generateJavaCollection = false, controller, feedCallSite = None))
 
   "FeedActor" should "force the simulation termination if the nb of records to pop is not strictly positive" in {
     val controller = mockActorRef[Controller.Command]("controller")

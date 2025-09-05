@@ -35,14 +35,20 @@ private[core] object FeedActor {
       actorName: String,
       feederName: Option[String],
       generateJavaCollection: Boolean,
-      controller: ActorRef[Controller.Command]
+      controller: ActorRef[Controller.Command],
+      feedCallSite: Option[String]
   ): Actor[FeedMessage] =
-    new FeedActor(feeder, feederName.getOrElse(actorName), generateJavaCollection, controller)
+    new FeedActor(feeder, feederName.getOrElse(actorName), generateJavaCollection, controller, feedCallSite)
 }
 
-private final class FeedActor[T] private (feeder: Feeder[T], feederName: String, generateJavaCollection: Boolean, controller: ActorRef[Controller.Command])
-    extends Actor[FeedMessage](feederName) {
-  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine".failure
+private final class FeedActor[T] private (
+    feeder: Feeder[T],
+    feederName: String,
+    generateJavaCollection: Boolean,
+    controller: ActorRef[Controller.Command],
+    feedCallSite: Option[String]
+) extends Actor[FeedMessage](feederName) {
+  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine${feedCallSite.map(f => s" (hint: $f)")}".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
