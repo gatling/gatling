@@ -60,7 +60,7 @@ public abstract class Simulation {
    * @return a setup to possibly configure some protocols or assertions
    */
   @NonNull
-  public SetUp setUp(@NonNull PopulationBuilder... populationBuilders) {
+  public final SetUp setUp(@NonNull PopulationBuilder... populationBuilders) {
     return setUp(Arrays.asList(populationBuilders));
   }
 
@@ -71,7 +71,7 @@ public abstract class Simulation {
    * @return a setup to possibly configure some protocols or assertions
    */
   @NonNull
-  public SetUp setUp(@NonNull List<PopulationBuilder> populationBuilders) {
+  public final SetUp setUp(@NonNull List<PopulationBuilder> populationBuilders) {
     if (!_populationBuilders.isEmpty()) {
       throw new UnsupportedOperationException("Can only call setUp once");
     }
@@ -84,7 +84,7 @@ public abstract class Simulation {
    *
    * <p>On contrary to other Gatling DSL components, this class is mutable.
    */
-  public class SetUp {
+  public final class SetUp {
 
     private SetUp() {}
 
