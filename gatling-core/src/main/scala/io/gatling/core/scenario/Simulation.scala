@@ -108,21 +108,21 @@ abstract class Simulation {
   private var _beforeSteps: List[() => Unit] = Nil
   private var _afterSteps: List[() => Unit] = Nil
 
-  def before(step: => Unit): Unit =
+  final def before(step: => Unit): Unit =
     _beforeSteps +:= (() => step)
 
-  def after(step: => Unit): Unit =
+  final def after(step: => Unit): Unit =
     _afterSteps +:= (() => step)
 
-  def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
+  final def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
 
-  def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
+  final def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
     require(_populationBuilders.isEmpty, "setUp can only be called once")
     _populationBuilders = populationBuilders
     new SetUp
   }
 
-  class SetUp {
+  final class SetUp {
     def protocols(ps: Protocol*): SetUp = protocols(ps.toList)
 
     def protocols(ps: Iterable[Protocol]): SetUp = {
