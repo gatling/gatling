@@ -16,9 +16,9 @@
 
 package io.gatling.javaapi.jms;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A component in charge of preparing outbound messages and providing the matching strategy with
@@ -30,7 +30,7 @@ public interface JmsMessageMatcher {
    * Prepare the request outbound message and set some correlation id.
    *
    * @param msg the outbound message
-   * @throws JMSException
+   * @throws JMSException a JMS Exception
    */
   void prepareRequest(@NonNull Message msg) throws JMSException;
 
@@ -39,7 +39,7 @@ public interface JmsMessageMatcher {
    *
    * @param msg the message
    * @return the matchId
-   * @throws JMSException
+   * @throws JMSException a JMS Exception
    */
   @NonNull
   String requestMatchId(@NonNull Message msg) throws JMSException;
@@ -49,7 +49,7 @@ public interface JmsMessageMatcher {
    *
    * @param msg the message
    * @return the matchId
-   * @throws JMSException
+   * @throws JMSException a JMS Exception
    */
   @NonNull
   String responseMatchId(@NonNull Message msg) throws JMSException;

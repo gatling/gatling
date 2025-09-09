@@ -18,10 +18,10 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Validation;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 import scala.Function1;
 
 /**
@@ -43,8 +43,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder get(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder get(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).get(toStringExpression(url)));
   }
@@ -55,8 +54,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder get(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder get(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).get(javaFunctionToExpression(url)));
   }
@@ -67,8 +65,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder put(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder put(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).put(toStringExpression(url)));
   }
@@ -79,8 +76,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder put(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder put(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).put(javaFunctionToExpression(url)));
   }
@@ -91,8 +87,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder post(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder post(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).post(toStringExpression(url)));
   }
@@ -103,8 +98,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder post(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder post(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).post(javaFunctionToExpression(url)));
   }
@@ -115,8 +109,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder patch(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder patch(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).patch(toStringExpression(url)));
   }
@@ -127,8 +120,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder patch(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder patch(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).patch(javaFunctionToExpression(url)));
   }
@@ -139,8 +131,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder head(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder head(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).head(toStringExpression(url)));
   }
@@ -151,8 +142,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder head(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder head(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).head(javaFunctionToExpression(url)));
   }
@@ -163,8 +153,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder delete(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder delete(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).delete(toStringExpression(url)));
   }
@@ -175,8 +164,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder delete(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder delete(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).delete(javaFunctionToExpression(url)));
   }
@@ -187,8 +175,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder options(@NonNull String url) {
+  public @NonNull HttpRequestActionBuilder options(@NonNull String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).options(toStringExpression(url)));
   }
@@ -199,8 +186,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder options(@NonNull Function<Session, String> url) {
+  public @NonNull HttpRequestActionBuilder options(@NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name).options(javaFunctionToExpression(url)));
   }
@@ -212,8 +198,7 @@ public final class Http {
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder httpRequest(@NonNull String method, String url) {
+  public @NonNull HttpRequestActionBuilder httpRequest(@NonNull String method, String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name)
             .httpRequest(method, toStringExpression(url)));
@@ -226,8 +211,7 @@ public final class Http {
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
-  @NonNull
-  public HttpRequestActionBuilder httpRequest(
+  public @NonNull HttpRequestActionBuilder httpRequest(
       @NonNull String method, @NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name)

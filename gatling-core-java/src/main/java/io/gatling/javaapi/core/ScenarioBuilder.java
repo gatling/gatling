@@ -18,13 +18,13 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaSeq;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.controller.inject.closed.ClosedInjectionSupport;
 import io.gatling.core.controller.inject.open.OpenInjectionSupport;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Java wrapper of a Scala ScenarioBuilder.
@@ -38,17 +38,15 @@ public final class ScenarioBuilder
     this(io.gatling.core.Predef.scenario(name));
   }
 
-  ScenarioBuilder(@NonNull io.gatling.core.structure.ScenarioBuilder wrapped) {
+  ScenarioBuilder(io.gatling.core.structure.@NonNull ScenarioBuilder wrapped) {
     super(wrapped);
   }
 
-  @NonNull
-  public PopulationBuilder injectOpen(@NonNull OpenInjectionStep... steps) {
+  public @NonNull PopulationBuilder injectOpen(@NonNull OpenInjectionStep... steps) {
     return injectOpen(Arrays.asList(steps));
   }
 
-  @NonNull
-  public PopulationBuilder injectOpen(@NonNull List<OpenInjectionStep> steps) {
+  public @NonNull PopulationBuilder injectOpen(@NonNull List<OpenInjectionStep> steps) {
     List<io.gatling.core.controller.inject.open.OpenInjectionStep> scalaSteps =
         steps.stream().map(OpenInjectionStep::asScala).collect(Collectors.toList());
     return new PopulationBuilder(
@@ -56,13 +54,11 @@ public final class ScenarioBuilder
             OpenInjectionSupport.OpenInjectionProfileFactory().profile(toScalaSeq(scalaSteps))));
   }
 
-  @NonNull
-  public PopulationBuilder injectClosed(@NonNull ClosedInjectionStep... steps) {
+  public @NonNull PopulationBuilder injectClosed(@NonNull ClosedInjectionStep... steps) {
     return injectClosed(Arrays.asList(steps));
   }
 
-  @NonNull
-  public PopulationBuilder injectClosed(@NonNull List<ClosedInjectionStep> steps) {
+  public @NonNull PopulationBuilder injectClosed(@NonNull List<ClosedInjectionStep> steps) {
     List<io.gatling.core.controller.inject.closed.ClosedInjectionStep> scalaSteps =
         steps.stream().map(ClosedInjectionStep::asScala).collect(Collectors.toList());
     return new PopulationBuilder(

@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.condition.ScalaDoSwitch;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "doSwitch" conditional blocks.
@@ -45,8 +45,7 @@ public interface DoSwitch<
    * @param actual the actual value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> doSwitch(@NonNull String actual) {
+  default @NonNull On<T> doSwitch(@NonNull String actual) {
     return new On<>(ScalaDoSwitch.apply(this, actual));
   }
 
@@ -56,8 +55,7 @@ public interface DoSwitch<
    * @param actual the actual value expressed as a function
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> doSwitch(@NonNull Function<Session, Object> actual) {
+  default @NonNull On<T> doSwitch(@NonNull Function<Session, Object> actual) {
     return new On<>(ScalaDoSwitch.apply(this, actual));
   }
 
@@ -79,8 +77,7 @@ public interface DoSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Choice.WithKey... choices) {
+    public @NonNull T on(Choice.@NonNull WithKey... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -90,8 +87,7 @@ public interface DoSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull List<Choice.WithKey> choices) {
+    public @NonNull T on(@NonNull List<Choice.WithKey> choices) {
       return wrapped.choices(choices);
     }
   }

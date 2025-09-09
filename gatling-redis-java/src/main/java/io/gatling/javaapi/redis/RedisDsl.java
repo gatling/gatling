@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.redis;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /** The entrypoint of the Redis DSL */
 public final class RedisDsl {
@@ -29,8 +29,7 @@ public final class RedisDsl {
    * @param key the key to look up in the redis command
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public static RedisFeederBuilder redisFeeder(
+  public static @NonNull RedisFeederBuilder redisFeeder(
       @NonNull RedisClientPool clients, @NonNull String key) {
     return new RedisFeederBuilder(io.gatling.redis.Predef.redisFeeder(clients.asScala(), key));
   }
@@ -43,8 +42,7 @@ public final class RedisDsl {
    * @param keyDest the key to store the value in RPOPLPUSH command
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public static RedisFeederBuilder redisFeeder(
+  public static @NonNull RedisFeederBuilder redisFeeder(
       @NonNull RedisClientPool clients, @NonNull String keySrc, @NonNull String keyDest) {
     return new RedisFeederBuilder(
         io.gatling.redis.Predef.redisFeeder(clients.asScala(), keySrc, keyDest));

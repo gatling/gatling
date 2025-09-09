@@ -20,10 +20,10 @@ import static io.gatling.javaapi.core.internal.Converters.toScalaMap;
 import static io.gatling.javaapi.core.internal.Expressions.javaFunctionToExpression;
 import static io.gatling.javaapi.core.internal.Expressions.toStringExpression;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import java.util.Map;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for bootstrapping Proxies.
@@ -46,8 +46,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy http() {
+  public @NonNull Proxy http() {
     return new Proxy(wrapped.http());
   }
 
@@ -56,8 +55,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy https() {
+  public @NonNull Proxy https() {
     return new Proxy(wrapped.http().https());
   }
 
@@ -66,8 +64,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy socks4() {
+  public @NonNull Proxy socks4() {
     return new Proxy(wrapped.socks4());
   }
 
@@ -76,8 +73,7 @@ public final class Proxy {
    *
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy socks5() {
+  public @NonNull Proxy socks5() {
     return new Proxy(wrapped.socks5());
   }
 
@@ -88,8 +84,7 @@ public final class Proxy {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy credentials(@NonNull String username, @NonNull String password) {
+  public @NonNull Proxy credentials(@NonNull String username, @NonNull String password) {
     return new Proxy(
         wrapped.credentials(toStringExpression(username), toStringExpression(password)));
   }
@@ -101,8 +96,8 @@ public final class Proxy {
    * @param password the password, expressed as a function
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy credentials(@NonNull String username, @NonNull Function<Session, String> password) {
+  public @NonNull Proxy credentials(
+      @NonNull String username, @NonNull Function<Session, String> password) {
     return new Proxy(
         wrapped.credentials(toStringExpression(username), javaFunctionToExpression(password)));
   }
@@ -114,8 +109,8 @@ public final class Proxy {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy credentials(@NonNull Function<Session, String> username, @NonNull String password) {
+  public @NonNull Proxy credentials(
+      @NonNull Function<Session, String> username, @NonNull String password) {
     return new Proxy(
         wrapped.credentials(javaFunctionToExpression(username), toStringExpression(password)));
   }
@@ -127,8 +122,7 @@ public final class Proxy {
    * @param password the password, expressed as a function
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy credentials(
+  public @NonNull Proxy credentials(
       @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return new Proxy(
         wrapped.credentials(
@@ -142,8 +136,7 @@ public final class Proxy {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy connectHeader(@NonNull CharSequence name, @NonNull String value) {
+  public @NonNull Proxy connectHeader(@NonNull CharSequence name, @NonNull String value) {
     return new Proxy(wrapped.connectHeader(name, toStringExpression(value)));
   }
 
@@ -154,8 +147,8 @@ public final class Proxy {
    * @param value the header value, expressed as a function
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy connectHeader(@NonNull CharSequence name, @NonNull Function<Session, String> value) {
+  public @NonNull Proxy connectHeader(
+      @NonNull CharSequence name, @NonNull Function<Session, String> value) {
     return new Proxy(wrapped.connectHeader(name, javaFunctionToExpression(value)));
   }
 
@@ -166,8 +159,7 @@ public final class Proxy {
    *     Language String
    * @return a new Proxy instance
    */
-  @NonNull
-  public Proxy connectHeaders(Map<? extends CharSequence, String> headers) {
+  public @NonNull Proxy connectHeaders(Map<? extends CharSequence, String> headers) {
     return new Proxy(wrapped.connectHeaders(toScalaMap(headers)));
   }
 }

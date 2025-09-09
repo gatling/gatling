@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.loop;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaDoWhile;
 import java.util.UUID;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "doWhile" loops. Similar to {@link AsLongAs} except the condition is
@@ -48,8 +48,7 @@ public interface DoWhile<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> doWhile(@NonNull String condition) {
+  default @NonNull On<T> doWhile(@NonNull String condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -61,8 +60,7 @@ public interface DoWhile<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> doWhile(@NonNull String condition, @NonNull String counterName) {
+  default @NonNull On<T> doWhile(@NonNull String condition, @NonNull String counterName) {
     return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
 
@@ -74,8 +72,7 @@ public interface DoWhile<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> doWhile(@NonNull Function<Session, Boolean> condition) {
+  default @NonNull On<T> doWhile(@NonNull Function<Session, Boolean> condition) {
     return doWhile(condition, UUID.randomUUID().toString());
   }
 
@@ -87,8 +84,7 @@ public interface DoWhile<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> doWhile(
+  default @NonNull On<T> doWhile(
       @NonNull Function<Session, Boolean> condition, @NonNull String counterName) {
     return new On<>(ScalaDoWhile.apply(this, condition, counterName));
   }
@@ -112,8 +108,7 @@ public interface DoWhile<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.loop(Executables.toChainBuilder(executable, executables));
     }
   }

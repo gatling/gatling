@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.loop;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaAsLongAs;
 import java.util.UUID;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "asLongAs" loops.
@@ -47,8 +47,7 @@ public interface AsLongAs<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(@NonNull String condition) {
+  default @NonNull On<T> asLongAs(@NonNull String condition) {
     return asLongAs(condition, UUID.randomUUID().toString());
   }
 
@@ -59,8 +58,7 @@ public interface AsLongAs<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(@NonNull String condition, @NonNull String counterName) {
+  default @NonNull On<T> asLongAs(@NonNull String condition, @NonNull String counterName) {
     return asLongAs(condition, counterName, false);
   }
 
@@ -71,8 +69,7 @@ public interface AsLongAs<
    * @param exitASAP if the loop must be interrupted if the condition becomes false inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(@NonNull String condition, boolean exitASAP) {
+  default @NonNull On<T> asLongAs(@NonNull String condition, boolean exitASAP) {
     return asLongAs(condition, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -84,8 +81,8 @@ public interface AsLongAs<
    * @param exitASAP if the loop must be interrupted if the condition becomes false inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(@NonNull String condition, @NonNull String counterName, boolean exitASAP) {
+  default @NonNull On<T> asLongAs(
+      @NonNull String condition, @NonNull String counterName, boolean exitASAP) {
     return new On<>(ScalaAsLongAs.apply(this, condition, counterName, exitASAP));
   }
 
@@ -96,8 +93,7 @@ public interface AsLongAs<
    * @param condition the condition, expressed as a function
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(@NonNull Function<Session, Boolean> condition) {
+  default @NonNull On<T> asLongAs(@NonNull Function<Session, Boolean> condition) {
     return asLongAs(condition, UUID.randomUUID().toString());
   }
 
@@ -108,8 +104,7 @@ public interface AsLongAs<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(
+  default @NonNull On<T> asLongAs(
       @NonNull Function<Session, Boolean> condition, @NonNull String counterName) {
     return asLongAs(condition, counterName, false);
   }
@@ -121,7 +116,7 @@ public interface AsLongAs<
    * @param exitASAP if the loop must be interrupted if the condition becomes false inside the loop
    * @return a DSL component for defining the loop content
    */
-  default On<T> asLongAs(Function<Session, Boolean> condition, boolean exitASAP) {
+  default @NonNull On<T> asLongAs(Function<Session, Boolean> condition, boolean exitASAP) {
     return asLongAs(condition, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -133,8 +128,7 @@ public interface AsLongAs<
    * @param exitASAP if the loop must be interrupted if the condition becomes false inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> asLongAs(
+  default @NonNull On<T> asLongAs(
       @NonNull Function<Session, Boolean> condition,
       @NonNull String counterName,
       boolean exitASAP) {
@@ -160,8 +154,7 @@ public interface AsLongAs<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.loop(Executables.toChainBuilder(executable, executables));
     }
   }

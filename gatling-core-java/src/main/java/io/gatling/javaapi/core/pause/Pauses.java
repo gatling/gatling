@@ -19,13 +19,13 @@ package io.gatling.javaapi.core.pause;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.PauseType;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Pause methods for defining pause/think time steps in a Scenario.
@@ -47,8 +47,7 @@ public interface Pauses<
    * @param duration the pause duration in seconds
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(long duration) {
+  default @NonNull T pause(long duration) {
     return pause(Duration.ofSeconds(duration));
   }
 
@@ -59,8 +58,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(long duration, @NonNull PauseType pauseType) {
+  default @NonNull T pause(long duration, @NonNull PauseType pauseType) {
     return pause(Duration.ofSeconds(duration), pauseType);
   }
 
@@ -70,8 +68,7 @@ public interface Pauses<
    * @param duration the pause duration
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Duration duration) {
+  default @NonNull T pause(@NonNull Duration duration) {
     return make(wrapped -> wrapped.pause(toScalaDuration(duration)));
   }
 
@@ -82,8 +79,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Duration duration, @NonNull PauseType pauseType) {
+  default @NonNull T pause(@NonNull Duration duration, @NonNull PauseType pauseType) {
     return make(wrapped -> wrapped.pause(toScalaDuration(duration), pauseType.asScala()));
   }
 
@@ -94,8 +90,7 @@ public interface Pauses<
    * @param duration the pause duration as a Gatling Expression Language string
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull String duration) {
+  default @NonNull T pause(@NonNull String duration) {
     return make(wrapped -> wrapped.pause(duration));
   }
 
@@ -107,8 +102,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull String duration, @NonNull PauseType pauseType) {
+  default @NonNull T pause(@NonNull String duration, @NonNull PauseType pauseType) {
     return make(wrapped -> wrapped.pause(duration, pauseType.asScala()));
   }
 
@@ -118,8 +112,7 @@ public interface Pauses<
    * @param f the pause duration as a function
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Function<Session, Duration> f) {
+  default @NonNull T pause(@NonNull Function<Session, Duration> f) {
     return make(wrapped -> wrapped.pause(javaDurationFunctionToExpression(f)));
   }
 
@@ -130,8 +123,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Function<Session, Duration> f, @NonNull PauseType pauseType) {
+  default @NonNull T pause(@NonNull Function<Session, Duration> f, @NonNull PauseType pauseType) {
     return make(wrapped -> wrapped.pause(javaDurationFunctionToExpression(f), pauseType.asScala()));
   }
 
@@ -142,8 +134,7 @@ public interface Pauses<
    * @param max the pause maximum in seconds
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(long min, long max) {
+  default @NonNull T pause(long min, long max) {
     return pause(Duration.ofSeconds(min), Duration.ofSeconds(max));
   }
 
@@ -155,8 +146,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(long min, long max, @NonNull PauseType pauseType) {
+  default @NonNull T pause(long min, long max, @NonNull PauseType pauseType) {
     return pause(Duration.ofSeconds(min), Duration.ofSeconds(max), pauseType);
   }
 
@@ -167,8 +157,7 @@ public interface Pauses<
    * @param max the pause maximum
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Duration min, @NonNull Duration max) {
+  default @NonNull T pause(@NonNull Duration min, @NonNull Duration max) {
     return make(wrapped -> wrapped.pause(toScalaDuration(min), toScalaDuration(max)));
   }
 
@@ -180,8 +169,8 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull Duration min, @NonNull Duration max, @NonNull PauseType pauseType) {
+  default @NonNull T pause(
+      @NonNull Duration min, @NonNull Duration max, @NonNull PauseType pauseType) {
     return make(
         wrapped -> wrapped.pause(toScalaDuration(min), toScalaDuration(max), pauseType.asScala()));
   }
@@ -195,8 +184,7 @@ public interface Pauses<
    * @param max the pause maximum
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull String min, @NonNull String max) {
+  default @NonNull T pause(@NonNull String min, @NonNull String max) {
     return make(wrapped -> wrapped.pause(min, max, TimeUnit.SECONDS));
   }
 
@@ -210,8 +198,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(@NonNull String min, @NonNull String max, @NonNull PauseType pauseType) {
+  default @NonNull T pause(@NonNull String min, @NonNull String max, @NonNull PauseType pauseType) {
     return make(wrapped -> wrapped.pause(min, max, pauseType.asScala()));
   }
 
@@ -222,8 +209,7 @@ public interface Pauses<
    * @param max the pause maximum
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(
+  default @NonNull T pause(
       @NonNull Function<Session, Duration> min, @NonNull Function<Session, Duration> max) {
     return make(
         wrapped ->
@@ -239,8 +225,7 @@ public interface Pauses<
    * @param pauseType the type of pause
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pause(
+  default @NonNull T pause(
       @NonNull Function<Session, Duration> min,
       @NonNull Function<Session, Duration> max,
       @NonNull PauseType pauseType) {

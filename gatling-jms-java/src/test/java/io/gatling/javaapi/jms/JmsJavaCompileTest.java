@@ -19,13 +19,13 @@ package io.gatling.javaapi.jms;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.jms.JmsDsl.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.TextMessage;
 import java.util.Map;
+import org.jspecify.annotations.NonNull;
 
 public class JmsJavaCompileTest extends Simulation {
 
@@ -35,14 +35,12 @@ public class JmsJavaCompileTest extends Simulation {
         public void prepareRequest(@NonNull Message msg) {}
 
         @Override
-        @NonNull
-        public String requestMatchId(@NonNull Message msg) throws JMSException {
+        public @NonNull String requestMatchId(@NonNull Message msg) throws JMSException {
           return msg.getStringProperty("header");
         }
 
         @Override
-        @NonNull
-        public String responseMatchId(@NonNull Message msg) throws JMSException {
+        public @NonNull String responseMatchId(@NonNull Message msg) throws JMSException {
           return requestMatchId(msg);
         }
       };

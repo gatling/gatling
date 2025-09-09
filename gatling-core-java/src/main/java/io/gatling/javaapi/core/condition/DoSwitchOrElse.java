@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -26,6 +25,7 @@ import io.gatling.javaapi.core.internal.condition.ScalaDoSwitchOrElse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "doSwitchOrElse" conditional blocks.
@@ -48,8 +48,7 @@ public interface DoSwitchOrElse<
    * @param actual the actual value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> doSwitchOrElse(@NonNull String actual) {
+  default @NonNull On<T> doSwitchOrElse(@NonNull String actual) {
     return new On<>(ScalaDoSwitchOrElse.apply(this, actual));
   }
 
@@ -60,8 +59,7 @@ public interface DoSwitchOrElse<
    * @param actual the actual value expressed as a function
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> doSwitchOrElse(@NonNull Function<Session, Object> actual) {
+  default @NonNull On<T> doSwitchOrElse(@NonNull Function<Session, Object> actual) {
     return new On<>(ScalaDoSwitchOrElse.apply(this, actual));
   }
 
@@ -83,8 +81,7 @@ public interface DoSwitchOrElse<
      * @param choices the choices
      * @return a DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> on(@NonNull Choice.WithKey... choices) {
+    public @NonNull OrElse<T> on(Choice.@NonNull WithKey... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -94,8 +91,7 @@ public interface DoSwitchOrElse<
      * @param choices the choices
      * @return a DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> on(@NonNull List<Choice.WithKey> choices) {
+    public @NonNull OrElse<T> on(@NonNull List<Choice.WithKey> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }
@@ -119,8 +115,7 @@ public interface DoSwitchOrElse<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }

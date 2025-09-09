@@ -18,10 +18,10 @@ package io.gatling.javaapi.redis;
 
 import static io.gatling.javaapi.core.internal.Feeders.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
 
 public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, Object>>> {
 
@@ -36,8 +36,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public RedisFeederBuilder LPOP() {
+  public @NonNull RedisFeederBuilder LPOP() {
     return new RedisFeederBuilder(wrapped.LPOP());
   }
 
@@ -46,8 +45,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public RedisFeederBuilder SPOP() {
+  public @NonNull RedisFeederBuilder SPOP() {
     return new RedisFeederBuilder(wrapped.SPOP());
   }
 
@@ -56,8 +54,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public RedisFeederBuilder SRANDMEMBER() {
+  public @NonNull RedisFeederBuilder SRANDMEMBER() {
     return new RedisFeederBuilder(wrapped.SRANDMEMBER());
   }
 
@@ -66,8 +63,7 @@ public final class RedisFeederBuilder implements Supplier<Iterator<Map<String, O
    *
    * @return a new RedisFeederBuilder instance
    */
-  @NonNull
-  public RedisFeederBuilder RPOPLPUSH() {
+  public @NonNull RedisFeederBuilder RPOPLPUSH() {
     return new RedisFeederBuilder(wrapped.RPOPLPUSH());
   }
 

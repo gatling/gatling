@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaUniformRandomSwitch;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "uniformRandomSwitch" conditional blocks.
@@ -44,8 +44,7 @@ public interface UniformRandomSwitch<
    *
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> uniformRandomSwitch() {
+  default @NonNull On<T> uniformRandomSwitch() {
     return new On<>(new ScalaUniformRandomSwitch<>(this));
   }
 
@@ -68,8 +67,7 @@ public interface UniformRandomSwitch<
      * @param executables the other choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return on(Executables.toChainBuilders(executable, executables));
     }
 
@@ -79,8 +77,7 @@ public interface UniformRandomSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull List<ChainBuilder> choices) {
+    public @NonNull T on(@NonNull List<ChainBuilder> choices) {
       return wrapped.choices(choices);
     }
   }

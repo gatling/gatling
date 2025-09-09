@@ -18,7 +18,6 @@ package io.gatling.javaapi.core.error;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -30,6 +29,7 @@ import io.gatling.javaapi.core.internal.errors.ScalaStopLoadGeneratorIf;
 import io.gatling.javaapi.core.internal.errors.ScalaTryMax;
 import java.util.UUID;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining error handling components.
@@ -50,8 +50,7 @@ public interface Errors<
    *
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default ExitBlockOnFail<T> exitBlockOnFail() {
+  default @NonNull ExitBlockOnFail<T> exitBlockOnFail() {
     return new ExitBlockOnFail<>(new ScalaExitBlockOnFail<>(this));
   }
 
@@ -75,8 +74,7 @@ public interface Errors<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return context.exitBlockOnFail(Executables.toChainBuilder(executable, executables));
     }
   }
@@ -88,8 +86,7 @@ public interface Errors<
    * @param times the maximum number of tries, including the first one (hence number of retries + 1)
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(int times) {
+  default @NonNull TryMax<T> tryMax(int times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
 
@@ -101,8 +98,7 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(int times, @NonNull String counterName) {
+  default @NonNull TryMax<T> tryMax(int times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -114,8 +110,7 @@ public interface Errors<
    *     1), expressed as a Gatling Expression Language String
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(String times) {
+  default @NonNull TryMax<T> tryMax(String times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
 
@@ -128,8 +123,7 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(@NonNull String times, @NonNull String counterName) {
+  default @NonNull TryMax<T> tryMax(@NonNull String times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -141,8 +135,7 @@ public interface Errors<
    *     1), expressed as function
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(@NonNull Function<Session, Integer> times) {
+  default @NonNull TryMax<T> tryMax(@NonNull Function<Session, Integer> times) {
     return tryMax(times, UUID.randomUUID().toString());
   }
 
@@ -155,8 +148,8 @@ public interface Errors<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the tried block
    */
-  @NonNull
-  default TryMax<T> tryMax(@NonNull Function<Session, Integer> times, @NonNull String counterName) {
+  default @NonNull TryMax<T> tryMax(
+      @NonNull Function<Session, Integer> times, @NonNull String counterName) {
     return new TryMax<>(ScalaTryMax.apply(this, times, counterName));
   }
 
@@ -179,8 +172,7 @@ public interface Errors<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.trying(Executables.toChainBuilder(executable, executables));
     }
   }
@@ -191,8 +183,7 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T exitHereIf(@NonNull String condition) {
+  default @NonNull T exitHereIf(@NonNull String condition) {
     return ScalaExitHereIf.apply(this, condition);
   }
 
@@ -202,8 +193,7 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T exitHereIf(@NonNull Function<Session, Boolean> condition) {
+  default @NonNull T exitHereIf(@NonNull Function<Session, Boolean> condition) {
     return ScalaExitHereIf.apply(this, condition);
   }
 
@@ -212,8 +202,7 @@ public interface Errors<
    *
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T exitHere() {
+  default @NonNull T exitHere() {
     return make(io.gatling.core.structure.Errors::exitHere);
   }
 
@@ -223,8 +212,7 @@ public interface Errors<
    *
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T exitHereIfFailed() {
+  default @NonNull T exitHereIfFailed() {
     return make(io.gatling.core.structure.Errors::exitHereIfFailed);
   }
 
@@ -234,8 +222,7 @@ public interface Errors<
    * @param message the message, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGenerator(String message) {
+  default @NonNull T stopLoadGenerator(String message) {
     return make(wrapped -> wrapped.stopLoadGenerator(toStringExpression(message)));
   }
 
@@ -245,8 +232,7 @@ public interface Errors<
    * @param message the message, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGenerator(Function<Session, String> message) {
+  default @NonNull T stopLoadGenerator(Function<Session, String> message) {
     return make(wrapped -> wrapped.stopLoadGenerator(javaFunctionToExpression(message)));
   }
 
@@ -258,8 +244,7 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGeneratorIf(String message, @NonNull String condition) {
+  default @NonNull T stopLoadGeneratorIf(String message, @NonNull String condition) {
     return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
@@ -271,8 +256,7 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGeneratorIf(
+  default @NonNull T stopLoadGeneratorIf(
       Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
     return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
@@ -285,8 +269,8 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGeneratorIf(String message, @NonNull Function<Session, Boolean> condition) {
+  default @NonNull T stopLoadGeneratorIf(
+      String message, @NonNull Function<Session, Boolean> condition) {
     return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
@@ -298,8 +282,8 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T stopLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
+  default @NonNull T stopLoadGeneratorIf(
+      Function<Session, String> message, @NonNull String condition) {
     return ScalaStopLoadGeneratorIf.apply(this, message, condition);
   }
 
@@ -309,8 +293,7 @@ public interface Errors<
    * @param message the message, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGenerator(String message) {
+  default @NonNull T crashLoadGenerator(String message) {
     return make(wrapped -> wrapped.crashLoadGenerator(toStringExpression(message)));
   }
 
@@ -320,8 +303,7 @@ public interface Errors<
    * @param message the message, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGenerator(Function<Session, String> message) {
+  default @NonNull T crashLoadGenerator(Function<Session, String> message) {
     return make(wrapped -> wrapped.crashLoadGenerator(javaFunctionToExpression(message)));
   }
 
@@ -333,8 +315,7 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGeneratorIf(String message, @NonNull String condition) {
+  default @NonNull T crashLoadGeneratorIf(String message, @NonNull String condition) {
     return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 
@@ -346,8 +327,7 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGeneratorIf(
+  default @NonNull T crashLoadGeneratorIf(
       Function<Session, String> message, @NonNull Function<Session, Boolean> condition) {
     return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
@@ -360,8 +340,8 @@ public interface Errors<
    * @param condition the condition, expressed as a function
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGeneratorIf(String message, @NonNull Function<Session, Boolean> condition) {
+  default @NonNull T crashLoadGeneratorIf(
+      String message, @NonNull Function<Session, Boolean> condition) {
     return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 
@@ -373,8 +353,8 @@ public interface Errors<
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default T crashLoadGeneratorIf(Function<Session, String> message, @NonNull String condition) {
+  default @NonNull T crashLoadGeneratorIf(
+      Function<Session, String> message, @NonNull String condition) {
     return ScalaCrashLoadGeneratorIf.apply(this, message, condition);
   }
 }

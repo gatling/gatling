@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.feed;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
@@ -25,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Feed methods for defining actions to inject data into the virtual users' {@link
@@ -47,8 +47,7 @@ public interface Feeds<
    * @param feederBuilder a supplier so that the underlying {@link Iterator} can be lazily loaded
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder) {
+  default @NonNull T feed(@NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder) {
     return ScalaFeeds.apply(this, feederBuilder);
   }
 
@@ -59,8 +58,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(
+  default @NonNull T feed(
       @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder, int numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }
@@ -72,8 +70,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(
+  default @NonNull T feed(
       @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder, String numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }
@@ -85,8 +82,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(
+  default @NonNull T feed(
       @NonNull Supplier<Iterator<Map<String, Object>>> feederBuilder,
       Function<Session, Integer> numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
@@ -98,8 +94,7 @@ public interface Feeds<
    * @param feeder a source of records
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull Iterator<Map<String, Object>> feeder) {
+  default @NonNull T feed(@NonNull Iterator<Map<String, Object>> feeder) {
     return ScalaFeeds.apply(this, feeder);
   }
 
@@ -110,8 +105,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
+  default @NonNull T feed(@NonNull Iterator<Map<String, Object>> feeder, int numberOfRecords) {
     return ScalaFeeds.apply(this, feeder, numberOfRecords);
   }
 
@@ -122,8 +116,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
+  default @NonNull T feed(@NonNull Iterator<Map<String, Object>> feeder, String numberOfRecords) {
     return ScalaFeeds.apply(this, feeder, numberOfRecords);
   }
 
@@ -134,8 +127,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(
+  default @NonNull T feed(
       @NonNull Iterator<Map<String, Object>> feeder, Function<Session, Integer> numberOfRecords) {
     return ScalaFeeds.apply(this, feeder, numberOfRecords);
   }
@@ -146,8 +138,7 @@ public interface Feeds<
    * @param feederBuilder a source of records
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull FeederBuilder<?> feederBuilder) {
+  default @NonNull T feed(@NonNull FeederBuilder<?> feederBuilder) {
     return ScalaFeeds.apply(this, feederBuilder);
   }
 
@@ -158,8 +149,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull FeederBuilder<?> feederBuilder, int numberOfRecords) {
+  default @NonNull T feed(@NonNull FeederBuilder<?> feederBuilder, int numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }
 
@@ -170,8 +160,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(@NonNull FeederBuilder<?> feederBuilder, String numberOfRecords) {
+  default @NonNull T feed(@NonNull FeederBuilder<?> feederBuilder, String numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }
 
@@ -182,8 +171,7 @@ public interface Feeds<
    * @param numberOfRecords the number of records to poll from the feeder at once
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T feed(
+  default @NonNull T feed(
       @NonNull FeederBuilder<?> feederBuilder, Function<Session, Integer> numberOfRecords) {
     return ScalaFeeds.apply(this, feederBuilder, numberOfRecords);
   }

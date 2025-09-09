@@ -16,8 +16,8 @@
 
 package io.gatling.javaapi.http;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.action.cookie.AddCookieDsl;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for adding a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies">cookie</a>
@@ -40,8 +40,7 @@ public final class AddCookie {
    * @param domain the cookie domain
    * @return a new AddCookie
    */
-  @NonNull
-  public AddCookie withDomain(@NonNull String domain) {
+  public @NonNull AddCookie withDomain(@NonNull String domain) {
     return new AddCookie(wrapped.withDomain(domain));
   }
 
@@ -51,8 +50,7 @@ public final class AddCookie {
    * @param path the cookie path
    * @return a new AddCookie
    */
-  @NonNull
-  public AddCookie withPath(@NonNull String path) {
+  public @NonNull AddCookie withPath(@NonNull String path) {
     return new AddCookie(wrapped.withPath(path));
   }
 
@@ -62,8 +60,7 @@ public final class AddCookie {
    * @param maxAge the cookie maxAge
    * @return a new AddCookie
    */
-  @NonNull
-  public AddCookie withMaxAge(int maxAge) {
+  public @NonNull AddCookie withMaxAge(int maxAge) {
     return new AddCookie(wrapped.withMaxAge(maxAge));
   }
 
@@ -73,8 +70,7 @@ public final class AddCookie {
    * @param secure if the cookie must only be sent with HTTPS requests
    * @return a new AddCookie
    */
-  @NonNull
-  public AddCookie withSecure(boolean secure) {
+  public @NonNull AddCookie withSecure(boolean secure) {
     return new AddCookie(wrapped.withSecure(secure));
   }
 

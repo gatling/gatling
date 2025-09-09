@@ -16,10 +16,10 @@
 
 package io.gatling.javaapi.core;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Validation;
 import io.gatling.javaapi.core.internal.Expressions;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 import scala.Function1;
 
 public final class DummyBuilder implements ActionBuilder {

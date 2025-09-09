@@ -18,9 +18,9 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.internal.OpenInjectionSteps;
 import java.time.Duration;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An injection profile step for using an open workload model where you control the arrival rate of
@@ -32,8 +32,7 @@ public class OpenInjectionStep {
 
   private final io.gatling.core.controller.inject.open.OpenInjectionStep wrapped;
 
-  private OpenInjectionStep(
-      @NonNull io.gatling.core.controller.inject.open.OpenInjectionStep wrapped) {
+  private OpenInjectionStep(io.gatling.core.controller.inject.open.OpenInjectionStep wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -43,8 +42,7 @@ public class OpenInjectionStep {
    * @param users the number of users to inject
    * @return a new OpenInjectionStep
    */
-  @NonNull
-  public static OpenInjectionStep atOnceUsers(int users) {
+  public static @NonNull OpenInjectionStep atOnceUsers(int users) {
     return new OpenInjectionStep(
         new io.gatling.core.controller.inject.open.AtOnceOpenInjection(users));
   }
@@ -55,8 +53,7 @@ public class OpenInjectionStep {
    * @param duration the duration
    * @return a new OpenInjectionStep
    */
-  @NonNull
-  public static OpenInjectionStep nothingFor(@NonNull Duration duration) {
+  public static @NonNull OpenInjectionStep nothingFor(@NonNull Duration duration) {
     return new OpenInjectionStep(
         new io.gatling.core.controller.inject.open.NothingForOpenInjection(
             toScalaDuration(duration)));
@@ -67,7 +64,6 @@ public class OpenInjectionStep {
    *
    * @return the wrapped Scala instance
    */
-  @NonNull
   public io.gatling.core.controller.inject.open.OpenInjectionStep asScala() {
     return wrapped;
   }
@@ -89,8 +85,7 @@ public class OpenInjectionStep {
      * @param durationSeconds the ramp duration in seconds
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public OpenInjectionStep during(long durationSeconds) {
+    public @NonNull OpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -100,8 +95,7 @@ public class OpenInjectionStep {
      * @param duration the ramp duration
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public OpenInjectionStep during(@NonNull Duration duration) {
+    public @NonNull OpenInjectionStep during(@NonNull Duration duration) {
       return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
   }
@@ -125,8 +119,7 @@ public class OpenInjectionStep {
      * @param durationSeconds the duration in seconds
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public OpenInjectionStep during(long durationSeconds) {
+    public @NonNull OpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -136,8 +129,7 @@ public class OpenInjectionStep {
      * @param duration the duration
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public OpenInjectionStep during(@NonNull Duration duration) {
+    public @NonNull OpenInjectionStep during(@NonNull Duration duration) {
       return new OpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
   }
@@ -160,8 +152,7 @@ public class OpenInjectionStep {
      * @param durationSeconds the duration in seconds
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public ConstantRateOpenInjectionStep during(long durationSeconds) {
+    public @NonNull ConstantRateOpenInjectionStep during(long durationSeconds) {
       return during(Duration.ofSeconds(durationSeconds));
     }
 
@@ -171,8 +162,7 @@ public class OpenInjectionStep {
      * @param duration the duration
      * @return a new OpenInjectionStep
      */
-    @NonNull
-    public ConstantRateOpenInjectionStep during(@NonNull Duration duration) {
+    public @NonNull ConstantRateOpenInjectionStep during(@NonNull Duration duration) {
       return new ConstantRateOpenInjectionStep(wrapped.during(toScalaDuration(duration)));
     }
 
@@ -180,7 +170,7 @@ public class OpenInjectionStep {
     public static final class ConstantRateOpenInjectionStep extends OpenInjectionStep {
 
       private ConstantRateOpenInjectionStep(
-          @NonNull io.gatling.core.controller.inject.open.ConstantRateOpenInjection wrapped) {
+          io.gatling.core.controller.inject.open.@NonNull ConstantRateOpenInjection wrapped) {
         super(wrapped);
       }
 
@@ -209,8 +199,7 @@ public class OpenInjectionStep {
      * @param to the target rate
      * @return the next DSL step
      */
-    @NonNull
-    public During to(double to) {
+    public @NonNull During to(double to) {
       return new During(from, to);
     }
 
@@ -233,8 +222,7 @@ public class OpenInjectionStep {
        * @param durationSeconds the duration in seconds
        * @return a new OpenInjectionStep
        */
-      @NonNull
-      public RampRateOpenInjectionStep during(long durationSeconds) {
+      public @NonNull RampRateOpenInjectionStep during(long durationSeconds) {
         return during(Duration.ofSeconds(durationSeconds));
       }
 
@@ -244,8 +232,7 @@ public class OpenInjectionStep {
        * @param duration the duration
        * @return a new OpenInjectionStep
        */
-      @NonNull
-      public RampRateOpenInjectionStep during(@NonNull Duration duration) {
+      public @NonNull RampRateOpenInjectionStep during(@NonNull Duration duration) {
         return new RampRateOpenInjectionStep(
             OpenInjectionSteps.newRampRateTo(from, to).during(toScalaDuration(duration)));
       }
@@ -255,7 +242,7 @@ public class OpenInjectionStep {
     public static final class RampRateOpenInjectionStep extends OpenInjectionStep {
 
       private RampRateOpenInjectionStep(
-          @NonNull io.gatling.core.controller.inject.open.RampRateOpenInjection wrapped) {
+          io.gatling.core.controller.inject.open.@NonNull RampRateOpenInjection wrapped) {
         super(wrapped);
       }
 
@@ -281,8 +268,7 @@ public class OpenInjectionStep {
      * @param levels the number of levels in the stairs
      * @return the next DSL step
      */
-    @NonNull
-    public Times times(int levels) {
+    public @NonNull Times times(int levels) {
       return new Times(rateIncrement, levels);
     }
 
@@ -302,8 +288,7 @@ public class OpenInjectionStep {
        * @param durationSeconds the duration in seconds
        * @return the next DSL step
        */
-      @NonNull
-      public Composite eachLevelLasting(long durationSeconds) {
+      public @NonNull Composite eachLevelLasting(long durationSeconds) {
         return eachLevelLasting(Duration.ofSeconds(durationSeconds));
       }
 
@@ -313,8 +298,7 @@ public class OpenInjectionStep {
        * @param duration the duration
        * @return the next DSL step
        */
-      @NonNull
-      public Composite eachLevelLasting(@NonNull Duration duration) {
+      public @NonNull Composite eachLevelLasting(@NonNull Duration duration) {
         return new Composite(
             OpenInjectionSteps.newEachLevelLasting(rateIncrement, levels)
                 .eachLevelLasting(toScalaDuration(duration)));
@@ -337,8 +321,7 @@ public class OpenInjectionStep {
        * @param startingRate the initial rate
        * @return a usable {@link OpenInjectionStep}
        */
-      @NonNull
-      public Composite startingFrom(double startingRate) {
+      public @NonNull Composite startingFrom(double startingRate) {
         return new Composite(wrapped().startingFrom(startingRate));
       }
 
@@ -348,8 +331,7 @@ public class OpenInjectionStep {
        * @param durationSeconds the duration of the ramps in seconds
        * @return a usable {@link OpenInjectionStep}
        */
-      @NonNull
-      public Composite separatedByRampsLasting(long durationSeconds) {
+      public @NonNull Composite separatedByRampsLasting(long durationSeconds) {
         return separatedByRampsLasting(Duration.ofSeconds(durationSeconds));
       }
 
@@ -359,8 +341,7 @@ public class OpenInjectionStep {
        * @param duration the duration
        * @return a usable {@link OpenInjectionStep}
        */
-      @NonNull
-      public Composite separatedByRampsLasting(@NonNull Duration duration) {
+      public @NonNull Composite separatedByRampsLasting(@NonNull Duration duration) {
         return new Composite(wrapped().separatedByRampsLasting(toScalaDuration(duration)));
       }
     }

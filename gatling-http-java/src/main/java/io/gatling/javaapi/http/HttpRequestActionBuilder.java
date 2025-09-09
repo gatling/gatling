@@ -20,7 +20,6 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.HttpChecks.toScalaChecks;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.http.response.Response;
 import io.gatling.javaapi.core.CheckBuilder;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building HTTP requests configurations
@@ -66,8 +66,7 @@ public final class HttpRequestActionBuilder
    * @param checks the checks
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder check(@NonNull CheckBuilder... checks) {
+  public @NonNull HttpRequestActionBuilder check(@NonNull CheckBuilder... checks) {
     return check(Arrays.asList(checks));
   }
 
@@ -77,8 +76,7 @@ public final class HttpRequestActionBuilder
    * @param checks the checks
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder check(@NonNull List<CheckBuilder> checks) {
+  public @NonNull HttpRequestActionBuilder check(@NonNull List<CheckBuilder> checks) {
     return new HttpRequestActionBuilder(wrapped.check(toScalaChecks(checks)));
   }
 
@@ -88,8 +86,7 @@ public final class HttpRequestActionBuilder
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public UntypedCondition checkIf(@NonNull String condition) {
+  public @NonNull UntypedCondition checkIf(@NonNull String condition) {
     return new UntypedCondition(
         ScalaHttpRequestActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -100,8 +97,7 @@ public final class HttpRequestActionBuilder
    * @param condition the condition, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  public UntypedCondition checkIf(@NonNull Function<Session, Boolean> condition) {
+  public @NonNull UntypedCondition checkIf(@NonNull Function<Session, Boolean> condition) {
     return new UntypedCondition(
         ScalaHttpRequestActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -119,8 +115,7 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @NonNull
-    public HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
+    public @NonNull HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
       return then(Arrays.asList(thenChecks));
     }
 
@@ -130,8 +125,7 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @NonNull
-    public HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
+    public @NonNull HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
       return wrapped.then_(thenChecks);
     }
   }
@@ -159,8 +153,7 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @NonNull
-    public HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
+    public @NonNull HttpRequestActionBuilder then(@NonNull CheckBuilder... thenChecks) {
       return then(Arrays.asList(thenChecks));
     }
 
@@ -170,8 +163,7 @@ public final class HttpRequestActionBuilder
      * @param thenChecks the checks
      * @return a new HttpRequestActionBuilder instance
      */
-    @NonNull
-    public HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
+    public @NonNull HttpRequestActionBuilder then(@NonNull List<CheckBuilder> thenChecks) {
       return wrapped.then_(thenChecks);
     }
   }
@@ -181,8 +173,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder ignoreProtocolChecks() {
+  public @NonNull HttpRequestActionBuilder ignoreProtocolChecks() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::ignoreProtocolChecks);
   }
 
@@ -191,8 +182,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder silent() {
+  public @NonNull HttpRequestActionBuilder silent() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::silent);
   }
 
@@ -202,8 +192,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder notSilent() {
+  public @NonNull HttpRequestActionBuilder notSilent() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::notSilent);
   }
 
@@ -212,8 +201,7 @@ public final class HttpRequestActionBuilder
    *
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder disableFollowRedirect() {
+  public @NonNull HttpRequestActionBuilder disableFollowRedirect() {
     return make(io.gatling.http.request.builder.HttpRequestBuilder::disableFollowRedirect);
   }
 
@@ -223,8 +211,7 @@ public final class HttpRequestActionBuilder
    * @param f the transformation
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder transformResponse(
+  public @NonNull HttpRequestActionBuilder transformResponse(
       @NonNull BiFunction<Response, Session, Response> f) {
     return make(wrapped -> wrapped.transformResponse(javaBiFunctionToExpression(f)));
   }
@@ -236,8 +223,7 @@ public final class HttpRequestActionBuilder
    * @param res the resources
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder resources(@NonNull HttpRequestActionBuilder... res) {
+  public @NonNull HttpRequestActionBuilder resources(@NonNull HttpRequestActionBuilder... res) {
     return resources(Arrays.asList(res));
   }
 
@@ -248,8 +234,7 @@ public final class HttpRequestActionBuilder
    * @param res the resources
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder resources(@NonNull List<HttpRequestActionBuilder> res) {
+  public @NonNull HttpRequestActionBuilder resources(@NonNull List<HttpRequestActionBuilder> res) {
     return make(
         wrapped ->
             wrapped.resources(
@@ -262,8 +247,7 @@ public final class HttpRequestActionBuilder
    * @param timeout the timeout in seconds
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder requestTimeout(int timeout) {
+  public @NonNull HttpRequestActionBuilder requestTimeout(int timeout) {
     return requestTimeout(Duration.ofSeconds(timeout));
   }
 
@@ -273,8 +257,7 @@ public final class HttpRequestActionBuilder
    * @param timeout the timeout
    * @return a new HttpRequestActionBuilder instance
    */
-  @NonNull
-  public HttpRequestActionBuilder requestTimeout(@NonNull Duration timeout) {
+  public @NonNull HttpRequestActionBuilder requestTimeout(@NonNull Duration timeout) {
     return make(wrapped -> wrapped.requestTimeout(toScalaDuration(timeout)));
   }
 }

@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfEqualsOrElse;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "doIfEqualsOrElse" conditional blocks.
@@ -47,8 +47,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull String expected) {
+  default @NonNull Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -60,8 +59,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull Object expected) {
+  default @NonNull Then<T> doIfEqualsOrElse(@NonNull String actual, @NonNull Object expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
 
@@ -73,8 +71,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(
+  default @NonNull Then<T> doIfEqualsOrElse(
       @NonNull String actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
@@ -88,8 +85,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a Gatling Expression Language String
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(
+  default @NonNull Then<T> doIfEqualsOrElse(
       @NonNull Function<Session, Object> actual, @NonNull String expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
@@ -102,8 +98,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected static value
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(
+  default @NonNull Then<T> doIfEqualsOrElse(
       @NonNull Function<Session, Object> actual, @NonNull Object expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
@@ -116,8 +111,7 @@ public interface DoIfEqualsOrElse<
    * @param expected the expected value expressed as a function
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfEqualsOrElse(
+  default @NonNull Then<T> doIfEqualsOrElse(
       @NonNull Function<Session, Object> actual, @NonNull Function<Session, Object> expected) {
     return new Then<>(ScalaDoIfEqualsOrElse.apply(this, actual, expected));
   }
@@ -141,8 +135,8 @@ public interface DoIfEqualsOrElse<
      * @param executables other chains
      * @return the DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> then(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull OrElse<T> then(
+        @NonNull Executable executable, @NonNull Executable... executables) {
       return new OrElse<>(wrapped.then_(Executables.toChainBuilder(executable, executables)));
     }
   }
@@ -166,8 +160,7 @@ public interface DoIfEqualsOrElse<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }

@@ -19,9 +19,9 @@ package io.gatling.javaapi.core;
 import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
 import static io.gatling.javaapi.core.internal.Expressions.javaLongFunctionToExpression;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.Duration;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /** The type of pauses to use on a given Scenario or Simulation. */
 public abstract class PauseType {

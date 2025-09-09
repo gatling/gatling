@@ -18,11 +18,11 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.toScalaSeq;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.stats.assertion.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Java wrapper of a Scala Assertion
@@ -62,8 +62,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTimeMetric responseTime() {
+    public @NonNull WithPathAndTimeMetric responseTime() {
       return new WithPathAndTimeMetric(path, TimeMetric.ResponseTime$.MODULE$);
     }
 
@@ -72,8 +71,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndCountMetric allRequests() {
+    public @NonNull WithPathAndCountMetric allRequests() {
       return new WithPathAndCountMetric(path, CountMetric.AllRequests$.MODULE$);
     }
 
@@ -82,8 +80,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndCountMetric failedRequests() {
+    public @NonNull WithPathAndCountMetric failedRequests() {
       return new WithPathAndCountMetric(path, CountMetric.FailedRequests$.MODULE$);
     }
 
@@ -92,8 +89,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndCountMetric successfulRequests() {
+    public @NonNull WithPathAndCountMetric successfulRequests() {
       return new WithPathAndCountMetric(path, CountMetric.SuccessfulRequests$.MODULE$);
     }
 
@@ -102,8 +98,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Double> requestsPerSec() {
+    public @NonNull WithPathAndTarget<Double> requestsPerSec() {
       return new WithPathAndTarget<>(path, Target.MeanRequestsPerSecond$.MODULE$);
     }
   }
@@ -130,8 +125,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> min() {
+    public @NonNull WithPathAndTarget<Integer> min() {
       return next(Stat.Min$.MODULE$);
     }
 
@@ -140,8 +134,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> max() {
+    public @NonNull WithPathAndTarget<Integer> max() {
       return next(Stat.Max$.MODULE$);
     }
 
@@ -150,8 +143,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> mean() {
+    public @NonNull WithPathAndTarget<Integer> mean() {
       return next(Stat.Mean$.MODULE$);
     }
 
@@ -160,8 +152,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> stdDev() {
+    public @NonNull WithPathAndTarget<Integer> stdDev() {
       return next(Stat.StandardDeviation$.MODULE$);
     }
 
@@ -170,8 +161,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> percentile1() {
+    public @NonNull WithPathAndTarget<Integer> percentile1() {
       return percentile(
           io.gatling.core.Predef.configuration().reports().indicators().percentile1());
     }
@@ -181,8 +171,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> percentile2() {
+    public @NonNull WithPathAndTarget<Integer> percentile2() {
       return percentile(
           io.gatling.core.Predef.configuration().reports().indicators().percentile2());
     }
@@ -192,8 +181,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> percentile3() {
+    public @NonNull WithPathAndTarget<Integer> percentile3() {
       return percentile(
           io.gatling.core.Predef.configuration().reports().indicators().percentile3());
     }
@@ -203,8 +191,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> percentile4() {
+    public @NonNull WithPathAndTarget<Integer> percentile4() {
       return percentile(
           io.gatling.core.Predef.configuration().reports().indicators().percentile4());
     }
@@ -215,8 +202,7 @@ public final class Assertion {
      * @param value the value of targeted percentile, between 0 and 100)
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Integer> percentile(double value) {
+    public @NonNull WithPathAndTarget<Integer> percentile(double value) {
       return next(new Stat.Percentile(value));
     }
   }
@@ -239,8 +225,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Long> count() {
+    public @NonNull WithPathAndTarget<Long> count() {
       return new WithPathAndTarget<>(path, new Target.Count(metric));
     }
 
@@ -249,8 +234,7 @@ public final class Assertion {
      *
      * @return the next Assertion DSL step
      */
-    @NonNull
-    public WithPathAndTarget<Double> percent() {
+    public @NonNull WithPathAndTarget<Double> percent() {
       return new WithPathAndTarget<>(path, new Target.Percent(metric));
     }
   }
@@ -279,8 +263,7 @@ public final class Assertion {
      * @param value the value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion lt(T value) {
+    public @NonNull Assertion lt(T value) {
       return next(new Condition.Lt(value.doubleValue()));
     }
 
@@ -290,8 +273,7 @@ public final class Assertion {
      * @param value the value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion lte(T value) {
+    public @NonNull Assertion lte(T value) {
       return next(new Condition.Lte(value.doubleValue()));
     }
 
@@ -301,8 +283,7 @@ public final class Assertion {
      * @param value the value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion gt(T value) {
+    public @NonNull Assertion gt(T value) {
       return next(new Condition.Gt(value.doubleValue()));
     }
 
@@ -312,8 +293,7 @@ public final class Assertion {
      * @param value the value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion gte(T value) {
+    public @NonNull Assertion gte(T value) {
       return next(new Condition.Gte(value.doubleValue()));
     }
 
@@ -324,8 +304,7 @@ public final class Assertion {
      * @param max the max, included
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion between(T min, T max) {
+    public @NonNull Assertion between(T min, T max) {
       return between(min, max, true);
     }
 
@@ -337,8 +316,7 @@ public final class Assertion {
      * @param inclusive if bounds must be included in the range
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion between(T min, T max, boolean inclusive) {
+    public @NonNull Assertion between(T min, T max, boolean inclusive) {
       return next(new Condition.Between(min.doubleValue(), max.doubleValue(), inclusive));
     }
 
@@ -350,8 +328,7 @@ public final class Assertion {
      * @param plusOrMinus the range half width
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion around(T mean, T plusOrMinus) {
+    public @NonNull Assertion around(T mean, T plusOrMinus) {
       return around(mean, plusOrMinus, true);
     }
 
@@ -364,8 +341,7 @@ public final class Assertion {
      * @param inclusive if bounds must be included in the range
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion around(T mean, T plusOrMinus, boolean inclusive) {
+    public @NonNull Assertion around(T mean, T plusOrMinus, boolean inclusive) {
       return next(
           new Condition.Between(
               mean.doubleValue() - plusOrMinus.doubleValue(),
@@ -381,7 +357,7 @@ public final class Assertion {
      * @param percentDeviation the range half width expressed as a percent of the mean
      * @return a complete Assertion
      */
-    public Assertion deviatesAround(T mean, double percentDeviation) {
+    public @NonNull Assertion deviatesAround(T mean, double percentDeviation) {
       return deviatesAround(mean, percentDeviation, true);
     }
 
@@ -394,7 +370,7 @@ public final class Assertion {
      * @param inclusive if bounds must be included in the range
      * @return a complete Assertion
      */
-    public Assertion deviatesAround(T mean, double percentDeviation, boolean inclusive) {
+    public @NonNull Assertion deviatesAround(T mean, double percentDeviation, boolean inclusive) {
       double margin = Math.floor(mean.doubleValue() * percentDeviation);
       return next(
           new Condition.Between(
@@ -407,8 +383,7 @@ public final class Assertion {
      * @param value the expected value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion is(T value) {
+    public @NonNull Assertion is(T value) {
       return next(new Condition.Is(value.doubleValue()));
     }
 
@@ -418,8 +393,7 @@ public final class Assertion {
      * @param value the expected value
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion shouldBe(T value) {
+    public @NonNull Assertion shouldBe(T value) {
       return is(value);
     }
 
@@ -429,8 +403,7 @@ public final class Assertion {
      * @param values the expected values
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion in(T... values) {
+    public @NonNull Assertion in(T... values) {
       return in(Arrays.stream(values).collect(Collectors.toSet()));
     }
 
@@ -440,8 +413,7 @@ public final class Assertion {
      * @param values the expected values
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion within(T... values) {
+    public @NonNull Assertion within(T... values) {
       return in(values);
     }
 
@@ -451,8 +423,7 @@ public final class Assertion {
      * @param values the expected values
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion in(Set<T> values) {
+    public @NonNull Assertion in(Set<T> values) {
       return next(
           new Condition.In(
               toScalaSeq(
@@ -468,8 +439,7 @@ public final class Assertion {
      * @param values the expected values
      * @return a complete Assertion
      */
-    @NonNull
-    public Assertion within(Set<T> values) {
+    public @NonNull Assertion within(Set<T> values) {
       return in(values);
     }
   }

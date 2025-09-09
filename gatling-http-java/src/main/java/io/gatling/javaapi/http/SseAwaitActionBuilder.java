@@ -19,7 +19,6 @@ package io.gatling.javaapi.http;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Validation;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
@@ -28,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 import scala.Function1;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -44,8 +44,7 @@ public interface SseAwaitActionBuilder<
    * @param timeout the static wait duration in seconds
    * @return the next DSL step
    */
-  @NonNull
-  default On<T> await(long timeout) {
+  default @NonNull On<T> await(long timeout) {
     return await(Duration.ofSeconds(timeout));
   }
 
@@ -55,8 +54,7 @@ public interface SseAwaitActionBuilder<
    * @param timeout the static wait duration
    * @return the next DSL step
    */
-  @NonNull
-  default On<T> await(@NonNull Duration timeout) {
+  default @NonNull On<T> await(@NonNull Duration timeout) {
     return new On<>(this, toStaticValueExpression(toScalaDuration(timeout)));
   }
 
@@ -66,8 +64,7 @@ public interface SseAwaitActionBuilder<
    * @param timeout the wait duration, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  default On<T> await(@NonNull String timeout) {
+  default @NonNull On<T> await(@NonNull String timeout) {
     return new On<>(this, toDurationExpression(timeout));
   }
 
@@ -77,8 +74,7 @@ public interface SseAwaitActionBuilder<
    * @param timeout the wait duration, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  default On<T> await(@NonNull Function<Session, Duration> timeout) {
+  default @NonNull On<T> await(@NonNull Function<Session, Duration> timeout) {
     return new On<>(this, javaDurationFunctionToExpression(timeout));
   }
 
@@ -99,8 +95,7 @@ public interface SseAwaitActionBuilder<
      * @param checks the checks
      * @return a usable ActionBuilder
      */
-    @NonNull
-    public T on(@NonNull SseMessageCheck... checks) {
+    public @NonNull T on(@NonNull SseMessageCheck... checks) {
       return on(Arrays.asList(checks));
     }
 
@@ -110,8 +105,7 @@ public interface SseAwaitActionBuilder<
      * @param checks the checks
      * @return a usable ActionBuilder
      */
-    @NonNull
-    public T on(@NonNull List<SseMessageCheck> checks) {
+    public @NonNull T on(@NonNull List<SseMessageCheck> checks) {
       return context.make(
           wrapped ->
               wrapped.await(

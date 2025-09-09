@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.pause;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.pause.ScalaPaces;
 import java.time.Duration;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Pace methods for defining point where a given virtual user can't go through too fast (pauses
@@ -46,8 +46,7 @@ public interface Paces<
    * @param duration the duration of the pace in seconds
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(long duration) {
+  default @NonNull T pace(long duration) {
     return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -58,8 +57,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(long duration, @NonNull String counterName) {
+  default @NonNull T pace(long duration, @NonNull String counterName) {
     return pace(Duration.ofSeconds(duration), counterName);
   }
 
@@ -70,8 +68,7 @@ public interface Paces<
    * @param duration the duration of the pace
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Duration duration) {
+  default @NonNull T pace(@NonNull Duration duration) {
     return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -82,8 +79,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Duration duration, @NonNull String counterName) {
+  default @NonNull T pace(@NonNull Duration duration, @NonNull String counterName) {
     return ScalaPaces.apply(this, duration, counterName);
   }
 
@@ -96,8 +92,7 @@ public interface Paces<
    * @param duration the duration of the pace
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull String duration) {
+  default @NonNull T pace(@NonNull String duration) {
     return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -110,8 +105,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull String duration, @NonNull String counterName) {
+  default @NonNull T pace(@NonNull String duration, @NonNull String counterName) {
     return ScalaPaces.apply(this, duration, counterName);
   }
 
@@ -122,8 +116,7 @@ public interface Paces<
    * @param duration the duration of the pace
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Function<Session, Duration> duration) {
+  default @NonNull T pace(@NonNull Function<Session, Duration> duration) {
     return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -134,8 +127,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Function<Session, Duration> duration, String counterName) {
+  default @NonNull T pace(@NonNull Function<Session, Duration> duration, String counterName) {
     return ScalaPaces.apply(this, duration, counterName);
   }
 
@@ -147,8 +139,7 @@ public interface Paces<
    * @param max the maximum duration of the pace in seconds
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(long min, long max) {
+  default @NonNull T pace(long min, long max) {
     return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -160,8 +151,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(long min, long max, @NonNull String counterName) {
+  default @NonNull T pace(long min, long max, @NonNull String counterName) {
     return pace(Duration.ofSeconds(min), Duration.ofSeconds(max), counterName);
   }
 
@@ -173,8 +163,7 @@ public interface Paces<
    * @param max the maximum duration of the pace
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Duration min, @NonNull Duration max) {
+  default @NonNull T pace(@NonNull Duration min, @NonNull Duration max) {
     return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
 
@@ -186,8 +175,8 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull Duration min, @NonNull Duration max, @NonNull String counterName) {
+  default @NonNull T pace(
+      @NonNull Duration min, @NonNull Duration max, @NonNull String counterName) {
     return ScalaPaces.apply(this, min, max, counterName);
   }
 
@@ -202,8 +191,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(@NonNull String min, @NonNull String max, @NonNull String counterName) {
+  default @NonNull T pace(@NonNull String min, @NonNull String max, @NonNull String counterName) {
     return ScalaPaces.apply(this, min, max, counterName);
   }
 
@@ -215,8 +203,7 @@ public interface Paces<
    * @param max the maximum duration of the pace
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(
+  default @NonNull T pace(
       @NonNull Function<Session, Duration> min, @NonNull Function<Session, Duration> max) {
     return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
   }
@@ -229,8 +216,7 @@ public interface Paces<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T pace(
+  default @NonNull T pace(
       @NonNull Function<Session, Duration> min,
       @NonNull Function<Session, Duration> max,
       @NonNull String counterName) {

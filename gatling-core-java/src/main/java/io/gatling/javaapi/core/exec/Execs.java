@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.exec;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
@@ -26,6 +25,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.exec.ScalaExecs;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Execs methods for defining actions.
@@ -60,8 +60,7 @@ public interface Execs<
    * @param f the function
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T exec(@NonNull Function<Session, Session> f) {
+  default @NonNull T exec(@NonNull Function<Session, Session> f) {
     return ScalaExecs.apply(this, f);
   }
 
@@ -78,8 +77,7 @@ public interface Execs<
    * @param executables other {@link ChainBuilder}s or {@link ActionBuilder}s
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T exec(@NonNull Executable executable, @NonNull Executable... executables) {
+  default @NonNull T exec(@NonNull Executable executable, @NonNull Executable... executables) {
     return exec(Executables.toChainBuilders(executable, executables));
   }
 
@@ -98,8 +96,7 @@ public interface Execs<
    * @param chainBuilders some {@link ChainBuilder}s
    * @return a new StructureBuilder
    */
-  @NonNull
-  default T exec(@NonNull List<ChainBuilder> chainBuilders) {
+  default @NonNull T exec(@NonNull List<ChainBuilder> chainBuilders) {
     return ScalaExecs.apply(this, chainBuilders);
   }
 }

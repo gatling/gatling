@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.core.feeder.BatchableFeederBuilder;
 import io.gatling.core.feeder.SeparatedValuesParser;
 import io.gatling.javaapi.core.internal.Converters;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Builder of feeders, ie sources of data that are shared amongst all virtual users. Typically
@@ -281,7 +281,7 @@ public interface FeederBuilder<T> {
               io.gatling.core.Predef.configuration()));
     }
 
-    public Impl(@NonNull io.gatling.core.feeder.FeederBuilderBase<T> wrapped) {
+    public Impl(io.gatling.core.feeder.@NonNull FeederBuilderBase<T> wrapped) {
       this.wrapped = (io.gatling.core.feeder.BatchableFeederBuilder<T>) wrapped;
     }
 

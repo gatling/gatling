@@ -18,10 +18,10 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.gatling.javaapi.core.internal.Sessions;
 import java.util.*;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import scala.collection.Seq;
 
 /**
@@ -250,9 +250,8 @@ public final class Session {
    * @return the value if it exists, an empty List otherwise
    * @throws ClassCastException if the value is not a List
    */
-  @NonNull
   @SuppressWarnings("unchecked")
-  public <T> List<T> getList(@NonNull String key) {
+  public @NonNull <T> List<T> getList(@NonNull String key) {
     Object value = get(key);
     if (value instanceof List<?>) {
       return (List<T>) value;
@@ -272,9 +271,8 @@ public final class Session {
    * @return the value if it exists, an empty Set otherwise
    * @throws ClassCastException if the value is not a Set
    */
-  @NonNull
   @SuppressWarnings("unchecked")
-  public <T> Set<T> getSet(@NonNull String key) {
+  public @NonNull <T> Set<T> getSet(@NonNull String key) {
     Object value = get(key);
     if (value instanceof Set<?>) {
       return (Set<T>) value;
@@ -294,9 +292,8 @@ public final class Session {
    * @return the value if it exists, an empty Map otherwise
    * @throws ClassCastException if the value is not a Map
    */
-  @NonNull
   @SuppressWarnings("unchecked")
-  public <T> Map<String, T> getMap(@NonNull String key) {
+  public @NonNull <T> Map<String, T> getMap(@NonNull String key) {
     Object value = get(key);
     if (value instanceof Map<?, ?>) {
       return (Map<String, T>) value;
@@ -316,8 +313,7 @@ public final class Session {
    * @param value the attribute value
    * @return a new instance with the new stored attribute
    */
-  @NonNull
-  public Session set(@NonNull String key, Object value) {
+  public @NonNull Session set(@NonNull String key, Object value) {
     return new Session(wrapped.set(key, value));
   }
 
@@ -327,8 +323,7 @@ public final class Session {
    * @param newAttributes the new attributes
    * @return a new instance with the new stored attributes
    */
-  @NonNull
-  public Session setAll(@NonNull Map<String, Object> newAttributes) {
+  public @NonNull Session setAll(@NonNull Map<String, Object> newAttributes) {
     return new Session(wrapped.setAll(toScalaMap(newAttributes)));
   }
 
@@ -338,8 +333,7 @@ public final class Session {
    * @param key the key of the attribute to remove
    * @return a new instance with the attribute removed
    */
-  @NonNull
-  public Session remove(@NonNull String key) {
+  public @NonNull Session remove(@NonNull String key) {
     return new Session(wrapped.remove(key));
   }
 
@@ -348,8 +342,7 @@ public final class Session {
    *
    * @return a new instance with a reset user state
    */
-  @NonNull
-  public Session reset() {
+  public @NonNull Session reset() {
     return new Session(wrapped.reset());
   }
 
@@ -359,8 +352,7 @@ public final class Session {
    * @param keys the keys of the attributes to remove
    * @return a new instance with the attributes removed
    */
-  @NonNull
-  public Session removeAll(@NonNull String... keys) {
+  public @NonNull Session removeAll(@NonNull String... keys) {
     return new Session(wrapped.removeAll(toScalaSeq(keys)));
   }
 
@@ -384,8 +376,7 @@ public final class Session {
    *
    * @return a new instance with the new status
    */
-  @NonNull
-  public Session markAsSucceeded() {
+  public @NonNull Session markAsSucceeded() {
     return new Session(wrapped.markAsSucceeded());
   }
 
@@ -394,8 +385,7 @@ public final class Session {
    *
    * @return a new instance with the new status
    */
-  @NonNull
-  public Session markAsFailed() {
+  public @NonNull Session markAsFailed() {
     return new Session(wrapped.markAsFailed());
   }
 
@@ -404,7 +394,7 @@ public final class Session {
    *
    * @return the virtual user's scenario name
    */
-  public String scenario() {
+  public @NonNull String scenario() {
     return wrapped.scenario();
   }
 
@@ -413,7 +403,7 @@ public final class Session {
    *
    * @return the list of groups, from shallowest to deepest
    */
-  public List<String> groups() {
+  public @NonNull List<String> groups() {
     return Sessions.groups(this);
   }
 

@@ -18,10 +18,10 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.request.builder.polling.PollingEveryStep;
 import io.gatling.javaapi.core.ActionBuilder;
 import java.time.Duration;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building HTTP polling configurations
@@ -44,8 +44,7 @@ public final class Polling {
    * @param pollerName the name
    * @return the next DSL step
    */
-  @NonNull
-  public Polling pollerName(@NonNull String pollerName) {
+  public @NonNull Polling pollerName(@NonNull String pollerName) {
     return new Polling(wrapped.pollerName(pollerName));
   }
 
@@ -55,8 +54,7 @@ public final class Polling {
    * @param period the period in seconds
    * @return the next DSL step
    */
-  @NonNull
-  public Every every(long period) {
+  public @NonNull Every every(long period) {
     return new Every(wrapped.every(toScalaDuration(Duration.ofSeconds(period))));
   }
 
@@ -66,8 +64,7 @@ public final class Polling {
    * @param period the period
    * @return the next DSL step
    */
-  @NonNull
-  public Every every(@NonNull Duration period) {
+  public @NonNull Every every(@NonNull Duration period) {
     return new Every(wrapped.every(toScalaDuration(period)));
   }
 
@@ -83,8 +80,7 @@ public final class Polling {
      *
      * @return an ActionBuilder
      */
-    @NonNull
-    public ActionBuilder exec(@NonNull HttpRequestActionBuilder requestBuilder) {
+    public @NonNull ActionBuilder exec(@NonNull HttpRequestActionBuilder requestBuilder) {
       return () -> wrapped.exec(requestBuilder.wrapped);
     }
   }
@@ -94,8 +90,7 @@ public final class Polling {
    *
    * @return an ActionBuilder
    */
-  @NonNull
-  public ActionBuilder stop() {
+  public @NonNull ActionBuilder stop() {
     return wrapped::stop;
   }
 }

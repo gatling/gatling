@@ -16,9 +16,9 @@
 
 package io.gatling.javaapi.core;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
+import org.jspecify.annotations.NonNull;
 
 /** A holder for choice types */
 public final class Choice {

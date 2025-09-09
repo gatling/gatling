@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.group;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.group.ScalaGroups;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "groups".
@@ -48,8 +48,7 @@ public interface Groups<
    * @param name the name of the group, expressed as a Gatling Expression Language String
    * @return a DSL component for defining the wrapped block
    */
-  @NonNull
-  default On<T> group(@NonNull String name) {
+  default @NonNull On<T> group(@NonNull String name) {
     return new On<>(ScalaGroups.apply(this, name));
   }
 
@@ -59,8 +58,7 @@ public interface Groups<
    * @param name the name of the group, expressed as a function
    * @return a DSL component for defining the wrapped block
    */
-  @NonNull
-  default On<T> group(@NonNull Function<Session, String> name) {
+  default @NonNull On<T> group(@NonNull Function<Session, String> name) {
     return new On<>(ScalaGroups.apply(this, name));
   }
 
@@ -83,8 +81,7 @@ public interface Groups<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.grouping(Executables.toChainBuilder(executable, executables));
     }
   }

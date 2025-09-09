@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -25,6 +24,7 @@ import io.gatling.javaapi.core.internal.condition.ScalaRandomSwitchOrElse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "randomSwitchOrElse" conditional blocks.
@@ -46,8 +46,7 @@ public interface RandomSwitchOrElse<
    *
    * @return the DSL component for defining the "else" block
    */
-  @NonNull
-  default On<T> randomSwitchOrElse() {
+  default @NonNull On<T> randomSwitchOrElse() {
     return new On<>(new ScalaRandomSwitchOrElse.Choices<>(this));
   }
 
@@ -69,8 +68,7 @@ public interface RandomSwitchOrElse<
      * @param choices the choices
      * @return the DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> on(@NonNull Choice.WithWeight... choices) {
+    public @NonNull OrElse<T> on(Choice.@NonNull WithWeight... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -80,8 +78,7 @@ public interface RandomSwitchOrElse<
      * @param choices the choices
      * @return the DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> on(@NonNull List<Choice.WithWeight> choices) {
+    public @NonNull OrElse<T> on(@NonNull List<Choice.WithWeight> choices) {
       return new OrElse<>(wrapped.choices(choices));
     }
   }
@@ -106,8 +103,7 @@ public interface RandomSwitchOrElse<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }

@@ -19,13 +19,13 @@ package io.gatling.javaapi.http;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.SseFunctions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.action.sse.SseInboundMessage;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building <a
@@ -47,8 +47,7 @@ public final class Sse {
    * @param sseName the name, expressed as a Gatling Expression Language String
    * @return a new Sse instance
    */
-  @NonNull
-  public Sse sseName(@NonNull String sseName) {
+  public @NonNull Sse sseName(@NonNull String sseName) {
     return new Sse(wrapped.sseName(toStringExpression(sseName)));
   }
 
@@ -58,8 +57,7 @@ public final class Sse {
    * @param sseName the name, expressed as a function
    * @return a new Sse instance
    */
-  @NonNull
-  public Sse sseName(@NonNull Function<Session, String> sseName) {
+  public @NonNull Sse sseName(@NonNull Function<Session, String> sseName) {
     return new Sse(wrapped.sseName(javaFunctionToExpression(sseName)));
   }
 
@@ -69,8 +67,7 @@ public final class Sse {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public SseConnectActionBuilder get(@NonNull String url) {
+  public @NonNull SseConnectActionBuilder get(@NonNull String url) {
     return new SseConnectActionBuilder(wrapped.get(toStringExpression(url)));
   }
 
@@ -80,8 +77,7 @@ public final class Sse {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public SseConnectActionBuilder post(@NonNull String url) {
+  public @NonNull SseConnectActionBuilder post(@NonNull String url) {
     return new SseConnectActionBuilder(wrapped.post(toStringExpression(url)));
   }
 
@@ -91,8 +87,7 @@ public final class Sse {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public SseConnectActionBuilder get(@NonNull Function<Session, String> url) {
+  public @NonNull SseConnectActionBuilder get(@NonNull Function<Session, String> url) {
     return new SseConnectActionBuilder(wrapped.get(javaFunctionToExpression(url)));
   }
 
@@ -102,8 +97,7 @@ public final class Sse {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public SseConnectActionBuilder post(@NonNull Function<Session, String> url) {
+  public @NonNull SseConnectActionBuilder post(@NonNull Function<Session, String> url) {
     return new SseConnectActionBuilder(wrapped.post(javaFunctionToExpression(url)));
   }
 
@@ -112,8 +106,7 @@ public final class Sse {
    *
    * @return the next DSL step
    */
-  @NonNull
-  public SseSetCheckActionBuilder setCheck() {
+  public @NonNull SseSetCheckActionBuilder setCheck() {
     return new SseSetCheckActionBuilder(wrapped.setCheck());
   }
 
@@ -122,8 +115,7 @@ public final class Sse {
    *
    * @return an ActionBuilder
    */
-  @NonNull
-  public ActionBuilder close() {
+  public @NonNull ActionBuilder close() {
     return wrapped::close;
   }
 
@@ -139,8 +131,7 @@ public final class Sse {
      * @param name the name of the check
      * @return the next DSL step
      */
-    @NonNull
-    public SseMessageCheck checkMessage(@NonNull String name) {
+    public @NonNull SseMessageCheck checkMessage(@NonNull String name) {
       return new SseMessageCheck(io.gatling.http.Predef.sse().checkMessage(name));
     }
 
@@ -150,7 +141,7 @@ public final class Sse {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         BiFunction<List<SseInboundMessage>, Session, Session> f) {
       return () ->
           io.gatling.http.Predef.sse()
@@ -164,7 +155,7 @@ public final class Sse {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         String sseName, BiFunction<List<SseInboundMessage>, Session, Session> f) {
       return () ->
           io.gatling.http.Predef.sse()
@@ -180,7 +171,7 @@ public final class Sse {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         Function<Session, String> sseName,
         BiFunction<List<SseInboundMessage>, Session, Session> f) {
       return () ->

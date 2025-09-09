@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.http;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.internal.ScalaWsFrameCheckBinaryConditions;
@@ -26,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building WebSocket checks
@@ -57,8 +57,7 @@ public abstract class WsFrameCheck {
      * @param newMatchConditions the conditions to match
      * @return a new Binary instance
      */
-    @NonNull
-    public Binary matching(@NonNull CheckBuilder... newMatchConditions) {
+    public @NonNull Binary matching(@NonNull CheckBuilder... newMatchConditions) {
       return matching(Arrays.asList(newMatchConditions));
     }
 
@@ -69,8 +68,7 @@ public abstract class WsFrameCheck {
      * @param newMatchConditions the conditions to match
      * @return a new Binary instance
      */
-    @NonNull
-    public Binary matching(@NonNull List<CheckBuilder> newMatchConditions) {
+    public @NonNull Binary matching(@NonNull List<CheckBuilder> newMatchConditions) {
       return new Binary(wrapped.matching(WsChecks.toScalaBinaryChecks(newMatchConditions)));
     }
 
@@ -80,8 +78,7 @@ public abstract class WsFrameCheck {
      * @param checks the checks
      * @return a new Binary instance
      */
-    @NonNull
-    public Binary check(@NonNull CheckBuilder... checks) {
+    public @NonNull Binary check(@NonNull CheckBuilder... checks) {
       return check(Arrays.asList(checks));
     }
 
@@ -91,8 +88,7 @@ public abstract class WsFrameCheck {
      * @param checks the checks
      * @return a new Binary instance
      */
-    @NonNull
-    public Binary check(@NonNull List<CheckBuilder> checks) {
+    public @NonNull Binary check(@NonNull List<CheckBuilder> checks) {
       return new Binary(wrapped.check(WsChecks.toScalaBinaryChecks(checks)));
     }
 
@@ -188,8 +184,7 @@ public abstract class WsFrameCheck {
      *
      * @return a new Binary instance
      */
-    @NonNull
-    public Binary silent() {
+    public @NonNull Binary silent() {
       return new Binary(wrapped.silent());
     }
 
@@ -218,8 +213,7 @@ public abstract class WsFrameCheck {
      * @param newMatchConditions the conditions to match
      * @return a new Text instance
      */
-    @NonNull
-    public Text matching(@NonNull CheckBuilder... newMatchConditions) {
+    public @NonNull Text matching(@NonNull CheckBuilder... newMatchConditions) {
       return matching(Arrays.asList(newMatchConditions));
     }
 
@@ -230,8 +224,7 @@ public abstract class WsFrameCheck {
      * @param newMatchConditions the conditions to match
      * @return a new Text instance
      */
-    @NonNull
-    public Text matching(@NonNull List<CheckBuilder> newMatchConditions) {
+    public @NonNull Text matching(@NonNull List<CheckBuilder> newMatchConditions) {
       return new Text(wrapped.matching(WsChecks.toScalaTextChecks(newMatchConditions)));
     }
 
@@ -241,8 +234,7 @@ public abstract class WsFrameCheck {
      * @param checks the checks
      * @return a new Text instance
      */
-    @NonNull
-    public Text check(@NonNull CheckBuilder... checks) {
+    public @NonNull Text check(@NonNull CheckBuilder... checks) {
       return check(Arrays.asList(checks));
     }
 
@@ -252,8 +244,7 @@ public abstract class WsFrameCheck {
      * @param checks the checks
      * @return a new Text instance
      */
-    @NonNull
-    public Text check(@NonNull List<CheckBuilder> checks) {
+    public @NonNull Text check(@NonNull List<CheckBuilder> checks) {
       return new Text(wrapped.check(WsChecks.toScalaTextChecks(checks)));
     }
 
@@ -349,8 +340,7 @@ public abstract class WsFrameCheck {
      *
      * @return a new Text instance
      */
-    @NonNull
-    public Text silent() {
+    public @NonNull Text silent() {
       return new Text(wrapped.silent());
     }
 

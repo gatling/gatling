@@ -18,8 +18,8 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Filter. Typically used for filtering HTTP resources.

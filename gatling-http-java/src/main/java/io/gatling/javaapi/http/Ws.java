@@ -19,13 +19,13 @@ package io.gatling.javaapi.http;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.WsFunctions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.action.ws.WsInboundMessage;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.Session;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building WebSocket configurations
@@ -45,8 +45,7 @@ public final class Ws {
    * @param wsName the name, expressed as a Gatling Expression Language String
    * @return a new Ws instance
    */
-  @NonNull
-  public Ws wsName(@NonNull String wsName) {
+  public @NonNull Ws wsName(@NonNull String wsName) {
     return new Ws(wrapped.wsName(toStringExpression(wsName)));
   }
 
@@ -56,8 +55,7 @@ public final class Ws {
    * @param wsName the name, expressed as a function
    * @return a new Ws instance
    */
-  @NonNull
-  public Ws wsName(@NonNull Function<Session, String> wsName) {
+  public @NonNull Ws wsName(@NonNull Function<Session, String> wsName) {
     return new Ws(wrapped.wsName(javaFunctionToExpression(wsName)));
   }
 
@@ -67,8 +65,7 @@ public final class Ws {
    * @param url the url to connect to, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public WsConnectActionBuilder connect(@NonNull String url) {
+  public @NonNull WsConnectActionBuilder connect(@NonNull String url) {
     return new WsConnectActionBuilder(wrapped.connect(toStringExpression(url)));
   }
 
@@ -78,8 +75,7 @@ public final class Ws {
    * @param url the url to connect to, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  public WsConnectActionBuilder connect(@NonNull Function<Session, String> url) {
+  public @NonNull WsConnectActionBuilder connect(@NonNull Function<Session, String> url) {
     return new WsConnectActionBuilder(wrapped.connect(javaFunctionToExpression(url)));
   }
 
@@ -89,8 +85,7 @@ public final class Ws {
    * @param text the text to send, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public WsSendTextActionBuilder sendText(@NonNull String text) {
+  public @NonNull WsSendTextActionBuilder sendText(@NonNull String text) {
     return new WsSendTextActionBuilder(wrapped.sendText(toStringExpression(text)));
   }
 
@@ -100,8 +95,7 @@ public final class Ws {
    * @param text the text to send, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  public WsSendTextActionBuilder sendText(@NonNull Function<Session, String> text) {
+  public @NonNull WsSendTextActionBuilder sendText(@NonNull Function<Session, String> text) {
     return new WsSendTextActionBuilder(wrapped.sendText(javaFunctionToExpression(text)));
   }
 
@@ -111,8 +105,7 @@ public final class Ws {
    * @param bytes the static bytes to send
    * @return the next DSL step
    */
-  @NonNull
-  public WsSendBinaryActionBuilder sendBytes(@NonNull byte[] bytes) {
+  public @NonNull WsSendBinaryActionBuilder sendBytes(byte[] bytes) {
     return new WsSendBinaryActionBuilder(wrapped.sendBytes(toStaticValueExpression(bytes)));
   }
 
@@ -122,8 +115,7 @@ public final class Ws {
    * @param bytes the bytes to send, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public WsSendBinaryActionBuilder sendBytes(@NonNull String bytes) {
+  public @NonNull WsSendBinaryActionBuilder sendBytes(@NonNull String bytes) {
     return new WsSendBinaryActionBuilder(wrapped.sendBytes(toBytesExpression(bytes)));
   }
 
@@ -133,8 +125,7 @@ public final class Ws {
    * @param bytes the bytes to send, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  public WsSendBinaryActionBuilder sendBytes(@NonNull Function<Session, byte[]> bytes) {
+  public @NonNull WsSendBinaryActionBuilder sendBytes(@NonNull Function<Session, byte[]> bytes) {
     return new WsSendBinaryActionBuilder(wrapped.sendBytes(javaFunctionToExpression(bytes)));
   }
 
@@ -143,8 +134,7 @@ public final class Ws {
    *
    * @return the next DSL step
    */
-  @NonNull
-  public ActionBuilder close() {
+  public @NonNull ActionBuilder close() {
     return wrapped::close;
   }
 
@@ -155,8 +145,7 @@ public final class Ws {
    * @param reason the close frame reason
    * @return the next DSL step
    */
-  @NonNull
-  public ActionBuilder close(int statusCode, String reason) {
+  public @NonNull ActionBuilder close(int statusCode, String reason) {
     return () -> wrapped.close(statusCode, reason);
   }
 
@@ -172,8 +161,7 @@ public final class Ws {
      * @param name the name of the check, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public WsFrameCheck.Text checkTextMessage(@NonNull String name) {
+    public WsFrameCheck.@NonNull Text checkTextMessage(@NonNull String name) {
       return new WsFrameCheck.Text(
           io.gatling.http.Predef.ws().checkTextMessage(toStringExpression(name)));
     }
@@ -184,8 +172,7 @@ public final class Ws {
      * @param name the name of the check, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public WsFrameCheck.Text checkTextMessage(@NonNull Function<Session, String> name) {
+    public WsFrameCheck.@NonNull Text checkTextMessage(@NonNull Function<Session, String> name) {
       return new WsFrameCheck.Text(
           io.gatling.http.Predef.ws().checkTextMessage(javaFunctionToExpression(name)));
     }
@@ -196,8 +183,7 @@ public final class Ws {
      * @param name the name of the check, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public WsFrameCheck.Binary checkBinaryMessage(@NonNull String name) {
+    public WsFrameCheck.@NonNull Binary checkBinaryMessage(@NonNull String name) {
       return new WsFrameCheck.Binary(
           io.gatling.http.Predef.ws().checkBinaryMessage(toStringExpression(name)));
     }
@@ -208,8 +194,8 @@ public final class Ws {
      * @param name the name of the check, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public WsFrameCheck.Binary checkBinaryMessage(@NonNull Function<Session, String> name) {
+    public WsFrameCheck.@NonNull Binary checkBinaryMessage(
+        @NonNull Function<Session, String> name) {
       return new WsFrameCheck.Binary(
           io.gatling.http.Predef.ws().checkBinaryMessage(javaFunctionToExpression(name)));
     }
@@ -220,7 +206,7 @@ public final class Ws {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         BiFunction<List<WsInboundMessage>, Session, Session> f) {
       return () ->
           io.gatling.http.Predef.ws()
@@ -234,7 +220,7 @@ public final class Ws {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         String wsName, BiFunction<List<WsInboundMessage>, Session, Session> f) {
       return () ->
           io.gatling.http.Predef.ws()
@@ -250,7 +236,7 @@ public final class Ws {
      * @param f the function to process the buffered messages
      * @return an ActionBuilder
      */
-    public ActionBuilder processUnmatchedMessages(
+    public @NonNull ActionBuilder processUnmatchedMessages(
         Function<Session, String> wsName, BiFunction<List<WsInboundMessage>, Session, Session> f) {
       return () ->
           io.gatling.http.Predef.ws()

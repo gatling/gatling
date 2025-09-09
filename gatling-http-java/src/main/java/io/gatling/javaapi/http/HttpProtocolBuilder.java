@@ -20,7 +20,6 @@ import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 import static io.gatling.javaapi.http.internal.HttpChecks.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.response.Response;
@@ -39,6 +38,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
+import org.jspecify.annotations.NonNull;
 import scala.PartialFunction;
 
 /**
@@ -63,8 +63,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param url the base url
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder baseUrl(@NonNull String url) {
+  public @NonNull HttpProtocolBuilder baseUrl(@NonNull String url) {
     return baseUrls(url);
   }
 
@@ -75,8 +74,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param urls the base urls
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder baseUrls(@NonNull String... urls) {
+  public @NonNull HttpProtocolBuilder baseUrls(@NonNull String... urls) {
     return baseUrls(Arrays.asList(urls));
   }
 
@@ -87,8 +85,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param urls the base urls
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder baseUrls(@NonNull List<String> urls) {
+  public @NonNull HttpProtocolBuilder baseUrls(@NonNull List<String> urls) {
     return new HttpProtocolBuilder(wrapped.baseUrls(toScalaSeq(urls)));
   }
 
@@ -100,8 +97,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param url the warmup url
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder warmUp(@NonNull String url) {
+  public @NonNull HttpProtocolBuilder warmUp(@NonNull String url) {
     return new HttpProtocolBuilder(wrapped.warmUp(url));
   }
 
@@ -110,8 +106,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder disableWarmUp() {
+  public @NonNull HttpProtocolBuilder disableWarmUp() {
     return new HttpProtocolBuilder(wrapped.disableWarmUp());
   }
 
@@ -123,8 +118,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder shareConnections() {
+  public @NonNull HttpProtocolBuilder shareConnections() {
     return new HttpProtocolBuilder(wrapped.shareConnections());
   }
 
@@ -134,8 +128,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param address the local address
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder localAddress(@NonNull String address) {
+  public @NonNull HttpProtocolBuilder localAddress(@NonNull String address) {
     return new HttpProtocolBuilder(wrapped.localAddress(address));
   }
 
@@ -146,8 +139,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param addresses the local addresses
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder localAddresses(@NonNull String... addresses) {
+  public @NonNull HttpProtocolBuilder localAddresses(@NonNull String... addresses) {
     return new HttpProtocolBuilder(wrapped.localAddresses(toScalaSeq(addresses)));
   }
 
@@ -158,8 +150,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param addresses the local addresses
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder localAddresses(@NonNull List<String> addresses) {
+  public @NonNull HttpProtocolBuilder localAddresses(@NonNull List<String> addresses) {
     return new HttpProtocolBuilder(wrapped.localAddresses(toScalaSeq(addresses)));
   }
 
@@ -169,8 +160,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder useAllLocalAddresses() {
+  public @NonNull HttpProtocolBuilder useAllLocalAddresses() {
     return new HttpProtocolBuilder(wrapped.useAllLocalAddresses());
   }
 
@@ -183,8 +173,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *     Expression</a> patterns
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder useAllLocalAddressesMatching(@NonNull String... patterns) {
+  public @NonNull HttpProtocolBuilder useAllLocalAddressesMatching(@NonNull String... patterns) {
     return new HttpProtocolBuilder(wrapped.useAllLocalAddressesMatching(toScalaSeq(patterns)));
   }
 
@@ -194,8 +183,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param max the limit
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder maxConnectionsPerHost(int max) {
+  public @NonNull HttpProtocolBuilder maxConnectionsPerHost(int max) {
     return new HttpProtocolBuilder(wrapped.maxConnectionsPerHost(max));
   }
 
@@ -205,8 +193,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param f the function. Input is the virtual user's unique id
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder perUserKeyManagerFactory(
+  public @NonNull HttpProtocolBuilder perUserKeyManagerFactory(
       @NonNull Function<Long, KeyManagerFactory> f) {
     return new HttpProtocolBuilder(
         wrapped.perUserKeyManagerFactory(untyped -> f.apply((Long) untyped)));
@@ -219,8 +206,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder disableAutoReferer() {
+  public @NonNull HttpProtocolBuilder disableAutoReferer() {
     return new HttpProtocolBuilder(wrapped.disableAutoReferer());
   }
 
@@ -229,8 +215,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder disableAutoOrigin() {
+  public @NonNull HttpProtocolBuilder disableAutoOrigin() {
     return new HttpProtocolBuilder(wrapped.disableAutoOrigin());
   }
 
@@ -239,8 +224,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder disableCaching() {
+  public @NonNull HttpProtocolBuilder disableCaching() {
     return new HttpProtocolBuilder(wrapped.disableCaching());
   }
 
@@ -251,8 +235,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder header(@NonNull CharSequence name, @NonNull String value) {
+  public @NonNull HttpProtocolBuilder header(@NonNull CharSequence name, @NonNull String value) {
     return new HttpProtocolBuilder(wrapped.header(name, toStringExpression(value)));
   }
 
@@ -263,8 +246,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder header(
+  public @NonNull HttpProtocolBuilder header(
       @NonNull CharSequence name, @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.header(name, javaFunctionToExpression(value)));
   }
@@ -276,8 +258,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *     Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder headers(Map<? extends CharSequence, String> headers) {
+  public @NonNull HttpProtocolBuilder headers(Map<? extends CharSequence, String> headers) {
     return new HttpProtocolBuilder(wrapped.headers(toScalaMap(headers)));
   }
 
@@ -287,8 +268,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder acceptHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.acceptHeader(toStringExpression(value)));
   }
 
@@ -298,8 +278,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder acceptHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.acceptHeader(javaFunctionToExpression(value)));
   }
 
@@ -309,8 +288,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptCharsetHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder acceptCharsetHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.acceptCharsetHeader(toStringExpression(value)));
   }
 
@@ -320,8 +298,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptCharsetHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder acceptCharsetHeader(
+      @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.acceptCharsetHeader(javaFunctionToExpression(value)));
   }
 
@@ -331,8 +309,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptEncodingHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder acceptEncodingHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.acceptEncodingHeader(toStringExpression(value)));
   }
 
@@ -342,8 +319,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptEncodingHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder acceptEncodingHeader(
+      @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.acceptEncodingHeader(javaFunctionToExpression(value)));
   }
 
@@ -353,8 +330,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptLanguageHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder acceptLanguageHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.acceptLanguageHeader(toStringExpression(value)));
   }
 
@@ -364,8 +340,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder acceptLanguageHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder acceptLanguageHeader(
+      @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.acceptLanguageHeader(javaFunctionToExpression(value)));
   }
 
@@ -375,8 +351,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder authorizationHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder authorizationHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.authorizationHeader(toStringExpression(value)));
   }
 
@@ -386,8 +361,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder authorizationHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder authorizationHeader(
+      @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.authorizationHeader(javaFunctionToExpression(value)));
   }
 
@@ -397,8 +372,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder connectionHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder connectionHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.connectionHeader(toStringExpression(value)));
   }
 
@@ -408,8 +382,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder connectionHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder connectionHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.connectionHeader(javaFunctionToExpression(value)));
   }
 
@@ -419,8 +392,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder contentTypeHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder contentTypeHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.contentTypeHeader(toStringExpression(value)));
   }
 
@@ -430,8 +402,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder contentTypeHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder contentTypeHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.contentTypeHeader(javaFunctionToExpression(value)));
   }
 
@@ -441,8 +412,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder doNotTrackHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder doNotTrackHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.doNotTrackHeader(toStringExpression(value)));
   }
 
@@ -452,8 +422,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder doNotTrackHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder doNotTrackHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.doNotTrackHeader(javaFunctionToExpression(value)));
   }
 
@@ -463,8 +432,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder originHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder originHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.originHeader(toStringExpression(value)));
   }
 
@@ -474,8 +442,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder originHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder originHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.originHeader(javaFunctionToExpression(value)));
   }
 
@@ -485,8 +452,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder userAgentHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder userAgentHeader(@NonNull String value) {
     return new HttpProtocolBuilder(wrapped.userAgentHeader(toStringExpression(value)));
   }
 
@@ -496,8 +462,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder userAgentHeader(@NonNull Function<Session, String> value) {
+  public @NonNull HttpProtocolBuilder userAgentHeader(@NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(wrapped.userAgentHeader(javaFunctionToExpression(value)));
   }
 
@@ -507,8 +472,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder upgradeInsecureRequestsHeader(@NonNull String value) {
+  public @NonNull HttpProtocolBuilder upgradeInsecureRequestsHeader(@NonNull String value) {
     return new HttpProtocolBuilder(
         wrapped.upgradeInsecureRequestsHeader(toStringExpression(value)));
   }
@@ -519,8 +483,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param value the header value, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder upgradeInsecureRequestsHeader(
+  public @NonNull HttpProtocolBuilder upgradeInsecureRequestsHeader(
       @NonNull Function<Session, String> value) {
     return new HttpProtocolBuilder(
         wrapped.upgradeInsecureRequestsHeader(javaFunctionToExpression(value)));
@@ -533,8 +496,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder basicAuth(@NonNull String username, @NonNull String password) {
+  public @NonNull HttpProtocolBuilder basicAuth(
+      @NonNull String username, @NonNull String password) {
     return new HttpProtocolBuilder(
         wrapped.basicAuth(toStringExpression(username), toStringExpression(password)));
   }
@@ -546,8 +509,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder basicAuth(
+  public @NonNull HttpProtocolBuilder basicAuth(
       @NonNull String username, @NonNull Function<Session, String> password) {
     return new HttpProtocolBuilder(
         wrapped.basicAuth(toStringExpression(username), javaFunctionToExpression(password)));
@@ -560,8 +522,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder basicAuth(
+  public @NonNull HttpProtocolBuilder basicAuth(
       @NonNull Function<Session, String> username, @NonNull String password) {
     return new HttpProtocolBuilder(
         wrapped.basicAuth(javaFunctionToExpression(username), toStringExpression(password)));
@@ -574,8 +535,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder basicAuth(
+  public @NonNull HttpProtocolBuilder basicAuth(
       @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return new HttpProtocolBuilder(
         wrapped.basicAuth(javaFunctionToExpression(username), javaFunctionToExpression(password)));
@@ -588,8 +548,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder digestAuth(@NonNull String username, @NonNull String password) {
+  public @NonNull HttpProtocolBuilder digestAuth(
+      @NonNull String username, @NonNull String password) {
     return new HttpProtocolBuilder(
         wrapped.digestAuth(toStringExpression(username), toStringExpression(password)));
   }
@@ -601,8 +561,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder digestAuth(
+  public @NonNull HttpProtocolBuilder digestAuth(
       @NonNull String username, @NonNull Function<Session, String> password) {
     return new HttpProtocolBuilder(
         wrapped.digestAuth(toStringExpression(username), javaFunctionToExpression(password)));
@@ -615,8 +574,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder digestAuth(
+  public @NonNull HttpProtocolBuilder digestAuth(
       @NonNull Function<Session, String> username, @NonNull String password) {
     return new HttpProtocolBuilder(
         wrapped.digestAuth(javaFunctionToExpression(username), toStringExpression(password)));
@@ -629,8 +587,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param password the password, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder digestAuth(
+  public @NonNull HttpProtocolBuilder digestAuth(
       @NonNull Function<Session, String> username, @NonNull Function<Session, String> password) {
     return new HttpProtocolBuilder(
         wrapped.digestAuth(javaFunctionToExpression(username), javaFunctionToExpression(password)));
@@ -641,8 +598,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder silentResources() {
+  public @NonNull HttpProtocolBuilder silentResources() {
     return new HttpProtocolBuilder(wrapped.silentResources());
   }
 
@@ -654,8 +610,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param pattern the regex pattern
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder silentUri(@NonNull String pattern) {
+  public @NonNull HttpProtocolBuilder silentUri(@NonNull String pattern) {
     return new HttpProtocolBuilder(wrapped.silentUri(pattern));
   }
 
@@ -664,8 +619,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder disableUrlEncoding() {
+  public @NonNull HttpProtocolBuilder disableUrlEncoding() {
     return new HttpProtocolBuilder(wrapped.disableUrlEncoding());
   }
 
@@ -675,8 +629,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param calculator the signing function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder sign(@NonNull Function<Request, Request> calculator) {
+  public @NonNull HttpProtocolBuilder sign(@NonNull Function<Request, Request> calculator) {
     return sign((request, session) -> calculator.apply(request));
   }
 
@@ -687,8 +640,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param calculator the signing function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder sign(@NonNull BiFunction<Request, Session, Request> calculator) {
+  public @NonNull HttpProtocolBuilder sign(
+      @NonNull BiFunction<Request, Session, Request> calculator) {
     return new HttpProtocolBuilder(wrapped.sign(SignatureCalculators.toScala(calculator)));
   }
 
@@ -702,8 +655,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param tokenSecret the tokenSecret, expressed as a Gatling Expression Language String
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder signWithOAuth1(
+  public @NonNull HttpProtocolBuilder signWithOAuth1(
       @NonNull String consumerKey,
       @NonNull String clientSharedSecret,
       @NonNull String token,
@@ -723,8 +675,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *     with extra parameters and other requests with extra query params
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder signWithOAuth1(
+  public @NonNull HttpProtocolBuilder signWithOAuth1(
       @NonNull String consumerKey,
       @NonNull String clientSharedSecret,
       @NonNull String token,
@@ -748,8 +699,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * @param tokenSecret the tokenSecret, expressed as a function
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder signWithOAuth1(
+  public @NonNull HttpProtocolBuilder signWithOAuth1(
       @NonNull Function<Session, String> consumerKey,
       @NonNull Function<Session, String> clientSharedSecret,
       @NonNull Function<Session, String> token,
@@ -768,8 +718,7 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    *     with extra parameters and other requests with extra query params
    * @return a new HttpProtocolBuilder instance
    */
-  @NonNull
-  public HttpProtocolBuilder signWithOAuth1(
+  public @NonNull HttpProtocolBuilder signWithOAuth1(
       @NonNull Function<Session, String> consumerKey,
       @NonNull Function<Session, String> clientSharedSecret,
       @NonNull Function<Session, String> token,

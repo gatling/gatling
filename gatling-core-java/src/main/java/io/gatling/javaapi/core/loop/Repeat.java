@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.loop;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaRepeat;
 import java.util.UUID;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "repeat" loops that iterate over a block for a given number of times.
@@ -46,8 +46,7 @@ public interface Repeat<
    * @param times the number of iteration
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(int times) {
+  default @NonNull On<T> repeat(int times) {
     return repeat(unused -> times, UUID.randomUUID().toString());
   }
 
@@ -58,8 +57,7 @@ public interface Repeat<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(int times, @NonNull String counterName) {
+  default @NonNull On<T> repeat(int times, @NonNull String counterName) {
     return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
@@ -71,8 +69,7 @@ public interface Repeat<
    *     must evaluate to an {@link Integer}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(@NonNull String times) {
+  default @NonNull On<T> repeat(@NonNull String times) {
     return repeat(times, UUID.randomUUID().toString());
   }
 
@@ -84,8 +81,7 @@ public interface Repeat<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(@NonNull String times, @NonNull String counterName) {
+  default @NonNull On<T> repeat(@NonNull String times, @NonNull String counterName) {
     return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
@@ -96,8 +92,7 @@ public interface Repeat<
    * @param times the number of iteration, expressed as a function
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(@NonNull Function<Session, Integer> times) {
+  default @NonNull On<T> repeat(@NonNull Function<Session, Integer> times) {
     return repeat(times, UUID.randomUUID().toString());
   }
 
@@ -108,8 +103,7 @@ public interface Repeat<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> repeat(@NonNull Function<Session, Integer> times, String counterName) {
+  default @NonNull On<T> repeat(@NonNull Function<Session, Integer> times, String counterName) {
     return new On<>(ScalaRepeat.apply(this, times, counterName));
   }
 
@@ -132,8 +126,7 @@ public interface Repeat<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.loop(Executables.toChainBuilder(executable, executables));
     }
   }

@@ -18,10 +18,10 @@ package io.gatling.javaapi.http;
 
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.http.action.cookie.GetCookieDsl;
 import io.gatling.javaapi.core.Session;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for fetching the value of a <a
@@ -45,8 +45,7 @@ public final class GetCookie {
    * @param domain the cookie domain, expressed as a Gatling Expression Language String
    * @return a new GetCookie
    */
-  @NonNull
-  public GetCookie withDomain(@NonNull String domain) {
+  public @NonNull GetCookie withDomain(@NonNull String domain) {
     return new GetCookie(wrapped.withDomain(toStringExpression(domain)));
   }
 
@@ -57,8 +56,7 @@ public final class GetCookie {
    * @param domain the cookie domain, expressed as a function
    * @return a new GetCookie
    */
-  @NonNull
-  public GetCookie withDomain(@NonNull Function<Session, String> domain) {
+  public @NonNull GetCookie withDomain(@NonNull Function<Session, String> domain) {
     return new GetCookie(wrapped.withDomain(javaFunctionToExpression(domain)));
   }
 
@@ -68,8 +66,7 @@ public final class GetCookie {
    * @param path the cookie path
    * @return a new GetCookie
    */
-  @NonNull
-  public GetCookie withPath(@NonNull String path) {
+  public @NonNull GetCookie withPath(@NonNull String path) {
     return new GetCookie(wrapped.withPath(path));
   }
 
@@ -79,8 +76,7 @@ public final class GetCookie {
    * @param secure the cookie secure attribute
    * @return a new GetCookie
    */
-  @NonNull
-  public GetCookie withSecure(boolean secure) {
+  public @NonNull GetCookie withSecure(boolean secure) {
     return new GetCookie(wrapped.withSecure(secure));
   }
 
@@ -90,8 +86,7 @@ public final class GetCookie {
    * @param saveAs the key
    * @return a new GetCookie
    */
-  @NonNull
-  public GetCookie saveAs(@NonNull String saveAs) {
+  public @NonNull GetCookie saveAs(@NonNull String saveAs) {
     return new GetCookie(wrapped.saveAs(saveAs));
   }
 

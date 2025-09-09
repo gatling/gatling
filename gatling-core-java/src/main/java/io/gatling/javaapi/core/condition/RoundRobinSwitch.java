@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -24,6 +23,7 @@ import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaRoundRobinSwitch;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "roundRobinSwitch" conditional blocks.
@@ -45,8 +45,7 @@ public interface RoundRobinSwitch<
    *
    * @return a new {@link StructureBuilder}
    */
-  @NonNull
-  default On<T> roundRobinSwitch() {
+  default @NonNull On<T> roundRobinSwitch() {
     return new On<>(new ScalaRoundRobinSwitch<>(this));
   }
 
@@ -69,8 +68,7 @@ public interface RoundRobinSwitch<
      * @param executables the other choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return on(Executables.toChainBuilders(executable, executables));
     }
 
@@ -80,8 +78,7 @@ public interface RoundRobinSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull List<ChainBuilder> choices) {
+    public @NonNull T on(@NonNull List<ChainBuilder> choices) {
       return wrapped.choices(choices);
     }
   }

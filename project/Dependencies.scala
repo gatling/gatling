@@ -60,7 +60,7 @@ object Dependencies {
   private val bouncyCastle  = "io.gatling"                    % "gatling-recorder-bc-shaded" % "1.81.0"
   private val fastUuid      = "com.eatthepath"                % "fast-uuid"                  % "0.2.0"
   private val pebble        = "io.pebbletemplates"            % "pebble"                     % "3.2.4"
-  private val spotbugs      = "com.github.spotbugs"           % "spotbugs-annotations"       % "4.9.4"
+  private val jspecify      = "org.jspecify"                  % "jspecify"                   % "1.0.0"
   private val typetools     = "net.jodah"                     % "typetools"                  % "0.6.3"
 
   // Test dependencies
@@ -140,7 +140,7 @@ object Dependencies {
       parserDeps ++ testDeps
 
   val defaultJavaDependencies =
-    Seq(spotbugs, junit, junitEngine, junitPlatformLauncher, jupiterInterface) ++ testDeps
+    Seq(jspecify, junit, junitEngine, junitPlatformLauncher, jupiterInterface) ++ testDeps
 
   val coreJavaDependencies =
     Seq(typetools) ++ defaultJavaDependencies

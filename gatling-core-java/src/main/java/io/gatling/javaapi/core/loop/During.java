@@ -16,7 +16,6 @@
 
 package io.gatling.javaapi.core.loop;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
@@ -25,6 +24,7 @@ import io.gatling.javaapi.core.internal.loop.ScalaDuring;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "during" loops that iterate over a block for a maximum duration.
@@ -48,8 +48,7 @@ public interface During<
    * @param duration the maximum duration, expressed as a number of seconds
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(long duration) {
+  default @NonNull On<T> during(long duration) {
     return during(Duration.ofSeconds(duration));
   }
 
@@ -61,8 +60,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(long duration, boolean exitASAP) {
+  default @NonNull On<T> during(long duration, boolean exitASAP) {
     return during(Duration.ofSeconds(duration), exitASAP);
   }
 
@@ -74,8 +72,7 @@ public interface During<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(long duration, String counterName) {
+  default @NonNull On<T> during(long duration, String counterName) {
     return during(Duration.ofSeconds(duration), counterName);
   }
 
@@ -88,8 +85,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(long duration, String counterName, boolean exitASAP) {
+  default @NonNull On<T> during(long duration, String counterName, boolean exitASAP) {
     return during(Duration.ofSeconds(duration), counterName, exitASAP);
   }
 
@@ -101,8 +97,7 @@ public interface During<
    * @param duration the maximum duration
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Duration duration) {
+  default @NonNull On<T> during(@NonNull Duration duration) {
     return during(unused -> duration);
   }
 
@@ -114,8 +109,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Duration duration, boolean exitASAP) {
+  default @NonNull On<T> during(@NonNull Duration duration, boolean exitASAP) {
     return during(unused -> duration, exitASAP);
   }
 
@@ -127,8 +121,7 @@ public interface During<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Duration duration, @NonNull String counterName) {
+  default @NonNull On<T> during(@NonNull Duration duration, @NonNull String counterName) {
     return during(unused -> duration, counterName, true);
   }
 
@@ -141,8 +134,8 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Duration duration, @NonNull String counterName, boolean exitASAP) {
+  default @NonNull On<T> during(
+      @NonNull Duration duration, @NonNull String counterName, boolean exitASAP) {
     return new On<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
   }
 
@@ -155,8 +148,7 @@ public interface During<
    *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull String duration) {
+  default @NonNull On<T> during(@NonNull String duration) {
     return during(duration, UUID.randomUUID().toString());
   }
 
@@ -169,8 +161,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull String duration, boolean exitASAP) {
+  default @NonNull On<T> during(@NonNull String duration, boolean exitASAP) {
     return during(duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -183,8 +174,7 @@ public interface During<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull String duration, @NonNull String counterName) {
+  default @NonNull On<T> during(@NonNull String duration, @NonNull String counterName) {
     return during(duration, counterName, true);
   }
 
@@ -197,8 +187,8 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull String duration, @NonNull String counterName, boolean exitASAP) {
+  default @NonNull On<T> during(
+      @NonNull String duration, @NonNull String counterName, boolean exitASAP) {
     return new On<>(ScalaDuring.apply(this, duration, counterName, exitASAP));
   }
 
@@ -210,8 +200,7 @@ public interface During<
    * @param duration the maximum duration, expressed as a function
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Function<Session, Duration> duration) {
+  default @NonNull On<T> during(@NonNull Function<Session, Duration> duration) {
     return during(duration, UUID.randomUUID().toString());
   }
 
@@ -223,8 +212,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Function<Session, Duration> duration, boolean exitASAP) {
+  default @NonNull On<T> during(@NonNull Function<Session, Duration> duration, boolean exitASAP) {
     return during(duration, UUID.randomUUID().toString(), exitASAP);
   }
 
@@ -236,8 +224,8 @@ public interface During<
    * @param counterName the name of the loop counter, as stored in the {@link Session}
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(@NonNull Function<Session, Duration> duration, @NonNull String counterName) {
+  default @NonNull On<T> during(
+      @NonNull Function<Session, Duration> duration, @NonNull String counterName) {
     return during(duration, counterName, true);
   }
 
@@ -250,8 +238,7 @@ public interface During<
    * @param exitASAP if the loop must be interrupted if the max duration is reached inside the loop
    * @return a DSL component for defining the loop content
    */
-  @NonNull
-  default On<T> during(
+  default @NonNull On<T> during(
       @NonNull Function<Session, Duration> duration,
       @NonNull String counterName,
       boolean exitASAP) {
@@ -277,8 +264,7 @@ public interface During<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T on(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.loop(Executables.toChainBuilder(executable, executables));
     }
   }

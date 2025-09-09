@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Choice;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.internal.condition.ScalaRandomSwitch;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "randomSwitch" conditional blocks.
@@ -44,8 +44,7 @@ public interface RandomSwitch<
    *
    * @return a DSL component for defining the "choices"
    */
-  @NonNull
-  default On<T> randomSwitch() {
+  default @NonNull On<T> randomSwitch() {
     return new On<>(new ScalaRandomSwitch<>(this));
   }
 
@@ -67,8 +66,7 @@ public interface RandomSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull Choice.WithWeight... choices) {
+    public @NonNull T on(Choice.@NonNull WithWeight... choices) {
       return on(Arrays.asList(choices));
     }
 
@@ -78,8 +76,7 @@ public interface RandomSwitch<
      * @param choices the choices
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T on(@NonNull List<Choice.WithWeight> choices) {
+    public @NonNull T on(@NonNull List<Choice.WithWeight> choices) {
       return wrapped.choices(choices);
     }
   }

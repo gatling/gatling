@@ -19,7 +19,6 @@ package io.gatling.javaapi.jms;
 import static io.gatling.javaapi.core.internal.Converters.*;
 import static io.gatling.javaapi.core.internal.Expressions.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Session;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * DSL for building request-reply actions.
@@ -55,8 +55,8 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder property(@NonNull String key, @NonNull String value) {
+  public @NonNull JmsRequestReplyActionBuilder property(
+      @NonNull String key, @NonNull String value) {
     return new JmsRequestReplyActionBuilder(
         wrapped.property(toStringExpression(key), toAnyExpression(value)));
   }
@@ -68,8 +68,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder property(
+  public @NonNull JmsRequestReplyActionBuilder property(
       @NonNull Function<Session, String> key, @NonNull String value) {
     return new JmsRequestReplyActionBuilder(
         wrapped.property(javaFunctionToExpression(key), toAnyExpression(value)));
@@ -82,8 +81,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder property(
+  public @NonNull JmsRequestReplyActionBuilder property(
       @NonNull String key, @NonNull Function<Session, Object> value) {
     return new JmsRequestReplyActionBuilder(
         wrapped.property(toStringExpression(key), javaFunctionToExpression(value)));
@@ -96,8 +94,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param value the property value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder property(
+  public @NonNull JmsRequestReplyActionBuilder property(
       @NonNull Function<Session, String> key, @NonNull Function<Session, Object> value) {
     return new JmsRequestReplyActionBuilder(
         wrapped.property(javaFunctionToExpression(key), javaFunctionToExpression(value)));
@@ -109,8 +106,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param jmsType the JMS type value, expressed as a Gatling Expression Language String
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder jmsType(@NonNull String jmsType) {
+  public @NonNull JmsRequestReplyActionBuilder jmsType(@NonNull String jmsType) {
     return new JmsRequestReplyActionBuilder(wrapped.jmsType(toStringExpression(jmsType)));
   }
 
@@ -120,8 +116,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param jmsType the JMS type value, expressed as a function
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder jmsType(@NonNull Function<Session, String> jmsType) {
+  public @NonNull JmsRequestReplyActionBuilder jmsType(@NonNull Function<Session, String> jmsType) {
     return new JmsRequestReplyActionBuilder(wrapped.jmsType(javaFunctionToExpression(jmsType)));
   }
 
@@ -131,8 +126,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param checks the checks
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder check(@NonNull CheckBuilder... checks) {
+  public @NonNull JmsRequestReplyActionBuilder check(@NonNull CheckBuilder... checks) {
     return check(Arrays.asList(checks));
   }
 
@@ -142,8 +136,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param checks the checks
    * @return a new JmsRequestReplyActionBuilder instance
    */
-  @NonNull
-  public JmsRequestReplyActionBuilder check(@NonNull List<CheckBuilder> checks) {
+  public @NonNull JmsRequestReplyActionBuilder check(@NonNull List<CheckBuilder> checks) {
     return new JmsRequestReplyActionBuilder(wrapped.check(JmsChecks.toScalaChecks(checks)));
   }
 
@@ -153,8 +146,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param condition the condition, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  @NonNull
-  public UntypedCondition checkIf(@NonNull String condition) {
+  public @NonNull UntypedCondition checkIf(@NonNull String condition) {
     return new UntypedCondition(
         ScalaJmsRequestReplyActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -165,8 +157,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    * @param condition the condition, expressed as a function
    * @return the next DSL step
    */
-  @NonNull
-  public UntypedCondition checkIf(@NonNull Function<Session, Boolean> condition) {
+  public @NonNull UntypedCondition checkIf(@NonNull Function<Session, Boolean> condition) {
     return new UntypedCondition(
         ScalaJmsRequestReplyActionBuilderConditions.untyped(wrapped, condition));
   }
@@ -184,8 +175,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param checks the checks
      * @return a new JmsRequestReplyActionBuilder instance
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder then(@NonNull CheckBuilder... checks) {
+    public @NonNull JmsRequestReplyActionBuilder then(@NonNull CheckBuilder... checks) {
       return then(Arrays.asList(checks));
     }
 
@@ -195,8 +185,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param checks the checks
      * @return a new JmsRequestReplyActionBuilder instance
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder then(@NonNull List<CheckBuilder> checks) {
+    public @NonNull JmsRequestReplyActionBuilder then(@NonNull List<CheckBuilder> checks) {
       return wrapped.thenChecks(checks);
     }
   }
@@ -208,8 +197,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    *     Session
    * @return the next DSL step
    */
-  @NonNull
-  public TypedCondition checkIf(
+  public @NonNull TypedCondition checkIf(
       @NonNull BiFunction<jakarta.jms.Message, Session, Boolean> condition) {
     return new TypedCondition(
         ScalaJmsRequestReplyActionBuilderConditions.typed(wrapped, condition));
@@ -228,8 +216,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param checks the checks
      * @return a new JmsRequestReplyActionBuilder instance
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder then(@NonNull CheckBuilder... checks) {
+    public @NonNull JmsRequestReplyActionBuilder then(@NonNull CheckBuilder... checks) {
       return then(Arrays.asList(checks));
     }
 
@@ -239,8 +226,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param checks the checks
      * @return a new JmsRequestReplyActionBuilder instance
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder then(@NonNull List<CheckBuilder> checks) {
+    public @NonNull JmsRequestReplyActionBuilder then(@NonNull List<CheckBuilder> checks) {
       return wrapped.then_(checks);
     }
   }
@@ -263,8 +249,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the name of the queue, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder.Message queue(@NonNull String name) {
+    public JmsRequestReplyActionBuilder.@NonNull Message queue(@NonNull String name) {
       return new JmsRequestReplyActionBuilder.Message(wrapped.queue(toStringExpression(name)));
     }
 
@@ -274,8 +259,8 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the name of the queue, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder.Message queue(@NonNull Function<Session, String> name) {
+    public JmsRequestReplyActionBuilder.@NonNull Message queue(
+        @NonNull Function<Session, String> name) {
       return new JmsRequestReplyActionBuilder.Message(
           wrapped.queue(javaFunctionToExpression(name)));
     }
@@ -286,8 +271,8 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param destination the destination
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder.Message destination(@NonNull JmsDestination destination) {
+    public JmsRequestReplyActionBuilder.@NonNull Message destination(
+        @NonNull JmsDestination destination) {
       return new JmsRequestReplyActionBuilder.Message(wrapped.destination(destination.asScala()));
     }
   }
@@ -305,8 +290,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the queue name, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public Message replyQueue(@NonNull String name) {
+    public @NonNull Message replyQueue(@NonNull String name) {
       return new Message(wrapped.replyQueue(toStringExpression(name)));
     }
 
@@ -316,8 +300,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the queue name, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public Message replyQueue(@NonNull Function<Session, String> name) {
+    public @NonNull Message replyQueue(@NonNull Function<Session, String> name) {
       return new Message(wrapped.replyQueue(javaFunctionToExpression(name)));
     }
 
@@ -327,8 +310,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param destination the destination
      * @return the next DSL step
      */
-    @NonNull
-    public Message replyDestination(@NonNull JmsDestination destination) {
+    public @NonNull Message replyDestination(@NonNull JmsDestination destination) {
       return new Message(wrapped.replyDestination(destination.asScala()));
     }
 
@@ -337,8 +319,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      *
      * @return the next DSL step
      */
-    @NonNull
-    public Message noJmsReplyTo() {
+    public @NonNull Message noJmsReplyTo() {
       return new Message(wrapped.noJmsReplyTo());
     }
 
@@ -348,8 +329,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the queue name, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public Message trackerQueue(@NonNull String name) {
+    public @NonNull Message trackerQueue(@NonNull String name) {
       return new Message(wrapped.trackerQueue(toStringExpression(name)));
     }
 
@@ -359,8 +339,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param name the queue name, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public Message trackerQueue(@NonNull Function<Session, String> name) {
+    public @NonNull Message trackerQueue(@NonNull Function<Session, String> name) {
       return new Message(wrapped.trackerQueue(javaFunctionToExpression(name)));
     }
 
@@ -370,8 +349,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param destination the destination
      * @return the next DSL step
      */
-    @NonNull
-    public Message trackerDestination(@NonNull JmsDestination destination) {
+    public @NonNull Message trackerDestination(@NonNull JmsDestination destination) {
       return new Message(wrapped.trackerDestination(destination.asScala()));
     }
 
@@ -381,8 +359,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param select the message selector, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public Message selector(@NonNull String select) {
+    public @NonNull Message selector(@NonNull String select) {
       return new Message(wrapped.selector(toStringExpression(select)));
     }
 
@@ -392,8 +369,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param select the message selector, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public Message selector(@NonNull Function<Session, String> select) {
+    public @NonNull Message selector(@NonNull Function<Session, String> select) {
       return new Message(wrapped.selector(javaFunctionToExpression(select)));
     }
 
@@ -403,8 +379,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder textMessage(@NonNull String msg) {
+    public @NonNull JmsRequestReplyActionBuilder textMessage(@NonNull String msg) {
       return new JmsRequestReplyActionBuilder(wrapped.textMessage(toStringExpression(msg)));
     }
 
@@ -414,8 +389,8 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder textMessage(@NonNull Function<Session, String> msg) {
+    public @NonNull JmsRequestReplyActionBuilder textMessage(
+        @NonNull Function<Session, String> msg) {
       return new JmsRequestReplyActionBuilder(wrapped.textMessage(javaFunctionToExpression(msg)));
     }
 
@@ -425,8 +400,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder bytesMessage(@NonNull byte[] msg) {
+    public @NonNull JmsRequestReplyActionBuilder bytesMessage(byte[] msg) {
       return new JmsRequestReplyActionBuilder(wrapped.bytesMessage(toStaticValueExpression(msg)));
     }
 
@@ -436,8 +410,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder bytesMessage(@NonNull String msg) {
+    public @NonNull JmsRequestReplyActionBuilder bytesMessage(@NonNull String msg) {
       return new JmsRequestReplyActionBuilder(wrapped.bytesMessage(toBytesExpression(msg)));
     }
 
@@ -447,8 +420,8 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder bytesMessage(@NonNull Function<Session, byte[]> msg) {
+    public @NonNull JmsRequestReplyActionBuilder bytesMessage(
+        @NonNull Function<Session, byte[]> msg) {
       return new JmsRequestReplyActionBuilder(wrapped.bytesMessage(javaFunctionToExpression(msg)));
     }
 
@@ -458,8 +431,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder mapMessage(@NonNull Map<String, Object> msg) {
+    public @NonNull JmsRequestReplyActionBuilder mapMessage(@NonNull Map<String, Object> msg) {
       return new JmsRequestReplyActionBuilder(
           wrapped.mapMessage(toStaticValueExpression(toScalaMap(msg))));
     }
@@ -470,8 +442,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder mapMessage(@NonNull String msg) {
+    public @NonNull JmsRequestReplyActionBuilder mapMessage(@NonNull String msg) {
       return new JmsRequestReplyActionBuilder(wrapped.mapMessage(toMapExpression(msg)));
     }
 
@@ -481,8 +452,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder mapMessage(
+    public @NonNull JmsRequestReplyActionBuilder mapMessage(
         @NonNull Function<Session, Map<String, Object>> msg) {
       return new JmsRequestReplyActionBuilder(
           wrapped.mapMessage(javaFunctionToExpression(msg.andThen(Converters::toScalaMap))));
@@ -494,8 +464,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the static message
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder objectMessage(@NonNull Serializable msg) {
+    public @NonNull JmsRequestReplyActionBuilder objectMessage(@NonNull Serializable msg) {
       return new JmsRequestReplyActionBuilder(wrapped.objectMessage(toStaticValueExpression(msg)));
     }
 
@@ -505,8 +474,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a Gatling Expression Language String
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder objectMessage(@NonNull String msg) {
+    public @NonNull JmsRequestReplyActionBuilder objectMessage(@NonNull String msg) {
       return new JmsRequestReplyActionBuilder(
           wrapped.objectMessage(toExpression(msg, Serializable.class)));
     }
@@ -517,8 +485,7 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
      * @param msg the message, expressed as a function
      * @return the next DSL step
      */
-    @NonNull
-    public JmsRequestReplyActionBuilder objectMessage(
+    public @NonNull JmsRequestReplyActionBuilder objectMessage(
         @NonNull Function<Session, Serializable> msg) {
       return new JmsRequestReplyActionBuilder(wrapped.objectMessage(javaFunctionToExpression(msg)));
     }

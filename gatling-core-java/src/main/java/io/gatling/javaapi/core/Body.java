@@ -16,11 +16,11 @@
 
 package io.gatling.javaapi.core;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.commons.validation.Failure;
 import io.gatling.commons.validation.Success;
 import io.gatling.commons.validation.Validation;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Java wrapper of a Scala request body. Sealed, must not be extended. Implementations are for
@@ -43,7 +43,7 @@ public abstract class Body {
   public static final class Default extends Body {
     private final io.gatling.core.body.Body wrapped;
 
-    public Default(@NonNull io.gatling.core.body.Body wrapped) {
+    public Default(io.gatling.core.body.@NonNull Body wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -58,7 +58,7 @@ public abstract class Body {
 
     private final io.gatling.core.body.BodyWithStringExpression wrapped;
 
-    public WithString(@NonNull io.gatling.core.body.BodyWithStringExpression wrapped) {
+    public WithString(io.gatling.core.body.@NonNull BodyWithStringExpression wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -84,7 +84,7 @@ public abstract class Body {
 
     private final io.gatling.core.body.BodyWithBytesExpression wrapped;
 
-    public WithBytes(@NonNull io.gatling.core.body.BodyWithBytesExpression wrapped) {
+    public WithBytes(io.gatling.core.body.@NonNull BodyWithBytesExpression wrapped) {
       this.wrapped = wrapped;
     }
 

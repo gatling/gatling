@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.jms;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.jms.internal.JmsCheckType;
 import io.gatling.jms.check.JmsPropertyCheckType;
 import io.gatling.jms.check.JmsPropertyFilter;
 import jakarta.jms.Message;
+import org.jspecify.annotations.NonNull;
 
 public interface JmsCheckBuilder {
 
@@ -88,8 +88,7 @@ public interface JmsCheckBuilder {
         super(wrapped, type, String.class, null);
       }
 
-      @NonNull
-      protected abstract <X> io.gatling.core.check.CheckBuilder.Find<T, Message, X> ofType(
+      protected abstract <X> io.gatling.core.check.CheckBuilder.@NonNull Find<T, Message, X> ofType(
           JmsPropertyFilter<X> filter);
 
       @Override
@@ -165,16 +164,15 @@ public interface JmsCheckBuilder {
       extends JmsCheckBuilder.JmsPropertyOfTypeFind.Default<JmsPropertyCheckType> {
 
     public JmsProperty(
-        @NonNull
-            io.gatling.core.check.CheckBuilder.Find<JmsPropertyCheckType, Message, String>
-                wrapped) {
+        io.gatling.core.check.CheckBuilder.@NonNull Find<JmsPropertyCheckType, Message, String>
+            wrapped) {
       super(wrapped, JmsCheckType.JmsProperty);
     }
 
     @Override
-    @NonNull
-    protected <X> io.gatling.core.check.CheckBuilder.Find<JmsPropertyCheckType, Message, X> ofType(
-        JmsPropertyFilter<X> filter) {
+    protected <X>
+        io.gatling.core.check.CheckBuilder.@NonNull Find<JmsPropertyCheckType, Message, X> ofType(
+            JmsPropertyFilter<X> filter) {
       io.gatling.jms.check.JmsPropertyCheckBuilder<String> actual =
           (io.gatling.jms.check.JmsPropertyCheckBuilder<String>) wrapped;
       return new io.gatling.jms.check.JmsPropertyCheckBuilder<>(actual.propertyName(), filter);

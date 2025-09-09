@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.condition;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.condition.ScalaDoIfOrElse;
 import java.util.function.Function;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Methods for defining "doIfOrElse" conditional blocks.
@@ -45,8 +45,7 @@ public interface DoIfOrElse<
    *     evaluate to a Boolean
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfOrElse(@NonNull String condition) {
+  default @NonNull Then<T> doIfOrElse(@NonNull String condition) {
     return new Then<>(ScalaDoIfOrElse.apply(this, condition));
   }
 
@@ -56,8 +55,7 @@ public interface DoIfOrElse<
    * @param condition the condition expressed as function
    * @return a DSL component for defining the "then" block
    */
-  @NonNull
-  default Then<T> doIfOrElse(@NonNull Function<Session, Boolean> condition) {
+  default @NonNull Then<T> doIfOrElse(@NonNull Function<Session, Boolean> condition) {
     return new Then<>(ScalaDoIfOrElse.apply(this, condition));
   }
 
@@ -80,8 +78,8 @@ public interface DoIfOrElse<
      * @param executables other chains
      * @return the DSL component for defining the "else" block
      */
-    @NonNull
-    public OrElse<T> then(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull OrElse<T> then(
+        @NonNull Executable executable, @NonNull Executable... executables) {
       return new OrElse<>(wrapped.then_(Executables.toChainBuilder(executable, executables)));
     }
   }
@@ -105,8 +103,7 @@ public interface DoIfOrElse<
      * @param executables other chains
      * @return a new {@link StructureBuilder}
      */
-    @NonNull
-    public T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
+    public @NonNull T orElse(@NonNull Executable executable, @NonNull Executable... executables) {
       return wrapped.orElse(Executables.toChainBuilder(executable, executables));
     }
   }
