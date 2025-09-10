@@ -61,9 +61,17 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
       case _ =>
         simulationParams.after()
         logger.trace("After hook executed")
+        // [ee]
+        //
+        // [ee]
+
         new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
+
+  // [ee]
+  //
+  // [ee]
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
