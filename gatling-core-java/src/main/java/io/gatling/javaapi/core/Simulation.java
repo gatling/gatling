@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import scala.Option;
+import scala.jdk.javaapi.FunctionConverters;
 
 /**
  * The class your own Simulations must extend.
@@ -278,14 +279,31 @@ public abstract class Simulation {
         _globalPauseType.asScala(),
         toScalaSeq(
             _globalThrottleSteps.stream().map(ThrottleStep::asScala).collect(Collectors.toList())),
-        () -> {
-          before();
-          return null;
-        },
-        () -> {
-          after();
-          return null;
-        },
+        toScalaHookOption("before", this::before),
+        toScalaHookOption("after", this::after),
         configuration);
+  }
+
+  private Option<scala.Function0<scala.runtime.BoxedUnit>> toScalaHookOption(
+      String hookName, Runnable f) {
+    return Option.when(
+        isHookDefinedRec(getClass(), hookName),
+        FunctionConverters.asScalaFromSupplier(
+            () -> {
+              f.run();
+              return null;
+            }));
+  }
+
+  private boolean isHookDefinedRec(Class<?> c, String hookName) {
+    try {
+      c.getDeclaredMethod(hookName);
+      return true;
+    } catch (NoSuchMethodException e) {
+      Class<?> parent = c.getSuperclass();
+      return parent != null
+          && !parent.getName().equals("io.gatling.javaapi.core.Simulation")
+          && isHookDefinedRec(parent, hookName);
+    }
   }
 }

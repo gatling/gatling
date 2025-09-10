@@ -37,8 +37,8 @@ object Simulation {
       _maxDuration: Option[FiniteDuration],
       _globalPauseType: PauseType,
       _globalThrottleSteps: Iterable[ThrottleStep],
-      _before: () => Unit,
-      _after: () => Unit,
+      _before: Option[() => Unit],
+      _after: Option[() => Unit],
       configuration: GatlingConfiguration
   ): SimulationParams = {
     require(!_populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
@@ -172,8 +172,8 @@ abstract class Simulation {
       _maxDuration,
       _globalPauseType,
       _globalThrottleSteps,
-      () => _beforeSteps.reverse.foreach(_.apply()),
-      () => _afterSteps.reverse.foreach(_.apply()),
+      Option.when(_beforeSteps.nonEmpty)(() => _beforeSteps.reverse.foreach(_.apply())),
+      Option.when(_afterSteps.nonEmpty)(() => _afterSteps.reverse.foreach(_.apply())),
       configuration
     )
 }
@@ -186,8 +186,8 @@ final class SimulationParams(
     val throttlings: Throttlings,
     val maxDuration: Option[FiniteDuration],
     val assertions: Seq[Assertion],
-    val before: () => Unit,
-    val after: () => Unit
+    val before: Option[() => Unit],
+    val after: Option[() => Unit]
 ) {
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
     populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global)

@@ -59,8 +59,10 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     start(simulationParams, scenarioFlows, coreComponents) match {
       case Failure(t) => throw t
       case _ =>
-        simulationParams.after()
-        logger.trace("After hook executed")
+        simulationParams.after.foreach { after =>
+          after()
+          logger.trace("After hook executed")
+        }
         // [ee]
         //
         // [ee]
@@ -80,8 +82,10 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     val simulationParams = selection.simulationClass.params(configuration)
     logger.trace("Simulation params built")
 
-    simulationParams.before()
-    logger.trace("Before hook executed")
+    simulationParams.before.foreach { before =>
+      before()
+      logger.trace("Before hook executed")
+    }
 
     val runMessage = RunMessage(
       simulationParams.name,
