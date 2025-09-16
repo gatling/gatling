@@ -16,6 +16,7 @@
 
 package io.gatling.http.util
 
+import java.{ util => ju }
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
@@ -107,8 +108,17 @@ private[gatling] object HttpHelper extends StrictLogging {
     }
 
   def isOk(statusCode: Int): Boolean = HttpStatusClass.valueOf(statusCode) == HttpStatusClass.SUCCESS || statusCode == HttpResponseStatus.NOT_MODIFIED.code
-  def isRedirect(status: HttpResponseStatus): Boolean =
-    HttpStatusClass.valueOf(status.code) == HttpStatusClass.REDIRECTION && status != HttpResponseStatus.NOT_MODIFIED
+
+  private val RedirectCodes = {
+    val bs = new ju.BitSet
+    bs.set(HttpResponseStatus.MOVED_PERMANENTLY.code)
+    bs.set(HttpResponseStatus.FOUND.code)
+    bs.set(HttpResponseStatus.SEE_OTHER.code)
+    bs.set(HttpResponseStatus.TEMPORARY_REDIRECT.code)
+    bs.set(HttpResponseStatus.PERMANENT_REDIRECT.code)
+    bs
+  }
+  def isRedirect(status: HttpResponseStatus): Boolean = RedirectCodes.get(status.code)
   def isPermanentRedirect(status: HttpResponseStatus): Boolean = status == MOVED_PERMANENTLY || status == PERMANENT_REDIRECT
   def isNotModified(status: HttpResponseStatus): Boolean = status == NOT_MODIFIED
 
