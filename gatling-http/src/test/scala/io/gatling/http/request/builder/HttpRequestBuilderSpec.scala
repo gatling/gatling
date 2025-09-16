@@ -63,7 +63,7 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
       httpProtocol: HttpProtocol = HttpProtocol(configuration),
       urlOrURI: Either[Expression[String], Uri] = Right(Uri.create("http://gatling.io"))
   ) = {
-    val builder = f(HttpRequestBuilder("requestName".expressionSuccess, HttpMethod.GET, urlOrURI))
+    val builder = f(HttpRequestBuilder("requestName".expressionSuccess, Right(HttpMethod.GET), urlOrURI))
     builder.build(httpCaches, httpProtocol, throttled = false, configuration)
   }
 

@@ -38,7 +38,7 @@ import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.LazyLogging
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpHeaderNames, HttpHeaders }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpHeaderNames, HttpHeaders, HttpMethod }
 import io.netty.util.AsciiString
 
 object RequestExpressionBuilder {
@@ -134,6 +134,18 @@ abstract class RequestExpressionBuilder(
         uri.expressionSuccess
     }
   }
+
+  private val buildMethod: Expression[HttpMethod] =
+    commonAttributes.method match {
+      case Left(method) =>
+        session =>
+          for {
+            resolvedMethod <- method(session)
+          } yield HttpMethod.valueOf(resolvedMethod)
+
+      case Right(method) =>
+        method.expressionSuccess
+    }
 
   private val maybeProxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
   private val proxyProtocolEnabled =
@@ -255,10 +267,11 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           requestName <- commonAttributes.requestName(session)
+          requestMethod <- buildMethod(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
 
           requestBuilder = {
-            val rb = new ClientRequestBuilder(requestName, commonAttributes.method, uri, nameResolver)
+            val rb = new ClientRequestBuilder(requestName, requestMethod, uri, nameResolver)
               .setDefaultCharset(charset)
               .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
 

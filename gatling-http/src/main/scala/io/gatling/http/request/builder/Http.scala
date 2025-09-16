@@ -27,15 +27,16 @@ import io.netty.handler.codec.http.HttpMethod
  */
 final class Http(requestName: Expression[String]) {
   def get(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.GET, url)
-  def get(uri: Uri): HttpRequestBuilder = httpRequest(HttpMethod.GET, Right(uri))
+  def get(uri: Uri): HttpRequestBuilder = httpRequest(Right(HttpMethod.GET), Right(uri))
   def put(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PUT, url)
   def post(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.POST, url)
   def patch(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PATCH, url)
   def head(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.HEAD, url)
   def delete(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.DELETE, url)
   def options(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.OPTIONS, url)
-  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.valueOf(method), Left(url))
-  def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
-  def httpRequest(method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
+  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(Right(HttpMethod.valueOf(method)), Left(url))
+  def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(Right(method), Left(url))
+  def dynamicHttpRequest(method: Expression[String], url: Expression[String]): HttpRequestBuilder = httpRequest(Left(method), Left(url))
+  def httpRequest(method: Either[Expression[String], HttpMethod], urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
     HttpRequestBuilder(requestName, method, urlOrURI)
 }
