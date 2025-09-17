@@ -133,6 +133,13 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").delete("/"))
     .exec(http("Request").options("/"))
     .exec(http("Request").httpRequest(HttpMethod.valueOf("JSON"), "/support/get-plot-data?chartID=66"))
+    .exec(http("Request").httpRequest(HttpMethod.POST, "/"))
+    .exec(http("Request").httpRequest("GET", "/"))
+    .exec(http("Request").httpRequest("GET", _ => "/"))
+    .exec(http("Request").httpRequest("#{foo}", "#{bar}"))
+    .exec(http("Request").httpRequest("#{foo}", _ => "/"))
+    .exec(http("Request").httpRequest(_ => "POST", "#{bar}"))
+    .exec(http("Request").httpRequest(_ => "POST", _ => "/"))
     // url function
     .exec(http("Request").get(_ => "/"))
     // headers

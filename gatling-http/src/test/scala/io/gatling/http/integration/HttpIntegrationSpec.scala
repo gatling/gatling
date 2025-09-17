@@ -123,4 +123,76 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       verifyRequestTo("/resourceTest/bad_resource.png", 0)
     }
   }
+
+  it should "send request with static and dynamic http method" in {
+    val handler: Handler = {
+      case HttpRequest(HttpMethod.GET, "/get_page") =>
+        val bytes = "Hello GET".getBytes(StandardCharsets.UTF_8)
+
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
+        response
+          .headers()
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
+
+        ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
+
+      case HttpRequest(HttpMethod.POST, "/post_page") =>
+        val bytes = "Hello POST".getBytes(StandardCharsets.UTF_8)
+
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
+        response
+          .headers()
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
+
+        ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
+    }
+
+    runWithHttpServer(handler) { implicit httpServer =>
+      val session = runScenario(
+        scenario("Dynamic HTTP method")
+          .exec(_.set("method_get", "GET").set("method_post", "POST"))
+          .exec(
+            http("GET page dynamic")
+              .httpRequest("#{method_get}", "/get_page")
+              .check(regexCheck("Hello GET"))
+              .resources(
+                http("GET resource dynamic EL")
+                  .httpRequest("#{method_get}", "/get_page")
+                  .check(regexCheck("Hello GET")),
+                http("GET resource dynamic lambda")
+                  .httpRequest(_ => "GET", "/get_page")
+                  .check(regexCheck("Hello GET")),
+                http("GET resource static string")
+                  .httpRequest("GET", "/get_page")
+                  .check(regexCheck("Hello GET")),
+                http("GET resource static HttpMethod")
+                  .httpRequest(HttpMethod.GET, "/get_page")
+                  .check(regexCheck("Hello GET"))
+              ),
+            http("POST page dynamic")
+              .httpRequest("#{method_post}", "/post_page")
+              .check(regexCheck("Hello POST"))
+              .resources(
+                http("POST resource dynamic EL")
+                  .httpRequest("#{method_post}", "/post_page")
+                  .check(regexCheck("Hello POST")),
+                http("POST resource dynamic lambda")
+                  .httpRequest(_ => "POST", "/post_page")
+                  .check(regexCheck("Hello POST")),
+                http("POST resource static string")
+                  .httpRequest("POST", "/post_page")
+                  .check(regexCheck("Hello POST")),
+                http("POST resource static HttpMethod")
+                  .httpRequest(HttpMethod.POST, "/post_page")
+                  .check(regexCheck("Hello POST"))
+              )
+          )
+      )
+
+      session.isFailed shouldBe false
+
+      verifyRequestTo("/get_page", 5)
+      verifyRequestTo("/post_page", 5)
+    }
+  }
 }

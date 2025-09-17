@@ -194,20 +194,20 @@ public final class Http {
   /**
    * Define a HTTP request
    *
-   * @param method the HTTP method
+   * @param method the HTTP method, expressed as a Gatling Expression Language String
    * @param url the url, expressed as a Gatling Expression Language String
    * @return a new instance of HttpRequestActionBuilder
    */
   public @NonNull HttpRequestActionBuilder httpRequest(@NonNull String method, String url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name)
-            .httpRequest(method, toStringExpression(url)));
+            .httpRequest(toStringExpression(method), toStringExpression(url)));
   }
 
   /**
    * Define a HTTP request
    *
-   * @param method the HTTP method
+   * @param method the HTTP method, expressed as a Gatling Expression Language String
    * @param url the url, expressed as a function
    * @return a new instance of HttpRequestActionBuilder
    */
@@ -215,6 +215,34 @@ public final class Http {
       @NonNull String method, @NonNull Function<Session, String> url) {
     return new HttpRequestActionBuilder(
         new io.gatling.http.request.builder.Http(name)
-            .httpRequest(method, javaFunctionToExpression(url)));
+            .httpRequest(toStringExpression(method), javaFunctionToExpression(url)));
+  }
+
+  /**
+   * Define a HTTP request
+   *
+   * @param method the HTTP method, expressed as a function
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  public @NonNull HttpRequestActionBuilder httpRequest(
+      @NonNull Function<Session, String> method, @NonNull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name)
+            .httpRequest(javaFunctionToExpression(method), toStringExpression(url)));
+  }
+
+  /**
+   * Define a HTTP request
+   *
+   * @param method the HTTP method, expressed as a function
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  public @NonNull HttpRequestActionBuilder httpRequest(
+      @NonNull Function<Session, String> method, @NonNull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name)
+            .httpRequest(javaFunctionToExpression(method), javaFunctionToExpression(url)));
   }
 }
