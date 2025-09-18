@@ -62,8 +62,12 @@ final case class HttpAttributes(
 )
 
 object HttpRequestBuilder {
-  def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
-    HttpRequestBuilder(CommonAttributes(requestName = requestName, method = method, urlOrURI = urlOrURI), BodyAttributes.Empty, HttpAttributes.Empty)
+  def apply(requestName: Expression[String], method: Expression[HttpMethod], urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
+    HttpRequestBuilder(
+      CommonAttributes(requestName = requestName, method: Expression[HttpMethod], urlOrURI = urlOrURI),
+      BodyAttributes.Empty,
+      HttpAttributes.Empty
+    )
 }
 
 /**

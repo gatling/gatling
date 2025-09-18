@@ -60,7 +60,7 @@ final class Ws(requestName: Expression[String], wsName: Expression[String]) {
    *   The socket URL
    */
   def connect(url: Expression[String]): WsConnectRequestBuilder =
-    WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None, None, Nil)
+    WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET.expressionSuccess, Left(url)), wsName, None, None, Nil)
 
   /**
    * Sends a text frame on the given WebSocket.

@@ -33,7 +33,7 @@ import io.gatling.internal.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
 object CommonAttributes {
-  def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): CommonAttributes =
+  def apply(requestName: Expression[String], method: Expression[HttpMethod], urlOrURI: Either[Expression[String], Uri]): CommonAttributes =
     new CommonAttributes(
       requestName,
       method,
@@ -50,7 +50,7 @@ object CommonAttributes {
 
 final case class CommonAttributes(
     requestName: Expression[String],
-    method: HttpMethod,
+    method: Expression[HttpMethod],
     urlOrURI: Either[Expression[String], Uri],
     disableUrlEncoding: Option[Boolean],
     queryParams: List[HttpParam],
