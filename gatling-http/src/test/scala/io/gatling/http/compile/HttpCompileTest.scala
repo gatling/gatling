@@ -23,7 +23,9 @@ import javax.net.ssl.KeyManagerFactory
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
+import io.gatling.core.session.ExpressionSuccessWrapper
 import io.gatling.http.Predef._
+import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.HttpMethod
 
@@ -126,6 +128,7 @@ class HttpCompileTest extends Simulation {
   private val scn = scenario("Scn")
     // method
     .exec(http("Request").get("/"))
+    .exec(http("Request").get(Uri.create("/")))
     .exec(http("Request").put("/"))
     .exec(http("Request").post("/"))
     .exec(http("Request").patch("/"))
@@ -133,13 +136,12 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").delete("/"))
     .exec(http("Request").options("/"))
     .exec(http("Request").httpRequest(HttpMethod.valueOf("JSON"), "/support/get-plot-data?chartID=66"))
-    .exec(http("Request").httpRequest(HttpMethod.POST, "/"))
-    .exec(http("Request").httpRequest("GET", "/"))
-    .exec(http("Request").httpRequest("GET", _ => "/"))
-    .exec(http("Request").httpRequest("#{foo}", "#{bar}"))
-    .exec(http("Request").httpRequest("#{foo}", _ => "/"))
-    .exec(http("Request").httpRequest(_ => "POST", "#{bar}"))
-    .exec(http("Request").httpRequest(_ => "POST", _ => "/"))
+    .exec(http("Request").httpRequest("GET", _ => "/foo"))
+    .exec(http("Request").httpRequest("GET", "#{foo}"))
+    .exec(http("Request").httpRequest(Left("GET".expressionSuccess), Left("/foo".expressionSuccess)))
+    .exec(http("Request").httpRequest(Left("GET".expressionSuccess), Right(Uri.create("/foo"))))
+    .exec(http("Request").httpRequest(Right(HttpMethod.GET), Left("/foo".expressionSuccess)))
+    .exec(http("Request").httpRequest(Right(HttpMethod.GET), Right(Uri.create("/foo"))))
     // url function
     .exec(http("Request").get(_ => "/"))
     // headers

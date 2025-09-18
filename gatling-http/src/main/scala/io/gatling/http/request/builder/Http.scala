@@ -34,7 +34,7 @@ final class Http(requestName: Expression[String]) {
   def head(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.HEAD, url)
   def delete(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.DELETE, url)
   def options(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.OPTIONS, url)
-  def httpRequest(method: Expression[String], url: Expression[String]): HttpRequestBuilder = httpRequest(Left(method), Left(url))
+  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(Right(HttpMethod.valueOf(method)), Left(url))
   def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(Right(method), Left(url))
   def httpRequest(method: Either[Expression[String], HttpMethod], urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
     HttpRequestBuilder(requestName, method, urlOrURI)

@@ -327,8 +327,6 @@ public class HttpJavaCompileTest extends Simulation {
           .exec(http("name").options(session -> "url"))
           .exec(http("name").httpRequest("JSON", "url"))
           .exec(http("name").httpRequest("JSON", session -> "url"))
-          .exec(http("name").httpRequest(session -> "JSON", "url"))
-          .exec(http("name").httpRequest(session -> "JSON", session -> "url"))
           // check
           .exec(
               http("name")

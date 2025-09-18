@@ -135,7 +135,7 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val buildMethod: Expression[HttpMethod] =
+  private val buildRequestMethod: Expression[HttpMethod] =
     commonAttributes.method match {
       case Left(method) =>
         session =>
@@ -267,7 +267,7 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           requestName <- commonAttributes.requestName(session)
-          requestMethod <- buildMethod(session)
+          requestMethod <- buildRequestMethod(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
 
           requestBuilder = {

@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets
 
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session.Expression
 import io.gatling.http.{ HttpDsl, HttpSpec }
 
 import io.netty.buffer.Unpooled
@@ -124,7 +125,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
-  it should "send request with static and dynamic http method" in {
+  it should "send request with dynamic http method" in {
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/get_page") =>
         val bytes = "Hello GET".getBytes(StandardCharsets.UTF_8)
@@ -148,42 +149,25 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
+      def resolve(value: Expression[String]): Expression[String] = session => value(session)
       val session = runScenario(
         scenario("Dynamic HTTP method")
-          .exec(_.set("method_get", "GET").set("method_post", "POST"))
+          .exec(_.set("get", "GET").set("post", "POST"))
           .exec(
-            http("GET page dynamic")
-              .httpRequest("#{method_get}", "/get_page")
+            http("GET page")
+              .httpRequest(Left(resolve("#{get}")), Left(resolve("/get_page")))
               .check(regexCheck("Hello GET"))
               .resources(
-                http("GET resource dynamic EL")
-                  .httpRequest("#{method_get}", "/get_page")
-                  .check(regexCheck("Hello GET")),
-                http("GET resource dynamic lambda")
-                  .httpRequest(_ => "GET", "/get_page")
-                  .check(regexCheck("Hello GET")),
-                http("GET resource static string")
-                  .httpRequest("GET", "/get_page")
-                  .check(regexCheck("Hello GET")),
-                http("GET resource static HttpMethod")
-                  .httpRequest(HttpMethod.GET, "/get_page")
+                http("GET resource")
+                  .httpRequest(Left(resolve("#{get}")), Left(resolve("/get_page")))
                   .check(regexCheck("Hello GET"))
               ),
-            http("POST page dynamic")
-              .httpRequest("#{method_post}", "/post_page")
+            http("POST page")
+              .httpRequest(Left(resolve("#{post}")), Left(resolve("/post_page")))
               .check(regexCheck("Hello POST"))
               .resources(
-                http("POST resource dynamic EL")
-                  .httpRequest("#{method_post}", "/post_page")
-                  .check(regexCheck("Hello POST")),
-                http("POST resource dynamic lambda")
-                  .httpRequest(_ => "POST", "/post_page")
-                  .check(regexCheck("Hello POST")),
-                http("POST resource static string")
-                  .httpRequest("POST", "/post_page")
-                  .check(regexCheck("Hello POST")),
-                http("POST resource static HttpMethod")
-                  .httpRequest(HttpMethod.POST, "/post_page")
+                http("POST resource")
+                  .httpRequest(Left(resolve("#{post}")), Left(resolve("/post_page")))
                   .check(regexCheck("Hello POST"))
               )
           )
@@ -191,8 +175,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
       session.isFailed shouldBe false
 
-      verifyRequestTo("/get_page", 5)
-      verifyRequestTo("/post_page", 5)
+      verifyRequestTo("/get_page", 2)
+      verifyRequestTo("/post_page", 2)
     }
   }
 }
