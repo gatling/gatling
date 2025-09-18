@@ -29,7 +29,6 @@ import io.gatling.http.action.{ HttpActionBuilder, HttpRequestAction }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
