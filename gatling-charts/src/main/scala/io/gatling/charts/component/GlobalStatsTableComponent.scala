@@ -123,19 +123,19 @@ private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContai
        |      <span class="value" style="display:none;">$index</span>
        |    </div>
        |  </td>
-       |  <td class="value total col-2">${style(container.stats.numberOfRequestsStatistics.total)}</td>
-       |  <td class="value ok col-3">${style(container.stats.numberOfRequestsStatistics.success)}</td>
-       |  <td class="value ko col-4">${style(container.stats.numberOfRequestsStatistics.failure)}</td>
-       |  <td class="value ko col-5">${style(koPercent)}</td>
-       |  <td class="value total col-6">${style(container.stats.meanNumberOfRequestsPerSecondStatistics.total)}</td>
-       |  <td class="value total col-7">${style(container.stats.minResponseTimeStatistics.total)}</td>
-       |  <td class="value total col-8">${style(container.stats.percentiles1.total)}</td>
-       |  <td class="value total col-9">${style(container.stats.percentiles2.total)}</td>
-       |  <td class="value total col-10">${style(container.stats.percentiles3.total)}</td>
-       |  <td class="value total col-11">${style(container.stats.percentiles4.total)}</td>
-       |  <td class="value total col-12">${style(container.stats.maxResponseTimeStatistics.total)}</td>
-       |  <td class="value total col-13">${style(container.stats.meanResponseTimeStatistics.total)}</td>
-       |  <td class="value total col-14">${style(container.stats.stdDeviationStatistics.total)}</td>
+       |  <td class="value total col-2">${styleCount(container.stats.numberOfRequestsStatistics.total)}</td>
+       |  <td class="value ok col-3">${styleCount(container.stats.numberOfRequestsStatistics.success)}</td>
+       |  <td class="value ko col-4">${styleCount(container.stats.numberOfRequestsStatistics.failure)}</td>
+       |  <td class="value ko col-5">${styleCount(koPercent)}</td>
+       |  <td class="value total col-6">${styleCount(container.stats.meanNumberOfRequestsPerSecondStatistics.total)}</td>
+       |  <td class="value total col-7">${styleStatistic(container.stats.minResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-8">${styleStatistic(container.stats.percentiles1.total)}</td>
+       |  <td class="value total col-9">${styleStatistic(container.stats.percentiles2.total)}</td>
+       |  <td class="value total col-10">${styleStatistic(container.stats.percentiles3.total)}</td>
+       |  <td class="value total col-11">${styleStatistic(container.stats.percentiles4.total)}</td>
+       |  <td class="value total col-12">${styleStatistic(container.stats.maxResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-13">${styleStatistic(container.stats.meanResponseTimeStatistics.total)}</td>
+       |  <td class="value total col-14">${styleStatistic(container.stats.stdDeviationStatistics.total)}</td>
        |</tr>""".stripMargin
   }
 

@@ -30,9 +30,15 @@ private[gatling] abstract class Component {
 
   def jsFiles: Seq[String]
 
-  protected def style[T: Numeric](value: Option[T]): String =
+  private def format[T: Numeric](value: Option[T], default: String): String =
     value match {
       case Some(v) => Component.Formatter.format(implicitly[Numeric[T]].toDouble(v))
-      case _       => "-"
+      case _       => default
     }
+
+  protected def styleCount[T: Numeric](value: Option[T]): String =
+    format(value, "0")
+
+  protected def styleStatistic[T: Numeric](value: Option[T]): String =
+    format(value, "-")
 }

@@ -53,15 +53,15 @@ private[charts] final class DetailsStatsTableComponent(stats: RequestStatistics,
                                         <tbody>
                                             <tr>
                                                 <td class="title">Total count</td>
-                                                <td class="total">${style(numberOfRequestsStatistics.total)}</td>
-                                                <td class="ok">${style(numberOfRequestsStatistics.success)}</td>
-                                                <td class="ko">${style(numberOfRequestsStatistics.failure)}</td>
+                                                <td class="total">${styleCount(numberOfRequestsStatistics.total)}</td>
+                                                <td class="ok">${styleCount(numberOfRequestsStatistics.success)}</td>
+                                                <td class="ko">${styleCount(numberOfRequestsStatistics.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">Mean count/s</abbr></td>
-                                                <td class="total">${style(meanNumberOfRequestsPerSecondStatistics.total)}</td>
-                                                <td class="ok">${style(meanNumberOfRequestsPerSecondStatistics.success)}</td>
-                                                <td class="ko">${style(meanNumberOfRequestsPerSecondStatistics.failure)}</td>
+                                                <td class="total">${styleCount(meanNumberOfRequestsPerSecondStatistics.total)}</td>
+                                                <td class="ok">${styleCount(meanNumberOfRequestsPerSecondStatistics.success)}</td>
+                                                <td class="ko">${styleCount(meanNumberOfRequestsPerSecondStatistics.failure)}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -78,51 +78,51 @@ private[charts] final class DetailsStatsTableComponent(stats: RequestStatistics,
                                         <tbody>
                                             <tr>
                                                 <td class="title">Min</td>
-                                                <td class="total">${style(minResponseTimeStatistics.total)}</td>
-                                                <td class="ok">${style(minResponseTimeStatistics.success)}</td>
-                                                <td class="ko">${style(minResponseTimeStatistics.failure)}</td>
+                                                <td class="total">${styleStatistic(minResponseTimeStatistics.total)}</td>
+                                                <td class="ok">${styleStatistic(minResponseTimeStatistics.success)}</td>
+                                                <td class="ko">${styleStatistic(minResponseTimeStatistics.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">${configuration.percentile1.toRank} percentile</td>
-                                                <td class="total">${style(percentiles1.total)}</td>
-                                                <td class="ok">${style(percentiles1.success)}</td>
-                                                <td class="ko">${style(percentiles1.failure)}</td>
+                                                <td class="total">${styleStatistic(percentiles1.total)}</td>
+                                                <td class="ok">${styleStatistic(percentiles1.success)}</td>
+                                                <td class="ko">${styleStatistic(percentiles1.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">${configuration.percentile2.toRank} percentile</td>
-                                                <td class="total">${style(percentiles2.total)}</td>
-                                                <td class="ok">${style(percentiles2.success)}</td>
-                                                <td class="ko">${style(percentiles2.failure)}</td>
+                                                <td class="total">${styleStatistic(percentiles2.total)}</td>
+                                                <td class="ok">${styleStatistic(percentiles2.success)}</td>
+                                                <td class="ko">${styleStatistic(percentiles2.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">${configuration.percentile3.toRank} percentile</td>
-                                                <td class="total">${style(percentiles3.total)}</td>
-                                                <td class="ok">${style(percentiles3.success)}</td>
-                                                <td class="ko">${style(percentiles3.failure)}</td>
+                                                <td class="total">${styleStatistic(percentiles3.total)}</td>
+                                                <td class="ok">${styleStatistic(percentiles3.success)}</td>
+                                                <td class="ko">${styleStatistic(percentiles3.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">${configuration.percentile4.toRank} percentile</td>
-                                                <td class="total">${style(percentiles4.total)}</td>
-                                                <td class="ok">${style(percentiles4.success)}</td>
-                                                <td class="ko">${style(percentiles4.failure)}</td>
+                                                <td class="total">${styleStatistic(percentiles4.total)}</td>
+                                                <td class="ok">${styleStatistic(percentiles4.success)}</td>
+                                                <td class="ko">${styleStatistic(percentiles4.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">Max</td>
-                                                <td class="total">${style(maxResponseTimeStatistics.total)}</td>
-                                                <td class="ok">${style(maxResponseTimeStatistics.success)}</td>
-                                                <td class="ko">${style(maxResponseTimeStatistics.failure)}</td>
+                                                <td class="total">${styleStatistic(maxResponseTimeStatistics.total)}</td>
+                                                <td class="ok">${styleStatistic(maxResponseTimeStatistics.success)}</td>
+                                                <td class="ko">${styleStatistic(maxResponseTimeStatistics.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">Mean</td>
-                                                <td class="total">${style(meanNumberOfRequestsPerSecondStatistics.total)}</td>
-                                                <td class="ok">${style(meanNumberOfRequestsPerSecondStatistics.success)}</td>
-                                                <td class="ko">${style(meanNumberOfRequestsPerSecondStatistics.failure)}</td>
+                                                <td class="total">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.total)}</td>
+                                                <td class="ok">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.success)}</td>
+                                                <td class="ko">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">Standard Deviation</td>
-                                                <td class="total">${style(stdDeviationStatistics.total)}</td>
-                                                <td class="ok">${style(stdDeviationStatistics.success)}</td>
-                                                <td class="ko">${style(stdDeviationStatistics.failure)}</td>
+                                                <td class="total">${styleStatistic(stdDeviationStatistics.total)}</td>
+                                                <td class="ok">${styleStatistic(stdDeviationStatistics.success)}</td>
+                                                <td class="ko">${styleStatistic(stdDeviationStatistics.failure)}</td>
                                             </tr>
                                         </tbody>
                                     </table>
