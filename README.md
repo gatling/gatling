@@ -1,4 +1,4 @@
-# Gatling [![Build Status](https://github.com/gatling/gatling/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/gatling/gatling/actions/workflows/build.yml?query=branch%3Amain) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.gatling/gatling-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.gatling/gatling-core/)
+# Gatling [![Build Status](https://github.com/gatling/gatling/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/gatling/gatling/actions/workflows/build.yml?query=branch%3Amain) [![Maven Central](https://img.shields.io/maven-central/v/io.gatling/gatling-core)](https://central.sonatype.com/search?q=gatling-core)
 
 ## What is Gatling ?
 
