@@ -255,10 +255,11 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           requestName <- commonAttributes.requestName(session)
+          method <- commonAttributes.method(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
 
           requestBuilder = {
-            val rb = new ClientRequestBuilder(requestName, commonAttributes.method, uri, nameResolver)
+            val rb = new ClientRequestBuilder(requestName, method, uri, nameResolver)
               .setDefaultCharset(charset)
               .setAutoOrigin(httpProtocol.requestPart.autoOrigin)
 
