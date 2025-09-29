@@ -70,7 +70,7 @@ object Dependencies {
   private val scalaCheck          = "org.scalacheck"                 %% "scalacheck"      % "1.19.0"   % Test
   private val mockitoCore         = "org.mockito"                     % "mockito-core"    % "5.20.0"   % Test
   private val activemqBroker      = "org.apache.activemq"             % "activemq-broker" % "6.1.7"    % Test
-  private val h2                  = "com.h2database"                  % "h2"              % "2.3.232"  % Test
+  private val h2                  = "com.h2database"                  % "h2"              % "2.4.240"  % Test
   private val jmh                 = "org.openjdk.jmh"                 % "jmh-core"        % "1.37"     % Test
 
   private val junit       = "org.junit.jupiter" % "junit-jupiter-api" % "5.13.4" % Test
