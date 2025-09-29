@@ -18,7 +18,7 @@ package io.gatling.commons.util
 
 import java.net.{ HttpURLConnection, URI }
 import java.nio.charset.StandardCharsets
-import java.time.{ Instant, ZoneOffset, ZonedDateTime }
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.ResourceBundle
 import java.util.prefs.Preferences
@@ -65,10 +65,11 @@ private object LatestGatlingRelease extends StrictLogging {
   private val LatestReleaseNumberPref = "latestReleaseNumber"
   private val LatestReleaseDatePref = "latestReleaseDate"
 
-  private val MavenCentralQuery = "https://search.maven.org/solrsearch/select?q=g:io.gatling+AND+a:gatling-core+AND+p:jar&rows=1&wt=json&core=gav"
+  private val MavenCentralQuery = "https://repo1.maven.org/maven2/io/gatling/gatling-core/maven-metadata.xml"
   private val MavenCentralQueryTimeoutMillis = 1000
-  private val MavenCentralQueryVersionRegex = """"v":\s*"(.+?)"""".r
-  private val MavenCentralQueryTimestampRegex = """"timestamp":\s*(\d+)""".r
+  private val MavenCentralQueryVersionLatestRegex = """<latest>(.+?)</latest>""".r
+  private val MavenCentralQueryLastUpdatedRegex = """<lastUpdated>(\d+)</lastUpdated>""".r
+  private val MavenCentralDateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss z")
 
   private def loadPersisted(): Try[FetchResult] =
     Try {
@@ -126,18 +127,18 @@ private object LatestGatlingRelease extends StrictLogging {
     }
 
   private[util] def parseMavenCentralResponse(response: String): GatlingVersion = {
-    val version =
-      MavenCentralQueryVersionRegex
+    val latest =
+      MavenCentralQueryVersionLatestRegex
         .findFirstMatchIn(response)
         .getOrElse(throw new IllegalArgumentException(s"Failed to find version field in $response"))
         .group(1)
-    val timestamp =
-      MavenCentralQueryTimestampRegex
+    val lastUpdated =
+      MavenCentralQueryLastUpdatedRegex
         .findFirstMatchIn(response)
         .getOrElse(throw new IllegalArgumentException(s"Failed to find timestamp field in $response"))
         .group(1)
-        .toLong
-    GatlingVersion(version, ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC))
+
+    GatlingVersion(latest, ZonedDateTime.parse(lastUpdated + " Z", MavenCentralDateTimeFormatter))
   }
 
   private implicit final class OnFailureTry[T](val t: Try[T]) extends AnyVal {
