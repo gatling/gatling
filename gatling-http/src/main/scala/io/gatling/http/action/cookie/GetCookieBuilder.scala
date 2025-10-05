@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.cookie
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
@@ -50,6 +51,8 @@ final class GetCookieBuilder(
         cookieValue <- getCookieValue(session, resolvedName, resolvedDomain, path, secure)
       } yield session.set(saveAs.getOrElse(resolvedName), cookieValue)
 
-    new SessionHook(expression, genName("getCookie"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
+    new SessionHook(expression, genName("getCookie"), ctx.coreComponents.statsEngine, next) with ExitableAction {
+      override def clock: Clock = ctx.coreComponents.clock
+    }
   }
 }

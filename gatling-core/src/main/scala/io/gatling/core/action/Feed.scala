@@ -24,9 +24,9 @@ import io.gatling.core.stats.StatsEngine
 private final class Feed(
     feedActor: ActorRef[FeedMessage],
     numberOpt: Option[Expression[Int]],
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
 ) extends ExitableAction {
 
   override def name: String = feedActor.name

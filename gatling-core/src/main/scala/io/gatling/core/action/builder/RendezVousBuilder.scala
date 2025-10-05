@@ -21,5 +21,5 @@ import io.gatling.core.structure.ScenarioContext
 
 private[core] final class RendezVousBuilder(users: Int) extends ActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
-    RendezVous(users, ctx.coreComponents.actorSystem, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+    RendezVous(users, ctx.coreComponents.actorSystem, next)
 }

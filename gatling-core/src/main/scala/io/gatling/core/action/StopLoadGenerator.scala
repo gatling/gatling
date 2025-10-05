@@ -26,9 +26,9 @@ final class StopLoadGenerator(
     message: Expression[String],
     condition: Expression[Boolean],
     crash: Boolean,
-    val statsEngine: StatsEngine,
+    override val statsEngine: StatsEngine,
     controller: ActorRef[Controller.Command],
-    val next: Action
+    override val next: Action
 ) extends ChainableAction
     with NameGen {
   override val name: String = genName("stopLoadGenerator")

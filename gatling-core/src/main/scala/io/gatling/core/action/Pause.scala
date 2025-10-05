@@ -22,8 +22,13 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-private final class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action)
-    extends ExitableAction {
+private final class Pause(
+    pauseDuration: Expression[Long],
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val name: String,
+    override val next: Action
+) extends ExitableAction {
 
   /**
    * Generates a duration if required or use the one given and defer next actor execution of this duration

@@ -21,7 +21,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-private final class GroupStart(groupName: Expression[String], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class GroupStart(groupName: Expression[String], override val statsEngine: StatsEngine, override val clock: Clock, override val next: Action)
     extends ExitableAction
     with NameGen {
   override val name: String = genName("groupStart")

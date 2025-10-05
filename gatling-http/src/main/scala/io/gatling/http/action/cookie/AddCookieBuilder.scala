@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.cookie
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session.{ EmptyStringExpressionSuccess, Expression, Session }
 import io.gatling.core.structure.ScenarioContext
@@ -68,6 +69,8 @@ final class AddCookieBuilder(
         storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
       }
 
-    new SessionHook(expression, genName("addCookie"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
+    new SessionHook(expression, genName("addCookie"), ctx.coreComponents.statsEngine, next) with ExitableAction {
+      override def clock: Clock = ctx.coreComponents.clock
+    }
   }
 }

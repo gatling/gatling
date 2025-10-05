@@ -34,7 +34,7 @@ final class SseConnect(
     connectCheckSequences: List[SseMessageCheckSequenceBuilder],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
-    val next: Action
+    override val next: Action
 ) extends RequestAction
     with SseAction
     with NameGen {

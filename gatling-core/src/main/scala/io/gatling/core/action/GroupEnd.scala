@@ -21,10 +21,10 @@ import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-private final class GroupEnd(val statsEngine: StatsEngine, clock: Clock, val next: Action) extends ChainableAction with NameGen {
-  val name: String = genName("groupEnd")
+private final class GroupEnd(override val statsEngine: StatsEngine, clock: Clock, override val next: Action) extends ChainableAction with NameGen {
+  override val name: String = genName("groupEnd")
 
-  def execute(session: Session): Unit =
+  override def execute(session: Session): Unit =
     session.blockStack match {
       case (block: GroupBlock) :: tail =>
         statsEngine.logGroupEnd(session.scenario, block, clock.nowMillis)

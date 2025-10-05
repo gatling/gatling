@@ -25,9 +25,9 @@ private final class If(
     condition: Expression[Boolean],
     thenNext: Action,
     elseNext: Action,
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
 ) extends ExitableAction
     with NameGen {
   override val name: String = genName("if")

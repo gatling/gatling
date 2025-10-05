@@ -23,7 +23,7 @@ import io.gatling.core.session.Session
 private[gatling] final class Exit(injector: ActorRef[Injector.Command]) extends Action {
   override val name = "gatling-exit"
 
-  def execute(session: Session): Unit = {
+  override def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
     injector ! Injector.Command.UserEnd(session.scenario)

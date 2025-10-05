@@ -50,9 +50,9 @@ class InnerTryMax(
     times: Expression[Int],
     loopNext: Action,
     counterName: String,
-    val name: String,
-    val statsEngine: StatsEngine,
-    val next: Action
+    override val name: String,
+    override val statsEngine: StatsEngine,
+    override val next: Action
 ) extends ChainableAction {
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())
 
@@ -90,7 +90,7 @@ class InnerTryMax(
    * @param session
    *   the session of the virtual user
    */
-  def execute(session: Session): Unit = {
+  override def execute(session: Session): Unit = {
     val lastUserId = getAndSetLastUserId(session)
 
     if (!session.contains(counterName)) {

@@ -21,7 +21,7 @@ import io.gatling.core.session.{ Expression, GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-private final class ExitHere(condition: Expression[Boolean], exit: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+private final class ExitHere(condition: Expression[Boolean], exit: Action, override val statsEngine: StatsEngine, val clock: Clock, override val next: Action)
     extends ChainableAction
     with NameGen {
   override val name: String = genName("exitHere")

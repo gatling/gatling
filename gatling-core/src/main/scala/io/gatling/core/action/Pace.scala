@@ -33,10 +33,15 @@ import io.gatling.core.util.NameGen
  * @param intervalExpr
  *   a function that decides how long to wait before the next iteration
  * @param counter
- *   the name of the counter used to keep track of the run state. Typically this would be random, but can be set explicitly if needed
+ *   the name of the counter used to keep track of the run state. Typically, this would be random, but can be set explicitly if needed
  */
-private final class Pace(intervalExpr: Expression[FiniteDuration], counter: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
-    extends ExitableAction
+private final class Pace(
+    intervalExpr: Expression[FiniteDuration],
+    counter: String,
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
+) extends ExitableAction
     with NameGen {
   override val name: String = genName("pace")
 

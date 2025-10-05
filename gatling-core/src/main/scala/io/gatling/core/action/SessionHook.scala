@@ -16,16 +16,14 @@
 
 package io.gatling.core.action
 
-import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 class SessionHook(
     sessionFunction: Expression[Session],
-    val name: String,
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action
+    override val name: String,
+    override val statsEngine: StatsEngine,
+    override val next: Action
 ) extends ChainableAction {
 
   /**

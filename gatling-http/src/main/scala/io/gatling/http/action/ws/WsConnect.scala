@@ -36,7 +36,7 @@ final class WsConnect(
     onConnected: Option[Action],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
-    val next: Action
+    override val next: Action
 ) extends RequestAction
     with WsAction
     with NameGen {

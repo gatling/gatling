@@ -25,14 +25,13 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
 private object RendezVous extends NameGen {
-  def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {
+  def apply(users: Int, actorSystem: ActorSystem, next: Action): RendezVous = {
     val actor = actorSystem.actorOf(new RendezVousActor(users, next, genName("rendezVous")))
-    new RendezVous(actor, statsEngine, clock, next)
+    new RendezVous(actor)
   }
 }
 
-private final class RendezVous private (actor: ActorRef[Session], val statsEngine: StatsEngine, val clock: Clock, val next: Action)
-    extends ActorDelegatingAction(actor.name, actor)
+private final class RendezVous private (actor: ActorRef[Session]) extends ActorDelegatingAction(actor.name, actor)
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.

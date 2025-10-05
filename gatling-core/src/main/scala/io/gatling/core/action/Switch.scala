@@ -20,8 +20,13 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-private final class Switch(nextAction: Expression[Action], val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action)
-    extends ExitableAction {
+private final class Switch(
+    nextAction: Expression[Action],
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val name: String,
+    override val next: Action
+) extends ExitableAction {
   override def execute(session: Session): Unit = recover(session) {
     nextAction(session).map(_ ! session)
   }

@@ -33,7 +33,7 @@ final class HttpRequestAction(
     httpRequestDef: HttpRequestDef,
     httpTxExecutor: HttpTxExecutor,
     coreComponents: CoreComponents,
-    val next: Action
+    override val next: Action
 ) extends RequestAction
     with NameGen {
   override def clock: Clock = coreComponents.clock

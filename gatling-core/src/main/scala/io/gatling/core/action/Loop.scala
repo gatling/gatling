@@ -58,9 +58,9 @@ final class InnerLoop(
     continueCondition: Expression[Boolean],
     loopNext: Action,
     counterIncrement: Session => Session,
-    val name: String,
-    val statsEngine: StatsEngine,
-    val next: Action
+    override val name: String,
+    override val statsEngine: StatsEngine,
+    override val next: Action
 ) extends ChainableAction {
   private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())
 
@@ -77,7 +77,7 @@ final class InnerLoop(
    * @param session
    *   the session of the virtual user
    */
-  def execute(session: Session): Unit = {
+  override def execute(session: Session): Unit = {
     val incrementedSession = counterIncrement(session)
     val lastUserId = getAndSetLastUserId(session)
 

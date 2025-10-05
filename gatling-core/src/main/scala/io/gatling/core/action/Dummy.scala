@@ -30,9 +30,9 @@ private[core] final class Dummy(
     responseTimeInMillis: Expression[Int],
     success: Expression[Boolean],
     sessionUpdate: Expression[Session],
-    val statsEngine: StatsEngine,
-    val clock: Clock,
-    val next: Action
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
 ) extends RequestAction
     with NameGen {
 

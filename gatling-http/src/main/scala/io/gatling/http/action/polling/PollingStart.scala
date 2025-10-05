@@ -38,7 +38,7 @@ final class PollingStart(
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     httpTxExecutor: HttpTxExecutor,
-    val next: Action
+    override val next: Action
 ) extends ExitableAction
     with NameGen {
   override val name: String = genName(pollerName)

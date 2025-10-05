@@ -24,7 +24,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.UnnamedRequestAction
 
-final class PollingStop(pollerName: String, statsEngine: StatsEngine, val clock: Clock, val next: Action)
+final class PollingStop(pollerName: String, statsEngine: StatsEngine, override val clock: Clock, override val next: Action)
     extends UnnamedRequestAction(statsEngine)
     with NameGen {
   override val name: String = genName("pollingStop")

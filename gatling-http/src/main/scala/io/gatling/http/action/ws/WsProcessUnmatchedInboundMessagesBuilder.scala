@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.ws
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.action.builder.ActionBuilder
@@ -40,6 +41,8 @@ final class WsProcessUnmatchedInboundMessagesBuilder(
         newSession <- f(messages, session)
       } yield newSession
 
-    new SessionHook(expression, genName("wsProcessUnmatchedMessages"), ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
+    new SessionHook(expression, genName("wsProcessUnmatchedMessages"), ctx.coreComponents.statsEngine, next) with ExitableAction {
+      override def clock: Clock = ctx.coreComponents.clock
+    }
   }
 }

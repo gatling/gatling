@@ -16,6 +16,7 @@
 
 package io.gatling.core.action.builder
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
@@ -25,9 +26,11 @@ private[core] final class SessionHookBuilder(sessionFunction: Expression[Session
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val name = genName("hook")
     if (exitable) {
-      new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
+      new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, next) with ExitableAction {
+        override def clock: Clock = ctx.coreComponents.clock
+      }
     } else {
-      new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+      new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, next)
     }
   }
 }
