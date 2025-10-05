@@ -111,7 +111,7 @@ private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContai
 
     val dataParent = parent.map(p => s"""data-parent="$p"""").getOrElse("")
 
-    s"""<tr $dataParent>
+    s"""<tr id="${container.id}" $dataParent>
        |  <td class="total col-1">
        |    <div class="expandable-container">
        |      <span id="${container.id}" style="margin-left: ${level * 10}px;" class="expand-button $expandButtonStyle">&nbsp;</span>
