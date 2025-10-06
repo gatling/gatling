@@ -73,15 +73,12 @@ object Dependencies {
   private val h2                  = "com.h2database"                  % "h2"              % "2.4.240"  % Test
   private val jmh                 = "org.openjdk.jmh"                 % "jmh-core"        % "1.37"     % Test
 
-  private val junit       = "org.junit.jupiter" % "junit-jupiter-api" % "5.14.0" % Test
+  private val junit       = "org.junit.jupiter" % "junit-jupiter-api" % "6.0.0" % Test
   private val junitEngine = junit.withName("junit-jupiter-engine")
-
-  // Derive the JUnit platform version similarly to how it's done in sbt-jupiter-interface, but with our own JUnit
-  // version so that we don't have to wait for sbt-jupiter-interface releases.
-  private val junitPlatformLauncher = "org.junit.platform"   % "junit-platform-launcher" % junit.revision.replaceFirst("""^5\.""", "1.") % Test
-  private val jupiterInterface      = "com.github.sbt.junit" % "jupiter-interface"       % "0.15.1"                                      % Test
-  private val jetty                 = "org.eclipse.jetty"    % "jetty-server"            % "12.1.1"                                      % Test
-  private val jettyProxy            = jetty.organization     % "jetty-proxy"             % jetty.revision                                % Test
+  private val junitPlatformLauncher = "org.junit.platform"   % "junit-platform-launcher" % junit.revision % Test
+  private val jupiterInterface      = "com.github.sbt.junit" % "jupiter-interface"       % "0.15.1"       % Test
+  private val jetty                 = "org.eclipse.jetty"    % "jetty-server"            % "12.1.1"       % Test
+  private val jettyProxy            = jetty.organization     % "jetty-proxy"             % jetty.revision % Test
 
   private val testDeps = Seq(
     scalaTest,
