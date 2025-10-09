@@ -22,7 +22,7 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.DetailsPageTemplate
-import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.core.config.ReportsConfiguration
 
 private[charts] class RequestDetailsReportGenerator(
@@ -39,6 +39,7 @@ private[charts] class RequestDetailsReportGenerator(
         val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, Some(requestContainer.name), requestContainer.group)
 
         componentLibrary.getDistributionComponent(
+          "responseTimeDistributionContainerId",
           "Response Time",
           "Requests",
           okDistribution,
@@ -50,6 +51,7 @@ private[charts] class RequestDetailsReportGenerator(
         val successData = logFileData.responseTimePercentilesOverTime(OK, Some(requestContainer.name), requestContainer.group)
 
         componentLibrary.getPercentilesOverTimeComponent(
+          "responseTimeOverTimeContainerId",
           s"Response Time Percentiles over Time (${Series.OK})",
           "Response Time",
           logFileData.runInfo.injectStart,
@@ -59,18 +61,21 @@ private[charts] class RequestDetailsReportGenerator(
 
       def requestsChartComponent: Component =
         componentLibrary.getRequestsComponent(
+          "requestsContainerId",
           logFileData.runInfo.injectStart,
           logFileData.numberOfRequestsPerSecond(Some(requestContainer.name), requestContainer.group).sortBy(_.time)
         )
 
       def responsesChartComponent: Component =
         componentLibrary.getResponsesComponent(
+          "responsesContainerId",
           logFileData.runInfo.injectStart,
           logFileData.numberOfResponsesPerSecond(Some(requestContainer.name), requestContainer.group).sortBy(_.time)
         )
 
       def responseTimeScatterChartComponent: Component =
         componentLibrary.getResponseTimeScatterComponent(
+          "responseTimeScatterContainerId",
           logFileData.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestContainer.name, requestContainer.group),
           logFileData.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestContainer.name, requestContainer.group)
         )
@@ -86,7 +91,7 @@ private[charts] class RequestDetailsReportGenerator(
           requestContainer,
           rootContainer,
           new SchemaContainerComponent(
-            componentLibrary.getRangesComponent("Response Time Ranges", "requests", ranges, large = true),
+            componentLibrary.getRangesComponent("RangesContainerId", "Response Time Ranges", "requests", ranges, large = true),
             new DetailsStatsTableComponent(requestContainer.stats, configuration.indicators)
           ),
           new ErrorsTableComponent(logFileData.errors(Some(requestContainer.name), requestContainer.group)),

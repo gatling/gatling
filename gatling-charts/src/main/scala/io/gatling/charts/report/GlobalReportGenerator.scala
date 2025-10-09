@@ -27,6 +27,17 @@ import io.gatling.commons.stats.OK
 import io.gatling.core.config.ReportsConfiguration
 import io.gatling.shared.model.assertion.AssertionResult
 
+private[charts] object GlobalReportGenerator {
+  val UserStartRateContainerId: String = "UserStartRateContainerId"
+  val MaxConcurrentUsersContainerId: String = "MaxConcurrentUsersContainerId"
+  val ResponseTimeContainerId: String = "ResponseTimeContainerId"
+  val RequestsContainerId: String = "RequestsContainerId"
+  val ResponsesContainerId: String = "ResponsesContainerId"
+  val ResponseTimeDistributionContainerId: String = "ResponseTimeDistributionContainerId"
+  val RangesContainerId: String = "RangesContainerId"
+  val StatsContainerId: String = "StatsContainerId"
+}
+
 private[charts] final class GlobalReportGenerator(
     logFileData: LogFileData,
     assertionResults: List[AssertionResult],
@@ -37,6 +48,7 @@ private[charts] final class GlobalReportGenerator(
     charset: Charset,
     configuration: ReportsConfiguration
 ) extends ReportGenerator {
+  import GlobalReportGenerator._
 
   private def userStartRateComponent(logFileData: LogFileData) = {
     val userStartRateSeries = logFileData.scenarioNames.map { scenarioName =>
@@ -44,6 +56,7 @@ private[charts] final class GlobalReportGenerator(
     }.reverse
 
     componentLibrary.getUserStartRateComponent(
+      UserStartRateContainerId,
       logFileData.runInfo.injectStart,
       new UserSeries("All users", logFileData.userStartRatePerSecond(None)),
       userStartRateSeries
@@ -56,6 +69,7 @@ private[charts] final class GlobalReportGenerator(
     }.reverse
 
     componentLibrary.getMaxConcurrentUsersComponent(
+      MaxConcurrentUsersContainerId,
       logFileData.runInfo.injectStart,
       new UserSeries("All users", logFileData.maxNumberOfConcurrentUsersPerSecond(None)),
       userStartRateSeries
@@ -64,11 +78,12 @@ private[charts] final class GlobalReportGenerator(
 
   private def responseTimeDistributionChartComponent(logFileData: LogFileData): Component = {
     val (okDistribution, koDistribution) = logFileData.responseTimeDistribution(100, None, None)
-    componentLibrary.getDistributionComponent("Response Time", "Requests", okDistribution, koDistribution)
+    componentLibrary.getDistributionComponent(ResponseTimeDistributionContainerId, "Response Time", "Requests", okDistribution, koDistribution)
   }
 
   private def responseTimeChartComponent(logFileData: LogFileData): Component =
     componentLibrary.getPercentilesOverTimeComponent(
+      ResponseTimeContainerId,
       s"Response Time Percentiles over Time (${Series.OK})",
       "Response Time",
       logFileData.runInfo.injectStart,
@@ -77,12 +92,14 @@ private[charts] final class GlobalReportGenerator(
 
   private def requestsChartComponent(logFileData: LogFileData): Component =
     componentLibrary.getRequestsComponent(
+      RequestsContainerId,
       logFileData.runInfo.injectStart,
       logFileData.numberOfRequestsPerSecond(None, None).sortBy(_.time)
     )
 
   private def responsesChartComponent(logFileData: LogFileData): Component =
     componentLibrary.getResponsesComponent(
+      ResponsesContainerId,
       logFileData.runInfo.injectStart,
       logFileData.numberOfResponsesPerSecond(None, None).sortBy(_.time)
     )
@@ -94,12 +111,12 @@ private[charts] final class GlobalReportGenerator(
       logFileData.runInfo,
       rootContainer,
       new SchemaContainerComponent(
-        componentLibrary.getRangesComponent("Response Time Ranges", "requests", ranges, large = false),
+        componentLibrary.getRangesComponent(RangesContainerId, "Response Time Ranges", "requests", ranges, large = false),
         componentLibrary.getRequestCountPolarComponent(rootContainer),
         new SimulationCardComponent(logFileData.runInfo, zoneId)
       ),
       new AssertionsTableComponent(assertionResults),
-      new GlobalStatsTableComponent(rootContainer, configuration.indicators),
+      new GlobalStatsTableComponent(StatsContainerId, rootContainer, configuration.indicators),
       new ErrorsTableComponent(logFileData.errors(None, None)),
       userStartRateComponent(logFileData),
       maxNumberOfConcurrentUsersComponent(logFileData),

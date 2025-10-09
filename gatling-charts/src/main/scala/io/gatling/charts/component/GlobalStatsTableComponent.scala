@@ -25,7 +25,8 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.IndicatorsConfiguration
 import io.gatling.shared.util.NumberHelper._
 
-private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContainer, configuration: IndicatorsConfiguration) extends Component {
+private[charts] final class GlobalStatsTableComponent(containerId: String, rootContainer: GroupContainer, configuration: IndicatorsConfiguration)
+    extends Component {
 
   private val headContent = generateHtmlRow(rootContainer, 0, 0, None, group = false)
   private val (bodyContent, bodyIndex) = generateHtmlRowsForGroup(rootContainer, 0, 0, None)
@@ -46,7 +47,7 @@ private[charts] final class GlobalStatsTableComponent(rootContainer: GroupContai
 
     s"""
                       <div id="statistics_table_container">
-                        <div id="stats" class="statistics extensible-geant collapsed">
+                        <div id="$containerId" class="statistics extensible-geant collapsed">
                             <div class="title">
                               <div id="statistics_title" class="title_base"><span class="title_base_stats">Stats</span><span class="expand-table">Fixed height</span><span id="toggle-stats" class="toggle-table"></span><span class="collapse-table">Full size</span></div>
                               <div class="right">

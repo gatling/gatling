@@ -17,7 +17,7 @@
 package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
-import io.gatling.charts.report.GroupContainer
+import io.gatling.charts.report.{ GlobalReportGenerator, GroupContainer }
 import io.gatling.charts.stats.RunInfo
 
 private[charts] final class GlobalPageTemplate(runInfo: RunInfo, rootContainer: GroupContainer, components: Component*)
@@ -27,14 +27,14 @@ private[charts] final class GlobalPageTemplate(runInfo: RunInfo, rootContainer: 
        |<div class="item"><a id="details_link" href="$getFirstDetailPageUrl">Details</a></div>""".stripMargin
 
   override protected def getMenu: String =
-    """<li><a class="item" href="#ranges"><span class="nav-label">Ranges</span></a></li>
-      |<li><a class="item" href="#stats"><span class="nav-label">Stats</span></a></li>
-      |<li><a class="item" href="#userStartRateDiv"><span class="nav-label">Users start rate</span></a></li>
-      |<li><a class="item" href="#concurrentUsersDiv"><span class="nav-label">Concurrent users</span></a></li>
-      |<li><a class="item" href="#responsetimeDistributionContainer"><span class="nav-label">Response time distribution</span></a></li>
-      |<li><a class="item" href="#responsetimepercentilesovertimeokPercentilesContainer"><span class="nav-label">Response time percentiles</span></a></li>
-      |<li><a class="item" href="#requests"><span class="nav-label">Requests / sec</span></a></li>
-      |<li><a class="item" href="#responses"><span class="nav-label">Responses / sec</span></a></li>""".stripMargin
+    s"""<li><a class="item" href="#${GlobalReportGenerator.RangesContainerId}"><span class="nav-label">Ranges</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.StatsContainerId}"><span class="nav-label">Stats</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.UserStartRateContainerId}"><span class="nav-label">Users start rate</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.MaxConcurrentUsersContainerId}"><span class="nav-label">Concurrent users</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.ResponseTimeDistributionContainerId}"><span class="nav-label">Response time distribution</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.ResponseTimeContainerId}"><span class="nav-label">Response time percentiles</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.RequestsContainerId}"><span class="nav-label">Requests / sec</span></a></li>
+       |<li><a class="item" href="#${GlobalReportGenerator.ResponsesContainerId}"><span class="nav-label">Responses / sec</span></a></li>""".stripMargin
 
   override protected def onDocumentReady: String = ""
 }

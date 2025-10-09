@@ -37,6 +37,7 @@ private[charts] class GroupDetailsReportGenerator(
     def generateDetailPage(groupContainer: GroupContainer): Unit = {
       def cumulatedResponseTimeChartComponent: Component =
         componentLibrary.getPercentilesOverTimeComponent(
+          "groupCumulatedResponseTimeOverTimeContainerId",
           "Group Cumulated Response Time Percentiles over Time (OK)",
           "Cumulated Response Time",
           logFileData.runInfo.injectStart,
@@ -47,6 +48,7 @@ private[charts] class GroupDetailsReportGenerator(
         val (distributionSuccess, distributionFailure) = logFileData.groupCumulatedResponseTimeDistribution(100, groupContainer.group)
 
         componentLibrary.getDistributionComponent(
+          "groupCumulatedResponseTimeDistributionContainerId",
           "Group Cumulated Response Time",
           "Groups",
           distributionSuccess,
@@ -56,6 +58,7 @@ private[charts] class GroupDetailsReportGenerator(
 
       def durationChartComponent: Component =
         componentLibrary.getPercentilesOverTimeComponent(
+          "groupDurationOverTimeContainerId",
           "Group Duration Percentiles over Time (OK)",
           "Duration",
           logFileData.runInfo.injectStart,
@@ -66,6 +69,7 @@ private[charts] class GroupDetailsReportGenerator(
         val (distributionSuccess, distributionFailure) = logFileData.groupDurationDistribution(100, groupContainer.group)
 
         componentLibrary.getDistributionComponent(
+          "groupDurationDistributionContainerId",
           "Group Duration",
           "Groups",
           distributionSuccess,
@@ -83,7 +87,7 @@ private[charts] class GroupDetailsReportGenerator(
         groupContainer,
         rootContainer,
         new SchemaContainerComponent(
-          componentLibrary.getRangesComponent("Group Duration Ranges", "groups", ranges, large = true),
+          componentLibrary.getRangesComponent("RangesContainerId", "Group Duration Ranges", "groups", ranges, large = true),
           new DetailsStatsTableComponent(groupContainer.stats, configuration.indicators)
         ),
         new ErrorsTableComponent(logFileData.errors(None, Some(groupContainer.group))),

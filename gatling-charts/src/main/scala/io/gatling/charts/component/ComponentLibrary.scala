@@ -35,18 +35,19 @@ private[charts] object ComponentLibrary extends StrictLogging {
 }
 
 private[gatling] trait ComponentLibrary {
-  def getUserStartRateComponent(runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
-  def getMaxConcurrentUsersComponent(runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
-  def getRangesComponent(chartTitle: String, eventName: String, ranges: Ranges, large: Boolean): Component
+  def getUserStartRateComponent(containerId: String, runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
+  def getMaxConcurrentUsersComponent(containerId: String, runStart: Long, allUsersSeries: UserSeries, scenarioSeries: Seq[UserSeries]): Component
+  def getRangesComponent(containerId: String, chartTitle: String, eventName: String, ranges: Ranges, large: Boolean): Component
   def getRequestCountPolarComponent(rootContainer: GroupContainer): Component
   def getDistributionComponent(
+      containerId: String,
       title: String,
       yAxisName: String,
       durationsSuccess: Seq[PercentVsTimePlot],
       durationsFailure: Seq[PercentVsTimePlot]
   ): Component
-  def getPercentilesOverTimeComponent(title: String, yAxisName: String, runStart: Long, data: Seq[PercentilesVsTimePlot]): Component
-  def getRequestsComponent(runStart: Long, counts: Seq[CountsVsTimePlot]): Component
-  def getResponsesComponent(runStart: Long, counts: Seq[CountsVsTimePlot]): Component
-  def getResponseTimeScatterComponent(successData: Seq[IntVsTimePlot], failuresData: Seq[IntVsTimePlot]): Component
+  def getPercentilesOverTimeComponent(containerId: String, title: String, yAxisName: String, runStart: Long, data: Seq[PercentilesVsTimePlot]): Component
+  def getRequestsComponent(containerId: String, runStart: Long, counts: Seq[CountsVsTimePlot]): Component
+  def getResponsesComponent(containerId: String, runStart: Long, counts: Seq[CountsVsTimePlot]): Component
+  def getResponseTimeScatterComponent(containerId: String, successData: Seq[IntVsTimePlot], failuresData: Seq[IntVsTimePlot]): Component
 }
