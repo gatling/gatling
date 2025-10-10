@@ -112,7 +112,7 @@ final case class RampOpenInjection private[inject] (users: Long, duration: Finit
 }
 
 /**
- * Inject users at constant rate : an other expression of a RampInjection
+ * Inject users at constant rate : another expression of a RampInjection
  */
 final case class ConstantRateOpenInjection private[inject] (rate: Double, duration: FiniteDuration) extends OpenInjectionStep {
   require(rate >= 0, s"rate ($rate) must be >= 0")
