@@ -103,7 +103,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         ConfigKeys.core.ThresholdForPauseCreation -> recorderConfiguration.core.thresholdForPauseCreation.toMillis,
         ConfigKeys.core.SaveConfig -> recorderConfiguration.core.saveConfig,
         ConfigKeys.core.Headless -> recorderConfiguration.core.headless,
-        ConfigKeys.core.HarFilePath -> recorderConfiguration.core.harFilePath.getOrElse(""),
+        ConfigKeys.core.HarFilePath -> recorderConfiguration.core.harFilePath.map(_.toString).getOrElse(""),
         ConfigKeys.core.Format -> recorderConfiguration.core.format.toString,
         ConfigKeys.filters.Enable -> recorderConfiguration.filters.enabled,
         ConfigKeys.filters.AllowListPatterns -> recorderConfiguration.filters.allowList.patterns.asJava,
