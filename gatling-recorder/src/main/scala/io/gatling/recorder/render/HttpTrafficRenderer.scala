@@ -37,22 +37,26 @@ import io.netty.handler.codec.http._
 
 private[render] object DumpedBodies {
   private[render] def apply(config: RecorderConfiguration): DumpedBodies = {
-    val classNameAsFolderName = config.core.className.toLowerCase(Locale.ROOT)
-    val bodiesFolderPath = classNameAsFolderName.split(".").foldLeft(config.core.resourcesFolder)(_.resolve(_))
+    val lowerCaseSimpleClassName = config.core.className.toLowerCase(Locale.ROOT)
+    val lowerCaseFqcn =
+      if (config.core.pkg.isEmpty) {
+        lowerCaseSimpleClassName
+      } else {
+        s"${config.core.pkg}.$lowerCaseSimpleClassName"
+      }
+
+    val bodiesClassPathLocation = lowerCaseFqcn.replace(".", "/")
+    val bodiesFolderPath = lowerCaseFqcn.split("\\.").toList.foldLeft(config.core.resourcesFolder)(_.resolve(_))
+
     Files.createDirectories(bodiesFolderPath)
 
-    val bodiesClassPathLocation: String = config.core.pkg match {
-      case ""  => classNameAsFolderName
-      case pkg => pkg.replace(".", "/") + "/" + classNameAsFolderName
-    }
-
-    new DumpedBodies(bodiesFolderPath, bodiesClassPathLocation)
+    new DumpedBodies(bodiesClassPathLocation, bodiesFolderPath)
   }
 }
 
 private[render] class DumpedBodies(
-    bodiesFolderPath: Path,
-    bodiesClassPathLocation: String
+    bodiesClassPathLocation: String,
+    bodiesFolderPath: Path
 ) {
   def forRequest(request: RequestElement, bytes: Array[Byte]): DumpedBody =
     make(request, bytes, "request")
