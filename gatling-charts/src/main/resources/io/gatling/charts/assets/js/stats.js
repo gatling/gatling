@@ -1,5 +1,5 @@
 function openStatisticsTableModal () {
-  const statsTable = document.getElementById("stats");
+  const statsTable = document.getElementById("StatsContainerId");
   const statsTableModal = document.getElementById("statistics_table_modal");
   const fullScreenButton = document.getElementById("statistics_full_screen");
 
