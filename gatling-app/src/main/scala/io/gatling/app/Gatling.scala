@@ -69,13 +69,13 @@ object Gatling extends StrictLogging {
       FileSystems.getDefault
       val configuration = GatlingConfiguration.load()
       logger.trace("Configuration loaded")
-      logger.trace("ActorSystem instantiated")
       val runResult =
         gatlingArgs.reportsOnly match {
           case Some(runId) => new RunResult(runId, hasAssertions = true)
           case _           =>
             // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
             val system = new ActorSystem
+            logger.trace("ActorSystem instantiated")
             val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, configuration.netty.useIoUring, 0, "gatling")
             try {
               val runner = Runner(system, eventLoopGroup, gatlingArgs, configuration)
