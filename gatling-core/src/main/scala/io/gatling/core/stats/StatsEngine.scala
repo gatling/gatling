@@ -25,6 +25,10 @@ import io.gatling.core.session.GroupBlock
 
 import io.netty.channel.ChannelHandler
 
+object StatsEngine {
+  val ErrorMessageMaxLength: Int = 200
+}
+
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
   private[gatling] def start(): Unit
 
