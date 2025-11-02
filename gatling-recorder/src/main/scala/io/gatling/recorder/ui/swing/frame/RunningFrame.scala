@@ -16,8 +16,6 @@
 
 package io.gatling.recorder.ui.swing.frame
 
-import java.awt.Color
-
 import scala.jdk.CollectionConverters._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
@@ -61,9 +59,6 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   private val requestBodies = new TextAreaPanel("Body", initialSize)
   private val responseBodies = new TextAreaPanel("Body", initialSize)
   private val infoPanels = List(requestHeaders, requestBodies, responseHeaders, responseBodies)
-
-  /* Bottom panel components */
-  private val hostsRequiringCertificates = new ListView[String] { foreground = Color.red }
 
   //////////////////////////////////////
   //           UI SETUP
@@ -123,16 +118,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
       layout(elements) = North
       layout(info) = Center
     }
-    /* Bottom panel: Secured hosts requiring certificates */
-    val bottom = new BorderPanel {
-      border = titledBorder("Secured hosts requiring accepting a certificate:")
-
-      layout(new ScrollPane(hostsRequiringCertificates)) = Center
-    }
 
     layout(top) = North
     layout(center) = Center
-    layout(bottom) = South
   }
 
   val scrollPane = new ScrollPane(root)
@@ -205,7 +193,6 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
     events.clear()
     infoPanels.foreach(_.textArea.clear())
     tagField.clear()
-    hostsRequiringCertificates.clear()
   }
 
   /**
@@ -215,10 +202,8 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
    */
   def receiveEvent(event: FrontEndEvent): Unit =
     event match {
-      case pauseInfo: PauseFrontEndEvent                                               => events.add(pauseInfo)
-      case requestInfo: RequestFrontEndEvent                                           => events.add(requestInfo)
-      case tagInfo: TagFrontEndEvent                                                   => events.add(tagInfo)
-      case SslFrontEndEvent(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
-      case e                                                                           => logger.debug(s"dropping event $e")
+      case pauseInfo: PauseFrontEndEvent     => events.add(pauseInfo)
+      case requestInfo: RequestFrontEndEvent => events.add(requestInfo)
+      case tagInfo: TagFrontEndEvent         => events.add(tagInfo)
     }
 }

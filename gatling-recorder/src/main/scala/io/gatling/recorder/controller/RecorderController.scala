@@ -25,7 +25,6 @@ import scala.jdk.CollectionConverters._
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.filter.Filters
-import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.mitm.Mitm
@@ -111,9 +110,6 @@ private[recorder] final class RecorderController(clock: Clock) extends StrictLog
     tags.add(TimedScenarioElement(now, now, TagElement(text)))
     frontEnd.receiveEvent(TagFrontEndEvent(text))
   }
-
-  def secureConnection(securedHostURI: Uri): Unit =
-    frontEnd.receiveEvent(SslFrontEndEvent(securedHostURI.toUrl))
 
   def clearRecorderState(): Unit = {
     requests.clear()

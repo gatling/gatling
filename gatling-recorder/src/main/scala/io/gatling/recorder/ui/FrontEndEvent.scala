@@ -37,8 +37,6 @@ private[recorder] final case class RequestFrontEndEvent(request: HttpRequest, re
   override def toString = s"${request.method} | ${request.uri}"
 }
 
-private[recorder] final case class SslFrontEndEvent(uri: String) extends FrontEndEvent
-
 private[recorder] final case class TagFrontEndEvent(tag: String) extends FrontEndEvent {
   override def toString = s"TAG | $tag"
 }
