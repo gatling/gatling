@@ -16,8 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import static io.gatling.http.client.impl.HttpAppHandler.PREMATURE_CLOSE;
-
 import io.gatling.http.client.WebSocketListener;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
@@ -173,7 +171,7 @@ public final class WebSocketHandler extends ChannelDuplexHandler {
   public void channelInactive(ChannelHandlerContext ctx) {
     LOGGER.debug("channelInactive");
     if (!remotelyClosed) {
-      crash(ctx, PREMATURE_CLOSE, false);
+      crash(ctx, PrematureCloseException.INSTANCE, false);
     }
   }
 

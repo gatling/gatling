@@ -26,21 +26,12 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.DecoderResultProvider;
 import io.netty.handler.codec.http.*;
 import io.netty.util.ReferenceCountUtil;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class HttpAppHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpAppHandler.class);
-
-  static final IOException PREMATURE_CLOSE =
-      new IOException("Premature close") {
-        @Override
-        public synchronized Throwable fillInStackTrace() {
-          return this;
-        }
-      };
 
   private final DefaultHttpClient client;
   private final ChannelPool channelPool;
@@ -262,7 +253,7 @@ final class HttpAppHandler extends ChannelDuplexHandler {
     if (!httpResponseReceived && client.canRetry(tx)) {
       client.retry(tx, ctx.channel().eventLoop());
     } else {
-      crash(ctx, PREMATURE_CLOSE, false, tx);
+      crash(ctx, PrematureCloseException.INSTANCE, false, tx);
     }
   }
 
