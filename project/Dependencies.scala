@@ -43,7 +43,7 @@ object Dependencies {
   private val cfor                           = "io.github.metarank"                                          %% "cfor"                     % "0.3"
   private val scopt                          = "com.github.scopt"                                            %% "scopt"                    % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"                                  %% "scala-logging"            % "3.9.6"
-  private val jackson                        = "com.fasterxml.jackson.core"                                   % "jackson-databind"         % "2.20.0"
+  private val jackson                        = "com.fasterxml.jackson.core"                                   % "jackson-databind"         % "2.20.1"
   private val sfm = ("org.simpleflatmapper" % "lightning-csv" % "9.0.2")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val lagarto       = "org.jodd"                      % "jodd-lagarto"               % "6.0.6"
