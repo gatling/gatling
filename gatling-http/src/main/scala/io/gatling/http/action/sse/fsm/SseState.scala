@@ -40,7 +40,7 @@ abstract class SseState(fsm: SseFsm) extends StrictLogging {
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState =
     onIllegalState(s"Can't call onSetCheck in $stateName state", fsm.clock.nowMillis)
 
-  def onSseReceived(message: String, timestamp: Long): NextSseState =
+  def onSseReceived(event: ServerSentEvent, timestamp: Long): NextSseState =
     onIllegalState(s"Can't call onSseReceived in $stateName state", timestamp)
 
   def onSseEndOfStream(timestamp: Long): NextSseState =

@@ -54,8 +54,8 @@ final case class SsePerformingCheckState(
     NextSseState(this)
   }
 
-  override def onSseReceived(message: String, timestamp: Long): NextSseState =
-    tryApplyingChecks(message, timestamp, currentCheck.matchConditions, currentCheck.checks)
+  override def onSseReceived(event: ServerSentEvent, timestamp: Long): NextSseState =
+    tryApplyingChecks(event, timestamp, currentCheck.matchConditions, currentCheck.checks)
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
@@ -71,21 +71,22 @@ final case class SsePerformingCheckState(
     handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }
 
-  private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
+  private def tryApplyingChecks(event: ServerSentEvent, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
+    val eventJsonString = event.asJsonString
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall {
-      _.check(message, session, preparedCache) match {
+      _.check(eventJsonString, session, preparedCache) match {
         case _: Success[_] => true
         case _             => false
       }
     }
     if (messageMatches) {
-      logger.debug(s"Received matching message $message")
+      logger.debug(s"Received matching message $event")
       // matching message, apply checks
-      val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
+      val (sessionWithCheckUpdate, checkError) = Check.check(eventJsonString, session, checks, preparedCache)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
@@ -143,8 +144,8 @@ final case class SsePerformingCheckState(
           }
       }
     } else {
-      logger.debug(s"Received non-matching message $message")
-      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, message))
+      logger.debug(s"Received non-matching message $event")
+      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, eventJsonString))
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextSseState(this)

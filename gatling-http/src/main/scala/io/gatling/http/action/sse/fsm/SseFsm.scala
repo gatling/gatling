@@ -130,8 +130,8 @@ final class SseFsm(
     execute(currentState.onSetCheck(actionName, checkSequences, session: Session, next))
   }
 
-  def onSseReceived(message: String): Unit =
-    execute(currentState.onSseReceived(message, clock.nowMillis))
+  def onSseReceived(event: ServerSentEvent): Unit =
+    execute(currentState.onSseReceived(event, clock.nowMillis))
 
   def onSseStreamClosed(): Unit =
     execute(currentState.onSseStreamClosed(clock.nowMillis))

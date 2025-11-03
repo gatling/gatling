@@ -25,7 +25,7 @@ final case class ServerSentEvent(
     id: Option[String],
     retry: Option[Int]
 ) {
-  def asJsonString: String = {
+  lazy val asJsonString: String = {
     val sb = StringBuilderPool.DEFAULT.get().append('{')
     name.foreach { value =>
       sb.append("\"event\":\"").append(value).append("\",")

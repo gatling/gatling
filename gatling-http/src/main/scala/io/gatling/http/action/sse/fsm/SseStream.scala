@@ -160,7 +160,7 @@ final class SseStream(
       case Open(_) =>
         logger.debug(s"Received SSE event $event while in Open state. Propagating.")
         event.retry.foreach(retryDelayInSeconds = _)
-        fsm.onSseReceived(event.asJsonString)
+        fsm.onSseReceived(event)
       case Connecting(listener) =>
         illegalState(listener, s"Invalid state: received SSE $event while state was Connecting. Please report.")
       case ProcessingClientCloseRequest(_) =>
