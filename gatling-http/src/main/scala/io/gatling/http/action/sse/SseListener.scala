@@ -77,7 +77,7 @@ final class SseListener(stream: SseStream) extends HttpListener with StrictLoggi
       val events = decoder.decodeStream(chunk)
       events.foreach(stream.eventReceived)
       if (last) {
-        stream.closedByServer()
+        stream.endOfStream()
       }
     }
 

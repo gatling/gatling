@@ -24,19 +24,24 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.sse.SseListener
 import io.gatling.http.client.Request
+import io.gatling.http.client.impl.PrematureCloseException
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.util.SslContexts
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.util.AsciiString
 
 sealed trait SseStreamState
-final case class Connecting(listener: SseListener) extends SseStreamState
-final case class Open(listener: SseListener) extends SseStreamState
-final case class ProcessingClientCloseRequest(listener: SseListener) extends SseStreamState
-case object Close extends SseStreamState
+object SseStreamState {
+  final case class Connecting(listener: SseListener) extends SseStreamState
+  final case class Connected(listener: SseListener) extends SseStreamState
+  final case class Closing(listener: SseListener) extends SseStreamState
+  case object Closed extends SseStreamState
+}
 
 object SseStream {
-  private val DefaultRetryDelayInSeconds = 3
+  private val LastEventIdHeaderName = new AsciiString("Last-Event-ID")
+  private val DefaultRetryDelayInMillis = 3000
 }
 
 final class SseStream(
@@ -52,12 +57,17 @@ final class SseStream(
   private val groups = originalSession.groups
   private[fsm] var fsm: SseFsm = _
   private var state: SseStreamState = _
-  private var retryDelayInSeconds = SseStream.DefaultRetryDelayInSeconds
+  private var lastEventId: Option[String] = None
+  private var retryDelayInMillis = SseStream.DefaultRetryDelayInMillis
 
   def connect(): Unit = {
     logger.debug("(re-)connecting stream")
     val listener = new SseListener(this)
-    state = Connecting(listener)
+    state = SseStreamState.Connecting(listener)
+
+    lastEventId.foreach { lastEventId =>
+      connectRequest.getHeaders.set(SseStream.LastEventIdHeaderName, lastEventId)
+    }
 
     // [e]
     //
@@ -74,65 +84,57 @@ final class SseStream(
 
   def connected(): Unit =
     state match {
-      case Connecting(listener) =>
+      case SseStreamState.Connecting(listener) =>
         logger.debug("Stream connected while in state Connecting. Processing.")
-        state = Open(listener)
+        state = SseStreamState.Connected(listener)
         fsm.onSseStreamConnected()
-      case Open(listener) =>
-        illegalState(listener, "Invalid state: stream was connected while state was Open. Please report.")
-      case ProcessingClientCloseRequest(listener) =>
-        logger.debug("Stream connected while in state ProcessingClientCloseRequest. Closing.")
+
+      case SseStreamState.Connected(listener) =>
+        illegalState(listener, "Invalid state: stream was connected while state was Connected. Please report.")
+
+      case SseStreamState.Closing(listener) =>
+        logger.debug("Stream connected while state was Closing. Closing.")
         listener.closeChannel()
         fsm.onSseStreamClosed()
-        state = Close
-      case _ =>
-        illegalState(null, "Invalid state: stream was connected while state was Close. Please report.")
-    }
+        state = SseStreamState.Closed
 
-  def closedByServer(): Unit =
-    state match {
-      case Connecting(listener) =>
-        illegalState(listener, "Invalid state: server closed the stream while state was Connecting. Please report.")
-      case Open(_) =>
-        logger.debug("Server closed the stream while in state Open. Reconnecting.")
-        // reconnect
-        originalSession.eventLoop.schedule(
-          (() => connect()): Runnable,
-          retryDelayInSeconds,
-          TimeUnit.SECONDS
-        )
-      case ProcessingClientCloseRequest(_) =>
-        logger.debug("Server closed the stream while in state ProcessingClientCloseRequest.")
-        state = Close
-      case _ =>
-        logger.debug("Server closed the stream while in state Close.")
+      case SseStreamState.Closed =>
+        illegalState(null, "Invalid state: stream was connected while state was Closed. Please report.")
     }
 
   def endOfStream(): Unit =
     state match {
-      case Connecting(listener) =>
-        illegalState(listener, "Invalid state: server notified of end of stream while state was Connecting. Please report.")
-      case Open(_) =>
-        // don't reconnect
-        state = Close
-        fsm.onSseStreamClosed()
-      case ProcessingClientCloseRequest(_) =>
-        state = Close // so everything gets garbage collected
-      case _ => // already closed, do nothing
-        logger.debug("End of stream reached while in state Close.")
+      case SseStreamState.Connecting(listener) =>
+        illegalState(listener, "Invalid state: server ended the stream while state was Connecting. Please report.")
+
+      case SseStreamState.Connected(_) =>
+        logger.debug("End of stream reached while in state Connected.")
+        state = SseStreamState.Closed
+        fsm.onSseEndOfStream()
+
+      case SseStreamState.Closing(_) =>
+        state = SseStreamState.Closed // so everything gets garbage collected
+
+      case SseStreamState.Closed => // already closed, do nothing
+        logger.debug("End of stream reached while in state Closed.")
     }
 
-  def requestingCloseByClient(): Unit =
+  def closeFromClient(): Unit =
     state match {
-      case Connecting(listener) =>
+      case SseStreamState.Connecting(listener) =>
         listener.closeChannel()
-        state = ProcessingClientCloseRequest(listener)
+        state = SseStreamState.Closing(listener)
         fsm.onSseStreamClosed()
-      case Open(listener) =>
+
+      case SseStreamState.Connected(listener) =>
         listener.closeChannel()
-        state = ProcessingClientCloseRequest(listener)
+        state = SseStreamState.Closing(listener)
         fsm.onSseStreamClosed()
-      case _ => // already closed, do nothing
+
+      case SseStreamState.Closing(listener) =>
+        illegalState(listener, "Invalid state: client closed the stream while state was Closing. Please report.")
+
+      case SseStreamState.Closed => // already closed, do nothing
     }
 
   def crash(throwable: Throwable): Unit = {
@@ -140,40 +142,59 @@ final class SseStream(
       logger.debug("Sse stream crashed", throwable)
     } else {
       val errorMessage = throwable.rootMessage
-      logger.debug(s"Sse stream crashed: $errorMessage")
+      logger.error(s"Sse stream crashed: $errorMessage")
     }
 
     state match {
-      case Open(_) =>
-        state = Close
+      case SseStreamState.Connecting(_) =>
+        state = SseStreamState.Closed
         fsm.onSseStreamCrashed(throwable)
-      case Connecting(_) =>
-        state = Close
-        fsm.onSseStreamCrashed(throwable)
-      case ProcessingClientCloseRequest(_) => state = Close
-      case _                               => // weird but ignore
+
+      case SseStreamState.Connected(_) =>
+        if (throwable == PrematureCloseException.INSTANCE) {
+          // reconnect
+          originalSession.eventLoop.schedule(
+            (() => connect()): Runnable,
+            retryDelayInMillis,
+            TimeUnit.MILLISECONDS
+          )
+        } else {
+          state = SseStreamState.Closed
+          fsm.onSseStreamCrashed(throwable)
+        }
+
+      case SseStreamState.Closing(_) =>
+        state = SseStreamState.Closed
+
+      case SseStreamState.Closed =>
+      // weird but ignore
     }
   }
 
-  def eventReceived(event: ServerSentEvent): Unit =
+  def eventReceived(event: ServerSentEvent): Unit = {
+    if (event.id.isDefined) {
+      lastEventId = event.id
+    }
+    event.retry.foreach(retryDelayInMillis = _)
+
     state match {
-      case Open(_) =>
+      case SseStreamState.Connected(_) =>
         logger.debug(s"Received SSE event $event while in Open state. Propagating.")
-        event.retry.foreach(retryDelayInSeconds = _)
         fsm.onSseReceived(event)
-      case Connecting(listener) =>
+      case SseStreamState.Connecting(listener) =>
         illegalState(listener, s"Invalid state: received SSE $event while state was Connecting. Please report.")
-      case ProcessingClientCloseRequest(_) =>
+      case SseStreamState.Closing(_) =>
         logger.debug(s"Received SSE event $event while in ProcessingClientCloseRequest state. Ignoring.")
       case _ =>
         illegalState(null, s"Invalid state: received SSE $event while state was Close. Please report.")
     }
+  }
 
   private def illegalState(listener: SseListener, message: String): Unit = {
     fsm.onSseStreamCrashed(new IllegalStateException(message))
     if (listener != null) {
       listener.closeChannel()
     }
-    state = Close
+    state = SseStreamState.Closed
   }
 }

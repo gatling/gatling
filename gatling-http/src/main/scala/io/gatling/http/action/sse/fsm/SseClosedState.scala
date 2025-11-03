@@ -16,4 +16,32 @@
 
 package io.gatling.http.action.sse.fsm
 
-final class SseClosedState(fsm: SseFsm) extends SseState(fsm)
+import io.gatling.commons.stats.OK
+import io.gatling.core.action.Action
+import io.gatling.core.session.Session
+import io.gatling.http.check.sse.SseMessageCheckSequence
+
+final class SseClosedState(fsm: SseFsm) extends SseState(fsm) {
+  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
+    val nowMillis = fsm.clock.nowMillis
+    logger.debug("Client issued close order but SSE stream was already closed.")
+    fsm.statsEngine.logResponse(
+      session.scenario,
+      session.groups,
+      actionName,
+      nowMillis,
+      nowMillis + 1,
+      OK,
+      None,
+      None
+    )
+    val newSession = session.remove(fsm.sseName)
+    NextSseState(this, () => next ! newSession)
+  }
+
+  override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
+    logger.debug("Client set checks but SSE stream was already closed.")
+    fsm.statsEngine.logRequestCrash(session.scenario, session.groups, actionName, "Stream already closed")
+    NextSseState(this, () => next ! session.markAsFailed)
+  }
+}

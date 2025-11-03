@@ -103,7 +103,7 @@ final class SseFsm(
 
   private[fsm] def cancelTimeout(): Unit =
     if (currentTimeout == null) {
-      logger.debug("Couldn't cancel timeout because it wasn't set")
+      logger.debug("Didn't cancel timeout because none was set")
     } else {
       if (currentTimeout.cancel(true)) {
         logger.debug(s"Timeout ${currentTimeout.hashCode} cancelled")
@@ -132,6 +132,9 @@ final class SseFsm(
 
   def onSseReceived(event: ServerSentEvent): Unit =
     execute(currentState.onSseReceived(event, clock.nowMillis))
+
+  def onSseEndOfStream(): Unit =
+    execute(currentState.onSseEndOfStream(clock.nowMillis))
 
   def onSseStreamClosed(): Unit =
     execute(currentState.onSseStreamClosed(clock.nowMillis))
