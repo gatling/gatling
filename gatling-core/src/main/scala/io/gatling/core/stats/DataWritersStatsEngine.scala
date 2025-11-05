@@ -111,7 +111,13 @@ final class DataWritersStatsEngine(
           endTimestamp,
           status,
           responseCode,
-          message.map(_.substring(0, StatsEngine.ErrorMessageMaxLength))
+          message.map { m =>
+            if (m.length > StatsEngine.ErrorMessageMaxLength) {
+              m.substring(0, StatsEngine.ErrorMessageMaxLength)
+            } else {
+              m
+            }
+          }
         )
       )
     }
