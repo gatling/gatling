@@ -75,6 +75,7 @@ trait ChainableAction extends Action {
       super.!(session)
     } catch {
       case reason: IllegalStateException if reason.getMessage == "cannot enqueue after timer shutdown" =>
+        // EvenLoopGroup already closed
         logger.debug(s"'$name' crashed with '${reason.detailedMessage}', ignoring")
       case NonFatal(reason) =>
         if (logger.underlying.isInfoEnabled) {

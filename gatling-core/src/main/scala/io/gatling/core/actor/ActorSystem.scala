@@ -16,12 +16,14 @@
 
 package io.gatling.core.actor
 
-import java.util.concurrent.{ ConcurrentLinkedDeque, Executors, TimeoutException }
+import java.util.concurrent.{ ConcurrentLinkedDeque, Executors, RejectedExecutionException, TimeoutException }
 import java.util.concurrent.atomic.AtomicBoolean
 
-import scala.concurrent.{ ExecutionContext, Promise }
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService, Promise }
 import scala.concurrent.duration.FiniteDuration
 import scala.util.control.NonFatal
+
+import io.gatling.commons.util.Throwables._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.util.internal.PlatformDependent
@@ -32,7 +34,8 @@ final class ActorSystem extends AutoCloseable with StrictLogging {
   private val closed = new AtomicBoolean()
 
   private val executor = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors))
-  def executionContext: ExecutionContext = executor
+
+  def executionContext: ExecutionContextExecutorService = executor
   val scheduler: Scheduler = new Scheduler(Executors.newSingleThreadScheduledExecutor())
   private val onTerminationTasks = new ConcurrentLinkedDeque[() => Unit]
 
@@ -89,11 +92,14 @@ private final class AtomicRunnableActorRef[Message](actor: Actor[Message], syste
   override def name: String = actor.name
 
   private def async(): Unit =
-    if ((!mbox.isEmpty || die.get()) && on.compareAndSet(false, true)) {
+    if ((!mbox.isEmpty || die.get()) && on.compareAndSet(false, true) && !system.executionContext.isShutdown) {
       // If there's something to process, and we're not already scheduled
       try {
         system.executionContext.execute(this)
       } catch {
+        case e: RejectedExecutionException =>
+          // ActorSystem already closed (can happen as the system.executionContext.isShutdown test above is racy)
+          logger.debug(s"'$name' crashed with '${e.detailedMessage}', ignoring")
         case NonFatal(t) =>
           logger.error(s"Actor ${actor.name} crashed", t)
           // Schedule to run on the Executor and back out on failure
