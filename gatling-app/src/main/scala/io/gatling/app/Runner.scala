@@ -57,13 +57,18 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
     start(simulationParams, scenarioFlows, coreComponents) match {
-      case Failure(t) => throw t
+      case Failure(t) =>
+        // [ee]
+        //
+        // [ee]
+        throw t
       case _ =>
         simulationParams.after.foreach { after =>
           after()
           logger.trace("After hook executed")
         }
         // [ee]
+        //
         //
         // [ee]
 
@@ -72,6 +77,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   }
 
   // [ee]
+  //
   //
   // [ee]
 
