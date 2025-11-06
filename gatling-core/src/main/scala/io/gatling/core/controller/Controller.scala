@@ -89,7 +89,6 @@ private final class Controller private (
       stopGracefully(data, None)
 
     case Command.Crash(exception) =>
-      logger.error("Simulation crashed", exception)
       data.maxDurationTimer.foreach(_.cancel())
       stopGracefully(data, Some(exception))
 
