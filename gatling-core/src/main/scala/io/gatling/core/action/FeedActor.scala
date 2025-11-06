@@ -48,7 +48,7 @@ private final class FeedActor[T] private (
     controller: ActorRef[Controller.Command],
     feedCallSite: Option[String]
 ) extends Actor[FeedMessage](feederName) {
-  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine${feedCallSite.map(f => s" (hint: $f)")}".failure
+  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine${feedCallSite.fold("")(f => s" (hint: $f)")}".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
