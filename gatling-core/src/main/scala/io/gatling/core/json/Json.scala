@@ -34,7 +34,7 @@ import io.github.metarank.cfor._
 
 private[gatling] object Json {
   private val stringBuilders = new StringBuilderPool
-  private[json] val objectMapper: ObjectMapper = {
+  private[gatling] val objectMapper: ObjectMapper = {
     val jsonFactoryBuilder = new JsonFactoryBuilder()
       .streamReadConstraints(StreamReadConstraints.builder.maxStringLength(Int.MaxValue).build)
       .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)

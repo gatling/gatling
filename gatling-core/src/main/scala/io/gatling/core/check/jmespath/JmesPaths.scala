@@ -18,6 +18,7 @@ package io.gatling.core.check.jmespath
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.jsonpath.JsonFilter
+import io.gatling.core.json.Json
 import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -38,7 +39,8 @@ private[gatling] object JmesPathFunctions {
 
 final class JmesPaths(cacheMaxCapacity: Long) {
   private val runtime = new JacksonRuntime(
-    new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build
+    new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build,
+    Json.objectMapper
   )
 
   private val jmesPathCache = {
