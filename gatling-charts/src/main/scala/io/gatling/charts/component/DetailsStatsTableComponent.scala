@@ -114,9 +114,9 @@ private[charts] final class DetailsStatsTableComponent(stats: RequestStatistics,
                                             </tr>
                                             <tr>
                                                 <td class="title">Mean</td>
-                                                <td class="total">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.total)}</td>
-                                                <td class="ok">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.success)}</td>
-                                                <td class="ko">${styleStatistic(meanNumberOfRequestsPerSecondStatistics.failure)}</td>
+                                                <td class="total">${styleStatistic(meanResponseTimeStatistics.total)}</td>
+                                                <td class="ok">${styleStatistic(meanResponseTimeStatistics.success)}</td>
+                                                <td class="ko">${styleStatistic(meanResponseTimeStatistics.failure)}</td>
                                             </tr>
                                             <tr>
                                                 <td class="title">Standard Deviation</td>
