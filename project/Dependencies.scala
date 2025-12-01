@@ -57,7 +57,7 @@ object Dependencies {
   private val tdigest       = "com.tdunning"                  % "t-digest"                   % "3.3"
   private val hdrHistogram  = "org.hdrhistogram"              % "HdrHistogram"               % "2.2.2"
   private val caffeine      = "com.github.ben-manes.caffeine" % "caffeine"                   % "3.2.3"
-  private val bouncyCastle  = "io.gatling"                    % "gatling-recorder-bc-shaded" % "1.82.0"
+  private val bouncyCastle  = "io.gatling"                    % "gatling-recorder-bc-shaded" % "1.83.0"
   private val fastUuid      = "com.eatthepath"                % "fast-uuid"                  % "0.2.0"
   private val pebble        = "io.pebbletemplates"            % "pebble"                     % "3.2.4"
   private val jspecify      = "org.jspecify"                  % "jspecify"                   % "1.0.0"
