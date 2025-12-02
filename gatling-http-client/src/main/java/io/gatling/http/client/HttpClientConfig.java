@@ -40,8 +40,6 @@ public final class HttpClientConfig {
 
   private long channelPoolIdleTimeout = 30_000;
 
-  private boolean tcpNoDelay;
-
   private boolean soKeepAlive;
 
   public long getConnectTimeout() {
@@ -114,15 +112,6 @@ public final class HttpClientConfig {
 
   public long getChannelPoolIdleTimeout() {
     return channelPoolIdleTimeout;
-  }
-
-  public boolean isTcpNoDelay() {
-    return tcpNoDelay;
-  }
-
-  public HttpClientConfig setTcpNoDelay(boolean tcpNoDelay) {
-    this.tcpNoDelay = tcpNoDelay;
-    return this;
   }
 
   public boolean isSoKeepAlive() {

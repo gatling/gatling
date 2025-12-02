@@ -86,7 +86,6 @@ object GatlingConfiguration extends StrictLogging {
   private def socketConfiguration(config: Config) =
     new SocketConfiguration(
       connectTimeout = config.getInt(socket.ConnectTimeout).millis,
-      tcpNoDelay = config.getBoolean(socket.TcpNoDelay),
       soKeepAlive = config.getBoolean(socket.SoKeepAlive)
     )
 
@@ -274,7 +273,6 @@ final class CssConfiguration(
 
 final class SocketConfiguration(
     val connectTimeout: FiniteDuration,
-    val tcpNoDelay: Boolean,
     val soKeepAlive: Boolean
 )
 

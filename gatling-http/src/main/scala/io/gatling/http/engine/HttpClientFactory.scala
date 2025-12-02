@@ -40,7 +40,6 @@ private[gatling] final class HttpClientFactory(
       .setEnableHostnameVerification(httpConfig.enableHostnameVerification)
       .setChannelPoolIdleTimeout(httpConfig.pooledConnectionIdleTimeout.toMillis)
       .setConnectTimeout(socketConfig.connectTimeout.toMillis)
-      .setTcpNoDelay(socketConfig.tcpNoDelay)
       .setSoKeepAlive(socketConfig.soKeepAlive)
       .setHandshakeTimeout(sslConfig.handshakeTimeout.toMillis)
       .setEnableSni(sslConfig.enableSni)

@@ -95,14 +95,9 @@ public final class Transports {
   }
 
   public static void configureOptions(
-      Bootstrap bootstrap,
-      int connectTimeout,
-      boolean tcpNoDelay,
-      boolean soKeepAlive,
-      boolean useEpoll) {
+      Bootstrap bootstrap, int connectTimeout, boolean soKeepAlive, boolean useEpoll) {
     bootstrap
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
-        .option(ChannelOption.TCP_NODELAY, tcpNoDelay)
         .option(ChannelOption.SO_KEEPALIVE, soKeepAlive);
   }
 }

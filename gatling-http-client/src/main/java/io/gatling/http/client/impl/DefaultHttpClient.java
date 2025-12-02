@@ -182,7 +182,6 @@ public final class DefaultHttpClient implements HttpClient {
       Transports.configureOptions(
           http1Bootstrap,
           (int) config.getConnectTimeout(),
-          config.isTcpNoDelay(),
           config.isSoKeepAlive(),
           config.isUseNativeTransport() && !config.isUseIoUring() && Epoll.isAvailable());
 
