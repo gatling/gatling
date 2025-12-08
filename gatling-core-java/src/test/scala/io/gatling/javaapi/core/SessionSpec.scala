@@ -24,6 +24,7 @@ import io.gatling.core.EmptySession
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
+@SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
 class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private val emptyJavaJession = new Session(emptySession)
 

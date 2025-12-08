@@ -164,7 +164,7 @@ private[gatling] final class ReportsGenerator(
 
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
-    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+    @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply", "org.wartremover.warts.Recursion"))
     def addGroupsRec(hierarchy: List[String]): Unit =
       if (!seenGroups.contains(hierarchy)) {
         seenGroups += hierarchy

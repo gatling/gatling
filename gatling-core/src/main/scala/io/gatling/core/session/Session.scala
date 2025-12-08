@@ -141,8 +141,10 @@ final case class Session(
     copy(attributes = newAttributes.to(Map))
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]
 
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))

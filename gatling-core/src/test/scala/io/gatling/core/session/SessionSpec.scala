@@ -24,7 +24,7 @@ import io.gatling.core.action.Action
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-@SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
+@SuppressWarnings(Array("org.wartremover.warts.SeqApply", "org.wartremover.warts.PartialFunctionApply"))
 class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private val nextAction: Action = null
 

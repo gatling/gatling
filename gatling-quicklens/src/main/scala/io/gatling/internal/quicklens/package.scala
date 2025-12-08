@@ -21,7 +21,6 @@ package io.gatling.internal
 import scala.annotation.compileTimeOnly
 import scala.collection.Factory
 import scala.language.experimental.macros
-import scala.language.higherKinds
 
 package object quicklens extends LowPriorityImplicits {
 
@@ -95,7 +94,7 @@ package object quicklens extends LowPriorityImplicits {
      *   .modify(_.bar)(_ + newBar)
      * }}}
      */
-    final def apply(mod: U => U): T = using(mod)
+    def apply(mod: U => U): T = using(mod)
 
     /**
      * Transform the value of the field(s) using the given function, if the condition is true. Otherwise, returns the original object unchanged.
@@ -268,6 +267,7 @@ package object quicklens extends LowPriorityImplicits {
     def each(fa: F[K, T])(f: T => T): F[K, T]
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   implicit def mapQuicklensFunctor[M[KT, TT] <: Map[KT, TT], K, T](implicit
       fac: Factory[(K, T), M[K, T]]
   ): QuicklensMapAtFunctor[M, K, T] = new QuicklensMapAtFunctor[M, K, T] {

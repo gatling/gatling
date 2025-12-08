@@ -42,20 +42,23 @@ private[http] class ServerHandler(
     msg match {
       case request: FullHttpRequest =>
         requests.add(request)
-        if (requestHandler isDefinedAt request) {
-          requestHandler(request)(ctx)
-        } else {
-          logger.error(s"Unhandled request $request")
-          ctx
-            .writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
-            .addListener(ChannelFutureListener.CLOSE)
+        requestHandler.lift(request) match {
+          case Some(definedRequestHandler) =>
+            definedRequestHandler(ctx)
+          case _ =>
+            logger.error(s"Unhandled request $request")
+            ctx
+              .writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
+              .addListener(ChannelFutureListener.CLOSE)
         }
+
       case errorMsg =>
         logger.error(s"Unknown message $errorMsg")
         ReferenceCountUtil.release(errorMsg)
     }
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
 private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int) extends LazyLogging {
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 

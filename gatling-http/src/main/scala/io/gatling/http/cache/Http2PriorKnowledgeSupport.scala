@@ -33,6 +33,7 @@ private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
       Session.Identity
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   def updateSessionHttp2PriorKnowledge(session: Session, response: Response): Session = {
     val priorKnowledgeMap = session.attributes(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asInstanceOf[Map[Remote, Http2PriorKnowledge]]
     val remote = Remote(response.request.getUri)
@@ -44,6 +45,7 @@ private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   def getHttp2PriorKnowledge(session: Session, remote: Remote): Option[Http2PriorKnowledge] = {
     val priorKnowledgeMap = session.attributes(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asInstanceOf[Map[Remote, Http2PriorKnowledge]]
     priorKnowledgeMap.get(remote)

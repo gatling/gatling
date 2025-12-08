@@ -45,7 +45,7 @@ import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PartialFunctionApply", "org.wartremover.warts.PublicInference"))
 // LeakingSealed error is in scala-swing
 private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd, configuration: RecorderConfiguration) extends MainFrame {
   //////////////////////////////////////
