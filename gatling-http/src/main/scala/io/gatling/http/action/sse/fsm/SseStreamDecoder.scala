@@ -36,7 +36,7 @@ object SseStreamDecoder {
 final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
   import SseStreamDecoder._
 
-  private[this] var pendingName: Option[String] = None
+  private[this] var pendingEvent: Option[String] = None
   private[this] var pendingData: Option[String] = None
   private[this] var pendingId: Option[String] = None
   private[this] var pendingRetry: Option[Int] = None
@@ -83,16 +83,16 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
     if (lineLength == 0) {
       // empty line, flushing event
-      if (pendingName.isDefined || pendingData.isDefined || pendingId.isDefined || pendingRetry.isDefined) {
+      if (pendingEvent.isDefined || pendingData.isDefined || pendingId.isDefined || pendingRetry.isDefined) {
         // non-empty event (eg just a comment)
         pendingEvents += ServerSentEvent(
-          name = pendingName,
+          event = pendingEvent,
           data = pendingData,
           id = pendingId,
           retry = pendingRetry
         )
 
-        pendingName = None
+        pendingEvent = None
         pendingData = None
         pendingId = None
         pendingRetry = None
@@ -115,7 +115,7 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
               }
             case res => pendingData = res
           }
-        case res => pendingName = res
+        case res => pendingEvent = res
       }
     }
   }

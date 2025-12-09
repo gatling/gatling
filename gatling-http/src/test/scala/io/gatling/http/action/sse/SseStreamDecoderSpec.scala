@@ -45,19 +45,19 @@ class SseStreamDecoderSpec extends AnyFlatSpecLike with Matchers {
 
   private val expected = Seq(
     ServerSentEvent(
-      name = None,
+      event = None,
       data = Some("first event"),
       id = Some("1"),
       retry = None
     ),
     ServerSentEvent(
-      name = None,
+      event = None,
       data = Some("second event 加特林岩石"),
       id = None,
       retry = None
     ),
     ServerSentEvent(
-      name = None,
+      event = None,
       data = Some(s" third event $longString"),
       id = None,
       retry = None
