@@ -2842,13 +2842,10 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a Gatling Expression Language String
    * @return the next DSL step
    */
-  public static CheckBuilder.@NonNull MultipleFind<String> css(@NonNull String selector) {
-    return new CheckBuilder.MultipleFind.Default<>(
+  public static CheckBuilder.@NonNull CssOfTypeMultipleFind css(@NonNull String selector) {
+    return new CheckBuilder.Css(
         io.gatling.core.Predef.css(
-            toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
-        CoreCheckType.Css,
-        String.class,
-        null);
+            toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()));
   }
 
   /**
@@ -2864,14 +2861,11 @@ public final class CoreDsl {
    * @param selector the searched selector, expressed as a function
    * @return the next DSL step
    */
-  public static CheckBuilder.@NonNull MultipleFind<String> css(
+  public static CheckBuilder.@NonNull CssOfTypeMultipleFind css(
       @NonNull Function<Session, String> selector) {
-    return new CheckBuilder.MultipleFind.Default<>(
+    return new CheckBuilder.Css(
         io.gatling.core.Predef.css(
-            javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
-        CoreCheckType.Css,
-        String.class,
-        null);
+            javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()));
   }
 
   /**

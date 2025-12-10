@@ -30,7 +30,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.net.ssl.KeyManagerFactory;
+import jodd.lagarto.dom.Node;
 
 public class HttpJavaCompileTest extends Simulation {
 
@@ -329,15 +332,80 @@ public class HttpJavaCompileTest extends Simulation {
           .exec(http("name").httpRequest("JSON", session -> "url"))
           // check
           .exec(
-              http("name")
-                  .get("url")
-                  .check(status().is(200))
+              http("Request")
+                  .get("/")
+                  .check(
+                      status()
+                          .in(IntStream.range(200, 211).boxed().collect(Collectors.toList()))
+                          .saveAs("blablaParam"),
+                      status().in(200, 210).saveAs("blablaParam"),
+                      status().in(List.of(200, 304)).saveAs("blablaParam"),
+                      header("HEADER").is("BAR"),
+                      headerRegex("location", ".*&id_token=(.*)&state=.*").find().exists(),
+                      headerRegex("location", ".*&id_token=(.*)&state=.*").is("BAR"),
+                      headerRegex("location", ".*&id_token=(.*)&state=.*").captureGroups(2),
+                      currentLocation().is("https://gatling.io"),
+                      currentLocationRegex("code=(.+)&"),
+                      currentLocationRegex("foo").find().exists(),
+                      bodyBytes().is(new byte[] {1, 1, 1, 1, 1}),
+                      bodyBytes().is(RawFileBody("foobar.txt")),
+                      bodyLength().lte(100000),
+                      bodyStream().transform(is -> "").saveAs("foo"),
+                      bodyString().is("foo"),
+                      bodyString().is(ElFileBody("foobar.txt")),
+                      css(".foo"),
+                      css("#foo", "href"),
+                      css(".foo").ofNode().count().is(1),
+                      css(".foo").notExists(),
+                      css("#foo").ofNode().transform(Node::getNodeName),
+                      css(".foo").findRandom().is("some text"),
+                      css(".foo").findRandom(5).is(List.of("some text")),
+                      jsonPath("//foo/bar[2]/baz"),
+                      jsonPath("$..foo").is("bar"),
+                      jsonPath("$..foo").ofString().is("bar"),
+                      jsonPath("$..foo").ofInt().is(1),
+                      jsonPath("$..foo").ofList().is(List.of("foo")),
+                      jsonPath("$..foo").ofMap().is(Map.of("foo", 1)),
+                      jsonPath("$..foo.bar[2].baz").transform(s -> s + "foo"),
+                      jsonPath("$..foo.bar[2].baz")
+                          .transformWithSession((string, session) -> string + "foo"),
+                      jsonPath("$..foo.bar[2].baz").withDefault(s -> "foo"),
+                      jsonpJsonPath("$..foo").is("bar"),
+                      jmesPath("[].friends[].name"),
+                      jmesPath("[].friends[].name").is("bar"),
+                      jmesPath("[].friends[].name").ofString().is("bar"),
+                      jmesPath("[].friends[].name").ofInt().is(1),
+                      jmesPath("[].friends[].name").ofList().is(List.of("foo")),
+                      jmesPath("[].friends[].name").ofMap().is(Map.of("foo", 1)),
+                      jsonpJmesPath("foo").is("bar"),
+                      regex("<input id=\"text1\" type=\"text\" value=\"aaaa\" />")
+                          .optional()
+                          .saveAs("var1"),
+                      regex("<input id=\"text1\" type=\"text\" value=\"aaaa\" />").count().is(1),
+                      regex("<input id=\"text1\" type=\"text\" value=\"aaaa\" />").notExists(),
+                      regex("pattern").captureGroups(2),
+                      substring("foo").exists(),
+                      xpath("//input[@id='text1']/@value"),
+                      xpath("//input[@id='text1']/@value").find(),
+                      xpath("//input[@id='text1']/@value").find().exists(),
+                      xpath("//input[@id='text1']/@value").find().is("expected"),
+                      xpath("//input[@id='text1']/@value").find().exists().saveAs("key"),
+                      xpath("//input[@id='text1']/@value").saveAs("key"),
+                      xpath("//input[@id='text1']/@value").findAll(),
+                      xpath("//input[@id='text1']/@value").count(),
+                      xpath("//input[@id='text1']/@value").name("This is a check"),
+                      xpath("//input[@value='#{aaaa_value}']/@id")
+                          .name("foo")
+                          .saveAs("sessionParam"),
+                      xpath("//input[@value='aaaa']/@id").not("param"),
+                      xpath("//input[@id='#{aaaa_value}']/@value").notExists(),
+                      xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
+                      md5().is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
+                      sha1().is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
+                      responseTimeInMillis().lt(1000)
+                      )
                   .checkIf("#{bool}")
-                  .then(jsonPath("$..foo"))
-                  .checkIf("#{bool}")
-                  .then(jsonPath("$..foo"), jsonPath("$..foo"))
-                  .checkIf((response, session) -> true)
-                  .then(jsonPath("$..foo")))
+                  .then(jsonPath("$..foo"), jsonPath("$..foo")))
           // processRequestBody
           .exec(
               http("Request")
