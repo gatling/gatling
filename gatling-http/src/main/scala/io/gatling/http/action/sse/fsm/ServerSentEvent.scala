@@ -31,7 +31,20 @@ final case class ServerSentEvent(
       sb.append("\"event\":\"").append(value).append("\",")
     }
     id.foreach { value =>
-      sb.append("\"id\":\"").append(value).append("\",")
+      sb.append("\"id\":")
+      val length = value.length
+      if (
+        length > 0 &&
+          value.forall(_.isDigit) &&
+          (length == 1 || value.charAt(0) != '0')
+      ) {
+        // numeric id
+        sb.append(value)
+      } else {
+        // string id
+        sb.append('"').append(value).append('"')
+      }
+      sb.append(',')
     }
     data.foreach { value =>
       sb.append("\"data\":")

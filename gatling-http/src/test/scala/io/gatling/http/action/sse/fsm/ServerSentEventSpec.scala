@@ -47,4 +47,40 @@ class ServerSentEventSpec extends AnyFlatSpecLike with Matchers {
       retry = Option(1)
     ).asJsonString shouldBe """{"event":"EVENT","id":"ID","data":"DATA","retry":1}"""
   }
+
+  it should "convert numeric id to number" in {
+    ServerSentEvent(
+      event = Option("EVENT"),
+      data = Option("DATA"),
+      id = Option("77535"),
+      retry = Option(1)
+    ).asJsonString shouldBe """{"event":"EVENT","id":77535,"data":"DATA","retry":1}"""
+  }
+
+  it should "keep non-numeric id as string" in {
+    ServerSentEvent(
+      event = Option("EVENT"),
+      data = Option("DATA"),
+      id = Option("abc123"),
+      retry = Option(1)
+    ).asJsonString shouldBe """{"event":"EVENT","id":"abc123","data":"DATA","retry":1}"""
+  }
+
+  it should "keep id with leading zeros as string" in {
+    ServerSentEvent(
+      event = Option("EVENT"),
+      data = Option("DATA"),
+      id = Option("007"),
+      retry = Option(1)
+    ).asJsonString shouldBe """{"event":"EVENT","id":"007","data":"DATA","retry":1}"""
+  }
+
+  it should "convert single zero id to number" in {
+    ServerSentEvent(
+      event = Option("EVENT"),
+      data = Option("DATA"),
+      id = Option("0"),
+      retry = Option(1)
+    ).asJsonString shouldBe """{"event":"EVENT","id":0,"data":"DATA","retry":1}"""
+  }
 }
