@@ -33,7 +33,7 @@ object SseConnectRequestBuilder {
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
   def apply(requestName: Expression[String], method: HttpMethod, url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =
-    SseConnectRequestBuilder(CommonAttributes(requestName, method, Left(url)), BodyAttributes.Empty, sseName, Nil)
+    SseConnectRequestBuilder(CommonAttributes(requestName, method.expressionSuccess, Left(url)), BodyAttributes.Empty, sseName, Nil)
       .header(HttpHeaderNames.ACCEPT, SseHeaderValueExpression)
       .header(HttpHeaderNames.CACHE_CONTROL, CacheControlNoCacheValueExpression)
 }
