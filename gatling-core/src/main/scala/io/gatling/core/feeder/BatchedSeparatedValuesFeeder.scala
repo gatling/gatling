@@ -23,13 +23,14 @@ import java.nio.charset.Charset
 import io.gatling.commons.util.Arrays
 
 object BatchedSeparatedValuesFeeder {
+  private val BufferSize: Int = 2000
+
   def apply(
       file: File,
       separator: Char,
       quoteChar: Char,
       conversion: Option[Record[String] => Record[Any]],
       strategy: FeederStrategy,
-      bufferSize: Int,
       charset: Charset
   ): Feeder[Any] = {
     val feederFactory: ReadableByteChannel => Feeder[String] = SeparatedValuesParser.feederFactory(separator, quoteChar, charset)
@@ -41,8 +42,8 @@ object BatchedSeparatedValuesFeeder {
 
     val rawFeeder = strategy match {
       case FeederStrategy.Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
-      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, feederFactory, bufferSize)
-      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, feederFactory, bufferSize)
+      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, feederFactory, BufferSize)
+      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, feederFactory, BufferSize)
       case FeederStrategy.Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
     }
 

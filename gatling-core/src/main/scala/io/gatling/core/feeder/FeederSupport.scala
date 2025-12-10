@@ -35,21 +35,21 @@ trait FeederSupport extends ResourceCache {
     SourceFeederBuilder(InMemoryFeederSource(ArraySeq.unsafeWrapArray(data), "in-memory"), configuration)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def csv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+  def csv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     separatedValues(filePath, CommaSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def ssv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+  def ssv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     separatedValues(filePath, SemicolonSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tsv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+  def tsv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
     separatedValues(filePath, TabulationSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def separatedValues(filePath: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
       configuration: GatlingConfiguration
-  ): BatchableFeederBuilder[String] =
+  ): FileBasedFeederBuilder[String] =
     cachedResource(filePath) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
       case Failure(message)  => throw new FileNotFoundException(s"Could not locate feeder file: $message")

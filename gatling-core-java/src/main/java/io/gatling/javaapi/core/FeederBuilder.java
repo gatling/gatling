@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.core;
 
-import io.gatling.core.feeder.BatchableFeederBuilder;
+import io.gatling.core.feeder.FileBasedFeederBuilder;
 import io.gatling.core.feeder.SeparatedValuesParser;
 import io.gatling.javaapi.core.internal.Converters;
 import java.util.List;
@@ -153,110 +153,49 @@ public interface FeederBuilder<T> {
     FileBased<T> unzip();
   }
 
-  /**
-   * A {@link FileBased} whose records can be fetched in batches. If not forced, loading strategy
-   * will be picked bepending on the size of the underlying data source. "eager" will be preferred
-   * for small data and "batch" otherwise.
-   *
-   * @param <T> the type of values the feeder will provide
-   */
-  interface Batchable<T> extends FileBased<T> {
-    @Override
-    @NonNull
-    Batchable<T> queue();
-
-    @Override
-    @NonNull
-    Batchable<T> random();
-
-    @Override
-    @NonNull
-    Batchable<T> shuffle();
-
-    @Override
-    @NonNull
-    Batchable<T> circular();
-
-    @Override
-    @NonNull
-    Batchable<T> shard();
-
-    @Override
-    @NonNull
-    Batchable<T> unzip();
-
-    /**
-     * Force loading the whole data in memory from the underlying source at once. Faster runtime but
-     * slower boot time and higher heap usage.
-     *
-     * @return a new Batchable
-     */
-    @NonNull
-    Batchable<T> eager();
-
-    /**
-     * Force loading small chunks of data from the underlying source one by one. Slower runtime but
-     * faster boot time and lower memory consumption.
-     *
-     * @return a new Batchable
-     */
-    @NonNull
-    Batchable<T> batch();
-
-    /**
-     * Force loading small chunks of data from the underlying source one by one Slower runtime but
-     * faster boot time and lower memory consumption.
-     *
-     * @param lines the number of buffered lines
-     * @return a new Batchable
-     */
-    @NonNull
-    Batchable<T> batch(int lines);
-  }
-
-  final class Impl<T> implements Batchable<T> {
-    private final io.gatling.core.feeder.BatchableFeederBuilder<T> wrapped;
+  final class Impl<T> implements FileBased<T> {
+    private final io.gatling.core.feeder.FileBasedFeederBuilder<T> wrapped;
 
     @NonNull
-    static Batchable<String> csv(@NonNull String filePath) {
+    static FileBased<String> csv(@NonNull String filePath) {
       return csv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static Batchable<String> csv(@NonNull String filePath, char quoteChar) {
+    static FileBased<String> csv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.csv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static Batchable<String> ssv(@NonNull String filePath) {
+    static FileBased<String> ssv(@NonNull String filePath) {
       return ssv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static Batchable<String> ssv(@NonNull String filePath, char quoteChar) {
+    static FileBased<String> ssv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.ssv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static Batchable<String> tsv(@NonNull String filePath) {
+    static FileBased<String> tsv(@NonNull String filePath) {
       return tsv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static Batchable<String> tsv(@NonNull String filePath, char quoteChar) {
+    static FileBased<String> tsv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.tsv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static Batchable<String> separatedValues(@NonNull String filePath, char separator) {
+    static FileBased<String> separatedValues(@NonNull String filePath, char separator) {
       return separatedValues(filePath, separator, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static Batchable<String> separatedValues(
+    static FileBased<String> separatedValues(
         @NonNull String filePath, char separator, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.separatedValues(
@@ -282,12 +221,12 @@ public interface FeederBuilder<T> {
     }
 
     public Impl(io.gatling.core.feeder.@NonNull FeederBuilderBase<T> wrapped) {
-      this.wrapped = (io.gatling.core.feeder.BatchableFeederBuilder<T>) wrapped;
+      this.wrapped = (io.gatling.core.feeder.FileBasedFeederBuilder<T>) wrapped;
     }
 
     private Impl<T> make(
         Function<
-                io.gatling.core.feeder.BatchableFeederBuilder<T>,
+                io.gatling.core.feeder.FileBasedFeederBuilder<T>,
                 io.gatling.core.feeder.FeederBuilderBase<T>>
             f) {
       return new Impl<>(f.apply(wrapped));
@@ -295,26 +234,26 @@ public interface FeederBuilder<T> {
 
     @Override
     @NonNull
-    public Batchable<T> queue() {
-      return make(BatchableFeederBuilder::queue);
+    public FileBased<T> queue() {
+      return make(FileBasedFeederBuilder::queue);
     }
 
     @Override
     @NonNull
-    public Batchable<T> random() {
-      return make(BatchableFeederBuilder::random);
+    public FileBased<T> random() {
+      return make(FileBasedFeederBuilder::random);
     }
 
     @Override
     @NonNull
-    public Batchable<T> shuffle() {
-      return make(BatchableFeederBuilder::shuffle);
+    public FileBased<T> shuffle() {
+      return make(FileBasedFeederBuilder::shuffle);
     }
 
     @Override
     @NonNull
-    public Batchable<T> circular() {
-      return make(BatchableFeederBuilder::circular);
+    public FileBased<T> circular() {
+      return make(FileBasedFeederBuilder::circular);
     }
 
     @Override
@@ -351,32 +290,14 @@ public interface FeederBuilder<T> {
 
     @Override
     @NonNull
-    public Batchable<T> shard() {
-      return make(BatchableFeederBuilder::shard);
+    public FileBased<T> shard() {
+      return make(FileBasedFeederBuilder::shard);
     }
 
     @Override
     @NonNull
-    public Batchable<T> unzip() {
-      return make(BatchableFeederBuilder::unzip);
-    }
-
-    @Override
-    @NonNull
-    public Batchable<T> eager() {
-      return make(BatchableFeederBuilder::eager);
-    }
-
-    @Override
-    @NonNull
-    public Batchable<T> batch() {
-      return make(BatchableFeederBuilder::batch);
-    }
-
-    @Override
-    @NonNull
-    public Batchable<T> batch(int lines) {
-      return make(wrapped -> wrapped.batch(lines));
+    public FileBased<T> unzip() {
+      return make(FileBasedFeederBuilder::unzip);
     }
 
     @Override

@@ -3208,7 +3208,7 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> csv(@NonNull String filePath) {
+  public static FeederBuilder.@NonNull FileBased<String> csv(@NonNull String filePath) {
     return FeederBuilder.Impl.csv(filePath);
   }
 
@@ -3220,7 +3220,7 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> csv(
+  public static FeederBuilder.@NonNull FileBased<String> csv(
       @NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.csv(filePath, quoteChar);
   }
@@ -3232,7 +3232,7 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> ssv(@NonNull String filePath) {
+  public static FeederBuilder.@NonNull FileBased<String> ssv(@NonNull String filePath) {
     return FeederBuilder.Impl.ssv(filePath);
   }
 
@@ -3244,7 +3244,7 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> ssv(
+  public static FeederBuilder.@NonNull FileBased<String> ssv(
       @NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.ssv(filePath, quoteChar);
   }
@@ -3256,7 +3256,7 @@ public final class CoreDsl {
    * @param filePath the path of the file, either relative to the root of the classpath, or absolute
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> tsv(@NonNull String filePath) {
+  public static FeederBuilder.@NonNull FileBased<String> tsv(@NonNull String filePath) {
     return FeederBuilder.Impl.tsv(filePath);
   }
 
@@ -3268,7 +3268,7 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> tsv(
+  public static FeederBuilder.@NonNull FileBased<String> tsv(
       @NonNull String filePath, char quoteChar) {
     return FeederBuilder.Impl.tsv(filePath, quoteChar);
   }
@@ -3281,7 +3281,7 @@ public final class CoreDsl {
    * @param separator the provided separator char
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> separatedValues(
+  public static FeederBuilder.@NonNull FileBased<String> separatedValues(
       @NonNull String filePath, char separator) {
     return FeederBuilder.Impl.separatedValues(filePath, separator);
   }
@@ -3295,7 +3295,7 @@ public final class CoreDsl {
    * @param quoteChar the quote char to wrap values containing special characters
    * @return a new feeder
    */
-  public static FeederBuilder.@NonNull Batchable<String> separatedValues(
+  public static FeederBuilder.@NonNull FileBased<String> separatedValues(
       @NonNull String filePath, char separator, char quoteChar) {
     return FeederBuilder.Impl.separatedValues(filePath, separator, quoteChar);
   }

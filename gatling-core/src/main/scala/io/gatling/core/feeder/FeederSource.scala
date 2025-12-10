@@ -78,17 +78,14 @@ private[gatling] final class SeparatedValuesFeederSource(val resource: Resource,
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
     def applyBatch(res: Resource): Feeder[Any] = {
       val charset = configuration.core.charset
-      options.loadingMode match {
-        case Batch(bufferSize) =>
-          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, bufferSize, charset)
-        case Adaptive if res.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
-          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferLines, charset)
-        case _ =>
-          val records = Using.resource(FileChannel.open(res.file.toPath)) { channel =>
-            SeparatedValuesParser.feederFactory(separator, quoteChar, charset)(channel).toVector
-          }
+      if (res.file.length > configuration.core.feederAdaptiveLoadModeThreshold) {
+        BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, charset)
+      } else {
+        val records = Using.resource(FileChannel.open(res.file.toPath)) { channel =>
+          SeparatedValuesParser.feederFactory(separator, quoteChar, charset)(channel).toVector
+        }
 
-          InMemoryFeeder(records, options.conversion, options.strategy)
+        InMemoryFeeder(records, options.conversion, options.strategy)
       }
     }
 
