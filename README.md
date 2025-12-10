@@ -7,7 +7,7 @@ It officially supports HTTP, WebSocket, Server-Sent-Events, JMS, gRPC and MQTT.
 
 ## Motivation
 
-* Finding fancy GUIs not that convenient for describing load tests, what you want is a friendly expressive DSL in Java, Scala, Kotlin, JavaScript or TypeScript?
+* Finding fancy GUIs not that convenient for describing load tests, what you want is a friendly expressive SDK in Java, Scala, Kotlin, JavaScript or TypeScript?
 * Wanting something more convenient than huge XML dumps to store in your source version control system?
 * Fed up with having to host a farm of injecting servers because your tool uses blocking IO and one-thread-per-user architecture?
 
