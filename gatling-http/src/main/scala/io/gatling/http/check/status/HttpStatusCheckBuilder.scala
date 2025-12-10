@@ -28,7 +28,7 @@ trait HttpStatusCheckType
 object HttpStatusCheckBuilder
     extends CheckBuilder.Find.Default[HttpStatusCheckType, Response, Int](
       extractor = new FindExtractor[Response, Int]("status", response => Some(response.status.code).success).expressionSuccess,
-      displayActualValue = true
+      logActualValueInError = true
     )
 
 object HttpStatusCheckMaterializer {

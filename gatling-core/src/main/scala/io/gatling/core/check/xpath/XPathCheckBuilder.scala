@@ -27,7 +27,7 @@ final class XPathCheckBuilder(
     path: Expression[String],
     namespaces: Map[String, String],
     xmlParsers: XmlParsers
-) extends CheckBuilder.MultipleFind.Default[XPathCheckType, XdmNode, String](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[XPathCheckType, XdmNode, String](logActualValueInError = true) {
   override protected def findExtractor(occurrence: Int): Expression[Extractor[XdmNode, String]] =
     path.map(XPathExtractors.find(_, namespaces, occurrence, xmlParsers))
   override protected def findAllExtractor: Expression[Extractor[XdmNode, Seq[String]]] = path.map(XPathExtractors.findAll(_, namespaces, xmlParsers))

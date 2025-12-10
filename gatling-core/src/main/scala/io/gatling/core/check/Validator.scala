@@ -21,7 +21,7 @@ import io.gatling.commons.validation._
 
 trait Validator[A] {
   def name: String
-  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]]
+  def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]]
 }
 
 object Validator {
@@ -30,7 +30,7 @@ object Validator {
 
   final class Exists[A] extends Validator[A] {
     val name = "exists"
-    def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case None => Validator.FoundNothingFailure
       case _    => actual.success
     }
@@ -38,9 +38,9 @@ object Validator {
 
   final class NotExists[A] extends Validator[A] {
     val name = "notExists"
-    def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
-        if (displayActualValue) {
+        if (logActualValueInError) {
           s"unexpectedly found $actualValue".failure
         } else {
           Validator.GenericFailure
@@ -51,7 +51,7 @@ object Validator {
 
   final class Optional[A] extends Validator[A] {
     val name = "optional"
-    def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual.success
+    def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual.success
   }
 }
 
@@ -59,11 +59,11 @@ object Matcher {
   final class Is[A](expected: A, equality: Equality[A]) extends Validator[A] {
     def name = s"is($expected)"
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (equality.equals(actualValue, expected)) {
           actual.success
-        } else if (displayActualValue) {
+        } else if (logActualValueInError) {
           s"found $actualValue".failure
         } else {
           Validator.GenericFailure
@@ -75,11 +75,11 @@ object Matcher {
   final class IsNull[A] extends Validator[A] {
     def name = "isNull"
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (actualValue == null) {
           actual.success
-        } else if (displayActualValue) {
+        } else if (logActualValueInError) {
           s"found $actualValue".failure
         } else {
           Validator.GenericFailure
@@ -91,11 +91,11 @@ object Matcher {
   final class Not[A](expected: A, equality: Equality[A]) extends Validator[A] {
     def name = s"not($expected)"
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (equality.equals(actualValue, expected)) {
           s"unexpectedly found $actualValue".failure
-        } else if (displayActualValue) {
+        } else if (logActualValueInError) {
           actual.success
         } else {
           Validator.GenericFailure
@@ -107,7 +107,7 @@ object Matcher {
   final class NotNull[A] extends Validator[A] {
     def name = "notNull"
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (actualValue == null) {
           Validator.GenericFailure
@@ -124,11 +124,11 @@ object Matcher {
       case _            => expected.mkString("in(", ",", ")")
     }
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (expected.contains(actualValue)) {
           actual.success
-        } else if (displayActualValue) {
+        } else if (logActualValueInError) {
           s"found $actualValue".failure
         } else {
           Validator.GenericFailure
@@ -140,11 +140,11 @@ object Matcher {
   final class Compare[A](val comparisonName: String, message: String, compare: (A, A) => Boolean, expected: A) extends Validator[A] {
     def name = s"$comparisonName($expected)"
 
-    override def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
+    override def apply(actual: Option[A], logActualValueInError: Boolean): Validation[Option[A]] = actual match {
       case Some(actualValue) =>
         if (compare(actualValue, expected)) {
           actual.success
-        } else if (displayActualValue) {
+        } else if (logActualValueInError) {
           s"$actualValue is not $message $expected".failure
         } else {
           Validator.GenericFailure

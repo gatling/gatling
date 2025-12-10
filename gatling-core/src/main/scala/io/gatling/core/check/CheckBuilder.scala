@@ -35,8 +35,8 @@ object CheckBuilder {
   }
 
   object Find {
-    class Default[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) extends Find[T, P, X] {
-      override def find: Validate[T, P, X] = Validate.Default(extractor, displayActualValue)
+    class Default[T, P, X](extractor: Expression[Extractor[P, X]], logActualValueInError: Boolean) extends Find[T, P, X] {
+      override def find: Validate[T, P, X] = Validate.Default(extractor, logActualValueInError)
     }
   }
 
@@ -51,7 +51,7 @@ object CheckBuilder {
   }
 
   object MultipleFind {
-    abstract class Default[T, P, X](displayActualValue: Boolean) extends MultipleFind[T, P, X] {
+    abstract class Default[T, P, X](logActualValueInError: Boolean) extends MultipleFind[T, P, X] {
       protected def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 
       protected def findAllExtractor: Expression[Extractor[P, Seq[X]]]
@@ -103,16 +103,16 @@ object CheckBuilder {
 
       override def find: Validate[T, P, X] = find(0)
 
-      override def find(occurrence: Int): Validate[T, P, X] = Validate.Default(findExtractor(occurrence), displayActualValue)
+      override def find(occurrence: Int): Validate[T, P, X] = Validate.Default(findExtractor(occurrence), logActualValueInError)
 
-      override def findAll: Validate[T, P, Seq[X]] = Validate.Default(findAllExtractor, displayActualValue)
+      override def findAll: Validate[T, P, Seq[X]] = Validate.Default(findAllExtractor, logActualValueInError)
 
-      override def findRandom: Validate[T, P, X] = Validate.Default(findRandomExtractor, displayActualValue)
+      override def findRandom: Validate[T, P, X] = Validate.Default(findRandomExtractor, logActualValueInError)
 
       override def findRandom(num: Int, failIfLess: Boolean): Validate[T, P, Seq[X]] =
-        Validate.Default(findManyRandomExtractor(num, failIfLess), displayActualValue)
+        Validate.Default(findManyRandomExtractor(num, failIfLess), logActualValueInError)
 
-      override def count: Validate[T, P, Int] = Validate.Default(countExtractor, displayActualValue)
+      override def count: Validate[T, P, Int] = Validate.Default(countExtractor, logActualValueInError)
     }
   }
 
@@ -149,7 +149,7 @@ object CheckBuilder {
     private val TransformArity: String => String = _ + ".transform"
     private val TransformOptionArity: String => String = _ + ".transformOption"
 
-    final case class Default[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) extends Validate[T, P, X] {
+    final case class Default[T, P, X](extractor: Expression[Extractor[P, X]], logActualValueInError: Boolean) extends Validate[T, P, X] {
       private def mapExtractor[X2](
           extractedF: Validation[Option[X]] => Validation[Option[X2]],
           arityF: String => String
@@ -225,7 +225,7 @@ object CheckBuilder {
         )
 
       override def validate(validator: Expression[Validator[X]]): Final[T, P] =
-        new Final.Default[T, P, X](this.extractor, validator, displayActualValue, None, None)
+        new Final.Default[T, P, X](this.extractor, validator, logActualValueInError, None, None)
 
       override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P] =
         validate(session =>
@@ -259,6 +259,7 @@ object CheckBuilder {
 
   trait Final[T, P] extends CheckBuilder[T, P] {
     def name(n: String): Final[T, P]
+    def logActualValueInError(b: Boolean): Final[T, P]
     def saveAs(key: String): Final[T, P]
   }
 
@@ -266,16 +267,18 @@ object CheckBuilder {
     final case class Default[T, P, X](
         extractor: Expression[Extractor[P, X]],
         validator: Expression[Validator[X]],
-        displayActualValue: Boolean,
+        logActualValueInError: Boolean,
         customName: Option[String],
         saveAs: Option[String]
     ) extends Final[T, P] {
       override def name(n: String): Final[T, P] = copy(customName = Some(n))
 
+      override def logActualValueInError(b: Boolean): Final[T, P] = copy(logActualValueInError = b)
+
       override def saveAs(key: String): Final[T, P] = copy(saveAs = Some(key))
 
       override def build[C <: Check[R], R](materializer: CheckMaterializer[T, C, R, P]): C =
-        materializer.materialize(Check.Default(_, extractor, validator, displayActualValue, customName, None, saveAs))
+        materializer.materialize(Check.Default(_, extractor, validator, logActualValueInError, customName, None, saveAs))
     }
   }
 }

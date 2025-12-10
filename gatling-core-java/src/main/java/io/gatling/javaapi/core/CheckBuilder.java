@@ -286,6 +286,11 @@ public interface CheckBuilder {
       }
 
       @Override
+      public @NonNull Final logActualValueInError(boolean b) {
+        return find().logActualValueInError(b);
+      }
+
+      @Override
       public @NonNull Final saveAs(@NonNull String key) {
         return find().saveAs(key);
       }
@@ -1028,6 +1033,11 @@ public interface CheckBuilder {
       }
 
       @Override
+      public @NonNull Final logActualValueInError(boolean b) {
+        return exists().logActualValueInError(b);
+      }
+
+      @Override
       public @NonNull Final saveAs(@NonNull String key) {
         return exists().saveAs(key);
       }
@@ -1060,6 +1070,16 @@ public interface CheckBuilder {
     Final name(@NonNull String n);
 
     /**
+     * Override the default behavior for this check and log or not the actual value in the error
+     * message when the check fails
+     *
+     * @param b true to log the actual value
+     * @return a new Final
+     */
+    @NonNull
+    Final logActualValueInError(boolean b);
+
+    /**
      * Save the extracted value in the virtual user's {@link Session}
      *
      * @param key the key to store the extracted value in the {@link Session}
@@ -1086,6 +1106,11 @@ public interface CheckBuilder {
       @Override
       public @NonNull Final name(@NonNull String n) {
         return new Default<>(wrapped.name(n), type);
+      }
+
+      @Override
+      public @NonNull Final logActualValueInError(boolean b) {
+        return new Default<>(wrapped.logActualValueInError(b), type);
       }
 
       @Override

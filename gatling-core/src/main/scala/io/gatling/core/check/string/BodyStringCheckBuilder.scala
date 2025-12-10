@@ -25,5 +25,5 @@ sealed trait BodyStringCheckType
 object BodyStringCheckBuilder
     extends CheckBuilder.Find.Default[BodyStringCheckType, String, String](
       extractor = new FindExtractor[String, String]("bodyString", Some(_).success).expressionSuccess,
-      displayActualValue = false
+      logActualValueInError = false
     )

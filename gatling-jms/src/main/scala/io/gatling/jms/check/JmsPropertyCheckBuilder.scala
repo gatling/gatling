@@ -95,5 +95,5 @@ class JmsPropertyCheckBuilder[X: JmsPropertyFilter] private[check] (
     private[check] val propertyName: String
 ) extends CheckBuilder.Find.Default[JmsPropertyCheckType, Message, X](
       new JmsPropertyExtractor("jmsProperty", propertyName).expressionSuccess,
-      displayActualValue = true
+      logActualValueInError = true
     )

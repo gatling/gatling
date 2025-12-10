@@ -27,7 +27,7 @@ object ChecksumCheckBuilder {
   private def checksum[T](algorithm: ChecksumAlgorithm): CheckBuilder.Find[T, String, String] =
     new CheckBuilder.Find.Default[T, String, String](
       extractor = new FindExtractor[String, String](algorithm.name, Some(_).success).expressionSuccess,
-      displayActualValue = false
+      logActualValueInError = false
     )
 
   val Md5: CheckBuilder.Find[Md5CheckType, String, String] = checksum[Md5CheckType](ChecksumAlgorithm.Md5)

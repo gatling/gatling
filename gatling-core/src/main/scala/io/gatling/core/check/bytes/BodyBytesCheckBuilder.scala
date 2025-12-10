@@ -25,5 +25,5 @@ trait BodyBytesCheckType
 object BodyBytesCheckBuilder
     extends CheckBuilder.Find.Default[BodyBytesCheckType, Array[Byte], Array[Byte]](
       extractor = new FindExtractor[Array[Byte], Array[Byte]]("bodyBytes", Some(_).success).expressionSuccess,
-      displayActualValue = false
+      logActualValueInError = false
     )

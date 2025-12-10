@@ -26,7 +26,7 @@ abstract class JmesPathCheckBuilderBase[T, X: JsonFilter](
     name: String,
     private[jmespath] val path: Expression[String],
     private[jmespath] val jmesPaths: JmesPaths
-) extends CheckBuilder.Find.Default[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), displayActualValue = true)
+) extends CheckBuilder.Find.Default[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), logActualValueInError = true)
 
 final class JmesPathExtractor[X: JsonFilter](name: String, path: String, jmesPaths: JmesPaths)
     extends FindCriterionExtractor[JsonNode, String, X](name, path, 0, jmesPaths.extract(_, path))

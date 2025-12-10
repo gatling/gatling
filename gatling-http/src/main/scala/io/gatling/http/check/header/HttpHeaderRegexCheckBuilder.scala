@@ -45,7 +45,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor] private[header] (
     private[header] val headerName: Expression[CharSequence],
     private[header] val pattern: Expression[String],
     private[header] val patterns: Patterns
-) extends CheckBuilder.MultipleFind.Default[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[HttpHeaderRegexCheckType, Response, X](logActualValueInError = true) {
   private def withHeaderAndPattern[T](f: (CharSequence, String) => T): Expression[T] =
     session =>
       for {

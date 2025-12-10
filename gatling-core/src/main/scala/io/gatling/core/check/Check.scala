@@ -93,7 +93,7 @@ object Check {
       preparer: Preparer[R, P],
       extractorExpression: Expression[Extractor[P, X]],
       validatorExpression: Expression[Validator[X]],
-      displayActualValue: Boolean,
+      logActualValueInError: Boolean,
       customName: Option[String],
       condition: Option[(R, Session) => Validation[Boolean]],
       saveAs: Option[String]
@@ -118,7 +118,7 @@ object Check {
         validator <- validatorExpression(session).mapFailure(message => s"$unbuiltName validator resolution crashed: $message")
         prepared <- memoizedPrepared.mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
         actual <- extractor(prepared).mapFailure(message => s"${builtName(extractor, validator)} extraction crashed: $message")
-        matched <- validator(actual, displayActualValue).mapFailure(message => s"${builtName(extractor, validator)}, $message")
+        matched <- validator(actual, logActualValueInError).mapFailure(message => s"${builtName(extractor, validator)}, $message")
       } yield new CheckResult(matched, saveAs)
     }
   }

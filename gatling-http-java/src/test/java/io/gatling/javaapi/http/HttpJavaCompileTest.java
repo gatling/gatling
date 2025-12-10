@@ -402,8 +402,8 @@ public class HttpJavaCompileTest extends Simulation {
                       xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
                       md5().is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
                       sha1().is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
-                      responseTimeInMillis().lt(1000)
-                      )
+                      responseTimeInMillis().lt(1000),
+                      bodyString().is("foo").logActualValueInError(false))
                   .checkIf("#{bool}")
                   .then(jsonPath("$..foo"), jsonPath("$..foo")))
           // processRequestBody

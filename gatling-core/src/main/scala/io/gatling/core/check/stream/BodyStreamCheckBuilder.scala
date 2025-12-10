@@ -27,5 +27,5 @@ sealed trait BodyStreamCheckType
 object BodyStreamCheckBuilder
     extends CheckBuilder.Find.Default[BodyStreamCheckType, () => InputStream, InputStream](
       extractor = new FindExtractor[() => InputStream, InputStream]("bodyStream", isSource => Some(isSource()).success).expressionSuccess,
-      displayActualValue = false
+      logActualValueInError = false
     )

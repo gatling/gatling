@@ -37,7 +37,7 @@ class CssCheckBuilder[X: NodeConverter] private[css] (
     private[css] val expression: Expression[String],
     private[css] val nodeAttribute: Option[String],
     private[css] val selectors: CssSelectors
-) extends CheckBuilder.MultipleFind.Default[CssCheckType, NodeSelector, X](displayActualValue = true) {
+) extends CheckBuilder.MultipleFind.Default[CssCheckType, NodeSelector, X](logActualValueInError = true) {
   override protected def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
     expression.map(CssExtractors.find(_, nodeAttribute, occurrence, selectors))
   override protected def findAllExtractor: Expression[Extractor[NodeSelector, Seq[X]]] = expression.map(CssExtractors.findAll(_, nodeAttribute, selectors))

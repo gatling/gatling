@@ -233,7 +233,8 @@ class HttpCompileTest extends Simulation {
           responseTimeInMillis.lt(1000),
           checkIf("#{bool}") {
             jsonPath("$..foo")
-          }
+          },
+          bodyString.is("foo").logActualValueInError(false)
         )
         .checkIf("#{bool}")(
           jsonPath("$..foo"),

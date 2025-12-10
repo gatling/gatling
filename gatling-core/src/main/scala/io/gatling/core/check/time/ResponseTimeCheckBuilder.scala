@@ -27,6 +27,6 @@ object ResponseTimeCheckBuilder {
   val ResponseTimeInMillis: CheckBuilder.Find[ResponseTimeCheckType, ResponseTimings, Int] =
     new CheckBuilder.Find.Default[ResponseTimeCheckType, ResponseTimings, Int](
       extractor = new FindExtractor[ResponseTimings, Int]("responseTimeInMillis", prepared => Some(prepared.responseTime).success).expressionSuccess,
-      displayActualValue = false
+      logActualValueInError = false
     )
 }

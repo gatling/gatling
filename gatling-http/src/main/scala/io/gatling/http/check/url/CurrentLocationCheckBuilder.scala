@@ -29,7 +29,7 @@ trait CurrentLocationCheckType
 object CurrentLocationCheckBuilder
     extends CheckBuilder.Find.Default[CurrentLocationCheckType, String, String](
       extractor = new FindExtractor[String, String]("currentLocation", Some(_).success).expressionSuccess,
-      displayActualValue = true
+      logActualValueInError = true
     )
 
 object CurrentLocationCheckMaterializer {
