@@ -22,14 +22,27 @@ import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.Predef._
+import io.gatling.core.session.Session
 import io.gatling.http.Predef._
-
-import io.netty.handler.codec.http.HttpMethod
+import io.gatling.http.client.Request
 
 class HttpCompileTest extends Simulation {
   registerPebbleExtensions(null: io.pebbletemplates.pebble.extension.Extension)
   registerJmesPathFunctions(null: io.burt.jmespath.function.Function)
+
+  private val signatureCalculator: (Request, Session) => Validation[Request] = (request, session) => {
+    import java.util.Base64
+    import javax.crypto.Mac
+    import javax.crypto.spec.SecretKeySpec
+    val mac = Mac.getInstance("HmacSHA256")
+    mac.init(new SecretKeySpec("THE_SECRET_KEY".getBytes("UTF-8"), "HmacSHA256"))
+    val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
+    val authorization = Base64.getEncoder.encodeToString(rawSignature)
+    request.getHeaders.add("Authorization", authorization)
+    request
+  }
 
   private val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
@@ -120,6 +133,7 @@ class HttpCompileTest extends Simulation {
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
+    .sign(signatureCalculator)
 
   private val testData3 = Array(Map("foo" -> "bar")).circular
 
@@ -304,17 +318,8 @@ class HttpCompileTest extends Simulation {
     .exec(
       http("Request")
         .get("/foo/bar?baz=qix")
-        .sign { (request, session) =>
-          import java.util.Base64
-          import javax.crypto.Mac
-          import javax.crypto.spec.SecretKeySpec
-          val mac = Mac.getInstance("HmacSHA256")
-          mac.init(new SecretKeySpec("THE_SECRET_KEY".getBytes("UTF-8"), "HmacSHA256"))
-          val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
-          val authorization = Base64.getEncoder.encodeToString(rawSignature)
-          request.getHeaders.add("Authorization", authorization)
-          request
-        }
+        .sign(signatureCalculator)
+        .ignoreProtocolSignatureCalculators
     )
     // proxy
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).https))

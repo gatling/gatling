@@ -87,7 +87,7 @@ object HttpProtocol extends StrictLogging {
         disableUrlEncoding = false,
         silentResources = false,
         silentUri = None,
-        signatureCalculator = None
+        signatureCalculators = Nil
       ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
@@ -175,7 +175,7 @@ final case class HttpProtocolRequestPart(
     disableUrlEncoding: Boolean,
     silentUri: Option[Pattern],
     silentResources: Boolean,
-    signatureCalculator: Option[(Request, Session) => Validation[Request]]
+    signatureCalculators: List[(Request, Session) => Validation[Request]]
 )
 
 final case class HttpProtocolResponsePart(

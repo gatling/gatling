@@ -312,6 +312,15 @@ public abstract class RequestActionBuilder<
   }
 
   /**
+   * Ignore common signature calculators set in the Http protocol configuration
+   *
+   * @return a new DSL instance
+   */
+  public @NonNull T ignoreProtocolSignatureCalculators() {
+    return make(io.gatling.http.request.builder.RequestBuilder::ignoreProtocolSignatureCalculators);
+  }
+
+  /**
    * Set the authorization header for Basic Auth
    *
    * @param username the username, expressed as a Gatling Expression Language String

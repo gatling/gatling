@@ -43,8 +43,9 @@ object CommonAttributes {
       headers = Map.empty,
       realm = None,
       proxy = None,
-      signatureCalculator = None,
-      ignoreProtocolHeaders = false
+      signatureCalculators = Nil,
+      ignoreProtocolHeaders = false,
+      ignoreProtocolSignatureCalculators = false
     )
 }
 
@@ -57,8 +58,9 @@ final case class CommonAttributes(
     headers: Map[CharSequence, Expression[String]],
     realm: Option[Expression[Realm]],
     proxy: Option[Proxy],
-    signatureCalculator: Option[(Request, Session) => Validation[Request]],
-    ignoreProtocolHeaders: Boolean
+    signatureCalculators: List[(Request, Session) => Validation[Request]],
+    ignoreProtocolHeaders: Boolean,
+    ignoreProtocolSignatureCalculators: Boolean
 )
 
 object RequestBuilder {
@@ -115,7 +117,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamMap(map: Map[String, Any]): B = queryParamSeq(tupleSeq2SeqExpression(map.toSeq))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
-  private def queryParam(param: HttpParam): B = newInstance(modify(commonAttributes)(_.queryParams)(_ ::: List(param)))
+  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.modify(_.queryParams)(_ ::: List(param)))
 
   /**
    * Adds a header to the request
@@ -125,7 +127,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param value
    *   the value of the header
    */
-  def header(name: CharSequence, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers)(_ + (name -> value)))
+  def header(name: CharSequence, value: Expression[String]): B = newInstance(commonAttributes.modify(_.headers)(_ + (name -> value)))
 
   /**
    * Adds several headers to the request at the same time
@@ -134,9 +136,11 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    *   a scala map containing the headers to add
    */
   def headers(newHeaders: Map[_ <: CharSequence, String]): B =
-    newInstance(modify(commonAttributes)(_.headers)(_ ++ newHeaders.view.mapValues(_.el[String])))
+    newInstance(commonAttributes.modify(_.headers)(_ ++ newHeaders.view.mapValues(_.el[String])))
 
-  def ignoreProtocolHeaders: B = newInstance(modify(commonAttributes)(_.ignoreProtocolHeaders).setTo(true))
+  def ignoreProtocolHeaders: B = newInstance(commonAttributes.modify(_.ignoreProtocolHeaders).setTo(true))
+
+  def ignoreProtocolSignatureCalculators: B = newInstance(commonAttributes.modify(_.ignoreProtocolSignatureCalculators).setTo(true))
 
   /**
    * Adds BASIC authentication to the request
@@ -148,13 +152,15 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    */
   def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
-  private def authRealm(realm: Expression[Realm]): B = newInstance(modify(commonAttributes)(_.realm).setTo(Some(realm)))
+  private def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.modify(_.realm).setTo(Some(realm)))
 
-  def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
+  def disableUrlEncoding: B = newInstance(commonAttributes.modify(_.disableUrlEncoding).setTo(Some(true)))
 
-  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy)))
+  def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.modify(_.proxy).setTo(Some(httpProxy)))
 
-  def sign(calculator: (Request, Session) => Validation[Request]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
+  def sign(calculator: (Request, Session) => Validation[Request]): B = newInstance(
+    commonAttributes.modify(_.signatureCalculators).using(_ ::: calculator :: Nil)
+  )
 
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
     signWithOAuth1(consumerKey, clientSharedSecret, token, tokenSecret, useAuthoriationHeader = true)

@@ -231,18 +231,23 @@ abstract class RequestExpressionBuilder(
       LocalAddressSupport.localAddresses(session).foreach(requestBuilder.setLocalAddresses)
     }
 
-  private val maybeSignatureCalculator: Option[(Request, Session) => Validation[Request]] =
-    commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
+  private val signatureCalculators: List[(Request, Session) => Validation[Request]] =
+    if (commonAttributes.ignoreProtocolSignatureCalculators) {
+      commonAttributes.signatureCalculators
+    } else {
+      httpProtocol.requestPart.signatureCalculators ::: commonAttributes.signatureCalculators
+    }
+
   private def configureSignatureCalculator(session: Session, requestBuilder: ClientRequestBuilder): Unit =
-    maybeSignatureCalculator match {
-      case Some(signatureCalculator) =>
-        requestBuilder.setSignatureCalculator { request =>
-          signatureCalculator(request, session) match {
+    if (signatureCalculators.nonEmpty) {
+      requestBuilder.setSignatureCalculator { request =>
+        signatureCalculators.foldLeft(request) { (newRequest, signatureCalculator) =>
+          signatureCalculator(newRequest, session) match {
             case Failure(message) => throw new IllegalArgumentException(s"Failed to compute signature: $message")
             case Success(signed)  => signed
           }
         }
-      case _ =>
+      }
     }
 
   protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit
