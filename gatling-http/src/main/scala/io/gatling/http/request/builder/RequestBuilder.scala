@@ -117,7 +117,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamMap(map: Map[String, Any]): B = queryParamSeq(tupleSeq2SeqExpression(map.toSeq))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
-  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.modify(_.queryParams)(_ ::: List(param)))
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.modify(_.queryParams)(_ :+ param))
 
   /**
    * Adds a header to the request
@@ -158,8 +159,9 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.modify(_.proxy).setTo(Some(httpProxy)))
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def sign(calculator: (Request, Session) => Validation[Request]): B = newInstance(
-    commonAttributes.modify(_.signatureCalculators).using(_ ::: calculator :: Nil)
+    commonAttributes.modify(_.signatureCalculators).using(_ :+ calculator)
   )
 
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =

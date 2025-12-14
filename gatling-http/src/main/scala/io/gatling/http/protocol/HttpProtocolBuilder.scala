@@ -112,8 +112,9 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def silentResources: HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentResources).setTo(true)
   def silentUri(pattern: String): HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentUri).setTo(Some(pattern.r.pattern))
   def disableUrlEncoding: HttpProtocolBuilder = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def sign(calculator: (Request, Session) => Validation[Request]): HttpProtocolBuilder =
-    this.modify(_.protocol.requestPart.signatureCalculators).using(_ ::: calculator :: Nil)
+    this.modify(_.protocol.requestPart.signatureCalculators).using(_ :+ calculator)
   def signWithOAuth1(
       consumerKey: Expression[String],
       clientSharedSecret: Expression[String],
