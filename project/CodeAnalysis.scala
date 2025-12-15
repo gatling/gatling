@@ -19,6 +19,7 @@ object CodeAnalysis {
       Wart.Any,
       Wart.AutoUnboxing,
       Wart.AsInstanceOf,
+      Wart.EnumValueOf,
       Wart.Equals,
       Wart.IterableOps,
       Wart.ImplicitConversion,
