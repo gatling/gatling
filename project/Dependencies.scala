@@ -50,7 +50,7 @@ object Dependencies {
   private val joddUtil      = "org.jodd"                      % "jodd-util"                  % "6.3.0"
   private val jmespath      = "io.burt"                       % "jmespath-jackson"           % "0.6.0"
   private val redisClient   = "net.debasishg"                %% "redisclient"                % "3.42"
-  private val commonsPool2  = "org.apache.commons"            % "commons-pool2"              % "2.12.1"
+  private val commonsPool2  = "org.apache.commons"            % "commons-pool2"              % "2.13.0"
   private val testInterface = "org.scala-sbt"                 % "test-interface"             % "1.0"
   private val jmsApi        = "jakarta.jms"                   % "jakarta.jms-api"            % "3.1.0"
   private val logback       = "ch.qos.logback"                % "logback-classic"            % "1.5.22"
