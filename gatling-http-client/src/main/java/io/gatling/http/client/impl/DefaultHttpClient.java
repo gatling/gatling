@@ -179,7 +179,7 @@ public final class DefaultHttpClient implements HttpClient {
                     }
                   });
 
-      Transports.configureOptions(
+      Transports.configureTcpOptions(
           http1Bootstrap,
           (int) config.getConnectTimeout(),
           config.isSoKeepAlive(),

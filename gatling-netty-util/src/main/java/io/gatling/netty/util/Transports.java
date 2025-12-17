@@ -94,10 +94,16 @@ public final class Transports {
     return NIO_DATAGRAM_CHANNEL_FACTORY;
   }
 
-  public static void configureOptions(
+  public static void configureTcpOptions(
       Bootstrap bootstrap, int connectTimeout, boolean soKeepAlive, boolean useEpoll) {
     bootstrap
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
         .option(ChannelOption.SO_KEEPALIVE, soKeepAlive);
+
+    // [ee]
+    //
+    //
+    //
+    // [ee]
   }
 }
