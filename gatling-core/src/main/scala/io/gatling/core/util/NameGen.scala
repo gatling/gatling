@@ -20,10 +20,9 @@ import java.util.concurrent.atomic.AtomicLong
 
 object NameGen {
   private val IdGen = new AtomicLong
+  private[gatling] def genName(base: String): String = s"$base-${IdGen.incrementAndGet}"
 }
 
 trait NameGen {
-  import NameGen._
-
-  def genName(base: String): String = s"$base-${IdGen.incrementAndGet}"
+  def genName(base: String): String = NameGen.genName(base)
 }

@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaDuring;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -39,6 +39,10 @@ public interface During<
     T extends StructureBuilder<T, W>, W extends io.gatling.core.structure.StructureBuilder<W>> {
 
   T make(Function<W, W> f);
+
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("during");
+  }
 
   /////////////// long duration
   /**
@@ -149,7 +153,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> during(@NonNull String duration) {
-    return during(duration, UUID.randomUUID().toString());
+    return during(duration, genDefaultCounterName());
   }
 
   /**
@@ -162,7 +166,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> during(@NonNull String duration, boolean exitASAP) {
-    return during(duration, UUID.randomUUID().toString(), exitASAP);
+    return during(duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -201,7 +205,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> during(@NonNull Function<Session, Duration> duration) {
-    return during(duration, UUID.randomUUID().toString());
+    return during(duration, genDefaultCounterName());
   }
 
   /**
@@ -213,7 +217,7 @@ public interface During<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> during(@NonNull Function<Session, Duration> duration, boolean exitASAP) {
-    return during(duration, UUID.randomUUID().toString(), exitASAP);
+    return during(duration, genDefaultCounterName(), exitASAP);
   }
 
   /**

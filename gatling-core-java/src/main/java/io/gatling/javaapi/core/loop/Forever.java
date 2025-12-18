@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaForever;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -39,13 +39,17 @@ public interface Forever<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("forever");
+  }
+
   /**
    * Define a loop that will iterate forever.
    *
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> forever() {
-    return forever(UUID.randomUUID().toString());
+    return forever(genDefaultCounterName());
   }
 
   /**

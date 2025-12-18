@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaDoWhileDuring;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -41,6 +41,10 @@ public interface DoWhileDuring<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("doWhileDuring");
+  }
+
   // Gatling EL condition
   /**
    * Define a loop that will iterate as long as the condition holds true and a maximum duration
@@ -52,7 +56,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> doWhileDuring(@NonNull String condition, @NonNull String duration) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+    return doWhileDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -76,7 +80,7 @@ public interface DoWhileDuring<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> doWhileDuring(@NonNull String condition, Duration duration) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+    return doWhileDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -89,7 +93,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull String condition, Function<Session, Duration> duration) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+    return doWhileDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -164,7 +168,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull String condition, @NonNull String duration, boolean exitASAP) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return doWhileDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -193,7 +197,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull String condition, Duration duration, boolean exitASAP) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return doWhileDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -208,7 +212,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull String condition, Function<Session, Duration> duration, boolean exitASAP) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return doWhileDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -297,7 +301,7 @@ public interface DoWhileDuring<
   default @NonNull On<T> doWhileDuring(
       @NonNull Function<Session, Boolean> condition,
       @NonNull Function<Session, Duration> duration) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+    return doWhileDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -323,7 +327,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString());
+    return doWhileDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -386,7 +390,7 @@ public interface DoWhileDuring<
       @NonNull Function<Session, Boolean> condition,
       @NonNull Function<Session, Duration> duration,
       boolean exitASAP) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return doWhileDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -416,7 +420,7 @@ public interface DoWhileDuring<
    */
   default @NonNull On<T> doWhileDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
-    return doWhileDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return doWhileDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**

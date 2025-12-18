@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaRepeat;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -39,6 +39,10 @@ public interface Repeat<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("repeat");
+  }
+
   // int
   /**
    * Define a loop that will iterate for a given number of times.
@@ -47,7 +51,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> repeat(int times) {
-    return repeat(unused -> times, UUID.randomUUID().toString());
+    return repeat(unused -> times, genDefaultCounterName());
   }
 
   /**
@@ -70,7 +74,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> repeat(@NonNull String times) {
-    return repeat(times, UUID.randomUUID().toString());
+    return repeat(times, genDefaultCounterName());
   }
 
   /**
@@ -93,7 +97,7 @@ public interface Repeat<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> repeat(@NonNull Function<Session, Integer> times) {
-    return repeat(times, UUID.randomUUID().toString());
+    return repeat(times, genDefaultCounterName());
   }
 
   /**

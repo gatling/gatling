@@ -16,16 +16,16 @@
 
 package io.gatling.core.structure
 
-import java.util.UUID
-
 import io.gatling.core.action.builder.{ Executable, ExitHereBuilder, StopLoadGeneratorBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
 private[structure] trait Errors[B] extends Execs[B] {
+  import SessionPrivateAttributes._
+
   def exitBlockOnFail(chain: Executable, chains: Executable*): B = tryMax(1.expressionSuccess)(chain, chains: _*)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: Executable, chains: Executable*): B =
+  def tryMax(times: Expression[Int], counterName: String = generateUniquePrivateAttribute("tryMax"))(chain: Executable, chains: Executable*): B =
     exec(new TryMaxBuilder(times, counterName, Executable.toChainBuilder(chain, chains)))
 
   def exitHereIf(condition: Expression[Boolean]): B = exec(new ExitHereBuilder(condition))

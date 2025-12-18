@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaAsLongAs;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -39,6 +39,10 @@ public interface AsLongAs<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("asLongAs");
+  }
+
   // Gatling EL condition
 
   /**
@@ -48,7 +52,7 @@ public interface AsLongAs<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAs(@NonNull String condition) {
-    return asLongAs(condition, UUID.randomUUID().toString());
+    return asLongAs(condition, genDefaultCounterName());
   }
 
   /**
@@ -70,7 +74,7 @@ public interface AsLongAs<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAs(@NonNull String condition, boolean exitASAP) {
-    return asLongAs(condition, UUID.randomUUID().toString(), exitASAP);
+    return asLongAs(condition, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -94,7 +98,7 @@ public interface AsLongAs<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAs(@NonNull Function<Session, Boolean> condition) {
-    return asLongAs(condition, UUID.randomUUID().toString());
+    return asLongAs(condition, genDefaultCounterName());
   }
 
   /**
@@ -117,7 +121,7 @@ public interface AsLongAs<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAs(Function<Session, Boolean> condition, boolean exitASAP) {
-    return asLongAs(condition, UUID.randomUUID().toString(), exitASAP);
+    return asLongAs(condition, genDefaultCounterName(), exitASAP);
   }
 
   /**

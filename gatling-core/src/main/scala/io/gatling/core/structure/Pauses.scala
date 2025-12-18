@@ -67,6 +67,7 @@ object Pauses {
 
 private[structure] trait Pauses[B] extends Execs[B] {
   import Pauses._
+  import SessionPrivateAttributes._
 
   /**
    * Method used to define a pause based on a duration defined in the session
@@ -108,7 +109,7 @@ private[structure] trait Pauses[B] extends Execs[B] {
   def pace(duration: FiniteDuration, counter: String): B = pace(duration.expressionSuccess, counter)
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, Some(unit)))
-  def pace(duration: Expression[FiniteDuration]): B = pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute())
+  def pace(duration: Expression[FiniteDuration]): B = pace(duration, generatePrivateAttribute("pace"))
   def pace(duration: Expression[FiniteDuration], counter: String): B = exec(new PaceBuilder(duration, counter))
 
   def pace(min: FiniteDuration, max: FiniteDuration): B = pace(durationExpression(min, max))

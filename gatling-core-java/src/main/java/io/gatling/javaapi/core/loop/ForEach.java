@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaForEach;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +40,10 @@ public interface ForEach<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("foreach");
+  }
+
   /**
    * Define a loop that will iterate over a list of values.
    *
@@ -48,7 +52,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   default @NonNull On<T> foreach(@NonNull List<?> seq, String attributeName) {
-    return foreach(seq, attributeName, UUID.randomUUID().toString());
+    return foreach(seq, attributeName, genDefaultCounterName());
   }
 
   /**
@@ -73,7 +77,7 @@ public interface ForEach<
    * @return a DSL component to define the loop content
    */
   default @NonNull On<T> foreach(@NonNull String seq, String attributeName) {
-    return foreach(seq, attributeName, UUID.randomUUID().toString());
+    return foreach(seq, attributeName, genDefaultCounterName());
   }
 
   /**
@@ -99,7 +103,7 @@ public interface ForEach<
    */
   default @NonNull On<T> foreach(
       @NonNull Function<Session, List<?>> seq, @NonNull String attributeName) {
-    return foreach(seq, attributeName, UUID.randomUUID().toString());
+    return foreach(seq, attributeName, genDefaultCounterName());
   }
 
   /**

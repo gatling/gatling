@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaAsLongAsDuring;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +40,10 @@ public interface AsLongAsDuring<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("asLongAsDuring");
+  }
+
   // Gatling EL condition
   /**
    * Define a loop that will iterate as long as the condition holds true and a maximum duration
@@ -51,7 +55,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAsDuring(@NonNull String condition, @NonNull String duration) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -75,7 +79,7 @@ public interface AsLongAsDuring<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> asLongAsDuring(@NonNull String condition, Duration duration) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -88,7 +92,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull String condition, Function<Session, Duration> duration) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -163,7 +167,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull String condition, @NonNull String duration, boolean exitASAP) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -193,7 +197,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull String condition, Duration duration, boolean exitASAP) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -208,7 +212,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull String condition, Function<Session, Duration> duration, boolean exitASAP) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -294,7 +298,7 @@ public interface AsLongAsDuring<
   default @NonNull On<T> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition,
       @NonNull Function<Session, Duration> duration) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -320,7 +324,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString());
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
   }
 
   /**
@@ -383,7 +387,7 @@ public interface AsLongAsDuring<
       @NonNull Function<Session, Boolean> condition,
       @NonNull Function<Session, Duration> duration,
       boolean exitASAP) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**
@@ -413,7 +417,7 @@ public interface AsLongAsDuring<
    */
   default @NonNull On<T> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
-    return asLongAsDuring(condition, duration, UUID.randomUUID().toString(), exitASAP);
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
   }
 
   /**

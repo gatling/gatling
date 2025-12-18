@@ -16,8 +16,6 @@
 
 package io.gatling.core.session
 
-import java.util.UUID
-
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
@@ -27,6 +25,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 import io.gatling.core.session.el.ElMessages
 import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.util.NameGen
 
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.channel.EventLoop
@@ -38,7 +37,7 @@ private[gatling] object SessionPrivateAttributes {
 
   def generatePrivateAttribute(base: String): String = PrivateAttributePrefix + base
 
-  def generateRandomUuidPrivateAttribute(): String = PrivateAttributePrefix + UUID.randomUUID()
+  def generateUniquePrivateAttribute(base: String): String = generatePrivateAttribute(NameGen.genName(base))
 }
 
 final case class SessionAttribute(session: Session, key: String) {

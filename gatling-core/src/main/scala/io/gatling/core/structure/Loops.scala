@@ -16,8 +16,6 @@
 
 package io.gatling.core.structure
 
-import java.util.UUID
-
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.Clock
@@ -27,8 +25,10 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 
 private[structure] trait Loops[B] extends Execs[B] {
+  import SessionPrivateAttributes._
+
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: Executable, chains: Executable*): B =
+  def repeat(times: Expression[Int], counterName: String = generateUniquePrivateAttribute("repeat"))(chain: Executable, chains: Executable*): B =
     simpleLoop(
       session => times(session).map(session.loopCounterValue(counterName) < _),
       Executable.toChainBuilder(chain, chains),
@@ -38,7 +38,10 @@ private[structure] trait Loops[B] extends Execs[B] {
     )
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments", "org.wartremover.warts.SeqApply"))
-  def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: Executable, chains: Executable*): B = {
+  def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = generateUniquePrivateAttribute("foreach"))(
+      chain: Executable,
+      chains: Executable*
+  ): B = {
     val exposeCurrentValue =
       new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)
 
@@ -63,7 +66,7 @@ private[structure] trait Loops[B] extends Execs[B] {
     during(duration.seconds.expressionSuccess, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def during(duration: Expression[FiniteDuration], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(
+  def during(duration: Expression[FiniteDuration], counterName: String = generateUniquePrivateAttribute("during"), exitASAP: Boolean = true)(
       chain: Executable,
       chains: Executable*
   ): B =
@@ -75,20 +78,20 @@ private[structure] trait Loops[B] extends Execs[B] {
       DuringLoopType
     )
 
-  def forever(chain: Executable, chains: Executable*): B = forever(UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
+  def forever(chain: Executable, chains: Executable*): B = forever(generateUniquePrivateAttribute("forever"))(Executable.toChainBuilder(chain, chains))
 
   def forever(counterName: String)(chain: Executable, chains: Executable*): B =
     simpleLoop(TrueExpressionSuccess, Executable.toChainBuilder(chain, chains), counterName, exitASAP = false, ForeverLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(
+  def asLongAs(condition: Expression[Boolean], counterName: String = generateUniquePrivateAttribute("asLongAs"), exitASAP: Boolean = false)(
       chain: Executable,
       chains: Executable*
   ): B =
     simpleLoop(condition, Executable.toChainBuilder(chain, chains), counterName, exitASAP, AsLongAsLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def doWhile(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString)(chain: Executable, chains: Executable*): B =
+  def doWhile(condition: Expression[Boolean], counterName: String = generateUniquePrivateAttribute("doWhile"))(chain: Executable, chains: Executable*): B =
     simpleLoop(condition, Executable.toChainBuilder(chain, chains), counterName, exitASAP = false, DoWhileType)
 
   private def continueCondition(
@@ -104,85 +107,85 @@ private[structure] trait Loops[B] extends Execs[B] {
         } yield conditionValue && clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis
 
   // we need all those overloads because of Scala bug with implicit conversions inference
-  def asLongAsDuring[D](condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"))(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: String, duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: String, duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: String, duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"))(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
+  def asLongAsDuring(condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
       chain: Executable,
       chains: Executable*
   ): B =
     asLongAsDuring(condition.el[Boolean], duration, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: Expression[Boolean], duration: Int)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"))(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: Expression[Boolean], duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
+  def asLongAsDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"))(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
     asLongAsDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    asLongAsDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def asLongAsDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
+  def asLongAsDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    asLongAsDuring(condition, duration, generateUniquePrivateAttribute("asLongAsDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def asLongAsDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
       chain: Executable,
       chains: Executable*
   ): B =
     clockBasedLoop(continueCondition(condition, duration, counterName), Executable.toChainBuilder(chain, chains), counterName, exitASAP, AsLongAsDuringLoopType)
 
-  def doWhileDuring[D](condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"))(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: String, duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: String, duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: String, duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: String, duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"))(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: String, duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
+  def doWhileDuring(condition: String, duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: String, duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
       chain: Executable,
       chains: Executable*
   ): B =
     doWhileDuring(condition.el[Boolean], duration, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Int)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: Expression[Boolean], duration: Int)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"))(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: Expression[Boolean], duration: Int, counterName: String)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: Expression[Boolean], duration: Int, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: Expression[Boolean], duration: Int, counterName: String, exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration.seconds.expressionSuccess, counterName, exitASAP)(Executable.toChainBuilder(chain, chains))
 
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
+  def doWhileDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration])(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"))(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration, counterName, exitASAP = true)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
-    doWhileDuring(condition, duration, UUID.randomUUID.toString, exitASAP)(Executable.toChainBuilder(chain, chains))
-  def doWhileDuring[D](condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
+  def doWhileDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], exitASAP: Boolean)(chain: Executable, chains: Executable*): B =
+    doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"), exitASAP)(Executable.toChainBuilder(chain, chains))
+  def doWhileDuring(condition: Expression[Boolean], duration: Expression[FiniteDuration], counterName: String, exitASAP: Boolean)(
       chain: Executable,
       chains: Executable*
   ): B =

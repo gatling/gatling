@@ -39,6 +39,10 @@ public interface Paces<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("pace");
+  }
+
   /////////////// long duration
   /**
    * Attach a pace action
@@ -47,7 +51,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(long duration) {
-    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(duration, genDefaultCounterName());
   }
 
   /**
@@ -69,7 +73,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(@NonNull Duration duration) {
-    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(duration, genDefaultCounterName());
   }
 
   /**
@@ -93,7 +97,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(@NonNull String duration) {
-    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(duration, genDefaultCounterName());
   }
 
   /**
@@ -117,7 +121,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(@NonNull Function<Session, Duration> duration) {
-    return pace(duration, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(duration, genDefaultCounterName());
   }
 
   /**
@@ -140,7 +144,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(long min, long max) {
-    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(min, max, genDefaultCounterName());
   }
 
   /**
@@ -164,7 +168,7 @@ public interface Paces<
    * @return a new StructureBuilder
    */
   default @NonNull T pace(@NonNull Duration min, @NonNull Duration max) {
-    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(min, max, genDefaultCounterName());
   }
 
   /**
@@ -205,7 +209,7 @@ public interface Paces<
    */
   default @NonNull T pace(
       @NonNull Function<Session, Duration> min, @NonNull Function<Session, Duration> max) {
-    return pace(min, max, SessionPrivateAttributes.generateRandomUuidPrivateAttribute());
+    return pace(min, max, genDefaultCounterName());
   }
 
   /**

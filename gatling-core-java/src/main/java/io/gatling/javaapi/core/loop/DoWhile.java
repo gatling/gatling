@@ -16,12 +16,12 @@
 
 package io.gatling.javaapi.core.loop;
 
+import io.gatling.core.session.SessionPrivateAttributes;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.StructureBuilder;
 import io.gatling.javaapi.core.exec.Executable;
 import io.gatling.javaapi.core.internal.Executables;
 import io.gatling.javaapi.core.internal.loop.ScalaDoWhile;
-import java.util.UUID;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +40,10 @@ public interface DoWhile<
 
   T make(Function<W, W> f);
 
+  private String genDefaultCounterName() {
+    return SessionPrivateAttributes.generateUniquePrivateAttribute("doWhile");
+  }
+
   // Gatling EL condition
   /**
    * Define a loop that will iterate as long as the condition holds true. The condition is evaluated
@@ -49,7 +53,7 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> doWhile(@NonNull String condition) {
-    return doWhile(condition, UUID.randomUUID().toString());
+    return doWhile(condition, genDefaultCounterName());
   }
 
   /**
@@ -73,7 +77,7 @@ public interface DoWhile<
    * @return a DSL component for defining the loop content
    */
   default @NonNull On<T> doWhile(@NonNull Function<Session, Boolean> condition) {
-    return doWhile(condition, UUID.randomUUID().toString());
+    return doWhile(condition, genDefaultCounterName());
   }
 
   /**
