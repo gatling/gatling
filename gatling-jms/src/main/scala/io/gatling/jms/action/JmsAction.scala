@@ -57,15 +57,14 @@ abstract class JmsAction(
       resolvedJmsDestination <- jmsDestination(session)
       JmsProducer(jmsSession, producer) = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
       message <- attributes.message.jmsMessage(session, jmsSession)
-      around <- aroundSend(reqName, session, message)
-    } yield {
-      props.foreachEntry((key, value) => message.setObjectProperty(key, value))
-      jmsType.foreach(message.setJMSType)
-
-      throttler match {
-        case Some(th) => th ! Throttler.Command.ThrottledRequest(session.scenario, () => around(producer.send(message)))
-        case _        => around(producer.send(message))
+      _ = {
+        props.foreachEntry((key, value) => message.setObjectProperty(key, value))
+        jmsType.foreach(message.setJMSType)
       }
+      around <- aroundSend(reqName, session, message)
+    } yield throttler match {
+      case Some(th) => th ! Throttler.Command.ThrottledRequest(session.scenario, () => around(producer.send(message)))
+      case _        => around(producer.send(message))
     }
 
   private def resolveProperties(
