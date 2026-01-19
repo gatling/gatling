@@ -53,7 +53,7 @@ object Dependencies {
   private val commonsPool2  = "org.apache.commons"            % "commons-pool2"              % "2.13.0"
   private val testInterface = "org.scala-sbt"                 % "test-interface"             % "1.0"
   private val jmsApi        = "jakarta.jms"                   % "jakarta.jms-api"            % "3.1.0"
-  private val logback       = "ch.qos.logback"                % "logback-classic"            % "1.5.24"
+  private val logback       = "ch.qos.logback"                % "logback-classic"            % "1.5.25"
   private val tdigest       = "com.tdunning"                  % "t-digest"                   % "3.3"
   private val hdrHistogram  = "org.hdrhistogram"              % "HdrHistogram"               % "2.2.2"
   private val caffeine      = "com.github.ben-manes.caffeine" % "caffeine"                   % "3.2.3"
