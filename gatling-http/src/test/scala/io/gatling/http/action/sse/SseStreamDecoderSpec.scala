@@ -80,4 +80,113 @@ class SseStreamDecoderSpec extends AnyFlatSpecLike with Matchers {
       (splitPos, decodeChunks(splitPos)) shouldBe (splitPos, expected)
     }
   }
+
+  private def decode(input: String): Seq[ServerSentEvent] = {
+    val buf = Unpooled.wrappedBuffer(input.getBytes(UTF_8))
+    try {
+      val decoder = new SseStreamDecoder
+      decoder.decodeStream(buf)
+    } finally {
+      buf.release()
+    }
+  }
+
+  it should "join multiple data: lines with newline (multiline JSON object)" in {
+    val input =
+      """data: {"foo": "bar",
+        |data: "count": 12}
+        |
+        |""".stripMargin
+
+    val result = decode(input)
+
+    result shouldBe Seq(
+      ServerSentEvent(
+        event = None,
+        data = Some("{\"foo\": \"bar\",\n\"count\": 12}"),
+        id = None,
+        retry = None
+      )
+    )
+  }
+
+  it should "join multiple data: lines with newline (plain text)" in {
+    val input =
+      """data: hello
+        |data: world
+        |
+        |""".stripMargin
+
+    val result = decode(input)
+
+    result shouldBe Seq(
+      ServerSentEvent(
+        event = None,
+        data = Some("hello\nworld"),
+        id = None,
+        retry = None
+      )
+    )
+  }
+
+  it should "join multiple data: lines with other fields interleaved" in {
+    val input =
+      """event: message
+        |data: line1
+        |id: 123
+        |data: line2
+        |data: line3
+        |retry: 5000
+        |
+        |""".stripMargin
+
+    val result = decode(input)
+
+    result shouldBe Seq(
+      ServerSentEvent(
+        event = Some("message"),
+        data = Some("line1\nline2\nline3"),
+        id = Some("123"),
+        retry = Some(5000)
+      )
+    )
+  }
+
+  it should "handle single data: line without joining" in {
+    val input =
+      """data: single line
+        |
+        |""".stripMargin
+
+    val result = decode(input)
+
+    result shouldBe Seq(
+      ServerSentEvent(
+        event = None,
+        data = Some("single line"),
+        id = None,
+        retry = None
+      )
+    )
+  }
+
+  it should "handle empty data: lines in multiline" in {
+    val input =
+      """data: first
+        |data:
+        |data: third
+        |
+        |""".stripMargin
+
+    val result = decode(input)
+
+    result shouldBe Seq(
+      ServerSentEvent(
+        event = None,
+        data = Some("first\n\nthird"),
+        id = None,
+        retry = None
+      )
+    )
+  }
 }
