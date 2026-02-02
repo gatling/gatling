@@ -37,7 +37,8 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
   import SseStreamDecoder._
 
   private[this] var pendingEvent: Option[String] = None
-  private[this] var pendingData: Option[String] = None
+  private[this] var pendingData: String = null
+  private[this] var pendingDataBuilder: StringBuilder = null
   private[this] var pendingId: Option[String] = None
   private[this] var pendingRetry: Option[Int] = None
 
@@ -83,17 +84,26 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
     if (lineLength == 0) {
       // empty line, flushing event
-      if (pendingEvent.isDefined || pendingData.isDefined || pendingId.isDefined || pendingRetry.isDefined) {
+      if (pendingEvent.isDefined || pendingData != null || pendingDataBuilder != null || pendingId.isDefined || pendingRetry.isDefined) {
         // non-empty event (eg just a comment)
+        val data =
+          if (pendingDataBuilder != null) {
+            Some(pendingDataBuilder.toString)
+          } else if (pendingData != null) {
+            Some(pendingData)
+          } else {
+            None
+          }
         pendingEvents += ServerSentEvent(
           event = pendingEvent,
-          data = pendingData,
+          data = data,
           id = pendingId,
           retry = pendingRetry
         )
 
         pendingEvent = None
-        pendingData = None
+        pendingData = null
+        pendingDataBuilder = null
         pendingId = None
         pendingRetry = None
       }
@@ -113,7 +123,17 @@ final class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
                   }
                 case res => pendingId = res
               }
-            case res => pendingData = res
+            case Some(newDataLine) =>
+              if (pendingDataBuilder != null) {
+                pendingDataBuilder.append('\n').append(newDataLine)
+              } else if (pendingData != null) {
+                // 2nd data line: promote to builder
+                pendingDataBuilder = new StringBuilder(pendingData).append('\n').append(newDataLine)
+                pendingData = null
+              } else {
+                // 1st data line: keep as plain String (no extra allocations)
+                pendingData = newDataLine
+              }
           }
         case res => pendingEvent = res
       }
