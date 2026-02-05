@@ -41,7 +41,7 @@ object Dependencies {
   private val xmlresolverData                = xmlresolver                                           classifier "data"
   private val slf4jApi                       = "org.slf4j"                                                    % "slf4j-api"                % "2.0.17"
   private val cfor                           = "io.github.metarank"                                          %% "cfor"                     % "0.3"
-  private val scopt                          = "com.github.scopt"                                            %% "scopt"                    % "3.7.1"
+  private val scopt                          = "com.github.scopt"                                            %% "scopt"                    % "4.1.0"
   private val scalaLogging                   = "com.typesafe.scala-logging"                                  %% "scala-logging"            % "3.9.6"
   private val jackson                        = "com.fasterxml.jackson.core"                                   % "jackson-databind"         % "2.21.0"
   private val sfm = ("org.simpleflatmapper" % "lightning-csv" % "9.0.2")

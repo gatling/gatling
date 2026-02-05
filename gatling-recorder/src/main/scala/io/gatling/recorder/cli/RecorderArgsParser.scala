@@ -47,7 +47,7 @@ private[recorder] final class RecorderArgsParser(args: Array[String]) {
   }
 
   def parseArguments: RecorderArgs =
-    if (cliOptsParser.parse(args)) {
+    if (cliOptsParser.parse(args, ()).isDefined) {
       RecorderArgs(
         simulationsFolder = simulationsFolder.getOrElse(throw new IllegalArgumentException("Missing simulationsFolder")),
         resourcesFolder = resourcesFolder.getOrElse(throw new IllegalArgumentException("Missing resourcesFolder")),

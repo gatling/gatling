@@ -58,7 +58,7 @@ private[app] final class GatlingArgsParser(args: Array[String]) {
     }
 
   def parseArguments: Either[GatlingArgs, StatusCode] =
-    if (cliOptsParser.parse(args)) {
+    if (cliOptsParser.parse(args, ()).isDefined) {
       Left(gatlingArgs)
     } else {
       Right(StatusCode.InvalidArguments)
