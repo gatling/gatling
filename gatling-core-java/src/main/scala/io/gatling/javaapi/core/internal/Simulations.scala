@@ -31,7 +31,7 @@ object Simulations {
       true
     } catch {
       case _: NoSuchMethodException =>
-        val parent = c.getSuperclass
+        val parent: Class[_] = c.getSuperclass
         parent != null && parent.getName != "io.gatling.javaapi.core.Simulation" && isHookDefinedRec(parent, hookName)
     }
 }
