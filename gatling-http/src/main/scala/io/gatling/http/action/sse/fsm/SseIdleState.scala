@@ -57,7 +57,7 @@ final class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) wi
   override def onSseReceived(event: ServerSentEvent, timestamp: Long): NextSseState = {
     // server push message, just log
     logger.debug(s"Received unmatched event=$event")
-    unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, event.asJsonString))
+    unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, event))
     logUnmatchedServerMessage(session)
     NextSseState(this)
   }
