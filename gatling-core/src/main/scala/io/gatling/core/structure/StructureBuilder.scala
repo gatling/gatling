@@ -41,11 +41,11 @@ object ChainBuilder {
  * @param actionBuilders
  *   the builders that represent the chain of actions of a scenario/chain
  */
-final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction with Executable {
+final class ChainBuilder(private[core] val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction with Executable {
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
     new ChainBuilder(newActionBuilders.toList ::: actionBuilders)
 
-  override def toChainBuilder: ChainBuilder = this
+  override private[core] def toChainBuilder: ChainBuilder = this
 }
 
 /**
@@ -56,7 +56,7 @@ final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends Struct
  * @param actionBuilders
  *   the list of all the actions that compose the scenario
  */
-final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBuilder])
+final class ScenarioBuilder(val name: String, private[core] val actionBuilders: List[ActionBuilder])
     extends StructureBuilder[ScenarioBuilder]
     with BuildAction
     with Executable {
@@ -84,10 +84,12 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
   override private[core] def toChainBuilder = new ChainBuilder(actionBuilders)
 
   override def toString = s"ScenarioBuilder($name)"
+
+  private[core] def nonEmpty: Boolean = actionBuilders.nonEmpty
 }
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {
-  override protected def actionBuilders: List[ActionBuilder] = Nil
+  override private[core] def actionBuilders: List[ActionBuilder] = Nil
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
     new ChainBuilder(newActionBuilders.toList)
