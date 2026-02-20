@@ -24,7 +24,7 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 class ShardSpec extends AnyFlatSpecLike with Matchers with ScalaCheckDrivenPropertyChecks {
   "Shard.shards" should "return the proper count" in {
     forAll(Gen.choose(1, Int.MaxValue)) { total =>
-      whenever(total >= 1) {
+      whenever(total > 0) {
         Shard.shards(total, 1000).sum shouldBe total
       }
     }
