@@ -177,7 +177,19 @@ private[http] final class ResourceFetcher(
     inferredResources ::: explicitResources match {
       case Nil => None
       case resources =>
-        Some(new DefaultResourceAggregator(tx, resources, httpCaches, this, httpTxExecutor, coreComponents.clock))
+        Some(
+          new DefaultResourceAggregator(
+            throttled = tx.request.requestConfig.throttled,
+            httpProtocol = tx.request.requestConfig.httpProtocol,
+            silent = tx.silent,
+            next = tx.next,
+            initialResources = resources,
+            httpCaches = httpCaches,
+            resourceFetcher = this,
+            httpTxExecutor = httpTxExecutor,
+            clock = coreComponents.clock
+          )
+        )
     }
   }
 

@@ -20,12 +20,13 @@ import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
+import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.client.Http2PriorKnowledge
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
-import io.gatling.http.protocol.Remote
+import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.HttpRequest
 
 import com.typesafe.scalalogging.StrictLogging
@@ -54,7 +55,10 @@ private[http] trait ResourceAggregator {
 }
 
 private[fetch] final class DefaultResourceAggregator(
-    rootTx: HttpTx,
+    throttled: Boolean,
+    httpProtocol: HttpProtocol,
+    silent: Boolean,
+    next: Action,
     initialResources: List[HttpRequest],
     httpCaches: HttpCaches,
     resourceFetcher: ResourceFetcher,
@@ -63,8 +67,6 @@ private[fetch] final class DefaultResourceAggregator(
 ) extends ResourceAggregator
     with StrictLogging {
   // immutable state
-  private val throttled = rootTx.request.requestConfig.throttled
-  private val httpProtocol = rootTx.request.requestConfig.httpProtocol
   private val http2Enabled = httpProtocol.enginePart.enableHttp2
   private val maxConnectionsPerHost = httpProtocol.enginePart.maxConnectionsPerHost
   private val startTimestamp = clock.nowMillis
@@ -95,11 +97,12 @@ private[fetch] final class DefaultResourceAggregator(
   private def createResourceTx(resource: HttpRequest, http2PriorKnowledge: Http2PriorKnowledge): HttpTx = {
     logger.debug(s"Create ResourceTx ${resource.requestName} ${resource.clientRequest.getUri}")
 
-    val resourceTx = rootTx.copy(
+    val resourceTx = HttpTx(
       session = this.session,
       request = resource.copy(
         clientRequest = resource.clientRequest.copyWithHttp2PriorKnowledge(http2PriorKnowledge)
       ),
+      next = this.next,
       resourceTx = Some(ResourceTx(this, resource.requestName, resource.clientRequest.getUri)),
       redirectCount = 0
     )
@@ -177,14 +180,14 @@ private[fetch] final class DefaultResourceAggregator(
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     val newSession =
-      if (rootTx.silent) {
+      if (silent) {
         session
       } else {
         val sessionWithMark = if (globalStatus == KO) session.markAsFailed else session
         sessionWithMark.logGroupRequestTimings(startTimestamp, clock.nowMillis)
       }
 
-    rootTx.next ! newSession
+    next ! newSession
   }
 
   private def sendBufferedRequest(request: HttpRequest, remote: Remote): Unit =
