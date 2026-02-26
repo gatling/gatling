@@ -24,7 +24,6 @@ import io.gatling.commons.validation.{ safely, SuccessWrapper }
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.javaapi.core.{ ChainBuilder, Session, StructureBuilder }
-import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
 import io.gatling.javaapi.core.loop.ForEach
 
