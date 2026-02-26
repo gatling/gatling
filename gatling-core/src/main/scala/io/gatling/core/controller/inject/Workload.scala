@@ -16,7 +16,7 @@
 
 package io.gatling.core.controller.inject
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ RejectedExecutionException, TimeUnit }
 import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
@@ -60,10 +60,15 @@ private abstract class Workload(
     val userId = userIdGen.incrementAndGet()
     val eventLoop = eventLoopGroup.next()
     if (!eventLoop.isShutdown) {
-      if (delay <= Duration.Zero) {
-        eventLoop.execute(() => startUser(userId, eventLoop))
-      } else {
-        eventLoop.schedule((() => startUser(userId, eventLoop)): Runnable, delay.toMillis, TimeUnit.MILLISECONDS)
+      try {
+        if (delay <= Duration.Zero) {
+          eventLoop.execute(() => startUser(userId, eventLoop))
+        } else {
+          eventLoop.schedule((() => startUser(userId, eventLoop)): Runnable, delay.toMillis, TimeUnit.MILLISECONDS)
+        }
+      } catch {
+        case _: RejectedExecutionException =>
+        // ignore, race condition when EventLoop is closed, eg empty feeder
       }
     }
   }
