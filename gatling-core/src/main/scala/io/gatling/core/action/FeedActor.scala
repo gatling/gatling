@@ -48,7 +48,7 @@ private final class FeedActor[T] private (
     controller: ActorRef[Controller.Command],
     feedCallSite: Option[String]
 ) extends Actor[FeedMessage](feederName) {
-  private def emptyFeederFailure = s"Feeder $feederName is now empty, stopping engine${feedCallSite.fold("")(f => s" (hint: $f)")}".failure
+  private def emptyFeederFailure = s"feeder is now empty${feedCallSite.fold("")(f => s" (hint: $f)")}".failure
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
@@ -108,8 +108,11 @@ private final class FeedActor[T] private (
       }
 
       newAttributes match {
-        case Success(attr)    => next ! session.setAll(attr)
-        case Failure(message) => controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: $message. Stopping engine"))
+        case Success(attr) => next ! session.setAll(attr)
+        case Failure(message) =>
+          controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: $message. Stopping engine") {
+            override def fillInStackTrace(): Throwable = this
+          })
       }
     } catch {
       case NonFatal(e) => controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: ${e.detailedMessage}. Stopping engine", e))
