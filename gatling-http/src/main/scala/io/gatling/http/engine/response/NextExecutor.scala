@@ -38,8 +38,8 @@ final class RootNextExecutor(
     with NameGen {
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     resourceFetcher.newResourceAggregatorForFetchedPage(response, tx.copy(session = session), status) match {
-      case Some(resourceFetcherActor) => resourceFetcherActor.start(session)
-      case _                          => tx.next ! session
+      case Some(resourceAggregator) => resourceAggregator.start(session)
+      case _                        => tx.next ! session
     }
 
   override def executeNextOnCrash(session: Session): Unit =
