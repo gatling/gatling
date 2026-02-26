@@ -278,6 +278,13 @@ class HttpCompileTest extends Simulation {
           http("Request").get("/").queryParam("param", session => "foo")
         )
     )
+    // httpConcurrentRequests
+    .exec(
+      httpConcurrentRequests(
+        http("Request1").post("/"),
+        http("Request2").get("/")
+      )
+    )
     // body
     .exec(http("Request").post("/things").body(StringBody("FOO#{BAR}BAZ")).asJson)
     .exec(http("Request").post("/things").body(ElFileBody("create_thing.txt")))

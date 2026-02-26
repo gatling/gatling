@@ -40,7 +40,7 @@ final class HttpTxExecutor(
     with StrictLogging {
   import coreComponents._
 
-  private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
+  private[http] val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
   private def executeWithCache(origTx: HttpTx)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
@@ -161,7 +161,7 @@ final class HttpTxExecutor(
       }
     }
 
-  def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
+  private def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeHttp2WithCache(origTxs) { txs =>
       val headTx = txs.head
       txs.foreach(tx =>

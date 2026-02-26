@@ -16,8 +16,10 @@
 
 package io.gatling.http
 
+import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.http.action.HttpConcurrentRequestsActionBuilder
 import io.gatling.http.action.sse.Sse
 import io.gatling.http.action.ws.Ws
 import io.gatling.http.check.HttpCheckSupport
@@ -27,7 +29,7 @@ import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, ProxySupport }
 import io.gatling.http.request.BodyPartSupport
-import io.gatling.http.request.builder.Http
+import io.gatling.http.request.builder.{ Http, HttpRequestBuilder }
 import io.gatling.http.request.builder.polling.Polling
 
 trait HttpDsl
@@ -41,6 +43,12 @@ trait HttpDsl
   def http(implicit configuration: GatlingConfiguration): HttpProtocolBuilder = HttpProtocolBuilder(configuration)
 
   def http(requestName: Expression[String]): Http = new Http(requestName)
+
+  def httpConcurrentRequests(head: HttpRequestBuilder, tail: HttpRequestBuilder*): ActionBuilder =
+    new HttpConcurrentRequestsActionBuilder(head :: tail.toList)
+
+  def httpConcurrentRequests(list: List[HttpRequestBuilder]): ActionBuilder =
+    new HttpConcurrentRequestsActionBuilder(list)
 
   val sse: Sse.type = Sse
   val ws: Ws.type = Ws

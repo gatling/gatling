@@ -24,10 +24,15 @@ import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.core.internal.Converters;
 import io.gatling.javaapi.http.internal.HttpCheckBuilder;
 import io.gatling.javaapi.http.internal.HttpCheckBuilders;
 import io.gatling.javaapi.http.internal.HttpCheckType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import scala.Function1;
 
@@ -61,6 +66,41 @@ public final class HttpDsl {
    */
   public static @NonNull Http http(@NonNull Function<Session, String> name) {
     return new Http(javaFunctionToExpression(name));
+  }
+
+  /**
+   * Execute HTTP requests concurrently. Works as resources in terms of concurrency level, meaning
+   * limited to maxConnectionsPerHost over HTTP/1.1.
+   *
+   * @param head the first request of the list
+   * @param tail the next requests of the list
+   * @return an ActionBuilder
+   */
+  public static @NonNull ActionBuilder httpConcurrentRequests(
+      @NonNull HttpRequestActionBuilder head, HttpRequestActionBuilder... tail) {
+    List<io.gatling.http.request.builder.HttpRequestBuilder> requests = new ArrayList<>();
+    requests.add(head.wrapped);
+    Arrays.stream(tail).forEach(request -> requests.add(request.wrapped));
+
+    return () ->
+        new io.gatling.http.action.HttpConcurrentRequestsActionBuilder(
+            Converters.toScalaSeq(requests).toList());
+  }
+
+  /**
+   * Execute HTTP requests concurrently. Works as resources in terms of concurrency level, meaning
+   * limited to maxConnectionsPerHost over HTTP/1.1.
+   *
+   * @param list the requests list
+   * @return an ActionBuilder
+   */
+  public static @NonNull ActionBuilder httpConcurrentRequests(
+      @NonNull List<HttpRequestActionBuilder> list) {
+    List<io.gatling.http.request.builder.HttpRequestBuilder> requests =
+        list.stream().map(request -> request.wrapped).collect(Collectors.toList());
+    return () ->
+        new io.gatling.http.action.HttpConcurrentRequestsActionBuilder(
+            Converters.toScalaSeq(requests).toList());
   }
 
   /**

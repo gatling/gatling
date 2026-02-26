@@ -19,6 +19,7 @@ package io.gatling.http.fetch
 import io.gatling.commons.stats.{ KO, Status }
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
+import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.session._
@@ -192,6 +193,19 @@ private[http] final class ResourceFetcher(
         )
     }
   }
+
+  def newConcurrentRequestsAggregator(concurrentRequests: List[HttpRequest], httpProtocol: HttpProtocol, next: Action): ResourceAggregator =
+    new DefaultResourceAggregator(
+      throttled = false,
+      httpProtocol = httpProtocol,
+      silent = false,
+      next = next,
+      initialResources = concurrentRequests,
+      httpCaches = httpCaches,
+      resourceFetcher = this,
+      httpTxExecutor = httpTxExecutor,
+      clock = coreComponents.clock
+    )
 
   def newResourceAggregatorForCachedPage(tx: HttpTx): Option[ResourceAggregator] = {
     val inferredResources =
