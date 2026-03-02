@@ -19,8 +19,7 @@ package io.gatling.core.json
 import java.util
 
 /**
- * High-performance JSON string validator.
- * Validates JSON syntax per RFC 8259 without building a DOM tree.
+ * High-performance JSON string validator. Validates JSON syntax per RFC 8259 without building a DOM tree.
  */
 @SuppressWarnings(Array("org.wartremover.warts.Return"))
 private[gatling] object JsonValidator {
@@ -38,7 +37,7 @@ private[gatling] object JsonValidator {
 
   private val SharedHexTable: Array[Byte] = {
     val table = new Array[Byte](128)
-    util.Arrays.fill(table, (-1).toByte)
+    util.Arrays.fill(table, -1.toByte)
     var c = '0'.toInt
     while (c <= '9') { table(c) = (c - '0').toByte; c += 1 }
     c = 'a'
@@ -56,7 +55,7 @@ private[gatling] object JsonValidator {
 
   private object PathShort {
 
-    private final val InitialStackCap: Int =32
+    private final val InitialStackCap: Int = 32
 
     private final class Ctx(val s: String) {
       val n: Int = s.length
@@ -136,14 +135,13 @@ private[gatling] object JsonValidator {
       false
     }
 
-    private def skipWs(ctx: Ctx): Unit = {
+    private def skipWs(ctx: Ctx): Unit =
       while (ctx.p < ctx.n) {
         (ch(ctx): @scala.annotation.switch) match {
           case ' ' | '\n' | '\r' | '\t' => ctx.p += 1
           case _                        => return
         }
       }
-    }
 
     private def pushState(ctx: Ctx, state: Byte): Unit = {
       if (ctx.depth == ctx.stack.length) {
@@ -186,19 +184,21 @@ private[gatling] object JsonValidator {
           ctx.p += 1
           if (ctx.p >= ctx.n) return false
           val e = ch(ctx)
-          if (e == '"' || e == '\\' || e == '/' || e == 'b' ||
-            e == 'f' || e == 'n' || e == 'r' || e == 't') {
+          if (
+            e == '"' || e == '\\' || e == '/' || e == 'b' ||
+            e == 'f' || e == 'n' || e == 'r' || e == 't'
+          ) {
             ctx.p += 1
           } else if (e == 'u') {
             ctx.p += 1
             val cp = parseUnicodeEscape(ctx)
             if (cp < 0) return false
-            if (cp >= 0xD800 && cp <= 0xDBFF) {
+            if (cp >= 0xd800 && cp <= 0xdbff) {
               if (ctx.p + 1 >= ctx.n || ch(ctx) != '\\' || ch(ctx, 1) != 'u') return false
               ctx.p += 2
               val lo = parseUnicodeEscape(ctx)
-              if (lo < 0xDC00 || lo > 0xDFFF) return false
-            } else if (cp >= 0xDC00 && cp <= 0xDFFF) return false
+              if (lo < 0xdc00 || lo > 0xdfff) return false
+            } else if (cp >= 0xdc00 && cp <= 0xdfff) return false
           } else return false
         } else {
           if (c < 0x20) return false
@@ -257,7 +257,7 @@ private[gatling] object JsonValidator {
 
   private object PathLong {
 
-    private final val InitialStackCap: Int =24
+    private final val InitialStackCap: Int = 24
     private val HexTable: Array[Byte] = SharedHexTable
 
     private val TlBuf: ThreadLocal[Array[Char]] =
@@ -343,14 +343,13 @@ private[gatling] object JsonValidator {
       false
     }
 
-    private def skipWs(ctx: Ctx): Unit = {
+    private def skipWs(ctx: Ctx): Unit =
       while (ctx.p < ctx.n) {
         (ch(ctx): @scala.annotation.switch) match {
           case ' ' | '\n' | '\r' | '\t' => ctx.p += 1
           case _                        => return
         }
       }
-    }
 
     private def pushState(ctx: Ctx, state: Byte): Unit = {
       if (ctx.depth == ctx.stack.length) {
@@ -385,19 +384,21 @@ private[gatling] object JsonValidator {
           ctx.p += 1
           if (ctx.p >= ctx.n) return false
           val e = ch(ctx)
-          if (e == '"' || e == '\\' || e == '/' || e == 'b' ||
-            e == 'f' || e == 'n' || e == 'r' || e == 't') {
+          if (
+            e == '"' || e == '\\' || e == '/' || e == 'b' ||
+            e == 'f' || e == 'n' || e == 'r' || e == 't'
+          ) {
             ctx.p += 1
           } else if (e == 'u') {
             ctx.p += 1
             val cp = parseUnicodeEscape(ctx)
             if (cp < 0) return false
-            if (cp >= 0xD800 && cp <= 0xDBFF) {
+            if (cp >= 0xd800 && cp <= 0xdbff) {
               if (ctx.p + 1 >= ctx.n || ch(ctx) != '\\' || ch(ctx, 1) != 'u') return false
               ctx.p += 2
               val lo = parseUnicodeEscape(ctx)
-              if (lo < 0xDC00 || lo > 0xDFFF) return false
-            } else if (cp >= 0xDC00 && cp <= 0xDFFF) return false
+              if (lo < 0xdc00 || lo > 0xdfff) return false
+            } else if (cp >= 0xdc00 && cp <= 0xdfff) return false
           } else return false
         } else {
           if (c < 0x20) return false
