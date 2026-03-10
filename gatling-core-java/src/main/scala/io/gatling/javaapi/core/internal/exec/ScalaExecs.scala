@@ -33,7 +33,7 @@ object ScalaExecs {
 
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: Execs[T, W],
-      structureBuilders: ju.List[ChainBuilder]
+      chainBuilders: ju.List[ChainBuilder]
   ): T =
-    context.make(_.exec(structureBuilders.asScala.map(_.wrapped)))
+    context.make(_.exec(chainBuilders.asScala.map(_.wrapped)))
 }
