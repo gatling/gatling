@@ -26,7 +26,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.util.ResourceCache
+import io.gatling.core.util.{ CallSites, ResourceCache }
 
 trait FeederSupport extends ResourceCache {
   implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
@@ -52,13 +52,18 @@ trait FeederSupport extends ResourceCache {
   ): FileBasedFeederBuilder[String] =
     cachedResource(filePath) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
-      case Failure(message)  => throw new FileNotFoundException(s"Could not locate feeder file: $message")
+      case Failure(message)  => throw newStacklessFileNotFoundException(message)
     }
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
     cachedResource(filePath) match {
       case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers), configuration)
-      case Failure(message)  => throw new FileNotFoundException(s"Could not locate feeder file: $message")
+      case Failure(message)  => throw newStacklessFileNotFoundException(message)
+    }
+
+  private def newStacklessFileNotFoundException(message: String): FileNotFoundException =
+    new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteOutsideGatling.fold("")(f => s" (hint: $f)")}") {
+      override def fillInStackTrace(): Throwable = this
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
