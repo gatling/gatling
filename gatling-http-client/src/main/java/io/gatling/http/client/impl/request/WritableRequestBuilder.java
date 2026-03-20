@@ -84,7 +84,10 @@ public final class WritableRequestBuilder {
     }
 
     return new WritableRequest(
-        new DefaultHttpRequest(HttpVersion.HTTP_1_1, method, url, headers), body);
+        // disabling request line validation on purpose:
+        // perf cost + Gatling is a test tool and testers might want to intentionally use corrupted
+        // request lines
+        new DefaultHttpRequest(HttpVersion.HTTP_1_1, method, url, headers, false), body);
   }
 
   public static WritableRequest buildRequest(
