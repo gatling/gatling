@@ -27,9 +27,9 @@ import io.gatling.core.actor.ActorSystem
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Controller
-import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
+import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.{ Scenario, SimulationParams }
+import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
@@ -52,11 +52,11 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(gatlingArgs)
-    val (simulationParams, runMessage, coreComponents, scenarioFlows) = load(selection)
+    val (simulationParams, runMessage, coreComponents) = load(selection)
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
-    start(simulationParams, scenarioFlows, coreComponents) match {
+    start(simulationParams, coreComponents) match {
       case Failure(t) =>
         // [ee]
         //
@@ -84,8 +84,8 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
 
-  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents, ScenarioFlows[String, Scenario]) = {
-    val simulationParams = selection.simulationClass.params(configuration)
+  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents) = {
+    val simulationParams = selection.simulationClass.params
     logger.trace("Simulation params built")
 
     simulationParams.before.foreach { before =>
@@ -103,7 +103,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     )
     val coreComponents = {
       val statsEngine = newStatsEngine(simulationParams, runMessage)
-      val throttler = Throttler.actor(simulationParams.throttlings).map(system.actorOf)
+      val throttler = Throttler.actor(simulationParams.throttlings(configuration)).map(system.actorOf)
       val injector = system.actorOf(Injector.actor(eventLoopGroup, statsEngine, clock))
       val controller = system.actorOf(Controller.actor(statsEngine, injector, throttler, simulationParams))
       val exit = new Exit(injector)
@@ -111,16 +111,14 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     }
     logger.trace("CoreComponents instantiated")
 
-    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
-
-    (simulationParams, runMessage, coreComponents, scenarioFlows)
+    (simulationParams, runMessage, coreComponents)
   }
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
-      scenarioFlows: ScenarioFlows[String, Scenario],
       coreComponents: CoreComponents
   ): Try[Unit] = {
+    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")

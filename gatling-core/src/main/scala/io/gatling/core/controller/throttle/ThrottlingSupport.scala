@@ -19,6 +19,16 @@ package io.gatling.core.controller.throttle
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 
+object ThrottleStep {
+  def duration(steps: Iterable[ThrottleStep]): Option[FiniteDuration] =
+    steps
+      .collect {
+        case Reach(_, d) => d
+        case Hold(d)     => d
+      }
+      .reduceLeftOption(_ + _)
+}
+
 sealed trait ThrottleStep extends Product with Serializable {
   val durationInSec: Long
   def target(previousLastValue: Int): Int
@@ -58,6 +68,13 @@ final case class Throttlings(global: Option[Throttling], perScenario: Map[String
 }
 
 object Throttling {
+  def of(steps: Iterable[ThrottleStep]): Option[Throttling] =
+    Option.when(steps.nonEmpty) {
+      val reversedSteps = steps.toList
+      val limit: Long => Int = valueAt(reversedSteps, _, 0)
+      Throttling(limit)
+    }
+
   @tailrec
   private def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
     case Nil => 0
@@ -67,22 +84,6 @@ object Throttling {
       else
         valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
   }
-
-  def apply(steps: Iterable[ThrottleStep]): Throttling = {
-    val reversedSteps = steps.toList
-    val limit: Long => Int = valueAt(reversedSteps, _, 0)
-
-    val duration: FiniteDuration =
-      steps.foldLeft(Duration.Zero) { (acc, step) =>
-        step match {
-          case Reach(_, d) => acc + d
-          case Hold(d)     => acc + d
-          case _           => acc
-        }
-      }
-
-    Throttling(limit, duration)
-  }
 }
 
-final case class Throttling(limit: Long => Int, duration: FiniteDuration)
+final case class Throttling(limit: Long => Int)

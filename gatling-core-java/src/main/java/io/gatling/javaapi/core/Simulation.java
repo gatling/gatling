@@ -18,7 +18,6 @@ package io.gatling.javaapi.core;
 
 import static io.gatling.javaapi.core.internal.Converters.*;
 
-import io.gatling.core.config.GatlingConfiguration;
 import io.gatling.core.protocol.Protocol;
 import io.gatling.core.scenario.SimulationParams;
 import io.gatling.javaapi.core.internal.Converters;
@@ -264,8 +263,7 @@ public abstract class Simulation {
     }
   }
 
-  public SimulationParams params(
-      GatlingConfiguration configuration, @Nullable String simulationName) {
+  public SimulationParams params(@Nullable String simulationName) {
     return io.gatling.core.scenario.Simulation$.MODULE$.params(
         simulationName != null ? simulationName : getClass().getName(),
         toScalaSeq(
@@ -280,7 +278,6 @@ public abstract class Simulation {
         toScalaSeq(
             _globalThrottleSteps.stream().map(ThrottleStep::asScala).collect(Collectors.toList())),
         Simulations.toScalaHookOption(getClass(), "before", this::before),
-        Simulations.toScalaHookOption(getClass(), "after", this::after),
-        configuration);
+        Simulations.toScalaHookOption(getClass(), "after", this::after));
   }
 }

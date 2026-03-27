@@ -20,7 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.controller.inject.{ InjectionProfile, ScenarioFlows }
-import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
+import io.gatling.core.controller.throttle.ThrottleStep
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.scenario.Scenario
@@ -76,10 +76,12 @@ final case class PopulationBuilder(
       coreComponents: CoreComponents,
       protocolComponentsRegistries: ProtocolComponentsRegistries,
       globalPauseType: PauseType,
-      globalThrottling: Option[Throttling]
+      globalThrottlingEnabled: Boolean
   ): ScenarioFlows.Node[String, Scenario] = {
+    val throttlingEnabled = globalThrottlingEnabled || scenarioThrottleSteps.nonEmpty
+
     val resolvedPauseType =
-      if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {
+      if (throttlingEnabled) {
         logger.info("Throttle is enabled, disabling pauses")
         Disabled
       } else {
@@ -88,7 +90,7 @@ final case class PopulationBuilder(
 
     val protocolComponentsRegistry = protocolComponentsRegistries.scenarioRegistry(scenarioProtocols)
 
-    val ctx = new ScenarioContext(coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
+    val ctx = new ScenarioContext(coreComponents, protocolComponentsRegistry, resolvedPauseType, throttlingEnabled)
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
@@ -102,7 +104,7 @@ final case class PopulationBuilder(
         injectionProfile,
         ctx
       ),
-      childrenSequences = children.map(_.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling)))
+      childrenSequences = children.map(_.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottlingEnabled)))
     )
   }
 }

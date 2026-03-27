@@ -18,12 +18,11 @@ package io.gatling.app
 
 import java.lang.reflect.Modifier
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.scenario.{ Simulation, SimulationParams }
 
 sealed abstract class SimulationClass(clazz: Class[_]) extends Product with Serializable {
   def simpleName: String = clazz.getSimpleName
-  def params(configuration: GatlingConfiguration): SimulationParams
+  def params: SimulationParams
 }
 
 object SimulationClass {
@@ -45,15 +44,15 @@ object SimulationClass {
     }
 
   final case class Scala(clazz: Class[Simulation]) extends SimulationClass(clazz) {
-    override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getConstructor().newInstance().params(configuration)
+    override def params: SimulationParams =
+      clazz.getConstructor().newInstance().params
   }
   final case class Java(clazz: Class[JavaSimulation]) extends SimulationClass(clazz) {
-    override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getConstructor().newInstance().params(configuration, null)
+    override def params: SimulationParams =
+      clazz.getConstructor().newInstance().params(null)
   }
   final case class JavaScript(clazz: Class[JavaSimulation], simulationName: String) extends SimulationClass(clazz) {
-    override def params(configuration: GatlingConfiguration): SimulationParams =
-      clazz.getConstructor().newInstance().params(configuration, simulationName)
+    override def params: SimulationParams =
+      clazz.getConstructor().newInstance().params(simulationName)
   }
 }

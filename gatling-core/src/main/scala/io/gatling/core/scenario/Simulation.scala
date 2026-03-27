@@ -38,15 +38,17 @@ object Simulation {
       _globalPauseType: PauseType,
       _globalThrottleSteps: Iterable[ThrottleStep],
       _before: Option[() => Unit],
-      _after: Option[() => Unit],
-      configuration: GatlingConfiguration
+      _after: Option[() => Unit]
   ): SimulationParams = {
     require(!_populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
+    require(_populationBuilders.nonEmpty, "No scenario configured, make sure to call setUp.")
 
-    val rootPopulationBuilders = _populationBuilders
-    require(rootPopulationBuilders.nonEmpty, "No scenario configured, make sure to call setUp.")
+    val allPopulationBuilders = PopulationBuilder.flatten(_populationBuilders)
 
-    val allPopulationBuilders = PopulationBuilder.flatten(rootPopulationBuilders)
+    allPopulationBuilders.foreach { scn =>
+      require(scn.scenarioBuilder.name.nonEmpty, "Scenario name cannot be empty")
+      require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty")
+    }
 
     val duplicates =
       allPopulationBuilders
@@ -54,42 +56,18 @@ object Simulation {
         .collect { case (name, scns) if scns.sizeIs > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
 
-    allPopulationBuilders.foreach { scn =>
-      require(scn.scenarioBuilder.name.nonEmpty, "Scenario name cannot be empty")
-      require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty")
-    }
-
-    val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { populationBuilder =>
-      val steps = populationBuilder.scenarioThrottleSteps
-
-      if (steps.isEmpty) {
-        Nil
-      } else {
-        List(populationBuilder.scenarioBuilder.name -> Throttling(steps))
-      }
-    }.toMap
-
-    val globalThrottling =
-      if (_globalThrottleSteps.isEmpty) {
-        None
-      } else {
-        Some(Throttling(_globalThrottleSteps))
-      }
-
     val maxDuration = {
-      val globalThrottlingMaxDuration = globalThrottling.map(_.duration)
-      val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
-
-      (_maxDuration.map(_ :: Nil).getOrElse(Nil) ::: globalThrottlingMaxDuration.map(_ :: Nil).getOrElse(Nil) ::: scenarioThrottlingMaxDurations)
-        .reduceLeftOption(_ min _)
+      val globalThrottleMaxDuration = ThrottleStep.duration(_globalThrottleSteps)
+      val scenarioThrottlingMaxDurations = _populationBuilders.map(populationBuilder => ThrottleStep.duration(populationBuilder.scenarioThrottleSteps))
+      (_maxDuration :: globalThrottleMaxDuration :: scenarioThrottlingMaxDurations).flatten.minOption
     }
 
     new SimulationParams(
       name,
-      rootPopulationBuilders,
+      _populationBuilders,
       _globalProtocols,
       _globalPauseType,
-      Throttlings(globalThrottling, scenarioThrottlings),
+      _globalThrottleSteps,
       maxDuration,
       _assertions,
       _before,
@@ -163,7 +141,7 @@ abstract class Simulation {
     def normalPausesWithPercentageDuration(stdDevPercent: Double): SetUp = pauses(new NormalWithPercentageDuration(stdDevPercent))
   }
 
-  private[gatling] def params(configuration: GatlingConfiguration): SimulationParams =
+  private[gatling] def params: SimulationParams =
     Simulation.params(
       getClass.getName,
       _populationBuilders,
@@ -173,8 +151,7 @@ abstract class Simulation {
       _globalPauseType,
       _globalThrottleSteps,
       Option.when(_beforeSteps.nonEmpty)(() => _beforeSteps.reverse.foreach(_.apply())),
-      Option.when(_afterSteps.nonEmpty)(() => _afterSteps.reverse.foreach(_.apply())),
-      configuration
+      Option.when(_afterSteps.nonEmpty)(() => _afterSteps.reverse.foreach(_.apply()))
     )
 }
 
@@ -183,17 +160,31 @@ final class SimulationParams(
     val rootPopulationBuilders: List[PopulationBuilder],
     val globalProtocols: Protocols,
     val globalPauseType: PauseType,
-    val throttlings: Throttlings,
+    val globalThrottleSteps: Iterable[ThrottleStep],
     val maxDuration: Option[FiniteDuration],
     val assertions: Seq[Assertion],
     val before: Option[() => Unit],
     val after: Option[() => Unit]
 ) {
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
-    populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global)
+    populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottleSteps.nonEmpty)
 
   def scenarioFlows(coreComponents: CoreComponents): ScenarioFlows[String, Scenario] = {
     val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
     ScenarioFlows.fromNodes(rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries)))
+  }
+
+  def throttlings(configuration: GatlingConfiguration): Throttlings = {
+    val globalThrottling = Throttling.of(globalThrottleSteps)
+
+    val allPopulationBuilders = PopulationBuilder.flatten(rootPopulationBuilders)
+
+    val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { populationBuilder =>
+      Throttling
+        .of(populationBuilder.scenarioThrottleSteps)
+        .map(t => populationBuilder.scenarioBuilder.name -> t)
+    }.toMap
+
+    Throttlings(globalThrottling, scenarioThrottlings)
   }
 }
