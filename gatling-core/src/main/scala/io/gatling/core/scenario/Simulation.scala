@@ -58,7 +58,7 @@ object Simulation {
 
     val maxDuration = {
       val globalThrottleMaxDuration = ThrottleStep.duration(_globalThrottleSteps)
-      val scenarioThrottlingMaxDurations = _populationBuilders.map(populationBuilder => ThrottleStep.duration(populationBuilder.scenarioThrottleSteps))
+      val scenarioThrottlingMaxDurations = allPopulationBuilders.map(populationBuilder => ThrottleStep.duration(populationBuilder.scenarioThrottleSteps))
       (_maxDuration :: globalThrottleMaxDuration :: scenarioThrottlingMaxDurations).flatten.minOption
     }
 
