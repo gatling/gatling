@@ -74,11 +74,10 @@ final case class SsePerformingCheckState(
   private def tryApplyingChecks(event: ServerSentEvent, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
-    val eventJsonString = event.asJsonString
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall {
-      _.check(eventJsonString, session, preparedCache) match {
+      _.check(event, session, preparedCache) match {
         case _: Success[_] => true
         case _             => false
       }
@@ -86,7 +85,7 @@ final case class SsePerformingCheckState(
     if (messageMatches) {
       logger.debug(s"Received matching message $event")
       // matching message, apply checks
-      val (sessionWithCheckUpdate, checkError) = Check.check(eventJsonString, session, checks, preparedCache)
+      val (sessionWithCheckUpdate, checkError) = Check.check(event, session, checks, preparedCache)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
@@ -145,7 +144,7 @@ final case class SsePerformingCheckState(
       }
     } else {
       logger.debug(s"Received non-matching message $event")
-      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, eventJsonString))
+      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, event))
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextSseState(this)
