@@ -16,7 +16,7 @@
 
 package io.gatling.core.controller.inject.open
 
-import java.util.Random
+import java.util.{ NoSuchElementException, SplittableRandom }
 
 import scala.collection.AbstractIterator
 import scala.concurrent.duration._
@@ -280,30 +280,45 @@ final case class PoissonOpenInjection private[inject] (duration: FiniteDuration,
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
   require(!((startRate > 0 || endRate > 0) && duration == Duration.Zero), s"can't inject non 0 rates ($startRate, $endRate) for a 0 duration")
 
-  override private[inject] val users: Long = chain(Iterator.empty).size
+  private val durationSec = duration.toSeconds.toDouble
+
+  override private[inject] val users: Long = ((startRate + endRate) / 2.0 * durationSec).toLong
 
   override private[inject] def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (startRate == 0 && endRate == 0) {
       NothingForOpenInjection(duration).chain(chained)
     } else {
-      val durationSecs = duration.toSeconds
-      val rand = new Random(seed)
+      val dr = endRate - startRate
+      val random = new SplittableRandom(seed)
 
-      // Uses Lewis and Shedler's thinning algorithm: https://www.math.fsu.edu/~ychen/research/Thinning%20algorithm.pdf chapter 3.2.2
-      val maxLambda = math.max(startRate, endRate)
-      def shouldKeep(d: Double) = {
-        val actualLambda = startRate + (endRate - startRate) * d / durationSecs
-        rand.nextDouble() < actualLambda / maxLambda
+      val baseIt = new AbstractIterator[Double] {
+        private var k = 0L
+        private var u = 0.0
+        def hasNext: Boolean = k < users
+        def next(): Double = {
+          u = 1.0 - (1.0 - u) * math.pow(random.nextDouble(), 1.0 / (users - k))
+          k += 1
+          u
+        }
       }
 
-      val rawIntervals = Iterator.continually(-math.log(rand.nextDouble()) / maxLambda)
+      val it =
+        if (dr == 0.0) {
+          // Constant rate: sorted uniforms scaled to [0, d]
+          baseIt.map { u =>
+            math.min(u * durationSec, durationSec).seconds
+          }
+        } else {
+          // Variable rate: inverse CDF of sorted uniform order statistics
+          val r1Sq = startRate * startRate
+          val r2Sq = endRate * endRate
+          val dOverDr = durationSec / dr
+          baseIt.map { u =>
+            math.min(dOverDr * (math.sqrt((1.0 - u) * r1Sq + u * r2Sq) - startRate), durationSec).seconds
+          }
+        }
 
-      rawIntervals
-        .scanLeft(0.0)(_ + _) // Rolling sum
-        .drop(1) // Throw away first value of 0.0. It is not random, but a quirk of using scanLeft
-        .takeWhile(_ < durationSecs)
-        .filter(shouldKeep)
-        .map(_.seconds) ++ chained.map(_ + duration)
+      it ++ chained.map(_ + duration)
     }
 }
 

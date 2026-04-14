@@ -168,24 +168,28 @@ class OpenInjectionStepSpec extends AnyFlatSpecLike with Matchers {
     // Inject 1000 users per second for 60 seconds
     val inject = PoissonOpenInjection(60.seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
-    scheduling.size shouldBe (inject.users + 1)
-    scheduling.size shouldBe 60001 +- 200 // 60000 for the users injected by PoissonInjection, plus the 0 second one
-    scheduling.last shouldBe (60.seconds)
+    inject.users shouldBe 60000
+    scheduling.size shouldBe 60001 // 60000 for the users injected by PoissonInjection, plus the 0 second one
+    scheduling.last.toMillis shouldBe 60000L +- 5L
     scheduling(scheduling.size - 2).toMillis shouldBe 60000L +- 5L
     scheduling.head.toMillis shouldBe 0L +- 5L
-    scheduling(30000).toMillis shouldBe 30000L +- 1000L // Half-way through we should have injected half of the users
+    scheduling.iterator.zipWithIndex.collectFirst {
+      case (timestamp, i) if timestamp > 30.seconds => i
+    }.get shouldBe 30000 +- 1000 // Half-way through we should have injected half of the users
   }
 
   it should "inject ramped users at approximately the right rate" in {
     // ramp from 0 to 1000 users per second over 60 seconds
     val inject = PoissonOpenInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
-    scheduling.size shouldBe (inject.users + 1)
-    scheduling.size shouldBe 30001 +- 500 // 30000 for the users injected by PoissonInjection, plus the 0 second one
+    inject.users shouldBe 30000
+    scheduling.size shouldBe 30001 // 30000 for the users injected by PoissonInjection, plus the 0 second one
     scheduling.last shouldBe (60.seconds)
     scheduling(scheduling.size - 2).toMillis shouldBe 60000L +- 5L
-    scheduling.head.toMillis shouldBe 0L +- 200L
-    scheduling(7500).toMillis shouldBe 30000L +- 1000L // Half-way through ramp-up we should have run a quarter of users
+    scheduling.head.toMillis shouldBe 0L +- 400L
+    scheduling.iterator.zipWithIndex.collectFirst {
+      case (timestamp, i) if timestamp > 30.seconds => i
+    }.get shouldBe 7500 +- 1000 // Half-way through we should have injected the quarter of the users
   }
 
   "Chain steps" should "inject the expected number of users" in {
