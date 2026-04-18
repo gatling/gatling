@@ -17,7 +17,6 @@
 package io.gatling.commons.util
 
 import java.{ lang => jl }
-import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 import java.util.Locale
 
@@ -27,7 +26,6 @@ import io.github.metarank.cfor._
 
 object StringHelper {
   val Eol: String = System.lineSeparator
-  val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
   object RichString {
     private val SbPool = new StringBuilderPool

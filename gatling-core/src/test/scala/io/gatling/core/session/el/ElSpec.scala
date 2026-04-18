@@ -22,7 +22,6 @@ import java.util.UUID
 import io.gatling.ValidationValues
 import io.gatling.commons.validation.Success
 import io.gatling.core.EmptySession
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.el
 
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -46,8 +45,6 @@ final case class Primitives(
 )
 
 class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with EmptySession {
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-
   private def newSession(attributes: Map[String, Any]) =
     emptySession.copy(attributes = attributes)
 
@@ -694,10 +691,22 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     expression(session).succeeded shouldBe "foo é bar"
   }
 
-  "Escaping" should "turn \\#{ into #{" in {
+  "Escaping backlash" should """disable dynamic when single""" in {
     val session = newSession(Map("foo" -> "FOO"))
-    val expression = "\\#{foo}".el[String]
-    expression(session).succeeded shouldBe "#{foo}"
+    val expression = """a\#{foo}""".el[String]
+    expression(session).succeeded shouldBe "a#{foo}"
+  }
+
+  it should """leave dynamic when double""" in {
+    val session = newSession(Map("foo" -> "FOO"))
+    val expression = """a\\#{foo}""".el[String]
+    expression(session).succeeded shouldBe """a\FOO"""
+  }
+
+  it should """disable dynamic when triple""" in {
+    val session = newSession(Map("foo" -> "FOO"))
+    val expression = """aaa\\\#{foo}""".el[String]
+    expression(session).succeeded shouldBe """aaa\#{foo}"""
   }
 
   "randomUuid" should "generate uuid" in {

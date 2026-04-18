@@ -310,9 +310,10 @@ object ElCompiler extends StrictLogging {
   private val NumberRegex = """\d+""".r
   private val NumberRegexWithNegative = """-?\d+""".r
   private val DecimalRegexWithNegative = """-?\d+\.\d+""".r
-  private val DynamicPartStart = "#{".toCharArray
+  private val DynamicPartStart = "#{"
+  private val DynamicPartStartChars = DynamicPartStart.toCharArray
 
-  private val ElCompilers = new ThreadLocal[ElCompiler] {
+  private val ElCompilers: ThreadLocal[ElCompiler] = new ThreadLocal[ElCompiler] {
     override def initialValue = new ElCompiler
   }
 
@@ -370,7 +371,7 @@ final class ElCompiler private extends RegexParsers {
   private def parseEl(string: String): List[ElPart[Any]] = {
     val parseResult =
       try {
-        parseAll(expr, string)
+        parseAll(parser, string)
       } catch { case NonFatal(e) => throw new ElParserException(string, e.getMessage) }
 
     parseResult match {
@@ -379,9 +380,7 @@ final class ElCompiler private extends RegexParsers {
     }
   }
 
-  private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | elExpr.^^(_ :: Nil)
-
-  private def multivaluedExpr: Parser[List[ElPart[Any]]] = (elExpr | staticPart).*
+  private val parser: Parser[List[ElPart[Any]]] = (elExpr | staticPart).*
 
   private val staticPartPattern: Parser[List[String]] = new Parser[String] {
     override def apply(in: Input): ParseResult[String] = {
@@ -389,15 +388,26 @@ final class ElCompiler private extends RegexParsers {
       val offset = in.offset
       val end = source.length
 
-      def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
-
-      source.indexOf(DynamicPartStart, offset) match {
-        case -1 => success(end)
+      source.indexOf(DynamicPartStartChars, offset) match {
+        case -1 => Success(source.subSequence(offset, end).toString, in.drop(end - offset))
         case n =>
-          if (n - 1 >= offset && source.charAt(n - 1) == '\\') {
-            Success("#{", in.drop(n - offset + 2))
+          var precedingBackslashesCount = 0
+          var pos = n - 1
+          while (pos >= offset && source.charAt(pos) == '\\') {
+            precedingBackslashesCount += 1
+            pos -= 1
+          }
+          val escapedBackslashesCount = precedingBackslashesCount / 2
+          val unescapedBackslashesCount = precedingBackslashesCount % 2
+
+          val precedingCharacters = source.subSequence(offset, n - precedingBackslashesCount) + "\\" * escapedBackslashesCount
+
+          if (unescapedBackslashesCount == 0) {
+            // the dynamic header is not escaped
+            Success(precedingCharacters, in.drop(n - offset))
           } else {
-            success(n)
+            // the dynamic header is escaped
+            Success(precedingCharacters + DynamicPartStart, in.drop(n - offset + DynamicPartStart.length))
           }
       }
     }
@@ -414,7 +424,7 @@ final class ElCompiler private extends RegexParsers {
       _ => "Not a static part"
     )
 
-  private def elExpr: Parser[ElPart[Any]] = "#{" ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
+  private def elExpr: Parser[ElPart[Any]] = DynamicPartStart ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
 
   private def currentTimeMillis: Parser[ElPart[Any]] = "currentTimeMillis()" ^^ (_ => CurrentTimeMillisPart)
 
