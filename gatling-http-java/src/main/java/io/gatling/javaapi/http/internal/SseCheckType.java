@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package io.gatling.http.action.sse
+package io.gatling.javaapi.http.internal;
 
-import io.gatling.http.action.sse.fsm.ServerSentEvent
+import io.gatling.javaapi.core.CheckBuilder;
 
-final case class SseInboundMessage(timestamp: Long, message: ServerSentEvent)
+public enum SseCheckType implements CheckBuilder.CheckType {
+  SseEvent,
+  SseData,
+  SseId,
+  SseRetry
+}

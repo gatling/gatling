@@ -34,13 +34,30 @@ public class SseJavaCompileTest extends Simulation {
               .await(30)
               .on(
                   sse.checkMessage("checkName1")
-                      .check(regex("event: snapshot(.*)"))
+                      .check(regex(".*"))
                       .checkIf("#{cond}")
-                      .then(regex("event: snapshot(.*)"))),
+                      .then(regex(".*"))),
           sse("waitForSomeMessage")
               .setCheck()
               .await(30)
               .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))),
+          sse("fieldChecks")
+              .setCheck()
+              .await(30)
+              .on(
+                  sse.checkMessage("fieldCheck1")
+                      .check(
+                          sseEvent().is("snapshot"),
+                          sseData().exists(),
+                          sseId().saveAs("lastId"),
+                          sseRetry().optional())),
+          sse("matchByEvent")
+              .setCheck()
+              .await(30)
+              .on(
+                  sse.checkMessage("matchByEvent")
+                      .matching(sseEvent().is("price_update"))
+                      .check(sseData().exists())),
           sse("close").close(),
           sse("foo", "bar").get("url"),
           sse("foo", "bar").post("url").body(StringBody("")),
@@ -49,6 +66,7 @@ public class SseJavaCompileTest extends Simulation {
               "wsName",
               (messages, session) ->
                   !messages.isEmpty()
-                      ? session.set("lastMessage", messages.get(messages.size() - 1).message())
+                      ? session.set(
+                          "lastData", messages.get(messages.size() - 1).message().data().get())
                       : session));
 }
