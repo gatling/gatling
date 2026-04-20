@@ -400,7 +400,7 @@ final class ElCompiler private extends RegexParsers {
           val escapedBackslashesCount = precedingBackslashesCount / 2
           val unescapedBackslashesCount = precedingBackslashesCount % 2
 
-          val precedingCharacters = source.subSequence(offset, n - precedingBackslashesCount) + "\\" * escapedBackslashesCount
+          val precedingCharacters = source.subSequence(offset, n - precedingBackslashesCount).toString + "\\" * escapedBackslashesCount
 
           if (unescapedBackslashesCount == 0) {
             // the dynamic header is not escaped
