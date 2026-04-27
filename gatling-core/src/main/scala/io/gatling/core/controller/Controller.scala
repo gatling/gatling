@@ -20,9 +20,9 @@ import scala.concurrent.Promise
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.actor.{ Actor, ActorRef, Behavior, Cancellable, Effect }
-import io.gatling.core.controller.inject.{ Injector, ScenarioFlows }
+import io.gatling.core.controller.inject.{ Injector, PopulationFlows }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.{ Scenario, SimulationParams }
+import io.gatling.core.scenario.{ Population, SimulationParams }
 import io.gatling.core.stats.StatsEngine
 
 private[gatling] object Controller {
@@ -35,13 +35,13 @@ private[gatling] object Controller {
     new Controller(statsEngine, injector, throttler, simulationParams)
 
   private object Data {
-    final case class Init(scenarioFlows: ScenarioFlows[String, Scenario], maxDurationTimer: Option[Cancellable], runDonePromise: Promise[Unit])
+    final case class Init(populationFlows: PopulationFlows[String, Population], maxDurationTimer: Option[Cancellable], runDonePromise: Promise[Unit])
     final case class End(initData: Init, exception: Option[Exception])
   }
 
   private[gatling] sealed trait Command
   private[gatling] object Command {
-    private[gatling] final case class Start(scenarioFlows: ScenarioFlows[String, Scenario], runDonePromise: Promise[Unit]) extends Command
+    private[gatling] final case class Start(populationFlows: PopulationFlows[String, Population], runDonePromise: Promise[Unit]) extends Command
     private[gatling] case object RunTerminated extends Command
     private[gatling] final case class Crash(exception: Exception) extends Command
     private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
@@ -62,7 +62,7 @@ private final class Controller private (
   import Controller._
 
   override def init(): Behavior[Controller.Command] = {
-    case Command.Start(scenarioFlows, runDonePromise) =>
+    case Command.Start(populationFlows, runDonePromise) =>
       val maxDurationTimer = simulationParams.maxDuration.map { maxDuration =>
         logger.debug("Setting up max duration")
         scheduler.scheduleOnce(maxDuration) {
@@ -72,8 +72,8 @@ private final class Controller private (
 
       throttler.foreach(_ ! Throttler.Command.Start)
       statsEngine.start()
-      injector ! Injector.Command.Start(self, scenarioFlows)
-      become(started(Data.Init(scenarioFlows, maxDurationTimer, runDonePromise)))
+      injector ! Injector.Command.Start(self, populationFlows)
+      become(started(Data.Init(populationFlows, maxDurationTimer, runDonePromise)))
 
     case msg => dieOnUnexpected(msg)
   }

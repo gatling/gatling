@@ -19,11 +19,11 @@ package io.gatling.core.structure
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.CoreComponents
-import io.gatling.core.controller.inject.{ InjectionProfile, ScenarioFlows }
+import io.gatling.core.controller.inject.{ InjectionProfile, PopulationFlows }
 import io.gatling.core.controller.throttle.ThrottleStep
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.{ Population, Scenario }
 import io.gatling.core.session.Expression
 import io.gatling.internal.quicklens._
 
@@ -77,7 +77,7 @@ final case class PopulationBuilder(
       protocolComponentsRegistries: ProtocolComponentsRegistries,
       globalPauseType: PauseType,
       globalThrottlingEnabled: Boolean
-  ): ScenarioFlows.Node[String, Scenario] = {
+  ): PopulationFlows.Node[String, Population] = {
     val throttlingEnabled = globalThrottlingEnabled || scenarioThrottleSteps.nonEmpty
 
     val resolvedPauseType =
@@ -94,15 +94,18 @@ final case class PopulationBuilder(
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
-    ScenarioFlows.Node(
+    PopulationFlows.Node(
       key = scenarioBuilder.name,
-      value = new Scenario(
-        scenarioBuilder.name,
-        entry,
-        protocolComponentsRegistry.onStart,
-        protocolComponentsRegistry.onExit,
-        injectionProfile,
-        ctx
+      value = Population(
+        scenario = new Scenario(
+          scenarioBuilder.name,
+          entry,
+          protocolComponentsRegistry.onStart,
+          protocolComponentsRegistry.onExit,
+          ctx
+        ),
+        injectionProfile = injectionProfile,
+        shard = shard
       ),
       childrenSequences = children.map(_.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottlingEnabled)))
     )

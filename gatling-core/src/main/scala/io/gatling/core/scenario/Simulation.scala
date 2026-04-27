@@ -21,7 +21,7 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.ScenarioFlows
+import io.gatling.core.controller.inject.PopulationFlows
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling, Throttlings }
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
@@ -166,12 +166,16 @@ final class SimulationParams(
     val before: Option[() => Unit],
     val after: Option[() => Unit]
 ) {
-  private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
+  private def buildPopulation(
+      populationBuilder: PopulationBuilder,
+      coreComponents: CoreComponents,
+      protocolComponentsRegistries: ProtocolComponentsRegistries
+  ): PopulationFlows.Node[String, Population] =
     populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottleSteps.nonEmpty)
 
-  def scenarioFlows(coreComponents: CoreComponents): ScenarioFlows[String, Scenario] = {
+  def populationFlows(coreComponents: CoreComponents): PopulationFlows[String, Population] = {
     val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
-    ScenarioFlows.fromNodes(rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries)))
+    PopulationFlows.fromNodes(rootPopulationBuilders.map(buildPopulation(_, coreComponents, protocolComponentsRegistries)))
   }
 
   def throttlings(configuration: GatlingConfiguration): Throttlings = {

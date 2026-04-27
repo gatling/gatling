@@ -19,10 +19,10 @@ package io.gatling.core.controller.inject
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-class ScenarioFlowsSpec extends AnyFlatSpecLike with Matchers {
+class PopulationFlowsSpec extends AnyFlatSpecLike with Matchers {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  private def node(key: String, childrenSequences: List[List[ScenarioFlows.Node[String, String]]] = Nil): ScenarioFlows.Node[String, String] =
-    ScenarioFlows.Node(key, key, childrenSequences)
+  private def node(key: String, childrenSequences: List[List[PopulationFlows.Node[String, String]]] = Nil): PopulationFlows.Node[String, String] =
+    PopulationFlows.Node(key, key, childrenSequences)
 
   private val rootNodes = List(
     node(
@@ -36,20 +36,20 @@ class ScenarioFlowsSpec extends AnyFlatSpecLike with Matchers {
   )
 
   "fromNodes" should "compute complex flows" in {
-    ScenarioFlows.fromNodes(rootNodes).locks.sortBy(_.value) shouldBe List(
-      ScenarioFlows.Flow("scn1", Set.empty),
-      ScenarioFlows.Flow("scn1.1", Set("scn1")),
-      ScenarioFlows.Flow("scn1.1.1", Set("scn1.1")),
-      ScenarioFlows.Flow("scn1.1.2", Set("scn1.1")),
-      ScenarioFlows.Flow("scn1.1.3", Set("scn1.1.1", "scn1.1.2")),
-      ScenarioFlows.Flow("scn1.1.4", Set("scn1.1.1", "scn1.1.2")),
-      ScenarioFlows.Flow("scn1.2", Set("scn1.1.3", "scn1.1.4")),
-      ScenarioFlows.Flow("scn2", Set.empty)
+    PopulationFlows.fromNodes(rootNodes).locks.sortBy(_.value) shouldBe List(
+      PopulationFlows.Flow("scn1", Set.empty),
+      PopulationFlows.Flow("scn1.1", Set("scn1")),
+      PopulationFlows.Flow("scn1.1.1", Set("scn1.1")),
+      PopulationFlows.Flow("scn1.1.2", Set("scn1.1")),
+      PopulationFlows.Flow("scn1.1.3", Set("scn1.1.1", "scn1.1.2")),
+      PopulationFlows.Flow("scn1.1.4", Set("scn1.1.1", "scn1.1.2")),
+      PopulationFlows.Flow("scn1.2", Set("scn1.1.3", "scn1.1.4")),
+      PopulationFlows.Flow("scn2", Set.empty)
     )
   }
 
   "remove and extractReady" should "trigger children flows" in {
-    val (roots, initialState) = ScenarioFlows.fromNodes(rootNodes).extractReady
+    val (roots, initialState) = PopulationFlows.fromNodes(rootNodes).extractReady
     roots.toSet shouldBe Set("scn1", "scn2")
     initialState.isEmpty shouldBe false
 

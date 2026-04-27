@@ -16,14 +16,10 @@
 
 package io.gatling.core.scenario
 
-import io.gatling.core.action.Action
-import io.gatling.core.session.Session
-import io.gatling.core.structure.ScenarioContext
+import io.gatling.core.controller.inject.InjectionProfile
 
-final class Scenario(
-    val name: String,
-    val entry: Action,
-    val onStart: Session => Session,
-    val onExit: Session => Unit,
-    val ctx: ScenarioContext
+final case class Population(
+    scenario: Scenario,
+    injectionProfile: InjectionProfile,
+    shard: Boolean
 )

@@ -24,7 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.actor.{ Actor, ActorRef, Behavior, Cancellable, Effect }
 import io.gatling.core.controller.Controller
 import io.gatling.core.controller.inject.open.OpenWorkload
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.Population
 import io.gatling.core.stats.StatsEngine
 
 import io.netty.channel.EventLoopGroup
@@ -37,7 +37,7 @@ private[gatling] object Injector {
 
   private[gatling] sealed trait Command
   object Command {
-    private[controller] final case class Start(controller: ActorRef[Controller.Command], scenarioFlows: ScenarioFlows[String, Scenario]) extends Command
+    private[controller] final case class Start(controller: ActorRef[Controller.Command], populationFlows: PopulationFlows[String, Population]) extends Command
     private[controller] final case class EmptyWorkloadComplete(scenario: String) extends Command
     private[core] final case class UserEnd(scenario: String) extends Command
     private[controller] case object Tick extends Command
@@ -46,8 +46,8 @@ private[gatling] object Injector {
   private final case class StartedData(
       controller: ActorRef[Controller.Command],
       inProgressWorkloads: Map[String, Workload],
-      readyScenarios: List[Scenario],
-      flows: ScenarioFlows[String, Scenario],
+      readyPopulations: List[Population],
+      populationFlows: PopulationFlows[String, Population],
       timer: Cancellable
   )
 }
@@ -61,24 +61,24 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
       val timer = scheduler.scheduleAtFixedRate(TickPeriod) {
         self ! Command.Tick
       }
-      val (readyScenarios, newScenarioFlows) = scenarioFlows.extractReady
+      val (readyPopulations, newScenarioFlows) = scenarioFlows.extractReady
 
-      inject(StartedData(controller, Map.empty, readyScenarios, newScenarioFlows, timer), firstBatch = true)
+      inject(StartedData(controller, Map.empty, readyPopulations, newScenarioFlows, timer), firstBatch = true)
 
     case msg => dieOnUnexpected(msg)
   }
 
   private val userIdGen = new AtomicLong
 
-  private def buildWorkloads(scenarios: List[Scenario]): Map[String, Workload] = {
+  private def buildWorkloads(populations: List[Population]): Map[String, Workload] = {
     val startTime = clock.nowMillis
-    scenarios.map { scenario =>
-      scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
+    populations.map { population =>
+      population.scenario.name -> population.injectionProfile.workload(population.scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
     }.toMap
   }
 
   private def inject(data: StartedData, firstBatch: Boolean): Effect[Command] = {
-    val newlyInProgressWorkloads = buildWorkloads(data.readyScenarios)
+    val newlyInProgressWorkloads = buildWorkloads(data.readyPopulations)
 
     val newInProgressWorkloads = data.inProgressWorkloads ++ newlyInProgressWorkloads
 
@@ -105,7 +105,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
 
     val (finishedInjectingWorkloads, injectingWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
 
-    val doneInjecting = injectingWorkloads.isEmpty && data.flows.isEmpty
+    val doneInjecting = injectingWorkloads.isEmpty && data.populationFlows.isEmpty
 
     if (doneInjecting) {
       logger.info("All scenarios have finished injecting")
@@ -120,7 +120,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
         started(
           data.copy(
             inProgressWorkloads = newInProgressWorkloads,
-            readyScenarios = Nil
+            readyPopulations = Nil
           )
         )
       )
@@ -154,18 +154,18 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     val newInProgressWorkloads = data.inProgressWorkloads - scenario
     // children scenarios will be started on next tick
 
-    val (newReady, newScenarioFlows) = data.flows.remove(scenario).extractReady
-    val newReadyScenarios = data.readyScenarios ++ newReady
+    val (newReady, newPopulationFlows) = data.populationFlows.remove(scenario).extractReady
+    val newReadyPopulations = data.readyPopulations ++ newReady
 
-    if (newInProgressWorkloads.isEmpty && newReadyScenarios.isEmpty) {
+    if (newInProgressWorkloads.isEmpty && newReadyPopulations.isEmpty) {
       stopInjector(data.controller)
     } else {
       become(
         started(
           data.copy(
             inProgressWorkloads = newInProgressWorkloads,
-            readyScenarios = newReadyScenarios,
-            flows = newScenarioFlows
+            readyPopulations = newReadyPopulations,
+            populationFlows = newPopulationFlows
           )
         )
       )

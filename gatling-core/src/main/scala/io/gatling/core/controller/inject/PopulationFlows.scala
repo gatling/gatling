@@ -16,8 +16,8 @@
 
 package io.gatling.core.controller.inject
 
-object ScenarioFlows {
-  final case class Node[K, T](key: K, value: T, childrenSequences: List[List[ScenarioFlows.Node[K, T]]])
+object PopulationFlows {
+  final case class Node[K, T](key: K, value: T, childrenSequences: List[List[PopulationFlows.Node[K, T]]])
 
   final case class Flow[K, T](value: T, blockedBy: Set[K])
 
@@ -33,7 +33,7 @@ object ScenarioFlows {
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  private def flows[K, T](node: ScenarioFlows.Node[K, T], parentBlockers: Set[K]): List[Flow[K, T]] = {
+  private def flows[K, T](node: PopulationFlows.Node[K, T], parentBlockers: Set[K]): List[Flow[K, T]] = {
     val childrenFlows: List[Flow[K, T]] = {
       val it = node.childrenSequences.iterator
       if (it.isEmpty) {
@@ -59,17 +59,17 @@ object ScenarioFlows {
     Flow(node.value, parentBlockers) +: childrenFlows
   }
 
-  def fromNodes[K, T](rootNodes: List[ScenarioFlows.Node[K, T]]): ScenarioFlows[K, T] =
-    ScenarioFlows(rootNodes.flatMap(flows(_, Set.empty)))
+  def fromNodes[K, T](rootNodes: List[PopulationFlows.Node[K, T]]): PopulationFlows[K, T] =
+    PopulationFlows(rootNodes.flatMap(flows(_, Set.empty)))
 }
 
-final case class ScenarioFlows[K, T](locks: List[ScenarioFlows.Flow[K, T]]) {
-  def remove(key: K): ScenarioFlows[K, T] =
-    ScenarioFlows(locks.map(lock => lock.copy(blockedBy = lock.blockedBy - key)))
+final case class PopulationFlows[K, T](locks: List[PopulationFlows.Flow[K, T]]) {
+  def remove(key: K): PopulationFlows[K, T] =
+    PopulationFlows(locks.map(lock => lock.copy(blockedBy = lock.blockedBy - key)))
 
-  def extractReady: (List[T], ScenarioFlows[K, T]) = {
+  def extractReady: (List[T], PopulationFlows[K, T]) = {
     val (emptyLocks, nonEmptyLocks) = locks.partition(_.blockedBy.isEmpty)
-    (emptyLocks.map(_.value), ScenarioFlows(nonEmptyLocks))
+    (emptyLocks.map(_.value), PopulationFlows(nonEmptyLocks))
   }
 
   def isEmpty: Boolean = locks.isEmpty

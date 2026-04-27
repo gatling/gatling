@@ -27,9 +27,9 @@ import io.gatling.core.actor.ActorSystem
 import io.gatling.core.cli.GatlingArgs
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Controller
-import io.gatling.core.controller.inject.Injector
+import io.gatling.core.controller.inject.{ Injector, PopulationFlows }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.SimulationParams
+import io.gatling.core.scenario.{ Population, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
@@ -52,11 +52,11 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(gatlingArgs)
-    val (simulationParams, runMessage, coreComponents) = load(selection)
+    val (simulationParams, runMessage, coreComponents, populationFlows) = load(selection)
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
-    start(simulationParams, coreComponents) match {
+    start(simulationParams, coreComponents, populationFlows) match {
       case Failure(t) =>
         // [ee]
         //
@@ -84,7 +84,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
 
-  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents) = {
+  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents, PopulationFlows[String, Population]) = {
     val simulationParams = selection.simulationClass.params
     logger.trace("Simulation params built")
 
@@ -111,20 +111,26 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     }
     logger.trace("CoreComponents instantiated")
 
-    (simulationParams, runMessage, coreComponents)
+    val populationFlows = simulationParams.populationFlows(coreComponents)
+    logger.trace("Populations instantiated")
+
+    (simulationParams, runMessage, coreComponents, populationFlows)
   }
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
-      coreComponents: CoreComponents
+      coreComponents: CoreComponents,
+      populationFlows: PopulationFlows[String, Population]
   ): Try[Unit] = {
-    val scenarioFlows = simulationParams.scenarioFlows(coreComponents)
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")
     logger.trace("Asking Controller to start")
     val runDonePromise = coreComponents.controller.replyPromise[Unit](timeout)
-    coreComponents.controller ! Controller.Command.Start(scenarioFlows, runDonePromise)
+    coreComponents.controller ! Controller.Command.Start(
+      populationFlows = populationFlows,
+      runDonePromise = runDonePromise
+    )
     val runDone = Try(Await.result(runDonePromise.future, timeout))
     logger.info(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone
