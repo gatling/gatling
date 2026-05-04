@@ -35,7 +35,7 @@ object Dependencies {
   private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
   private val bouncyCastle                   = "io.gatling"                    % "gatling-recorder-bc-shaded"  % "1.84.0"
-  private val caffeine                       = "com.github.ben-manes.caffeine" % "caffeine"                    % "3.2.3"
+  private val caffeine                       = "com.github.ben-manes.caffeine" % "caffeine"                    % "3.2.4"
   private val cfor                           = "io.github.metarank"           %% "cfor"                        % "0.3"
   private val commonsPool2                   = "org.apache.commons"            % "commons-pool2"               % "2.13.1"
   private val config                         = "com.typesafe"                  % "config"                      % "1.4.6"
