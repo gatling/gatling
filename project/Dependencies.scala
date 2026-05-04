@@ -40,7 +40,7 @@ object Dependencies {
   private val commonsPool2                   = "org.apache.commons"            % "commons-pool2"               % "2.13.1"
   private val config                         = "com.typesafe"                  % "config"                      % "1.4.6"
   private val fastUuid                       = "com.eatthepath"                % "fast-uuid"                   % "0.2.0"
-  private val jackson                        = "com.fasterxml.jackson.core"    % "jackson-databind"            % "2.21.2"
+  private val jackson                        = "com.fasterxml.jackson.core"    % "jackson-databind"            % "2.21.3"
   private val jmespath                       = "io.burt"                       % "jmespath-jackson"            % "0.6.0"
   private val jmsApi                         = "jakarta.jms"                   % "jakarta.jms-api"             % "3.1.0"
   private val joddUtil                       = "org.jodd"                      % "jodd-util"                   % "6.3.0"
