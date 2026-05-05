@@ -47,8 +47,8 @@ public final class HttpProxyServer extends ProxyServer {
   public ProxyHandler newProxyHandler() {
     return realm != null
         ? new HttpProxyHandler(
-            getAddress(), realm.getUsername(), realm.getPassword(), connectHeaders, true)
-        : new HttpProxyHandler(getAddress(), connectHeaders, true);
+            getAddress(), realm.getUsername(), realm.getPassword(), connectHeaders, true, false)
+        : new HttpProxyHandler(getAddress(), connectHeaders, true, false);
   }
 
   @Override

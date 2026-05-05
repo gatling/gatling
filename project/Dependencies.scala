@@ -3,13 +3,13 @@ import sbt._
 object Dependencies {
   // format: off
   // Compile dependencies
-  private def scalaReflect(version: String)  = "org.scala-lang"                % "scala-reflect"                % version % Provided
-  private val scalaParserCombinators         = "org.scala-lang.modules"       %% "scala-parser-combinators"     % "2.4.0"
-  private val scalaSwing                     = "org.scala-lang.modules"       %% "scala-swing"                  % "3.0.0"
-  private val gatlingSharedCli               = "io.gatling"                    % "gatling-shared-cli"           % "0.0.7"
-  private val gatlingSharedModel             = "io.gatling"                   %% "gatling-shared-model"         % "0.1.3"
-  private val gatlingSharedUtil              = "io.gatling"                   %% "gatling-shared-util"          % "0.0.14"
-  private val nettyHttp                      = "io.netty"                      % "netty-codec-http"             % "4.2.12.Final"
+  private def scalaReflect(version: String)  = "org.scala-lang"                % "scala-reflect"               % version % Provided
+  private val scalaParserCombinators         = "org.scala-lang.modules"       %% "scala-parser-combinators"    % "2.4.0"
+  private val scalaSwing                     = "org.scala-lang.modules"       %% "scala-swing"                 % "3.0.0"
+  private val gatlingSharedCli               = "io.gatling"                    % "gatling-shared-cli"          % "0.0.7"
+  private val gatlingSharedModel             = "io.gatling"                   %% "gatling-shared-model"        % "0.1.3"
+  private val gatlingSharedUtil              = "io.gatling"                   %% "gatling-shared-util"         % "0.0.14"
+  private val nettyHttp                      = "io.netty"                      % "netty-codec-http"            % "4.2.13.Final"
   private val nettyBuffer                    = nettyHttp.withName("netty-buffer")
   private val nettyHandler                   = nettyHttp.withName("netty-handler")
   private val nettyProxy                     = nettyHttp.withName("netty-handler-proxy")
