@@ -63,8 +63,7 @@ final class SseConnectingState(fsm: SseFsm, session: Session, next: Action, conn
 
       case _ =>
         logger.debug("Connected, no checks, performing next action")
-        next ! sessionWithGroupTimings
-        NextSseState(new SseIdleState(fsm, sessionWithGroupTimings))
+        NextSseState(new SseIdleState(fsm, sessionWithGroupTimings), () => next ! sessionWithGroupTimings)
     }
   }
 
