@@ -68,7 +68,7 @@ object Dependencies {
   private val junit                          = "org.junit.jupiter"             % "junit-jupiter-api"           % "6.0.3"        % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
   private val junitPlatformLauncher          = "org.junit.platform"            % "junit-platform-launcher"     % junit.revision % Test
-  private val jupiterInterface               = "com.github.sbt.junit"          % "jupiter-interface"           % "0.18.0"       % Test
+  private val jupiterInterface               = "com.github.sbt.junit"          % "jupiter-interface"           % "0.19.0"       % Test
   private val jmh                            = "org.openjdk.jmh"               % "jmh-core"                    % "1.37"         % Test
   private val mockitoCore                    = "org.mockito"                   % "mockito-core"                % "5.23.0"       % Test
   private val scalaCheck                     = "org.scalacheck"               %% "scalacheck"                  % "1.19.0"       % Test
