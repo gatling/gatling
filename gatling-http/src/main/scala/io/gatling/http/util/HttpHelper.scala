@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
-import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
+import io.gatling.http.client.realm.{ BasicRealm, DigestRealm }
 import io.gatling.http.client.uri.Uri
 
 import com.typesafe.scalalogging.StrictLogging
