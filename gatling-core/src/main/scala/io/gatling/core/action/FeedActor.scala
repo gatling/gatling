@@ -82,14 +82,10 @@ private final class FeedActor[T] private (
     }
 
     if (i == n) {
-      array(0).keys
-        .map { key =>
-          val values = if (generateJavaCollection) toJavaValues(array, n, key) else toScalaValues(array, n, key)
-          key -> values
-        }
-        .toMap
-        .success
-
+      array(0).map { case (key, _) =>
+        val values = if (generateJavaCollection) toJavaValues(array, n, key) else toScalaValues(array, n, key)
+        key -> values
+      }.success
     } else {
       emptyFeederFailure
     }
