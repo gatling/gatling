@@ -67,7 +67,14 @@ object Gatling extends StrictLogging {
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
       FileSystems.getDefault
-      val configuration = GatlingConfiguration.load()
+      val configuration =
+        try {
+          GatlingConfiguration.load()
+        } catch {
+          case NonFatal(t) =>
+            logger.error("Failed to load the Gatling configuration", t)
+            throw t
+        }
       logger.trace("Configuration loaded")
       val runResult =
         gatlingArgs.reportsOnly match {
