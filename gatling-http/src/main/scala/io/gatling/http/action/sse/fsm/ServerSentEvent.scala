@@ -16,44 +16,9 @@
 
 package io.gatling.http.action.sse.fsm
 
-import io.gatling.core.json.Json
-import io.gatling.shared.util.StringBuilderPool
-
 final case class ServerSentEvent(
     event: Option[String],
     data: Option[String],
     id: Option[String],
     retry: Option[Int]
-) {
-  lazy val asJsonString: String = {
-    val sb = StringBuilderPool.DEFAULT.get().append('{')
-    event.foreach { value =>
-      sb.append("\"event\":\"").append(value).append("\",")
-    }
-    id.foreach { value =>
-      sb.append("\"id\":\"").append(value).append("\",")
-    }
-    data.foreach { value =>
-      sb.append("\"data\":")
-      val length = value.length
-      if (
-        length > 1 && (
-          // JSON object
-          (value.charAt(0) == '{' && value.charAt(length - 1) == '}') ||
-            // JSON array
-            (value.charAt(0) == '[' && value.charAt(length - 1) == ']')
-        )
-      ) {
-        sb.append(value)
-      } else {
-        sb.append('"').append(Json.stringify(value, isRootObject = true)).append('"')
-      }
-      sb.append(',')
-    }
-    retry.foreach { value =>
-      sb.append("\"retry\":").append(value).append(",")
-    }
-    sb.setLength(sb.length - 1)
-    sb.append('}').toString
-  }
-}
+)

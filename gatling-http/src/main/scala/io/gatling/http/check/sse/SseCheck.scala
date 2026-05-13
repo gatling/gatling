@@ -19,12 +19,13 @@ package io.gatling.http.check.sse
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.http.action.sse.fsm.ServerSentEvent
 
-final class SseCheck(wrapped: Check[String]) extends Check[String] {
-  override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+final class SseCheck(wrapped: Check[ServerSentEvent]) extends Check[ServerSentEvent] {
+  override def check(message: ServerSentEvent, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 
   override def checkIf(condition: Expression[Boolean]): SseCheck = new SseCheck(wrapped.checkIf(condition))
 
-  override def checkIf(condition: (String, Session) => Validation[Boolean]): SseCheck = new SseCheck(wrapped.checkIf(condition))
+  override def checkIf(condition: (ServerSentEvent, Session) => Validation[Boolean]): SseCheck = new SseCheck(wrapped.checkIf(condition))
 }
