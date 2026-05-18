@@ -90,11 +90,11 @@ public final class Uri {
 
     if (isEmpty(parser.scheme)) {
       throw new IllegalArgumentException(
-          originalUrl + " could not be parsed into a proper Uri, missing scheme");
+          "'" + originalUrl + "' could not be parsed into a proper Uri, missing scheme");
     }
     if (isEmpty(parser.host)) {
       throw new IllegalArgumentException(
-          originalUrl + " could not be parsed into a proper Uri, missing host");
+          "'" + originalUrl + "' could not be parsed into a proper Uri, missing host");
     }
 
     return new Uri(
