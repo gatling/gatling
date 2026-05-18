@@ -17,6 +17,9 @@
 package io.gatling.javaapi.core;
 
 import io.gatling.core.util.DeploymentInfo$;
+import io.gatling.javaapi.core.internal.Converters;
+import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 /** Some deployment information when deploying on Gatling Enterprise */
@@ -46,4 +49,8 @@ public final class DeploymentInfo {
 
   /** The index of this Load Generator, all Locations included */
   public final int indexOfLoadGeneratorInRun = DeploymentInfo$.MODULE$.indexOfLoadGeneratorInRun();
+
+  public List<File> logFiles() {
+    return Converters.toJavaList(DeploymentInfo$.MODULE$.logFiles());
+  }
 }

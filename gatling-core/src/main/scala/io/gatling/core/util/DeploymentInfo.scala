@@ -16,6 +16,7 @@
 
 package io.gatling.core.util
 
+import java.io.File
 import java.util.UUID
 
 object DeploymentInfo {
@@ -25,4 +26,5 @@ object DeploymentInfo {
   val indexOfLoadGeneratorInLocation: Int = 0
   val numberOfLoadGeneratorsInRun: Int = 1
   val indexOfLoadGeneratorInRun: Int = 0
+  def logFiles: List[File] = Nil
 }
