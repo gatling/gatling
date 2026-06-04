@@ -29,6 +29,7 @@ import io.gatling.netty.util.Transports
 
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 object Gatling extends StrictLogging {
   // used by bundle
@@ -41,11 +42,14 @@ object Gatling extends StrictLogging {
   }
 
   // used by sbt-test-framework
-  private[gatling] def fromArgs(args: Array[String]): Int =
+  private[gatling] def fromArgs(args: Array[String]): Int = {
+    SLF4JBridgeHandler.removeHandlersForRootLogger()
+    SLF4JBridgeHandler.install()
     new GatlingArgsParser(args).parseArguments match {
       case Left(gatlingArgs) => start(gatlingArgs)
       case Right(statusCode) => statusCode.code
     }
+  }
 
   private def terminateActorSystem(system: ActorSystem): Unit =
     try {
