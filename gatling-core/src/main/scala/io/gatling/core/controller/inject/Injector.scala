@@ -61,7 +61,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
       val timer = scheduler.scheduleAtFixedRate(TickPeriod) {
         self ! Command.Tick
       }
-      val (readyPopulations, newScenarioFlows) = scenarioFlows.extractReady
+      val (readyPopulations, newScenarioFlows) = scenarioFlows.unblocked
 
       inject(StartedData(controller, Map.empty, readyPopulations, newScenarioFlows, timer), firstBatch = true)
 
@@ -154,7 +154,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     val newInProgressWorkloads = data.inProgressWorkloads - scenario
     // children scenarios will be started on next tick
 
-    val (newReady, newPopulationFlows) = data.populationFlows.remove(scenario).extractReady
+    val (newReady, newPopulationFlows) = data.populationFlows.remove(scenario).unblocked
     val newReadyPopulations = data.readyPopulations ++ newReady
 
     if (newInProgressWorkloads.isEmpty && newReadyPopulations.isEmpty) {

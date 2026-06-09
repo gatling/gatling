@@ -17,35 +17,35 @@
 package io.gatling.core.controller.inject
 
 object PopulationFlows {
-  final case class Node[K, T](key: K, value: T, childrenSequences: List[List[PopulationFlows.Node[K, T]]])
+  final case class TopDownNode[K, T](key: K, value: T, childrenSequences: List[List[PopulationFlows.TopDownNode[K, T]]])
 
-  final case class Flow[K, T](value: T, blockedBy: Set[K])
+  final case class BottomUpNode[K, T](value: T, blockedBy: Set[K])
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  private def leavesKeys[K, T](node: Node[K, T]): List[K] =
-    if (node.childrenSequences.isEmpty) {
-      node.key :: Nil
+  private def leavesKeys[K, T](topDownNode: TopDownNode[K, T]): List[K] =
+    if (topDownNode.childrenSequences.isEmpty) {
+      topDownNode.key :: Nil
     } else {
       for {
-        child <- node.childrenSequences.lastOption.getOrElse(Nil)
+        child <- topDownNode.childrenSequences.lastOption.getOrElse(Nil)
         key <- leavesKeys(child)
       } yield key
     }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  private def flows[K, T](node: PopulationFlows.Node[K, T], parentBlockers: Set[K]): List[Flow[K, T]] = {
-    val childrenFlows: List[Flow[K, T]] = {
-      val it = node.childrenSequences.iterator
+  private def flows[K, T](topDownNode: PopulationFlows.TopDownNode[K, T], parentBlockers: Set[K]): List[BottomUpNode[K, T]] = {
+    val childrenBottomUpNodes: List[BottomUpNode[K, T]] = {
+      val it = topDownNode.childrenSequences.iterator
       if (it.isEmpty) {
         Nil
       } else {
-        var previousSequence: List[Node[K, T]] = it.next()
-        // first sequence is blocked by node
-        var acc: List[Flow[K, T]] = previousSequence.flatMap(child => flows(child, Set(node.key)))
+        var previousSequence: List[TopDownNode[K, T]] = it.next()
+        // the first child sequence is blocked by the node itself
+        var acc: List[BottomUpNode[K, T]] = previousSequence.flatMap(child => flows(child, Set(topDownNode.key)))
 
         while (it.hasNext) {
           val sequence = it.next()
-          // next sequences are blocked by previous sequence's leaves
+          // the next sequences are blocked by the previous sequence's leaves
           val blockers = previousSequence.flatMap(leavesKeys).toSet
           acc ++= sequence.flatMap(flows(_, blockers))
           previousSequence = sequence
@@ -55,22 +55,22 @@ object PopulationFlows {
       }
     }
 
-    // node is blocked by parent
-    Flow(node.value, parentBlockers) +: childrenFlows
+    // the node is blocked by its parents
+    BottomUpNode(topDownNode.value, parentBlockers) +: childrenBottomUpNodes
   }
 
-  def fromNodes[K, T](rootNodes: List[PopulationFlows.Node[K, T]]): PopulationFlows[K, T] =
-    PopulationFlows(rootNodes.flatMap(flows(_, Set.empty)))
+  def fromTopDownNodes[K, T](rootTopDownNodes: List[PopulationFlows.TopDownNode[K, T]]): PopulationFlows[K, T] =
+    PopulationFlows(rootTopDownNodes.flatMap(flows(_, Set.empty)))
 }
 
-final case class PopulationFlows[K, T](locks: List[PopulationFlows.Flow[K, T]]) {
+final case class PopulationFlows[K, T](bottomUpNodes: List[PopulationFlows.BottomUpNode[K, T]]) {
   def remove(key: K): PopulationFlows[K, T] =
-    PopulationFlows(locks.map(lock => lock.copy(blockedBy = lock.blockedBy - key)))
+    PopulationFlows(bottomUpNodes.map(node => node.copy(blockedBy = node.blockedBy - key)))
 
-  def extractReady: (List[T], PopulationFlows[K, T]) = {
-    val (emptyLocks, nonEmptyLocks) = locks.partition(_.blockedBy.isEmpty)
-    (emptyLocks.map(_.value), PopulationFlows(nonEmptyLocks))
+  def unblocked: (List[T], PopulationFlows[K, T]) = {
+    val (unblockedNodes, blockedNodes) = bottomUpNodes.partition(_.blockedBy.isEmpty)
+    (unblockedNodes.map(_.value), PopulationFlows(blockedNodes))
   }
 
-  def isEmpty: Boolean = locks.isEmpty
+  def isEmpty: Boolean = bottomUpNodes.isEmpty
 }

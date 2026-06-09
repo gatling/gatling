@@ -170,12 +170,12 @@ final class SimulationParams(
       populationBuilder: PopulationBuilder,
       coreComponents: CoreComponents,
       protocolComponentsRegistries: ProtocolComponentsRegistries
-  ): PopulationFlows.Node[String, Population] =
+  ): PopulationFlows.TopDownNode[String, Population] =
     populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottleSteps.nonEmpty)
 
   def populationFlows(coreComponents: CoreComponents): PopulationFlows[String, Population] = {
     val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
-    PopulationFlows.fromNodes(rootPopulationBuilders.map(buildPopulation(_, coreComponents, protocolComponentsRegistries)))
+    PopulationFlows.fromTopDownNodes(rootPopulationBuilders.map(buildPopulation(_, coreComponents, protocolComponentsRegistries)))
   }
 
   def throttlings(configuration: GatlingConfiguration): Throttlings = {

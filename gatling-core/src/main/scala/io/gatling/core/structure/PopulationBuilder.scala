@@ -77,7 +77,7 @@ final case class PopulationBuilder(
       protocolComponentsRegistries: ProtocolComponentsRegistries,
       globalPauseType: PauseType,
       globalThrottlingEnabled: Boolean
-  ): PopulationFlows.Node[String, Population] = {
+  ): PopulationFlows.TopDownNode[String, Population] = {
     val throttlingEnabled = globalThrottlingEnabled || scenarioThrottleSteps.nonEmpty
 
     val resolvedPauseType =
@@ -94,7 +94,7 @@ final case class PopulationBuilder(
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
-    PopulationFlows.Node(
+    PopulationFlows.TopDownNode(
       key = scenarioBuilder.name,
       value = Population(
         scenario = new Scenario(

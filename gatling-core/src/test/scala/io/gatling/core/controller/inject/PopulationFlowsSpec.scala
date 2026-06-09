@@ -21,8 +21,8 @@ import org.scalatest.matchers.should.Matchers
 
 class PopulationFlowsSpec extends AnyFlatSpecLike with Matchers {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  private def node(key: String, childrenSequences: List[List[PopulationFlows.Node[String, String]]] = Nil): PopulationFlows.Node[String, String] =
-    PopulationFlows.Node(key, key, childrenSequences)
+  private def node(key: String, childrenSequences: List[List[PopulationFlows.TopDownNode[String, String]]] = Nil): PopulationFlows.TopDownNode[String, String] =
+    PopulationFlows.TopDownNode(key, key, childrenSequences)
 
   private val rootNodes = List(
     node(
@@ -36,52 +36,52 @@ class PopulationFlowsSpec extends AnyFlatSpecLike with Matchers {
   )
 
   "fromNodes" should "compute complex flows" in {
-    PopulationFlows.fromNodes(rootNodes).locks.sortBy(_.value) shouldBe List(
-      PopulationFlows.Flow("scn1", Set.empty),
-      PopulationFlows.Flow("scn1.1", Set("scn1")),
-      PopulationFlows.Flow("scn1.1.1", Set("scn1.1")),
-      PopulationFlows.Flow("scn1.1.2", Set("scn1.1")),
-      PopulationFlows.Flow("scn1.1.3", Set("scn1.1.1", "scn1.1.2")),
-      PopulationFlows.Flow("scn1.1.4", Set("scn1.1.1", "scn1.1.2")),
-      PopulationFlows.Flow("scn1.2", Set("scn1.1.3", "scn1.1.4")),
-      PopulationFlows.Flow("scn2", Set.empty)
+    PopulationFlows.fromTopDownNodes(rootNodes).bottomUpNodes.sortBy(_.value) shouldBe List(
+      PopulationFlows.BottomUpNode("scn1", Set.empty),
+      PopulationFlows.BottomUpNode("scn1.1", Set("scn1")),
+      PopulationFlows.BottomUpNode("scn1.1.1", Set("scn1.1")),
+      PopulationFlows.BottomUpNode("scn1.1.2", Set("scn1.1")),
+      PopulationFlows.BottomUpNode("scn1.1.3", Set("scn1.1.1", "scn1.1.2")),
+      PopulationFlows.BottomUpNode("scn1.1.4", Set("scn1.1.1", "scn1.1.2")),
+      PopulationFlows.BottomUpNode("scn1.2", Set("scn1.1.3", "scn1.1.4")),
+      PopulationFlows.BottomUpNode("scn2", Set.empty)
     )
   }
 
   "remove and extractReady" should "trigger children flows" in {
-    val (roots, initialState) = PopulationFlows.fromNodes(rootNodes).extractReady
+    val (roots, initialState) = PopulationFlows.fromTopDownNodes(rootNodes).unblocked
     roots.toSet shouldBe Set("scn1", "scn2")
     initialState.isEmpty shouldBe false
 
-    val (readyAfterScn1, stateAfterScn1) = initialState.remove("scn1").extractReady
+    val (readyAfterScn1, stateAfterScn1) = initialState.remove("scn1").unblocked
     readyAfterScn1.toSet shouldBe Set("scn1.1")
     stateAfterScn1.isEmpty shouldBe false
 
-    val (readyAfterScn2, stateAfterScn2) = stateAfterScn1.remove("scn2").extractReady
+    val (readyAfterScn2, stateAfterScn2) = stateAfterScn1.remove("scn2").unblocked
     readyAfterScn2 shouldBe empty
     stateAfterScn2.isEmpty shouldBe false
 
-    val (readyAfterScn1_1, stateAfterScn1_1) = stateAfterScn2.remove("scn1.1").extractReady
+    val (readyAfterScn1_1, stateAfterScn1_1) = stateAfterScn2.remove("scn1.1").unblocked
     readyAfterScn1_1.toSet shouldBe Set("scn1.1.1", "scn1.1.2")
     stateAfterScn1_1.isEmpty shouldBe false
 
-    val (readyAfterScn1_1_1, stateAfterScn1_1_1) = stateAfterScn1_1.remove("scn1.1.1").extractReady
+    val (readyAfterScn1_1_1, stateAfterScn1_1_1) = stateAfterScn1_1.remove("scn1.1.1").unblocked
     readyAfterScn1_1_1 shouldBe empty
     stateAfterScn1_1_1.isEmpty shouldBe false
 
-    val (readyAfterScn1_1_2, stateAfterScn1_1_2) = stateAfterScn1_1_1.remove("scn1.1.2").extractReady
+    val (readyAfterScn1_1_2, stateAfterScn1_1_2) = stateAfterScn1_1_1.remove("scn1.1.2").unblocked
     readyAfterScn1_1_2.toSet shouldBe Set("scn1.1.3", "scn1.1.4")
     stateAfterScn1_1_2.isEmpty shouldBe false
 
-    val (readyAfterScn1_1_3, stateAfterScn1_1_3) = stateAfterScn1_1_2.remove("scn1.1.3").extractReady
+    val (readyAfterScn1_1_3, stateAfterScn1_1_3) = stateAfterScn1_1_2.remove("scn1.1.3").unblocked
     readyAfterScn1_1_3 shouldBe empty
     stateAfterScn1_1_3.isEmpty shouldBe false
 
-    val (readyAfterScn1_1_4, stateAfterScn1_1_4) = stateAfterScn1_1_3.remove("scn1.1.4").extractReady
+    val (readyAfterScn1_1_4, stateAfterScn1_1_4) = stateAfterScn1_1_3.remove("scn1.1.4").unblocked
     readyAfterScn1_1_4.toSet shouldBe Set("scn1.2")
     stateAfterScn1_1_4.isEmpty shouldBe true
 
-    val (readyAfterScn1_2, stateAfterScn1_2) = stateAfterScn1_1_4.remove("scn1.2").extractReady
+    val (readyAfterScn1_2, stateAfterScn1_2) = stateAfterScn1_1_4.remove("scn1.2").unblocked
     readyAfterScn1_2 shouldBe empty
     stateAfterScn1_2.isEmpty shouldBe true
   }
