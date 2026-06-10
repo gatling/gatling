@@ -26,6 +26,18 @@ import io.gatling.shared.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 
+object StatsProcessor {
+  // Response logging happens on every single request. HTTP status codes are small integers, so
+  // we pre-compute and cache the boxed `Some(String)` for the common range to avoid allocating a
+  // String + an Option per response. Out-of-range codes fall back to computing on the fly.
+  private val MaxCachedStatusCode = 599
+  private val CachedStatusCodes: Array[Some[String]] =
+    Array.tabulate(MaxCachedStatusCode + 1)(code => Some(Integer.toString(code)))
+
+  private[response] def statusCodeString(code: Int): Some[String] =
+    if (code >= 0 && code <= MaxCachedStatusCode) CachedStatusCodes(code) else Some(Integer.toString(code))
+}
+
 sealed abstract class StatsProcessor extends StrictLogging {
   def reportStats(
       fullRequestName: String,
@@ -113,7 +125,7 @@ final class DefaultStatsProcessor(
       result.endTimestamp,
       status,
       result match {
-        case response: Response => Some(Integer.toString(response.status.code))
+        case response: Response => StatsProcessor.statusCodeString(response.status.code)
         case _                  => None
       },
       errorMessage
