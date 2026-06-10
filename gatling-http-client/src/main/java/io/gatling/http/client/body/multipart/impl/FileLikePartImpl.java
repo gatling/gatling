@@ -26,17 +26,25 @@ public abstract class FileLikePartImpl<T extends FileLikePart<?>> extends PartIm
   /** Attachment's file name as a byte array */
   private static final byte[] FILE_NAME_BYTES = "; filename=".getBytes(US_ASCII);
 
+  // File name encoded to bytes once and reused by both the length-counting and the byte-writing
+  // visit passes, instead of being re-encoded on each pass. null when the part has no file name.
+  private final byte[] fileNameBytes;
+
   FileLikePartImpl(T part, byte[] boundary) {
     super(part, boundary);
+    String fileName = part.getFileName();
+    this.fileNameBytes =
+        fileName != null
+            ? fileName.getBytes(part.getCharset() != null ? part.getCharset() : UTF_8)
+            : null;
   }
 
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     super.visitContentDispositionHeader(visitor);
-    String fileName = ((FileLikePart<?>) part).getFileName();
-    if (fileName != null) {
+    if (fileNameBytes != null) {
       visitor.withBytes(FILE_NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);
-      visitor.withBytes(fileName.getBytes(part.getCharset() != null ? part.getCharset() : UTF_8));
+      visitor.withBytes(fileNameBytes);
       visitor.withByte(QUOTE_BYTE);
     }
   }

@@ -26,7 +26,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 public abstract class PartImpl implements Closeable {
@@ -69,8 +68,22 @@ public abstract class PartImpl implements Closeable {
   protected final Part<?> part;
   protected final byte[] boundary;
 
-  private final int preContentLength;
-  private final int postContentLength;
+  // Header strings encoded to bytes once in the constructor and reused by both the
+  // length-counting and the byte-writing visit passes, instead of re-encoding on each pass.
+  private final byte[] dispositionTypeBytes;
+  private final byte[] nameBytes; // null when the part has no name
+  private final byte[] contentTypeBytes; // null when the part has no content type
+  private final byte[] charsetBytes; // null when the part has no charset
+  private final byte[] transferEncodingBytes; // null when the part has no transfer encoding
+  private final byte[] contentIdBytes; // null when the part has no content id
+  private final byte[][] customHeaderBytes; // [name0, value0, name1, value1, ...], null when none
+
+  // Lazily computed on first length() call (see preContentLength()/postContentLength()); -1 until
+  // then. Not done in the constructor because computePreContentLength() dispatches to subclass
+  // visit overrides (e.g. the file name in FileLikePartImpl), which must only run once the
+  // subclass is fully constructed.
+  private int preContentLength = -1;
+  private int postContentLength = -1;
   protected PartImplState state;
 
   // lazy
@@ -80,13 +93,64 @@ public abstract class PartImpl implements Closeable {
   PartImpl(Part<?> part, byte[] boundary) {
     this.part = part;
     this.boundary = boundary;
-    preContentLength = computePreContentLength();
-    postContentLength = computePostContentLength();
+    // MessageEndPartImpl passes a null part and overrides every visit/compute method, so these
+    // header byte caches are never read in that case.
+    if (part == null) {
+      this.dispositionTypeBytes = null;
+      this.nameBytes = null;
+      this.contentTypeBytes = null;
+      this.charsetBytes = null;
+      this.transferEncodingBytes = null;
+      this.contentIdBytes = null;
+      this.customHeaderBytes = null;
+    } else {
+      this.dispositionTypeBytes =
+          part.getDispositionType() != null
+              ? part.getDispositionType().getBytes(US_ASCII)
+              : FORM_DATA_DISPOSITION_TYPE_BYTES;
+      this.nameBytes = part.getName() != null ? part.getName().getBytes(US_ASCII) : null;
+      this.contentTypeBytes =
+          part.getContentType() != null ? part.getContentType().getBytes(US_ASCII) : null;
+      this.charsetBytes =
+          part.getCharset() != null ? part.getCharset().name().getBytes(US_ASCII) : null;
+      this.transferEncodingBytes =
+          part.getTransferEncoding() != null ? part.getTransferEncoding().getBytes(US_ASCII) : null;
+      this.contentIdBytes =
+          part.getContentId() != null ? part.getContentId().getBytes(US_ASCII) : null;
+      this.customHeaderBytes = encodeCustomHeaders(part.getCustomHeaders());
+    }
     state = PartImplState.PRE_CONTENT;
   }
 
+  private static byte[][] encodeCustomHeaders(List<Param> customHeaders) {
+    if (!isNonEmpty(customHeaders)) {
+      return null;
+    }
+    byte[][] encoded = new byte[customHeaders.size() * 2][];
+    int i = 0;
+    for (Param param : customHeaders) {
+      encoded[i++] = param.getName().getBytes(US_ASCII);
+      encoded[i++] = param.getValue().getBytes(US_ASCII);
+    }
+    return encoded;
+  }
+
   public long length() {
-    return preContentLength + postContentLength + getContentLength();
+    return preContentLength() + postContentLength() + getContentLength();
+  }
+
+  private int preContentLength() {
+    if (preContentLength < 0) {
+      preContentLength = computePreContentLength();
+    }
+    return preContentLength;
+  }
+
+  private int postContentLength() {
+    if (postContentLength < 0) {
+      postContentLength = computePostContentLength();
+    }
+    return postContentLength;
   }
 
   public PartImplState getState() {
@@ -117,12 +181,12 @@ public abstract class PartImpl implements Closeable {
   }
 
   private ByteBuf lazyLoadPreContentBuffer() {
-    if (preContentBuffer == null) preContentBuffer = computePreContentBytes(preContentLength);
+    if (preContentBuffer == null) preContentBuffer = computePreContentBytes(preContentLength());
     return preContentBuffer;
   }
 
   private ByteBuf lazyLoadPostContentBuffer() {
-    if (postContentBuffer == null) postContentBuffer = computePostContentBytes(postContentLength);
+    if (postContentBuffer == null) postContentBuffer = computePostContentBytes(postContentLength());
     return postContentBuffer;
   }
 
@@ -187,58 +251,50 @@ public abstract class PartImpl implements Closeable {
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     visitor.withBytes(CRLF_BYTES);
     visitor.withBytes(CONTENT_DISPOSITION_BYTES);
-    visitor.withBytes(
-        part.getDispositionType() != null
-            ? part.getDispositionType().getBytes(US_ASCII)
-            : FORM_DATA_DISPOSITION_TYPE_BYTES);
-    if (part.getName() != null) {
+    visitor.withBytes(dispositionTypeBytes);
+    if (nameBytes != null) {
       visitor.withBytes(NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);
-      visitor.withBytes(part.getName().getBytes(US_ASCII));
+      visitor.withBytes(nameBytes);
       visitor.withByte(QUOTE_BYTE);
     }
   }
 
   private void visitContentTypeHeader(PartVisitor visitor) {
-    String contentType = part.getContentType();
-    if (contentType != null) {
+    if (contentTypeBytes != null) {
       visitor.withBytes(CRLF_BYTES);
       visitor.withBytes(CONTENT_TYPE_BYTES);
-      visitor.withBytes(contentType.getBytes(US_ASCII));
-      Charset charset = part.getCharset();
-      if (charset != null) {
+      visitor.withBytes(contentTypeBytes);
+      if (charsetBytes != null) {
         visitor.withBytes(CHARSET_BYTES);
-        visitor.withBytes(part.getCharset().name().getBytes(US_ASCII));
+        visitor.withBytes(charsetBytes);
       }
     }
   }
 
   private void visitTransferEncodingHeader(PartVisitor visitor) {
-    String transferEncoding = part.getTransferEncoding();
-    if (transferEncoding != null) {
+    if (transferEncodingBytes != null) {
       visitor.withBytes(CRLF_BYTES);
       visitor.withBytes(CONTENT_TRANSFER_ENCODING_BYTES);
-      visitor.withBytes(transferEncoding.getBytes(US_ASCII));
+      visitor.withBytes(transferEncodingBytes);
     }
   }
 
   private void visitContentIdHeader(PartVisitor visitor) {
-    String contentId = part.getContentId();
-    if (contentId != null) {
+    if (contentIdBytes != null) {
       visitor.withBytes(CRLF_BYTES);
       visitor.withBytes(CONTENT_ID_BYTES);
-      visitor.withBytes(contentId.getBytes(US_ASCII));
+      visitor.withBytes(contentIdBytes);
     }
   }
 
   private void visitCustomHeaders(PartVisitor visitor) {
-    if (isNonEmpty(part.getCustomHeaders())) {
-      List<Param> customHeaders = part.getCustomHeaders();
-      for (Param param : customHeaders) {
+    if (customHeaderBytes != null) {
+      for (int i = 0; i < customHeaderBytes.length; i += 2) {
         visitor.withBytes(CRLF_BYTES);
-        visitor.withBytes(param.getName().getBytes(US_ASCII));
+        visitor.withBytes(customHeaderBytes[i]);
         visitor.withBytes(HEADER_NAME_VALUE_SEPARATOR_BYTES);
-        visitor.withBytes(param.getValue().getBytes(US_ASCII));
+        visitor.withBytes(customHeaderBytes[i + 1]);
       }
     }
   }
