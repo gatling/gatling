@@ -16,7 +16,6 @@
 
 package io.gatling.app
 
-import java.nio.file.FileSystems
 import java.util.concurrent.TimeUnit
 
 import scala.util.control.NonFatal
@@ -69,8 +68,6 @@ object Gatling extends StrictLogging {
       // [e]
 
       logger.trace("Starting")
-      // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
-      FileSystems.getDefault
       val configuration =
         try {
           GatlingConfiguration.load()
