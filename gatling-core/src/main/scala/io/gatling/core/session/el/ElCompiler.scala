@@ -135,6 +135,14 @@ private object IntString {
 }
 
 final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String) extends ElPart[Any] {
+  // `index` is a constant known at EL-compile time: resolve once whether it's a static integer
+  // literal or the name of a session attribute holding the index, rather than re-parsing the
+  // string on every evaluation.
+  private val staticIndex: Option[Int] = index match {
+    case IntString(i) => Some(i)
+    case _            => None
+  }
+
   def apply(session: Session): Validation[Any] = {
     @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
@@ -179,9 +187,9 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
       case other => ElMessages.indexAccessNotSupported(other, seqName)
     }
 
-    index match {
-      case IntString(i) => seqElementPart(i)
-      case _            => session(index).validate[Int].flatMap(seqElementPart)
+    staticIndex match {
+      case Some(i) => seqElementPart(i)
+      case _       => session(index).validate[Int].flatMap(seqElementPart)
     }
   }
 }
