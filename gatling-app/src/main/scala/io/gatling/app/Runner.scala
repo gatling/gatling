@@ -16,9 +16,12 @@
 
 package io.gatling.app
 
+import java.lang.reflect.InvocationTargetException
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
+import scala.util.control.NonFatal
 
 import io.gatling.commons.util._
 import io.gatling.core.CoreComponents
@@ -44,54 +47,12 @@ private[gatling] object Runner {
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, gatlingArgs: GatlingArgs, configuration: GatlingConfiguration)
     extends StrictLogging {
   private[app] final def run(): RunResult = {
-    logger.trace("Running")
-
     displayVersionWarning()
 
-    // ugly way to pass the configuration to the DSL
-    io.gatling.core.Predef._configuration = configuration
-
     val selection = Selection(gatlingArgs)
-    val (simulationParams, runMessage, coreComponents, populationFlows) = load(selection)
 
-    if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
-
-    start(simulationParams, coreComponents, populationFlows) match {
-      case Failure(t) =>
-        // [ee]
-        //
-        // [ee]
-        throw t
-      case _ =>
-        simulationParams.after.foreach { after =>
-          after()
-          logger.trace("After hook executed")
-        }
-        // [ee]
-        //
-        //
-        // [ee]
-
-        new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
-    }
-  }
-
-  // [ee]
-  //
-  //
-  // [ee]
-
-  protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
-    DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
-
-  protected[gatling] def load(selection: Selection): (SimulationParams, RunMessage, CoreComponents, PopulationFlows[String, Population]) = {
-    val simulationParams = selection.simulationClass.params
-    logger.trace("Simulation params built")
-
-    simulationParams.before.foreach { before =>
-      before()
-      logger.trace("Before hook executed")
-    }
+    val simulationParams = instantiateSimulation(selection, configuration)
+    executeHook("before", simulationParams.before)
 
     val runMessage = RunMessage(
       simulationParams.name,
@@ -101,21 +62,69 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
       GatlingVersion.ThisVersion.fullVersion,
       configuration.data.zoneId
     )
-    val coreComponents = {
-      val statsEngine = newStatsEngine(simulationParams, runMessage)
-      val throttler = Throttler.actor(simulationParams.throttlings(configuration)).map(system.actorOf)
-      val injector = system.actorOf(Injector.actor(eventLoopGroup, statsEngine, clock))
-      val controller = system.actorOf(Controller.actor(statsEngine, injector, throttler, simulationParams))
-      val exit = new Exit(injector)
-      new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
+
+    val coreComponents = loadCoreComponents(simulationParams, runMessage)
+    val populationFlows = loadPopulations(simulationParams, coreComponents)
+
+    if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
+
+    start(simulationParams, coreComponents, populationFlows) match {
+      case Failure(t) =>
+        // [ee]
+        //
+        // [ee]
+        throw new GatlingLifecycleException.Injection(t)
+      case _ =>
+        executeHook("after", simulationParams.after)
+        // [ee]
+        //
+        //
+        // [ee]
+        new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
-    logger.trace("CoreComponents instantiated")
-
-    val populationFlows = simulationParams.populationFlows(coreComponents)
-    logger.trace("Populations instantiated")
-
-    (simulationParams, runMessage, coreComponents, populationFlows)
   }
+
+  protected def displayVersionWarning(): Unit =
+    GatlingVersion.LatestRelease.foreach { latest =>
+      if (latest.fullVersion != GatlingVersion.ThisVersion.fullVersion && latest.releaseDate.isAfter(GatlingVersion.ThisVersion.releaseDate)) {
+        println(s"Gatling ${latest.fullVersion} is available! (you're using ${GatlingVersion.ThisVersion.fullVersion})")
+      }
+    }
+
+  private final def instantiateSimulation(selection: Selection, configuration: GatlingConfiguration): SimulationParams = {
+    // ugly way to pass the configuration to the DSL
+    io.gatling.core.Predef._configuration = configuration
+
+    try {
+      selection.simulationClass.params
+    } catch {
+      case invocationTargetException: InvocationTargetException =>
+        throw new GatlingLifecycleException.SimulationInstantiation(invocationTargetException.getTargetException)
+      case t: Throwable =>
+        // we also want to catch things like ExceptionInInitializerError which is Fatal
+        throw new GatlingLifecycleException.SimulationInstantiation(t)
+    }
+  }
+
+  private final def executeHook(name: String, hookO: Option[() => Unit]): Unit =
+    GatlingLifecycleException.manage(t => new GatlingLifecycleException.HookExecution(name, t)) {
+      hookO.foreach(_.apply())
+    }
+
+  private final def loadCoreComponents(simulationParams: SimulationParams, runMessage: RunMessage): CoreComponents = {
+    val statsEngine = newStatsEngine(simulationParams, runMessage)
+    val throttler = Throttler.actor(simulationParams.throttlings(configuration)).map(system.actorOf)
+    val injector = system.actorOf(Injector.actor(eventLoopGroup, statsEngine, clock))
+    val controller = system.actorOf(Controller.actor(statsEngine, injector, throttler, simulationParams))
+    val exit = new Exit(injector)
+    new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
+  }
+
+  protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
+    DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
+
+  private final def loadPopulations(simulationParams: SimulationParams, coreComponents: CoreComponents): PopulationFlows[String, Population] =
+    simulationParams.populationFlows(coreComponents)
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
@@ -124,8 +133,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   ): Try[Unit] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
-    println(s"Simulation ${simulationParams.name} started...")
-    logger.trace("Asking Controller to start")
+    logger.info(s"Simulation ${simulationParams.name} started...")
     val runDonePromise = coreComponents.controller.replyPromise[Unit](timeout)
     coreComponents.controller ! Controller.Command.Start(
       populationFlows = populationFlows,
@@ -136,10 +144,8 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     runDone
   }
 
-  protected def displayVersionWarning(): Unit =
-    GatlingVersion.LatestRelease.foreach { latest =>
-      if (latest.fullVersion != GatlingVersion.ThisVersion.fullVersion && latest.releaseDate.isAfter(GatlingVersion.ThisVersion.releaseDate)) {
-        println(s"Gatling ${latest.fullVersion} is available! (you're using ${GatlingVersion.ThisVersion.fullVersion})")
-      }
-    }
+  // [ee]
+  //
+  //
+  // [ee]
 }

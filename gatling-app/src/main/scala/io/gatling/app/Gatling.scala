@@ -50,14 +50,6 @@ object Gatling extends StrictLogging {
     }
   }
 
-  private def terminateActorSystem(system: ActorSystem): Unit =
-    try {
-      system.close()
-    } catch {
-      case NonFatal(e) =>
-        logger.debug("Could not terminate ActorSystem", e)
-    }
-
   private def start(gatlingArgs: GatlingArgs): Int =
     try {
       // [e]
@@ -67,45 +59,53 @@ object Gatling extends StrictLogging {
       //
       // [e]
 
-      logger.trace("Starting")
-      val configuration =
-        try {
-          GatlingConfiguration.load()
-        } catch {
-          case NonFatal(t) =>
-            logger.error("Failed to load the Gatling configuration", t)
-            throw t
-        }
-      logger.trace("Configuration loaded")
-      val runResult =
-        gatlingArgs.reportsOnly match {
-          case Some(runId) => new RunResult(runId, hasAssertions = true)
-          case _           =>
-            // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-            val system = new ActorSystem
-            logger.trace("ActorSystem instantiated")
-            val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, configuration.netty.useIoUring, 0, "gatling")
-            try {
-              val runner = Runner(system, eventLoopGroup, gatlingArgs, configuration)
-              logger.trace("Runner instantiated")
-              runner.run()
-            } catch {
-              case e: Throwable =>
-                logger.error("Run crashed", e)
-                throw e
-            } finally {
-              terminateActorSystem(system)
-              eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS).awaitUninterruptibly()
-            }
-        }
-      new RunResultProcessor(gatlingArgs, configuration).processRunResult(runResult).code
-    } finally {
-      val factory = LoggerFactory.getILoggerFactory
-      try {
-        factory.getClass.getMethod("stop").invoke(factory)
-      } catch {
-        case _: NoSuchMethodException => // Fail silently if a logging provider other than LogBack is used.
-        case NonFatal(ex)             => logger.warn("Logback failed to shutdown.", ex)
+      val configuration = loadConfiguration()
+      val runResult = gatlingArgs.reportsOnly match {
+        case Some(runId) => new RunResult(runId, hasAssertions = true)
+        case _           =>
+          // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
+          val system = new ActorSystem
+          val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, configuration.netty.useIoUring, 0, "gatling")
+          try {
+            val runner = Runner(system, eventLoopGroup, gatlingArgs, configuration)
+            runner.run()
+          } finally {
+            terminateActorSystem(system)
+            eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS).awaitUninterruptibly()
+          }
       }
+      new RunResultProcessor(gatlingArgs, configuration).processRunResult(runResult).code
+    } catch {
+      case lifeCycleException: GatlingLifecycleException =>
+        logger.error(lifeCycleException.getMessage, lifeCycleException.getCause)
+        throw lifeCycleException.getCause
+      case e: Throwable =>
+        logger.error("Run crashed", e)
+        throw e
+    } finally {
+      flushLoggers()
     }
+
+  private def loadConfiguration(): GatlingConfiguration =
+    GatlingLifecycleException.manage(t => new GatlingLifecycleException.Configuration(t)) {
+      GatlingConfiguration.load()
+    }
+
+  private def terminateActorSystem(system: ActorSystem): Unit =
+    try {
+      system.close()
+    } catch {
+      case NonFatal(e) =>
+        logger.debug("Could not terminate ActorSystem", e)
+    }
+
+  private def flushLoggers(): Unit = {
+    val factory = LoggerFactory.getILoggerFactory
+    try {
+      factory.getClass.getMethod("stop").invoke(factory)
+    } catch {
+      case _: NoSuchMethodException => // Fail silently if a logging provider other than LogBack is used.
+      case NonFatal(ex)             => logger.warn("Logback failed to shutdown.", ex)
+    }
+  }
 }
