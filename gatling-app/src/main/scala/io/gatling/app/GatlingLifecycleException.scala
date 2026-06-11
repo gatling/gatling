@@ -28,8 +28,9 @@ object GatlingLifecycleException {
       case NonFatal(t) => throw onNonFatal(t)
     }
 
-  final class Configuration(cause: Throwable) extends GatlingLifecycleException("Failed to load GatlingConfiguration", cause)
-  final class SimulationInstantiation(cause: Throwable) extends GatlingLifecycleException("Failed to create Simulation instance", cause)
-  final class HookExecution(name: String, cause: Throwable) extends GatlingLifecycleException(s"Failed to execute $name hook", cause)
+  final class Configuration(cause: Throwable) extends GatlingLifecycleException("Failed to load the configuration", cause)
+  final class SimulationInstantiation(cause: Throwable) extends GatlingLifecycleException("Failed to create the Simulation instance", cause)
+  final class HookExecution(name: String, cause: Throwable) extends GatlingLifecycleException(s"Failed to execute the $name hook", cause)
+  final class ScenariosBuilding(cause: Throwable) extends GatlingLifecycleException("Failed to build the scenario(s)", cause)
   final class Injection(cause: Throwable) extends GatlingLifecycleException("Simulation crashed during injection", cause)
 }

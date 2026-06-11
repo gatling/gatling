@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
-import scala.util.control.NonFatal
 
 import io.gatling.commons.util._
 import io.gatling.core.CoreComponents
@@ -124,7 +123,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, gatlingArgs.resultsDirectory, configuration)
 
   private final def loadPopulations(simulationParams: SimulationParams, coreComponents: CoreComponents): PopulationFlows[String, Population] =
-    simulationParams.populationFlows(coreComponents)
+    GatlingLifecycleException.manage(t => new GatlingLifecycleException.ScenariosBuilding(t)) {
+      simulationParams.populationFlows(coreComponents)
+    }
 
   protected[gatling] def start(
       simulationParams: SimulationParams,
