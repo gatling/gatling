@@ -30,6 +30,8 @@ import io.gatling.core.session.Session
 import io.github.metarank.cfor._
 
 private[core] object FeedActor {
+  private val EmptyFeederFailure = "feeder is now empty".failure
+
   def actor[T](
       feeder: Feeder[T],
       actorName: String,
@@ -48,13 +50,14 @@ private final class FeedActor[T] private (
     controller: ActorRef[Controller.Command],
     feedCallSite: Option[String]
 ) extends Actor[FeedMessage](feederName) {
-  private def emptyFeederFailure = s"feeder is now empty${feedCallSite.fold("")(f => s" (hint: $f)")}".failure
+  private def crashExceptionMessage(error: String): String =
+    s"Feeder $feederName${feedCallSite.fold("")(f => s" (defined at $f)")} crashed: $error. Stopping engine."
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
       feeder.next().success
     } else {
-      emptyFeederFailure
+      FeedActor.EmptyFeederFailure
     }
 
   private def toJavaValues(array: Array[Record[Any]], n: Int, key: String): ju.List[Any] = {
@@ -87,7 +90,7 @@ private final class FeedActor[T] private (
         key -> values
       }.success
     } else {
-      emptyFeederFailure
+      FeedActor.EmptyFeederFailure
     }
   }
 
@@ -106,12 +109,12 @@ private final class FeedActor[T] private (
       newAttributes match {
         case Success(attr) => next ! session.setAll(attr)
         case Failure(message) =>
-          controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: $message. Stopping engine") {
+          controller ! Controller.Command.Crash(new Exception(crashExceptionMessage(message)) {
             override def fillInStackTrace(): Throwable = this
           })
       }
     } catch {
-      case NonFatal(e) => controller ! Controller.Command.Crash(new Exception(s"Feeder $feederName crashed: ${e.detailedMessage}. Stopping engine", e))
+      case NonFatal(e) => controller ! Controller.Command.Crash(new Exception(crashExceptionMessage(e.detailedMessage), e))
     }
     stay
   }
