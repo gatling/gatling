@@ -49,7 +49,7 @@ object Dependencies {
   private val logback                        = "ch.qos.logback"                % "logback-classic"             % "1.5.34"
   private val pebble                         = "io.pebbletemplates"            % "pebble"                      % "4.1.2"
   private val redisClient                    = "net.debasishg"                %% "redisclient"                 % "3.42"
-  private val saxon                          = "net.sf.saxon"                  % "Saxon-HE"                    % "13.0"
+  private val saxon                          = "net.sf.saxon"                  % "Saxon-HE"                    % "12.9"
   private val scalaLogging                   = "com.typesafe.scala-logging"   %% "scala-logging"               % "3.9.6"
   private val scopt                          = "com.github.scopt"             %% "scopt"                       % "4.1.0"
   private val sfm                            = "org.simpleflatmapper"          % "lightning-csv"               % "9.0.2" exclude("org.simpleflatmapper", "ow2-asm")
