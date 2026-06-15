@@ -20,14 +20,14 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.Workload
+import io.gatling.core.controller.inject.Injection
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.Shard
 
 import io.netty.channel.EventLoopGroup
 
-private[inject] final class ClosedWorkload(
+private[inject] final class ClosedInjection(
     steps: Iterable[ClosedInjectionStep],
     override val duration: FiniteDuration,
     override val isEmpty: Boolean,
@@ -35,7 +35,7 @@ private[inject] final class ClosedWorkload(
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine
-) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
+) extends Injection(scenario, userIdGen, eventLoopGroup, statsEngine) {
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero
 

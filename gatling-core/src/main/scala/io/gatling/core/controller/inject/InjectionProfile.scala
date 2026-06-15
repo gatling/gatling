@@ -31,14 +31,14 @@ trait InjectionProfileFactory[-InjectionStep] {
 trait InjectionProfile {
   def totalUserCount: Option[Long]
 
-  private[inject] def workload(
+  private[inject] def injection(
       scenario: Scenario,
       userIdGen: AtomicLong,
       startTime: Long,
       eventLoopGroup: EventLoopGroup,
       statsEngine: StatsEngine,
       clock: Clock
-  ): Workload
+  ): Injection
 
   // [e]
   //

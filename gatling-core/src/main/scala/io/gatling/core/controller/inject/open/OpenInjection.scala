@@ -21,13 +21,13 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.controller.inject.Workload
+import io.gatling.core.controller.inject.Injection
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
 import io.netty.channel.EventLoopGroup
 
-private[inject] class OpenWorkload(
+private[inject] class OpenInjection(
     stream: UserStream,
     override val duration: FiniteDuration,
     override val isEmpty: Boolean,
@@ -37,7 +37,7 @@ private[inject] class OpenWorkload(
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine,
     clock: Clock
-) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine) {
+) extends Injection(scenario, userIdGen, eventLoopGroup, statsEngine) {
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
     val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)
     if (!isEmpty) {

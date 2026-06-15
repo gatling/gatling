@@ -42,7 +42,7 @@ object OpenInjectionProfileSpec {
   private def drain(steps: Iterable[OpenInjectionStep]): Int = {
     var count = 0
 
-    val workload = new OpenWorkload(
+    val injection = new OpenInjection(
       scenario = new Scenario("foo", null, identity, _ => (), null),
       stream = UserStream(steps),
       userIdGen = new AtomicLong,
@@ -57,8 +57,8 @@ object OpenInjectionProfileSpec {
         count += 1
     }
 
-    while (!workload.isAllUsersScheduled) {
-      workload.injectBatch(1.seconds)
+    while (!injection.isAllUsersScheduled) {
+      injection.injectBatch(1.seconds)
     }
 
     count

@@ -22,7 +22,7 @@ import scala.concurrent.duration.Duration
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
-import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
+import io.gatling.core.controller.inject.{ Injection, InjectionProfile }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
@@ -37,15 +37,15 @@ import io.netty.channel.EventLoopGroup
 private[core] final class OpenInjectionProfile(steps: List[OpenInjectionStep]) extends InjectionProfile {
   override def totalUserCount: Option[Long] = Some(steps.sumBy(_.users))
 
-  override private[inject] def workload(
+  override private[inject] def injection(
       scenario: Scenario,
       userIdGen: AtomicLong,
       startTime: Long,
       eventLoopGroup: EventLoopGroup,
       statsEngine: StatsEngine,
       clock: Clock
-  ): Workload =
-    new OpenWorkload(
+  ): Injection =
+    new OpenInjection(
       UserStream(steps),
       steps.foldLeft(Duration.Zero)((acc, step) => acc.plus(step.duration)),
       steps.forall(_.users == 0),

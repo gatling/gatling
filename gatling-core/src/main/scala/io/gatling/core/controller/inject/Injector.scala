@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.Clock
 import io.gatling.core.actor.{ Actor, ActorRef, Behavior, Cancellable, Effect }
 import io.gatling.core.controller.Controller
-import io.gatling.core.controller.inject.open.OpenWorkload
+import io.gatling.core.controller.inject.open.OpenInjection
 import io.gatling.core.scenario.Population
 import io.gatling.core.stats.StatsEngine
 
@@ -38,15 +38,15 @@ private[gatling] object Injector {
   private[gatling] sealed trait Command
   object Command {
     private[controller] final case class Start(controller: ActorRef[Controller.Command], populationFlows: PopulationFlows[String, Population]) extends Command
-    private[controller] final case class EmptyWorkloadComplete(scenario: String) extends Command
+    private[controller] final case class EmptyInjectionComplete(scenario: String) extends Command
     private[core] final case class UserEnd(scenario: String) extends Command
     private[controller] case object Tick extends Command
   }
 
   private final case class StartedData(
       controller: ActorRef[Controller.Command],
-      inProgressWorkloads: Map[String, Workload],
-      readyPopulations: List[Population],
+      inProgressInjections: Map[String, Injection],
+      readyInjections: List[Population],
       populationFlows: PopulationFlows[String, Population],
       timer: Cancellable
   )
@@ -70,57 +70,57 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
 
   private val userIdGen = new AtomicLong
 
-  private def buildWorkloads(populations: List[Population]): Map[String, Workload] = {
+  private def buildInjections(populations: List[Population]): Map[String, Injection] = {
     val startTime = clock.nowMillis
     populations.map { population =>
-      population.scenario.name -> population.injectionProfile.workload(population.scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
+      population.scenario.name -> population.injectionProfile.injection(population.scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
     }.toMap
   }
 
   private def inject(data: StartedData, firstBatch: Boolean): Effect[Command] = {
-    val newlyInProgressWorkloads = buildWorkloads(data.readyPopulations)
+    val newlyInProgressInjections = buildInjections(data.readyInjections)
 
-    val newInProgressWorkloads = data.inProgressWorkloads ++ newlyInProgressWorkloads
+    val newInProgressInjections = data.inProgressInjections ++ newlyInProgressInjections
 
-    newInProgressWorkloads.values.filterNot(_.isEmpty).foreach {
-      case workload: OpenWorkload if firstBatch => workload.injectBatch(TickPeriod * 2) // inject 1 second ahead
-      case workload                             => workload.injectBatch(TickPeriod)
+    newInProgressInjections.values.filterNot(_.isEmpty).foreach {
+      case injection: OpenInjection if firstBatch => injection.injectBatch(TickPeriod * 2) // inject 1 second ahead
+      case injection                              => injection.injectBatch(TickPeriod)
     }
 
-    newlyInProgressWorkloads.values.foreach { workload =>
-      if (workload.isEmpty) {
-        if (workload.duration == Duration.Zero) {
-          logger.info(s"Scenario ${workload.scenarioName}'s injection profile is empty, triggering possible children")
-          self ! Command.EmptyWorkloadComplete(workload.scenarioName)
+    newlyInProgressInjections.values.foreach { injection =>
+      if (injection.isEmpty) {
+        if (injection.duration == Duration.Zero) {
+          logger.info(s"Scenario ${injection.scenarioName}'s injection profile is empty, triggering possible children")
+          self ! Command.EmptyInjectionComplete(injection.scenarioName)
         } else {
           logger.info(
-            s"Scenario ${workload.scenarioName}'s injection profile is empty, delaying possible children for ${workload.duration.toSeconds} seconds"
+            s"Scenario ${injection.scenarioName}'s injection profile is empty, delaying possible children for ${injection.duration.toSeconds} seconds"
           )
-          scheduler.scheduleOnce(workload.duration) {
-            self ! Command.EmptyWorkloadComplete(workload.scenarioName)
+          scheduler.scheduleOnce(injection.duration) {
+            self ! Command.EmptyInjectionComplete(injection.scenarioName)
           }
         }
       }
     }
 
-    val (finishedInjectingWorkloads, injectingWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
+    val (allUsersScheduledInjections, notAllUsersScheduledInjections) = newInProgressInjections.partition(_._2.isAllUsersScheduled)
 
-    val doneInjecting = injectingWorkloads.isEmpty && data.populationFlows.isEmpty
+    val allUsersScheduled = notAllUsersScheduledInjections.isEmpty && data.populationFlows.isEmpty
 
-    if (doneInjecting) {
-      logger.info("All scenarios have finished injecting")
+    if (allUsersScheduled) {
+      logger.info("All scenarios have their users scheduled")
       data.timer.cancel()
     }
 
-    if (doneInjecting && finishedInjectingWorkloads.values.forall(_.isAllUsersStopped)) {
-      logger.info("All workloads are already stopped")
+    if (allUsersScheduled && allUsersScheduledInjections.values.forall(_.isAllUsersStopped)) {
+      logger.info("All users are already stopped")
       stopInjector(data.controller)
     } else {
       become(
         started(
           data.copy(
-            inProgressWorkloads = newInProgressWorkloads,
-            readyPopulations = Nil
+            inProgressInjections = newInProgressInjections,
+            readyInjections = Nil
           )
         )
       )
@@ -131,18 +131,18 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     case Command.UserEnd(scenario) =>
       logger.debug(s"End user #$scenario")
       statsEngine.logUserEnd(scenario)
-      val workload = data.inProgressWorkloads(scenario)
-      workload.endUser()
-      if (workload.isAllUsersStopped) {
+      val injection = data.inProgressInjections(scenario)
+      injection.endUser()
+      if (injection.isAllUsersStopped) {
         logger.info(s"All users of scenario $scenario are stopped")
-        onWorkloadComplete(scenario, data)
+        onPopulationComplete(scenario, data)
       } else {
         stay
       }
 
-    case Command.EmptyWorkloadComplete(scenario) =>
+    case Command.EmptyInjectionComplete(scenario) =>
       logger.info(s"Scenario $scenario with empty injection profile is complete")
-      onWorkloadComplete(scenario, data)
+      onPopulationComplete(scenario, data)
 
     case Command.Tick =>
       inject(data, firstBatch = false)
@@ -150,21 +150,21 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     case msg => dropUnexpected(msg)
   }
 
-  private def onWorkloadComplete(scenario: String, data: StartedData): Effect[Command] = {
-    val newInProgressWorkloads = data.inProgressWorkloads - scenario
+  private def onPopulationComplete(scenario: String, data: StartedData): Effect[Command] = {
+    val newInProgressPopulations = data.inProgressInjections - scenario
     // children scenarios will be started on next tick
 
     val (newReady, newPopulationFlows) = data.populationFlows.remove(scenario).unblocked
-    val newReadyPopulations = data.readyPopulations ++ newReady
+    val newReadyPopulations = data.readyInjections ++ newReady
 
-    if (newInProgressWorkloads.isEmpty && newReadyPopulations.isEmpty) {
+    if (newInProgressPopulations.isEmpty && newReadyPopulations.isEmpty) {
       stopInjector(data.controller)
     } else {
       become(
         started(
           data.copy(
-            inProgressWorkloads = newInProgressWorkloads,
-            readyPopulations = newReadyPopulations,
+            inProgressInjections = newInProgressPopulations,
+            readyInjections = newReadyPopulations,
             populationFlows = newPopulationFlows
           )
         )

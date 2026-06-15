@@ -28,7 +28,7 @@ import io.gatling.core.stats.StatsEngine
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.{ EventLoop, EventLoopGroup }
 
-private abstract class Workload(
+private abstract class Injection(
     scenario: Scenario,
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,
