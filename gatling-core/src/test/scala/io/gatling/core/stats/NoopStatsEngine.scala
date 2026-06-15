@@ -19,12 +19,13 @@ package io.gatling.core.stats
 import io.gatling.commons.stats.Status
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.Controller
+import io.gatling.core.controller.Controller.Command
 import io.gatling.core.session.GroupBlock
 
 object NoopStatsEngine extends StatsEngine {
   override private[gatling] def start(): Unit = {}
 
-  override private[gatling] def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit = {}
+  override private[gatling] def stop(controller: ActorRef[Controller.Command], reason: Command.StopLoadGenerator.Reason): Unit = {}
 
   override def logUserStart(scenario: String): Unit = {}
 

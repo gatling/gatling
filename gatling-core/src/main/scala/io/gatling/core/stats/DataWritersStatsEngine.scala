@@ -27,6 +27,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Controller
+import io.gatling.core.controller.Controller.Command
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
@@ -74,7 +75,7 @@ final class DataWritersStatsEngine(
 
   override def start(): Unit = dataWriters.foreach(_ ! DataWriterMessage.Init)
 
-  override def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit =
+  override def stop(controller: ActorRef[Controller.Command], reason: Command.StopLoadGenerator.Reason): Unit =
     if (active.getAndSet(false)) {
       val responses = dataWriters.map { dataWriter =>
         val promise = dataWriter.replyPromise[Unit](5.seconds)

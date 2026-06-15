@@ -21,6 +21,7 @@ import java.net.InetSocketAddress
 import io.gatling.commons.stats.Status
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.Controller
+import io.gatling.core.controller.Controller.Command
 import io.gatling.core.session.GroupBlock
 
 import io.netty.channel.ChannelHandler
@@ -32,7 +33,7 @@ object StatsEngine {
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
   private[gatling] def start(): Unit
 
-  private[gatling] def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit
+  private[gatling] def stop(controller: ActorRef[Controller.Command], reason: Command.StopLoadGenerator.Reason): Unit
 
   def logUserStart(scenario: String): Unit
 

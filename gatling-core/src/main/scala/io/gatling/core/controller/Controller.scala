@@ -123,15 +123,13 @@ private final class Controller private (
     case Command.StopLoadGenerator(reason) =>
       data.maxDurationTimer.foreach(_.cancel())
       logger.info("Initiating graceful stop")
-      val crash = reason match {
+      reason match {
         case _: Command.StopLoadGenerator.Reason.Crash =>
-          // already logged
-          true
+        // already logged
         case _ =>
           logger.info(reason.message)
-          false
       }
-      statsEngine.stop(self, crash)
+      statsEngine.stop(self, reason)
       become(waitingForResourcesToStop(Data.End(data, reason)))
 
     // [e]

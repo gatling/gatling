@@ -19,6 +19,7 @@ package io.gatling.jms.action
 import io.gatling.commons.stats.Status
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.Controller
+import io.gatling.core.controller.Controller.Command
 import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
 
@@ -46,7 +47,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def start(): Unit = {}
 
-  override def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit = {}
+  override def stop(controller: ActorRef[Controller.Command], reason: Command.StopLoadGenerator.Reason): Unit = {}
 
   override def logUserStart(scenario: String): Unit = {}
 
