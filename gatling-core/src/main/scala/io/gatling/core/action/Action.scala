@@ -125,7 +125,7 @@ trait RequestAction extends ExitableAction {
       case Failure(requestNameError) =>
         val errorMessage = s"Failed to build request name: $requestNameError"
         logger.error(errorMessage)
-      // [ee]
+      // [e]
     }
 
   override def execute(session: Session): Unit =

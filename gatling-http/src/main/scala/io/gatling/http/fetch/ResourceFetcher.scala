@@ -161,7 +161,7 @@ private[http] final class ResourceFetcher(
           case Failure(requestNameError) =>
             val errorMessage = s"Failed to build explicitResource name: $requestNameError"
             logger.error(errorMessage)
-          // [ee]
+          // [e]
         }
         Nil
     }

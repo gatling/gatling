@@ -40,14 +40,14 @@ final class Scheduler(scheduler: ScheduledExecutorService) extends AutoCloseable
     () => future.cancel(true)
   }
 
-  // [ee]
+  // [e]
   def scheduleWithFixedDelay(initialDelay: FiniteDuration, period: FiniteDuration)(
       task: => Unit
   )(implicit ec: scala.concurrent.ExecutionContext): Cancellable = {
     val future = scheduler.scheduleWithFixedDelay(() => ec.execute(() => task), initialDelay.toMillis, period.toMillis, TimeUnit.MILLISECONDS)
     () => future.cancel(true)
   }
-  // [ee]
+  // [e]
 
   override def close(): Unit = scheduler.shutdown()
 }

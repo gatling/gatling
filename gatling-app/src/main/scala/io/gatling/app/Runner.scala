@@ -69,16 +69,16 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     start(simulationParams, coreComponents, populationFlows) match {
       case Failure(t) =>
-        // [ee]
+        // [e]
         //
-        // [ee]
+        // [e]
         throw new GatlingLifecycleException.Injection(t)
       case _ =>
         executeHook("after", simulationParams.after)
-        // [ee]
+        // [e]
         //
         //
-        // [ee]
+        // [e]
         new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
@@ -145,8 +145,8 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     runDone
   }
 
-  // [ee]
+  // [e]
   //
   //
-  // [ee]
+  // [e]
 }

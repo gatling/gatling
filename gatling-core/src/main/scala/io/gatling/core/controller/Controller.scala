@@ -63,9 +63,9 @@ private[gatling] object Controller {
               override def fillInStackTrace(): Throwable = this
             }
           )
-        // [ee]
+        // [e]
         //
-        // [ee]
+        // [e]
       }
     }
     private[gatling] final case class StopLoadGenerator(reason: StopLoadGenerator.Reason) extends Command
