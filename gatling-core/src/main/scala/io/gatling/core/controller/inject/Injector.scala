@@ -174,7 +174,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
 
   private def stopRun(controller: ActorRef[Controller.Command]): Effect[Command] = {
     logger.info("Stopping")
-    controller ! Controller.Command.RunTerminated
+    controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.RunTerminated)
     die
   }
 }

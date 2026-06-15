@@ -19,6 +19,7 @@ package io.gatling.core.controller
 import scala.concurrent.Promise
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.actor.{ Actor, ActorRef, Behavior, Cancellable, Effect }
 import io.gatling.core.controller.inject.{ Injector, PopulationFlows }
 import io.gatling.core.controller.throttle.Throttler
@@ -36,16 +37,38 @@ private[gatling] object Controller {
 
   private object Data {
     final case class Init(populationFlows: PopulationFlows[String, Population], maxDurationTimer: Option[Cancellable], runDonePromise: Promise[Unit])
-    final case class End(initData: Init, exception: Option[Exception])
+    final case class End(initData: Init, reason: Command.StopLoadGenerator.Reason)
   }
 
   private[gatling] sealed trait Command
   private[gatling] object Command {
     private[gatling] final case class Start(populationFlows: PopulationFlows[String, Population], runDonePromise: Promise[Unit]) extends Command
-    private[gatling] case object RunTerminated extends Command
-    private[gatling] final case class Crash(exception: Exception) extends Command
-    private[gatling] final case class MaxDurationReached(duration: FiniteDuration) extends Command
-    private[gatling] final case class StopLoadGenerator(message: String, crash: Boolean) extends Command
+    private[gatling] object StopLoadGenerator {
+      sealed trait Reason {
+        def message: String
+      }
+      object Reason {
+        final case class Stop private[Reason] (message: String) extends Reason
+        final case class Crash private[Reason] (message: String, exception: Throwable) extends Reason
+
+        val RunTerminated: Reason = Stop("Run completed successfully")
+        def userForcedStop(userMessage: String): Reason = Stop(s"User forced run to stop: $userMessage")
+        def userForcedCrash(userMessage: String): Reason = Stop(s"User forced run to crash: $userMessage")
+        def maxDurationReached(duration: FiniteDuration): Reason = Stop(s"Max duration of $duration reached")
+        def crash(e: Throwable): Reason = Crash(e.detailedMessage, e)
+        def crash(message: String): Reason =
+          Crash(
+            message,
+            new Exception(message) {
+              override def fillInStackTrace(): Throwable = this
+            }
+          )
+        // [ee]
+        //
+        // [ee]
+      }
+    }
+    private[gatling] final case class StopLoadGenerator(reason: StopLoadGenerator.Reason) extends Command
     private[gatling] case object StatsEngineStopped extends Command
     // [e]
     //
@@ -66,7 +89,7 @@ private final class Controller private (
       val maxDurationTimer = simulationParams.maxDuration.map { maxDuration =>
         logger.debug("Setting up max duration")
         scheduler.scheduleOnce(maxDuration) {
-          self ! Command.MaxDurationReached(maxDuration)
+          self ! Command.StopLoadGenerator(Command.StopLoadGenerator.Reason.maxDurationReached(maxDuration))
         }
       }
 
@@ -79,31 +102,22 @@ private final class Controller private (
   }
 
   private def started(data: Data.Init): Behavior[Command] = {
-    case Command.RunTerminated =>
-      logger.info("Injector has stopped, initiating graceful stop")
+    case Command.StopLoadGenerator(reason) =>
       data.maxDurationTimer.foreach(_.cancel())
-      stopGracefully(data, None)
-
-    case Command.MaxDurationReached(maxDuration) =>
-      logger.info(s"Max duration of $maxDuration reached")
-      stopGracefully(data, None)
-
-    case Command.Crash(exception) =>
-      data.maxDurationTimer.foreach(_.cancel())
-      stopGracefully(data, Some(exception))
-
-    case Command.StopLoadGenerator(message, crash) =>
-      data.maxDurationTimer.foreach(_.cancel())
-      if (crash) {
-        val msg = s"Load Generator was forcefully crashed: $message"
-        logger.error(msg)
-        stopGracefully(data, Some(new Exception(msg)))
-      } else {
-        logger.info(s"Load Generator was forcefully stopped: $message")
-        stopGracefully(data, None)
+      logger.info("Initiating graceful stop")
+      val crash = reason match {
+        case _: Command.StopLoadGenerator.Reason.Crash =>
+          // already logged
+          true
+        case _ =>
+          logger.info(reason.message)
+          false
       }
+      statsEngine.stop(self, crash)
+      become(waitingForResourcesToStop(Data.End(data, reason)))
 
     // [e]
+    //
     //
     //
     //
@@ -113,15 +127,10 @@ private final class Controller private (
     case msg => dropUnexpected(msg)
   }
 
-  private def stopGracefully(initData: Data.Init, exception: Option[Exception]): Effect[Command] = {
-    statsEngine.stop(self, exception)
-    become(waitingForResourcesToStop(Data.End(initData, exception)))
-  }
-
   private def stop(endData: Data.End): Effect[Command] = {
-    endData.exception match {
-      case Some(exception) => endData.initData.runDonePromise.tryFailure(exception)
-      case _               => endData.initData.runDonePromise.trySuccess(())
+    endData.reason match {
+      case Controller.Command.StopLoadGenerator.Reason.Crash(_, exception) => endData.initData.runDonePromise.tryFailure(exception)
+      case _                                                               => endData.initData.runDonePromise.trySuccess(())
     }
     die
   }

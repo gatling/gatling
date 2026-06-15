@@ -39,7 +39,13 @@ final class StopLoadGenerator(
       msg <- message(session)
     } yield {
       if (condition) {
-        controller ! Controller.Command.StopLoadGenerator(msg, crash)
+        val reason =
+          if (crash) {
+            Controller.Command.StopLoadGenerator.Reason.userForcedCrash(msg)
+          } else {
+            Controller.Command.StopLoadGenerator.Reason.userForcedStop(msg)
+          }
+        controller ! Controller.Command.StopLoadGenerator(reason)
       } else {
         next ! session
       }

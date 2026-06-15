@@ -32,10 +32,10 @@ class FeedActorSpec extends ActorSpec with EmptySession {
     val nextActor = mockActorRef[Session]("next")
 
     feedActor ! FeedMessage(emptySession, Some(0), new ActorDelegatingAction("next", nextActor))
-    controller.expectMsgType[Controller.Command.Crash]()
+    controller.expectMsgType[Controller.Command.StopLoadGenerator]()
 
     feedActor ! FeedMessage(emptySession, Some(-1), new ActorDelegatingAction("next", nextActor))
-    controller.expectMsgType[Controller.Command.Crash]()
+    controller.expectMsgType[Controller.Command.StopLoadGenerator]()
   }
 
   it should "force the simulation termination if the feeder is empty" in {
@@ -44,7 +44,7 @@ class FeedActorSpec extends ActorSpec with EmptySession {
     val nextActor = mockActorRef[Session]("next")
 
     feedActor ! FeedMessage(emptySession, None, new ActorDelegatingAction("next", nextActor))
-    controller.expectMsgType[Controller.Command.Crash]()
+    controller.expectMsgType[Controller.Command.StopLoadGenerator]()
   }
 
   it should "simply put an entry from the feeder in the session when polling 1 record at a time" in {

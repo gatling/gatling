@@ -74,7 +74,7 @@ final class DataWritersStatsEngine(
 
   override def start(): Unit = dataWriters.foreach(_ ! DataWriterMessage.Init)
 
-  override def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit =
+  override def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit =
     if (active.getAndSet(false)) {
       val responses = dataWriters.map { dataWriter =>
         val promise = dataWriter.replyPromise[Unit](5.seconds)

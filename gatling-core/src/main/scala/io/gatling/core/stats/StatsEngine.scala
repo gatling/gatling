@@ -32,7 +32,7 @@ object StatsEngine {
 trait StatsEngine extends EnterpriseStatsEngineExtensions {
   private[gatling] def start(): Unit
 
-  private[gatling] def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit
+  private[gatling] def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit
 
   def logUserStart(scenario: String): Unit
 

@@ -20,7 +20,6 @@ import java.{ util => ju }
 
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.actor.{ Actor, ActorRef, Behavior }
 import io.gatling.core.controller.Controller
@@ -109,12 +108,13 @@ private final class FeedActor[T] private (
       newAttributes match {
         case Success(attr) => next ! session.setAll(attr)
         case Failure(message) =>
-          controller ! Controller.Command.Crash(new Exception(crashExceptionMessage(message)) {
-            override def fillInStackTrace(): Throwable = this
-          })
+          controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.crash(crashExceptionMessage(message)))
       }
     } catch {
-      case NonFatal(e) => controller ! Controller.Command.Crash(new Exception(crashExceptionMessage(e.detailedMessage), e))
+      case NonFatal(e) =>
+        controller ! Controller.Command.StopLoadGenerator(
+          Controller.Command.StopLoadGenerator.Reason.crash(e)
+        )
     }
     stay
   }

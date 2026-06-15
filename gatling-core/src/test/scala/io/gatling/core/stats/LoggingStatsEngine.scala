@@ -51,7 +51,7 @@ final class LoggingStatsEngine extends StatsEngine {
 
   override def start(): Unit = {}
 
-  override def stop(controller: ActorRef[Controller.Command], exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef[Controller.Command], crash: Boolean): Unit = {}
 
   override def logUserStart(scenario: String): Unit = {}
 
