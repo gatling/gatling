@@ -114,7 +114,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
 
     if (allUsersScheduled && allUsersScheduledInjections.values.forall(_.isAllUsersStopped)) {
       logger.info("All users are already stopped")
-      stopInjector(data.controller)
+      stopRun(data.controller)
     } else {
       become(
         started(
@@ -158,7 +158,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     val newReadyPopulations = data.readyInjections ++ newReady
 
     if (newInProgressPopulations.isEmpty && newReadyPopulations.isEmpty) {
-      stopInjector(data.controller)
+      stopRun(data.controller)
     } else {
       become(
         started(
@@ -172,7 +172,7 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     }
   }
 
-  private def stopInjector(controller: ActorRef[Controller.Command]): Effect[Command] = {
+  private def stopRun(controller: ActorRef[Controller.Command]): Effect[Command] = {
     logger.info("Stopping")
     controller ! Controller.Command.RunTerminated
     die
