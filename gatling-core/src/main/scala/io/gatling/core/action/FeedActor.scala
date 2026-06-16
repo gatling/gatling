@@ -50,7 +50,7 @@ private final class FeedActor[T] private (
     feedCallSite: Option[String]
 ) extends Actor[FeedMessage](feederName) {
   private def crashExceptionMessage(error: String): String =
-    s"Feeder $feederName${feedCallSite.fold("")(f => s" (defined at $f)")} crashed: $error. Stopping engine."
+    s"Feeder $feederName${feedCallSite.fold("")(f => s" (defined at $f)")} crashed: $error."
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {
@@ -108,12 +108,12 @@ private final class FeedActor[T] private (
       newAttributes match {
         case Success(attr) => next ! session.setAll(attr)
         case Failure(message) =>
-          controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.crash(crashExceptionMessage(message)))
+          controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.Crash.WellKnown(crashExceptionMessage(message)))
       }
     } catch {
       case NonFatal(e) =>
         controller ! Controller.Command.StopLoadGenerator(
-          Controller.Command.StopLoadGenerator.Reason.crash(e)
+          Controller.Command.StopLoadGenerator.Reason.Crash.Unexpected(e)
         )
     }
     stay

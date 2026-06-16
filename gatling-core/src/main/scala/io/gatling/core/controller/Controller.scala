@@ -44,28 +44,46 @@ private[gatling] object Controller {
   private[gatling] object Command {
     private[gatling] final case class Start(populationFlows: PopulationFlows[String, Population], runDonePromise: Promise[Unit]) extends Command
     private[gatling] object StopLoadGenerator {
-      sealed trait Reason {
+      sealed trait Reason extends Product with Serializable {
         def message: String
       }
       object Reason {
-        final case class Stop private[Reason] (message: String) extends Reason
-        final case class Crash private[Reason] (message: String, exception: Throwable) extends Reason
-
-        val RunTerminated: Reason = Stop("Run completed successfully")
-        def userForcedStop(userMessage: String): Reason = Stop(s"User forced run to stop: $userMessage")
-        def userForcedCrash(userMessage: String): Reason = Stop(s"User forced run to crash: $userMessage")
-        def maxDurationReached(duration: FiniteDuration): Reason = Stop(s"Max duration of $duration reached")
-        def crash(e: Throwable): Reason = Crash(e.detailedMessage, e)
-        def crash(message: String): Reason =
-          Crash(
-            message,
-            new Exception(message) {
+        sealed trait Graceful extends Reason
+        object Graceful {
+          case object Completed extends Graceful {
+            override def message: String = "Run completed normally"
+          }
+          final case class Forced(userMessage: String) extends Graceful {
+            override def message: String = s"Run stopped from code using 'stopLoadGenerator': $userMessage"
+          }
+          final case class MaxDurationReached(duration: FiniteDuration) extends Graceful {
+            override def message: String = s"Run stopped on 'maxDuration($duration)' reached"
+          }
+          // [e]
+          //
+          //
+          //
+          // [e]
+        }
+        sealed trait Crash extends Reason {
+          def cause: Throwable
+        }
+        object Crash {
+          final case class Forced(userMessage: String) extends Crash {
+            override def message: String = s"Run crashed from code using 'crashLoadGenerator': $userMessage"
+            override def cause: Throwable = new Exception(message) {
               override def fillInStackTrace(): Throwable = this
             }
-          )
-        // [e]
-        //
-        // [e]
+          }
+          final case class WellKnown(message: String) extends Crash {
+            override def cause: Throwable = new Exception(message) {
+              override def fillInStackTrace(): Throwable = this
+            }
+          }
+          final case class Unexpected(cause: Throwable) extends Crash {
+            override def message: String = cause.detailedMessage
+          }
+        }
       }
     }
     private[gatling] final case class StopLoadGenerator(reason: StopLoadGenerator.Reason) extends Command
@@ -89,7 +107,7 @@ private final class Controller private (
       val maxDurationTimer = simulationParams.maxDuration.map { maxDuration =>
         logger.debug("Setting up max duration")
         scheduler.scheduleOnce(maxDuration) {
-          self ! Command.StopLoadGenerator(Command.StopLoadGenerator.Reason.maxDurationReached(maxDuration))
+          self ! Command.StopLoadGenerator(Command.StopLoadGenerator.Reason.Graceful.MaxDurationReached(maxDuration))
         }
       }
 
@@ -129,8 +147,8 @@ private final class Controller private (
 
   private def stop(endData: Data.End): Effect[Command] = {
     endData.reason match {
-      case Controller.Command.StopLoadGenerator.Reason.Crash(_, exception) => endData.initData.runDonePromise.tryFailure(exception)
-      case _                                                               => endData.initData.runDonePromise.trySuccess(())
+      case crash: Controller.Command.StopLoadGenerator.Reason.Crash => endData.initData.runDonePromise.tryFailure(crash.cause)
+      case _                                                        => endData.initData.runDonePromise.trySuccess(())
     }
     die
   }

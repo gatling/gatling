@@ -41,9 +41,9 @@ final class StopLoadGenerator(
       if (condition) {
         val reason =
           if (crash) {
-            Controller.Command.StopLoadGenerator.Reason.userForcedCrash(msg)
+            Controller.Command.StopLoadGenerator.Reason.Crash.Forced(msg)
           } else {
-            Controller.Command.StopLoadGenerator.Reason.userForcedStop(msg)
+            Controller.Command.StopLoadGenerator.Reason.Graceful.Forced(msg)
           }
         controller ! Controller.Command.StopLoadGenerator(reason)
       } else {
