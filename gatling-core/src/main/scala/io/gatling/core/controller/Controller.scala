@@ -54,10 +54,10 @@ private[gatling] object Controller {
             override def message: String = "Run completed normally"
           }
           final case class Forced(userMessage: String) extends Graceful {
-            override def message: String = s"Run stopped from code using 'stopLoadGenerator': $userMessage"
+            override def message: String = s"Run stopped from code using stopLoadGenerator: $userMessage"
           }
           final case class MaxDurationReached(duration: FiniteDuration) extends Graceful {
-            override def message: String = s"Run stopped on 'maxDuration($duration)' reached"
+            override def message: String = s"Run stopped on maxDuration($duration) reached"
           }
           // [e]
           //
@@ -70,7 +70,7 @@ private[gatling] object Controller {
         }
         object Crash {
           final case class Forced(userMessage: String) extends Crash {
-            override def message: String = s"Run crashed from code using 'crashLoadGenerator': $userMessage"
+            override def message: String = s"Run crashed from code using crashLoadGenerator: $userMessage"
             override def cause: Throwable = new Exception(message) {
               override def fillInStackTrace(): Throwable = this
             }
