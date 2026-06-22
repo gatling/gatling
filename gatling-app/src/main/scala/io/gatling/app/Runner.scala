@@ -48,6 +48,9 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
   private[app] final def run(): RunResult = {
     displayVersionWarning()
 
+    // ugly way to pass the configuration to the DSL
+    io.gatling.core.Predef._configuration = configuration
+
     val selection = Selection(gatlingArgs)
 
     val simulationParams = instantiateSimulation(selection, configuration)
@@ -90,10 +93,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
       }
     }
 
-  private final def instantiateSimulation(selection: Selection, configuration: GatlingConfiguration): SimulationParams = {
-    // ugly way to pass the configuration to the DSL
-    io.gatling.core.Predef._configuration = configuration
-
+  private final def instantiateSimulation(selection: Selection, configuration: GatlingConfiguration): SimulationParams =
     try {
       selection.simulationClass.params
     } catch {
@@ -103,7 +103,6 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
         // we also want to catch things like ExceptionInInitializerError which is Fatal
         throw new GatlingLifecycleException.SimulationInstantiation(t)
     }
-  }
 
   private final def executeHook(name: String, hookO: Option[() => Unit]): Unit =
     GatlingLifecycleException.manage(t => new GatlingLifecycleException.HookExecution(name, t)) {
