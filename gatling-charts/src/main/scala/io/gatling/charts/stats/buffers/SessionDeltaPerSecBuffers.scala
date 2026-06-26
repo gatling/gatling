@@ -30,7 +30,7 @@ private[stats] final class SessionCounters(minTimestamp: Long, maxTimestamp: Lon
   private val maxConcurrentUsers: Array[Int] = Array.fill(bucketToMillis.length)(0)
 
   // assume timestamps are always moving forward
-  private def updateCurrentBucket(second: Int): Unit = {
+  def updateCurrentBucket(second: Int): Unit = {
     val bucket = secondToBucket(second)
     if (bucket > currentBuffer) {
       // moving currentBuffer forward, initialize all buffers between old and new position
@@ -42,8 +42,7 @@ private[stats] final class SessionCounters(minTimestamp: Long, maxTimestamp: Lon
     }
   }
 
-  def addStart(second: Int): Unit = {
-    updateCurrentBucket(second)
+  def addStart(): Unit = {
     startCounts(currentBuffer) += 1
     concurrentUsers(currentBuffer) += 1
     if (concurrentUsers(currentBuffer) > maxConcurrentUsers(currentBuffer)) {
@@ -51,10 +50,8 @@ private[stats] final class SessionCounters(minTimestamp: Long, maxTimestamp: Lon
     }
   }
 
-  def addEnd(second: Int): Unit = {
-    updateCurrentBucket(second)
+  def addEnd(): Unit =
     concurrentUsers(currentBuffer) -= 1
-  }
 
   private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, bucketToMillis.length - 1)
 
@@ -99,13 +96,15 @@ private[stats] trait SessionDeltaPerSecBuffers {
     record.event match {
       case MessageEvent.Start =>
         val startSecond = timestamp2SecondOffset(record.timestamp)
-        getSessionDeltaPerSecBuffers(None).addStart(startSecond)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(startSecond)
+        sessionDeltaPerSecBuffers.values.foreach(_.updateCurrentBucket(startSecond))
+        getSessionDeltaPerSecBuffers(None).addStart()
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart()
 
       case MessageEvent.End =>
         val endSecond = timestamp2SecondOffset(record.timestamp)
-        getSessionDeltaPerSecBuffers(None).addEnd(endSecond)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(endSecond)
+        sessionDeltaPerSecBuffers.values.foreach(_.updateCurrentBucket(endSecond))
+        getSessionDeltaPerSecBuffers(None).addEnd()
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd()
     }
 
   def flushTrailingConcurrentUsers(): Unit =
