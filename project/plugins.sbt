@@ -1,6 +1,6 @@
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
-addSbtPlugin("io.gatling"           % "gatling-build-plugin"  % "6.4.4")
+addSbtPlugin("io.gatling"           % "gatling-build-plugin"  % "6.4.5")
 addSbtPlugin("com.github.sbt"       % "sbt-native-packager"   % "1.11.7")
 addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.4.8")
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.19.0")
