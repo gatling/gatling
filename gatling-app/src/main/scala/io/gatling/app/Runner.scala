@@ -50,20 +50,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     val selection = Selection(gatlingArgs)
 
-    val simulationParams = instantiateSimulation(selection, configuration)
-    executeHook("before", simulationParams.before)
-
-    val runMessage = RunMessage(
-      simulationParams.name,
-      selection.simulationId,
-      clock.nowMillis,
-      selection.description,
-      GatlingVersion.ThisVersion.fullVersion,
-      configuration.data.zoneId
-    )
-
-    val coreComponents = loadCoreComponents(simulationParams, runMessage)
-    val populationFlows = loadPopulations(simulationParams, coreComponents)
+    val (simulationParams, runMessage, coreComponents, populationFlows) = load(selection, configuration)
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
@@ -81,6 +68,28 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
         // [e]
         new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
+  }
+
+  protected def load(
+      selection: Selection,
+      configuration: GatlingConfiguration
+  ): (SimulationParams, RunMessage, CoreComponents, PopulationFlows[String, Population]) = {
+    val simulationParams = instantiateSimulation(selection, configuration)
+    executeHook("before", simulationParams.before)
+
+    val runMessage = RunMessage(
+      simulationParams.name,
+      selection.simulationId,
+      clock.nowMillis,
+      selection.description,
+      GatlingVersion.ThisVersion.fullVersion,
+      configuration.data.zoneId
+    )
+
+    val coreComponents = loadCoreComponents(simulationParams, runMessage)
+    val populationFlows = loadPopulations(simulationParams, coreComponents)
+
+    (simulationParams, runMessage, coreComponents, populationFlows)
   }
 
   protected def displayVersionWarning(): Unit =
