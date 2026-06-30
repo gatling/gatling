@@ -80,6 +80,7 @@ class CoreCompileTest extends Simulation {
     .feed(separatedValues("foo", '|'))
     .feed(separatedValues("foo", '|', '"'))
     .feed(jsonFile("foo"))
+    .feed(jsonlFile("foo"))
     .feed(jsonUrl("foo"))
     .feed(Iterator.from(0).map(i => Map("key" -> i)).take(10))
     .feed(() => Iterator.from(0).map(i => Map("key" -> i)).take(10))

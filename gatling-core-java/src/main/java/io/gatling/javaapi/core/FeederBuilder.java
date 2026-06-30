@@ -199,6 +199,15 @@ public interface FeederBuilder<T> {
     }
 
     @NonNull
+    static FileBased<Object> jsonlFile(@NonNull String filePath) {
+      return new Impl<>(
+          io.gatling.core.Predef.jsonlFile(
+              filePath,
+              io.gatling.core.Predef.defaultJsonParsers(),
+              io.gatling.core.Predef.configuration()));
+    }
+
+    @NonNull
     static FeederBuilder<Object> jsonUrl(@NonNull String url) {
       return new Impl<>(
           io.gatling.core.Predef.jsonUrl(

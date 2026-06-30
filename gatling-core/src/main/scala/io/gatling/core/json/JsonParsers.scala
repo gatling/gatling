@@ -16,12 +16,12 @@
 
 package io.gatling.core.json
 
-import java.io.InputStream
+import java.io.{ File, InputStream }
 
 import io.gatling.commons.validation._
 
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.{ JsonNode, MappingIterator, ObjectReader }
 
 object JsonParsers {
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
@@ -31,6 +31,9 @@ final class JsonParsers {
   import JsonParsers._
 
   private val jsonNodeValueType = Json.objectMapper.getTypeFactory.constructType(classOf[JsonNode])
+
+  def readJsonl(is: InputStream): MappingIterator[JsonNode] =
+    Json.objectMapper.readerFor(classOf[JsonNode]).readValues[JsonNode](is)
 
   def parse(is: InputStream): JsonNode =
     Json.objectMapper.readValue(is, jsonNodeValueType)

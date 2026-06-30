@@ -3311,6 +3311,16 @@ public final class CoreDsl {
   }
 
   /**
+   * Bootstrap a new JSONL (JSON lines) file based feeder
+   *
+   * @param filePath the path of the file, either relative to the root of the classpath, or absolute
+   * @return a new feeder
+   */
+  public static FeederBuilder.@NonNull FileBased<Object> jsonlFile(@NonNull String filePath) {
+    return FeederBuilder.Impl.jsonlFile(filePath);
+  }
+
+  /**
    * Bootstrap a new JSON API based feeder
    *
    * @param url the url of the API

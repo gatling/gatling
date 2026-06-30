@@ -80,6 +80,7 @@ public class CoreJavaCompileTest extends Simulation {
               feed(separatedValues("foo", '|')),
               feed(separatedValues("foo", '|', '"')),
               feed(jsonFile("foo")),
+              feed(jsonlFile("foo")),
               feed(jsonUrl("foo")),
               feed(
                   Stream.iterate(0, i -> i + 1)

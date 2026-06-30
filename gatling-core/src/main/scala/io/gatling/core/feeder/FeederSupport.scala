@@ -70,6 +70,13 @@ trait FeederSupport extends ResourceCache {
       case Failure(message)  => throw newStacklessFileNotFoundException(message)
     }
 
+  def jsonlFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
+    cachedResource(filePath) match {
+      case Success(resource) =>
+        SourceFeederBuilder[Any](new FileLinesFeederSource("jsonl", hasHeaderLine = false, resource, JsonlParser.feederFactory(jsonParsers)), configuration)
+      case Failure(message) => throw newStacklessFileNotFoundException(message)
+    }
+
   private def newStacklessFileNotFoundException(message: String): FileNotFoundException =
     new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteOutsideGatling.fold("")(f => s" (hint: $f)")}") {
       override def fillInStackTrace(): Throwable = this
