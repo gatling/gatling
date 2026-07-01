@@ -95,7 +95,7 @@ class FeederBuilderSpec extends AnyFlatSpecLike with Matchers with FeederSupport
     transformedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
 
     val cantTransform: Option[Any] = queuedFeeder
-      .transform { case ("Can't find because don't exist", shouldKeepAsIs) =>
+      .transform { case ("Can't find because doesn't exist", shouldKeepAsIs) =>
         shouldKeepAsIs.concat("s are boring !")
       }
       .apply()
