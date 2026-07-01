@@ -16,7 +16,7 @@
 
 package io.gatling.core.feeder
 
-import java.nio.channels.FileChannel
+import java.nio.channels.{ FileChannel, ReadableByteChannel }
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.jdk.CollectionConverters._
@@ -74,31 +74,34 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
     }
 }
 
-private[gatling] final class SeparatedValuesFeederSource(val resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
-  override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
-    def applyBatch(res: Resource): Feeder[Any] = {
-      val charset = configuration.core.charset
+private[gatling] final class FileLinesFeederSource[T](
+    shortName: String,
+    hasHeaderLine: Boolean,
+    resource: Resource,
+    feederFactory: ReadableByteChannel => Feeder[T]
+) extends FeederSource[T] {
+  override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] = {
+    def applyBatch(res: Resource): Feeder[Any] =
       if (res.file.length > configuration.core.feederAdaptiveLoadModeThreshold) {
-        BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, charset)
+        BatchedFeeder(res.file, feederFactory, options.conversion, options.strategy)
       } else {
         val records = Using.resource(FileChannel.open(res.file.toPath)) { channel =>
-          SeparatedValuesParser.feederFactory(separator, quoteChar, charset)(channel).toVector
+          feederFactory(channel).toVector
         }
-
         InMemoryFeeder(records, options.conversion, options.strategy)
       }
-    }
 
     val uncompressedResource = ZippedResourceCache.unzipped(resource, options.unzip)
     applyBatch(uncompressedResource)
   }
 
-  override def recordsCount(options: FeederOptions[String], configuration: GatlingConfiguration): Int = {
+  override def name: String = s"$shortName(${resource.name})"
+
+  override def recordsCount(options: FeederOptions[T], configuration: GatlingConfiguration): Int = {
     val uncompressedResource = ZippedResourceCache.unzipped(resource, options.unzip)
     val linesIncludingHeader = Using.resource(uncompressedResource.inputStream)(LineCounter(configuration.core.charset).countLines)
+    val headerLineOffset = if (hasHeaderLine) 1 else 0
 
-    linesIncludingHeader - 1
+    linesIncludingHeader - headerLineOffset
   }
-
-  override def name: String = s"csv(${resource.name})"
 }

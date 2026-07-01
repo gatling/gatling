@@ -18,22 +18,18 @@ package io.gatling.core.feeder
 
 import java.io.File
 import java.nio.channels.{ FileChannel, ReadableByteChannel }
-import java.nio.charset.Charset
 
 import io.gatling.commons.util.Arrays
 
-object BatchedSeparatedValuesFeeder {
+object BatchedFeeder {
   private val BufferSize: Int = 2000
 
-  def apply(
+  def apply[T](
       file: File,
-      separator: Char,
-      quoteChar: Char,
-      conversion: Option[Record[String] => Record[Any]],
-      strategy: FeederStrategy,
-      charset: Charset
+      feederFactory: ReadableByteChannel => Feeder[T],
+      conversion: Option[Record[T] => Record[Any]],
+      strategy: FeederStrategy
   ): Feeder[Any] = {
-    val feederFactory: ReadableByteChannel => Feeder[String] = SeparatedValuesParser.feederFactory(separator, quoteChar, charset)
 
     val channelFactory = {
       val path = file.toPath
@@ -41,10 +37,10 @@ object BatchedSeparatedValuesFeeder {
     }
 
     val rawFeeder = strategy match {
-      case FeederStrategy.Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
-      case FeederStrategy.Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, feederFactory, BufferSize)
-      case FeederStrategy.Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, feederFactory, BufferSize)
-      case FeederStrategy.Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, feederFactory)
+      case FeederStrategy.Queue    => new QueueBatchedFeeder[T](channelFactory, feederFactory)
+      case FeederStrategy.Random   => new RandomBatchedFeeder[T](channelFactory, feederFactory, BufferSize)
+      case FeederStrategy.Shuffle  => new ShuffleBatchedFeeder[T](channelFactory, feederFactory, BufferSize)
+      case FeederStrategy.Circular => new CircularBatchedFeeder[T](channelFactory, feederFactory)
     }
 
     conversion match {
@@ -60,12 +56,12 @@ object BatchedSeparatedValuesFeeder {
   }
 }
 
-private sealed abstract class BatchedSeparatedValuesFeeder(
+private sealed abstract class BatchedFeeder[T](
     channelFactory: () => ReadableByteChannel,
-    feederFactory: ReadableByteChannel => Feeder[String]
-) extends CloseableFeeder[String] {
+    feederFactory: ReadableByteChannel => Feeder[T]
+) extends CloseableFeeder[T] {
   private var currentChannel: ReadableByteChannel = _
-  protected var feeder: Feeder[String] = _
+  protected var feeder: Feeder[T] = _
   reset0()
 
   private def reset0(): Unit = {
@@ -81,19 +77,19 @@ private sealed abstract class BatchedSeparatedValuesFeeder(
   override def close(): Unit = currentChannel.close()
 }
 
-private final class QueueBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
-    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
+private final class QueueBatchedFeeder[T](channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[T])
+    extends BatchedFeeder(channelFactory, streamer) {
   override def hasNext: Boolean = feeder.hasNext
 
-  override def next(): Record[String] = feeder.next()
+  override def next(): Record[T] = feeder.next()
 }
 
-private final class RandomBatchedSeparatedValuesFeeder(
+private final class RandomBatchedFeeder[T](
     channelFactory: () => ReadableByteChannel,
-    streamer: ReadableByteChannel => Feeder[String],
+    streamer: ReadableByteChannel => Feeder[T],
     bufferSize: Int
-) extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-  private val buffer = new Array[Record[String]](bufferSize)
+) extends BatchedFeeder(channelFactory, streamer) {
+  private val buffer = new Array[Record[T]](bufferSize)
   private var index = Int.MaxValue // so refill is triggered on first access
 
   private def refill(): Unit = {
@@ -110,7 +106,7 @@ private final class RandomBatchedSeparatedValuesFeeder(
 
   override def hasNext: Boolean = true
 
-  override def next(): Record[String] =
+  override def next(): Record[T] =
     if (index < bufferSize) {
       val record = buffer(index)
       index += 1
@@ -122,12 +118,12 @@ private final class RandomBatchedSeparatedValuesFeeder(
     }
 }
 
-private final class ShuffleBatchedSeparatedValuesFeeder(
+private final class ShuffleBatchedFeeder[T](
     channelFactory: () => ReadableByteChannel,
-    streamer: ReadableByteChannel => Feeder[String],
+    streamer: ReadableByteChannel => Feeder[T],
     bufferSize: Int
-) extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
-  private val buffer = new Array[Record[String]](bufferSize)
+) extends BatchedFeeder(channelFactory, streamer) {
+  private val buffer = new Array[Record[T]](bufferSize)
   private var index = 0
   private var fill = 0
   refill()
@@ -143,7 +139,7 @@ private final class ShuffleBatchedSeparatedValuesFeeder(
 
   override def hasNext: Boolean = index < fill || feeder.hasNext
 
-  override def next(): Record[String] =
+  override def next(): Record[T] =
     if (index < fill) {
       val record = buffer(index)
       index += 1
@@ -156,11 +152,11 @@ private final class ShuffleBatchedSeparatedValuesFeeder(
     }
 }
 
-private final class CircularBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
-    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
+private final class CircularBatchedFeeder[T](channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[T])
+    extends BatchedFeeder(channelFactory, streamer) {
   override def hasNext: Boolean = true
 
-  override def next(): Record[String] = {
+  override def next(): Record[T] = {
     if (!feeder.hasNext) {
       resetStream()
     }
