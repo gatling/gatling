@@ -32,7 +32,7 @@ class SseCompileTest extends Simulation {
         .sseName("sse")
         .get("/stocks/prices")
         .await(30.seconds)(
-          sse.checkMessage("checkName1").check(regex("event: snapshot(.*)"))
+          sse.checkMessage("checkName1").check(regex(".*"))
         ),
       sse("waitForSomeMessage").setCheck.await(30.seconds)(
         sse
@@ -48,6 +48,24 @@ class SseCompileTest extends Simulation {
             jsonPath("$.foo")
           }
       ),
+      sse("fieldChecks").setCheck.await(30.seconds)(
+        sse
+          .checkMessage("fieldCheck1")
+          .check(
+            sseEvent.is("snapshot"),
+            sseData.exists,
+            sseId.saveAs("lastId"),
+            sseRetry.optional
+          )
+      ),
+      sse("matchByEvent").setCheck.await(30.seconds)(
+        sse
+          .checkMessage("matchByEvent")
+          .matching(sseEvent.is("price_update"))
+          .check(
+            sseData.exists
+          )
+      ),
       sse("close").close,
       sse("foo", "bar").get("url"),
       sse("foo", "bar").post("url").body(StringBody("")),
@@ -55,11 +73,11 @@ class SseCompileTest extends Simulation {
       sse.processUnmatchedMessages(
         "sseName",
         (messages, session) => {
-          val lastMessage = messages.reverseIterator.collectFirst { case SseInboundMessage(_, text) =>
-            text
+          val lastData = messages.reverseIterator.collectFirst { case SseInboundMessage(_, event) =>
+            event.data
           }
 
-          lastMessage.fold(session)(m => session.set("lastMessage", m))
+          lastData.flatten.fold(session)(d => session.set("lastData", d))
         }
       )
     )
