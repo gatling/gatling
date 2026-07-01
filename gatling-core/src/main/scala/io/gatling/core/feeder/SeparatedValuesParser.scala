@@ -25,14 +25,11 @@ import org.simpleflatmapper.lightningcsv.CsvParser
 
 private[gatling] object SeparatedValuesParser {
   val DefaultQuoteChar: Char = '"'
-
   val CommaSeparator: Char = ','
   val SemicolonSeparator: Char = ';'
   val TabulationSeparator: Char = '\t'
 
-  private def withRecordsIterator[T](columnSeparator: Char, quoteChar: Char, charset: Charset)(
-      f: (Array[String], Iterator[Array[String]]) => T
-  ): ReadableByteChannel => T = {
+  def feederFactory(columnSeparator: Char, quoteChar: Char, charset: Charset): ReadableByteChannel => Feeder[String] = {
     val parser = CsvParser
       .separator(columnSeparator)
       .quote(quoteChar)
@@ -48,12 +45,7 @@ private[gatling] object SeparatedValuesParser {
         require(header.nonEmpty, "CSV headers can't be empty")
       }
 
-      f(headers, it.asScala)
+      it.asScala.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
     }
   }
-
-  def feederFactory(columnSeparator: Char, quoteChar: Char, charset: Charset): ReadableByteChannel => Feeder[String] =
-    withRecordsIterator(columnSeparator, quoteChar, charset) { (headers, it) =>
-      it.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
-    }
 }
