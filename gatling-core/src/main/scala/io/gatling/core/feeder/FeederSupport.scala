@@ -26,7 +26,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.util.{ CallSites, ResourceCache }
+import io.gatling.core.util.{ CallSites, Resource, ResourceCache }
 
 trait FeederSupport extends ResourceCache {
   implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
@@ -50,36 +50,35 @@ trait FeederSupport extends ResourceCache {
   def separatedValues(filePath: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
       configuration: GatlingConfiguration
   ): FileBasedFeederBuilder[String] =
-    cachedResource(filePath) match {
-      case Success(resource) =>
-        SourceFeederBuilder[String](
-          new FileLinesFeederSource(
-            "csv",
-            hasHeaderLine = true,
-            resource,
-            SeparatedValuesParser.feederFactory(separator, quoteChar, configuration.core.charset)
-          ),
-          configuration
-        )
-      case Failure(message) => throw newStacklessFileNotFoundException(message)
+    withFileResource(filePath) { resource =>
+      SourceFeederBuilder[String](
+        new FileLinesFeederSource(
+          "csv",
+          hasHeaderLine = true,
+          resource,
+          SeparatedValuesParser.feederFactory(separator, quoteChar, configuration.core.charset)
+        ),
+        configuration
+      )
     }
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
-    cachedResource(filePath) match {
-      case Success(resource) => SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers), configuration)
-      case Failure(message)  => throw newStacklessFileNotFoundException(message)
+    withFileResource(filePath) { resource =>
+      SourceFeederBuilder(new JsonFileFeederSource(resource, jsonParsers), configuration)
     }
 
   def jsonlFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
-    cachedResource(filePath) match {
-      case Success(resource) =>
-        SourceFeederBuilder[Any](new FileLinesFeederSource("jsonl", hasHeaderLine = false, resource, JsonlParser.feederFactory(jsonParsers)), configuration)
-      case Failure(message) => throw newStacklessFileNotFoundException(message)
+    withFileResource(filePath) { resource =>
+      SourceFeederBuilder[Any](new FileLinesFeederSource("jsonl", hasHeaderLine = false, resource, JsonlParser.feederFactory(jsonParsers)), configuration)
     }
 
-  private def newStacklessFileNotFoundException(message: String): FileNotFoundException =
-    new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteHint}") {
-      override def fillInStackTrace(): Throwable = this
+  private def withFileResource[T](filePath: String)(f: Resource => T): T =
+    cachedResource(filePath) match {
+      case Success(resource) => f(resource)
+      case Failure(message) =>
+        throw new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteHint}") {
+          override def fillInStackTrace(): Throwable = this
+        }
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
