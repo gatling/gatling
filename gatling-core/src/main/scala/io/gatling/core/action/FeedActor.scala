@@ -37,9 +37,9 @@ private[core] object FeedActor {
       feederName: Option[String],
       generateJavaCollection: Boolean,
       controller: ActorRef[Controller.Command],
-      feedCallSite: Option[String]
+      callSiteHint: String
   ): Actor[FeedMessage] =
-    new FeedActor(feeder, feederName.getOrElse(actorName), generateJavaCollection, controller, feedCallSite)
+    new FeedActor(feeder, feederName.getOrElse(actorName), generateJavaCollection, controller, callSiteHint)
 }
 
 private final class FeedActor[T] private (
@@ -47,10 +47,10 @@ private final class FeedActor[T] private (
     feederName: String,
     generateJavaCollection: Boolean,
     controller: ActorRef[Controller.Command],
-    feedCallSite: Option[String]
+    callSiteHint: String
 ) extends Actor[FeedMessage](feederName) {
   private def crashExceptionMessage(error: String): String =
-    s"Feeder $feederName${feedCallSite.fold("")(f => s" (defined at $f)")} crashed: $error."
+    s"Feeder $feederName$callSiteHint crashed: $error."
 
   private def pollSingleRecord(): Validation[Record[Any]] =
     if (feeder.hasNext) {

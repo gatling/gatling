@@ -36,7 +36,7 @@ private[core] final class FeedBuilder(
     feederBuilderKey: Long,
     number: Option[Expression[Int]],
     generateJavaCollection: Boolean,
-    feedCallSite: Option[String]
+    callSiteHint: String
 ) extends ActionBuilder
     with NameGen {
   private def newFeedActor(ctx: ScenarioContext): ActorRef[FeedMessage] = {
@@ -52,7 +52,7 @@ private[core] final class FeedBuilder(
       case _                        =>
     }
 
-    val props = FeedActor.actor(feeder, genName("feed"), feederName, generateJavaCollection, ctx.coreComponents.controller, feedCallSite)
+    val props = FeedActor.actor(feeder, genName("feed"), feederName, generateJavaCollection, ctx.coreComponents.controller, callSiteHint)
     ctx.coreComponents.actorSystem.actorOf(props)
   }
 

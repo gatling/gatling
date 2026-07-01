@@ -45,7 +45,7 @@ private[structure] trait Feeds[B] extends Execs[B] {
     feed0(feederBuilder, System.identityHashCode(feederBuilder), Some(number), generateJavaCollection = false)
 
   private[gatling] def feed0(feederBuilder: FeederBuilder, feederBuilderKey: Long, number: Option[Expression[Int]], generateJavaCollection: Boolean): B =
-    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number, generateJavaCollection, CallSites.callSiteOutsideGatling))
+    exec(new FeedBuilder(feederBuilder, feederBuilderKey, number, generateJavaCollection, CallSites.callSiteHint))
 
   /**
    * Chain an action that will inject a single data record into the virtual users' Session

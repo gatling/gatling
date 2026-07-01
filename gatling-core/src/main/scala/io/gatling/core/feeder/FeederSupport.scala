@@ -78,7 +78,7 @@ trait FeederSupport extends ResourceCache {
     }
 
   private def newStacklessFileNotFoundException(message: String): FileNotFoundException =
-    new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteOutsideGatling.fold("")(f => s" (hint: $f)")}") {
+    new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteHint}") {
       override def fillInStackTrace(): Throwable = this
     }
 

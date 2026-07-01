@@ -21,7 +21,7 @@ import java.{ util => ju }
 import scala.jdk.OptionConverters._
 
 object CallSites {
-  def callSiteOutsideGatling: Option[String] = StackWalker
+  private def callSiteOutsideGatling: Option[String] = StackWalker
     .getInstance(ju.Collections.emptySet(), 4)
     .walk(
       // grab first non-Gatling frame
@@ -30,4 +30,6 @@ object CallSites {
     .toScala
     // give up on JS, we have no way of finding the JS source
     .collect { case frame if !frame.getClassName.startsWith("com.oracle.truffle.") => frame.toString }
+
+  def callSiteHint: String = callSiteOutsideGatling.fold("")(f => s" (defined at: $f)")
 }
