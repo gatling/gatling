@@ -58,7 +58,7 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
   override def feeder(options: FeederOptions[Any], configuration: GatlingConfiguration): Feeder[Any] =
     Using.resource(ZippedResourceCache.unzipped(resource, options.unzip).inputStream) { is =>
       val node = jsonParsers.parse(is)
-      require(node.isArray, "Root element of JSON feeder file isn't an array")
+      require(node.isArray, "JSON feeder files root node must be an array")
 
       val records = node.elements.asScala.collect {
         case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]

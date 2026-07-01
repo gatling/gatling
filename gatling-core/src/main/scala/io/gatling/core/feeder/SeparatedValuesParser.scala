@@ -38,12 +38,10 @@ private[gatling] object SeparatedValuesParser {
       val reader = Channels.newReader(new Utf8BomSkipReadableByteChannel(channel), charset.newDecoder, -1)
       val it = parser.iterator(reader)
 
-      require(it.hasNext, "Feeder source is empty")
+      require(it.hasNext, "CSV feeder files mustn't be empty")
       val headers = it.next().map(_.trim)
-      require(headers.nonEmpty, "CSV sources must have a non empty first line containing the headers")
-      headers.foreach { header =>
-        require(header.nonEmpty, "CSV headers can't be empty")
-      }
+      require(headers.nonEmpty, "CSV feeder files must have a first line with column headers")
+      require(headers.forall(_.nonEmpty), s"CSV feeder headers mustn't be empty Strings, found ${headers.mkString("(", ", ", ")")}")
 
       it.asScala.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
     }

@@ -25,6 +25,7 @@ import io.gatling.core.json.{ Json, JsonParsers }
 private[gatling] object JsonlParser {
   def feederFactory(jsonParsers: JsonParsers): ReadableByteChannel => Feeder[Any] = channel => {
     val mappingIterator = jsonParsers.readJsonl(Channels.newInputStream(channel))
+    require(mappingIterator.hasNext, "JSONL feeder files mustn't be empty")
     mappingIterator.asScala.collect {
       case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]
     }
