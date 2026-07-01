@@ -45,7 +45,16 @@ private[core] final class FeedBuilder(
       case _                                      => None
     }
 
-    val feeder = feederBuilder()
+    val feeder =
+      try {
+        feederBuilder()
+      } catch {
+        // require()
+        case e: IllegalArgumentException =>
+          throw new IllegalArgumentException(s"Failed to create feeder $feederName$callSiteHint: ${e.getMessage}.") {
+            override def fillInStackTrace(): Throwable = this
+          }
+      }
 
     feeder match {
       case closeable: AutoCloseable => ctx.coreComponents.actorSystem.registerOnTermination(closeable.close())
