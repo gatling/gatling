@@ -64,7 +64,7 @@ object Dependencies {
   // Test dependencies
   private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.2.7"        % Test
   private val h2                             = "com.h2database"                % "h2"                          % "2.4.240"      % Test
-  private val jetty                          = "org.eclipse.jetty"             % "jetty-server"                % "12.1.10"       % Test
+  private val jetty                          = "org.eclipse.jetty"             % "jetty-server"                % "12.1.11"       % Test
   private val jettyProxy                     = jetty.withName("jetty-proxy")
   private val junit                          = "org.junit.jupiter"             % "junit-jupiter-api"           % "6.1.1"        % Test
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
