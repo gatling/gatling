@@ -731,12 +731,12 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     actual should contain theSameElementsAs expected
   }
 
-  "randomIntRange" should "generate random Int with negative numbers" in {
+  it should "generate random Int with negative numbers" in {
     val randomInt = "#{randomInt(-10,-5)}".el[Int]
     randomInt(emptySession).succeeded should (be >= -10 and be < -5)
   }
 
-  "randomIntRange" should "throw exception with 'max' less than 'min'" in {
+  it should "throw exception with 'max' less than 'min'" in {
     an[ElParserException] should be thrownBy "#{randomInt(20,1)}".el[Int]
   }
 
@@ -752,12 +752,12 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     actual should contain theSameElementsAs expected
   }
 
-  "randomLongRange" should "generate random Long with negative numbers" in {
+  it should "generate random Long with negative numbers" in {
     val randomInt = "#{randomLong(-2147483658,-2147483648)}".el[Long]
     randomInt(emptySession).succeeded should (be >= -2147483658L and be < -2147483648L)
   }
 
-  "randomLongRange" should "throw exception with 'max' less than 'min'" in {
+  it should "throw exception with 'max' less than 'min'" in {
     an[ElParserException] should be thrownBy "#{randomLong(2147483658,2147483648)}".el[Long]
   }
 
