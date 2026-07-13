@@ -9,7 +9,7 @@ object Dependencies {
   private val gatlingSharedCli               = "io.gatling"                    % "gatling-shared-cli"          % "0.0.7"
   private val gatlingSharedModel             = "io.gatling"                   %% "gatling-shared-model"        % "0.1.3"
   private val gatlingSharedUtil              = "io.gatling"                   %% "gatling-shared-util"         % "0.0.14"
-  private val nettyHttp                      = "io.netty"                      % "netty-codec-http"            % "4.2.15.Final"
+  private val nettyHttp                      = "io.netty"                      % "netty-codec-http"            % "4.2.16.Final"
   private val nettyBuffer                    = nettyHttp.withName("netty-buffer")
   private val nettyHandler                   = nettyHttp.withName("netty-handler")
   private val nettyProxy                     = nettyHttp.withName("netty-handler-proxy")
