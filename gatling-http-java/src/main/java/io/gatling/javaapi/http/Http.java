@@ -60,6 +60,28 @@ public final class Http {
   }
 
   /**
+   * Define a QUERY request
+   *
+   * @param url the url, expressed as a Gatling Expression Language String
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  public @NonNull HttpRequestActionBuilder query(@NonNull String url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).query(toStringExpression(url)));
+  }
+
+  /**
+   * Define a QUERY request
+   *
+   * @param url the url, expressed as a function
+   * @return a new instance of HttpRequestActionBuilder
+   */
+  public @NonNull HttpRequestActionBuilder query(@NonNull Function<Session, String> url) {
+    return new HttpRequestActionBuilder(
+        new io.gatling.http.request.builder.Http(name).query(javaFunctionToExpression(url)));
+  }
+
+  /**
    * Define a PUT request
    *
    * @param url the url, expressed as a Gatling Expression Language String

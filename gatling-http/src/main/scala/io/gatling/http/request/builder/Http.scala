@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.HttpMethod
 final class Http(requestName: Expression[String]) {
   def get(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.GET, Left(url))
   private[http] def get(uri: Uri): HttpRequestBuilder = httpRequest(HttpMethod.GET, Right(uri))
+  def query(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.QUERY, Left(url))
   def put(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PUT, Left(url))
   def post(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.POST, Left(url))
   def patch(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PATCH, Left(url))

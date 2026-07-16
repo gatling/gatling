@@ -317,6 +317,8 @@ public class HttpJavaCompileTest extends Simulation {
                   .requestTimeout(1)
                   .requestTimeout(Duration.ofSeconds(1)))
           .exec(http("name").get(session -> "url"))
+          .exec(http("name").query("url"))
+          .exec(http("name").query(session -> "url"))
           .exec(http("name").put("url"))
           .exec(http("name").put(session -> "url"))
           .exec(http("name").post("url"))
