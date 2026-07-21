@@ -249,7 +249,7 @@ case object RandomSecureUUID extends ElPart[String] {
 }
 
 case object RandomUUID extends ElPart[String] {
-  private val Version4Mask = 2L << 62
+  private val Version4Mask = 4L << 12 // set version nibble to 4 (RFC 4122 §4.1.3)
   private val VariantMask = 2L << 62
 
   def apply(session: Session): Validation[String] = {
