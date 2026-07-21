@@ -166,6 +166,9 @@ final class DefaultResponseProcessor(
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
         statsProcessor.reportStats(tx.fullRequestName, newSession, status, response, errorMessage)
+        // [e]
+        //
+        // [e]
         nextExecutor.executeNext(newSession, status, response)
 
       case FollowUp(followUpTx) =>

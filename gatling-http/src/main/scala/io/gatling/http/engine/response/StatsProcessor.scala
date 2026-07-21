@@ -95,6 +95,14 @@ sealed abstract class StatsProcessor extends StrictLogging {
 
     logger.trace(dump)
   }
+
+  // [e]
+  //
+  //
+  //
+  //
+  //
+  // [e]
 }
 
 object NoopStatsProcessor extends StatsProcessor {
@@ -130,4 +138,21 @@ final class DefaultStatsProcessor(
       },
       errorMessage
     )
+
+  // [e]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [e]
 }

@@ -67,6 +67,8 @@ trait StatsEngine extends EnterpriseStatsEngineExtensions {
   //
   //
   //
+  //
+  //
   // [e]
 
   def logResponse(
