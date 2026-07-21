@@ -78,7 +78,7 @@ trait ChainableAction extends Action {
         // EvenLoopGroup already closed
         logger.debug(s"'$name' crashed with '${reason.detailedMessage}', ignoring")
       case NonFatal(reason) =>
-        if (logger.underlying.isInfoEnabled) {
+        if (logger.underlying.isDebugEnabled) {
           logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
         } else {
           logger.error(s"'$name' crashed with '${reason.detailedMessage}', forwarding to the next one")
