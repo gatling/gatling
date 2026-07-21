@@ -147,22 +147,16 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
     @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
       case seq: collection.Seq[_] =>
-        if (seq.isDefinedAt(index)) {
-          seq(index).success
-        } else if (index < 0) {
-          val backwardIndex = seq.length + index
-          if (seq.isDefinedAt(backwardIndex)) {
-            seq(backwardIndex).success
-          } else {
-            ElMessages.undefinedSeqIndex(seqName, index)
-          }
+        val actualIndex = if (index >= 0) index else seq.length + index
+        if (seq.isDefinedAt(actualIndex)) {
+          seq(actualIndex).success
         } else {
           ElMessages.undefinedSeqIndex(seqName, index)
         }
 
       case arr: Array[_] =>
         val actualIndex = if (index >= 0) index else arr.length + index
-        if (actualIndex < arr.length) {
+        if (actualIndex >= 0 && actualIndex < arr.length) {
           arr(actualIndex).success
         } else {
           ElMessages.undefinedSeqIndex(seqName, index)
@@ -170,7 +164,7 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 
       case list: ju.List[_] =>
         val actualIndex = if (index >= 0) index else list.size + index
-        if (actualIndex < list.size) {
+        if (actualIndex >= 0 && actualIndex < list.size) {
           list.get(actualIndex).success
         } else {
           ElMessages.undefinedSeqIndex(seqName, index)
@@ -178,7 +172,7 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 
       case product: Product =>
         val actualIndex = if (index >= 0) index else product.productArity + index
-        if (actualIndex < product.productArity) {
+        if (actualIndex >= 0 && actualIndex < product.productArity) {
           product.productElement(actualIndex).success
         } else {
           ElMessages.outOfRangeAccess(seqName, product, index)

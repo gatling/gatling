@@ -189,6 +189,27 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     expression(session).failed shouldBe ElMessages.undefinedSeqIndex("lst", 2).message
   }
 
+  it should "handle gracefully when backward index in a Seq results in a negative index" in {
+    val session = newSession(Map("arr" -> Seq(1, 2)))
+    val expression = "#{arr(-3)}".el[Int]
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("arr", -3).message
+  }
+
+  it should "handle gracefully when backward index in an Array results in a negative index" in {
+    val session = newSession(Map("arr" -> Array(1, 2)))
+    val expression = "#{arr(-3)}".el[Int]
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("arr", -3).message
+  }
+
+  it should "handle gracefully when backward index in a JList results in a negative index" in {
+    val lst = new ju.LinkedList[Int]
+    lst.add(1)
+    lst.add(2)
+    val session = newSession(Map("arr" -> lst))
+    val expression = "#{arr(-3)}".el[Int]
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("arr", -3).message
+  }
+
   it should "handle gracefully when used with static index and missing attribute" in {
     val session = newSession(Map.empty)
     val expression = "foo#{bar(1)}".el[String]
