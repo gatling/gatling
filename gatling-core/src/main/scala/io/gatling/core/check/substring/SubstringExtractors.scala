@@ -44,7 +44,7 @@ object SubstringExtractors {
       text => {
         @tailrec
         def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
-          if (fromIndex >= pattern.length)
+          if (fromIndex >= text.length)
             Validation.NoneSuccess
           else
             text.indexOf(pattern, fromIndex) match {

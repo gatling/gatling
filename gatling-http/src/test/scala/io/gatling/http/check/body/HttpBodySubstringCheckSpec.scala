@@ -43,6 +43,11 @@ class HttpBodySubstringCheckSpec extends AnyFlatSpecLike with Matchers with Vali
     substring(""""id":"""").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(2), None)
   }
 
+  it should "find n-th occurrence" in {
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
+    substring(""""id":"""").find(1).exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(21), None)
+  }
+
   "substring.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     substring(""""id":"""").findAll.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(Seq(2, 21)), None)
