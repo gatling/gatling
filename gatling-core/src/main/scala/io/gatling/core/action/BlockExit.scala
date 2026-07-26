@@ -66,6 +66,7 @@ private object BlockExit {
    */
   private def exitAsapLoop(session: Session): Option[BlockExit] = {
     @tailrec
+    @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
     def exitAsapLoopRec(leftToRightBlocks: List[Block], rightToLeftBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
       case head :: tail =>
         head match {
@@ -79,7 +80,13 @@ private object BlockExit {
       case _ => None
     }
 
-    exitAsapLoopRec(session.blockStack.reverse, Nil)
+    // Scanning outside-in means reversing the stack, and mustExit is on the hot path of every
+    // ExitableAction. Only pay for the copy once we know there's an exitASAP loop to find.
+    if (session.blockStack.exists(_.isInstanceOf[ExitAsapLoopBlock])) {
+      exitAsapLoopRec(session.blockStack.reverse, Nil)
+    } else {
+      None
+    }
   }
 
   /**
@@ -107,6 +114,13 @@ private object BlockExit {
     exitTryMaxRec(session.blockStack)
   }
 
-  def mustExit(session: Session): Option[BlockExit] =
-    exitAsapLoop(session).orElse(exitTryMax(session))
+  // don't use orElse in order to save a lambda instance for the by-name alternative
+  def mustExit(session: Session): Option[BlockExit] = {
+    val exit = exitAsapLoop(session)
+    if (exit.isDefined) {
+      exit
+    } else {
+      exitTryMax(session)
+    }
+  }
 }
