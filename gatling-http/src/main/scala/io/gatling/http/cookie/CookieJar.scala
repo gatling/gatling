@@ -55,11 +55,16 @@ private[cookie] object CookieJar {
     maxAge != Cookie.UNDEFINED_MAX_AGE && maxAge <= 0
   }
 
-  // rfc6265#section-5.1.3
+  // rfc6265#section-5.4
   // check "The string is a host name (i.e., not an IP address)" ignored
   private def domainsMatch(cookieDomain: String, requestDomain: String, hostOnly: Boolean) =
-    (hostOnly && requestDomain == cookieDomain) ||
-      (requestDomain == cookieDomain || requestDomain.endsWith("." + cookieDomain))
+    if (hostOnly) {
+      // a host-only cookie is only sent back to the exact host that set it
+      requestDomain == cookieDomain
+    } else {
+      // rfc6265#section-5.1.3
+      requestDomain == cookieDomain || requestDomain.endsWith("." + cookieDomain)
+    }
 
   // rfc6265#section-5.1.4
   private def pathsMatch(cookiePath: String, requestPath: String) =

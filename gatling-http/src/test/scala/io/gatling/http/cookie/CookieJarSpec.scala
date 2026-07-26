@@ -137,6 +137,22 @@ class CookieJarSpec extends AnyFlatSpecLike with Matchers {
     cookieStore.get(Uri.create("http://www.foo.com")) should have size 1
   }
 
+  // rfc6265#section-5.4: a cookie set without a Domain attribute is host-only and must only be
+  // sent back to the exact host that set it, unlike a cookie with an explicit Domain attribute.
+  it should "not return a host-only cookie on a subdomain" in {
+    val cookie = decode("ALPHA=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("http://foo.com"), List(cookie), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("http://sub.foo.com")) shouldBe empty
+  }
+
+  it should "not return a host-only cookie on a parent domain" in {
+    val cookie = decode("ALPHA=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("http://sub.foo.com"), List(cookie), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("http://foo.com")) shouldBe empty
+  }
+
   it should "handle missing path as /" in {
     val cookie = decode("tooe_token=0b1d81dd02d207491a6e9b0a2af9470da9eb1dad")
     val uri = Uri.create("http://www.foo.com")
@@ -359,5 +375,18 @@ class CookieJarSpec extends AnyFlatSpecLike with Matchers {
     cookieStore.find("cookie1", "domain1.com", None, Some(true)).map(_.value) shouldBe List("VALUE3")
     cookieStore.find("cookie1", "domain1.com", None, Some(false)).map(_.value) shouldBe List("VALUE1")
     cookieStore.find("cookie1", "domain1.com", Some("/"), Some(true)).map(_.value) shouldBe Nil
+  }
+
+  it should "not expose a host-only cookie on a subdomain" in {
+    val cookieStore = CookieJar(Uri.create("http://foo.com"), List(decode("ALPHA=VALUE1; Path=/")), System.currentTimeMillis())
+
+    cookieStore.find("ALPHA", "foo.com", None, None).map(_.value) shouldBe List("VALUE1")
+    cookieStore.find("ALPHA", "sub.foo.com", None, None) shouldBe Nil
+  }
+
+  it should "still expose a domain cookie on a subdomain" in {
+    val cookieStore = CookieJar(Uri.create("http://foo.com"), List(decode("ALPHA=VALUE1; Path=/; Domain=foo.com")), System.currentTimeMillis())
+
+    cookieStore.find("ALPHA", "sub.foo.com", None, None).map(_.value) shouldBe List("VALUE1")
   }
 }
