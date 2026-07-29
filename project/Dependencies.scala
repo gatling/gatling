@@ -14,20 +14,12 @@ object Dependencies {
   private val nettyHandler                   = nettyHttp.withName("netty-handler")
   private val nettyProxy                     = nettyHttp.withName("netty-handler-proxy")
   private val nettyDns                       = nettyHttp.withName("netty-resolver-dns")
-  private val nettyEpollLinuxX86             = nettyHttp.withName("netty-transport-native-epoll")    classifier "linux-x86_64"
-  private val nettyEpollLinuxArm             = nettyEpollLinuxX86                                    classifier "linux-aarch_64"
-  private val nettyIoUringLinuxX86           = nettyHttp.withName("netty-transport-native-io_uring") classifier "linux-x86_64"
-  private val nettyIoUringLinuxArm           = nettyIoUringLinuxX86                                  classifier "linux-aarch_64"
+  private val nettyEpoll                     = nettyHttp.withName("netty-transport-native-epoll").classifier("linux-x86_64").classifier("linux-aarch_64")
+  private val nettyIoUring                   = nettyHttp.withName("netty-transport-native-io_uring").classifier("linux-x86_64").classifier("linux-aarch_64")
   private val nettyHttp2                     = nettyHttp.withName("netty-codec-http2")
-  private val nettyResolverNativeOsXX86      = nettyHttp.withName("netty-resolver-dns-native-macos") classifier "osx-x86_64"
-  private val nettyResolverNativeOsXArm      = nettyResolverNativeOsXX86                             classifier "osx-aarch_64"
+  private val nettyResolverNativeOsX         = nettyHttp.withName("netty-resolver-dns-native-macos").classifier("osx-x86_64").classifier("osx-aarch_64")
   private val nettyTcNative                  = "io.netty"                      % "netty-tcnative-classes"      % "2.0.81.Final"
-  private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static")
-  private val nettyTcNativeBoringSslLinuxX86 = nettyTcNativeBoringSsl                                classifier "linux-x86_64"
-  private val nettyTcNativeBoringSslLinuxArm = nettyTcNativeBoringSsl                                classifier "linux-aarch_64"
-  private val nettyTcNativeBoringSslOsXX86   = nettyTcNativeBoringSsl                                classifier "osx-x86_64"
-  private val nettyTcNativeBoringSslOsXArm   = nettyTcNativeBoringSsl                                classifier "osx-aarch_64"
-  private val nettyTcNativeBoringSslWindows  = nettyTcNativeBoringSsl                                classifier "windows-x86_64"
+  private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static").classifier("linux-x86_64").classifier("linux-aarch_64").classifier("osx-x86_64").classifier("osx-aarch_64").classifier("windows-x86_64")
   private val brotli4j                       = "com.aayushatharva.brotli4j"    % "brotli4j"                    % "1.23.0"
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
@@ -93,10 +85,8 @@ object Dependencies {
     Seq(
       gatlingSharedUtil,
       nettyBuffer,
-      nettyEpollLinuxX86,
-      nettyEpollLinuxArm,
-      nettyIoUringLinuxX86,
-      nettyIoUringLinuxArm,
+      nettyEpoll,
+      nettyIoUring,
       junit,
       junitEngine,
       junitPlatformLauncher,
@@ -125,12 +115,7 @@ object Dependencies {
       scopt,
       nettyHandler,
       nettyTcNative,
-      nettyTcNativeBoringSsl,
-      nettyTcNativeBoringSslLinuxX86,
-      nettyTcNativeBoringSslLinuxArm,
-      nettyTcNativeBoringSslOsXX86,
-      nettyTcNativeBoringSslOsXArm,
-      nettyTcNativeBoringSslWindows
+      nettyTcNativeBoringSsl
     ) ++
       parserDeps ++ testDeps
 
@@ -149,18 +134,12 @@ object Dependencies {
     nettyHandler,
     nettyProxy,
     nettyDns,
-    nettyEpollLinuxX86,
-    nettyEpollLinuxArm,
+    nettyEpoll,
     nettyHttp2,
-    nettyResolverNativeOsXX86,
-    nettyResolverNativeOsXArm,
+    nettyResolverNativeOsX,
     nettyTcNative,
     nettyTcNativeBoringSsl,
-    nettyTcNativeBoringSslLinuxX86,
-    nettyTcNativeBoringSslLinuxArm,
-    nettyTcNativeBoringSslOsXX86,
-    nettyTcNativeBoringSslOsXArm,
-    nettyTcNativeBoringSslWindows,
+    nettyTcNativeBoringSsl,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
