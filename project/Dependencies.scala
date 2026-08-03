@@ -38,7 +38,7 @@ object Dependencies {
   private val joddUtil                       = "org.jodd"                      % "jodd-util"                   % "6.3.0"
   private val jspecify                       = "org.jspecify"                  % "jspecify"                    % "1.0.1"
   private val lagarto                        = "org.jodd"                      % "jodd-lagarto"                % "6.0.6"
-  private val logback                        = "ch.qos.logback"                % "logback-classic"             % "1.6.0"
+  private val logback                        = "ch.qos.logback"                % "logback-classic"             % "1.6.1"
   private val pebble                         = "io.pebbletemplates"            % "pebble"                      % "4.1.2"
   private val redisClient                    = "net.debasishg"                %% "redisclient"                 % "3.42"
   private val saxon                          = "net.sf.saxon"                  % "Saxon-HE"                    % "12.10"
