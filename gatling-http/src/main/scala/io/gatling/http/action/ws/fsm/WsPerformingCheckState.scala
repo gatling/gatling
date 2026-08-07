@@ -98,7 +98,8 @@ final case class WsPerformingCheckState(
           tryApplyingChecks(message, timestamp, matchConditions, checks)
 
         case _ =>
-          logger.debug(s"Received unmatched text frame $message")
+          // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
+          logger.trace(s"Received unmatched text frame $message")
           unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Text(timestamp, message))
           // server unmatched message, just log
           logUnmatchedServerMessage(session)
@@ -114,7 +115,8 @@ final case class WsPerformingCheckState(
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
-        logger.debug("Received unmatched binary frame")
+        // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
+        logger.trace("Received unmatched binary frame")
         unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Binary(timestamp, message))
         // server unmatched message, just log
         logUnmatchedServerMessage(session)
@@ -152,9 +154,9 @@ final case class WsPerformingCheckState(
       }
     }
     if (messageMatches) {
-      logger.debug(s"Received matching message $message")
-      fsm.wsLogger.logCheck(actionName, session, OK, None, Some(currentCheck.resolvedName), requestMessage)
-      // matching message, apply checks
+      logger.trace(s"Received matching message $message")
+      // matching message, apply checks before logging so failures keep the inbound buffer
+      // (WsLogger.logCheck clears it) and only dump at DEBUG when the check is KO
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
 
       checkError match {
@@ -196,24 +198,25 @@ final case class WsPerformingCheckState(
           )
 
         case _ =>
-          logger.debug("Current check success")
-          // check success
+          logger.trace("Current check success")
+          // check success — TRACE dump (parity with HTTP: successes only at TRACE)
+          fsm.wsLogger.logCheck(actionName, session, OK, None, Some(currentCheck.resolvedName), requestMessage)
           val newSession = logCheckResult(sessionWithCheckUpdate, timestamp, OK, None, None)
           remainingChecks match {
             case nextCheck :: nextRemainingChecks =>
               // perform next check
-              logger.debug("Perform next check of current check sequence")
+              logger.trace("Perform next check of current check sequence")
               // [e]
               //
               // [e]
               NextWsState(this.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession))
 
             case _ =>
-              logger.debug("Current check sequence complete")
+              logger.trace("Current check sequence complete")
               cancelTimeout()
               remainingCheckSequences match {
                 case WsFrameCheckSequence(timeout, nextCheck :: nextRemainingChecks) :: nextRemainingCheckSequences =>
-                  logger.debug("Perform next check sequence")
+                  logger.trace("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
                   // [e]
@@ -231,7 +234,7 @@ final case class WsPerformingCheckState(
 
                 case _ =>
                   // all check sequences complete
-                  logger.debug("Check sequences completed successfully")
+                  logger.trace("Check sequences completed successfully")
                   val nextStateAction =
                     next match {
                       case Left(nextAction) => () => nextAction ! newSession
@@ -245,8 +248,8 @@ final case class WsPerformingCheckState(
           }
       }
     } else {
-      logger.debug(s"Received non-matching message $message")
-      fsm.wsLogger.logCheck(actionName, session, OK, None, Some(currentCheck.resolvedName), requestMessage)
+      // non-matching inbound: TRACE only; keep buffered for a possible later DEBUG failure dump
+      logger.trace(s"Received non-matching message $message")
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextWsState(this)

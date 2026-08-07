@@ -8,12 +8,12 @@
 		<immediateFlush>false</immediateFlush>
 	</appender>
 
-	<!-- uncomment and set to DEBUG to log all failing HTTP requests -->
-	<!-- uncomment and set to TRACE to log all HTTP requests -->
+	<!-- uncomment and set to DEBUG to log failing HTTP and WebSocket requests -->
+	<!-- uncomment and set to TRACE to log all HTTP and WebSocket requests -->
 	<!--<logger name="io.gatling.http.engine.response" level="TRACE" />-->
 
-	<!-- uncomment to log WebSocket events -->
-    <!--<logger name="io.gatling.http.action.ws.fsm" level="DEBUG" />-->
+	<!-- uncomment and set to TRACE to log WebSocket FSM events (connect/send/receive state machine) -->
+    <!--<logger name="io.gatling.http.action.ws.fsm" level="TRACE" />-->
 
 	<!-- uncomment to log SSE events -->
     <!--<logger name="io.gatling.http.action.sse.fsm" level="DEBUG" />-->
