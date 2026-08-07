@@ -55,6 +55,7 @@ final class WsFsm(
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {
+        // timeout fired (often a failed check) — keep at DEBUG for troubleshooting
         logger.debug(s"Timeout ${currentTimeout.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
@@ -62,17 +63,18 @@ final class WsFsm(
       dur.toMillis,
       TimeUnit.MILLISECONDS
     )
-    logger.debug(s"Timeout ${currentTimeout.hashCode} scheduled")
+    // high-volume lifecycle noise — TRACE so DEBUG can stay reserved for failures / dumps
+    logger.trace(s"Timeout ${currentTimeout.hashCode} scheduled")
   }
 
   private[fsm] def cancelTimeout(): Unit =
     if (currentTimeout == null) {
-      logger.debug("Couldn't cancel timeout because it wasn't set")
+      logger.trace("Couldn't cancel timeout because it wasn't set")
     } else {
       if (currentTimeout.cancel(true)) {
-        logger.debug(s"Timeout ${currentTimeout.hashCode} cancelled")
+        logger.trace(s"Timeout ${currentTimeout.hashCode} cancelled")
       } else {
-        logger.debug(s"Failed to cancel timeout ${currentTimeout.hashCode}")
+        logger.trace(s"Failed to cancel timeout ${currentTimeout.hashCode}")
       }
       currentTimeout = null
     }

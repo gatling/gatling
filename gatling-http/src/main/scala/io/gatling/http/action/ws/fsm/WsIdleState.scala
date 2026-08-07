@@ -40,16 +40,17 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       session: Session,
       next: Action
   ): NextWsState = {
-    logger.debug(s"Send text frame $actionName $message")
+    // outbound traffic: TRACE at send time (DEBUG reserved for failed checks via WsLogger)
+    logger.trace(s"Send text frame $actionName $message")
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new TextWebSocketFrame(message))
-    fsm.wsLogger.logOk(actionName, session, Some(message))
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
-        logger.debug("Trigger check after sending text frame")
+        // retain outbound for later DEBUG/TRACE dump with check outcome; do not log OK yet
+        logger.trace("Trigger check after sending text frame")
         scheduleTimeout(timeout)
         // [e]
         //
@@ -71,6 +72,8 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
         )
 
       case _ =>
+        // no check: TRACE dump of the outbound message only
+        fsm.wsLogger.logOk(actionName, session, Some(message))
         // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
         NextWsState(this, () => next ! session)
     }
@@ -83,18 +86,19 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
       session: Session,
       next: Action
   ): NextWsState = {
-    logger.debug(s"Send binary frame $actionName length=${message.length}")
+    // outbound traffic: TRACE at send time (DEBUG reserved for failed checks via WsLogger)
+    logger.trace(s"Send binary frame $actionName length=${message.length}")
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
     val requestMessage =
       if (HttpTracing.IS_HTTP_DEBUG_ENABLED) Some(s"<<<BINARY CONTENT length=${message.length}>>>") else None
-    fsm.wsLogger.logOk(actionName, session, requestMessage)
     statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
-        logger.debug("Trigger check after sending binary frame")
+        // retain outbound for later DEBUG/TRACE dump with check outcome; do not log OK yet
+        logger.trace("Trigger check after sending binary frame")
         scheduleTimeout(timeout)
         // [e]
         //
@@ -116,6 +120,8 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
         )
 
       case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
+        // no check: TRACE dump of the outbound message only
+        fsm.wsLogger.logOk(actionName, session, requestMessage)
         NextWsState(this, () => next ! session)
     }
   }
