@@ -54,7 +54,7 @@ object Dependencies {
   private val xmlresolverData                = xmlresolver                                           classifier "data"
 
   // Test dependencies
-  private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.3.0"        % Test
+  private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.3.1"        % Test
   private val h2                             = "com.h2database"                % "h2"                          % "2.4.240"      % Test
   private val jetty                          = "org.eclipse.jetty"             % "jetty-server"                % "12.1.12"       % Test
   private val jettyProxy                     = jetty.withName("jetty-proxy")
