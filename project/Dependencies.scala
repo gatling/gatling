@@ -139,7 +139,6 @@ object Dependencies {
     nettyResolverNativeOsX,
     nettyTcNative,
     nettyTcNativeBoringSsl,
-    nettyTcNativeBoringSsl,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
