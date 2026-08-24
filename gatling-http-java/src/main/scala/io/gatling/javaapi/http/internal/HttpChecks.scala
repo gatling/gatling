@@ -59,7 +59,7 @@ object HttpChecks {
       case CoreCheckType.Regex     => scalaCheck.asInstanceOf[CheckBuilder[RegexCheckType, String]].build(HttpPredef.httpBodyRegexCheckMaterializer)
       case CoreCheckType.Substring => scalaCheck.asInstanceOf[CheckBuilder[SubstringCheckType, String]].build(HttpPredef.httpBodySubstringCheckMaterializer)
       case CoreCheckType.XPath     => scalaCheck.asInstanceOf[CheckBuilder[XPathCheckType, XdmNode]].build(HttpPredef.httpBodyXPathCheckMaterializer)
-      case CoreCheckType.Css =>
+      case CoreCheckType.Css       =>
         scalaCheck.asInstanceOf[CheckBuilder[CssCheckType, NodeSelector]].build(HttpPredef.httpBodyCssCheckMaterializer(CorePredef.defaultCssSelectors))
       case CoreCheckType.JsonPath =>
         scalaCheck.asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]].build(HttpPredef.httpBodyJsonPathCheckMaterializer(CorePredef.defaultJsonParsers))
@@ -73,16 +73,16 @@ object HttpChecks {
         scalaCheck
           .asInstanceOf[CheckBuilder[JsonpJmesPathCheckType, JsonNode]]
           .build(HttpPredef.httpBodyJsonpJmesPathCheckMaterializer(CorePredef.defaultJsonParsers))
-      case CoreCheckType.Md5  => scalaCheck.asInstanceOf[CheckBuilder[Md5CheckType, String]].build(HttpPredef.httpMd5CheckMaterializer)
-      case CoreCheckType.Sha1 => scalaCheck.asInstanceOf[CheckBuilder[Sha1CheckType, String]].build(HttpPredef.httpSha1CheckMaterializer)
+      case CoreCheckType.Md5          => scalaCheck.asInstanceOf[CheckBuilder[Md5CheckType, String]].build(HttpPredef.httpMd5CheckMaterializer)
+      case CoreCheckType.Sha1         => scalaCheck.asInstanceOf[CheckBuilder[Sha1CheckType, String]].build(HttpPredef.httpSha1CheckMaterializer)
       case CoreCheckType.ResponseTime =>
         scalaCheck.asInstanceOf[CheckBuilder[ResponseTimeCheckType, ResponseTimings]].build(HttpPredef.httpResponseTimeCheckMaterializer)
       case HttpCheckType.CurrentLocation =>
         scalaCheck.asInstanceOf[CheckBuilder[CurrentLocationCheckType, String]].build(HttpPredef.currentLocationCheckMaterializer)
       case HttpCheckType.CurrentLocationRegex =>
         scalaCheck.asInstanceOf[CheckBuilder[CurrentLocationRegexCheckType, String]].build(HttpPredef.currentLocationRegexCheckMaterializer)
-      case HttpCheckType.Status => scalaCheck.asInstanceOf[CheckBuilder[HttpStatusCheckType, Response]].build(HttpPredef.httpStatusCheckMaterializer)
-      case HttpCheckType.Header => scalaCheck.asInstanceOf[CheckBuilder[HttpHeaderCheckType, Response]].build(HttpPredef.httpHeaderCheckMaterializer)
+      case HttpCheckType.Status      => scalaCheck.asInstanceOf[CheckBuilder[HttpStatusCheckType, Response]].build(HttpPredef.httpStatusCheckMaterializer)
+      case HttpCheckType.Header      => scalaCheck.asInstanceOf[CheckBuilder[HttpHeaderCheckType, Response]].build(HttpPredef.httpHeaderCheckMaterializer)
       case HttpCheckType.HeaderRegex =>
         scalaCheck.asInstanceOf[CheckBuilder[HttpHeaderRegexCheckType, Response]].build(HttpPredef.httpHeaderRegexCheckMaterializer)
       case unknown => throw new IllegalArgumentException(s"HTTP DSL doesn't support $unknown")

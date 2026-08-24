@@ -77,7 +77,7 @@ object Throttling {
 
   @tailrec
   private def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
-    case Nil => 0
+    case Nil          => 0
     case head :: tail =>
       if (pendingTime < head.durationInSec)
         head.rps(pendingTime, previousLastValue)

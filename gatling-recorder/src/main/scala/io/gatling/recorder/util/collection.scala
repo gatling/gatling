@@ -21,7 +21,7 @@ private[recorder] object collection {
     // See ScenarioSpec for example
     def groupAsLongAs(p: T => Boolean): List[List[T]] =
       elts.foldRight(List[List[T]]()) {
-        case (t, Nil) => (t :: Nil) :: Nil
+        case (t, Nil)           => (t :: Nil) :: Nil
         case (t, xs @ xh :: xt) =>
           if (p(t)) (t :: xh) :: xt
           else (t :: Nil) :: xs

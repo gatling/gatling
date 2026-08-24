@@ -52,7 +52,7 @@ final case class HttpRequest(requestName: String, clientRequest: Request, reques
   def isSilent(root: Boolean): Boolean =
     requestConfig.silent match {
       case Some(silent) => silent
-      case _ =>
+      case _            =>
         val requestPart = requestConfig.httpProtocol.requestPart
         requestPart.silentUri.exists(_.matcher(clientRequest.getUri.toUrl).matches) || // silent because matches protocol's silentUri
         (!root && requestPart.silentResources) // silent because resources are silent

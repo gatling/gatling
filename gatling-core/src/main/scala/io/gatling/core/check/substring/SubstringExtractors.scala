@@ -49,7 +49,7 @@ object SubstringExtractors {
           else
             text.indexOf(pattern, fromIndex) match {
               case -1 => Validation.NoneSuccess
-              case i =>
+              case i  =>
                 if (occ == occurrence)
                   Some(i).success
                 else

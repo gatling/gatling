@@ -40,7 +40,7 @@ object WsChecks {
       case CoreCheckType.BodyString => scalaCheck.asInstanceOf[CheckBuilder[BodyStringCheckType, String]].build(WsCheckMaterializer.Text.BodyString)
       case CoreCheckType.Regex      => scalaCheck.asInstanceOf[CheckBuilder[RegexCheckType, String]].build(WsCheckMaterializer.Text.Regex)
       case CoreCheckType.Substring  => scalaCheck.asInstanceOf[CheckBuilder[SubstringCheckType, String]].build(WsCheckMaterializer.Text.Substring)
-      case CoreCheckType.JsonPath =>
+      case CoreCheckType.JsonPath   =>
         scalaCheck.asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]].build(WsCheckMaterializer.Text.jsonPath(CorePredef.defaultJsonParsers))
       case CoreCheckType.JmesPath =>
         scalaCheck.asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]].build(WsCheckMaterializer.Text.jmesPath(CorePredef.defaultJsonParsers))

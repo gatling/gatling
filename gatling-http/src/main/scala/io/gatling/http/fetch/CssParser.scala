@@ -59,7 +59,7 @@ private[fetch] object CssParser extends StrictLogging {
         else
           (string.charAt(cur): @switch) match {
             case ' ' | '\r' | '\n' => trimLeft(cur + 1)
-            case '\'' =>
+            case '\''              =>
               protectChar match {
                 case None =>
                   protectChar = SingleQuoteEscapeChar
@@ -87,7 +87,7 @@ private[fetch] object CssParser extends StrictLogging {
         else
           (string.charAt(cur - 1): @switch) match {
             case ' ' | '\r' | '\n' => trimRight(cur - 1, leftLimit)
-            case '\'' =>
+            case '\''              =>
               protectChar match {
                 case `SingleQuoteEscapeChar` =>
                   trimRight(cur - 1, leftLimit)

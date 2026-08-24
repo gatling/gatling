@@ -35,7 +35,7 @@ private[http] object BaseUrlSupport extends LazyLogging {
     baseUrls match {
       case Nil        => Session.Identity
       case url :: Nil => _.set(attributeName, url)
-      case urls =>
+      case urls       =>
         val it = CircularIterator(ArraySeq.from(urls), threadSafe = true)
         _.set(attributeName, it.next())
     }
@@ -51,7 +51,7 @@ private[http] object BaseUrlSupport extends LazyLogging {
 
   def httpBaseUrl(httpProtocol: HttpProtocol): Session => Option[String] =
     httpProtocol.baseUrls match {
-      case Nil => _ => None
+      case Nil           => _ => None
       case single :: Nil =>
         val s = Some(single)
         _ => s
@@ -60,7 +60,7 @@ private[http] object BaseUrlSupport extends LazyLogging {
 
   def wsBaseUrl(httpProtocol: HttpProtocol): Session => Option[String] =
     httpProtocol.wsPart.wsBaseUrls match {
-      case Nil => _ => None
+      case Nil           => _ => None
       case single :: Nil =>
         val s = Some(single)
         _ => s

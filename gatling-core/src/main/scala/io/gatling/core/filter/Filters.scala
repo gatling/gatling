@@ -48,7 +48,7 @@ sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
   val regexes: Vector[Regex] = patterns.flatMap { p =>
     Try(p.r) match {
       case Success(regex) => List(regex)
-      case Failure(t) =>
+      case Failure(t)     =>
         logger.error(s"""Incorrect filter pattern "$p": ${t.getMessage}""")
         Nil
     }

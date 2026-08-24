@@ -36,7 +36,7 @@ object LoopBlock extends StrictLogging {
   }
 
   def continue(continueCondition: Expression[Boolean], session: Session): Boolean = continueCondition(session) match {
-    case Success(eval) => eval
+    case Success(eval)    => eval
     case Failure(message) =>
       logger.error(s"Condition evaluation crashed with message '$message', exiting loop")
       false

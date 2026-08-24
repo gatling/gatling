@@ -176,7 +176,7 @@ private[http] final class ResourceFetcher(
       }
 
     inferredResources ::: explicitResources match {
-      case Nil => None
+      case Nil       => None
       case resources =>
         Some(
           new DefaultResourceAggregator(

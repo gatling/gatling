@@ -35,7 +35,7 @@ private[charts] final class DetailsPageTemplate(
        |<div class="item ouvert"><a id="details_link" href="$getFirstDetailPageUrl">Details</a></div>""".stripMargin
 
   private def isSelected(container: Container): Boolean = (container, selectedContainer) match {
-    case (groupContainer: GroupContainer, selectedGroupContainer: GroupContainer) => groupContainer.group == selectedGroupContainer.group
+    case (groupContainer: GroupContainer, selectedGroupContainer: GroupContainer)         => groupContainer.group == selectedGroupContainer.group
     case (requestContainer: RequestContainer, selectedRequestContainer: RequestContainer) =>
       requestContainer.group == selectedRequestContainer.group && requestContainer.name == selectedRequestContainer.name
     case _ => false

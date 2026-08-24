@@ -76,7 +76,7 @@ class InnerTryMax(
 
     validationResult match {
       case Success(maxNotReached) => maxNotReached
-      case Failure(message) =>
+      case Failure(message)       =>
         logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
         false
     }

@@ -342,7 +342,7 @@ object ElCompiler extends StrictLogging {
             .foldLeft(StringBuilderPool.DEFAULT.get().success) { (sb, part) =>
               part match {
                 case StaticPart(s) => sb.map(_.append(s))
-                case _ =>
+                case _             =>
                   for {
                     sb <- sb
                     part <- part(session)
@@ -392,7 +392,7 @@ final class ElCompiler private extends RegexParsers {
 
       source.indexOf(DynamicPartStartChars, offset) match {
         case -1 => Success(source.subSequence(offset, end).toString, in.drop(end - offset))
-        case n =>
+        case n  =>
           var precedingBackslashesCount = 0
           var pos = n - 1
           while (pos >= offset && source.charAt(pos) == '\\') {
@@ -477,7 +477,7 @@ final class ElCompiler private extends RegexParsers {
     @tailrec
     def sessionObjectRec(accessTokens: List[AccessToken], currentPart: ElPart[Any], currentPartName: String): ElPart[Any] =
       accessTokens match {
-        case Nil => currentPart
+        case Nil                  => currentPart
         case token :: otherTokens =>
           val newPart =
             token match {

@@ -39,7 +39,7 @@ object SseChecks {
       case CoreCheckType.BodyString => scalaCheck.asInstanceOf[CheckBuilder[BodyStringCheckType, String]].build(SseCheckMaterializer.BodyString)
       case CoreCheckType.Regex      => scalaCheck.asInstanceOf[CheckBuilder[RegexCheckType, String]].build(SseCheckMaterializer.Regex)
       case CoreCheckType.Substring  => scalaCheck.asInstanceOf[CheckBuilder[SubstringCheckType, String]].build(SseCheckMaterializer.Substring)
-      case CoreCheckType.JsonPath =>
+      case CoreCheckType.JsonPath   =>
         scalaCheck.asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]].build(SseCheckMaterializer.jsonPath(CorePredef.defaultJsonParsers))
       case CoreCheckType.JmesPath =>
         scalaCheck.asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]].build(SseCheckMaterializer.jmesPath(CorePredef.defaultJsonParsers))

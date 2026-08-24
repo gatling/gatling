@@ -75,7 +75,7 @@ trait FeederSupport extends ResourceCache {
   private def withFileResource[T](filePath: String)(f: Resource => T): T =
     cachedResource(filePath) match {
       case Success(resource) => f(resource)
-      case Failure(message) =>
+      case Failure(message)  =>
         throw new FileNotFoundException(s"Could not locate feeder file: $message${CallSites.callSiteHint}") {
           override def fillInStackTrace(): Throwable = this
         }

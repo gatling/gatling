@@ -206,7 +206,7 @@ object QuicklensMacros {
           val newAcc = (acc: @unchecked) match {
             // replace the term controlled by quicklens
             case TermPathElement(term, _, xargs @ _*) :: rest => FunctorPathElement(f, term, xargs: _*) :: rest
-            case pathEl :: _ =>
+            case pathEl :: _                                  =>
               c.abort(c.enclosingPosition, s"Invalid use of path element $pathEl. $ShapeInfo, got: ${path.tree}")
           }
           collectPathElements(t, newAcc)
@@ -231,7 +231,7 @@ object QuicklensMacros {
       @tailrec
       def go(els: List[c.TermName], result: c.Tree): c.Tree =
         els match {
-          case Nil => result
+          case Nil            => result
           case pathEl :: tail =>
             val select = q"$result.$pathEl"
             go(tail, select)
@@ -246,7 +246,7 @@ object QuicklensMacros {
      * (tree, SealedPathAccess(Set(T1, T2, ...)) => tree match { case x1: T1 => f(x1) case x2: T2 => f(x2) ... }
      */
     def generateAccess(tree: c.Tree, access: PathAccess)(f: c.Tree => c.Tree) = access match {
-      case DirectPathAccess => f(tree)
+      case DirectPathAccess        => f(tree)
       case SealedPathAccess(types) =>
         val cases = types map { tp =>
           val pat = TermName(c.freshName())
@@ -264,7 +264,7 @@ object QuicklensMacros {
         newVal: c.Tree
     ): (c.TermName, c.Tree) =
       (reversePathEls: @unchecked) match {
-        case Nil => (rootPathEl, newVal)
+        case Nil                                     => (rootPathEl, newVal)
         case TermPathElement(pathEl, access) :: tail =>
           val selectCurrVal = generateSelects(rootPathEl, tail)
           val copy = generateAccess(selectCurrVal, access) { currVal =>

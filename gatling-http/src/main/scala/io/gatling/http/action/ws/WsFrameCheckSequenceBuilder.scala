@@ -28,7 +28,7 @@ object WsFrameCheckSequenceBuilder {
     @tailrec
     def resolveRec(builders: List[WsFrameCheckSequenceBuilder[T]], acc: List[WsFrameCheckSequence[T]]): Validation[List[WsFrameCheckSequence[T]]] =
       builders match {
-        case Nil => acc.reverse.success
+        case Nil             => acc.reverse.success
         case builder :: tail =>
           val sequenceV =
             for {
@@ -49,7 +49,7 @@ object WsFrameCheckSequenceBuilder {
     @tailrec
     def resolveChecksRec(checks: List[T], acc: List[T]): Validation[List[T]] =
       checks match {
-        case Nil => acc.reverse.success
+        case Nil           => acc.reverse.success
         case check :: tail =>
           val resolvedCheckV = check match {
             case text: WsFrameCheck.Text     => text.name(session).map(resolvedName => text.copy(resolvedName = resolvedName))

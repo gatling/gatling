@@ -106,7 +106,7 @@ private final class FeedActor[T] private (
       }
 
       newAttributes match {
-        case Success(attr) => next ! session.setAll(attr)
+        case Success(attr)    => next ! session.setAll(attr)
         case Failure(message) =>
           controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.Crash.WellKnown(crashExceptionMessage(message)))
       }

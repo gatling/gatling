@@ -48,7 +48,7 @@ object JmsChecks {
         scalaCheck.asInstanceOf[CheckBuilder[BodyStringCheckType, String]].build(JmsPredef.jmsBodyStringCheckMaterializer(CorePredef.configuration))
       case CoreCheckType.Substring =>
         scalaCheck.asInstanceOf[CheckBuilder[SubstringCheckType, String]].build(JmsPredef.jmsSubstringCheckMaterializer(CorePredef.configuration))
-      case CoreCheckType.XPath => scalaCheck.asInstanceOf[CheckBuilder[XPathCheckType, XdmNode]].build(JmsPredef.jmsXPathMaterializer)
+      case CoreCheckType.XPath    => scalaCheck.asInstanceOf[CheckBuilder[XPathCheckType, XdmNode]].build(JmsPredef.jmsXPathMaterializer)
       case CoreCheckType.JsonPath =>
         scalaCheck
           .asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]]
@@ -57,7 +57,7 @@ object JmsChecks {
         scalaCheck
           .asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]]
           .build(JmsPredef.jmsJmesPathCheckMaterializer(CorePredef.defaultJsonParsers))
-      case JmsCheckType.Simple => scalaCheck.build(null).asInstanceOf[JmsCheck]
+      case JmsCheckType.Simple      => scalaCheck.build(null).asInstanceOf[JmsCheck]
       case JmsCheckType.JmsProperty =>
         scalaCheck
           .asInstanceOf[CheckBuilder[JmsPropertyCheckType, Message]]

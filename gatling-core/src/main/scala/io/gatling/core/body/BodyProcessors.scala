@@ -22,8 +22,8 @@ private object BodyProcessors {
   def gzip: Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
-        case StringBody(string, charset) => string.map(GzipHelper.gzip(_, charset))
-        case ByteArrayBody(byteArray)    => byteArray.map(GzipHelper.gzip)
+        case StringBody(string, charset)         => string.map(GzipHelper.gzip(_, charset))
+        case ByteArrayBody(byteArray)            => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
             cachedBytes match {

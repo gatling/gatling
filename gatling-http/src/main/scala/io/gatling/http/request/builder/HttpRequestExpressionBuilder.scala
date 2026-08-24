@@ -115,7 +115,7 @@ final class HttpRequestExpressionBuilder(
 
   private val maybeRequestBodyBuilderExpression: Option[Expression[RequestBodyBuilder]] =
     bodyAttributes.body.map {
-      case StringBody(string, _) => string(_).map(new StringRequestBodyBuilder(_))
+      case StringBody(string, _)                => string(_).map(new StringRequestBodyBuilder(_))
       case RawFileBody(resourceWithCachedBytes) =>
         resourceWithCachedBytes(_).map { case ResourceAndCachedBytes(resource, cachedBytes) =>
           cachedBytes match {

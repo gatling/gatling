@@ -92,7 +92,7 @@ private object Erf {
 
     def positiveErfinv(u: Double) =
       u match {
-        case _ if u >= 1.0 => Double.MaxValue
+        case _ if u >= 1.0  => Double.MaxValue
         case _ if u <= 0.75 =>
           val t = u * u - 0.5625
           val v = evalPolynom(invP1, t)

@@ -111,7 +111,7 @@ private[inject] final case class CompositeClosedInjectionStep private[inject] (s
     @tailrec
     def valueAtRec(time: FiniteDuration, steps: List[ClosedInjectionStep]): Int =
       steps match {
-        case Nil => throw new IllegalArgumentException
+        case Nil          => throw new IllegalArgumentException
         case step :: tail =>
           if (time <= step.duration) {
             step.valueAt(time)

@@ -109,7 +109,7 @@ private[render] class SimulationTemplate(
       .mkString(Eol, s"$Eol$Eol", "")
 
   private def renderScenarioElement(se: HttpTrafficElement, extractedUris: ExtractedUris) = se match {
-    case TagElement(text) => s"// $text"
+    case TagElement(text)       => s"// $text"
     case PauseElement(duration) =>
       val pauseString =
         if (duration > 1.second) {

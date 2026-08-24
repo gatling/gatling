@@ -37,7 +37,7 @@ import io.gatling.core.util.NameGen
 private[core] final class PauseBuilder(duration: Expression[FiniteDuration], force: Option[PauseType]) extends ActionBuilder with NameGen {
   override def build(ctx: ScenarioContext, next: Action): Action =
     force.getOrElse(ctx.pauseType) match {
-      case Disabled => next
+      case Disabled  => next
       case pauseType =>
         val generator = pauseType.generator(duration)
         new Pause(generator, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("pause"), next)

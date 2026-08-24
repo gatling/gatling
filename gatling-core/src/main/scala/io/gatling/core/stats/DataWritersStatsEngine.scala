@@ -47,7 +47,7 @@ object DataWritersStatsEngine {
     val dataWriters = configuration.data.dataWriters
       .map {
         case DataWriterType.Console => new ConsoleDataWriter(runMessage, scenarios, clock, configuration.data.console)
-        case DataWriterType.File =>
+        case DataWriterType.File    =>
           LogFileDataWriter(
             runMessage,
             scenarios,

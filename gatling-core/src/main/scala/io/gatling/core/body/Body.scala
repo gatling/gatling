@@ -75,7 +75,7 @@ final case class ElBody(partsE: Expression[List[ElBody.Part]]) extends BodyWithS
       stringBuilder <- parts.foldLeft(StringBuilderPool.DEFAULT.get().success) { (sbV, elPart) =>
         elPart match {
           case ElBody.Part.Static(stringWithCachedBytes) => sbV.map(_.append(stringWithCachedBytes.string))
-          case ElBody.Part.Dynamic(stringE, _) =>
+          case ElBody.Part.Dynamic(stringE, _)           =>
             for {
               sb <- sbV
               string <- stringE(session)
@@ -91,7 +91,7 @@ final case class ElBody(partsE: Expression[List[ElBody.Part]]) extends BodyWithS
         reversedBytes <- parts.foldLeft(List.empty[StringWithCachedBytes].success) { (accV, elPart) =>
           elPart match {
             case ElBody.Part.Static(stringWithCachedBytes) => accV.map(stringWithCachedBytes :: _)
-            case ElBody.Part.Dynamic(stringE, charset) =>
+            case ElBody.Part.Dynamic(stringE, charset)     =>
               for {
                 acc <- accV
                 string <- stringE(session)

@@ -29,7 +29,7 @@ private final class GroupStart(groupName: Expression[String], override val stats
 
   override def execute(session: Session): Unit = {
     val group = groupName(session) match {
-      case Success(value) => value
+      case Success(value)   => value
       case Failure(message) =>
         logger.error(s"Failed to resolve name of group '$name': $message")
         s"$name (name resolution failure)"

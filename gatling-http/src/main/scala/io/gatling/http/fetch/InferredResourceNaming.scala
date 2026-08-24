@@ -26,7 +26,7 @@ private[http] object InferredResourceNaming {
   val PathInferredResourceNaming: Uri => String = _.getPath
 
   val LastPathElementInferredResourceNaming: Uri => String = _.getPath match {
-    case "/" | "" => "/"
+    case "/" | ""                   => "/"
     case path if path.endsWith("/") =>
       path.substring(0, path.length - 1).lastIndexOf('/') match {
         case -1 => path

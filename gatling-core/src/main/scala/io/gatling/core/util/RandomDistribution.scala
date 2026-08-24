@@ -58,7 +58,7 @@ private[core] class RandomDistribution[T](possibilities: List[(Int, T)], max: In
   private[util] def next(index: Int): T = {
     @tailrec
     def nextRec(index: Int, pos: List[(Int, T)]): T = pos match {
-      case Nil => fallback.getOrElse(throw new UnsupportedOperationException("No fallback is defined"))
+      case Nil                    => fallback.getOrElse(throw new UnsupportedOperationException("No fallback is defined"))
       case (weight, head) :: tail =>
         if (weight > index) {
           head

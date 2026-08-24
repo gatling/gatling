@@ -67,7 +67,7 @@ package object builder {
     @tailrec
     def resolveParamJListRec(clientParams: ju.List[Param], currentParams: List[HttpParam]): Validation[ju.List[Param]] =
       currentParams match {
-        case Nil => clientParams.success
+        case Nil          => clientParams.success
         case head :: tail =>
           update(clientParams, head) match {
             case Success(newClientParams) => resolveParamJListRec(newClientParams, tail)

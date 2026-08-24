@@ -118,7 +118,7 @@ private[gatling] object Json {
           case '\n' => sb.append("\\n")
           case '\r' => sb.append("\\r")
           case '\t' => sb.append("\\t")
-          case _ =>
+          case _    =>
             if (Character.isISOControl(c)) {
               sb.append("\\u")
               var n: Int = c
@@ -202,7 +202,7 @@ private[gatling] object Json {
           case '\n' => sb.append("\\n")
           case '\r' => sb.append("\\r")
           case '\t' => sb.append("\\t")
-          case _ =>
+          case _    =>
             if (Character.isISOControl(c)) {
               sb.append("\\u")
               var n: Int = c
@@ -349,7 +349,7 @@ private[gatling] object Json {
       case STRING  => node.textValue
       case BOOLEAN => node.booleanValue
       case NULL    => null
-      case NUMBER =>
+      case NUMBER  =>
         node.numberType match {
           case INT         => node.intValue
           case LONG        => node.longValue

@@ -80,7 +80,7 @@ final class HttpConcurrentRequestsAction(
 
     failedHttpRequestDefs.headOption match {
       case Some((error, failedHttpRequestDef)) => logCrash(session, error, failedHttpRequestDef)
-      case _ =>
+      case _                                   =>
         val resourceAggregator =
           httpTxExecutor.resourceFetcher.newConcurrentRequestsAggregator(successfulHttpRequests, httpProtocol = httpProtocol, next = next)
         resourceAggregator.start(session)

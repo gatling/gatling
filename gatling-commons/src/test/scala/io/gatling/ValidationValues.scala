@@ -25,7 +25,7 @@ trait ValidationValues {
 
   class ValidationValuable[T](validation: Validation[T]) {
     def succeeded: T = validation match {
-      case Success(v) => v
+      case Success(v)   => v
       case Failure(msg) =>
         throw new TestFailedException(s"Cannot call .value on $validation, was a Failure($msg)", 0)
     }

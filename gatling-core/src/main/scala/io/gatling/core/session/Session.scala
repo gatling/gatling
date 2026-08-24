@@ -278,7 +278,7 @@ final case class Session(
   private[core] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case Some(counterValue: Int) => copy(attributes = attributes.updated(counterName, counterValue + 1))
-      case _ =>
+      case _                       =>
         logger.error(s"incrementCounter called but attribute for counterName $counterName is missing, please report.")
         this
     }

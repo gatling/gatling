@@ -189,7 +189,7 @@ private[recorder] class HttpTrafficConverter(config: RecorderConfiguration) exte
       @SuppressWarnings(Array("org.wartremover.warts.SeqApply"))
       @tailrec
       def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
-        case Nil => headers
+        case Nil               => headers
         case element :: others =>
           val acceptedHeaders = element.headers.entries.asScala
             .map(e => e.getKey -> e.getValue)
