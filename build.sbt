@@ -18,12 +18,10 @@ Global / gatlingDevelopers := Seq(
 
 // Root project
 
-ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 Global / scalaVersion := "2.13.18"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin)
-  .disablePlugins(SbtSpotless)
   .aggregate(
     nettyUtil,
     commons,
@@ -59,12 +57,10 @@ lazy val nettyUtil = gatlingModule("gatling-netty-util")
   .settings(libraryDependencies ++= nettyUtilDependencies)
 
 lazy val commons = gatlingModule("gatling-commons")
-  .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= commonsDependencies)
   .settings(generateVersionFileSettings)
 
 lazy val jsonpath = gatlingModule("gatling-jsonpath")
-  .disablePlugins(SbtSpotless)
   .settings(libraryDependencies ++= jsonpathDependencies)
 
 lazy val quicklens = gatlingModule("gatling-quicklens")
@@ -89,7 +85,6 @@ lazy val jdbcJava = gatlingModule("gatling-jdbc-java")
   .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val redis = gatlingModule("gatling-redis")
-  .disablePlugins(SbtSpotless)
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
 
@@ -119,19 +114,16 @@ lazy val jmsJava = gatlingModule("gatling-jms-java")
   .settings(libraryDependencies ++= defaultJavaDependencies)
 
 lazy val charts = gatlingModule("gatling-charts")
-  .disablePlugins(SbtSpotless)
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= chartsDependencies)
   .settings(chartTestsSettings)
 
 lazy val benchmarks = gatlingModule("gatling-benchmarks")
-  .disablePlugins(SbtSpotless)
   .dependsOn(core, http)
   .enablePlugins(JmhPlugin)
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .disablePlugins(SbtSpotless)
   .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
@@ -139,6 +131,5 @@ lazy val recorder = gatlingModule("gatling-recorder")
   .settings(libraryDependencies ++= recorderDependencies)
 
 lazy val testFramework = gatlingModule("gatling-test-framework")
-  .disablePlugins(SbtSpotless)
   .dependsOn(app)
   .settings(libraryDependencies ++= testFrameworkDependencies)

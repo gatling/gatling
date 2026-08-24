@@ -54,6 +54,6 @@ jobs:
             "headerCheckAll" \
             "scalafmtSbtCheck" \
             "scalafmtCheckAll" \
-            "spotlessCheck" \
+            "javafmtCheckAll" \
             "scalafixAll --check" \
             "test"
