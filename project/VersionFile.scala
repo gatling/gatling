@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 object VersionFile {
   val generateVersionFileSettings = Seq(
     Compile / resourceGenerators += Def.task {
-      Seq(generateVersionFile((Compile / resourceDirectory).value, (ThisBuild / version).value))
+      Seq(generateVersionFile((Compile / resourceManaged).value, (ThisBuild / version).value))
     }.taskValue
   )
 

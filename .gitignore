@@ -41,5 +41,4 @@ recorder.conf
 gatling-akka.conf
 logback.xml
 gatling-compiler/src/main/resources/gatling-defaults.conf
-gatling-version.properties
 version.sbt
