@@ -143,6 +143,10 @@ final class HttpTxExecutor(
           s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
         )
 
+        // [e]
+        //
+        // [e]
+
         val clientRequest = tx.request.clientRequest
         val clientId = tx.session.userId
         val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
@@ -170,6 +174,9 @@ final class HttpTxExecutor(
         )
       )
       val requestsAndListeners = txs.map { tx =>
+        // [e]
+        //
+        // [e]
         val listener: HttpListener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
         new Pair(tx.request.clientRequest, listener)
       }

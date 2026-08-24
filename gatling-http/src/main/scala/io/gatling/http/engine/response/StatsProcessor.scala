@@ -125,6 +125,9 @@ final class DefaultStatsProcessor(
       result: HttpResult,
       errorMessage: Option[String]
   ): Unit =
+    // [e]
+    //
+    // [e]
     statsEngine.logResponse(
       session.scenario,
       session.groups,
@@ -140,6 +143,43 @@ final class DefaultStatsProcessor(
     )
 
   // [e]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   //
   //
   //
