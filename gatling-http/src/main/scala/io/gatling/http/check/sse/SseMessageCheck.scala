@@ -20,6 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.http.action.sse.fsm.ServerSentEvent
 import io.gatling.internal.quicklens._
 
 final case class SseMessageCheckSequence(timeout: FiniteDuration, checks: List[SseMessageCheck]) {
@@ -40,6 +41,6 @@ final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], 
   def checkIf(condition: Expression[Boolean])(thenChecks: SseCheck*): SseMessageCheck =
     check(thenChecks.map(_.checkIf(condition)): _*)
 
-  def checkIf(condition: (String, Session) => Validation[Boolean])(thenChecks: SseCheck*): SseMessageCheck =
+  def checkIf(condition: (ServerSentEvent, Session) => Validation[Boolean])(thenChecks: SseCheck*): SseMessageCheck =
     check(thenChecks.map(_.checkIf(condition)): _*)
 }

@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.http.action.sse
+package io.gatling.http.check
 
 import io.gatling.http.action.sse.fsm.ServerSentEvent
 
-final case class SseInboundMessage(timestamp: Long, message: ServerSentEvent)
+package object sse {
+  def mockServerSentEvent(
+      event: Option[String],
+      data: Option[String],
+      id: Option[String],
+      retry: Option[Int]
+  ): ServerSentEvent =
+    ServerSentEvent(event, data, id, retry)
+}

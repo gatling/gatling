@@ -27,7 +27,8 @@ import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.substring.SubstringCheckType
-import io.gatling.http.check.sse.{ SseCheck, SseCheckMaterializer }
+import io.gatling.http.action.sse.fsm.ServerSentEvent
+import io.gatling.http.check.sse._
 import io.gatling.javaapi.core.internal.CoreCheckType
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -39,11 +40,15 @@ object SseChecks {
       case CoreCheckType.BodyString => scalaCheck.asInstanceOf[CheckBuilder[BodyStringCheckType, String]].build(SseCheckMaterializer.BodyString)
       case CoreCheckType.Regex      => scalaCheck.asInstanceOf[CheckBuilder[RegexCheckType, String]].build(SseCheckMaterializer.Regex)
       case CoreCheckType.Substring  => scalaCheck.asInstanceOf[CheckBuilder[SubstringCheckType, String]].build(SseCheckMaterializer.Substring)
+      case SseCheckType.SseEvent    => scalaCheck.asInstanceOf[CheckBuilder[SseEventCheckType, ServerSentEvent]].build(SseCheckMaterializer.Event)
+      case SseCheckType.SseData     => scalaCheck.asInstanceOf[CheckBuilder[SseDataCheckType, ServerSentEvent]].build(SseCheckMaterializer.Data)
+      case SseCheckType.SseId       => scalaCheck.asInstanceOf[CheckBuilder[SseIdCheckType, ServerSentEvent]].build(SseCheckMaterializer.Id)
+      case SseCheckType.SseRetry    => scalaCheck.asInstanceOf[CheckBuilder[SseRetryCheckType, ServerSentEvent]].build(SseCheckMaterializer.Retry)
       case CoreCheckType.JsonPath =>
         scalaCheck.asInstanceOf[CheckBuilder[JsonPathCheckType, JsonNode]].build(SseCheckMaterializer.jsonPath(CorePredef.defaultJsonParsers))
       case CoreCheckType.JmesPath =>
         scalaCheck.asInstanceOf[CheckBuilder[JmesPathCheckType, JsonNode]].build(SseCheckMaterializer.jmesPath(CorePredef.defaultJsonParsers))
-      case unknown => throw new IllegalArgumentException(s"SSE DSL doesn't support text check $unknown")
+      case unknown => throw new IllegalArgumentException(s"SSE DSL doesn't support check type $unknown")
     }
   }
 

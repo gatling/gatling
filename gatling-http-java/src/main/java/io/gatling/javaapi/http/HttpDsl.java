@@ -28,6 +28,7 @@ import io.gatling.javaapi.core.internal.Converters;
 import io.gatling.javaapi.http.internal.HttpCheckBuilder;
 import io.gatling.javaapi.http.internal.HttpCheckBuilders;
 import io.gatling.javaapi.http.internal.HttpCheckType;
+import io.gatling.javaapi.http.internal.SseCheckBuilders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,6 +163,44 @@ public final class HttpDsl {
   /** The prefix to bootstrap polling specific DSL */
   public static Polling poll() {
     return Polling.DEFAULT;
+  }
+
+  ////////// SseCheckSupport
+
+  /**
+   * Bootstrap a check that captures the SSE event type field
+   *
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull Find<String> sseEvent() {
+    return SseCheckBuilders.sseEvent();
+  }
+
+  /**
+   * Bootstrap a check that captures the SSE data field
+   *
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull Find<String> sseData() {
+    return SseCheckBuilders.sseData();
+  }
+
+  /**
+   * Bootstrap a check that captures the SSE id field
+   *
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull Find<String> sseId() {
+    return SseCheckBuilders.sseId();
+  }
+
+  /**
+   * Bootstrap a check that captures the SSE retry field
+   *
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull Find<Integer> sseRetry() {
+    return SseCheckBuilders.sseRetry();
   }
 
   ////////// HttpCheckSupport

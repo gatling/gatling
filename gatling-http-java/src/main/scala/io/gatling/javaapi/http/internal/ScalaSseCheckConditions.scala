@@ -22,6 +22,7 @@ import java.util.{ function => juf }
 import io.gatling.commons.validation.{ safely, SuccessWrapper, Validation }
 import io.gatling.core.session.{ Expression, Session => ScalaSession }
 import io.gatling.core.session.el._
+import io.gatling.http.action.sse.fsm.ServerSentEvent
 import io.gatling.javaapi.core.{ CheckBuilder, Session }
 import io.gatling.javaapi.core.internal.Expressions._
 import io.gatling.javaapi.core.internal.JavaExpression
@@ -39,10 +40,10 @@ object ScalaSseCheckConditions {
       new SseMessageCheck(context.checkIf(condition)(SseChecks.toScalaChecks(checkBuilders): _*))
   }
 
-  def typed(context: io.gatling.http.check.sse.SseMessageCheck, condition: juf.BiFunction[String, Session, jl.Boolean]): Typed =
-    new Typed(context, (u, session) => safely()(condition.apply(u, new Session(session)).booleanValue.success))
+  def typed(context: io.gatling.http.check.sse.SseMessageCheck, condition: juf.BiFunction[ServerSentEvent, Session, jl.Boolean]): Typed =
+    new Typed(context, (event, session) => safely()(condition.apply(event, new Session(session)).booleanValue.success))
 
-  final class Typed(context: io.gatling.http.check.sse.SseMessageCheck, condition: (String, ScalaSession) => Validation[Boolean]) {
+  final class Typed(context: io.gatling.http.check.sse.SseMessageCheck, condition: (ServerSentEvent, ScalaSession) => Validation[Boolean]) {
     def then_(checkBuilders: ju.List[CheckBuilder]): SseMessageCheck =
       new SseMessageCheck(context.checkIf(condition)(SseChecks.toScalaChecks(checkBuilders): _*))
   }

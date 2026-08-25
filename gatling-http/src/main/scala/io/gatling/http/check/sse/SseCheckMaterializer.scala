@@ -16,6 +16,7 @@
 
 package io.gatling.http.check.sse
 
+import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
@@ -23,24 +24,51 @@ import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
+import io.gatling.http.action.sse.fsm.ServerSentEvent
 
 import com.fasterxml.jackson.databind.JsonNode
 
-final class SseCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, SseCheck, String, P](new SseCheck(_))
+final class SseCheckMaterializer[T, P](override val preparer: Preparer[ServerSentEvent, P])
+    extends CheckMaterializer[T, SseCheck, ServerSentEvent, P](new SseCheck(_))
 
 object SseCheckMaterializer {
-  val BodyString: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] =
-    new SseCheckMaterializer[BodyStringCheckType, String](identityPreparer)
+  private val DataStringPreparer: Preparer[ServerSentEvent, String] =
+    event => event.data.getOrElse("").success
 
-  def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] =
-    new SseCheckMaterializer[JmesPathCheckType, JsonNode](jsonParsers.safeParse)
+  val BodyString: CheckMaterializer[BodyStringCheckType, SseCheck, ServerSentEvent, String] =
+    new SseCheckMaterializer[BodyStringCheckType, String](DataStringPreparer)
 
-  def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =
-    new SseCheckMaterializer[JsonPathCheckType, JsonNode](jsonParsers.safeParse)
+  def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, ServerSentEvent, JsonNode] =
+    new SseCheckMaterializer[JmesPathCheckType, JsonNode](event =>
+      event.data match {
+        case Some(data) => jsonParsers.safeParse(data)
+        case None       => "No SSE data field".failure
+      }
+    )
 
-  val Regex: CheckMaterializer[RegexCheckType, SseCheck, String, String] =
-    new SseCheckMaterializer[RegexCheckType, String](identityPreparer)
+  def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, ServerSentEvent, JsonNode] =
+    new SseCheckMaterializer[JsonPathCheckType, JsonNode](event =>
+      event.data match {
+        case Some(data) => jsonParsers.safeParse(data)
+        case None       => "No SSE data field".failure
+      }
+    )
 
-  val Substring: CheckMaterializer[SubstringCheckType, SseCheck, String, String] =
-    new SseCheckMaterializer[SubstringCheckType, String](identityPreparer)
+  val Regex: CheckMaterializer[RegexCheckType, SseCheck, ServerSentEvent, String] =
+    new SseCheckMaterializer[RegexCheckType, String](DataStringPreparer)
+
+  val Substring: CheckMaterializer[SubstringCheckType, SseCheck, ServerSentEvent, String] =
+    new SseCheckMaterializer[SubstringCheckType, String](DataStringPreparer)
+
+  val Event: CheckMaterializer[SseEventCheckType, SseCheck, ServerSentEvent, ServerSentEvent] =
+    new SseCheckMaterializer[SseEventCheckType, ServerSentEvent](identityPreparer)
+
+  val Data: CheckMaterializer[SseDataCheckType, SseCheck, ServerSentEvent, ServerSentEvent] =
+    new SseCheckMaterializer[SseDataCheckType, ServerSentEvent](identityPreparer)
+
+  val Id: CheckMaterializer[SseIdCheckType, SseCheck, ServerSentEvent, ServerSentEvent] =
+    new SseCheckMaterializer[SseIdCheckType, ServerSentEvent](identityPreparer)
+
+  val Retry: CheckMaterializer[SseRetryCheckType, SseCheck, ServerSentEvent, ServerSentEvent] =
+    new SseCheckMaterializer[SseRetryCheckType, ServerSentEvent](identityPreparer)
 }

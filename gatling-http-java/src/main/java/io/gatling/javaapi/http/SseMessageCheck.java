@@ -16,6 +16,7 @@
 
 package io.gatling.javaapi.http;
 
+import io.gatling.http.action.sse.fsm.ServerSentEvent;
 import io.gatling.javaapi.core.CheckBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.internal.ScalaSseCheckConditions;
@@ -136,11 +137,11 @@ public final class SseMessageCheck {
   /**
    * Define the checks to apply on inbound messages when a condition holds true.
    *
-   * @param condition a condition, expressed as a function that's aware of the HTTP response and the
-   *     Session
+   * @param condition a condition, expressed as a function that's aware of the ServerSentEvent and
+   *     the Session
    * @return the next DSL step
    */
-  public TypedCondition checkIf(BiFunction<String, Session, Boolean> condition) {
+  public TypedCondition checkIf(BiFunction<ServerSentEvent, Session, Boolean> condition) {
     return new TypedCondition(ScalaSseCheckConditions.typed(wrapped, condition));
   }
 
