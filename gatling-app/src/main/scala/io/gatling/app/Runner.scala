@@ -54,19 +54,15 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     if (configuration.data.enableAnalytics) Analytics.send(selection.simulationClass, gatlingArgs.launcher, gatlingArgs.buildToolVersion)
 
-    start(simulationParams, coreComponents, populationFlows) match {
-      case Failure(t) =>
-        // [e]
-        //
-        // [e]
-        throw new GatlingLifecycleException.Injection(t)
-      case _ =>
-        executeHook("after", simulationParams.after)
-        // [e]
-        //
-        //
-        // [e]
-        new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
+    val outcome = start(simulationParams, coreComponents, populationFlows)
+    executeHook("after", simulationParams.after)
+    // [e]
+    //
+    //
+    // [e]
+    outcome match {
+      case Failure(t) => throw new GatlingLifecycleException.Injection(t)
+      case _          => new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
 
