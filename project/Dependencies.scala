@@ -18,7 +18,7 @@ object Dependencies {
   private val nettyIoUring                   = nettyHttp.withName("netty-transport-native-io_uring").classifier("linux-x86_64").classifier("linux-aarch_64")
   private val nettyHttp2                     = nettyHttp.withName("netty-codec-http2")
   private val nettyResolverNativeOsX         = nettyHttp.withName("netty-resolver-dns-native-macos").classifier("osx-x86_64").classifier("osx-aarch_64")
-  private val nettyTcNative                  = "io.netty"                      % "netty-tcnative-classes"      % "2.0.81.Final"
+  private val nettyTcNative                  = "io.netty"                      % "netty-tcnative-classes"      % "2.0.83.Final"
   private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static").classifier("linux-x86_64").classifier("linux-aarch_64").classifier("osx-x86_64").classifier("osx-aarch_64").classifier("windows-x86_64")
   private val brotli4j                       = "com.aayushatharva.brotli4j"    % "brotli4j"                    % "1.23.0"
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
