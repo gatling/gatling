@@ -56,13 +56,18 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     val outcome = start(simulationParams, coreComponents, populationFlows)
     executeHook("after", simulationParams.after)
-    // [e]
-    //
-    //
-    // [e]
     outcome match {
-      case Failure(t) => throw new GatlingLifecycleException.Injection(t)
-      case _          => new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
+      case Failure(t) =>
+        // [e]
+        //
+        // [e]
+        throw new GatlingLifecycleException.Injection(t)
+      case _ =>
+        // [e]
+        //
+        //
+        // [e]
+        new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
 
