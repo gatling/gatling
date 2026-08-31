@@ -64,7 +64,7 @@ object Dependencies {
   private val jupiterInterface               = "com.github.sbt.junit"          % "jupiter-interface"           % "0.19.0"       % Test
   private val jmh                            = "org.openjdk.jmh"               % "jmh-core"                    % "1.37"         % Test
   private val mockitoCore                    = "org.mockito"                   % "mockito-core"                % "5.23.0"       % Test
-  private val scalaCheck                     = "org.scalacheck"               %% "scalacheck"                  % "1.19.0"       % Test
+  private val scalaCheck                     = "org.scalacheck"               %% "scalacheck"                  % "1.20.0"       % Test
   private val scalaTest                      = "org.scalatest"                %% "scalatest"                   % "3.2.20"       % Test
   private val scalaTestScalacheck            = "org.scalatestplus"            %% "scalacheck-1-19"             % "3.2.20.0"     % Test
   private val scalaTestMockito               = "org.scalatestplus"            %% "mockito-5-23"                % "3.2.20.0"     % Test
