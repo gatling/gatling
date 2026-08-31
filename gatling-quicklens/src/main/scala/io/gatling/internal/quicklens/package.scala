@@ -94,7 +94,7 @@ package object quicklens extends LowPriorityImplicits {
      *   .modify(_.bar)(_ + newBar)
      * }}}
      */
-    def apply(mod: U => U): T = using(mod)
+    final def apply(mod: U => U): T = using(mod)
 
     /**
      * Transform the value of the field(s) using the given function, if the condition is true. Otherwise, returns the original object unchanged.
@@ -235,12 +235,15 @@ package object quicklens extends LowPriorityImplicits {
   implicit class QuicklensAt[F[_], T](t: F[T])(implicit f: QuicklensAtFunctor[F, T]) {
     @compileTimeOnly(canOnlyBeUsedInsideModify("at"))
     def at(idx: Int): T = sys.error("")
+    @compileTimeOnly(canOnlyBeUsedInsideModify("atOrElse"))
+    def atOrElse(idx: Int, default: => T): T = sys.error("")
     @compileTimeOnly(canOnlyBeUsedInsideModify("index"))
     def index(idx: Int): T = sys.error("")
   }
 
   trait QuicklensAtFunctor[F[_], T] {
     def at(fa: F[T], idx: Int)(f: T => T): F[T]
+    def atOrElse(fa: F[T], idx: Int, default: => T)(f: T => T): F[T]
     def index(fa: F[T], idx: Int)(f: T => T): F[T]
   }
 
@@ -289,6 +292,9 @@ package object quicklens extends LowPriorityImplicits {
     new QuicklensAtFunctor[F, T] {
       override def at(fa: F[T], idx: Int)(f: T => T): F[T] =
         fa.updated(idx, f(fa(idx))).to(fac)
+      override def atOrElse(fa: F[T], idx: Int, default: => T)(f: T => T): F[T] =
+        if (fa.isDefinedAt(idx)) fa.updated(idx, f(fa(idx))).to(fac)
+        else (fa :+ f(default)).to(fac)
       override def index(fa: F[T], idx: Int)(f: T => T): F[T] =
         if (idx < fa.size) fa.updated(idx, f(fa(idx))).to(fac) else fa
     }
