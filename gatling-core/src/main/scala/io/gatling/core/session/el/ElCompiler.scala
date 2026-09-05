@@ -308,11 +308,52 @@ final case class RandomAlphanumeric(length: Int) extends ElPart[String] {
   }
 }
 
+final case class RandomString(length: Int, charset: String) extends ElPart[String] {
+  require(length > 0, "'length' should be greater than 0")
+  require(charset.nonEmpty, "'charset' should not be empty")
+
+  private val chars: Array[Char] = charset.toCharArray
+
+  def apply(session: Session): Validation[String] = {
+    val sb = new jl.StringBuilder(length)
+    val rng = ThreadLocalRandom.current()
+    cfor(0 until length) { _ =>
+      sb.append(chars(rng.nextInt(chars.length)))
+    }
+    sb.toString.success
+  }
+}
+
+// `randomString` without an explicit charset: draw from the whole UTF-8 charset, restricted to the
+// Basic Multilingual Plane so that every generated char is a full code point and `length` is exactly
+// the length of the generated String. Surrogates and unassigned code points are rejected.
+final case class RandomUtf8String(length: Int) extends ElPart[String] {
+  require(length > 0, "'length' should be greater than 0")
+
+  def apply(session: Session): Validation[String] = {
+    val sb = new jl.StringBuilder(length)
+    val rng = ThreadLocalRandom.current()
+    cfor(0 until length) { _ =>
+      var c = rng.nextInt(Character.MIN_SUPPLEMENTARY_CODE_POINT)
+      while (Character.isSurrogate(c.toChar) || !Character.isDefined(c)) {
+        c = rng.nextInt(Character.MIN_SUPPLEMENTARY_CODE_POINT)
+      }
+      sb.append(c.toChar)
+    }
+    sb.toString.success
+  }
+}
+
 final class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
   private val NameRegex = """[^.#{}()]+""".r
   private val DateFormatRegex = """[^#{}()]+""".r
+  // Greedily runs up to the last ')' before the end of the EL expression, so the charset itself may
+  // contain '(' and ')'. '#', '{' and '}' stay excluded so the match can never escape the enclosing
+  // '#{}'. Possibly empty so that an empty charset is rejected by RandomString's require instead of
+  // a cryptic parser error.
+  private val CharsetRegex = """[^#{}]*\)""".r
   private val NumberRegex = """\d+""".r
   private val NumberRegexWithNegative = """-?\d+""".r
   private val DecimalRegexWithNegative = """-?\d+\.\d+""".r
@@ -466,10 +507,18 @@ final class ElCompiler private extends RegexParsers {
   private def randomAlphanumeric: Parser[ElPart[Any]] =
     "randomAlphanumeric(" ~> NumberRegex <~ ")" ^^ (length => RandomAlphanumeric(length.toInt))
 
+  private def randomString: Parser[ElPart[Any]] =
+    "randomString(" ~> NumberRegexWithNegative ~ ("," ~> CharsetRegex) ^^ { case length ~ charsetAndClosingParen =>
+      RandomString(length.toInt, charsetAndClosingParen.dropRight(1))
+    }
+
+  private def randomUtf8String: Parser[ElPart[Any]] =
+    "randomString(" ~> NumberRegexWithNegative <~ ")" ^^ (length => RandomUtf8String(length.toInt))
+
   private def userId: Parser[ElPart[Any]] = "userId()" ^^ (_ => UserId)
 
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric | userId
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric | randomString | randomUtf8String | userId
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 

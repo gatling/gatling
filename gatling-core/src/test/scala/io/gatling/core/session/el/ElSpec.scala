@@ -839,6 +839,57 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     randomAlphanumeric(emptySession).succeeded.length shouldBe 10
   }
 
+  "randomString" should "generate a random String of the expected length from the provided charset" in {
+    val randomString = "#{randomString(10,abcd)}".el[String]
+    val value = randomString(emptySession).succeeded
+    value.length shouldBe 10
+    value.toSet.subsetOf(Set('a', 'b', 'c', 'd')) shouldBe true
+  }
+
+  it should "fail when length is not strictly positive" in {
+    a[ElParserException] should be thrownBy "#{randomString(0,abcd)}".el[String]
+    a[ElParserException] should be thrownBy "#{randomString(-1,abcd)}".el[String]
+  }
+
+  it should "support parentheses in the charset" in {
+    val randomString = "#{randomString(10,ab()}".el[String]
+    val value = randomString(emptySession).succeeded
+    value.length shouldBe 10
+    value.toSet.subsetOf(Set('a', 'b', '(')) shouldBe true
+
+    val withClosingParen = "#{randomString(10,ab))}".el[String]
+    val value2 = withClosingParen(emptySession).succeeded
+    value2.length shouldBe 10
+    value2.toSet.subsetOf(Set('a', 'b', ')')) shouldBe true
+  }
+
+  it should "not let the charset escape the enclosing EL expression" in {
+    val expression = "#{randomString(4,ab)} (static)".el[String]
+    val value = expression(emptySession).succeeded
+    value.length shouldBe 13
+    value.substring(0, 4).toSet.subsetOf(Set('a', 'b')) shouldBe true
+    value.substring(4) shouldBe " (static)"
+  }
+
+  it should "fail when charset is empty" in {
+    a[ElParserException] should be thrownBy "#{randomString(5,)}".el[String]
+  }
+
+  it should "generate a random String of the expected length from the whole UTF-8 charset when no charset is provided" in {
+    val randomString = "#{randomString(10)}".el[String]
+    val value = randomString(emptySession).succeeded
+    value.length shouldBe 10
+    value.foreach { c =>
+      Character.isSurrogate(c) shouldBe false
+      Character.isDefined(c) shouldBe true
+    }
+  }
+
+  it should "fail when length is not strictly positive and no charset is provided" in {
+    a[ElParserException] should be thrownBy "#{randomString(0)}".el[String]
+    a[ElParserException] should be thrownBy "#{randomString(-1)}".el[String]
+  }
+
   "userId" should "return the user id" in {
     val userId = "#{userId()}".el[Long]
     userId(emptySession).succeeded shouldBe 0
