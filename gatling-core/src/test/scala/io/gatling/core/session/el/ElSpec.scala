@@ -838,4 +838,9 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     val randomAlphanumeric = "#{randomAlphanumeric(10)}".el[String]
     randomAlphanumeric(emptySession).succeeded.length shouldBe 10
   }
+
+  "userId" should "return the user id" in {
+    val userId = "#{userId()}".el[Long]
+    userId(emptySession).succeeded shouldBe 0
+  }
 }

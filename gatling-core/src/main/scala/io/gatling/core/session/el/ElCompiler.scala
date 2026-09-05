@@ -267,6 +267,10 @@ case object RandomLong extends ElPart[Long] {
   def apply(session: Session): Validation[Long] = ThreadLocalRandom.current().nextLong().success
 }
 
+case object UserId extends ElPart[Long] {
+  def apply(session: Session): Validation[Long] = session.userId.success
+}
+
 final case class RandomLongRange(min: Long, max: Long) extends ElPart[Long] {
   require(min < max, s"Range 'max'($max) must be above than 'min'($min)")
   def apply(session: Session): Validation[Long] = ThreadLocalRandom.current().nextLong(min, max).success
@@ -462,8 +466,10 @@ final class ElCompiler private extends RegexParsers {
   private def randomAlphanumeric: Parser[ElPart[Any]] =
     "randomAlphanumeric(" ~> NumberRegex <~ ")" ^^ (length => RandomAlphanumeric(length.toInt))
 
+  private def userId: Parser[ElPart[Any]] = "userId()" ^^ (_ => UserId)
+
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric | userId
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 
