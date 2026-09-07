@@ -45,7 +45,7 @@ object Dependencies {
   private val scalaLogging                   = "com.typesafe.scala-logging"   %% "scala-logging"               % "3.9.6"
   private val scopt                          = "com.github.scopt"             %% "scopt"                       % "4.1.0"
   private val sfm                            = "org.simpleflatmapper"          % "lightning-csv"               % "9.0.2" exclude("org.simpleflatmapper", "ow2-asm")
-  private val slf4jApi                       = "org.slf4j"                     % "slf4j-api"                   % "2.0.18"
+  private val slf4jApi                       = "org.slf4j"                     % "slf4j-api"                   % "2.0.19"
   private val julToSlf4j       = "org.slf4j"                   % "jul-to-slf4j"         % slf4jApi.revision
   private val tdigest                        = "com.tdunning"                  % "t-digest"                    % "3.3"
   private val testInterface                  = "org.scala-sbt"                 % "test-interface"              % "1.0"
