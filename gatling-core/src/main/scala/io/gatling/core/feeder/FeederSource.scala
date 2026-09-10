@@ -74,19 +74,20 @@ private[gatling] final class JsonFileFeederSource(resource: Resource, jsonParser
     }
 }
 
-private[gatling] final class FileLinesFeederSource[T](
-    shortName: String,
-    hasHeaderLine: Boolean,
-    resource: Resource,
-    feederFactory: ReadableByteChannel => Feeder[T]
-) extends FeederSource[T] {
+private[gatling] sealed abstract class FileLinesFeederSource[T](shortName: String, resource: Resource) extends FeederSource[T] {
+  protected def hasHeaderLine(options: FeederOptions[T]): Boolean
+
+  protected def feederFactory(options: FeederOptions[T], configuration: GatlingConfiguration): ReadableByteChannel => Feeder[T]
+
   override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] = {
+    val factory = feederFactory(options, configuration)
+
     def applyBatch(res: Resource): Feeder[Any] =
       if (res.file.length > configuration.core.feederAdaptiveLoadModeThreshold) {
-        BatchedFeeder(res.file, feederFactory, options.conversion, options.strategy)
+        BatchedFeeder(res.file, factory, options.conversion, options.strategy)
       } else {
         val records = Using.resource(FileChannel.open(res.file.toPath)) { channel =>
-          feederFactory(channel).toVector
+          factory(channel).toVector
         }
         InMemoryFeeder(records, options.conversion, options.strategy)
       }
@@ -100,8 +101,30 @@ private[gatling] final class FileLinesFeederSource[T](
   override def recordsCount(options: FeederOptions[T], configuration: GatlingConfiguration): Int = {
     val uncompressedResource = ZippedResourceCache.unzipped(resource, options.unzip)
     val linesIncludingHeader = Using.resource(uncompressedResource.inputStream)(LineCounter(configuration.core.charset).countLines)
-    val headerLineOffset = if (hasHeaderLine) 1 else 0
+    val headerLineOffset = if (hasHeaderLine(options)) 1 else 0
 
     linesIncludingHeader - headerLineOffset
   }
+}
+
+private[gatling] final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char)
+    extends FileLinesFeederSource[String]("csv", resource) {
+  // when the user provides the headers, the file doesn't have a header line and its first line is a record
+  override protected def hasHeaderLine(options: FeederOptions[String]): Boolean = options.headers.isEmpty
+
+  override protected def feederFactory(
+      options: FeederOptions[String],
+      configuration: GatlingConfiguration
+  ): ReadableByteChannel => Feeder[String] =
+    options.headers match {
+      case Some(headers) => SeparatedValuesParser.headerlessFeederFactory(separator, quoteChar, configuration.core.charset, headers)
+      case _             => SeparatedValuesParser.feederFactory(separator, quoteChar, configuration.core.charset)
+    }
+}
+
+private[gatling] final class JsonlFeederSource(resource: Resource, jsonParsers: JsonParsers) extends FileLinesFeederSource[Any]("jsonl", resource) {
+  override protected def hasHeaderLine(options: FeederOptions[Any]): Boolean = false
+
+  override protected def feederFactory(options: FeederOptions[Any], configuration: GatlingConfiguration): ReadableByteChannel => Feeder[Any] =
+    JsonlParser.feederFactory(jsonParsers)
 }

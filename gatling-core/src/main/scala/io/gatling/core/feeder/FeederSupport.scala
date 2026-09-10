@@ -35,31 +35,23 @@ trait FeederSupport extends ResourceCache {
     SourceFeederBuilder(InMemoryFeederSource(ArraySeq.unsafeWrapArray(data), "in-memory"), configuration)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def csv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
+  def csv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): SeparatedValuesFeederBuilder[String] =
     separatedValues(filePath, CommaSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def ssv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
+  def ssv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): SeparatedValuesFeederBuilder[String] =
     separatedValues(filePath, SemicolonSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def tsv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): FileBasedFeederBuilder[String] =
+  def tsv(filePath: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): SeparatedValuesFeederBuilder[String] =
     separatedValues(filePath, TabulationSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def separatedValues(filePath: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
       configuration: GatlingConfiguration
-  ): FileBasedFeederBuilder[String] =
+  ): SeparatedValuesFeederBuilder[String] =
     withFileResource(filePath) { resource =>
-      SourceFeederBuilder[String](
-        new FileLinesFeederSource(
-          "csv",
-          hasHeaderLine = true,
-          resource,
-          SeparatedValuesParser.feederFactory(separator, quoteChar, configuration.core.charset)
-        ),
-        configuration
-      )
+      SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
     }
 
   def jsonFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
@@ -69,7 +61,7 @@ trait FeederSupport extends ResourceCache {
 
   def jsonlFile(filePath: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
     withFileResource(filePath) { resource =>
-      SourceFeederBuilder[Any](new FileLinesFeederSource("jsonl", hasHeaderLine = false, resource, JsonlParser.feederFactory(jsonParsers)), configuration)
+      SourceFeederBuilder[Any](new JsonlFeederSource(resource, jsonParsers), configuration)
     }
 
   private def withFileResource[T](filePath: String)(f: Resource => T): T =

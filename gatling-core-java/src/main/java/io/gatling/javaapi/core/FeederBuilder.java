@@ -140,49 +140,85 @@ public interface FeederBuilder<T> {
     @NonNull FileBased<T> unzip();
   }
 
-  final class Impl<T> implements FileBased<T> {
+  /**
+   * A {@link FeederBuilder} that is backed by a separated-values file, such as a CSV one.
+   *
+   * @param <T> the type of values the feeder will provide
+   */
+  interface SeparatedValues<T> extends FileBased<T> {
+    @Override
+    @NonNull SeparatedValues<T> queue();
+
+    @Override
+    @NonNull SeparatedValues<T> random();
+
+    @Override
+    @NonNull SeparatedValues<T> shuffle();
+
+    @Override
+    @NonNull SeparatedValues<T> circular();
+
+    @Override
+    @NonNull SeparatedValues<T> shard();
+
+    @Override
+    @NonNull SeparatedValues<T> unzip();
+
+    /**
+     * Provide the column names of a file that doesn't have a header line. The first line of the
+     * file is then a record like all the other ones.
+     *
+     * @param firstHeader the first column name
+     * @param otherHeaders the other column names
+     * @return a new SeparatedValues
+     */
+    @NonNull SeparatedValues<T> headers(
+        @NonNull String firstHeader, @NonNull String... otherHeaders);
+  }
+
+  final class Impl<T> implements SeparatedValues<T> {
     private final io.gatling.core.feeder.FileBasedFeederBuilder<T> wrapped;
 
     @NonNull
-    static FileBased<String> csv(@NonNull String filePath) {
+    static SeparatedValues<String> csv(@NonNull String filePath) {
       return csv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static FileBased<String> csv(@NonNull String filePath, char quoteChar) {
+    static SeparatedValues<String> csv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.csv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static FileBased<String> ssv(@NonNull String filePath) {
+    static SeparatedValues<String> ssv(@NonNull String filePath) {
       return ssv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static FileBased<String> ssv(@NonNull String filePath, char quoteChar) {
+    static SeparatedValues<String> ssv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.ssv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static FileBased<String> tsv(@NonNull String filePath) {
+    static SeparatedValues<String> tsv(@NonNull String filePath) {
       return tsv(filePath, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static FileBased<String> tsv(@NonNull String filePath, char quoteChar) {
+    static SeparatedValues<String> tsv(@NonNull String filePath, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.tsv(filePath, quoteChar, io.gatling.core.Predef.configuration()));
     }
 
     @NonNull
-    static FileBased<String> separatedValues(@NonNull String filePath, char separator) {
+    static SeparatedValues<String> separatedValues(@NonNull String filePath, char separator) {
       return separatedValues(filePath, separator, SeparatedValuesParser.DefaultQuoteChar());
     }
 
     @NonNull
-    static FileBased<String> separatedValues(
+    static SeparatedValues<String> separatedValues(
         @NonNull String filePath, char separator, char quoteChar) {
       return new Impl<>(
           io.gatling.core.Predef.separatedValues(
@@ -230,25 +266,25 @@ public interface FeederBuilder<T> {
 
     @Override
     @NonNull
-    public FileBased<T> queue() {
+    public SeparatedValues<T> queue() {
       return make(FileBasedFeederBuilder::queue);
     }
 
     @Override
     @NonNull
-    public FileBased<T> random() {
+    public SeparatedValues<T> random() {
       return make(FileBasedFeederBuilder::random);
     }
 
     @Override
     @NonNull
-    public FileBased<T> shuffle() {
+    public SeparatedValues<T> shuffle() {
       return make(FileBasedFeederBuilder::shuffle);
     }
 
     @Override
     @NonNull
-    public FileBased<T> circular() {
+    public SeparatedValues<T> circular() {
       return make(FileBasedFeederBuilder::circular);
     }
 
@@ -286,14 +322,23 @@ public interface FeederBuilder<T> {
 
     @Override
     @NonNull
-    public FileBased<T> shard() {
+    public SeparatedValues<T> shard() {
       return make(FileBasedFeederBuilder::shard);
     }
 
     @Override
     @NonNull
-    public FileBased<T> unzip() {
+    public SeparatedValues<T> unzip() {
       return make(FileBasedFeederBuilder::unzip);
+    }
+
+    @Override
+    @NonNull
+    public SeparatedValues<T> headers(
+        @NonNull String firstHeader, @NonNull String... otherHeaders) {
+      return new Impl<>(
+          ((io.gatling.core.feeder.SeparatedValuesFeederBuilder<T>) wrapped)
+              .headers(firstHeader, Converters.toScalaSeq(otherHeaders)));
     }
 
     @Override

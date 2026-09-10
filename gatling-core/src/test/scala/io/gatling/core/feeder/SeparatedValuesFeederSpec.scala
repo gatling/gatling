@@ -47,6 +47,24 @@ class SeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers with Feede
     data shouldBe Array(Map("id" -> "id", "payload" -> """{"key1": "value1", "key2": "value3"}"""))
   }
 
+  it should "handle file without a header line when headers are provided" in {
+    val data = csv("sample-no-headers.csv").headers("foo", "bar").readRecords
+    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"), Map("foo" -> "bonjour", "bar" -> "monde"))
+  }
+
+  it should "not drop the first line when headers are provided" in {
+    csv("sample-no-headers.csv").headers("foo", "bar").recordsCount shouldBe 2
+    csv("sample2.csv").recordsCount shouldBe 1
+  }
+
+  it should "reject blank headers" in {
+    an[IllegalArgumentException] should be thrownBy csv("sample-no-headers.csv").headers("foo", "")
+  }
+
+  it should "reject duplicated headers" in {
+    an[IllegalArgumentException] should be thrownBy csv("sample-no-headers.csv").headers("foo", "foo")
+  }
+
   "tsv" should "handle file without quote char" in {
     val data = tsv("sample1.tsv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
@@ -96,6 +114,37 @@ class SeparatedValuesFeederSpec extends AnyFlatSpecLike with Matchers with Feede
         |""".stripMargin.getBytes(UTF_8)
 
     feederFactory(CommaSeparator, quoteChar = '\'', UTF_8)(newChannel(bytes)).toVector shouldBe Vector(
+      Map("header" -> "line1"),
+      Map("header" -> "line2")
+    )
+  }
+
+  "SeparatedValuesParser.headerlessFeederFactory" should "throw an exception when provided with bad resource" in {
+    an[Exception] should be thrownBy
+      headerlessFeederFactory(CommaSeparator, quoteChar = '\'', configuration.core.charset, Seq("foo", "bar"))(newChannel(Array.emptyByteArray))
+  }
+
+  it should "skip UTF-8 BOM" in {
+    val bytes =
+      Using.resource(new ByteArrayOutputStream) { os =>
+        os.write(Array(Utf8BomByte1, Utf8BomByte2, Utf8BomByte3))
+        os.write("hello,world\n".getBytes(UTF_8))
+        os.toByteArray
+      }
+    headerlessFeederFactory(CommaSeparator, quoteChar = '\'', UTF_8, Seq("foo", "bar"))(newChannel(bytes)).toVector shouldBe Vector(
+      Map("foo" -> "hello", "bar" -> "world")
+    )
+  }
+
+  it should "skip empty lines" in {
+    val bytes =
+      """line1
+        |
+        |line2
+        |
+        |""".stripMargin.getBytes(UTF_8)
+
+    headerlessFeederFactory(CommaSeparator, quoteChar = '\'', UTF_8, Seq("header"))(newChannel(bytes)).toVector shouldBe Vector(
       Map("header" -> "line1"),
       Map("header" -> "line2")
     )

@@ -44,6 +44,21 @@ sealed trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
   def unzip: FileBasedFeederBuilder[T]
 }
 
+sealed trait SeparatedValuesFeederBuilder[T] extends FileBasedFeederBuilder[T] {
+  override def queue: SeparatedValuesFeederBuilder[T]
+  override def random: SeparatedValuesFeederBuilder[T]
+  override def shuffle: SeparatedValuesFeederBuilder[T]
+  override def circular: SeparatedValuesFeederBuilder[T]
+  override def transform(f: PartialFunction[(String, T), Any]): SeparatedValuesFeederBuilder[Any]
+  override def shard: SeparatedValuesFeederBuilder[T]
+  override def unzip: SeparatedValuesFeederBuilder[T]
+
+  /**
+   * Provide the column names of a file that doesn't have a header line. The first line of the file is then a record like all the other ones.
+   */
+  def headers(firstHeader: String, otherHeaders: String*): SeparatedValuesFeederBuilder[T]
+}
+
 object SourceFeederBuilder {
   def apply[T](source: FeederSource[T], configuration: GatlingConfiguration): SourceFeederBuilder[T] =
     SourceFeederBuilder(source, configuration, FeederOptions.default)
@@ -53,29 +68,41 @@ final case class SourceFeederBuilder[T](
     source: FeederSource[T],
     configuration: GatlingConfiguration,
     options: FeederOptions[T]
-) extends FileBasedFeederBuilder[T]
+) extends SeparatedValuesFeederBuilder[T]
     with NamedFeederBuilder {
-  def queue: FileBasedFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Queue)
-  def random: FileBasedFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Random)
-  def shuffle: FileBasedFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Shuffle)
-  def circular: FileBasedFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Circular)
+  def queue: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Queue)
+  def random: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Random)
+  def shuffle: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Shuffle)
+  def circular: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(FeederStrategy.Circular)
 
-  override def transform(f: PartialFunction[(String, T), Any]): FileBasedFeederBuilder[Any] = {
+  override def transform(f: PartialFunction[(String, T), Any]): SourceFeederBuilder[Any] = {
     val conversion: Record[T] => Record[Any] =
       _.map {
         case pair if f.isDefinedAt(pair) => pair._1 -> f(pair)
         case pair                        => pair
       }
 
-    this.modify(_.options.conversion).setTo(Some(conversion)).asInstanceOf[FileBasedFeederBuilder[Any]]
+    this.modify(_.options.conversion).setTo(Some(conversion)).asInstanceOf[SourceFeederBuilder[Any]]
   }
 
   override def readRecords: Seq[Record[Any]] = apply().toVector
   override def recordsCount: Int = source.recordsCount(options, configuration)
 
-  override def unzip: FileBasedFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
+  override def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 
-  override def shard: FileBasedFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
+  override def shard: SourceFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
+
+  override def headers(firstHeader: String, otherHeaders: String*): SourceFeederBuilder[T] = {
+    val headers = firstHeader +: otherHeaders
+
+    require(
+      headers.forall(header => header != null && header.nonEmpty),
+      s"Feeder headers mustn't be empty Strings, found ${headers.mkString("(", ", ", ")")}"
+    )
+    require(headers.distinct.lengthIs == headers.length, s"Feeder headers mustn't contain duplicates, found ${headers.mkString("(", ", ", ")")}")
+
+    this.modify(_.options.headers).setTo(Some(headers))
+  }
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
 
@@ -84,12 +111,13 @@ final case class SourceFeederBuilder[T](
 
 object FeederOptions {
   def default[T]: FeederOptions[T] =
-    new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = FeederStrategy.Queue)
+    new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = FeederStrategy.Queue, headers = None)
 }
 
 final case class FeederOptions[T](
     shard: Boolean,
     unzip: Boolean,
     conversion: Option[Record[T] => Record[Any]],
-    strategy: FeederStrategy
+    strategy: FeederStrategy,
+    headers: Option[Seq[String]]
 )

@@ -25,6 +25,7 @@ import org.scalatest.matchers.should.Matchers
 
 class BatchedFeederSpec extends AnyFlatSpecLike with Matchers {
   private val feederFactory = SeparatedValuesParser.feederFactory(',', '"', UTF_8)
+  private val headerlessFeederFactory = SeparatedValuesParser.headerlessFeederFactory(',', '"', UTF_8, Seq("column1", "column2"))
 
   private val csvContent =
     """column1,column2
@@ -37,6 +38,11 @@ class BatchedFeederSpec extends AnyFlatSpecLike with Matchers {
 
   private def channelFactory(text: String): () => ReadableByteChannel =
     () => Channels.newChannel(new ByteArrayInputStream(text.getBytes(UTF_8)))
+
+  private val headerlessCsvContent =
+    """line1_1,line1_2
+      |line2_1,line2_2
+      |""".stripMargin
 
   "QueueBatchedFeeder" should "feed full content" in {
     new QueueBatchedFeeder(channelFactory(csvContent), feederFactory).toVector shouldBe Vector(
@@ -88,6 +94,16 @@ class BatchedFeederSpec extends AnyFlatSpecLike with Matchers {
       Map("column1" -> "line3_1", "column2" -> "line3_2"),
       Map("column1" -> "line4_1", "column2" -> "line4_2"),
       Map("column1" -> "line5_1", "column2" -> "line5_2")
+    )
+  }
+
+  it should "not drop the first line of a header-less content on stream reset" in {
+    new CircularBatchedFeeder(channelFactory(headerlessCsvContent), headerlessFeederFactory).take(5).toVector shouldBe Vector(
+      Map("column1" -> "line1_1", "column2" -> "line1_2"),
+      Map("column1" -> "line2_1", "column2" -> "line2_2"),
+      Map("column1" -> "line1_1", "column2" -> "line1_2"),
+      Map("column1" -> "line2_1", "column2" -> "line2_2"),
+      Map("column1" -> "line1_1", "column2" -> "line1_2")
     )
   }
 }
