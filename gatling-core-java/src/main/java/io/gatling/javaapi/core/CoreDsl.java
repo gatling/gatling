@@ -3361,6 +3361,20 @@ public final class CoreDsl {
             seq.toIndexedSeq(), io.gatling.core.Predef.configuration()));
   }
 
+  //////////  CounterSupport
+
+  /**
+   * Bootstrap a builder for an action that stores an incrementing value into the virtual users'
+   * Session. Values are shared amongst all the virtual users of this load generator, unless {@link
+   * CounterBuilder#perUser()} is used.
+   *
+   * @param key the name of the Session attribute the value is stored into
+   * @return a new CounterBuilder
+   */
+  public static @NonNull CounterBuilder counter(@NonNull String key) {
+    return new CounterBuilder(key);
+  }
+
   //////////  OpenInjectionSupport
 
   /**

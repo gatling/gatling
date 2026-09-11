@@ -96,6 +96,17 @@ class CoreCompileTest extends Simulation {
   val records: Seq[Record[Any]] = csv("foo").readRecords
   val recordsCount: Int = csv("foo").recordsCount
 
+  private val counters = scenario("counters")
+    .exec(counter("counter"))
+    .exec(counter("counter").startingAt(1))
+    .exec(counter("counter").withIncrement(10))
+    .exec(counter("counter").upTo(100))
+    .exec(counter("counter").wrapAround)
+    .exec(counter("counter").perUser)
+    .exec(counter("counter").shard)
+    .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.shard)
+    .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.perUser)
+
   private val pauses = scenario("pauses")
     .pause(1)
     .pause(100.millis)

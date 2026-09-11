@@ -111,6 +111,16 @@ public class CoreJavaCompileTest extends Simulation {
                           .iterator()),
               feed(arrayFeeder(new Map[] {new HashMap<>(), new HashMap<>()}).circular()),
               feed(listFeeder(List.of(new HashMap<>())).circular()),
+              // counters
+              counter("counter"),
+              counter("counter").startingAt(1),
+              counter("counter").withIncrement(10),
+              counter("counter").upTo(100),
+              counter("counter").wrapAround(),
+              counter("counter").perUser(),
+              counter("counter").shard(),
+              counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().shard(),
+              counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().perUser(),
               // pauses
               pause(1),
               pause(Duration.ofMillis(100)),
