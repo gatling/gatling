@@ -3375,6 +3375,26 @@ public final class CoreDsl {
     return new CounterBuilder(key);
   }
 
+  //////////  QueueSupport
+
+  /**
+   * Bootstrap a factory of actions that exchange values over an in-memory queue, so virtual users
+   * can communicate with each other.
+   *
+   * <p>The queue is owned by the returned instance, so it must be stored in a field that's then
+   * used everywhere the queue must be accessed.
+   *
+   * <p>The queue is local to this load generator: when running a distributed test with Gatling
+   * Enterprise, each load generator has its own queue and they don't exchange values with each
+   * other.
+   *
+   * @param name the name of the queue, only used for logging
+   * @return a new SharedQueueBuilder
+   */
+  public static @NonNull SharedQueueBuilder sharedQueue(@NonNull String name) {
+    return new SharedQueueBuilder(name);
+  }
+
   //////////  OpenInjectionSupport
 
   /**

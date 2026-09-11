@@ -107,6 +107,17 @@ class CoreCompileTest extends Simulation {
     .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.shard)
     .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.perUser)
 
+  private val myQueue = sharedQueue("myQueue")
+  private val queues = scenario("queues")
+    .exec(myQueue.put("#{value}"))
+    .exec(myQueue.put(1))
+    .exec(myQueue.put(session => session("value").as[String]))
+    .exec(myQueue.take("value"))
+    .exec(myQueue.take("value").timeout(10.seconds))
+    .exec(myQueue.take("value").timeout(10))
+    .exec(myQueue.poll("value"))
+    .exec(myQueue.size("size"))
+
   private val pauses = scenario("pauses")
     .pause(1)
     .pause(100.millis)

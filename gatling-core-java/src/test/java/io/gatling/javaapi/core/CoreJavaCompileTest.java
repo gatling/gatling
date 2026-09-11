@@ -57,6 +57,9 @@ public class CoreJavaCompileTest extends Simulation {
   private List<Map<String, Object>> records = csv("foo").readRecords();
   private int recordsCount = csv("foo").recordsCount();
 
+  // queues
+  private SharedQueueBuilder myQueue = sharedQueue("myQueue");
+
   // scenario
   private ScenarioBuilder scenario =
       scenario("scenario")
@@ -121,6 +124,15 @@ public class CoreJavaCompileTest extends Simulation {
               counter("counter").shard(),
               counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().shard(),
               counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().perUser(),
+              // queues
+              myQueue.put("#{value}"),
+              myQueue.put(1),
+              myQueue.put(session -> session.getString("value")),
+              myQueue.take("value"),
+              myQueue.take("value").timeout(Duration.ofSeconds(10)),
+              myQueue.take("value").timeout(10),
+              myQueue.poll("value"),
+              myQueue.size("size"),
               // pauses
               pause(1),
               pause(Duration.ofMillis(100)),

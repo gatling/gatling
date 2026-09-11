@@ -26,6 +26,7 @@ import io.gatling.core.counter.CounterSupport
 import io.gatling.core.dummy.DummySupport
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
+import io.gatling.core.queue.QueueSupport
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 
 trait CoreDsl
@@ -38,6 +39,7 @@ trait CoreDsl
     with ThrottlingSupport
     with AssertionSupport
     with CounterSupport
+    with QueueSupport
     with BodySupport
     with DummySupport
     with CoreDefaultImplicits
