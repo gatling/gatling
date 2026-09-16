@@ -31,7 +31,7 @@ sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
           if (i < max)
             extractFirstNonNullGroupRec(i + 1, max)
           else
-            "" // shouldn't happen, as the regex matched, we should have at least one non null group
+            "" // shouldn't happen, as the regex matched, we should have at least one non-null group
         case value => value
       }
 
