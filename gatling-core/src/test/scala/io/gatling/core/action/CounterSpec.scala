@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import io.gatling.core.EmptySession
 import io.gatling.core.actor.{ ActorRef, ActorSpec, MockActorRef }
 import io.gatling.core.controller.Controller
-import io.gatling.core.session.Session
+import io.gatling.core.session._
+import io.gatling.core.stats.NoopStatsEngine
 
 class CounterSpec extends ActorSpec with EmptySession {
   private val Key = "counter"
@@ -45,6 +46,16 @@ class CounterSpec extends ActorSpec with EmptySession {
       next: MockActorRef[Session]
   ): Counter =
     new Counter.PerUser(Key, start, increment, length, wrapAround, controller, null, new ActorDelegatingAction("next", next))
+
+  private def perUserDynamicCounter(
+      start: Expression[Int],
+      increment: Expression[Int],
+      end: Expression[Int],
+      wrapAround: Boolean,
+      controller: ActorRef[Controller.Command],
+      next: MockActorRef[Session]
+  ): Counter =
+    new Counter.PerUserDynamic(Key, start, increment, end, wrapAround, controller, NoopStatsEngine, new ActorDelegatingAction("next", next))
 
   private def expectValue(next: MockActorRef[Session]): Int = {
     val session = next.expectMsgType[Session]()
@@ -150,5 +161,103 @@ class CounterSpec extends ActorSpec with EmptySession {
     counter ! pass1
     next.expectNoMsg()
     controller.expectMsgType[Controller.Command.StopLoadGenerator]()
+  }
+
+  "PerUserDynamicCounter" should "resolve its range from each virtual user's Session" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(_("start").validate[Int], _("increment").validate[Int], _("end").validate[Int], wrapAround = false, controller, next)
+
+    val user1 = emptySession.set("start", 10).set("increment", 5).set("end", 100)
+    val user2 = emptySession.set("start", 0).set("increment", 1).set("end", 100)
+
+    counter ! user1
+    val user1Pass1 = next.expectMsgType[Session]()
+    user1Pass1(Key).as[Int] shouldBe 10
+
+    counter ! user1Pass1
+    expectValue(next) shouldBe 15
+
+    counter ! user2
+    expectValue(next) shouldBe 0
+    controller.expectNoMsg()
+  }
+
+  it should "resolve its range once per virtual user, on its first pass" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(_("start").validate[Int], _("increment").validate[Int], _("end").validate[Int], wrapAround = false, controller, next)
+
+    counter ! emptySession.set("start", 10).set("increment", 5).set("end", 100)
+    val pass1 = next.expectMsgType[Session]()
+    pass1(Key).as[Int] shouldBe 10
+
+    // the values the range was computed from are gone, the sequence goes on all the same
+    counter ! pass1.remove("start").remove("increment").remove("end")
+    val pass2 = next.expectMsgType[Session]()
+    pass2(Key).as[Int] shouldBe 15
+
+    // and they can't shift it either
+    counter ! pass2.set("start", 1000).set("increment", 1).set("end", 2000)
+    expectValue(next) shouldBe 20
+    controller.expectNoMsg()
+  }
+
+  it should "stop the load generator once a virtual user has exhausted its own range" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(0.expressionSuccess, 1.expressionSuccess, _("end").validate[Int], wrapAround = false, controller, next)
+
+    val session = emptySession.set("end", 0)
+
+    counter ! session
+    val pass1 = next.expectMsgType[Session]()
+    pass1(Key).as[Int] shouldBe 0
+
+    counter ! pass1
+    next.expectNoMsg()
+    controller.expectMsgType[Controller.Command.StopLoadGenerator]()
+  }
+
+  it should "start over instead of stopping the load generator when wrapping around" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(0.expressionSuccess, 1.expressionSuccess, _("end").validate[Int], wrapAround = true, controller, next)
+
+    val session = emptySession.set("end", 1)
+
+    counter ! session
+    val pass1 = next.expectMsgType[Session]()
+    pass1(Key).as[Int] shouldBe 0
+
+    counter ! pass1
+    val pass2 = next.expectMsgType[Session]()
+    pass2(Key).as[Int] shouldBe 1
+
+    counter ! pass2
+    expectValue(next) shouldBe 0
+    controller.expectNoMsg()
+  }
+
+  it should "fail the virtual user when its range can't be resolved" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(_("start").validate[Int], 1.expressionSuccess, 100.expressionSuccess, wrapAround = false, controller, next)
+
+    counter ! emptySession
+
+    next.expectMsgType[Session]().isFailed shouldBe true
+    controller.expectNoMsg()
+  }
+
+  it should "fail the virtual user when its range is invalid" in {
+    val controller = mockActorRef[Controller.Command]("controller")
+    val next = mockActorRef[Session]("next")
+    val counter = perUserDynamicCounter(_("start").validate[Int], 1.expressionSuccess, 100.expressionSuccess, wrapAround = false, controller, next)
+
+    counter ! emptySession.set("start", -1)
+
+    next.expectMsgType[Session]().isFailed shouldBe true
+    controller.expectNoMsg()
   }
 }

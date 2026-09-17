@@ -106,6 +106,14 @@ class CoreCompileTest extends Simulation {
     .exec(counter("counter").shard)
     .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.shard)
     .exec(counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround.perUser)
+    .exec(counter("counter").startingAt("#{start}").withIncrement("#{increment}").upTo("#{end}").perUser)
+    .exec(
+      counter("counter")
+        .startingAt(session => session("start").as[Int])
+        .withIncrement(session => session("increment").as[Int])
+        .upTo(session => session("end").as[Int])
+        .perUser
+    )
 
   private val myQueue = sharedQueue("myQueue")
   private val queues = scenario("queues")

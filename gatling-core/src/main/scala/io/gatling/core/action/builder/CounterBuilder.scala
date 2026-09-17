@@ -19,18 +19,27 @@ package io.gatling.core.action.builder
 import java.util.concurrent.atomic.AtomicInteger
 
 import io.gatling.core.action.{ Action, Counter }
+import io.gatling.core.session.{ Expression, StaticValueExpression }
 import io.gatling.core.structure.ScenarioContext
 
 private[gatling] object CounterBuilder {
   def apply(key: String): CounterBuilder =
-    new CounterBuilder(key, start = 0, increment = 1, end = Int.MaxValue, wrap = false, tracksPerUser = false, sharded = false)
+    new CounterBuilder(
+      key,
+      start = StaticValueExpression(0),
+      increment = StaticValueExpression(1),
+      end = StaticValueExpression(Int.MaxValue),
+      wrap = false,
+      tracksPerUser = false,
+      sharded = false
+    )
 }
 
 private[gatling] final class CounterBuilder(
     key: String,
-    start: Int,
-    increment: Int,
-    end: Int,
+    start: Expression[Int],
+    increment: Expression[Int],
+    end: Expression[Int],
     wrap: Boolean,
     tracksPerUser: Boolean,
     sharded: Boolean
@@ -40,19 +49,20 @@ private[gatling] final class CounterBuilder(
   private lazy val index = new AtomicInteger
 
   /**
-   * Set the first value to be emitted. Must be positive. Default is 0.
+   * Set the first value to be emitted. Must be positive. Default is 0. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
    */
-  def startingAt(newStart: Int): CounterBuilder = new CounterBuilder(key, newStart, increment, end, wrap, tracksPerUser, sharded)
+  def startingAt(newStart: Expression[Int]): CounterBuilder = new CounterBuilder(key, newStart, increment, end, wrap, tracksPerUser, sharded)
 
   /**
-   * Set the gap between 2 successive values. Default is 1.
+   * Set the gap between 2 successive values. Default is 1. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
    */
-  def withIncrement(newIncrement: Int): CounterBuilder = new CounterBuilder(key, start, newIncrement, end, wrap, tracksPerUser, sharded)
+  def withIncrement(newIncrement: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, newIncrement, end, wrap, tracksPerUser, sharded)
 
   /**
-   * Set the inclusive upper bound. Default is Int.MaxValue. Once it's reached, the load generator is stopped, unless [[wrapAround]] is used.
+   * Set the inclusive upper bound. Default is Int.MaxValue. Once it's reached, the load generator is stopped, unless [[wrapAround]] is used. Can only be
+   * dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
    */
-  def upTo(newEnd: Int): CounterBuilder = new CounterBuilder(key, start, increment, newEnd, wrap, tracksPerUser, sharded)
+  def upTo(newEnd: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, increment, newEnd, wrap, tracksPerUser, sharded)
 
   /**
    * Start over from the first value once the upper bound is reached, instead of stopping the load generator. Beware values are then no longer unique.
@@ -72,17 +82,30 @@ private[gatling] final class CounterBuilder(
   def shard: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap, tracksPerUser, sharded = true)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    require(start >= 0, s"Counter '$key' start value must be positive but was $start")
-    require(increment > 0, s"Counter '$key' increment must be strictly positive but was $increment")
-    require(end >= start, s"Counter '$key' upper bound ($end) must be greater than or equal to its start value ($start)")
     require(!(tracksPerUser && sharded), s"Counter '$key' can't be both perUser and shard as per user counters are not shared in the first place")
 
-    val count = Counter.valueCount(start, increment, end)
+    (start, increment, end) match {
+      case (StaticValueExpression(startValue), StaticValueExpression(incrementValue), StaticValueExpression(endValue)) =>
+        Counter.validateRange(key, startValue, incrementValue, endValue).onFailure(message => throw new IllegalArgumentException(message))
 
-    if (tracksPerUser) {
-      new Counter.PerUser(key, start, increment, count, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
-    } else {
-      new Counter.Shared(key, start, increment, count, wrap, index, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
+        val count = Counter.valueCount(startValue, incrementValue, endValue)
+
+        val (first: Int, length: Long) =
+            (startValue, count)
+
+        if (tracksPerUser) {
+          new Counter.PerUser(key, first, incrementValue, length, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
+        } else {
+          new Counter.Shared(key, first, incrementValue, length, wrap, index, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
+        }
+
+      case _ =>
+        require(
+          tracksPerUser,
+          s"Counter '$key' can only use dynamic startingAt, withIncrement and upTo values, such as functions and Gatling EL Strings, when perUser is used"
+        )
+
+        new Counter.PerUserDynamic(key, start, increment, end, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
     }
   }
 }

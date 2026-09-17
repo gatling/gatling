@@ -124,6 +124,16 @@ public class CoreJavaCompileTest extends Simulation {
               counter("counter").shard(),
               counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().shard(),
               counter("counter").startingAt(1).withIncrement(10).upTo(100).wrapAround().perUser(),
+              counter("counter")
+                  .startingAt("#{start}")
+                  .withIncrement("#{increment}")
+                  .upTo("#{end}")
+                  .perUser(),
+              counter("counter")
+                  .startingAt(session -> session.getInt("start"))
+                  .withIncrement(session -> session.getInt("increment"))
+                  .upTo(session -> session.getInt("end"))
+                  .perUser(),
               // queues
               myQueue.put("#{value}"),
               myQueue.put(1),
