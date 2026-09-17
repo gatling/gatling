@@ -238,6 +238,7 @@ class HttpCompileTest extends Simulation {
           regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
           regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
           regex("pattern").ofType[(String, String)],
+          regex("pattern").ofType[Seq[String]],
           substring("foo").exists,
           xpath("//input[@id='text1']/@value"),
           xpath("//input[@id='text1']/@value").find,

@@ -1094,11 +1094,19 @@ public interface CheckBuilder {
   interface CaptureGroupCheckBuilder extends MultipleFind<String> {
 
     /**
-     * Define that the check extracts an expected number of values from capture groups
+     * Define that the check extracts all capture groups
+     *
+     * @return a new MultipleFind
+     */
+    @NonNull MultipleFind<List<String>> allCaptureGroups();
+
+    /**
+     * Define that the check extracts an expected number of capture groups
      *
      * @param count the number of capture groups in the regular expression pattern
      * @return a new MultipleFind
      */
+    @Deprecated
     @NonNull MultipleFind<List<String>> captureGroups(int count);
 
     /**
@@ -1117,6 +1125,15 @@ public interface CheckBuilder {
 
       protected abstract <X> io.gatling.core.check.CheckBuilder.MultipleFind<T, P, X> extract(
           io.gatling.core.check.regex.GroupExtractor<X> groupExtractor);
+
+      @Override
+      public @NonNull MultipleFind<List<String>> allCaptureGroups() {
+        return new MultipleFind.Default<>(
+            extract(io.gatling.core.check.regex.GroupExtractor.groupExtractorAll()),
+            type,
+            List.class,
+            Converters::toJavaList);
+      }
 
       @Override
       public @NonNull MultipleFind<List<String>> captureGroups(int count) {

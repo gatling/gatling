@@ -399,7 +399,7 @@ public class HttpJavaCompileTest extends Simulation {
                           .saveAs("var1"),
                       regex("<input id=\"text1\" type=\"text\" value=\"aaaa\" />").count().is(1),
                       regex("<input id=\"text1\" type=\"text\" value=\"aaaa\" />").notExists(),
-                      regex("pattern").captureGroups(2),
+                      regex("pattern").allCaptureGroups(),
                       substring("foo").exists(),
                       xpath("//input[@id='text1']/@value"),
                       xpath("//input[@id='text1']/@value").find(),

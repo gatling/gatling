@@ -49,6 +49,11 @@ sealed trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       ""
     }
 
+  implicit val groupExtractorAll: GroupExtractor[Seq[String]] = matcher =>
+    (for {
+      i <- 1 to matcher.groupCount
+    } yield matcher.group(i)).toList
+
   implicit val groupExtractor2: GroupExtractor[(String, String)] = matcher =>
     (
       safeGetGroupValue(matcher, 1),
