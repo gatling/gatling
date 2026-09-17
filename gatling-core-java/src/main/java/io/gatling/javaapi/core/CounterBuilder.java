@@ -103,10 +103,10 @@ public final class CounterBuilder implements ActionBuilder {
   }
 
   /**
-   * Set the inclusive upper bound. Default is Integer.MAX_VALUE. Once it's reached, the load
-   * generator is stopped, unless {@link #wrapAround()} is used.
+   * Set the upper bound, exclusive, except when it's Integer.MAX_VALUE, which is the default. Once
+   * it's reached, the load generator is stopped, unless {@link #wrapAround()} is used.
    *
-   * @param end the inclusive upper bound
+   * @param end the exclusive upper bound
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder upTo(int end) {
@@ -114,11 +114,11 @@ public final class CounterBuilder implements ActionBuilder {
   }
 
   /**
-   * Set the inclusive upper bound. Default is Integer.MAX_VALUE. Once it's reached, the load
-   * generator is stopped, unless {@link #wrapAround()} is used. Only supported when {@link
-   * #perUser()} is used, otherwise building the Simulation will fail.
+   * Set the upper bound, exclusive, except when it's Integer.MAX_VALUE, which is the default. Once
+   * it's reached, the load generator is stopped, unless {@link #wrapAround()} is used. Only
+   * supported when {@link #perUser()} is used, otherwise building the Simulation will fail.
    *
-   * @param end the inclusive upper bound, as a Gatling EL String
+   * @param end the exclusive upper bound, as a Gatling EL String
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder upTo(@NonNull String end) {
@@ -126,11 +126,11 @@ public final class CounterBuilder implements ActionBuilder {
   }
 
   /**
-   * Set the inclusive upper bound. Default is Integer.MAX_VALUE. Once it's reached, the load
-   * generator is stopped, unless {@link #wrapAround()} is used. Only supported when {@link
-   * #perUser()} is used, otherwise building the Simulation will fail.
+   * Set the upper bound, exclusive, except when it's Integer.MAX_VALUE, which is the default. Once
+   * it's reached, the load generator is stopped, unless {@link #wrapAround()} is used. Only
+   * supported when {@link #perUser()} is used, otherwise building the Simulation will fail.
    *
-   * @param end the inclusive upper bound, as a function
+   * @param end the exclusive upper bound, as a function
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder upTo(@NonNull Function<Session, Integer> end) {

@@ -62,12 +62,17 @@ class CounterSpec extends ActorSpec with EmptySession {
     session(Key).as[Int]
   }
 
-  "valueCount" should "count the values in the range" in {
-    Counter.valueCount(0, 1, 9) shouldBe 10L
-    Counter.valueCount(1, 1, 10) shouldBe 10L
+  "valueCount" should "count the values in the range, upper bound excluded" in {
+    Counter.valueCount(0, 1, 10) shouldBe 10L
+    Counter.valueCount(1, 1, 11) shouldBe 10L
     Counter.valueCount(0, 10, 95) shouldBe 10L
-    Counter.valueCount(0, 1, 0) shouldBe 1L
+    Counter.valueCount(0, 10, 100) shouldBe 10L
+    Counter.valueCount(0, 1, 1) shouldBe 1L
+  }
+
+  it should "include the upper bound when it's Int.MaxValue" in {
     Counter.valueCount(0, 1, Int.MaxValue) shouldBe 2147483648L
+    Counter.valueCount(Int.MaxValue, 1, Int.MaxValue) shouldBe 1L
   }
 
   "SharedCounter" should "emit successive values, whatever the virtual user" in {
@@ -208,7 +213,7 @@ class CounterSpec extends ActorSpec with EmptySession {
     val next = mockActorRef[Session]("next")
     val counter = perUserDynamicCounter(0.expressionSuccess, 1.expressionSuccess, _("end").validate[Int], wrapAround = false, controller, next)
 
-    val session = emptySession.set("end", 0)
+    val session = emptySession.set("end", 1)
 
     counter ! session
     val pass1 = next.expectMsgType[Session]()
@@ -224,7 +229,7 @@ class CounterSpec extends ActorSpec with EmptySession {
     val next = mockActorRef[Session]("next")
     val counter = perUserDynamicCounter(0.expressionSuccess, 1.expressionSuccess, _("end").validate[Int], wrapAround = true, controller, next)
 
-    val session = emptySession.set("end", 1)
+    val session = emptySession.set("end", 2)
 
     counter ! session
     val pass1 = next.expectMsgType[Session]()

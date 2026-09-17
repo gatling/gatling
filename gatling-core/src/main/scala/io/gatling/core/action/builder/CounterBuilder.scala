@@ -59,8 +59,8 @@ private[gatling] final class CounterBuilder(
   def withIncrement(newIncrement: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, newIncrement, end, wrap, tracksPerUser, sharded)
 
   /**
-   * Set the inclusive upper bound. Default is Int.MaxValue. Once it's reached, the load generator is stopped, unless [[wrapAround]] is used. Can only be
-   * dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
+   * Set the upper bound, exclusive, except when it's Int.MaxValue, which is the default. Once it's reached, the load generator is stopped, unless
+   * [[wrapAround]] is used. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
    */
   def upTo(newEnd: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, increment, newEnd, wrap, tracksPerUser, sharded)
 

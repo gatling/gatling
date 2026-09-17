@@ -28,11 +28,14 @@ import io.gatling.core.util.NameGen
 private[core] object Counter {
 
   /**
-   * The number of values in the [start, end] range, walked with the given increment. Doesn't fit in an Int as the default range spans over all the positive
-   * Ints.
+   * The number of values in the [start, end) range, walked with the given increment. The upper bound is exclusive, except when it's Int.MaxValue, so that the
+   * default range can span over all the positive Ints. Doesn't fit in an Int for this very reason.
    */
-  def valueCount(start: Int, increment: Int, end: Int): Long =
-    (end.toLong - start) / increment + 1
+  def valueCount(start: Int, increment: Int, end: Int): Long = {
+    val span = if (end == Int.MaxValue) end.toLong - start + 1 else end.toLong - start
+    // round up so the last value is the greatest one that's still in the range
+    (span + increment - 1) / increment
+  }
 
   /**
    * Check the range is usable, shared between the build time check of the static values and the runtime check of the dynamic ones.
@@ -42,8 +45,8 @@ private[core] object Counter {
       s"Counter '$key' start value must be positive but was $start".failure
     } else if (increment <= 0) {
       s"Counter '$key' increment must be strictly positive but was $increment".failure
-    } else if (end < start) {
-      s"Counter '$key' upper bound ($end) must be greater than or equal to its start value ($start)".failure
+    } else if (end <= start && end != Int.MaxValue) {
+      s"Counter '$key' exclusive upper bound ($end) must be greater than its start value ($start)".failure
     } else {
       Validation.unit
     }

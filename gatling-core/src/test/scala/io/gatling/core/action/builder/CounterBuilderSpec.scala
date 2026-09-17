@@ -69,5 +69,7 @@ class CounterBuilderSpec extends AnyFlatSpec with Matchers {
     an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(-1.expressionSuccess).build(ctx, null)
     an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").withIncrement(0.expressionSuccess).build(ctx, null)
     an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10.expressionSuccess).upTo(5.expressionSuccess).build(ctx, null)
+    // upTo is exclusive, so an upper bound equal to the start value gives an empty range
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10.expressionSuccess).upTo(10.expressionSuccess).build(ctx, null)
   }
 }
