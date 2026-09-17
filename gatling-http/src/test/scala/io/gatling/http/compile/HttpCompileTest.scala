@@ -18,9 +18,11 @@ package io.gatling.http.compile
 
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets.UTF_8
+import java.security.KeyStore
 import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration._
+import scala.util.Using
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.Predef._
@@ -132,7 +134,15 @@ class HttpCompileTest extends Simulation {
     .hostNameAliases(Map("foo" -> List("127.0.0.1")))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
-    .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
+    .perUserKeyManagerFactory { userId =>
+      val keyStore = KeyStore.getInstance("PKCS12")
+      Using(getClass.getClassLoader.getResourceAsStream("keys/pk-" + userId + ".p12")) {
+        keyStore.load(_, null)
+      }
+      val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
+      kmf.init(keyStore, null)
+      kmf
+    }
     .sign(signatureCalculator)
 
   private val testData3 = Array(Map("foo" -> "bar")).circular

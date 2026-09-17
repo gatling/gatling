@@ -22,8 +22,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.javaapi.core.*;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.security.NoSuchAlgorithmException;
+import java.security.KeyStore;
 import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -51,10 +52,20 @@ public class HttpJavaCompileTest extends Simulation {
           .useAllLocalAddressesMatching("pattern")
           .maxConnectionsPerHost(1)
           .perUserKeyManagerFactory(
-              session -> {
+              userId -> {
                 try {
-                  return KeyManagerFactory.getInstance("TLS");
-                } catch (NoSuchAlgorithmException e) {
+                  KeyStore keyStore = KeyStore.getInstance("PKCS12");
+                  try (InputStream is =
+                      getClass()
+                          .getClassLoader()
+                          .getResourceAsStream("keys/pk-" + userId + ".p12")) {
+                    keyStore.load(is, null);
+                  }
+                  KeyManagerFactory kmf =
+                      KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                  kmf.init(keyStore, null);
+                  return kmf;
+                } catch (Exception e) {
                   throw new RuntimeException(e);
                 }
               })
