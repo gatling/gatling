@@ -16,7 +16,9 @@
 
 package io.gatling.commons.util
 
-import java.lang
+import java.{ lang => jl, util => ju }
+
+import scala.collection.mutable
 
 import io.gatling.commons.validation._
 
@@ -29,43 +31,60 @@ class TypeHelperSpec extends AnyFlatSpecLike with Matchers {
   }
 
   it should "be able to assign a java Boolean to either a java Boolean or a Scala Boolean" in {
-    TypeHelper.validate[lang.Boolean](true: lang.Boolean) shouldBe Success(true: lang.Boolean)
-    TypeHelper.validate[Boolean](true: lang.Boolean) shouldBe Success(true)
+    TypeHelper.validate[jl.Boolean](true: jl.Boolean) shouldBe Success(true: jl.Boolean)
+    TypeHelper.validate[Boolean](true: jl.Boolean) shouldBe Success(true)
   }
 
   it should "be able to assign a java Byte to either a java Byte or a Scala Byte" in {
-    TypeHelper.validate[lang.Byte](1.toByte: lang.Byte) shouldBe Success(1.toByte: lang.Byte)
-    TypeHelper.validate[Byte](1.toByte: lang.Byte) shouldBe Success(1.toByte)
+    TypeHelper.validate[jl.Byte](1.toByte: jl.Byte) shouldBe Success(1.toByte: jl.Byte)
+    TypeHelper.validate[Byte](1.toByte: jl.Byte) shouldBe Success(1.toByte)
   }
 
   it should "be able to assign a java Short to either a java Short or a Scala Short" in {
-    TypeHelper.validate[lang.Short](1.toShort: lang.Short) shouldBe Success(1.toShort: lang.Short)
-    TypeHelper.validate[Short](1.toShort: lang.Short) shouldBe Success(1.toShort)
+    TypeHelper.validate[jl.Short](1.toShort: jl.Short) shouldBe Success(1.toShort: jl.Short)
+    TypeHelper.validate[Short](1.toShort: jl.Short) shouldBe Success(1.toShort)
   }
 
   it should "be able to assign a java Integer to either a java Integer or a Scala Int" in {
-    TypeHelper.validate[lang.Integer](1: lang.Integer) shouldBe Success(1: lang.Integer)
-    TypeHelper.validate[Int](1: lang.Integer) shouldBe Success(1)
+    TypeHelper.validate[jl.Integer](1: jl.Integer) shouldBe Success(1: jl.Integer)
+    TypeHelper.validate[Int](1: jl.Integer) shouldBe Success(1)
   }
 
   it should "be able to assign a java Long to either a java Long or a Scala Long" in {
-    TypeHelper.validate[lang.Long](1L: lang.Long) shouldBe Success(1L: lang.Long)
-    TypeHelper.validate[Long](1L: lang.Long) shouldBe Success(1L)
+    TypeHelper.validate[jl.Long](1L: jl.Long) shouldBe Success(1L: jl.Long)
+    TypeHelper.validate[Long](1L: jl.Long) shouldBe Success(1L)
   }
 
   it should "be able to assign a java Float to either a java Float or a Scala Float" in {
-    TypeHelper.validate[lang.Float](1f: lang.Float) shouldBe Success(1f: lang.Float)
-    TypeHelper.validate[Float](1f: lang.Float) shouldBe Success(1f)
+    TypeHelper.validate[jl.Float](1f: jl.Float) shouldBe Success(1f: jl.Float)
+    TypeHelper.validate[Float](1f: jl.Float) shouldBe Success(1f)
   }
 
   it should "be able to assign a java Double to either a java Double or a Scala Double" in {
-    TypeHelper.validate[lang.Double](1.0: lang.Double) shouldBe Success(1.0: lang.Double)
-    TypeHelper.validate[Double](1.0: lang.Double) shouldBe Success(1.0)
+    TypeHelper.validate[jl.Double](1.0: jl.Double) shouldBe Success(1.0: jl.Double)
+    TypeHelper.validate[Double](1.0: jl.Double) shouldBe Success(1.0)
   }
 
   it should "be able to assign a java Character to either a java Character or a Scala Char" in {
-    TypeHelper.validate[lang.Character]('c': lang.Character) shouldBe Success('c': lang.Character)
-    TypeHelper.validate[Char]('c': lang.Character) shouldBe Success('c')
+    TypeHelper.validate[jl.Character]('c': jl.Character) shouldBe Success('c': jl.Character)
+    TypeHelper.validate[Char]('c': jl.Character) shouldBe Success('c')
+  }
+
+  it should "be able to assign a java List to a Seq" in {
+    TypeHelper.validate[Seq[Any]](ju.Arrays.asList(1, 2, 3)) shouldBe Success(Seq(1, 2, 3))
+  }
+
+  it should "be able to assign a Scala Seq to a Seq" in {
+    TypeHelper.validate[Seq[Any]](Seq(1, 2, 3)) shouldBe Success(Seq(1, 2, 3))
+    TypeHelper.validate[Seq[Any]](mutable.ArrayBuffer(1, 2, 3)) shouldBe Success(Seq(1, 2, 3))
+  }
+
+  it should "be able to assign an Array of objects to a Seq" in {
+    TypeHelper.validate[Seq[Any]](Array("foo", "bar")) shouldBe Success(Seq("foo", "bar"))
+  }
+
+  it should "be able to assign an Array of primitives to a Seq" in {
+    TypeHelper.validate[Seq[Any]](Array(1, 2, 3)) shouldBe Success(Seq(1, 2, 3))
   }
 
   it should "return a Failure when types are incompatible" in {

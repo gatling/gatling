@@ -91,7 +91,7 @@ private[gatling] final class CounterBuilder(
         val count = Counter.valueCount(startValue, incrementValue, endValue)
 
         val (first: Int, length: Long) =
-            (startValue, count)
+          (startValue, count)
 
         if (tracksPerUser) {
           new Counter.PerUser(key, first, incrementValue, length, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
