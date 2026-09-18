@@ -21,7 +21,7 @@ import scala.collection.mutable
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupRecord, IntVsTimePlot, RequestRecord }
 import io.gatling.commons.stats.Status
 
-import com.tdunning.math.stats.AVLTreeDigest
+import org.elasticsearch.tdigest.AVLTreeDigest
 
 private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
   private val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]

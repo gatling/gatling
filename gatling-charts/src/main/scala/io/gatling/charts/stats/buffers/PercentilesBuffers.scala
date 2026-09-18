@@ -18,7 +18,7 @@ package io.gatling.charts.stats.buffers
 
 import io.gatling.charts.stats.{ Percentiles, PercentilesVsTimePlot }
 
-import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
+import org.elasticsearch.tdigest.{ AVLTreeDigest, TDigest }
 
 private[stats] class PercentilesBuffers(buckets: Array[Int]) {
   val digests: Array[Option[TDigest]] = Array.fill(buckets.length)(None)

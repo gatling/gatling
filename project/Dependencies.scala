@@ -46,8 +46,8 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"             %% "scopt"                       % "4.1.0"
   private val sfm                            = "org.simpleflatmapper"          % "lightning-csv"               % "9.0.2" exclude("org.simpleflatmapper", "ow2-asm")
   private val slf4jApi                       = "org.slf4j"                     % "slf4j-api"                   % "2.0.19"
-  private val julToSlf4j       = "org.slf4j"                   % "jul-to-slf4j"         % slf4jApi.revision
-  private val tdigest                        = "com.tdunning"                  % "t-digest"                    % "3.3"
+  private val julToSlf4j                     = "org.slf4j"                     % "jul-to-slf4j"                % slf4jApi.revision
+  private val tdigest                        = "org.elasticsearch"             % "elasticsearch-tdigest"       % "8.15.5"
   private val testInterface                  = "org.scala-sbt"                 % "test-interface"              % "1.0"
   private val typetools                      = "net.jodah"                     % "typetools"                   % "0.6.3"
   private val xmlresolver                    = "org.xmlresolver"               % "xmlresolver"                 % "6.1.0"
