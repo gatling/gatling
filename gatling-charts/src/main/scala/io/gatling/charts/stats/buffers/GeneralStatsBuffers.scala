@@ -21,7 +21,7 @@ import scala.collection.mutable
 import io.gatling.charts.stats.{ GeneralStats, Group, GroupRecord, IntVsTimePlot, RequestRecord }
 import io.gatling.commons.stats.Status
 
-import org.elasticsearch.tdigest.AVLTreeDigest
+import org.elasticsearch.tdigest.MergingDigest
 
 private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
   private val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -57,7 +57,7 @@ private[stats] abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 private[stats] class GeneralStatsBuffer(durationInSec: Long) {
   val counts = mutable.Map.empty[Int, Int]
-  val digest = new AVLTreeDigest(100.0)
+  val digest = new MergingDigest(100.0)
   private var sumOfSquares = 0L
   var sum = 0L
 

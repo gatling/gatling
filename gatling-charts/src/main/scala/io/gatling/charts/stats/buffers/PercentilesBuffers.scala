@@ -18,7 +18,7 @@ package io.gatling.charts.stats.buffers
 
 import io.gatling.charts.stats.{ Percentiles, PercentilesVsTimePlot }
 
-import org.elasticsearch.tdigest.{ AVLTreeDigest, TDigest }
+import org.elasticsearch.tdigest.{ MergingDigest, TDigest }
 
 private[stats] class PercentilesBuffers(buckets: Array[Int]) {
   val digests: Array[Option[TDigest]] = Array.fill(buckets.length)(None)
@@ -27,7 +27,7 @@ private[stats] class PercentilesBuffers(buckets: Array[Int]) {
     digests(bucketNumber) match {
       case Some(digest) => digest.add(value)
       case _            =>
-        val digest = new AVLTreeDigest(100.0)
+        val digest = new MergingDigest(100.0)
         digest.add(value)
         digests(bucketNumber) = Some(digest)
     }
