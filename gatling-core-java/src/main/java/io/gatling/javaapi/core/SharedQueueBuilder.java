@@ -98,6 +98,18 @@ public final class SharedQueueBuilder {
   }
 
   /**
+   * Define an action that copies the oldest value of this queue into the virtual user's Session,
+   * leaving it in the queue. If the queue is empty, the virtual user is marked as failed and moves
+   * on instead of waiting, and the Session attribute is left untouched.
+   *
+   * @param key the name of the Session attribute the value is stored into
+   * @return an ActionBuilder
+   */
+  public @NonNull ActionBuilder peek(@NonNull String key) {
+    return toJava(wrapped.peek(key));
+  }
+
+  /**
    * Define an action that stores the current number of values in this queue into the virtual user's
    * Session.
    *

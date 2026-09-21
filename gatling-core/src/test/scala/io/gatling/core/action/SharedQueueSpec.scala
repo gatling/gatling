@@ -169,6 +169,42 @@ class SharedQueueSpec extends ActorSpec with EmptySession {
     polled("key").as[String] shouldBe "value"
   }
 
+  it should "fail a peek on an empty queue instead of parking the virtual user" in {
+    val (queue, nextActor, next) = setUp()
+
+    queue ! SharedQueueActor.Command.Peek(emptySession, "key", next)
+    val failed = nextActor.expectMsgType[Session]()
+    failed.isFailed shouldBe true
+    failed.contains("key") shouldBe false
+  }
+
+  it should "leave the value in the queue when peeking" in {
+    val (queue, nextActor, next) = setUp()
+
+    queue ! SharedQueueActor.Command.Put(emptySession, "first", next)
+    queue ! SharedQueueActor.Command.Put(emptySession, "second", next)
+    nextActor.expectMsgType[Session]()
+    nextActor.expectMsgType[Session]()
+
+    queue ! SharedQueueActor.Command.Peek(emptySession, "key", next)
+    val firstPeeker = nextActor.expectMsgType[Session]()
+    firstPeeker.isFailed shouldBe false
+    firstPeeker("key").as[String] shouldBe "first"
+
+    // the oldest value is still there, and so is the second one
+    queue ! SharedQueueActor.Command.Peek(emptySession, "key", next)
+    val session1 = nextActor.expectMsgType[Session]()
+    session1("key").as[String] shouldBe "first"
+
+    queue ! SharedQueueActor.Command.Size(emptySession, "size", next)
+    val session2 = nextActor.expectMsgType[Session]()
+    session2("size").as[Int] shouldBe 2
+
+    queue ! SharedQueueActor.Command.Take(emptySession, "key", None, next)
+    val session3 = nextActor.expectMsgType[Session]()
+    session3("key").as[String] shouldBe "first"
+  }
+
   it should "fail a virtual user putting a null value instead of crashing" in {
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)

@@ -43,6 +43,7 @@ private[core] object SharedQueueActor {
     final case class Put(session: Session, value: Any, next: Action) extends Command
     final case class Take(session: Session, key: String, timeout: Option[FiniteDuration], next: Action) extends Command
     final case class Poll(session: Session, key: String, next: Action) extends Command
+    final case class Peek(session: Session, key: String, next: Action) extends Command
     final case class Size(session: Session, key: String, next: Action) extends Command
     private[action] case object Sweep extends Command
   }
@@ -108,6 +109,15 @@ private[core] final class SharedQueueActor(queueName: String, clock: Clock, swee
         next ! session.markAsFailed
       } else {
         next ! session.set(key, values.pollFirst())
+      }
+      stay
+
+    case Peek(session, key, next) =>
+      if (values.isEmpty) {
+        logger.debug(s"Queue '$queueName' is empty, failing peek")
+        next ! session.markAsFailed
+      } else {
+        next ! session.set(key, values.peekFirst())
       }
       stay
 
@@ -191,6 +201,22 @@ private[core] final class SharedQueuePoll(
   override val name: String = genName("sharedQueuePoll")
 
   override def execute(session: Session): Unit = queueActor ! SharedQueueActor.Command.Poll(session, key, next)
+}
+
+/**
+ * Copies the oldest value of a queue into the Session, leaving it in the queue.
+ */
+private[core] final class SharedQueuePeek(
+    queueActor: ActorRef[SharedQueueActor.Command],
+    key: String,
+    override val statsEngine: StatsEngine,
+    override val clock: Clock,
+    override val next: Action
+) extends ExitableAction
+    with NameGen {
+  override val name: String = genName("sharedQueuePeek")
+
+  override def execute(session: Session): Unit = queueActor ! SharedQueueActor.Command.Peek(session, key, next)
 }
 
 /**

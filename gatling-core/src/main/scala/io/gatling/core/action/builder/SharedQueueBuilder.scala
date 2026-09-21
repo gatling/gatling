@@ -21,7 +21,7 @@ import java.{ util => ju }
 import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration }
 import scala.jdk.CollectionConverters._
 
-import io.gatling.core.action.{ Action, SharedQueueActor, SharedQueuePoll, SharedQueuePut, SharedQueueSize, SharedQueueTake }
+import io.gatling.core.action.{ Action, SharedQueueActor, SharedQueuePeek, SharedQueuePoll, SharedQueuePut, SharedQueueSize, SharedQueueTake }
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
@@ -78,6 +78,15 @@ final class SharedQueueBuilder private (private[builder] val name: String) exten
   def poll(key: String): ActionBuilder = new SharedQueuePollBuilder(this, key)
 
   /**
+   * Bootstrap a builder for an action that copies the oldest value of this queue into the virtual user's Session, leaving it in the queue. If the queue is
+   * empty, the virtual user is marked as failed and moves on instead of waiting, and the Session attribute is left untouched.
+   *
+   * @param key
+   *   the name of the Session attribute the value is stored into
+   */
+  def peek(key: String): ActionBuilder = new SharedQueuePeekBuilder(this, key)
+
+  /**
    * Bootstrap a builder for an action that stores the current number of values in this queue into the virtual user's Session.
    *
    * @param key
@@ -125,6 +134,11 @@ final class SharedQueueTakeBuilder private[builder] (queue: SharedQueueBuilder, 
 private[builder] final class SharedQueuePollBuilder(queue: SharedQueueBuilder, key: String) extends ActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SharedQueuePoll(queue.actor(ctx), key, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+}
+
+private[builder] final class SharedQueuePeekBuilder(queue: SharedQueueBuilder, key: String) extends ActionBuilder {
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SharedQueuePeek(queue.actor(ctx), key, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }
 
 private[builder] final class SharedQueueSizeBuilder(queue: SharedQueueBuilder, key: String) extends ActionBuilder {

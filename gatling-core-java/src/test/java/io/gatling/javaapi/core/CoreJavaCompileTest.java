@@ -142,6 +142,7 @@ public class CoreJavaCompileTest extends Simulation {
               myQueue.take("value").timeout(Duration.ofSeconds(10)),
               myQueue.take("value").timeout(10),
               myQueue.poll("value"),
+              myQueue.peek("value"),
               myQueue.size("size"),
               // pauses
               pause(1),

@@ -124,6 +124,7 @@ class CoreCompileTest extends Simulation {
     .exec(myQueue.take("value").timeout(10.seconds))
     .exec(myQueue.take("value").timeout(10))
     .exec(myQueue.poll("value"))
+    .exec(myQueue.peek("value"))
     .exec(myQueue.size("size"))
 
   private val pauses = scenario("pauses")
