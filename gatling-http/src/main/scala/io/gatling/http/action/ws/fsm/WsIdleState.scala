@@ -79,6 +79,42 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
     }
   }
 
+  override def onSetCheck(
+      actionName: String,
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+      session: Session,
+      next: Action
+  ): NextWsState = {
+    logger.debug(s"Set check $actionName")
+    val now = clock.nowMillis
+
+    checkSequences match {
+      case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
+        scheduleTimeout(timeout)
+        // [e]
+        //
+        // [e]
+        NextWsState(
+          WsPerformingCheckState(
+            fsm,
+            webSocket = webSocket,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = now,
+            remainingCheckSequences,
+            session = session,
+            remainingReconnects = remainingReconnects,
+            next = Left(next),
+            actionName = actionName,
+            requestMessage = None
+          )
+        )
+
+      case _ =>
+        NextWsState(this, () => next ! session)
+    }
+  }
+
   override def onSendBinaryFrame(
       actionName: String,
       message: Array[Byte],

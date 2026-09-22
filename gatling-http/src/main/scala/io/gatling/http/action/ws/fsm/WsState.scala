@@ -63,6 +63,14 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   ): NextWsState =
     onIllegalState(s"Unexpected onSendBinaryFrame in $stateName state", fsm.clock.nowMillis)
 
+  def onSetCheck(
+      actionName: String,
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+      session: Session,
+      next: Action
+  ): NextWsState =
+    onIllegalState(s"Can't call onSetCheck in $stateName state", fsm.clock.nowMillis)
+
   def onTextFrameReceived(message: String, timestamp: Long): NextWsState =
     onIllegalState(s"Unexpected onTextFrameReceived in $stateName state", timestamp)
 

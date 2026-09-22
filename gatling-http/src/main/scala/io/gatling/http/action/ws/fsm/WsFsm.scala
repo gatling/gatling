@@ -113,6 +113,16 @@ final class WsFsm(
     execute(currentState.onSendBinaryFrame(actionName, message, checkSequences, session, next))
   }
 
+  def onSetCheck(
+      actionName: String,
+      checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+      session: Session,
+      next: Action
+  ): Unit = {
+    unmatchedInboundMessageBuffer.clear()
+    execute(currentState.onSetCheck(actionName, checkSequences, session, next))
+  }
+
   def onTextFrameReceived(message: String, timestamp: Long): Unit =
     execute(currentState.onTextFrameReceived(message, timestamp))
 

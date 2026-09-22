@@ -119,6 +119,15 @@ class WsCompileTest extends Simulation {
             )
             .silent
         ),
+      ws("Wait for a message").setCheck.await(30.seconds)(
+        ws.checkTextMessage("checkName").check(jsonPath("$.foo"))
+      ),
+      ws("Wait on another WS")
+        .wsName("myCustomName")
+        .setCheck
+        .await(30.seconds)(
+          ws.checkTextMessage("checkName").check(jsonPath("$.foo"))
+        ),
       ws("Close WS").close,
       ws("Close WS").close(1000, "Bye"),
       ws("Open Named", "foo").connect("/bar"),

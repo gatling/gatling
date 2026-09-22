@@ -79,6 +79,14 @@ final class Ws(requestName: Expression[String], wsName: Expression[String]) {
   def sendBytes(bytes: Expression[Array[Byte]]): WsSendBinaryFrameBuilder = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
 
   /**
+   * Sets checks on the inbound messages of a WebSocket, without sending anything.
+   *
+   * @return
+   *   the next DSL step
+   */
+  def setCheck: WsSetCheckBuilder = WsSetCheckBuilder(requestName, wsName, Nil)
+
+  /**
    * Closes a WebSocket with a 1000 status.
    */
   def close: WsCloseBuilder = new WsCloseBuilder(requestName, wsName, WebSocketCloseStatus.NORMAL_CLOSURE)

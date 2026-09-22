@@ -130,6 +130,15 @@ public final class Ws {
   }
 
   /**
+   * Boostrap an action to set checks on the inbound messages, without sending anything
+   *
+   * @return the next DSL step
+   */
+  public @NonNull WsSetCheckActionBuilder setCheck() {
+    return new WsSetCheckActionBuilder(wrapped.setCheck());
+  }
+
+  /**
    * Boostrap an action to send a CLOSE frame with the default 1000 status code
    *
    * @return the next DSL step
