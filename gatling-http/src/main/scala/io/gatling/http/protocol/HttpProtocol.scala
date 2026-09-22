@@ -57,7 +57,8 @@ object HttpProtocol extends StrictLogging {
           httpProtocol,
           httpEngine,
           httpCaches,
-          new HttpTxExecutor(coreComponents, httpEngine, httpCaches, defaultStatsProcessor, httpProtocol)
+          new HttpTxExecutor(coreComponents, httpEngine, httpCaches, defaultStatsProcessor, httpProtocol),
+          coreComponents.controller
         )
 
         httpEngine.warmUp(httpComponents)

@@ -199,6 +199,44 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
         wrapped.perUserKeyManagerFactory(untyped -> f.apply((Long) untyped)));
   }
 
+  /**
+   * Assign a {@link KeyManagerFactory} per virtual user, out of a single PKCS#12 keyStore that
+   * contains one key entry per virtual user. Entries are assigned in the keyStore aliases' natural
+   * order, the virtual user with the userId 1 getting the first one.
+   *
+   * <p>When running on Gatling Enterprise with multiple load generators, the aliases are sharded so
+   * that each load generator gets its own disjoint slice, hence a given key entry is never used by
+   * 2 different load generators.
+   *
+   * <p>The run is stopped once all the key entries have been assigned, so 2 virtual users never
+   * share the same one. The keyStore must hence contain at least as many key entries as the number
+   * of virtual users of the run.
+   *
+   * @param keyStorePath the location of the PKCS#12 keyStore, either on the classpath or as an
+   *     absolute path on the filesystem
+   * @param keyStorePassword the keyStore password, also used to recover the key entries
+   * @return a new HttpProtocolBuilder instance
+   */
+  public @NonNull HttpProtocolBuilder perUserKeyManagerFactory(
+      @NonNull String keyStorePath, @NonNull String keyStorePassword) {
+    return new HttpProtocolBuilder(
+        wrapped.perUserKeyManagerFactory(
+            keyStorePath, keyStorePassword, io.gatling.core.Predef.configuration()));
+  }
+
+  /**
+   * Same as {@link HttpProtocolBuilder#perUserKeyManagerFactory(String, String)} with a keyStore
+   * that's not password protected.
+   *
+   * @param keyStorePath the location of the PKCS#12 keyStore, either on the classpath or as an
+   *     absolute path on the filesystem
+   * @return a new HttpProtocolBuilder instance
+   */
+  public @NonNull HttpProtocolBuilder perUserKeyManagerFactory(@NonNull String keyStorePath) {
+    return new HttpProtocolBuilder(
+        wrapped.perUserKeyManagerFactory(keyStorePath, io.gatling.core.Predef.configuration()));
+  }
+
   // requestPart
 
   /**

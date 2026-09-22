@@ -27,6 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ AllowList, DenyList, Filters }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
+import io.gatling.core.util.PerUserKeyManagerFactory
 import io.gatling.http.{ ResponseBiTransformer, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.{ Http2PriorKnowledge, Request }
@@ -86,6 +87,14 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
 
   def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = this.modify(_.protocol.enginePart.maxConnectionsPerHost).setTo(max)
   def perUserKeyManagerFactory(f: Long => KeyManagerFactory): HttpProtocolBuilder = this.modify(_.protocol.enginePart.perUserKeyManagerFactory).setTo(Some(f))
+  def perUserKeyManagerFactory(keyStorePath: String)(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
+    perUserKeyManagerFactory0(keyStorePath, None)
+  def perUserKeyManagerFactory(keyStorePath: String, keyStorePassword: String)(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
+    perUserKeyManagerFactory0(keyStorePath, Some(keyStorePassword))
+  private def perUserKeyManagerFactory0(keyStorePath: String, keyStorePassword: Option[String])(implicit
+      configuration: GatlingConfiguration
+  ): HttpProtocolBuilder =
+    perUserKeyManagerFactory(PerUserKeyManagerFactory.fromKeyStore(keyStorePath, keyStorePassword))
 
   // requestPart
   def disableAutoReferer: HttpProtocolBuilder = this.modify(_.protocol.requestPart.autoReferer).setTo(false)

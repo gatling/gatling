@@ -143,6 +143,8 @@ class HttpCompileTest extends Simulation {
       kmf.init(keyStore, null)
       kmf
     }
+    .perUserKeyManagerFactory("keys/multi-alias.p12", "password")
+    .perUserKeyManagerFactory("keys/multi-alias.p12")
     .sign(signatureCalculator)
 
   private val testData3 = Array(Map("foo" -> "bar")).circular

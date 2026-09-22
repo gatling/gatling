@@ -16,6 +16,8 @@
 
 package io.gatling.http.protocol
 
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
 import io.gatling.http.cache._
@@ -26,11 +28,12 @@ final class HttpComponents(
     val httpProtocol: HttpProtocol,
     val httpEngine: HttpEngine,
     val httpCaches: HttpCaches,
-    val httpTxExecutor: HttpTxExecutor
+    val httpTxExecutor: HttpTxExecutor,
+    val controller: ActorRef[Controller.Command]
 ) extends ProtocolComponents {
   override lazy val onStart: Session => Session =
     SslContextSupport
-      .setSslContexts(httpProtocol, httpEngine)
+      .setSslContexts(httpProtocol, httpEngine, controller)
       .andThen(httpCaches.setNameResolver(httpProtocol.dnsPart, httpEngine))
       .andThen(LocalAddressSupport.setLocalAddresses(httpProtocol))
       .andThen(BaseUrlSupport.setHttpBaseUrl(httpProtocol))

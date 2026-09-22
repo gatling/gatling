@@ -37,7 +37,7 @@ class HttpTxSpec extends AnyFlatSpecLike with Matchers {
 
   trait Context {
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = new HttpComponents(httpProtocol, null, new HttpCaches(new DefaultClock, configuration), null)
+    val httpComponents = new HttpComponents(httpProtocol, null, new HttpCaches(new DefaultClock, configuration), null, null)
 
     val configBase = HttpRequestConfig(
       checks = Nil,

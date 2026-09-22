@@ -21,7 +21,10 @@ import javax.net.ssl.KeyManagerFactory
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
+import io.gatling.core.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.util.PerUserKeyManagerFactory
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.SslContexts
@@ -31,12 +34,20 @@ import com.typesafe.scalalogging.StrictLogging
 private[http] object SslContextSupport extends StrictLogging {
   private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.ssl.sslContexts")
 
-  private def resolvePerUserKeyManagerFactory(session: Session, perUserKeyManagerFactory: Option[Long => KeyManagerFactory]): Option[KeyManagerFactory] =
+  private def resolvePerUserKeyManagerFactory(
+      session: Session,
+      perUserKeyManagerFactory: Option[Long => KeyManagerFactory],
+      controller: ActorRef[Controller.Command]
+  ): Option[KeyManagerFactory] =
     perUserKeyManagerFactory match {
       case Some(kmf) =>
         try {
           Some(kmf(session.userId))
         } catch {
+          case e: PerUserKeyManagerFactory.ExhaustedKeyStoreException =>
+            // no point in going on with virtual users that would have to share a key entry with another one
+            controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.Crash.WellKnown(e.getMessage))
+            None
           case NonFatal(e) =>
             logger.error(s"Can't build perUserKeyManagerFactory: ${e.rootMessage}", e)
             None
@@ -44,11 +55,11 @@ private[http] object SslContextSupport extends StrictLogging {
       case _ => None
     }
 
-  def setSslContexts(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
+  def setSslContexts(httpProtocol: HttpProtocol, httpEngine: HttpEngine, controller: ActorRef[Controller.Command]): Session => Session =
     if (httpProtocol.enginePart.shareConnections) {
       Session.Identity
     } else { session =>
-      val perUserKeyManagerFactory = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
+      val perUserKeyManagerFactory = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory, controller)
       val sslContexts = httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, perUserKeyManagerFactory)
       session.set(HttpSslContextsAttributeName, sslContexts)
     }
