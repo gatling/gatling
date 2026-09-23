@@ -43,6 +43,8 @@ public class WsJavaCompileTest extends Simulation {
           ws("Connect WS")
               .connect("/room/chat?username=#{id}")
               .subprotocol("FOO")
+              .autoReplyTextFrame(
+                  txt -> txt.equals("{\"type\":\"ping\"}") ? "{\"type\":\"pong\"}" : null)
               .onConnected(exec(ws("Perform auth").sendText("Some auth token")).pause(1))
               .await(1)
               .on(

@@ -25,18 +25,29 @@ import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
 import io.gatling.internal.quicklens._
 
+object WsConnectRequestBuilder {
+  private[gatling] val NoAutoReply: String => Option[String] = _ => None
+}
+
 final case class WsConnectRequestBuilder(
     commonAttributes: CommonAttributes,
     wsName: Expression[String],
     subprotocol: Option[Expression[String]],
     onConnectedChain: Option[ChainBuilder],
-    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]]
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
+    autoReplyTextFrames: String => Option[String]
 ) extends RequestBuilder[WsConnectRequestBuilder]
     with HttpActionBuilder
     with WsAwaitActionBuilder[WsConnectRequestBuilder] {
   def subprotocol(sub: Expression[String]): WsConnectRequestBuilder = copy(subprotocol = Some(sub))
 
   def onConnected(chain: ChainBuilder): WsConnectRequestBuilder = copy(onConnectedChain = Some(chain))
+
+  /**
+   * Replies to the text frames of this WebSocket only, typically the heartbeats of the subprotocol it negotiates, before the `wsAutoReplyTextFrame` of the
+   * protocol gets a chance to.
+   */
+  def autoReplyTextFrame(f: PartialFunction[String, String]): WsConnectRequestBuilder = copy(autoReplyTextFrames = f.lift)
 
   override protected def newInstance(commonAttributes: CommonAttributes): WsConnectRequestBuilder = copy(commonAttributes = commonAttributes)
 
@@ -64,6 +75,7 @@ final case class WsConnectRequestBuilder(
       request,
       checkSequences,
       onConnected,
+      message => autoReplyTextFrames(message).orElse(httpComponents.httpProtocol.wsPart.autoReplyTextFrames(message)),
       ctx.coreComponents,
       httpComponents,
       next

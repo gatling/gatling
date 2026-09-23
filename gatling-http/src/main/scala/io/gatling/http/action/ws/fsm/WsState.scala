@@ -131,7 +131,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
     }
 
   protected def autoReplyTextFrames(message: String, webSocket: WebSocket): Boolean =
-    fsm.httpProtocol.wsPart.autoReplyTextFrames(message) match {
+    fsm.autoReplyTextFrames(message) match {
       case Some(reply) =>
         logger.debug(s"Auto Reply to message '$message' with '$reply'")
         webSocket.sendFrame(new TextWebSocketFrame(reply))

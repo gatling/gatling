@@ -30,6 +30,7 @@ import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.internal.HttpProtocolBuilders;
 import io.gatling.javaapi.http.internal.ScalaHttpProtocolBuilderConditions;
 import io.gatling.javaapi.http.internal.SignatureCalculators;
+import io.gatling.javaapi.http.internal.WsAutoReplies;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +40,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
 import org.jspecify.annotations.NonNull;
-import scala.PartialFunction;
 
 /**
  * DSL for building HTTP protocol configurations
@@ -1129,25 +1129,15 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Automatically reply to a TEXT frame with another TEXT frame.
+   * Automatically reply to a TEXT frame with another TEXT frame, on all the WebSockets. See also
+   * {@link WsConnectActionBuilder#autoReplyTextFrame(Function)} for a given WebSocket only.
    *
-   * @param f the function
+   * @param f the function, returning null when it doesn't reply
    * @return a new HttpProtocolBuilder instance
    */
   public HttpProtocolBuilder wsAutoReplyTextFrame(Function<String, String> f) {
     return new HttpProtocolBuilder(
-        wrapped.wsAutoReplyTextFrame(
-            new PartialFunction<String, String>() {
-              @Override
-              public boolean isDefinedAt(String x) {
-                return f.apply(x) != null;
-              }
-
-              @Override
-              public String apply(String v1) {
-                return f.apply(v1);
-              }
-            }));
+        wrapped.wsAutoReplyTextFrame(WsAutoReplies.toScalaPartialFunction(f)));
   }
 
   /**

@@ -34,6 +34,7 @@ final class WsConnect(
     request: Expression[Request],
     connectCheckSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     onConnected: Option[Action],
+    autoReplyTextFrames: String => Option[String],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
     override val next: Action
@@ -62,6 +63,7 @@ final class WsConnect(
               connectRequest,
               resolvedCheckSequences,
               onConnected,
+              autoReplyTextFrames,
               statsEngine,
               httpComponents.httpEngine,
               httpComponents.httpProtocol,

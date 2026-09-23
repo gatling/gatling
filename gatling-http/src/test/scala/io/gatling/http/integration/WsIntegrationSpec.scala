@@ -72,4 +72,30 @@ class WsIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       session.isFailed shouldBe true
     }
   }
+
+  "a connection's autoReplyTextFrame" should "take precedence over the protocol's, which still applies to the other frames" in {
+    val handler: String => List[String] = {
+      case "go" => List("heartbeat", "tick", """{"n":1}""")
+      case _    => Nil
+    }
+
+    runWithWebSocketServer(handler) { server =>
+      val session = runScenario(
+        scenario("ws").exec(
+          ws("connect").connect(url).autoReplyTextFrame { case "heartbeat" => "connection" },
+          // auto replied frames are consumed, so they don't fail the check
+          ws("go").sendText("go").await(10.seconds)(ws.checkTextMessage("n").check(jsonPath("$.n").ofType[Int].is(1))),
+          ws("close").close
+        ),
+        protocolCustomizer = _.wsAutoReplyTextFrame {
+          case "heartbeat" => "protocol"
+          case "tick"      => "tock"
+        }
+      )
+
+      session.isFailed shouldBe false
+      server.messages should contain allOf ("connection", "tock")
+      server.messages should not contain "protocol"
+    }
+  }
 }

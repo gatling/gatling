@@ -21,6 +21,7 @@ import static io.gatling.javaapi.core.internal.Expressions.*;
 import io.gatling.core.action.builder.ActionBuilder;
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.http.internal.WsAutoReplies;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -67,6 +68,20 @@ public final class WsConnectActionBuilder
    */
   public @NonNull WsConnectActionBuilder onConnected(@NonNull ChainBuilder chain) {
     return new WsConnectActionBuilder(wrapped.onConnected(chain.wrapped));
+  }
+
+  /**
+   * Automatically reply to a TEXT frame of this WebSocket with another TEXT frame, typically for
+   * the heartbeats of the negotiated subprotocol. Takes precedence over {@link
+   * HttpProtocolBuilder#wsAutoReplyTextFrame(Function)}, which still applies to the frames this
+   * function doesn't reply to.
+   *
+   * @param f the function, returning null when it doesn't reply
+   * @return a new WsConnectActionBuilder instance
+   */
+  public @NonNull WsConnectActionBuilder autoReplyTextFrame(@NonNull Function<String, String> f) {
+    return new WsConnectActionBuilder(
+        wrapped.autoReplyTextFrame(WsAutoReplies.toScalaPartialFunction(f)));
   }
 
   @Override

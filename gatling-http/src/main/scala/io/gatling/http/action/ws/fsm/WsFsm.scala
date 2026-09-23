@@ -41,6 +41,7 @@ final class WsFsm(
     private[fsm] val connectRequest: Request,
     private[fsm] val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     private[fsm] val onConnected: Option[Action],
+    private[fsm] val autoReplyTextFrames: String => Option[String],
     private[fsm] val statsEngine: StatsEngine,
     private[fsm] val httpEngine: HttpEngine,
     private[fsm] val httpProtocol: HttpProtocol,

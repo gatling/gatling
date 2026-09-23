@@ -43,6 +43,7 @@ class WsCompileTest extends Simulation {
       ws("Connect WS")
         .connect("/room/chat?username=#{id}")
         .subprotocol("FOO")
+        .autoReplyTextFrame { case """{"type":"ping"}""" => """{"type":"pong"}""" }
         .await(1.second)(
           ws.checkTextMessage("checkText")
             .matching(jsonPath("$.uuid").is("#{correlation}"))
