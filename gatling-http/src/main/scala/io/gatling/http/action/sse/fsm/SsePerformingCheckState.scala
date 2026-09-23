@@ -20,7 +20,7 @@ import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.check.sse.{ SseCheck, SseMessageCheck, SseMessageCheckSequence }
 
@@ -55,7 +55,7 @@ final case class SsePerformingCheckState(
   }
 
   override def onSseReceived(event: ServerSentEvent, timestamp: Long): NextSseState =
-    tryApplyingChecks(event, timestamp, currentCheck.matchConditions, currentCheck.checks)
+    tryApplyingChecks(event, timestamp, currentCheck.matchConditions, currentCheck.checks, currentCheck.postChecks)
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
@@ -71,7 +71,13 @@ final case class SsePerformingCheckState(
     handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }
 
-  private def tryApplyingChecks(event: ServerSentEvent, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
+  private def tryApplyingChecks(
+      event: ServerSentEvent,
+      timestamp: Long,
+      matchConditions: List[SseCheck],
+      checks: List[SseCheck],
+      postChecks: List[Expression[Session]]
+  ): NextSseState = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
     val eventJsonString = event.asJsonString
@@ -86,7 +92,8 @@ final case class SsePerformingCheckState(
     if (messageMatches) {
       logger.debug(s"Received matching message $event")
       // matching message, apply checks
-      val (sessionWithCheckUpdate, checkError) = Check.check(eventJsonString, session, checks, preparedCache)
+      val (sessionWithChecksUpdate, checksError) = Check.applyChecks(eventJsonString, session, checks, preparedCache)
+      val (sessionWithCheckUpdate, checkError) = Check.applyPostChecks(sessionWithChecksUpdate, checksError, postChecks)
 
       checkError match {
         case Some(Failure(errorMessage)) =>

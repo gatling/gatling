@@ -970,6 +970,18 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
+   * Define a common function to be applied on all the requests, on the Session resulting from the
+   * checks, after they've been applied. Throw an Exception to make the request fail with its
+   * message.
+   *
+   * @param postCheck the function
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder postCheck(Function<Session, Session> postCheck) {
+    return new HttpProtocolBuilder(wrapped.postCheck(javaSessionFunctionToExpression(postCheck)));
+  }
+
+  /**
    * Automatically infer resources from HTML payloads
    *
    * @return a new HttpProtocolBuilder instance

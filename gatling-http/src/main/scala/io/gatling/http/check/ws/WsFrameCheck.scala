@@ -36,6 +36,7 @@ object WsFrameCheck {
       name: Expression[String],
       matchConditions: List[WsCheck.Binary],
       checks: List[WsCheck.Binary],
+      postChecks: List[Expression[Session]],
       isSilent: Boolean,
       resolvedName: String
   ) extends WsFrameCheck {
@@ -55,6 +56,11 @@ object WsFrameCheck {
     def checkIf(condition: (Array[Byte], Session) => Validation[Boolean])(thenChecks: WsCheck.Binary*): Binary =
       check(thenChecks.map(_.checkIf(condition)): _*)
 
+    def postCheck(postCheck: Expression[Session]): Binary = {
+      require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+      this.modify(_.postChecks)(_ ::: List(postCheck))
+    }
+
     def silent: Binary =
       copy(isSilent = true)
   }
@@ -63,6 +69,7 @@ object WsFrameCheck {
       name: Expression[String],
       matchConditions: List[WsCheck.Text],
       checks: List[WsCheck.Text],
+      postChecks: List[Expression[Session]],
       isSilent: Boolean,
       resolvedName: String
   ) extends WsFrameCheck {
@@ -81,6 +88,11 @@ object WsFrameCheck {
 
     def checkIf(condition: (String, Session) => Validation[Boolean])(thenChecks: WsCheck.Text*): Text =
       check(thenChecks.map(_.checkIf(condition)): _*)
+
+    def postCheck(postCheck: Expression[Session]): Text = {
+      require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+      this.modify(_.postChecks)(_ ::: List(postCheck))
+    }
 
     def silent: Text =
       copy(isSilent = true)

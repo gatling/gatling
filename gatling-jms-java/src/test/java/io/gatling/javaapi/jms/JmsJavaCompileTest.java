@@ -127,7 +127,14 @@ public class JmsJavaCompileTest extends Simulation {
                   .checkIf("#{bool}")
                   .then(jsonPath("$..foo"))
                   .checkIf((message, session) -> true)
-                  .then(jsonPath("$").is("hello")))
+                  .then(jsonPath("$").is("hello"))
+                  .postCheck(
+                      session -> {
+                        if (!session.contains("foo")) {
+                          throw new IllegalStateException("foo is missing");
+                        }
+                        return session.set("bar", 1);
+                      }))
           // extra
           .exec(
               jms("req")

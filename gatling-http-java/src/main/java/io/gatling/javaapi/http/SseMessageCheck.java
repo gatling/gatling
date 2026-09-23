@@ -171,4 +171,18 @@ public final class SseMessageCheck {
       return wrapped.then_(thenChecks);
     }
   }
+
+  /**
+   * Apply a function on the Session resulting from the checks, after they've been applied. Throw an
+   * Exception to make the check fail with its message.
+   *
+   * @param postCheck the function
+   * @return a new SseMessageCheck instance
+   */
+  public @NonNull SseMessageCheck postCheck(@NonNull Function<Session, Session> postCheck) {
+    return new SseMessageCheck(
+        wrapped.postCheck(
+            io.gatling.javaapi.core.internal.Expressions.javaSessionFunctionToExpression(
+                postCheck)));
+  }
 }

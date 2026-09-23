@@ -77,6 +77,7 @@ private[polling] final class Poller(
         tx.silent,
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
+        tx.request.requestConfig.postChecks,
         httpCaches,
         httpProtocol
       ),

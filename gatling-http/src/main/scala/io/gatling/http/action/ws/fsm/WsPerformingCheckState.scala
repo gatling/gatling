@@ -21,7 +21,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.ws.WsInboundMessage
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
@@ -94,8 +94,8 @@ final case class WsPerformingCheckState(
       NextWsState(this)
     } else {
       currentCheck match {
-        case WsFrameCheck.Text(_, matchConditions, checks, _, _) =>
-          tryApplyingChecks(message, timestamp, matchConditions, checks)
+        case WsFrameCheck.Text(_, matchConditions, checks, postChecks, _, _) =>
+          tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks)
 
         case _ =>
           // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
@@ -111,8 +111,8 @@ final case class WsPerformingCheckState(
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
     wsLogger.registerInboundMessage(message, timestamp)
     currentCheck match {
-      case WsFrameCheck.Binary(_, matchConditions, checks, _, _) =>
-        tryApplyingChecks(message, timestamp, matchConditions, checks)
+      case WsFrameCheck.Binary(_, matchConditions, checks, postChecks, _, _) =>
+        tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks)
 
       case _ =>
         // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
@@ -142,7 +142,13 @@ final case class WsPerformingCheckState(
       logResponse(sessionWithCheckUpdate, currentCheck.resolvedName, checkSequenceStart, end, status, code, reason)
     }
 
-  private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {
+  private def tryApplyingChecks[T](
+      message: T,
+      timestamp: Long,
+      matchConditions: List[Check[T]],
+      checks: List[Check[T]],
+      postChecks: List[Expression[Session]]
+  ): NextWsState = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
 
@@ -157,7 +163,8 @@ final case class WsPerformingCheckState(
       logger.trace(s"Received matching message $message")
       // matching message, apply checks before logging so failures keep the inbound buffer
       // (WsLogger.logCheck clears it) and only dump at DEBUG when the check is KO
-      val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
+      val (sessionWithChecksUpdate, checksError) = Check.applyChecks(message, session, checks, preparedCache)
+      val (sessionWithCheckUpdate, checkError) = Check.applyPostChecks(sessionWithChecksUpdate, checksError, postChecks)
 
       checkError match {
         case Some(Failure(errorMessage)) =>

@@ -97,6 +97,7 @@ object HttpProtocol extends StrictLogging {
         redirectNamingStrategy = (_, requestName, redirectCount) => s"$requestName Redirect $redirectCount",
         responseTransformer = None,
         checks = Nil,
+        postChecks = Nil,
         inferHtmlResources = false,
         inferredHtmlResourcesNaming = InferredResourceNaming.UrlTailInferredResourceNaming,
         htmlResourcesInferringFilters = None
@@ -186,6 +187,7 @@ final case class HttpProtocolResponsePart(
     redirectNamingStrategy: (Uri, String, Int) => String,
     responseTransformer: Option[ResponseBiTransformer],
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     inferHtmlResources: Boolean,
     inferredHtmlResourcesNaming: Uri => String,
     htmlResourcesInferringFilters: Option[Filters]

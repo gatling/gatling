@@ -169,6 +169,18 @@ public final class HttpRequestActionBuilder
   }
 
   /**
+   * Apply a function on the Session resulting from the checks, after they've been applied. Throw an
+   * Exception to make the request fail with its message.
+   *
+   * @param postCheck the function
+   * @return a new HttpRequestActionBuilder instance
+   */
+  public @NonNull HttpRequestActionBuilder postCheck(
+      @NonNull Function<Session, Session> postCheck) {
+    return make(wrapped -> wrapped.postCheck(javaSessionFunctionToExpression(postCheck)));
+  }
+
+  /**
    * Have this request ignore the common checks defined on the HTTP protocol configuration
    *
    * @return a new HttpRequestActionBuilder instance

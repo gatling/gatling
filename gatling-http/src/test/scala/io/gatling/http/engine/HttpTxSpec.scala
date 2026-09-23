@@ -41,6 +41,7 @@ class HttpTxSpec extends AnyFlatSpecLike with Matchers {
 
     val configBase = HttpRequestConfig(
       checks = Nil,
+      postChecks = Nil,
       responseTransformer = None,
       throttled = false,
       silent = None,

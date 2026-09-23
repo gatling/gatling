@@ -26,7 +26,7 @@ final case class SseMessageCheckSequence(timeout: FiniteDuration, checks: List[S
   require(checks.nonEmpty, "Can't pass empty check sequence")
 }
 
-final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], checks: List[SseCheck]) {
+final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], checks: List[SseCheck], postChecks: List[Expression[Session]]) {
   def matching(newMatchConditions: SseCheck*): SseMessageCheck = {
     require(!checks.contains(null), "Matching conditions can't contain null elements. Forward reference issue?")
     this.modify(_.matchConditions)(_ ::: newMatchConditions.toList)
@@ -42,4 +42,9 @@ final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], 
 
   def checkIf(condition: (String, Session) => Validation[Boolean])(thenChecks: SseCheck*): SseMessageCheck =
     check(thenChecks.map(_.checkIf(condition)): _*)
+
+  def postCheck(postCheck: Expression[Session]): SseMessageCheck = {
+    require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+    this.modify(_.postChecks)(_ ::: List(postCheck))
+  }
 }

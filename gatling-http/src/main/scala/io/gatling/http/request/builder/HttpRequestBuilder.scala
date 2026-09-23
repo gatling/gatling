@@ -42,6 +42,7 @@ object HttpAttributes {
   val Empty: HttpAttributes =
     new HttpAttributes(
       checks = Nil,
+      postChecks = Nil,
       ignoreProtocolChecks = false,
       silent = None,
       followRedirect = true,
@@ -53,6 +54,7 @@ object HttpAttributes {
 
 final case class HttpAttributes(
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     ignoreProtocolChecks: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,
@@ -93,6 +95,15 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
 
   def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpRequestBuilder =
     check(thenChecks.map(_.checkIf(condition)): _*)
+
+  /**
+   * @param postCheck
+   *   applied after the checks on the resulting Session, a Failure fails the request with its message
+   */
+  def postCheck(postCheck: Expression[Session]): HttpRequestBuilder = {
+    require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+    this.modify(_.httpAttributes.postChecks)(_ ::: List(postCheck))
+  }
 
   def ignoreProtocolChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreProtocolChecks).setTo(true)
 
@@ -146,6 +157,13 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
         requestChecks ::: protocolChecks
       }
 
+    val postChecks =
+      if (httpAttributes.ignoreProtocolChecks) {
+        httpAttributes.postChecks
+      } else {
+        httpAttributes.postChecks ::: httpProtocol.responsePart.postChecks
+      }
+
     val checks =
       if (requestAndProtocolChecks.exists(_.scope == Status)) requestAndProtocolChecks
       else requestAndProtocolChecks ::: List(RequestBuilder.DefaultHttpCheck)
@@ -183,6 +201,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
       resolvedRequestExpression,
       HttpRequestConfig(
         checks = sortedChecks,
+        postChecks = postChecks,
         responseTransformer = resolvedResponseTransformer,
         throttled = throttled,
         silent = httpAttributes.silent,

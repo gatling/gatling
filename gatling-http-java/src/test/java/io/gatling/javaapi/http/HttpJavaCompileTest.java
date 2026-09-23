@@ -241,7 +241,8 @@ public class HttpJavaCompileTest extends Simulation {
           .checkIf("#{bool}")
           .then(jsonPath("$..foo"), jsonPath("$..foo"))
           .checkIf((response, session) -> true)
-          .then(jsonPath("$..foo"));
+          .then(jsonPath("$..foo"))
+          .postCheck(session -> session.set("bar", 1));
 
   ScenarioBuilder scn =
       scenario("scenario")
@@ -423,7 +424,14 @@ public class HttpJavaCompileTest extends Simulation {
                       responseTimeInMillis().lt(1000),
                       bodyString().is("foo").logActualValueInError(false))
                   .checkIf("#{bool}")
-                  .then(jsonPath("$..foo"), jsonPath("$..foo")))
+                  .then(jsonPath("$..foo"), jsonPath("$..foo"))
+                  .postCheck(
+                      session -> {
+                        if (!session.contains("foo")) {
+                          throw new IllegalStateException("foo is missing");
+                        }
+                        return session.set("bar", 1);
+                      }))
           // processRequestBody
           .exec(
               http("Request")

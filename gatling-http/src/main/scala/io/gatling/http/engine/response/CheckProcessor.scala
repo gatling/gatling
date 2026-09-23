@@ -18,14 +18,19 @@ package io.gatling.http.engine.response
 
 import io.gatling.commons.validation.Failure
 import io.gatling.core.check.Check
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 object CheckProcessor {
-  private[response] def check(session: Session, response: Response, checks: List[HttpCheck]): (Session, Option[Failure]) = {
+  private[response] def check(
+      session: Session,
+      response: Response,
+      checks: List[HttpCheck],
+      postChecks: List[Expression[Session]]
+  ): (Session, Option[Failure]) = {
     val filteredChecks =
       if (HttpHelper.isNotModified(response.status)) {
         checks.filter(c => c.scope != Chunks && c.scope != Body)
@@ -33,6 +38,7 @@ object CheckProcessor {
         checks
       }
 
-    Check.check(response, session, filteredChecks)
+    val (checkedSession, checkFailure) = Check.applyChecks(response, session, filteredChecks)
+    Check.applyPostChecks(checkedSession, checkFailure, postChecks)
   }
 }

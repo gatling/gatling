@@ -17,7 +17,7 @@
 package io.gatling.http.engine.response
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.auth.{ DigestAuth, DigestAuthSupport }
 import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheck
@@ -33,6 +33,7 @@ sealed abstract class SessionProcessor(
     silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol
 ) {
@@ -61,7 +62,7 @@ sealed abstract class SessionProcessor(
       updateSessionStats(s4, response.startTimestamp, response.endTimestamp, status)
     }
 
-    val (sessionWithCheckSavedValues, checkError) = CheckProcessor.check(session, response, checks)
+    val (sessionWithCheckSavedValues, checkError) = CheckProcessor.check(session, response, checks, postChecks)
     val sessionWithHttp2PriorKnowledge =
       if (httpProtocol.enginePart.enableHttp2) {
         Http2PriorKnowledgeSupport.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
@@ -101,12 +102,14 @@ final class RootSessionProcessor(
     silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol
 ) extends SessionProcessor(
       silent,
       request,
       checks,
+      postChecks,
       httpCaches,
       httpProtocol
     ) {
@@ -121,12 +124,14 @@ final class ResourceSessionProcessor(
     silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol
 ) extends SessionProcessor(
       silent,
       request,
       checks,
+      postChecks,
       httpCaches,
       httpProtocol
     ) {

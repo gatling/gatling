@@ -128,5 +128,13 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   def checkIf(condition: (Message, Session) => Validation[Boolean])(thenChecks: JmsCheck*): RequestReplyDslBuilder =
     check(thenChecks.map(_.checkIf(condition)): _*)
 
+  /**
+   * Add a function that will be applied on the Session resulting from the checks, a Failure fails the response with its message
+   */
+  def postCheck(postCheck: Expression[Session]): RequestReplyDslBuilder = {
+    require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+    this.modify(_.attributes.postChecks)(_ ::: List(postCheck))
+  }
+
   def build: ActionBuilder = factory(attributes)
 }

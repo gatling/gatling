@@ -180,6 +180,7 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
         clientRequest = request,
         requestConfig = HttpRequestConfig(
           checks = Nil,
+          postChecks = Nil,
           responseTransformer = None,
           throttled = false,
           silent = None,

@@ -29,7 +29,7 @@ object Check {
   def newPreparedCache: PreparedCache =
     new ju.HashMap(2)
 
-  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
+  def applyChecks[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
     val preparedCache: PreparedCache =
       if (checks.sizeIs > 1) {
         newPreparedCache
@@ -37,12 +37,12 @@ object Check {
         null
       }
 
-    check(response, session, checks, preparedCache)
+    applyChecks(response, session, checks, preparedCache)
   }
 
-  def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: PreparedCache): (Session, Option[Failure]) = {
+  def applyChecks[R](response: R, session: Session, checks: List[Check[R]], preparedCache: PreparedCache): (Session, Option[Failure]) = {
     @tailrec
-    def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
+    def applyChecksRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
       checks match {
         case Nil => (currentSession, failure)
 
@@ -50,14 +50,34 @@ object Check {
           check.check(response, currentSession, preparedCache) match {
             case Success(checkResult) =>
               val newSession = checkResult.update(currentSession)
-              checkRec(newSession, tail, failure)
+              applyChecksRec(newSession, tail, failure)
 
             case f: Failure =>
-              checkRec(currentSession, tail, if (failure.isDefined) failure else Some(f))
+              applyChecksRec(currentSession, tail, if (failure.isDefined) failure else Some(f))
           }
       }
 
-    checkRec(session, checks, None)
+    applyChecksRec(session, checks, None)
+  }
+
+  /**
+   * Apply the postChecks, in order, on the Session resulting from the regular checks. A postCheck that returns a Failure or throws makes the processing fail
+   * with its message, unless a previous check or postCheck already failed, in which case the first failure is kept.
+   */
+  def applyPostChecks(session: Session, failure: Option[Failure], postChecks: List[Expression[Session]]): (Session, Option[Failure]) = {
+    @tailrec
+    def applyPostChecksRec(currentSession: Session, postChecks: List[Expression[Session]], failure: Option[Failure]): (Session, Option[Failure]) =
+      postChecks match {
+        case Nil => (currentSession, failure)
+
+        case postCheck :: tail =>
+          safely()(postCheck(currentSession)) match {
+            case Success(newSession) => applyPostChecksRec(newSession, tail, failure)
+            case f: Failure          => applyPostChecksRec(currentSession, tail, if (failure.isDefined) failure else Some(f))
+          }
+      }
+
+    applyPostChecksRec(session, postChecks, failure)
   }
 
   abstract class ConditionalCheck[R](condition: Option[(R, Session) => Validation[Boolean]]) extends Check[R] {

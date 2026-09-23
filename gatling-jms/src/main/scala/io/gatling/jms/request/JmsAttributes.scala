@@ -16,7 +16,7 @@
 
 package io.gatling.jms.request
 
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.jms.JmsCheck
 
 object JmsAttributes {
@@ -33,7 +33,8 @@ object JmsAttributes {
       message,
       messageProperties = Map.empty,
       jmsType = None,
-      checks = Nil
+      checks = Nil,
+      postChecks = Nil
     )
 }
 
@@ -51,5 +52,6 @@ final case class JmsAttributes(
     message: JmsMessage,
     messageProperties: Map[Expression[String], Expression[Any]],
     jmsType: Option[Expression[String]],
-    checks: List[JmsCheck]
+    checks: List[JmsCheck],
+    postChecks: List[Expression[Session]]
 )

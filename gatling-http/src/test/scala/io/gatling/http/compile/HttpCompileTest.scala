@@ -24,7 +24,7 @@ import javax.net.ssl.KeyManagerFactory
 import scala.concurrent.duration._
 import scala.util.Using
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.core.Predef._
 import io.gatling.core.session.Session
 import io.gatling.http.Predef._
@@ -103,6 +103,7 @@ class HttpCompileTest extends Simulation {
       jsonPath("$..foo"),
       jsonPath("$..foo")
     )
+    .postCheck(_.set("bar", 1).success)
     .disableFollowRedirect
     .maxRedirects(5)
     .disableAutoReferer
@@ -267,6 +268,8 @@ class HttpCompileTest extends Simulation {
           jsonPath("$..foo"),
           jsonPath("$..foo")
         )
+        .postCheck(session => if (session.contains("foo")) session.set("bar", 1).success else "foo is missing".failure)
+        .postCheck(_.success)
     )
     .exec(http("Request").get("/tests").check(header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE).is("text/html; charset=utf-8")))
     // form

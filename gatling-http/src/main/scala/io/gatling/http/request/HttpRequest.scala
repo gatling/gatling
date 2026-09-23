@@ -28,6 +28,7 @@ import io.gatling.http.protocol.HttpProtocol
 
 final case class HttpRequestConfig(
     checks: List[HttpCheck],
+    postChecks: List[Expression[Session]],
     responseTransformer: Option[ResponseBiTransformer],
     throttled: Boolean,
     silent: Option[Boolean],

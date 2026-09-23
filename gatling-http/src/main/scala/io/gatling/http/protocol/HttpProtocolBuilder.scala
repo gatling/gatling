@@ -182,6 +182,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     check(thenChecks.map(_.checkIf(condition)): _*)
   def checkIf(condition: (Response, Session) => Validation[Boolean])(thenChecks: HttpCheck*): HttpProtocolBuilder =
     check(thenChecks.map(_.checkIf(condition)): _*)
+  def postCheck(postCheck: Expression[Session]): HttpProtocolBuilder = {
+    require(postCheck != null, "postCheck can't be null. Forward reference issue?")
+    this.modify(_.protocol.responsePart.postChecks)(_ ::: List(postCheck))
+  }
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(allow: AllowList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, DenyList.Empty)))
   def inferHtmlResources(allow: AllowList, deny: DenyList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(allow, deny)))

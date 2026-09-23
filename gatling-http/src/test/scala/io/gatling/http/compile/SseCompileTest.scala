@@ -47,6 +47,7 @@ class SseCompileTest extends Simulation {
           .checkIf("#{cond}") {
             jsonPath("$.foo")
           }
+          .postCheck(_.set("bar", 1))
       ),
       sse("close").close,
       sse("foo", "bar").get("url"),

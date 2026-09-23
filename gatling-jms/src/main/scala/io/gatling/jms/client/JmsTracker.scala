@@ -26,7 +26,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.actor.{ Actor, Behavior }
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms._
 
@@ -44,6 +44,7 @@ object JmsTracker {
         sent: Long,
         replyTimeoutInMs: Long,
         checks: List[JmsCheck],
+        postChecks: List[Expression[Session]],
         session: Session,
         next: Action,
         requestName: String
@@ -91,8 +92,8 @@ private final class JmsTracker private (actorName: String, statsEngine: StatsEng
     // message was received; publish stats and remove from the hashmap
     case MessageReceived(matchId, received, message) =>
       // if key is missing, message was already acked and is a dup, or request timedout
-      sentMessages.remove(matchId).foreach { case MessageSent(_, sent, _, checks, session, next, requestName) =>
-        processMessage(session, sent, received, checks, message, next, requestName)
+      sentMessages.remove(matchId).foreach { case MessageSent(_, sent, _, checks, postChecks, session, next, requestName) =>
+        processMessage(session, sent, received, checks, postChecks, message, next, requestName)
       }
       stay
 
@@ -105,7 +106,7 @@ private final class JmsTracker private (actorName: String, statsEngine: StatsEng
         }
       }
 
-      for (MessageSent(matchId, sent, replyTimeoutInMs, _, session, next, requestName) <- timedOutMessages) {
+      for (MessageSent(matchId, sent, replyTimeoutInMs, _, _, session, next, requestName) <- timedOutMessages) {
         sentMessages.remove(matchId)
         executeNext(session.markAsFailed, sent, now, KO, next, requestName, Some(s"Reply timeout after $replyTimeoutInMs ms"))
       }
@@ -134,12 +135,14 @@ private final class JmsTracker private (actorName: String, statsEngine: StatsEng
       sent: Long,
       received: Long,
       checks: List[JmsCheck],
+      postChecks: List[Expression[Session]],
       message: Message,
       next: Action,
       requestName: String
   ): Unit = {
     // run all the checks, advise the Gatling API that it is complete and move to next
-    val (newSession, error) = Check.check(CachingMessage(message), session, checks)
+    val (checkedSession, checkError) = Check.applyChecks(CachingMessage(message), session, checks)
+    val (newSession, error) = Check.applyPostChecks(checkedSession, checkError, postChecks)
     error match {
       case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, sent, received, KO, next, requestName, Some(errorMessage))
       case _                           => executeNext(newSession, sent, received, OK, next, requestName, None)

@@ -180,6 +180,20 @@ public abstract class WsFrameCheck {
     }
 
     /**
+     * Apply a function on the Session resulting from the checks, after they've been applied. Throw
+     * an Exception to make the check fail with its message.
+     *
+     * @param postCheck the function
+     * @return a new Binary instance
+     */
+    public @NonNull Binary postCheck(@NonNull Function<Session, Session> postCheck) {
+      return new Binary(
+          wrapped.postCheck(
+              io.gatling.javaapi.core.internal.Expressions.javaSessionFunctionToExpression(
+                  postCheck)));
+    }
+
+    /**
      * Make the check silent, not logged by the reporting engine
      *
      * @return a new Binary instance
@@ -333,6 +347,20 @@ public abstract class WsFrameCheck {
       public Text then(List<CheckBuilder> thenChecks) {
         return wrapped.then_(thenChecks);
       }
+    }
+
+    /**
+     * Apply a function on the Session resulting from the checks, after they've been applied. Throw
+     * an Exception to make the check fail with its message.
+     *
+     * @param postCheck the function
+     * @return a new Text instance
+     */
+    public @NonNull Text postCheck(@NonNull Function<Session, Session> postCheck) {
+      return new Text(
+          wrapped.postCheck(
+              io.gatling.javaapi.core.internal.Expressions.javaSessionFunctionToExpression(
+                  postCheck)));
     }
 
     /**

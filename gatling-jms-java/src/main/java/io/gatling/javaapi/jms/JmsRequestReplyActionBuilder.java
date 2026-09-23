@@ -231,6 +231,19 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
     }
   }
 
+  /**
+   * Apply a function on the Session resulting from the checks, after they've been applied. Throw an
+   * Exception to make the response fail with its message.
+   *
+   * @param postCheck the function
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder postCheck(
+      @NonNull Function<Session, Session> postCheck) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.postCheck(javaSessionFunctionToExpression(postCheck)));
+  }
+
   @Override
   public io.gatling.core.action.builder.ActionBuilder asScala() {
     return wrapped.build();

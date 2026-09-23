@@ -132,6 +132,7 @@ class JmsCompileTest extends Simulation {
         .checkIf(_ => true) {
           jsonPath("$").is("hello")
         }
+        .postCheck(_.set("bar", 1))
     )
     // extra
     .exec(

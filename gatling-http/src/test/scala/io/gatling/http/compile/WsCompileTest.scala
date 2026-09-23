@@ -96,7 +96,8 @@ class WsCompileTest extends Simulation {
               checkIf("#{cond}") {
                 regex("somePattern1")
               }
-            ),
+            )
+            .postCheck(_.set("bar", 1)),
           ws.checkTextMessage("checkName2").check(regex("somePattern2").saveAs("message2"))
         ),
       ws("Message3")
@@ -117,6 +118,7 @@ class WsCompileTest extends Simulation {
                 bodyLength.lte(10)
               }
             )
+            .postCheck(_.set("bar", 1))
             .silent
         ),
       ws("Wait for a message").setCheck.await(30.seconds)(

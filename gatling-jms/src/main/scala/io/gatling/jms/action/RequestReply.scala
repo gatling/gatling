@@ -81,7 +81,8 @@ final class RequestReply(
           // [e]
 
           if (matchId != null) {
-            tracker ! JmsTracker.Command.MessageSent(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+            tracker ! JmsTracker.Command
+              .MessageSent(matchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, attributes.postChecks, session, next, requestName)
           }
         },
         after = () =>
@@ -89,7 +90,8 @@ final class RequestReply(
             val updatedMatchId = messageMatcher.requestMatchId(message)
 
             if (updatedMatchId != null) {
-              tracker ! JmsTracker.Command.MessageSent(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, session, next, requestName)
+              tracker ! JmsTracker.Command
+                .MessageSent(updatedMatchId, clock.nowMillis, replyTimeoutInMs, attributes.checks, attributes.postChecks, session, next, requestName)
             } else {
               val now = clock.nowMillis
               statsEngine.logResponse(session.scenario, session.groups, requestName, now, now, KO, None, Some("Failed to get a matchId to track"))

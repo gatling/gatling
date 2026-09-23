@@ -92,7 +92,14 @@ public class WsJavaCompileTest extends Simulation {
                           regex("somePattern1").saveAs("message1"),
                           regex("somePattern2").saveAs("message2"))
                       .checkIf("#{cond}")
-                      .then(regex("somePattern1")),
+                      .then(regex("somePattern1"))
+                      .postCheck(
+                          session -> {
+                            if (!session.contains("foo")) {
+                              throw new IllegalStateException("foo is missing");
+                            }
+                            return session.set("bar", 1);
+                          }),
                   ws.checkTextMessage("checkName2")
                       .check(regex("somePattern2").saveAs("message2"))),
           ws("Message3")
@@ -112,6 +119,13 @@ public class WsJavaCompileTest extends Simulation {
                           bodyBytes().transform(bytes -> bytes.length).saveAs("bytesLength"))
                       .checkIf("#{cond}")
                       .then(bodyLength().lte(10))
+                      .postCheck(
+                          session -> {
+                            if (!session.contains("foo")) {
+                              throw new IllegalStateException("foo is missing");
+                            }
+                            return session.set("bar", 1);
+                          })
                       .silent()),
           ws("Wait for a message")
               .setCheck()

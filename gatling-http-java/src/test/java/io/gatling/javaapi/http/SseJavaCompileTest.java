@@ -36,7 +36,14 @@ public class SseJavaCompileTest extends Simulation {
                   sse.checkMessage("checkName1")
                       .check(regex("event: snapshot(.*)"))
                       .checkIf("#{cond}")
-                      .then(regex("event: snapshot(.*)"))),
+                      .then(regex("event: snapshot(.*)"))
+                      .postCheck(
+                          session -> {
+                            if (!session.contains("foo")) {
+                              throw new IllegalStateException("foo is missing");
+                            }
+                            return session.set("bar", 1);
+                          })),
           sse("waitForSomeMessage")
               .setCheck()
               .await(30)
