@@ -102,7 +102,7 @@ public class OpenInjectionStep {
 
   /**
    * A DSL for creating a {@link OpenInjectionStep} that will inject a stock of users distributed
-   * with a <a hreh="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside</a>
+   * with a <a href="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside</a>
    * distribution on a given period of time. Strictly equivalent to {@link ConstantRate}
    */
   public static final class StressPeak {

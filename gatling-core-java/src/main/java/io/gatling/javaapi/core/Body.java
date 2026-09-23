@@ -53,7 +53,7 @@ public abstract class Body {
     }
   }
 
-  /** Body that is a Function<Session, String> */
+  /** Body that is a {@code Function<Session, String>} */
   public static final class WithString extends Body implements Function<Session, String> {
 
     private final io.gatling.core.body.BodyWithStringExpression wrapped;
@@ -79,7 +79,7 @@ public abstract class Body {
     }
   }
 
-  /** Body that is a Function<Session, byte[]> */
+  /** Body that is a {@code Function<Session, byte[]>} */
   public static final class WithBytes extends Body implements Function<Session, byte[]> {
 
     private final io.gatling.core.body.BodyWithBytesExpression wrapped;

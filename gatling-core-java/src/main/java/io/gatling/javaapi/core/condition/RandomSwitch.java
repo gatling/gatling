@@ -40,7 +40,7 @@ public interface RandomSwitch<
 
   /**
    * Execute one of the "choices" randomly based on their respective weight. Weights are expressed
-   * in percents so their sum must be <= 100%.
+   * in percents so their sum must be &lt;= 100%.
    *
    * @return a DSL component for defining the "choices"
    */

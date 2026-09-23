@@ -25,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 public interface JmsCheckBuilder {
 
-  /** A special {@link CheckBuilder.Find <String>} that works on JMS Message properties */
+  /** A special {@link CheckBuilder.Find} that works on JMS Message properties */
   interface JmsPropertyOfTypeFind extends CheckBuilder.Find<String> {
 
     /**

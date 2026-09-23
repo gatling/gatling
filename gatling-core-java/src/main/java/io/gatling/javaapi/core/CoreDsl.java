@@ -2316,7 +2316,7 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a uniformRandomSwitch block, see {@link
-   * UniformRandomSwitch#uniformRandomSwitch)}.
+   * UniformRandomSwitch#uniformRandomSwitch}.
    *
    * @return the next DSL step
    */
@@ -2638,27 +2638,27 @@ public final class CoreDsl {
   /** A shortcut for {@link PauseType#Exponential} */
   public static PauseType exponentialPauses = PauseType.Exponential;
 
-  /** A shortcut for {@link PauseType.NormalWithStdDevDuration(Duration)} */
+  /** A shortcut for {@link PauseType.NormalWithStdDevDuration} */
   public static @NonNull PauseType normalPausesWithStdDevDuration(@NonNull Duration stdDev) {
     return new PauseType.NormalWithStdDevDuration(stdDev);
   }
 
-  /** A shortcut for {@link PauseType.NormalWithPercentageDuration(double)} */
+  /** A shortcut for {@link PauseType.NormalWithPercentageDuration} */
   public static @NonNull PauseType normalPausesWithPercentageDuration(double stdDev) {
     return new PauseType.NormalWithPercentageDuration(stdDev);
   }
 
-  /** A shortcut for {@link PauseType.Custom(Function)} */
+  /** A shortcut for {@link PauseType.Custom} */
   public static @NonNull PauseType customPauses(@NonNull Function<Session, Long> f) {
     return new PauseType.Custom(f);
   }
 
-  /** A shortcut for {@link PauseType.UniformPercentage(double)} */
+  /** A shortcut for {@link PauseType.UniformPercentage} */
   public static @NonNull PauseType uniformPausesPlusOrMinusPercentage(double plusOrMinus) {
     return new PauseType.UniformPercentage(plusOrMinus);
   }
 
-  /** A shortcut for {@link PauseType.UniformDuration(Duration)} */
+  /** A shortcut for {@link PauseType.UniformDuration} */
   public static @NonNull PauseType uniformPausesPlusOrMinusDuration(@NonNull Duration plusOrMinus) {
     return new PauseType.UniformDuration(plusOrMinus);
   }
@@ -3629,7 +3629,8 @@ public final class CoreDsl {
   /**
    * Create a body from a String.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param string the body expressed as a gatling Expression Language String
    * @return a body
@@ -3642,7 +3643,8 @@ public final class CoreDsl {
   /**
    * Create a body from a String.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param f the body expressed as a function
    * @return a body
@@ -3656,7 +3658,8 @@ public final class CoreDsl {
   /**
    * Create a body from a file. Bytes will be sent without any transformation.
    *
-   * <p>Can also be used as a Function<Session, byte[]> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, byte[]>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a Gatling Expression Language String
@@ -3671,7 +3674,8 @@ public final class CoreDsl {
   /**
    * Create a body from a file. Bytes will be sent without any transformation.
    *
-   * <p>Can also be used as a Function<Session, byte[]> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, byte[]>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a function
@@ -3687,7 +3691,8 @@ public final class CoreDsl {
    * Create a body from a file. File text content will be processed as a Gatling Expression Language
    * String.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a Gatling Expression Language String
@@ -3703,7 +3708,8 @@ public final class CoreDsl {
    * Create a body from a file. File text content will be processed as a Gatling Expression Language
    * String.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a function
@@ -3719,7 +3725,8 @@ public final class CoreDsl {
    * Create a body from String processed as a <a href="https://pebbletemplates.io/">Pebble
    * template</a>.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param string the Pebble string
    * @return a body
@@ -3733,7 +3740,8 @@ public final class CoreDsl {
    * Create a body from a file. File text content will be processed as a <a
    * href="https://pebbletemplates.io/">Pebble template</a>.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a Gatling Expression Language String
@@ -3751,7 +3759,8 @@ public final class CoreDsl {
    * Create a body from a file. File text content will be processed as a <a
    * href="https://pebbletemplates.io/">Pebble template</a>.
    *
-   * <p>Can also be used as a Function<Session, String> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, String>} to define the expected value in a
+   * check.
    *
    * @param filePath the path of the file, either relative to the root of the classpath, or
    *     absolute, expressed as a function
@@ -3769,7 +3778,8 @@ public final class CoreDsl {
   /**
    * Create a body from a byte array. Bytes will be sent as is.
    *
-   * <p>Can also be used as a Function<Session, byte[]> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, byte[]>} to define the expected value in a
+   * check.
    *
    * @param bytes the bytes
    * @return a body
@@ -3781,7 +3791,8 @@ public final class CoreDsl {
   /**
    * Create a body from a byte array. Bytes will be sent as is.
    *
-   * <p>Can also be used as a Function<Session, byte[]> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, byte[]>} to define the expected value in a
+   * check.
    *
    * @param bytes the bytes, expressed as a Gatling Expression Language String
    * @return a body
@@ -3793,7 +3804,8 @@ public final class CoreDsl {
   /**
    * Create a body from a byte array. Bytes will be sent as is.
    *
-   * <p>Can also be used as a Function<Session, byte[]> to define the expected value in a check.
+   * <p>Can also be used as a {@code Function<Session, byte[]>} to define the expected value in a
+   * check.
    *
    * @param bytes the bytes, expressed as a function
    * @return a body
