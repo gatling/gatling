@@ -16,7 +16,7 @@
 
 package io.gatling.javaapi.core.internal.exec
 
-import java.{ util => ju }
+import java.{ lang => jl, util => ju }
 
 import scala.jdk.CollectionConverters._
 
@@ -36,4 +36,18 @@ object ScalaExecs {
       chainBuilders: ju.List[ChainBuilder]
   ): T =
     context.make(_.exec(chainBuilders.asScala.map(_.wrapped)))
+
+  def setInSession[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: Execs[T, W],
+      input: String,
+      attributeName: String
+  ): T =
+    context.make(_.setInSession(Expressions.toAnyExpression(input), attributeName))
+
+  def setInSession[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: Execs[T, W],
+      input: JavaExpression[jl.Object],
+      attributeName: String
+  ): T =
+    context.make(_.setInSession(Expressions.javaObjectFunctionToExpression(input), attributeName))
 }

@@ -26,4 +26,6 @@ private[structure] trait Execs[B] {
   def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, exitable = true))
   def exec(head: Executable, tail: Executable*): B = exec(head :: tail.toList)
   def exec(execs: Iterable[Executable]): B = chain(execs.toList.reverse.flatMap(_.toChainBuilder.actionBuilders))
+  def setInSession(input: Expression[Any], attributeName: String): B =
+    exec(session => input(session).map(session.set(attributeName, _)))
 }

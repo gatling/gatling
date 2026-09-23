@@ -62,6 +62,9 @@ class CoreCompileTest extends Simulation {
       .exec(session => session)
       .exec(chain1, chain2)
       .exec(List(chain1))
+      // setInSession
+      .setInSession("#{randomUuid()}", "uuid")
+      .setInSession(session => 1, "foo")
       // groups
       .group("group") {
         chain1

@@ -67,6 +67,9 @@ public class CoreJavaCompileTest extends Simulation {
           .exec(session -> session)
           .exec(chain1, chain2)
           .exec(Arrays.asList(chain1))
+          // setInSession
+          .setInSession("#{randomUuid()}", "uuid")
+          .setInSession(session -> 1, "foo")
           // groups
           .group("group")
           .on(chain1, chain2)

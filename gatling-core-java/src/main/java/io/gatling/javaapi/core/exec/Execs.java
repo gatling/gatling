@@ -99,4 +99,38 @@ public interface Execs<
   default @NonNull T exec(@NonNull List<ChainBuilder> chainBuilders) {
     return ScalaExecs.apply(this, chainBuilders);
   }
+
+  /**
+   * Attach a new action that will evaluate a Gatling Expression Language String and store the
+   * result in the Session. Typically useful when the expression is non-deterministic, eg random,
+   * and its result must be used in multiple places.
+   *
+   * <pre>{@code
+   * setInSession("#{randomUuid()}", "uuid")
+   * }</pre>
+   *
+   * @param input the value to store, expressed as a Gatling Expression Language String
+   * @param attributeName the name of the attribute to store the value into
+   * @return a new StructureBuilder
+   */
+  default @NonNull T setInSession(@NonNull String input, @NonNull String attributeName) {
+    return ScalaExecs.setInSession(this, input, attributeName);
+  }
+
+  /**
+   * Attach a new action that will evaluate a function and store the result in the Session.
+   * Important: the function must only perform fast in-memory operations.
+   *
+   * <pre>{@code
+   * setInSession(session -> UUID.randomUUID().toString(), "uuid")
+   * }</pre>
+   *
+   * @param input the value to store, expressed as a function
+   * @param attributeName the name of the attribute to store the value into
+   * @return a new StructureBuilder
+   */
+  default @NonNull T setInSession(
+      @NonNull Function<Session, Object> input, @NonNull String attributeName) {
+    return ScalaExecs.setInSession(this, input, attributeName);
+  }
 }

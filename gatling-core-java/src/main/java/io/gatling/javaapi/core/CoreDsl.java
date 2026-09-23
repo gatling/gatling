@@ -147,6 +147,32 @@ public final class CoreDsl {
     return ChainBuilder.EMPTY.exec(chainBuilders);
   }
 
+  /**
+   * Bootstrap a new {@link ChainBuilder} that stores the result of a Gatling Expression Language
+   * String in the Session, see {@link Execs#setInSession(String, String)}.
+   *
+   * @param input the value to store, expressed as a Gatling Expression Language String
+   * @param attributeName the name of the attribute to store the value into
+   * @return a new ChainBuilder
+   */
+  public static @NonNull ChainBuilder setInSession(
+      @NonNull String input, @NonNull String attributeName) {
+    return ChainBuilder.EMPTY.setInSession(input, attributeName);
+  }
+
+  /**
+   * Bootstrap a new {@link ChainBuilder} that stores the result of a function in the Session, see
+   * {@link Execs#setInSession(Function, String)}.
+   *
+   * @param input the value to store, expressed as a function
+   * @param attributeName the name of the attribute to store the value into
+   * @return a new ChainBuilder
+   */
+  public static @NonNull ChainBuilder setInSession(
+      @NonNull Function<Session, Object> input, @NonNull String attributeName) {
+    return ChainBuilder.EMPTY.setInSession(input, attributeName);
+  }
+
   ////////// StructureBuilder.Pauses
   /**
    * Bootstrap a new ChainBuilder with a pause, see {@link Pauses#pause(long)}.
