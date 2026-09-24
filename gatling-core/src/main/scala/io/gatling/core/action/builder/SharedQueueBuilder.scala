@@ -61,7 +61,8 @@ final class SharedQueueBuilder private (private[builder] val name: String) exten
 
   /**
    * Bootstrap a builder for an action that pops the oldest value of this queue into the virtual user's Session. If the queue is empty, the virtual user waits
-   * until a value is available, possibly forever unless [[SharedQueueTakeBuilder.timeout]] is used.
+   * until a value is available, possibly forever unless
+   * [[SharedQueueTakeBuilder.timeout(newTimeout:scala\.concurrent\.duration\.FiniteDuration)* SharedQueueTakeBuilder.timeout]] is used.
    *
    * @param key
    *   the name of the Session attribute the value is stored into
