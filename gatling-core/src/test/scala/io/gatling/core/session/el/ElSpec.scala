@@ -890,6 +890,61 @@ class ElSpec extends AnyFlatSpecLike with Matchers with ValidationValues with Em
     a[ElParserException] should be thrownBy "#{randomString(-1)}".el[String]
   }
 
+  "randomOneOf" should "pick one of the values, trimmed" in {
+    val randomOneOf = "#{randomOneOf( foo , bar , baz )}".el[String]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set("foo", "bar", "baz")) shouldBe true
+  }
+
+  it should "resolve to Boolean when values are only true and false" in {
+    val randomOneOf = "#{randomOneOf(true,false)}".el[Boolean]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual shouldBe Set(true, false)
+  }
+
+  it should "resolve to Int when values are only numbers within the Int range" in {
+    val randomOneOf = "#{randomOneOf(1,2,3)}".el[Int]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set(1, 2, 3)) shouldBe true
+  }
+
+  it should "resolve to Long when values are only numbers with at least one outside the Int range" in {
+    val randomOneOf = "#{randomOneOf(1,2147483648)}".el[Long]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set(1L, 2147483648L)) shouldBe true
+  }
+
+  it should "resolve to Double when values are only numbers with at least one decimal" in {
+    val randomOneOf = "#{randomOneOf(1,2.5)}".el[Double]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set(1.0, 2.5)) shouldBe true
+  }
+
+  it should "resolve to String when values are not all booleans nor all numbers" in {
+    val randomOneOf = "#{randomOneOf(foo,1,true)}".el[String]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set("foo", "1", "true")) shouldBe true
+  }
+
+  it should "resolve to String and treat a value between consecutive separators as an empty String" in {
+    val randomOneOf = "#{randomOneOf(1,,3)}".el[String]
+    val actual = Set.fill(100)(randomOneOf(emptySession).succeeded)
+    actual.subsetOf(Set("1", "", "3")) shouldBe true
+  }
+
+  it should "resolve to String and treat a leading or trailing separator as an empty String" in {
+    val leading = "#{randomOneOf(,1,3)}".el[String]
+    Set.fill(100)(leading(emptySession).succeeded).subsetOf(Set("", "1", "3")) shouldBe true
+
+    val trailing = "#{randomOneOf(1,3,)}".el[String]
+    Set.fill(100)(trailing(emptySession).succeeded).subsetOf(Set("1", "3", "")) shouldBe true
+  }
+
+  it should "resolve to a single empty String when the list is empty" in {
+    val randomOneOf = "#{randomOneOf()}".el[String]
+    randomOneOf(emptySession).succeeded shouldBe ""
+  }
+
   "userId" should "return the user id" in {
     val userId = "#{userId()}".el[Long]
     userId(emptySession).succeeded shouldBe 0

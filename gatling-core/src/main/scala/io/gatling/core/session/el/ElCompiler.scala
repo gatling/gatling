@@ -344,6 +344,53 @@ final case class RandomUtf8String(length: Int) extends ElPart[String] {
   }
 }
 
+object RandomOneOf {
+  private val BooleanValues = Set("true", "false")
+  private val IntegerRegex = """-?\d+""".r
+  private val DecimalRegex = """-?\d+\.\d+""".r
+
+  // Splits and trims the raw, comma-separated argument list matched by the grammar. Doing this
+  // here (in the semantic action), rather than as a grammar rule, is what makes this parser rule
+  // match unconditionally on any "randomOneOf(...)" call (no backtracking into being parsed as a
+  // session attribute named "randomOneOf" with an index access). Consecutive, leading or trailing
+  // commas simply yield an empty-string value, resolving to the String type unless every other
+  // value happens to also be empty.
+  private[el] def parseValues(rawArgs: String): List[String] = rawArgs.split(",", -1).toList.map(_.trim)
+
+  // Resolved once at EL-compile time: the target type is picked from the whole set of literal
+  // values (not per-value), following, in order: boolean (only "true"/"false") > double (only
+  // numbers, at least one decimal) > long (only numbers, at least one outside the int range) >
+  // int (only numbers) > string (fallback).
+  private def resolve(values: List[String]): Array[Any] =
+    if (values.forall(BooleanValues.contains)) {
+      values.map(_.toBoolean).toArray
+    } else if (values.forall(v => IntegerRegex.matches(v) || DecimalRegex.matches(v))) {
+      if (values.exists(DecimalRegex.matches)) {
+        values.map(_.toDouble).toArray
+      } else {
+        val bigValues = values.map(BigInt(_))
+        if (bigValues.forall(v => v >= BigInt(Long.MinValue) && v <= BigInt(Long.MaxValue))) {
+          if (bigValues.exists(v => v < BigInt(Int.MinValue) || v > BigInt(Int.MaxValue))) {
+            bigValues.map(_.toLong).toArray
+          } else {
+            bigValues.map(_.toInt).toArray
+          }
+        } else {
+          values.toArray
+        }
+      }
+    } else {
+      values.toArray
+    }
+}
+
+final case class RandomOneOf(values: List[String]) extends ElPart[Any] {
+  private val resolvedValues: Array[Any] = RandomOneOf.resolve(values)
+
+  def apply(session: Session): Validation[Any] =
+    resolvedValues(ThreadLocalRandom.current().nextInt(resolvedValues.length)).success
+}
+
 final class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler extends StrictLogging {
@@ -357,6 +404,7 @@ object ElCompiler extends StrictLogging {
   private val NumberRegex = """\d+""".r
   private val NumberRegexWithNegative = """-?\d+""".r
   private val DecimalRegexWithNegative = """-?\d+\.\d+""".r
+  private val RandomOneOfArgsRegex = """[^#{}()]*""".r
   private val DynamicPartStart = "#{"
   private val DynamicPartStartChars = DynamicPartStart.toCharArray
 
@@ -515,10 +563,13 @@ final class ElCompiler private extends RegexParsers {
   private def randomUtf8String: Parser[ElPart[Any]] =
     "randomString(" ~> NumberRegexWithNegative <~ ")" ^^ (length => RandomUtf8String(length.toInt))
 
+  private def randomOneOf: Parser[ElPart[Any]] =
+    "randomOneOf(" ~> RandomOneOfArgsRegex <~ ")" ^^ (rawArgs => RandomOneOf(RandomOneOf.parseValues(rawArgs)))
+
   private def userId: Parser[ElPart[Any]] = "userId()" ^^ (_ => UserId)
 
   private def nonSessionObject: Parser[ElPart[Any]] =
-    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric | randomString | randomUtf8String | userId
+    currentTimeMillis | currentDate | randomUuid | randomSecureUuid | randomInt | randomIntRange | randomLong | randomLongRange | randomDoubleRange | randomDoubleRangeDigits | randomAlphanumeric | randomString | randomUtf8String | randomOneOf | userId
 
   private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 
