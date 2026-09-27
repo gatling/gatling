@@ -5,7 +5,6 @@ object Dependencies {
   // Compile dependencies
   private def scalaReflect(version: String)  = "org.scala-lang"                % "scala-reflect"               % version % Provided
   private val scalaParserCombinators         = "org.scala-lang.modules"       %% "scala-parser-combinators"    % "2.5.0"
-  private val scalaSwing                     = "org.scala-lang.modules"       %% "scala-swing"                 % "3.0.0"
   private val gatlingSharedCli               = "io.gatling"                    % "gatling-shared-cli"          % "0.0.7"
   private val gatlingSharedModel             = "io.gatling"                   %% "gatling-shared-model"        % "0.1.3"
   private val gatlingSharedUtil              = "io.gatling"                   %% "gatling-shared-util"         % "0.0.14"
@@ -26,7 +25,6 @@ object Dependencies {
   private val brotli4cOsXArm                 = brotli4j.withName("native-osx-aarch64")
   private val brotli4cOsXX86                 = brotli4j.withName("native-osx-x86_64")
   private val brotli4jWindows                = brotli4j.withName("native-windows-x86_64")
-  private val bouncyCastle                   = "io.gatling"                    % "gatling-recorder-bc-shaded"  % "1.85.0"
   private val caffeine                       = "com.github.ben-manes.caffeine" % "caffeine"                    % "3.3.0"
   private val cfor                           = "io.github.metarank"           %% "cfor"                        % "0.4"
   private val commonsPool2                   = "org.apache.commons"            % "commons-pool2"               % "2.13.1"
@@ -47,11 +45,17 @@ object Dependencies {
   private val sfm                            = "org.simpleflatmapper"          % "lightning-csv"               % "9.0.2" exclude("org.simpleflatmapper", "ow2-asm")
   private val slf4jApi                       = "org.slf4j"                     % "slf4j-api"                   % "2.0.20"
   private val julToSlf4j                     = "org.slf4j"                     % "jul-to-slf4j"                % slf4jApi.revision
-  private val tdigest                        = "org.elasticsearch"             % "elasticsearch-tdigest"       % "8.15.5"
   private val testInterface                  = "org.scala-sbt"                 % "test-interface"              % "1.0"
   private val typetools                      = "net.jodah"                     % "typetools"                   % "0.6.3"
   private val xmlresolver                    = "org.xmlresolver"               % "xmlresolver"                 % "6.1.0"
   private val xmlresolverData                = xmlresolver                                           classifier "data"
+
+  // Charts dependencies
+  private val tdigest                        = "org.elasticsearch"             % "elasticsearch-tdigest"       % "8.15.5"
+
+  // Recorder dependencies
+  private val scalaSwing                     = "org.scala-lang.modules"       %% "scala-swing"                 % "3.0.0"
+  private val bouncyCastle                   = "io.gatling"                    % "gatling-recorder-bc-shaded"  % "1.85.0"
 
   // Test dependencies
   private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.3.2"        % Test
