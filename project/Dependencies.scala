@@ -69,7 +69,7 @@ object Dependencies {
   private val mockitoCore                    = "org.mockito"                   % "mockito-core"                % "5.24.0"       % Test
   private val scalaCheck                     = "org.scalacheck"               %% "scalacheck"                  % "1.20.0"       % Test
   private val scalaTest                      = "org.scalatest"                %% "scalatest"                   % "3.2.20"       % Test
-  private val scalaTestScalacheck            = "org.scalatestplus"            %% "scalacheck-1-19"             % "3.2.20.0"     % Test
+  private val scalaTestScalacheck            = "org.scalatestplus"            %% "scalacheck-1-20"             % "3.2.20.0"     % Test
   private val scalaTestMockito               = "org.scalatestplus"            %% "mockito-5-23"                % "3.2.20.0"     % Test
   // format: on
 
