@@ -62,7 +62,6 @@ object Dependencies {
   private val junitEngine                    = junit.withName("junit-jupiter-engine")
   private val junitPlatformLauncher          = "org.junit.platform"            % "junit-platform-launcher"     % junit.revision % Test
   private val jupiterInterface               = "com.github.sbt.junit"          % "jupiter-interface"           % "0.19.0"       % Test
-  private val jmh                            = "org.openjdk.jmh"               % "jmh-core"                    % "1.37"         % Test
   private val mockitoCore                    = "org.mockito"                   % "mockito-core"                % "5.24.0"       % Test
   private val scalaCheck                     = "org.scalacheck"               %% "scalacheck"                  % "1.20.0"       % Test
   private val scalaTest                      = "org.scalatest"                %% "scalatest"                   % "3.2.20"       % Test
@@ -162,8 +161,6 @@ object Dependencies {
   val jdbcDependencies = h2 +: testDeps
 
   val chartsDependencies = tdigest +: testDeps
-
-  val benchmarkDependencies = Seq(jmh)
 
   val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, nettyHttp) ++ testDeps
 

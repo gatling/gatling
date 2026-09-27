@@ -118,11 +118,6 @@ lazy val charts = gatlingModule("gatling-charts")
   .settings(libraryDependencies ++= chartsDependencies)
   .settings(chartTestsSettings)
 
-lazy val benchmarks = gatlingModule("gatling-benchmarks")
-  .dependsOn(core, http)
-  .enablePlugins(JmhPlugin)
-  .settings(libraryDependencies ++= benchmarkDependencies)
-
 lazy val app = gatlingModule("gatling-app")
   .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, charts)
 
