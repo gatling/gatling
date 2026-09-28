@@ -16,13 +16,13 @@
 
 package io.gatling.javaapi.core;
 
-import static io.gatling.javaapi.core.internal.Expressions.*;
-
-import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Builder of an action that stores an incrementing value into the virtual users' Session.
+ * Builder of an action that stores an incrementing value into the virtual users' Session. Values
+ * are shared amongst all the virtual users of this load generator, unless {@link #perUser()} is
+ * used, in which case dynamic values become available on the returned {@link
+ * PerUserCounterBuilder}.
  *
  * <p>Immutable, so all methods return a new occurrence and leave the original unmodified.
  */
@@ -45,29 +45,7 @@ public final class CounterBuilder implements ActionBuilder {
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder startingAt(int start) {
-    return new CounterBuilder(wrapped.startingAt(toStaticValueExpression(start)));
-  }
-
-  /**
-   * Set the first value to be emitted. Must be positive. Default is 0. Only supported when {@link
-   * #perUser()} is used, otherwise building the Simulation will fail.
-   *
-   * @param start the first value, as a Gatling EL String
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder startingAt(@NonNull String start) {
-    return new CounterBuilder(wrapped.startingAt(toIntExpression(start)));
-  }
-
-  /**
-   * Set the first value to be emitted. Must be positive. Default is 0. Only supported when {@link
-   * #perUser()} is used, otherwise building the Simulation will fail.
-   *
-   * @param start the first value, as a function
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder startingAt(@NonNull Function<Session, Integer> start) {
-    return new CounterBuilder(wrapped.startingAt(javaIntegerFunctionToExpression(start)));
+    return new CounterBuilder(wrapped.startingAt(start));
   }
 
   /**
@@ -77,29 +55,7 @@ public final class CounterBuilder implements ActionBuilder {
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder withIncrement(int increment) {
-    return new CounterBuilder(wrapped.withIncrement(toStaticValueExpression(increment)));
-  }
-
-  /**
-   * Set the gap between 2 successive values. Default is 1. Only supported when {@link #perUser()}
-   * is used, otherwise building the Simulation will fail.
-   *
-   * @param increment the gap between 2 successive values, as a Gatling EL String
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder withIncrement(@NonNull String increment) {
-    return new CounterBuilder(wrapped.withIncrement(toIntExpression(increment)));
-  }
-
-  /**
-   * Set the gap between 2 successive values. Default is 1. Only supported when {@link #perUser()}
-   * is used, otherwise building the Simulation will fail.
-   *
-   * @param increment the gap between 2 successive values, as a function
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder withIncrement(@NonNull Function<Session, Integer> increment) {
-    return new CounterBuilder(wrapped.withIncrement(javaIntegerFunctionToExpression(increment)));
+    return new CounterBuilder(wrapped.withIncrement(increment));
   }
 
   /**
@@ -110,31 +66,7 @@ public final class CounterBuilder implements ActionBuilder {
    * @return a new CounterBuilder
    */
   public @NonNull CounterBuilder upTo(int end) {
-    return new CounterBuilder(wrapped.upTo(toStaticValueExpression(end)));
-  }
-
-  /**
-   * Set the upper bound, exclusive, except when it's Integer.MAX_VALUE, which is the default. Once
-   * it's reached, the load generator is stopped, unless {@link #wrapAround()} is used. Only
-   * supported when {@link #perUser()} is used, otherwise building the Simulation will fail.
-   *
-   * @param end the exclusive upper bound, as a Gatling EL String
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder upTo(@NonNull String end) {
-    return new CounterBuilder(wrapped.upTo(toIntExpression(end)));
-  }
-
-  /**
-   * Set the upper bound, exclusive, except when it's Integer.MAX_VALUE, which is the default. Once
-   * it's reached, the load generator is stopped, unless {@link #wrapAround()} is used. Only
-   * supported when {@link #perUser()} is used, otherwise building the Simulation will fail.
-   *
-   * @param end the exclusive upper bound, as a function
-   * @return a new CounterBuilder
-   */
-  public @NonNull CounterBuilder upTo(@NonNull Function<Session, Integer> end) {
-    return new CounterBuilder(wrapped.upTo(javaIntegerFunctionToExpression(end)));
+    return new CounterBuilder(wrapped.upTo(end));
   }
 
   /**
@@ -149,12 +81,15 @@ public final class CounterBuilder implements ActionBuilder {
 
   /**
    * Track the counter independently for each virtual user, so they all get the very same sequence
-   * of values, instead of sharing one single sequence.
+   * of values, instead of sharing one single sequence. Also unlocks dynamic values, eg functions
+   * and Gatling EL Strings, for {@link PerUserCounterBuilder#startingAt}, {@link
+   * PerUserCounterBuilder#withIncrement} and {@link PerUserCounterBuilder#upTo}, as a range
+   * resolved from one virtual user's Session couldn't define the sequence shared by all of them.
    *
-   * @return a new CounterBuilder
+   * @return a new PerUserCounterBuilder
    */
-  public @NonNull CounterBuilder perUser() {
-    return new CounterBuilder(wrapped.perUser());
+  public @NonNull PerUserCounterBuilder perUser() {
+    return new PerUserCounterBuilder(wrapped.perUser());
   }
 
   /**

@@ -19,29 +19,24 @@ package io.gatling.core.action.builder
 import java.util.concurrent.atomic.AtomicInteger
 
 import io.gatling.core.action.{ Action, Counter }
-import io.gatling.core.session.{ Expression, StaticValueExpression }
+import io.gatling.core.session.StaticValueExpression
 import io.gatling.core.structure.ScenarioContext
 
 private[gatling] object CounterBuilder {
   def apply(key: String): CounterBuilder =
-    new CounterBuilder(
-      key,
-      start = StaticValueExpression(0),
-      increment = StaticValueExpression(1),
-      end = StaticValueExpression(Int.MaxValue),
-      wrap = false,
-      tracksPerUser = false,
-      sharded = false
-    )
+    new CounterBuilder(key, start = 0, increment = 1, end = Int.MaxValue, wrap = false, sharded = false)
 }
 
+/**
+ * Builder of an action that stores an incrementing value into the virtual users' Session. Values are shared amongst all the virtual users of this load
+ * generator, unless [[perUser]] is used, in which case dynamic values become available.
+ */
 private[gatling] final class CounterBuilder(
     key: String,
-    start: Expression[Int],
-    increment: Expression[Int],
-    end: Expression[Int],
+    start: Int,
+    increment: Int,
+    end: Int,
     wrap: Boolean,
-    tracksPerUser: Boolean,
     sharded: Boolean
 ) extends ActionBuilder {
   // shared amongst all the Actions built from this very builder instance, so that using the same builder
@@ -49,63 +44,47 @@ private[gatling] final class CounterBuilder(
   private lazy val index = new AtomicInteger
 
   /**
-   * Set the first value to be emitted. Must be positive. Default is 0. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
+   * Set the first value to be emitted. Must be positive. Default is 0.
    */
-  def startingAt(newStart: Expression[Int]): CounterBuilder = new CounterBuilder(key, newStart, increment, end, wrap, tracksPerUser, sharded)
+  def startingAt(newStart: Int): CounterBuilder = new CounterBuilder(key, newStart, increment, end, wrap, sharded)
 
   /**
-   * Set the gap between 2 successive values. Default is 1. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
+   * Set the gap between 2 successive values. Default is 1.
    */
-  def withIncrement(newIncrement: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, newIncrement, end, wrap, tracksPerUser, sharded)
+  def withIncrement(newIncrement: Int): CounterBuilder = new CounterBuilder(key, start, newIncrement, end, wrap, sharded)
 
   /**
    * Set the upper bound, exclusive, except when it's Int.MaxValue, which is the default. Once it's reached, the load generator is stopped, unless
-   * [[wrapAround]] is used. Can only be dynamic, eg a function or a Gatling EL String, when [[perUser]] is used.
+   * [[wrapAround]] is used.
    */
-  def upTo(newEnd: Expression[Int]): CounterBuilder = new CounterBuilder(key, start, increment, newEnd, wrap, tracksPerUser, sharded)
+  def upTo(newEnd: Int): CounterBuilder = new CounterBuilder(key, start, increment, newEnd, wrap, sharded)
 
   /**
    * Start over from the first value once the upper bound is reached, instead of stopping the load generator. Beware values are then no longer unique.
    */
-  def wrapAround: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap = true, tracksPerUser, sharded)
+  def wrapAround: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap = true, sharded)
 
   /**
-   * Track the counter independently for each virtual user, so they all get the very same sequence of values, instead of sharing one single sequence.
+   * Track the counter independently for each virtual user, so they all get the very same sequence of values, instead of sharing one single sequence. Also
+   * unlocks dynamic values, eg functions and Gatling EL Strings, for [[PerUserCounterBuilder#startingAt startingAt]],
+   * [[PerUserCounterBuilder#withIncrement withIncrement]] and [[PerUserCounterBuilder#upTo upTo]], as a range resolved from one virtual user's Session couldn't
+   * define the sequence shared by all of them.
    */
-  def perUser: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap, tracksPerUser = true, sharded)
+  def perUser: PerUserCounterBuilder =
+    new PerUserCounterBuilder(key, StaticValueExpression(start), StaticValueExpression(increment), StaticValueExpression(end), wrap)
 
   /**
    * Distribute the values evenly amongst all the load generators of a Gatling Enterprise cluster, so they remain unique cluster wide. Only effective when the
    * test is running with Gatling Enterprise, noop otherwise. Each load generator only gets a slice of the range, so the values emitted by the whole cluster
    * have holes, which is the price to pay for not having to synchronize the load generators.
    */
-  def shard: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap, tracksPerUser, sharded = true)
+  def shard: CounterBuilder = new CounterBuilder(key, start, increment, end, wrap, sharded = true)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    require(!(tracksPerUser && sharded), s"Counter '$key' can't be both perUser and shard as per user counters are not shared in the first place")
+    Counter.validateRange(key, start, increment, end).onFailure(message => throw new IllegalArgumentException(message))
 
-    (start, increment, end) match {
-      case (StaticValueExpression(startValue), StaticValueExpression(incrementValue), StaticValueExpression(endValue)) =>
-        Counter.validateRange(key, startValue, incrementValue, endValue).onFailure(message => throw new IllegalArgumentException(message))
+    val count = Counter.valueCount(start, increment, end)
 
-        val count = Counter.valueCount(startValue, incrementValue, endValue)
-
-        val (first: Int, length: Long) =
-          (startValue, count)
-
-        if (tracksPerUser) {
-          new Counter.PerUser(key, first, incrementValue, length, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
-        } else {
-          new Counter.Shared(key, first, incrementValue, length, wrap, index, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
-        }
-
-      case _ =>
-        require(
-          tracksPerUser,
-          s"Counter '$key' can only use dynamic startingAt, withIncrement and upTo values, such as functions and Gatling EL Strings, when perUser is used"
-        )
-
-        new Counter.PerUserDynamic(key, start, increment, end, wrap, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
-    }
+    new Counter.Shared(key, start, increment, count, wrap, index, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
   }
 }

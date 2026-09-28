@@ -44,32 +44,25 @@ class CounterBuilderSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "build a dynamic per user counter when perUser is used together with dynamic values" in {
-    CounterBuilder("counter").startingAt(dynamic).perUser.build(ctx, null) shouldBe a[Counter.PerUserDynamic]
-    CounterBuilder("counter").withIncrement(dynamic).perUser.build(ctx, null) shouldBe a[Counter.PerUserDynamic]
-    CounterBuilder("counter").upTo(dynamic).perUser.build(ctx, null) shouldBe a[Counter.PerUserDynamic]
-  }
-
-  it should "fail when a dynamic startingAt is used without perUser" in {
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(dynamic).build(ctx, null)
-  }
-
-  it should "fail when a dynamic withIncrement is used without perUser" in {
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").withIncrement(dynamic).build(ctx, null)
-  }
-
-  it should "fail when a dynamic upTo is used without perUser" in {
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").upTo(dynamic).build(ctx, null)
-  }
-
-  it should "fail when a dynamic value is used together with shard" in {
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(dynamic).shard.build(ctx, null)
+    CounterBuilder("counter").perUser.startingAt(dynamic).build(ctx, null) shouldBe a[Counter.PerUserDynamic]
+    CounterBuilder("counter").perUser.withIncrement(dynamic).build(ctx, null) shouldBe a[Counter.PerUserDynamic]
+    CounterBuilder("counter").perUser.upTo(dynamic).build(ctx, null) shouldBe a[Counter.PerUserDynamic]
   }
 
   it should "still validate the static values" in {
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(-1.expressionSuccess).build(ctx, null)
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").withIncrement(0.expressionSuccess).build(ctx, null)
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10.expressionSuccess).upTo(5.expressionSuccess).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(-1).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").withIncrement(0).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10).upTo(5).build(ctx, null)
     // upTo is exclusive, so an upper bound equal to the start value gives an empty range
-    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10.expressionSuccess).upTo(10.expressionSuccess).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").startingAt(10).upTo(10).build(ctx, null)
+  }
+
+  it should "still validate the static values when perUser is used" in {
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").perUser.startingAt((-1).expressionSuccess).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").perUser.withIncrement(0.expressionSuccess).build(ctx, null)
+    an[IllegalArgumentException] should be thrownBy CounterBuilder("counter").perUser
+      .startingAt(10.expressionSuccess)
+      .upTo(5.expressionSuccess)
+      .build(ctx, null)
   }
 }
