@@ -16,7 +16,7 @@
 
 package io.gatling.http.action.sse.fsm
 
-import io.gatling.core.json.Json
+import io.gatling.core.json.{ Json, JsonValidator }
 import io.gatling.shared.util.StringBuilderPool
 
 final case class ServerSentEvent(
@@ -35,15 +35,7 @@ final case class ServerSentEvent(
     }
     data.foreach { value =>
       sb.append("\"data\":")
-      val length = value.length
-      if (
-        length > 1 && (
-          // JSON object
-          (value.charAt(0) == '{' && value.charAt(length - 1) == '}') ||
-            // JSON array
-            (value.charAt(0) == '[' && value.charAt(length - 1) == ']')
-        )
-      ) {
+      if (JsonValidator.isValid(value)) {
         sb.append(value)
       } else {
         sb.append('"').append(Json.stringify(value, isRootObject = true)).append('"')
