@@ -51,9 +51,9 @@ jobs:
       - name: Test
         run: |
           sbt \
-            "headerCheckAll" \
-            "scalafmtSbtCheck" \
-            "scalafmtCheckAll" \
-            "javafmtCheckAll" \
-            "scalafixAll --check" \
-            "test"
+            "headerCheckAll;" \
+            "scalafmtSbtCheck;" \
+            "scalafmtCheckAll;" \
+            "javafmtCheckAll;" \
+            "scalafixAll --check;" \
+            "test;"

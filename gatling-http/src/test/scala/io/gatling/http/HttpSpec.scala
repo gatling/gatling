@@ -16,8 +16,9 @@
 
 package io.gatling.http
 
-import java.io.RandomAccessFile
+import java.io.{ File, RandomAccessFile }
 import java.net.ServerSocket
+import java.nio.file.{ Files, StandardCopyOption }
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
@@ -83,12 +84,23 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
     nextActor.expectMsgType[Session](timeout)
   }
 
+  // resources might be packaged in a jar, in which case they must be extracted to be served with a FileRegion
+  private def resourceAsFile(name: String): File = {
+    val resource = getClass.getClassLoader.getResource(name)
+    if (resource.getProtocol == "file") {
+      new File(resource.toURI)
+    } else {
+      val tmpFile = Files.createTempFile("gatling-http-spec-", name.replace('/', '-')).toFile
+      tmpFile.deleteOnExit()
+      Using.resource(resource.openStream())(is => Files.copy(is, tmpFile.toPath, StandardCopyOption.REPLACE_EXISTING))
+      tmpFile
+    }
+  }
+
   def sendFile(name: String): ChannelProcessor = ctx => {
     val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
 
-    val resource = getClass.getClassLoader.getResource(name)
-    val fileUri = resource.getFile
-    val raf = new RandomAccessFile(fileUri, "r")
+    val raf = new RandomAccessFile(resourceAsFile(name), "r")
     val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers

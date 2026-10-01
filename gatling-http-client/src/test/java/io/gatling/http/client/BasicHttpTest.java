@@ -45,7 +45,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
@@ -73,7 +72,7 @@ class BasicHttpTest extends HttpTest {
   }
 
   private File getTestFile() throws Throwable {
-    return new File(Objects.requireNonNull(BasicHttpTest.class.getResource("/test.txt")).toURI());
+    return resourceAsFile("test.txt");
   }
 
   @Test

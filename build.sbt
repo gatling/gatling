@@ -1,10 +1,8 @@
-import sbt._
+import sbt.*
 
-import _root_.io.gatling.build.license.ApacheV2License
-
-import BuildSettings._
-import Dependencies._
-import VersionFile._
+import BuildSettings.*
+import Dependencies.*
+import VersionFile.*
 
 Global / githubPath := "gatling/gatling"
 Global / gatlingDevelopers := Seq(
@@ -48,7 +46,7 @@ lazy val root = Project("gatling-parent", file("."))
 
 // Modules
 
-def gatlingModule(id: String) =
+def gatlingModule(id: String): Project =
   Project(id, file(id))
     .enablePlugins(GatlingOssPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)

@@ -1,4 +1,4 @@
-import sbt._
+import sbt.*
 
 object Dependencies {
   // format: off
@@ -84,7 +84,7 @@ object Dependencies {
 
   // Dependencies by module
 
-  val nettyUtilDependencies =
+  val nettyUtilDependencies: Seq[ModuleID] =
     Seq(
       gatlingSharedUtil,
       nettyBuffer,
@@ -96,18 +96,18 @@ object Dependencies {
       jupiterInterface
     )
 
-  val commonsSharedUnstableDependencies = testDeps
+  val commonsSharedUnstableDependencies: Seq[ModuleID] = testDeps
 
-  val commonsDependencies =
+  val commonsDependencies: Seq[ModuleID] =
     Seq(gatlingSharedUtil, config, cfor, slf4jApi, julToSlf4j, scalaLogging, logback) ++ testDeps
 
-  val jsonpathDependencies =
+  val jsonpathDependencies: Seq[ModuleID] =
     Seq(gatlingSharedUtil, scalaParserCombinators, jackson) ++ testDeps
 
-  def quicklensDependencies(scalaVersion: String) =
+  def quicklensDependencies(scalaVersion: String): Seq[ModuleID] =
     Seq(scalaReflect(scalaVersion))
 
-  val coreDependencies =
+  val coreDependencies: Seq[ModuleID] =
     Seq(
       gatlingSharedModel,
       gatlingSharedCli,
@@ -122,15 +122,15 @@ object Dependencies {
     ) ++
       parserDeps ++ testDeps
 
-  val defaultJavaDependencies =
+  val defaultJavaDependencies: Seq[ModuleID] =
     Seq(jspecify, junit, junitEngine, junitPlatformLauncher, jupiterInterface) ++ testDeps
 
-  val coreJavaDependencies =
+  val coreJavaDependencies: Seq[ModuleID] =
     Seq(typetools) ++ defaultJavaDependencies
 
-  val redisDependencies = Seq(redisClient, commonsPool2) ++ testDeps
+  val redisDependencies: Seq[ModuleID] = Seq(redisClient, commonsPool2) ++ testDeps
 
-  val httpClientDependencies = Seq(
+  val httpClientDependencies: Seq[ModuleID] = Seq(
     gatlingSharedUtil,
     nettyHttp,
     nettyBuffer,
@@ -158,15 +158,15 @@ object Dependencies {
     logback
   )
 
-  val httpDependencies = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
+  val httpDependencies: Seq[ModuleID] = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
-  val jmsDependencies = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
+  val jmsDependencies: Seq[ModuleID] = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
 
-  val jdbcDependencies = h2 +: testDeps
+  val jdbcDependencies: Seq[ModuleID] = h2 +: testDeps
 
-  val chartsDependencies = tdigest +: testDeps
+  val chartsDependencies: Seq[ModuleID] = tdigest +: testDeps
 
-  val recorderDependencies = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, nettyHttp) ++ testDeps
+  val recorderDependencies: Seq[ModuleID] = Seq(gatlingSharedCli, scalaSwing, jackson, bouncyCastle, nettyHttp) ++ testDeps
 
-  val testFrameworkDependencies = Seq(gatlingSharedCli, testInterface)
+  val testFrameworkDependencies: Seq[ModuleID] = Seq(gatlingSharedCli, testInterface)
 }

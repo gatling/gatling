@@ -1,11 +1,11 @@
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 import java.time.{ ZoneOffset, ZonedDateTime }
 import java.time.format.DateTimeFormatter
 
 object VersionFile {
-  val generateVersionFileSettings = Seq(
+  val generateVersionFileSettings: Seq[Def.Setting[?]] = Seq(
     Compile / resourceGenerators += Def.task {
       Seq(generateVersionFile((Compile / resourceManaged).value, (ThisBuild / version).value))
     }.taskValue

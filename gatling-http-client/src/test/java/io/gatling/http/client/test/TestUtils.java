@@ -24,8 +24,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Locale;
-import java.util.UUID;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -34,10 +34,6 @@ public class TestUtils {
   public static final String TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET = "text/html;charset=UTF-8";
   public static final String TEXT_HTML_CONTENT_TYPE_WITH_ISO_8859_1_CHARSET =
       "text/html;charset=ISO-8859-1";
-  public static final File TMP_DIR =
-      new File(
-          System.getProperty("java.io.tmpdir"),
-          "ahc-tests-" + UUID.randomUUID().toString().substring(0, 8));
 
   public static ServerConnector addHttpConnector(Server server) {
     ServerConnector connector = new ServerConnector(server);
@@ -77,10 +73,10 @@ public class TestUtils {
     if (uri.isAbsolute() && !uri.isOpaque()) {
       return new File(uri);
     } else {
-      File tmpFile = File.createTempFile("tmpfile-", ".data", TMP_DIR);
+      File tmpFile = Files.createTempFile("tmpfile-", ".data").toFile();
       tmpFile.deleteOnExit();
       try (InputStream is = cl.getResourceAsStream(path)) {
-        Files.copy(is, tmpFile.toPath());
+        Files.copy(is, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return tmpFile;
       }
     }

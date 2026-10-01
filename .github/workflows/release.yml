@@ -37,8 +37,8 @@ jobs:
           SONATYPE_SBT: ${{ secrets.SONATYPE_SBT }}
           SONATYPE_PGP_SECRET: ${{ secrets.SONATYPE_PGP_SECRET }}
         run: |
-          mkdir --parents ~/.sbt/1.0 || true
-          echo "$SONATYPE_SBT" > ~/.sbt/1.0/sonatype.sbt
+          mkdir --parents ~/.config/sbt/2 || true
+          echo "$SONATYPE_SBT" > ~/.config/sbt/2/sonatype.sbt
           echo -n "$SONATYPE_PGP_SECRET" | base64 --decode | gpg --batch --import
 
       #     - name: Cache

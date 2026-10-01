@@ -19,7 +19,7 @@ package io.gatling.charts.result.reader
 import java.{ lang => jl }
 import java.io.{ BufferedOutputStream, DataOutputStream, File, FileOutputStream }
 import java.nio.charset.StandardCharsets.UTF_8
-import java.nio.file.{ Files, Paths }
+import java.nio.file.Files
 
 import scala.util.Using
 
@@ -39,7 +39,6 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
     // we need a log file whose version matches Gatling's
     // the sample contains a static value while Gatling's is computed by sbt based on git
     // so we need to replace it
-    val rawLogFile = Paths.get(Thread.currentThread().getContextClassLoader.getResource(s"$runUuid/${LogFileDataWriter.LogFileName}").toURI)
 
     val tmpResultsDirectory = Files.createTempDirectory("gatling")
     val runDirectory = tmpResultsDirectory.resolve(runUuid).toFile
@@ -48,7 +47,8 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
     logFileWithMatchingLibraryVersion.deleteOnExit()
 
     Using.resource(new DataOutputStream(new BufferedOutputStream(new FileOutputStream(logFileWithMatchingLibraryVersion)))) { os =>
-      val sampleBytes = Files.readAllBytes(rawLogFile)
+      val sampleBytes =
+        Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream(s"$runUuid/${LogFileDataWriter.LogFileName}"))(_.readAllBytes())
       // run record header
       os.write(sampleBytes, 0, jl.Byte.BYTES)
       val gatlingFullVersionBytes = GatlingVersion.ThisVersion.fullVersion.getBytes(UTF_8)
