@@ -40,9 +40,12 @@ class LogFileReaderSpec extends AnyFlatSpecLike with Matchers {
     // the sample contains a static value while Gatling's is computed by sbt based on git
     // so we need to replace it
 
+    // deleteOnExit deletes in reverse registration order: register parents first so they're empty when deleted
     val tmpResultsDirectory = Files.createTempDirectory("gatling")
+    tmpResultsDirectory.toFile.deleteOnExit()
     val runDirectory = tmpResultsDirectory.resolve(runUuid).toFile
     runDirectory.mkdir()
+    runDirectory.deleteOnExit()
     val logFileWithMatchingLibraryVersion = new File(runDirectory, LogFileDataWriter.LogFileName)
     logFileWithMatchingLibraryVersion.deleteOnExit()
 
