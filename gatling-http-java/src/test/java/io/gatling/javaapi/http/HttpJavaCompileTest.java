@@ -389,6 +389,12 @@ public class HttpJavaCompileTest extends Simulation {
                       jsonPath("$..foo.bar[2].baz")
                           .transformWithSession((string, session) -> string + "foo"),
                       jsonPath("$..foo.bar[2].baz").withDefault(s -> "foo"),
+                      jsonPath("$..foo")
+                          .ofInt()
+                          .verify(
+                              "positive",
+                              (i, session) ->
+                                  i != null && i > 0 ? null : "expected a positive int"),
                       jsonpJsonPath("$..foo").is("bar"),
                       jmesPath("[].friends[].name"),
                       jmesPath("[].friends[].name").is("bar"),

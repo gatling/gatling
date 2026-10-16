@@ -230,6 +230,7 @@ class HttpCompileTest extends Simulation {
           jsonPath("$..foo.bar[2].baz").transformOption(_.map(_ + "foo")),
           jsonPath("$..foo.bar[2].baz").transformOptionWithSession((maybeString, session) => maybeString.map(_ + "foo")),
           jsonPath("$..foo.bar[2].baz").withDefault(_ => "foo"),
+          jsonPath("$..foo").ofType[Int].verify("positive", (maybeInt, session) => Option.when(maybeInt.exists(_ <= 0))("expected a positive int")),
           jsonpJsonPath("$..foo").is("bar"),
           jmesPath("[].friends[].name"),
           jmesPath("[].friends[].name").is("bar"),

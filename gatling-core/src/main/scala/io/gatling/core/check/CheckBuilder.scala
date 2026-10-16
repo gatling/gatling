@@ -127,7 +127,9 @@ object CheckBuilder {
     def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): Validate[T, P, X2]
     def withDefault(defaultValue: Expression[X]): Validate[T, P, X]
     def validate(validator: Expression[Validator[X]]): Final[T, P]
+    @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.0")
     def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P]
+    def verify(opName: String, f: (Option[X], Session) => Option[String]): Final[T, P]
     def is(expected: Expression[X])(implicit equality: Equality[X]): Final[T, P]
     def isNull: Final[T, P]
     def not(expected: Expression[X])(implicit equality: Equality[X]): Final[T, P]
@@ -227,11 +229,26 @@ object CheckBuilder {
       override def validate(validator: Expression[Validator[X]]): Final[T, P] =
         new Final.Default[T, P, X](this.extractor, validator, logActualValueInError, None, None)
 
+      @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.0")
       override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P] =
         validate(session =>
           new Validator[X] {
             override val name: String = opName
             override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
+          }.success
+        )
+
+      override def verify(opName: String, f: (Option[X], Session) => Option[String]): Final[T, P] =
+        validate(session =>
+          new Validator[X] {
+            override val name: String = opName
+            override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] =
+              safely() {
+                f(actual, session) match {
+                  case Some(error) => error.failure
+                  case _           => actual.success
+                }
+              }
           }.success
         )
 

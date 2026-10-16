@@ -140,9 +140,16 @@ public interface CheckBuilder {
       }
 
       @Override
+      @Deprecated
       public @NonNull Final validate(
           @NonNull String opName, @NonNull BiFunction<JavaX, Session, JavaX> f) {
         return find().validate(opName, f);
+      }
+
+      @Override
+      public @NonNull Final verify(
+          @NonNull String opName, @NonNull BiFunction<JavaX, Session, String> f) {
+        return find().verify(opName, f);
       }
 
       @Override
@@ -487,8 +494,21 @@ public interface CheckBuilder {
      * @param name the name of the validation, in case of a failure
      * @param f the custom validation function, must throw to trigger a failure
      * @return a new Final
+     * @deprecated use {@link #verify(String, BiFunction)} instead
      */
+    @Deprecated
     @NonNull Final validate(@NonNull String name, @NonNull BiFunction<X, Session, X> f);
+
+    /**
+     * Provide a custom validation strategy
+     *
+     * @param name the name of the validation, in case of a failure
+     * @param f the custom validation function, takes the extracted value (null if nothing was
+     *     extracted) and the Session, and returns an error message to trigger a failure, or null on
+     *     success
+     * @return a new Final
+     */
+    @NonNull Final verify(@NonNull String name, @NonNull BiFunction<X, Session, String> f);
 
     /**
      * Validate the extracted value is equal to an expected value
@@ -850,6 +870,7 @@ public interface CheckBuilder {
       }
 
       @Override
+      @Deprecated
       public @NonNull Final validate(@NonNull String opName, @NonNull BiFunction<X, Session, X> f) {
         return makeFinal(
             wrapped.validate(
@@ -857,6 +878,18 @@ public interface CheckBuilder {
                 (optX, session) -> {
                   X x = optX.isDefined() ? optX.get() : null;
                   return validation(() -> scala.Option.apply(f.apply(x, new Session(session))));
+                }));
+      }
+
+      @Override
+      public @NonNull Final verify(
+          @NonNull String opName, @NonNull BiFunction<X, Session, String> f) {
+        return makeFinal(
+            wrapped.verify(
+                opName,
+                (optX, session) -> {
+                  X x = optX.isDefined() ? optX.get() : null;
+                  return scala.Option.apply(f.apply(x, new Session(session)));
                 }));
       }
 
