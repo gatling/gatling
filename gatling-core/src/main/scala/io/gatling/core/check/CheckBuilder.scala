@@ -127,7 +127,7 @@ object CheckBuilder {
     def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): Validate[T, P, X2]
     def withDefault(defaultValue: Expression[X]): Validate[T, P, X]
     def validate(validator: Expression[Validator[X]]): Final[T, P]
-    @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.0")
+    @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.1")
     def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P]
     def verify(opName: String, f: (Option[X], Session) => Option[String]): Final[T, P]
     def is(expected: Expression[X])(implicit equality: Equality[X]): Final[T, P]
@@ -229,7 +229,7 @@ object CheckBuilder {
       override def validate(validator: Expression[Validator[X]]): Final[T, P] =
         new Final.Default[T, P, X](this.extractor, validator, logActualValueInError, None, None)
 
-      @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.0")
+      @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.1")
       override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P] =
         validate(session =>
           new Validator[X] {
