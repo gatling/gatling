@@ -24,6 +24,7 @@ import io.gatling.javaapi.core.Simulation;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.TextMessage;
+import java.time.Duration;
 import java.util.Map;
 import org.jspecify.annotations.NonNull;
 
@@ -144,7 +145,14 @@ public class JmsJavaCompileTest extends Simulation {
                   .property("header", "value")
                   .property("header", "#{value}")
                   .property("header", session -> "value")
-                  .jmsType("foo"))
+                  .jmsType("foo")
+                  .priority(9)
+                  .priority("#{priority}")
+                  .priority(session -> 9)
+                  .timeToLive(10)
+                  .timeToLive(Duration.ofSeconds(10))
+                  .timeToLive("#{ttl}")
+                  .timeToLive(session -> Duration.ofSeconds(10)))
 
           // send
           // textMessage
@@ -168,7 +176,14 @@ public class JmsJavaCompileTest extends Simulation {
                   .property("header", "value")
                   .property("header", "#{value}")
                   .property("header", session -> "value")
-                  .jmsType("foo"));
+                  .jmsType("foo")
+                  .priority(9)
+                  .priority("#{priority}")
+                  .priority(session -> 9)
+                  .timeToLive(10)
+                  .timeToLive(Duration.ofSeconds(10))
+                  .timeToLive("#{ttl}")
+                  .timeToLive(session -> Duration.ofSeconds(10)));
 
   {
     setUp(scn.injectOpen(atOnceUsers(1))).protocols(jmsProtocol);

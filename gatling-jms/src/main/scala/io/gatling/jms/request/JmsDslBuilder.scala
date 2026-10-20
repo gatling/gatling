@@ -18,6 +18,8 @@ package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper, Session }
@@ -57,6 +59,16 @@ final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttribute
   def property(key: Expression[String], value: Expression[Any]): SendDslBuilder = this.modify(_.attributes.messageProperties)(_ + (key -> value))
 
   def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+
+  /**
+   * Set the JMS priority of the outbound message, from 0 (lowest) to 9 (highest)
+   */
+  def priority(priority: Expression[Int]): SendDslBuilder = this.modify(_.attributes.priority).setTo(Some(priority))
+
+  /**
+   * Set the time to live of the outbound message, after which the JMS provider will expire it
+   */
+  def timeToLive(timeToLive: Expression[FiniteDuration]): SendDslBuilder = this.modify(_.attributes.timeToLive).setTo(Some(timeToLive))
 
   def build: ActionBuilder = factory(attributes)
 }
@@ -113,6 +125,16 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   def property(key: Expression[String], value: Expression[Any]): RequestReplyDslBuilder = this.modify(_.attributes.messageProperties)(_ + (key -> value))
 
   def jmsType(jmsType: Expression[String]): RequestReplyDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+
+  /**
+   * Set the JMS priority of the outbound message, from 0 (lowest) to 9 (highest)
+   */
+  def priority(priority: Expression[Int]): RequestReplyDslBuilder = this.modify(_.attributes.priority).setTo(Some(priority))
+
+  /**
+   * Set the time to live of the outbound message, after which the JMS provider will expire it
+   */
+  def timeToLive(timeToLive: Expression[FiniteDuration]): RequestReplyDslBuilder = this.modify(_.attributes.timeToLive).setTo(Some(timeToLive))
 
   /**
    * Add a check that will be performed on each received JMS response message before giving Gatling on OK/KO response

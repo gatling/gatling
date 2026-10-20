@@ -16,6 +16,8 @@
 
 package io.gatling.jms.request
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.jms.JmsCheck
 
@@ -33,6 +35,8 @@ object JmsAttributes {
       message,
       messageProperties = Map.empty,
       jmsType = None,
+      priority = None,
+      timeToLive = None,
       checks = Nil,
       postChecks = Nil
     )
@@ -52,6 +56,8 @@ final case class JmsAttributes(
     message: JmsMessage,
     messageProperties: Map[Expression[String], Expression[Any]],
     jmsType: Option[Expression[String]],
+    priority: Option[Expression[Int]],
+    timeToLive: Option[Expression[FiniteDuration]],
     checks: List[JmsCheck],
     postChecks: List[Expression[Session]]
 )

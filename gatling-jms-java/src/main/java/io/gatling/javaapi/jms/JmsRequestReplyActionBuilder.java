@@ -28,6 +28,7 @@ import io.gatling.javaapi.jms.internal.ScalaJmsRequestReplyActionBuilderConditio
 import io.gatling.jms.request.RequestReplyDslBuilder;
 import jakarta.jms.Destination;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,82 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
    */
   public @NonNull JmsRequestReplyActionBuilder jmsType(@NonNull Function<Session, String> jmsType) {
     return new JmsRequestReplyActionBuilder(wrapped.jmsType(javaFunctionToExpression(jmsType)));
+  }
+
+  /**
+   * Set the JMS priority
+   *
+   * @param priority the static JMS priority, from 0 (lowest) to 9 (highest)
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder priority(int priority) {
+    return new JmsRequestReplyActionBuilder(wrapped.priority(toStaticValueExpression(priority)));
+  }
+
+  /**
+   * Set the JMS priority
+   *
+   * @param priority the JMS priority, from 0 (lowest) to 9 (highest), expressed as a Gatling
+   *     Expression Language String
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder priority(@NonNull String priority) {
+    return new JmsRequestReplyActionBuilder(wrapped.priority(toIntExpression(priority)));
+  }
+
+  /**
+   * Set the JMS priority
+   *
+   * @param priority the JMS priority, from 0 (lowest) to 9 (highest), expressed as a function
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder priority(
+      @NonNull Function<Session, Integer> priority) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.priority(javaIntegerFunctionToExpression(priority)));
+  }
+
+  /**
+   * Set the time to live of the message, after which the JMS provider will expire it
+   *
+   * @param timeToLive the static time to live in seconds
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder timeToLive(long timeToLive) {
+    return timeToLive(Duration.ofSeconds(timeToLive));
+  }
+
+  /**
+   * Set the time to live of the message, after which the JMS provider will expire it
+   *
+   * @param timeToLive the static time to live
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder timeToLive(@NonNull Duration timeToLive) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.timeToLive(toStaticValueExpression(toScalaDuration(timeToLive))));
+  }
+
+  /**
+   * Set the time to live of the message, after which the JMS provider will expire it
+   *
+   * @param timeToLive the time to live, expressed as a Gatling Expression Language String
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder timeToLive(@NonNull String timeToLive) {
+    return new JmsRequestReplyActionBuilder(wrapped.timeToLive(toDurationExpression(timeToLive)));
+  }
+
+  /**
+   * Set the time to live of the message, after which the JMS provider will expire it
+   *
+   * @param timeToLive the time to live, expressed as a function
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder timeToLive(
+      @NonNull Function<Session, Duration> timeToLive) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.timeToLive(javaDurationFunctionToExpression(timeToLive)));
   }
 
   /**

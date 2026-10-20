@@ -143,6 +143,12 @@ class JmsCompileTest extends Simulation {
         .property("header", "#{value}")
         .property("header", _ => "value")
         .jmsType("foo")
+        .priority(9)
+        .priority("#{priority}")
+        .priority(_ => 9)
+        .timeToLive(10.seconds)
+        .timeToLive("#{ttl}")
+        .timeToLive(_ => 10.seconds)
     )
 
     // send
@@ -191,6 +197,12 @@ class JmsCompileTest extends Simulation {
         .property("header", "#{value}")
         .property("header", _ => "value")
         .jmsType("foo")
+        .priority(9)
+        .priority("#{priority}")
+        .priority(_ => 9)
+        .timeToLive(10.seconds)
+        .timeToLive("#{ttl}")
+        .timeToLive(_ => 10.seconds)
     )
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2.minutes)))

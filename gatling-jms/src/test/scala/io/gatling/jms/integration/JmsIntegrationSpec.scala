@@ -18,6 +18,8 @@ package io.gatling.jms.integration
 
 import java.util.Locale
 
+import scala.concurrent.duration._
+
 import io.gatling.core.CoreDsl
 import io.gatling.jms.request.JmsDestination
 
@@ -34,6 +36,8 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl {
                                      |<hello>${tm.getText.toUpperCase(Locale.ROOT)}</hello>
                                      |<property><key>${tm.getStringProperty("key")}</key></property>
                                      |<jmsType>${tm.getJMSType}</jmsType>
+                                     |<priority>${tm.getJMSPriority}</priority>
+                                     |<expiration>${tm.getJMSExpiration}</expiration>
                                      |</response>""".stripMargin)
       }
     )
@@ -47,9 +51,13 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl {
             .textMessage("hi #{sessionMarker}")
             .property("key", "#{sessionMarker} value")
             .jmsType("#{sessionMarker} jmsType")
+            .priority(7)
+            .timeToLive(1.minute)
             .check(xpath("/response/hello").find.saveAs("content"))
             .check(xpath("/response/property/key").find.saveAs("propertyValue"))
             .check(xpath("/response/jmsType").find.saveAs("jmsType"))
+            .check(xpath("/response/priority").find.saveAs("priority"))
+            .check(xpath("/response/expiration").find.saveAs("expiration"))
         )
     )
 
@@ -57,5 +65,7 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl {
     session("content").as[String] shouldBe "HI TEST"
     session("propertyValue").as[String] shouldBe "test value"
     session("jmsType").as[String] shouldBe "test jmsType"
+    session("priority").as[String] shouldBe "7"
+    session("expiration").as[String].toLong should be > 0L
   }
 }

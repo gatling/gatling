@@ -16,6 +16,8 @@
 
 package io.gatling.jms.action
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
 import io.gatling.core.actor.ActorRef
@@ -26,7 +28,7 @@ import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool, JmsProducer }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-import jakarta.jms.Message
+import jakarta.jms.{ Message, MessageProducer }
 
 final class Around(before: () => Unit, after: () => Unit) {
   def apply(f: => Any): Unit = {
@@ -34,6 +36,11 @@ final class Around(before: () => Unit, after: () => Unit) {
     f
     after()
   }
+}
+
+object JmsAction {
+  private val MinPriority = 0
+  private val MaxPriority = 9
 }
 
 abstract class JmsAction(
@@ -53,6 +60,8 @@ abstract class JmsAction(
     for {
       reqName <- requestName(session)
       jmsType <- resolveOptionalExpression(attributes.jmsType, session)
+      priority <- resolvePriority(session)
+      timeToLive <- resolveOptionalExpression(attributes.timeToLive, session)
       props <- resolveProperties(attributes.messageProperties, session)
       resolvedJmsDestination <- jmsDestination(session)
       JmsProducer(jmsSession, producer) = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
@@ -63,9 +72,24 @@ abstract class JmsAction(
       }
       around <- aroundSend(reqName, session, message)
     } yield throttler match {
-      case Some(th) => th ! Throttler.Command.ThrottledRequest(session.scenario, () => around(producer.send(message)))
-      case _        => around(producer.send(message))
+      case Some(th) => th ! Throttler.Command.ThrottledRequest(session.scenario, () => around(send(producer, message, priority, timeToLive)))
+      case _        => around(send(producer, message, priority, timeToLive))
     }
+
+  private def resolvePriority(session: Session): Validation[Option[Int]] =
+    resolveOptionalExpression(attributes.priority, session).flatMap {
+      case Some(priority) if priority < JmsAction.MinPriority || priority > JmsAction.MaxPriority =>
+        s"JMS priority must be between ${JmsAction.MinPriority} and ${JmsAction.MaxPriority}, got $priority".failure
+      case other => other.success
+    }
+
+  private def send(producer: MessageProducer, message: Message, priority: Option[Int], timeToLive: Option[FiniteDuration]): Unit =
+    producer.send(
+      message,
+      protocol.deliveryMode,
+      priority.getOrElse(Message.DEFAULT_PRIORITY),
+      timeToLive.fold(Message.DEFAULT_TIME_TO_LIVE)(_.toMillis)
+    )
 
   private def resolveProperties(
       properties: Map[Expression[String], Expression[Any]],
