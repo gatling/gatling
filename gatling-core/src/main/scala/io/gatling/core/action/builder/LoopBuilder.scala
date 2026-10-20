@@ -76,6 +76,17 @@ private[core] final class SimpleBooleanConditionLoopBuilder(
   override def entry: LoopEntry = LoopEntry.Simple
 }
 
+private[core] final class RepeatLoopBuilder(
+    condition: Expression[Boolean],
+    times: Expression[Int],
+    loopNext: ChainBuilder,
+    counterName: String
+) extends LoopBuilder(loopNext, counterName, exitASAP = false, RepeatLoopType) {
+  override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = condition
+
+  override def entry: LoopEntry = LoopEntry.Repeat(times)
+}
+
 private[core] final class ForeachLoopBuilder(
     condition: Expression[Boolean],
     sequence: Expression[Seq[Any]],

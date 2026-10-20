@@ -78,6 +78,17 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     session.attributes.get("bar") shouldBe None
   }
 
+  it should "preserve repeat loop times" in {
+    val session = emptySession
+      .set("bar", 5)
+      .enterRepeatLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, times = 3)
+      .reset
+
+    session.attributes.get("foo") shouldBe Some(0)
+    session.attributes.get(Session.timesName("foo")) shouldBe Some(3)
+    session.attributes.get("bar") shouldBe None
+  }
+
   "remove" should "remove an attribute from the session if present" in {
     val session = emptySession.set("key", "value").remove("key")
     session.attributes.contains("key") shouldBe false
@@ -346,6 +357,13 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     session.loopSequenceValue("counter") shouldBe Vector(1, 2)
   }
 
+  "enterRepeatLoop" should "add a counter, initialized to 0, and the number of times in the session" in {
+    val session = emptySession.enterRepeatLoop("counter", _ => Success(true), null, 3)
+
+    session.attributes("counter") shouldBe 0
+    session.loopTimesValue("counter") shouldBe 3
+  }
+
   "incrementCounter" should "increment a counter in session" in {
     val session = emptySession.enterLoop("counter", _ => Success(true), null, exitASAP = false)
     val sessionWithUpdatedCounter = session.incrementCounter("counter")
@@ -374,6 +392,14 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
 
     sessionWithRemovedCounter.contains("counter") shouldBe false
     sessionWithRemovedCounter.contains("sequence.counter") shouldBe false
+  }
+
+  it should "remove a repeat loop times from the session" in {
+    val session = emptySession.enterRepeatLoop("counter", _ => Success(true), null, 3)
+    val sessionWithRemovedCounter = session.removeCounter("counter")
+
+    sessionWithRemovedCounter.contains("counter") shouldBe false
+    sessionWithRemovedCounter.contains("times.counter") shouldBe false
   }
 
   it should "should leave the session unmodified if there was no counter created with the specified name" in {

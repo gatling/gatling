@@ -29,6 +29,7 @@ private[core] object LoopEntry {
   case object Simple extends LoopEntry
   final case class TimeBased(duration: Expression[FiniteDuration]) extends LoopEntry
   final case class Foreach(sequence: Expression[Seq[Any]]) extends LoopEntry
+  final case class Repeat(times: Expression[Int]) extends LoopEntry
 }
 
 private final class Loop(
@@ -64,6 +65,16 @@ private final class Loop(
         IndexedSeq.empty
     }
 
+  // times is only evaluated once, when entering the loop
+  private def resolveTimes(times: Expression[Int], session: Session): Int =
+    safely()(times(session)) match {
+      case Success(t)       => t
+      case Failure(message) =>
+        logger.error(s"Times evaluation crashed with message '$message', exiting loop")
+        // 0 so the repeat condition is always false
+        0
+    }
+
   private[core] def initialize(loopNext: Action): Unit = {
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName)) {
@@ -74,6 +85,7 @@ private final class Loop(
           case LoopEntry.TimeBased(d) =>
             session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis, resolveDurationMillis(d, session))
           case LoopEntry.Foreach(s) => session.enterForeachLoop(counterName, continueCondition, next, resolveSequence(s, session))
+          case LoopEntry.Repeat(t)  => session.enterRepeatLoop(counterName, continueCondition, next, resolveTimes(t, session))
         }
       }
 

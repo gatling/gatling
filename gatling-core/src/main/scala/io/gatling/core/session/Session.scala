@@ -60,6 +60,7 @@ object Session {
   private[session] def timestampName(counterName: String) = "timestamp." + counterName
   private[session] def durationName(counterName: String) = "duration." + counterName
   private[session] def sequenceName(counterName: String) = "sequence." + counterName
+  private[session] def timesName(counterName: String) = "times." + counterName
 
   def apply(
       scenario: String,
@@ -138,11 +139,13 @@ final case class Session(
           val timestampNames: Set[String] = counterNames.map(timestampName)
           val durationNames: Set[String] = counterNames.map(durationName)
           val sequenceNames: Set[String] = counterNames.map(sequenceName)
+          val timesNames: Set[String] = counterNames.map(timesName)
           attributes.view.filterKeys(key =>
             counterNames.contains(key) ||
               timestampNames.contains(key) ||
               durationNames.contains(key) ||
               sequenceNames.contains(key) ||
+              timesNames.contains(key) ||
               SessionPrivateAttributes.isAttributePrivate(key)
           )
         }
@@ -161,6 +164,9 @@ final case class Session(
 
   @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   private[core] def loopSequenceValue(counterName: String): IndexedSeq[Any] = attributes(sequenceName(counterName)).asInstanceOf[IndexedSeq[Any]]
+
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
+  private[core] def loopTimesValue(counterName: String): Int = attributes(timesName(counterName)).asInstanceOf[Int]
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
@@ -296,6 +302,19 @@ final case class Session(
         .updated(sequenceName(counterName), sequence)
     )
 
+  private[core] def enterRepeatLoop(
+      counterName: String,
+      condition: Expression[Boolean],
+      exitAction: Action,
+      times: Int
+  ): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP = false),
+      attributes = attributes
+        .updated(counterName, 0)
+        .updated(timesName(counterName), times)
+    )
+
   private[core] def exitLoop(counterName: String, tail: List[Block]): Session =
     copy(blockStack = tail).removeCounter(counterName)
 
@@ -313,7 +332,9 @@ final case class Session(
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
       case _ =>
-        copy(attributes = attributes - counterName - timestampName(counterName) - durationName(counterName) - sequenceName(counterName))
+        copy(attributes =
+          attributes - counterName - timestampName(counterName) - durationName(counterName) - sequenceName(counterName) - timesName(counterName)
+        )
     }
 
   private[core] def exit(): Unit = onExit(this)

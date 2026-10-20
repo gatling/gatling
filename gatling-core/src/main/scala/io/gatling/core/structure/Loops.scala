@@ -29,12 +29,14 @@ private[structure] trait Loops[B] extends Execs[B] {
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def repeat(times: Expression[Int], counterName: String = generateUniquePrivateAttribute("repeat"))(chain: Executable, chains: Executable*): B =
-    simpleLoop(
-      session => times(session).map(session.loopCounterValue(counterName) < _),
-      Executable.toChainBuilder(chain, chains),
-      counterName,
-      exitASAP = false,
-      RepeatLoopType
+    // times is resolved once when entering the loop and stored in the Session
+    exec(
+      new RepeatLoopBuilder(
+        session => (session.loopCounterValue(counterName) < session.loopTimesValue(counterName)).success,
+        times,
+        Executable.toChainBuilder(chain, chains),
+        counterName
+      )
     )
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments", "org.wartremover.warts.SeqApply"))
