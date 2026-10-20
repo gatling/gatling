@@ -16,9 +16,11 @@
 
 package io.gatling.core.action
 
+import scala.concurrent.duration.FiniteDuration
 import scala.runtime.LongRef
 
 import io.gatling.commons.util.Clock
+import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -26,7 +28,7 @@ private final class Loop(
     continueCondition: Expression[Boolean],
     counterName: String,
     exitASAP: Boolean,
-    timeBased: Boolean,
+    duration: Option[Expression[FiniteDuration]],
     statsEngine: StatsEngine,
     clock: Clock,
     override val name: String,
@@ -34,14 +36,25 @@ private final class Loop(
 ) extends Action {
   private[this] var innerLoop: Action = _
 
+  // duration is only evaluated once, when entering the loop
+  private def resolveDurationMillis(duration: Expression[FiniteDuration], session: Session): Long =
+    safely()(duration(session)) match {
+      case Success(d)       => d.toMillis
+      case Failure(message) =>
+        logger.error(s"Duration evaluation crashed with message '$message', exiting loop")
+        // negative so the elapsed time is always greater and the time-based condition is always false
+        -1L
+    }
+
   private[core] def initialize(loopNext: Action): Unit = {
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName)) {
         session.incrementCounter(counterName)
-      } else if (timeBased) {
-        session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis)
       } else {
-        session.enterLoop(counterName, continueCondition, next, exitASAP)
+        duration match {
+          case Some(d) => session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis, resolveDurationMillis(d, session))
+          case _       => session.enterLoop(counterName, continueCondition, next, exitASAP)
+        }
       }
 
     innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", statsEngine, next)

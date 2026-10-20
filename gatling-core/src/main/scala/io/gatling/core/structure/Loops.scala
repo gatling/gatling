@@ -71,7 +71,8 @@ private[structure] trait Loops[B] extends Execs[B] {
       chains: Executable*
   ): B =
     clockBasedLoop(
-      clock => session => duration(session).map(d => clock.nowMillis - session.loopTimestampValue(counterName) <= d.toMillis),
+      clock => session => isWithinDuration(clock, session, counterName).success,
+      duration,
       Executable.toChainBuilder(chain, chains),
       counterName,
       exitASAP,
@@ -94,17 +95,12 @@ private[structure] trait Loops[B] extends Execs[B] {
   def doWhile(condition: Expression[Boolean], counterName: String = generateUniquePrivateAttribute("doWhile"))(chain: Executable, chains: Executable*): B =
     simpleLoop(condition, Executable.toChainBuilder(chain, chains), counterName, exitASAP = false, DoWhileType)
 
-  private def continueCondition(
-      condition: Expression[Boolean],
-      duration: Expression[FiniteDuration],
-      counterName: String
-  ): Clock => Session => Validation[Boolean] =
-    clock =>
-      session =>
-        for {
-          durationValue <- duration(session)
-          conditionValue <- condition(session)
-        } yield conditionValue && clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis
+  // duration is resolved once when entering the loop and stored in the Session
+  private def isWithinDuration(clock: Clock, session: Session, counterName: String): Boolean =
+    clock.nowMillis - session.loopTimestampValue(counterName) <= session.loopDurationValue(counterName)
+
+  private def continueCondition(condition: Expression[Boolean], counterName: String): Clock => Expression[Boolean] =
+    clock => session => condition(session).map(_ && isWithinDuration(clock, session, counterName))
 
   // we need all those overloads because of Scala bug with implicit conversions inference
   def asLongAsDuring(condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
@@ -147,7 +143,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       chain: Executable,
       chains: Executable*
   ): B =
-    clockBasedLoop(continueCondition(condition, duration, counterName), Executable.toChainBuilder(chain, chains), counterName, exitASAP, AsLongAsDuringLoopType)
+    clockBasedLoop(continueCondition(condition, counterName), duration, Executable.toChainBuilder(chain, chains), counterName, exitASAP, AsLongAsDuringLoopType)
 
   def doWhileDuring(condition: String, duration: Int)(chain: Executable, chains: Executable*): B =
     doWhileDuring(condition, duration, generateUniquePrivateAttribute("doWhileDuring"))(Executable.toChainBuilder(chain, chains))
@@ -189,7 +185,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       chain: Executable,
       chains: Executable*
   ): B =
-    clockBasedLoop(continueCondition(condition, duration, counterName), Executable.toChainBuilder(chain, chains), counterName, exitASAP, DoWhileDuringType)
+    clockBasedLoop(continueCondition(condition, counterName), duration, Executable.toChainBuilder(chain, chains), counterName, exitASAP, DoWhileDuringType)
 
   private def simpleLoop(
       condition: Expression[Boolean],
@@ -202,10 +198,11 @@ private[structure] trait Loops[B] extends Execs[B] {
 
   private def clockBasedLoop(
       condition: Clock => Expression[Boolean],
+      duration: Expression[FiniteDuration],
       chain: ChainBuilder,
       counterName: String,
       exitASAP: Boolean,
       loopType: LoopType
   ): B =
-    exec(new ClockBasedConditionLoopBuilder(condition, chain, counterName, exitASAP, loopType))
+    exec(new ClockBasedConditionLoopBuilder(condition, duration, chain, counterName, exitASAP, loopType))
 }

@@ -58,6 +58,7 @@ object Session {
   val NothingOnExit: Session => Unit = _ => ()
 
   private[session] def timestampName(counterName: String) = "timestamp." + counterName
+  private[session] def durationName(counterName: String) = "duration." + counterName
 
   def apply(
       scenario: String,
@@ -134,7 +135,10 @@ final case class Session(
           attributes.view.filterKeys(SessionPrivateAttributes.isAttributePrivate)
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.view.filterKeys(key => counterNames.contains(key) || timestampNames.contains(key) || SessionPrivateAttributes.isAttributePrivate(key))
+          val durationNames: Set[String] = counterNames.map(durationName)
+          attributes.view.filterKeys(key =>
+            counterNames.contains(key) || timestampNames.contains(key) || durationNames.contains(key) || SessionPrivateAttributes.isAttributePrivate(key)
+          )
         }
       }
     copy(attributes = newAttributes.to(Map))
@@ -145,6 +149,9 @@ final case class Session(
 
   @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
+
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
+  private[core] def loopDurationValue(counterName: String): Long = attributes(durationName(counterName)).asInstanceOf[Long]
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
@@ -174,7 +181,7 @@ final case class Session(
   private[core] def enterTryMax(counterName: String, loopAction: Action) =
     copy(
       blockStack = TryMaxBlock(counterName, loopAction, OK) :: blockStack,
-      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+      attributes = attributes.updated(counterName, 0)
     )
 
   private[core] def exitTryMax(counterName: String, status: Status, tail: List[Block]): Session =
@@ -248,7 +255,7 @@ final case class Session(
   private[core] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): Session =
     copy(
       blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
-      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+      attributes = attributes.updated(counterName, 0)
     )
 
   private[core] def enterTimeBasedLoop(
@@ -256,24 +263,19 @@ final case class Session(
       condition: Expression[Boolean],
       exitAction: Action,
       exitASAP: Boolean,
-      nowMillis: Long
+      nowMillis: Long,
+      durationMillis: Long
   ): Session =
     copy(
       blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
-      attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
+      attributes = attributes
+        .updated(counterName, 0)
+        .updated(timestampName(counterName), nowMillis)
+        .updated(durationName(counterName), durationMillis)
     )
 
   private[core] def exitLoop(counterName: String, tail: List[Block]): Session =
     copy(blockStack = tail).removeCounter(counterName)
-
-  private def newAttributesWithCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Map[String, Any] = {
-    val withCounter = attributes.updated(counterName, 0)
-    if (withTimestamp) {
-      withCounter.updated(timestampName(counterName), nowMillis)
-    } else {
-      withCounter
-    }
-  }
 
   private[core] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
@@ -289,7 +291,7 @@ final case class Session(
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
       case _ =>
-        copy(attributes = attributes - counterName - timestampName(counterName))
+        copy(attributes = attributes - counterName - timestampName(counterName) - durationName(counterName))
     }
 
   private[core] def exit(): Unit = onExit(this)

@@ -58,11 +58,12 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   it should "preserve loop timestamp" in {
     val session = emptySession
       .set("bar", 5)
-      .enterTimeBasedLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, nowMillis = 1000)
+      .enterTimeBasedLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, nowMillis = 1000, durationMillis = 2000)
       .reset
 
     session.attributes.get("foo") shouldBe Some(0)
     session.attributes.get(Session.timestampName("foo")) shouldBe Some(1000)
+    session.attributes.get(Session.durationName("foo")) shouldBe Some(2000)
     session.attributes.get("bar") shouldBe None
   }
 
@@ -319,11 +320,12 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   "enterTimeBasedLoop" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
-    val session = emptySession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis())
+    val session = emptySession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis(), 1000)
 
     session.contains("counter") shouldBe true
     session.attributes("counter") shouldBe 0
     session.contains("timestamp.counter") shouldBe true
+    session.loopDurationValue("counter") shouldBe 1000
   }
 
   "incrementCounter" should "increment a counter in session" in {
@@ -340,11 +342,12 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   "removeCounter" should "remove a counter and its associated timestamp from the session" in {
-    val session = emptySession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis())
+    val session = emptySession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis(), 1000)
     val sessionWithRemovedCounter = session.removeCounter("counter")
 
     sessionWithRemovedCounter.contains("counter") shouldBe false
     sessionWithRemovedCounter.contains("timestamp.counter") shouldBe false
+    sessionWithRemovedCounter.contains("duration.counter") shouldBe false
   }
 
   it should "should leave the session unmodified if there was no counter created with the specified name" in {
