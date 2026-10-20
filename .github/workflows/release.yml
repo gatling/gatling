@@ -42,22 +42,16 @@ jobs:
       - name: Prepare environment
         env:
           PRIVATE_REPOSITORY_SBT: ${{ vars.PRIVATE_REPOSITORY_SBT_2 }}
-          SONATYPE_SBT: ${{ secrets.SONATYPE_SBT }}
           SONATYPE_PGP_SECRET: ${{ secrets.SONATYPE_PGP_SECRET }}
         run: |
           mkdir --parents ~/.config/sbt/2 || true
           echo "$PRIVATE_REPOSITORY_SBT" > ~/.config/sbt/2/privateRepository.sbt
-          echo "$SONATYPE_SBT" > ~/.config/sbt/2/sonatype.sbt
           echo -n "$SONATYPE_PGP_SECRET" | base64 --decode | gpg --batch --import
 
       #     - name: Cache
       #       No cache for release! We want clean and full release!
 
       - name: Release
-        id: release
         env:
           PGP_PASSPHRASE: ${{ secrets.SONATYPE_PGP_PASSPHRASE }}
-        run: sbt "release with-defaults"
-
-      - name: Message
-        run: echo "Do NOT forget to release the staging repository on https://oss.sonatype.org/"
+        run: sbt "testFull; gatlingPublish"
