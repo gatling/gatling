@@ -56,4 +56,4 @@ jobs:
             "scalafmtCheckAll;" \
             "javafmtCheckAll;" \
             "scalafixAll --check;" \
-            "test;"
+            "testFull;"
