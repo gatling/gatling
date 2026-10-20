@@ -59,6 +59,7 @@ object Session {
 
   private[session] def timestampName(counterName: String) = "timestamp." + counterName
   private[session] def durationName(counterName: String) = "duration." + counterName
+  private[session] def sequenceName(counterName: String) = "sequence." + counterName
 
   def apply(
       scenario: String,
@@ -136,8 +137,13 @@ final case class Session(
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
           val durationNames: Set[String] = counterNames.map(durationName)
+          val sequenceNames: Set[String] = counterNames.map(sequenceName)
           attributes.view.filterKeys(key =>
-            counterNames.contains(key) || timestampNames.contains(key) || durationNames.contains(key) || SessionPrivateAttributes.isAttributePrivate(key)
+            counterNames.contains(key) ||
+              timestampNames.contains(key) ||
+              durationNames.contains(key) ||
+              sequenceNames.contains(key) ||
+              SessionPrivateAttributes.isAttributePrivate(key)
           )
         }
       }
@@ -152,6 +158,9 @@ final case class Session(
 
   @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
   private[core] def loopDurationValue(counterName: String): Long = attributes(durationName(counterName)).asInstanceOf[Long]
+
+  @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
+  private[core] def loopSequenceValue(counterName: String): IndexedSeq[Any] = attributes(sequenceName(counterName)).asInstanceOf[IndexedSeq[Any]]
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
@@ -274,6 +283,19 @@ final case class Session(
         .updated(durationName(counterName), durationMillis)
     )
 
+  private[core] def enterForeachLoop(
+      counterName: String,
+      condition: Expression[Boolean],
+      exitAction: Action,
+      sequence: IndexedSeq[Any]
+  ): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP = false),
+      attributes = attributes
+        .updated(counterName, 0)
+        .updated(sequenceName(counterName), sequence)
+    )
+
   private[core] def exitLoop(counterName: String, tail: List[Block]): Session =
     copy(blockStack = tail).removeCounter(counterName)
 
@@ -291,7 +313,7 @@ final case class Session(
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
       case _ =>
-        copy(attributes = attributes - counterName - timestampName(counterName) - durationName(counterName))
+        copy(attributes = attributes - counterName - timestampName(counterName) - durationName(counterName) - sequenceName(counterName))
     }
 
   private[core] def exit(): Unit = onExit(this)

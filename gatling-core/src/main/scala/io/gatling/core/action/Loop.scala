@@ -24,11 +24,18 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
+private[core] sealed trait LoopEntry
+private[core] object LoopEntry {
+  case object Simple extends LoopEntry
+  final case class TimeBased(duration: Expression[FiniteDuration]) extends LoopEntry
+  final case class Foreach(sequence: Expression[Seq[Any]]) extends LoopEntry
+}
+
 private final class Loop(
     continueCondition: Expression[Boolean],
     counterName: String,
     exitASAP: Boolean,
-    duration: Option[Expression[FiniteDuration]],
+    entry: LoopEntry,
     statsEngine: StatsEngine,
     clock: Clock,
     override val name: String,
@@ -46,14 +53,27 @@ private final class Loop(
         -1L
     }
 
+  // sequence is only evaluated once, when entering the loop
+  // converted to an IndexedSeq so accessing the current element doesn't depend on its index, eg with a List
+  private def resolveSequence(sequence: Expression[Seq[Any]], session: Session): IndexedSeq[Any] =
+    safely()(sequence(session)) match {
+      case Success(s)       => s.toIndexedSeq
+      case Failure(message) =>
+        logger.error(s"Sequence evaluation crashed with message '$message', exiting loop")
+        // empty so the foreach condition is always false
+        IndexedSeq.empty
+    }
+
   private[core] def initialize(loopNext: Action): Unit = {
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName)) {
         session.incrementCounter(counterName)
       } else {
-        duration match {
-          case Some(d) => session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis, resolveDurationMillis(d, session))
-          case _       => session.enterLoop(counterName, continueCondition, next, exitASAP)
+        entry match {
+          case LoopEntry.Simple       => session.enterLoop(counterName, continueCondition, next, exitASAP)
+          case LoopEntry.TimeBased(d) =>
+            session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis, resolveDurationMillis(d, session))
+          case LoopEntry.Foreach(s) => session.enterForeachLoop(counterName, continueCondition, next, resolveSequence(s, session))
         }
       }
 

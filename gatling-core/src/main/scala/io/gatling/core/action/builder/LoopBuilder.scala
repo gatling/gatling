@@ -20,7 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.{ Action, Loop }
+import io.gatling.core.action.{ Action, Loop, LoopEntry }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
@@ -40,7 +40,7 @@ private[core] sealed abstract class LoopBuilder(loopNext: ChainBuilder, counterN
     with NameGen {
   def continueCondition(ctx: ScenarioContext): Expression[Boolean]
 
-  def duration: Option[Expression[FiniteDuration]]
+  def entry: LoopEntry
 
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
@@ -57,7 +57,7 @@ private[core] sealed abstract class LoopBuilder(loopNext: ChainBuilder, counterN
       }
 
     val loopAction =
-      new Loop(actualCondition, counterName, exitASAP, duration, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
+      new Loop(actualCondition, counterName, exitASAP, entry, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
     loopAction.initialize(loopNextAction)
     loopAction
@@ -73,7 +73,18 @@ private[core] final class SimpleBooleanConditionLoopBuilder(
 ) extends LoopBuilder(loopNext, counterName, exitASAP, loopType) {
   override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = condition
 
-  override def duration: Option[Expression[FiniteDuration]] = None
+  override def entry: LoopEntry = LoopEntry.Simple
+}
+
+private[core] final class ForeachLoopBuilder(
+    condition: Expression[Boolean],
+    sequence: Expression[Seq[Any]],
+    loopNext: ChainBuilder,
+    counterName: String
+) extends LoopBuilder(loopNext, counterName, exitASAP = false, ForeachLoopType) {
+  override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = condition
+
+  override def entry: LoopEntry = LoopEntry.Foreach(sequence)
 }
 
 private[core] final class ClockBasedConditionLoopBuilder(
@@ -89,5 +100,5 @@ private[core] final class ClockBasedConditionLoopBuilder(
     clockBasedCondition(clock)
   }
 
-  override def duration: Option[Expression[FiniteDuration]] = Some(durationExpression)
+  override def entry: LoopEntry = LoopEntry.TimeBased(durationExpression)
 }

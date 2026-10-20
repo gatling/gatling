@@ -42,15 +42,20 @@ private[structure] trait Loops[B] extends Execs[B] {
       chain: Executable,
       chains: Executable*
   ): B = {
+    // seq is resolved once when entering the loop and stored in the Session
     val exposeCurrentValue =
-      new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)
+      new SessionHookBuilder(
+        session => session.set(attributeName, session.loopSequenceValue(counterName)(session.loopCounterValue(counterName))).success,
+        exitable = false
+      )
 
-    simpleLoop(
-      session => seq(session).map(_.sizeIs > session.loopCounterValue(counterName)),
-      new ChainBuilder(List(exposeCurrentValue)).exec(Executable.toChainBuilder(chain, chains)),
-      counterName,
-      exitASAP = false,
-      ForeachLoopType
+    exec(
+      new ForeachLoopBuilder(
+        session => (session.loopSequenceValue(counterName).sizeIs > session.loopCounterValue(counterName)).success,
+        seq,
+        new ChainBuilder(List(exposeCurrentValue)).exec(Executable.toChainBuilder(chain, chains)),
+        counterName
+      )
     )
   }
 

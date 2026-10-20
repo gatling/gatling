@@ -67,6 +67,17 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     session.attributes.get("bar") shouldBe None
   }
 
+  it should "preserve foreach loop sequence" in {
+    val session = emptySession
+      .set("bar", 5)
+      .enterForeachLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, sequence = Vector(1, 2))
+      .reset
+
+    session.attributes.get("foo") shouldBe Some(0)
+    session.attributes.get(Session.sequenceName("foo")) shouldBe Some(Vector(1, 2))
+    session.attributes.get("bar") shouldBe None
+  }
+
   "remove" should "remove an attribute from the session if present" in {
     val session = emptySession.set("key", "value").remove("key")
     session.attributes.contains("key") shouldBe false
@@ -328,6 +339,13 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     session.loopDurationValue("counter") shouldBe 1000
   }
 
+  "enterForeachLoop" should "add a counter, initialized to 0, and the sequence in the session" in {
+    val session = emptySession.enterForeachLoop("counter", _ => Success(true), null, Vector(1, 2))
+
+    session.attributes("counter") shouldBe 0
+    session.loopSequenceValue("counter") shouldBe Vector(1, 2)
+  }
+
   "incrementCounter" should "increment a counter in session" in {
     val session = emptySession.enterLoop("counter", _ => Success(true), null, exitASAP = false)
     val sessionWithUpdatedCounter = session.incrementCounter("counter")
@@ -348,6 +366,14 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     sessionWithRemovedCounter.contains("counter") shouldBe false
     sessionWithRemovedCounter.contains("timestamp.counter") shouldBe false
     sessionWithRemovedCounter.contains("duration.counter") shouldBe false
+  }
+
+  it should "remove a foreach loop sequence from the session" in {
+    val session = emptySession.enterForeachLoop("counter", _ => Success(true), null, Vector(1, 2))
+    val sessionWithRemovedCounter = session.removeCounter("counter")
+
+    sessionWithRemovedCounter.contains("counter") shouldBe false
+    sessionWithRemovedCounter.contains("sequence.counter") shouldBe false
   }
 
   it should "should leave the session unmodified if there was no counter created with the specified name" in {
