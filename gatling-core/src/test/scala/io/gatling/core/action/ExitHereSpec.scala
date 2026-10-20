@@ -49,7 +49,7 @@ class ExitHereSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with 
     val clock = mock[Clock]
     val exitHereIfFailed = new ExitHere(ExitHereBuilder.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
-    val sessionWithTryMax = emptySession.enterTryMax("loop", next).markAsFailed
+    val sessionWithTryMax = emptySession.enterTryMax("loop", next, 1).markAsFailed
 
     exitHereIfFailed ! sessionWithTryMax
 

@@ -193,10 +193,12 @@ final case class Session(
   def groups: List[String] =
     blockStack.collectFirst { case g: GroupBlock => g.groups }.getOrElse(Nil)
 
-  private[core] def enterTryMax(counterName: String, loopAction: Action) =
+  private[core] def enterTryMax(counterName: String, loopAction: Action, times: Int) =
     copy(
       blockStack = TryMaxBlock(counterName, loopAction, OK) :: blockStack,
-      attributes = attributes.updated(counterName, 0)
+      attributes = attributes
+        .updated(counterName, 0)
+        .updated(timesName(counterName), times)
     )
 
   private[core] def exitTryMax(counterName: String, status: Status, tail: List[Block]): Session =

@@ -158,7 +158,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val session = emptySession
       .enterGroup("root group", System.currentTimeMillis())
       .enterGroup("child group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction)
+      .enterTryMax("tryMax", nextAction, 1)
     val sessionWithGroupStatsUpdated = session.logGroupRequestTimings(1, 6)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
@@ -185,24 +185,26 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   "enterTryMax" should "add a TryMaxBlock on top of the stack and init a counter" in {
-    val session = emptySession.enterTryMax("tryMax", nextAction)
+    val session = emptySession.enterTryMax("tryMax", nextAction, 3)
 
     session.blockStack.head shouldBe a[TryMaxBlock]
     session.contains("tryMax") shouldBe true
+    session.loopTimesValue("tryMax") shouldBe 3
   }
 
   "exitTryMax" should "simply exit the closest TryMaxBlock and remove its associated counter if it has not failed" in {
-    val enterSession = emptySession.enterTryMax("tryMax", nextAction)
+    val enterSession = emptySession.enterTryMax("tryMax", nextAction, 1)
     val exitSession = enterSession.exitTryMax("tryMax", OK, enterSession.blockStack.tail)
 
     exitSession.blockStack shouldBe empty
     exitSession.contains("tryMax") shouldBe false
+    exitSession.contains("times.tryMax") shouldBe false
   }
 
   it should "simply exit the TryMaxBlock and remove its associated counter if it has failed but with no other TryMaxBlock in the stack" in {
     val enterSession = emptySession
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction)
+      .enterTryMax("tryMax", nextAction, 1)
       .markAsFailed
     val exitSession = enterSession.exitTryMax("tryMax", OK, enterSession.blockStack.tail)
 
@@ -212,9 +214,9 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
 
   it should "exit the TryMaxBlock, remove its associated counter and set the closest TryMaxBlock in the stack's status to KO if it has failed" in {
     val enterSession = emptySession
-      .enterTryMax("tryMax1", nextAction)
+      .enterTryMax("tryMax1", nextAction, 1)
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax2", nextAction)
+      .enterTryMax("tryMax2", nextAction, 1)
       .markAsFailed
     val exitSession = enterSession.exitTryMax("tryMax2", KO, enterSession.blockStack.tail)
 
@@ -226,7 +228,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
 
   it should "propagate the failure to the baseStatus" in {
     val enterSession = emptySession
-      .enterTryMax("tryMax", nextAction)
+      .enterTryMax("tryMax", nextAction, 1)
       .markAsFailed
     val exitSession = enterSession.exitTryMax("tryMax", KO, enterSession.blockStack.tail)
 
@@ -282,7 +284,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val session = emptySession
       .copy(baseStatus = KO)
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction)
+      .enterTryMax("tryMax", nextAction, 1)
     val failedSession = session.markAsSucceeded
 
     failedSession.baseStatus shouldBe KO
@@ -307,7 +309,7 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   it should "set the TryMaxBlock's status to KO if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
     val session = emptySession
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction)
+      .enterTryMax("tryMax", nextAction, 1)
     val failedSession = session.markAsFailed
 
     failedSession.baseStatus shouldBe OK

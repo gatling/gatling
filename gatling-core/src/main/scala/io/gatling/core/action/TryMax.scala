@@ -68,19 +68,18 @@ class InnerTryMax(
     case _                           => false
   }
 
-  private def maxNotReached(session: Session): Boolean = {
-    val validationResult = for {
-      counter <- session(counterName).validate[Int]
-      max <- times(session)
-    } yield counter < max
-
-    validationResult match {
-      case Success(maxNotReached) => maxNotReached
-      case Failure(message)       =>
-        logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
-        false
+  // times is only evaluated once, when entering the tryMax block
+  private def resolveTimes(session: Session): Int =
+    safely()(times(session)) match {
+      case Success(t)       => t
+      case Failure(message) =>
+        logger.error(s"Times evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
+        // 0 so the block is never retried
+        0
     }
-  }
+
+  private def maxNotReached(session: Session): Boolean =
+    session.loopCounterValue(counterName) < session.loopTimesValue(counterName)
 
   private def continue(session: Session): Boolean = blockFailed(session) && maxNotReached(session)
 
@@ -94,7 +93,7 @@ class InnerTryMax(
     val lastUserId = getAndSetLastUserId(session)
 
     if (!session.contains(counterName)) {
-      loopNext ! session.enterTryMax(counterName, this)
+      loopNext ! session.enterTryMax(counterName, this, resolveTimes(session))
     } else {
       val incrementedSession = session.incrementCounter(counterName)
 

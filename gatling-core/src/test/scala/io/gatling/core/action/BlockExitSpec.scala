@@ -86,7 +86,7 @@ class BlockExitSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with
 
   it should "exit a failed tryMax" in {
     val tryMaxAction = mock[Action]
-    val session = emptySession.enterTryMax("counter", tryMaxAction).markAsFailed
+    val session = emptySession.enterTryMax("counter", tryMaxAction, 1).markAsFailed
 
     val blockExit = BlockExit.mustExit(session).getOrElse(fail("expected the failed tryMax to exit"))
 
@@ -96,7 +96,7 @@ class BlockExitSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with
   it should "give exitASAP loops precedence over failed tryMax" in {
     val loopExitAction = mock[Action]
     val session = emptySession
-      .enterTryMax("tryMaxCounter", mock[Action])
+      .enterTryMax("tryMaxCounter", mock[Action], 1)
       .enterLoop("loopCounter", FalseExpressionSuccess, loopExitAction, exitASAP = true)
       .markAsFailed
 
