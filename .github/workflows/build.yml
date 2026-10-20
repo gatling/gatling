@@ -7,6 +7,7 @@ on:
   pull_request:
 
 permissions:
+  id-token: write
   contents: read
 
 concurrency:
@@ -47,6 +48,19 @@ jobs:
             ~/.sbt/boot
             ~/.sbt/preloaded
           key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', '**/plugins.sbt', '**/build.properties') }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_PROD_GATLING }}
+          aws-region: us-east-1
+
+      - name: Prepare environment
+        env:
+          PRIVATE_REPOSITORY_SBT: ${{ vars.PRIVATE_REPOSITORY_SBT_2 }}
+        run: |
+          mkdir --parents ~/.config/sbt/2 || true
+          echo "$PRIVATE_REPOSITORY_SBT" > ~/.config/sbt/2/privateRepository.sbt
 
       - name: Test
         run: |
