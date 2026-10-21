@@ -47,4 +47,49 @@ class ServerSentEventSpec extends AnyFlatSpecLike with Matchers {
       retry = Option(1)
     ).asJsonString shouldBe """{"event":"EVENT","id":"ID","data":"DATA","retry":1}"""
   }
+
+  it should "escape data that looks like JSON but is invalid" in {
+    ServerSentEvent(
+      event = None,
+      data = Option("{invalid}"),
+      id = None,
+      retry = None
+    ).asJsonString shouldBe """{"data":"{invalid}"}"""
+  }
+
+  it should "escape data that looks like JSON Array but is invalid" in {
+    ServerSentEvent(
+      event = None,
+      data = Option("[invalid]"),
+      id = None,
+      retry = None
+    ).asJsonString shouldBe """{"data":"[invalid]"}"""
+  }
+
+  it should "inject JSON primitive string data as escaped string" in {
+    ServerSentEvent(
+      event = None,
+      data = Option(""""hello""""),
+      id = None,
+      retry = None
+    ).asJsonString shouldBe """{"data":"hello"}"""
+  }
+
+  it should "inject JSON primitive number data as-is" in {
+    ServerSentEvent(
+      event = None,
+      data = Option("42"),
+      id = None,
+      retry = None
+    ).asJsonString shouldBe """{"data":42}"""
+  }
+
+  it should "inject JSON primitive boolean data as-is" in {
+    ServerSentEvent(
+      event = None,
+      data = Option("true"),
+      id = None,
+      retry = None
+    ).asJsonString shouldBe """{"data":true}"""
+  }
 }
