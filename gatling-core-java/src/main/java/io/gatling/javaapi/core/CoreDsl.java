@@ -2960,7 +2960,7 @@ public final class CoreDsl {
             toStringExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
         CoreCheckType.Css,
         Map.class,
-        Converters::toJavaMap);
+        Converters::toJavaFormMap);
   }
 
   /**
@@ -2983,7 +2983,7 @@ public final class CoreDsl {
             javaFunctionToExpression(selector), io.gatling.core.Predef.defaultCssSelectors()),
         CoreCheckType.Css,
         Map.class,
-        Converters::toJavaMap);
+        Converters::toJavaFormMap);
   }
 
   /**

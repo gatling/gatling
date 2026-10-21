@@ -316,6 +316,8 @@ public class HttpJavaCompileTest extends Simulation {
                       session -> List.of(new AbstractMap.SimpleImmutableEntry<>("foo", "bar")))
                   .formParamMap(Map.of("key", "value"))
                   .formParamMap(session -> Map.of("key", "value"))
+                  .formParamMap(Map.of("key", List.of("v1", "v2")))
+                  .formParamMap(session -> Map.of("key", List.of("v1", "v2")))
                   .form("#{key}")
                   .form(session -> Map.of("key", "value"))
                   .formUpload("name", "filePath")

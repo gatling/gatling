@@ -16,6 +16,8 @@
 
 package io.gatling.http.request.builder
 
+import java.{ util => ju }
+
 import scala.jdk.CollectionConverters._
 
 import io.gatling.ValidationValues
@@ -208,6 +210,39 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
         _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
       )
       .succeeded shouldBe Seq("BAR")
+  }
+
+  it should "work when passing a form with java.util.List values" in {
+    val form = Map("foo" -> ju.List.of("FOO1", "FOO2"), "bar" -> "BAR")
+    val session = sessionBase.set("form", form)
+
+    httpRequestDef(_.form("#{form}".el))
+      .build(session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded shouldBe Seq(new Param("foo", "FOO1"), new Param("foo", "FOO2"), new Param("bar", "BAR"))
+  }
+
+  it should "work when passing formParamMap with Seq values" in {
+    httpRequestDef(_.formParamMap(Map("foo" -> Seq("FOO1", "FOO2"))))
+      .build(sessionBase)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded shouldBe Seq(new Param("foo", "FOO1"), new Param("foo", "FOO2"))
+  }
+
+  it should "work when passing formParamMap with java.util.List values" in {
+    val session = sessionBase.set("form", ju.Map.of("foo", ju.List.of("FOO1", "FOO2")))
+
+    httpRequestDef(_.formParamMap("#{form}".el[Map[String, Any]]))
+      .build(session)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded shouldBe Seq(new Param("foo", "FOO1"), new Param("foo", "FOO2"))
+  }
+
+  it should "not split String values" in {
+    httpRequestDef(_.formParamMap(Map("foo" -> "FOO")))
+      .build(sessionBase)
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala)
+      .succeeded shouldBe Seq(new Param("foo", "FOO"))
   }
 
   "checks" should "respect their scope priority" in {

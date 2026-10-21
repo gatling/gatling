@@ -27,6 +27,13 @@ import io.gatling.http.client.Param
 package object builder {
   private val EmptyParamJListSuccess: Validation[ju.List[Param]] = ju.Collections.emptyList[Param].success
 
+  private[builder] def addParams(clientParams: ju.List[Param], key: String, value: Any): Unit =
+    value match {
+      case values: scala.collection.Seq[_] => values.foreach(value => clientParams.add(new Param(key, value.toString)))
+      case values: ju.List[_]              => values.forEach(value => clientParams.add(new Param(key, value.toString)))
+      case _                               => clientParams.add(new Param(key, value.toString))
+    }
+
   def resolveParamJList(params: List[HttpParam], session: Session): Validation[ju.List[Param]] = {
     def update(clientParams: ju.List[Param], param: HttpParam): Validation[ju.List[Param]] = param match {
       case SimpleParam(key, value) =>
@@ -51,7 +58,7 @@ package object builder {
         for {
           seq <- seq(session)
         } yield {
-          seq.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
+          seq.foreach { case (key, value) => addParams(clientParams, key, value) }
           clientParams
         }
 
@@ -59,7 +66,7 @@ package object builder {
         for {
           map <- map(session)
         } yield {
-          map.foreachEntry((key, value) => clientParams.add(new Param(key, value.toString)))
+          map.foreachEntry((key, value) => addParams(clientParams, key, value))
           clientParams
         }
     }

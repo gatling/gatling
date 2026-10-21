@@ -309,7 +309,7 @@ public abstract class RequestWithBodyActionBuilder<
    * @return a new HttpRequestActionBuilder instance
    */
   public @NonNull T form(@NonNull String form) {
-    return make(wrapped -> wrapped.formParamMap(toMapExpression(form)));
+    return make(wrapped -> wrapped.form(toMapExpression(form)));
   }
 
   /**

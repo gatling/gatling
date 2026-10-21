@@ -51,6 +51,15 @@ object Converters {
 
   def toJavaMap[T](map: scala.collection.Map[String, T]): ju.Map[String, T] = map.asJava
 
+  def toJavaFormMap(form: scala.collection.Map[String, Any]): ju.Map[String, Any] =
+    form.view
+      .mapValues {
+        case values: scala.collection.Seq[_] => toJavaList(values)
+        case value                           => value
+      }
+      .toMap
+      .asJava
+
   def toScalaMap[K, V](map: ju.Map[K, V]): Map[K, V] = map.asScala.toMap
 
   def toScalaTuple2Seq(list: ju.List[ju.Map.Entry[String, Object]]): Seq[(String, Object)] =
