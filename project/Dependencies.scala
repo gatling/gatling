@@ -46,7 +46,7 @@ object Dependencies {
   private val slf4jApi                       = "org.slf4j"                     % "slf4j-api"                   % "2.0.20"
   private val julToSlf4j                     = "org.slf4j"                     % "jul-to-slf4j"                % slf4jApi.revision
   private val testInterface                  = "org.scala-sbt"                 % "test-interface"              % "1.0"
-  private val typetools                      = "net.jodah"                     % "typetools"                   % "0.6.3"
+  private val typetools                      = "net.jodah"                     % "typetools"                   % "0.7.0"
   private val xmlresolver                    = "org.xmlresolver"               % "xmlresolver"                 % "6.1.0"
   private val xmlresolverData                = xmlresolver                                           classifier "data"
 
