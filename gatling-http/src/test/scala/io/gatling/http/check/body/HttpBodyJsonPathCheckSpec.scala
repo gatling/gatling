@@ -49,6 +49,11 @@ class HttpBodyJsonPathCheckSpec extends AnyFlatSpecLike with Matchers with Valid
     jsonPath("$.value").ofType[Long].find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(Long.MaxValue), None)
   }
 
+  it should "parse a simple int" in {
+    val response = mockResponse("1")
+    jsonPath("$").ofType[Int].exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(1), None)
+  }
+
   "jsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
     jsonPath("$.street").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
