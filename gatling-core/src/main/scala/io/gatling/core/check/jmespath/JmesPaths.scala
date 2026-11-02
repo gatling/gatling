@@ -18,7 +18,7 @@ package io.gatling.core.check.jmespath
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.jsonpath.JsonFilter
-import io.gatling.core.json.Json
+import io.gatling.core.json.{ Json, JsonSubset }
 import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -55,6 +55,10 @@ final class JmesPaths(cacheMaxCapacity: Long) {
       val node = compiledExpression.search(json)
       if (node.isNull) None else JsonFilter[X].filter.lift(node)
     }
+
+  /** The parts of the document the expression reads, None if it may read anything. */
+  private[gatling] def subset(expression: String): Option[JsonSubset] =
+    compileJmesPath(expression).toOption.flatMap(JmesPathSubsets(_))
 
   private def compileJmesPath(expression: String): Validation[Expression[JsonNode]] = jmesPathCache.get(expression)
 }

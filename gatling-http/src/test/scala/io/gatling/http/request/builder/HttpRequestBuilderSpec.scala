@@ -24,12 +24,16 @@ import io.gatling.ValidationValues
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
+import io.gatling.core.check.Check
+import io.gatling.core.check.jmespath.{ JmesPathCheckBuilder, JmesPaths }
+import io.gatling.core.check.jsonpath.{ JsonPathCheckBuilder, JsonPaths }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
 import io.gatling.http.cache.{ DnsCacheSupport, HttpCaches }
 import io.gatling.http.check.HttpCheckScope._
+import io.gatling.http.check.body.HttpBodyPartialJsonPreparer
 import io.gatling.http.client.{ HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
@@ -262,6 +266,24 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
       Body,
       Time
     )
+  }
+
+  "checks" should "share a partial JSON Preparer when all the JSON checks of the request and protocol read simple paths" in {
+    val result = httpRequestDef(
+      _.check(JmesPathCheckBuilder.jmesPath("data[0].id".expressionSuccess, new JmesPaths(10)).find.exists),
+      http(configuration)
+        .baseUrl("https://gatling.io")
+        .check(JsonPathCheckBuilder.jsonPath("$.meta.code".expressionSuccess, new JsonPaths(10)).find.is("OK".expressionSuccess))
+        .build
+    ).build(sessionBase)
+      .map(_.requestConfig.checks)
+      .succeeded
+
+    val preparers = result.map(_.wrapped).collect { case default: Check.Default[_, _, _] => default.preparer }.collect {
+      case preparer: HttpBodyPartialJsonPreparer => preparer
+    }
+    preparers should have size 2
+    preparers.distinct should have size 1
   }
 
   "checks" should "respect their provenance priority" in {

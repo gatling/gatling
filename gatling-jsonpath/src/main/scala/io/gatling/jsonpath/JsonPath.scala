@@ -39,7 +39,7 @@ object JsonPath {
     compile(query).map(_.query(jsonObject))
 }
 
-final class JsonPath(path: List[PathToken]) {
+final class JsonPath(private[gatling] val path: List[PathToken]) {
   def query(jsonNode: JsonNode): Iterator[JsonNode] = new JsonPathWalker(jsonNode, path).walk()
 }
 

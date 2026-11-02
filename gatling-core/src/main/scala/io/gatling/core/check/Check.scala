@@ -116,7 +116,8 @@ object Check {
       logActualValueInError: Boolean,
       customName: Option[String],
       condition: Option[(R, Session) => Validation[Boolean]],
-      saveAs: Option[String]
+      saveAs: Option[String],
+      preparedSubset: Option[PreparedSubset]
   ) extends ConditionalCheck[R](condition) {
     override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
 

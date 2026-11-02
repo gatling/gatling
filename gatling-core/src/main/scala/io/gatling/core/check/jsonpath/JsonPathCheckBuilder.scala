@@ -30,6 +30,11 @@ abstract class JsonPathCheckBuilderBase[T, X: JsonFilter](
     path.map(JsonPathExtractors.find[X](name, _, occurrence, jsonPaths))
   override protected def findAllExtractor: Expression[Extractor[JsonNode, Seq[X]]] = path.map(JsonPathExtractors.findAll[X](name, _, jsonPaths))
   override protected def countExtractor: Expression[Extractor[JsonNode, Int]] = path.map(JsonPathExtractors.count(name, _, jsonPaths))
+  override protected def preparedSubset: Option[PreparedSubset] =
+    path match {
+      case StaticValueExpression(staticPath) => jsonPaths.subset(staticPath)
+      case _                                 => None
+    }
 }
 
 sealed trait JsonPathCheckType

@@ -25,7 +25,7 @@ import org.scalatest.matchers.should.Matchers
 
 class VerifySpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private def verify(f: (Option[Int], Session) => Option[String]): Validator[Int] = {
-    val validate = CheckBuilder.Validate.Default[Unit, Unit, Int](null, logActualValueInError = true)
+    val validate = CheckBuilder.Validate.Default[Unit, Unit, Int](null, logActualValueInError = true, preparedSubset = None)
     validate.verify("positive", f) match {
       case f: CheckBuilder.Final.Default[Unit, Unit, Int] @unchecked =>
         val v = f.validator(emptySession).toOption.get

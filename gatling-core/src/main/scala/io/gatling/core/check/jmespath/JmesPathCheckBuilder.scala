@@ -16,9 +16,9 @@
 
 package io.gatling.core.check.jmespath
 
-import io.gatling.core.check.{ CheckBuilder, FindCriterionExtractor }
+import io.gatling.core.check.{ CheckBuilder, FindCriterionExtractor, PreparedSubset }
 import io.gatling.core.check.jsonpath.JsonFilter
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, StaticValueExpression }
 
 import com.fasterxml.jackson.databind.JsonNode
 
@@ -26,7 +26,13 @@ abstract class JmesPathCheckBuilderBase[T, X: JsonFilter](
     name: String,
     private[jmespath] val path: Expression[String],
     private[jmespath] val jmesPaths: JmesPaths
-) extends CheckBuilder.Find.Default[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), logActualValueInError = true)
+) extends CheckBuilder.Find.Default[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), logActualValueInError = true) {
+  override protected def preparedSubset: Option[PreparedSubset] =
+    path match {
+      case StaticValueExpression(staticPath) => jmesPaths.subset(staticPath)
+      case _                                 => None
+    }
+}
 
 final class JmesPathExtractor[X: JsonFilter](name: String, path: String, jmesPaths: JmesPaths)
     extends FindCriterionExtractor[JsonNode, String, X](name, path, 0, jmesPaths.extract(_, path))

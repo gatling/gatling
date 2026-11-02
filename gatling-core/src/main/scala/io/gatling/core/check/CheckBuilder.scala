@@ -36,7 +36,9 @@ object CheckBuilder {
 
   object Find {
     class Default[T, P, X](extractor: Expression[Extractor[P, X]], logActualValueInError: Boolean) extends Find[T, P, X] {
-      override def find: Validate[T, P, X] = Validate.Default(extractor, logActualValueInError)
+      protected def preparedSubset: Option[PreparedSubset] = None
+
+      override def find: Validate[T, P, X] = Validate.Default(extractor, logActualValueInError, preparedSubset)
     }
   }
 
@@ -101,18 +103,20 @@ object CheckBuilder {
 
       protected def countExtractor: Expression[Extractor[P, Int]]
 
+      protected def preparedSubset: Option[PreparedSubset] = None
+
       override def find: Validate[T, P, X] = find(0)
 
-      override def find(occurrence: Int): Validate[T, P, X] = Validate.Default(findExtractor(occurrence), logActualValueInError)
+      override def find(occurrence: Int): Validate[T, P, X] = Validate.Default(findExtractor(occurrence), logActualValueInError, preparedSubset)
 
-      override def findAll: Validate[T, P, Seq[X]] = Validate.Default(findAllExtractor, logActualValueInError)
+      override def findAll: Validate[T, P, Seq[X]] = Validate.Default(findAllExtractor, logActualValueInError, preparedSubset)
 
-      override def findRandom: Validate[T, P, X] = Validate.Default(findRandomExtractor, logActualValueInError)
+      override def findRandom: Validate[T, P, X] = Validate.Default(findRandomExtractor, logActualValueInError, preparedSubset)
 
       override def findRandom(num: Int, failIfLess: Boolean): Validate[T, P, Seq[X]] =
-        Validate.Default(findManyRandomExtractor(num, failIfLess), logActualValueInError)
+        Validate.Default(findManyRandomExtractor(num, failIfLess), logActualValueInError, preparedSubset)
 
-      override def count: Validate[T, P, Int] = Validate.Default(countExtractor, logActualValueInError)
+      override def count: Validate[T, P, Int] = Validate.Default(countExtractor, logActualValueInError, preparedSubset)
     }
   }
 
@@ -151,7 +155,11 @@ object CheckBuilder {
     private val TransformArity: String => String = _ + ".transform"
     private val TransformOptionArity: String => String = _ + ".transformOption"
 
-    final case class Default[T, P, X](extractor: Expression[Extractor[P, X]], logActualValueInError: Boolean) extends Validate[T, P, X] {
+    final case class Default[T, P, X](
+        extractor: Expression[Extractor[P, X]],
+        logActualValueInError: Boolean,
+        preparedSubset: Option[PreparedSubset]
+    ) extends Validate[T, P, X] {
       private def mapExtractor[X2](
           extractedF: Validation[Option[X]] => Validation[Option[X2]],
           arityF: String => String
@@ -227,7 +235,7 @@ object CheckBuilder {
         )
 
       override def validate(validator: Expression[Validator[X]]): Final[T, P] =
-        new Final.Default[T, P, X](this.extractor, validator, logActualValueInError, None, None)
+        new Final.Default[T, P, X](this.extractor, validator, logActualValueInError, None, None, preparedSubset)
 
       @deprecated("Use verify instead, which takes a function returning an optional error message", "3.16.1")
       override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): Final[T, P] =
@@ -286,7 +294,8 @@ object CheckBuilder {
         validator: Expression[Validator[X]],
         logActualValueInError: Boolean,
         customName: Option[String],
-        saveAs: Option[String]
+        saveAs: Option[String],
+        preparedSubset: Option[PreparedSubset]
     ) extends Final[T, P] {
       override def name(n: String): Final[T, P] = copy(customName = Some(n))
 
@@ -295,7 +304,7 @@ object CheckBuilder {
       override def saveAs(key: String): Final[T, P] = copy(saveAs = Some(key))
 
       override def build[C <: Check[R], R](materializer: CheckMaterializer[T, C, R, P]): C =
-        materializer.materialize(Check.Default(_, extractor, validator, logActualValueInError, customName, None, saveAs))
+        materializer.materialize(Check.Default(_, extractor, validator, logActualValueInError, customName, None, saveAs, preparedSubset))
     }
   }
 }

@@ -17,8 +17,9 @@
 package io.gatling.core.check.jsonpath
 
 import io.gatling.commons.validation._
+import io.gatling.core.json.JsonSubset
 import io.gatling.core.util.cache.Cache
-import io.gatling.jsonpath.JsonPath
+import io.gatling.jsonpath.{ AST, JsonPath }
 
 import com.fasterxml.jackson.databind.JsonNode
 
@@ -34,6 +35,25 @@ final class JsonPaths(cacheMaxCapacity: Long) {
 
   def extractAll[X: JsonFilter](json: JsonNode, expression: String): Validation[Iterator[X]] =
     compileJsonPath(expression).map(_.query(json).collect(JsonFilter[X].filter))
+
+  /**
+   * The parts of the document the expression reads, None if it may read anything. Only supports paths following fields and single non-negative indexes from the
+   * root, eg `$.meta.code` or `$.data[0].id`.
+   */
+  private[gatling] def subset(expression: String): Option[JsonSubset] =
+    compileJsonPath(expression).toOption.flatMap { jsonPath =>
+      jsonPath.path match {
+        case AST.RootNode :: tokens =>
+          val segments = tokens.map {
+            case AST.Field(name)                                   => Some(JsonSubset.Segment.Field(name))
+            case AST.ArrayRandomAccess(index :: Nil) if index >= 0 => Some(JsonSubset.Segment.Index(index))
+            case AST.ArraySlice.All                                => Some(JsonSubset.Segment.AllElements)
+            case _                                                 => None
+          }
+          if (segments.forall(_.isDefined)) JsonSubset(segments.flatten) else None
+        case _ => None
+      }
+    }
 
   private def compileJsonPath(expression: String): Validation[JsonPath] = jsonPathCache.get(expression)
 }

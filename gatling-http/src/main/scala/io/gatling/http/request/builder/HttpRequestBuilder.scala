@@ -29,6 +29,7 @@ import io.gatling.http.action.{ HttpActionBuilder, HttpRequestAction }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
+import io.gatling.http.check.body.HttpBodyPartialJson
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.response.HttpTracing
 import io.gatling.http.protocol.HttpProtocol
@@ -164,9 +165,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
         httpAttributes.postChecks ::: httpProtocol.responsePart.postChecks
       }
 
-    val checks =
+    val checks = HttpBodyPartialJson.restrictToSubset(
       if (requestAndProtocolChecks.exists(_.scope == Status)) requestAndProtocolChecks
       else requestAndProtocolChecks ::: List(RequestBuilder.DefaultHttpCheck)
+    )
 
     val sortedChecks = checks.zipWithIndex
       .sortBy { case (check, rank) =>

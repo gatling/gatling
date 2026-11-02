@@ -16,6 +16,8 @@
 
 package io.gatling.http.check.body
 
+import scala.jdk.CollectionConverters._
+
 import io.gatling.core.{ CoreDsl, EmptySession }
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
@@ -65,5 +67,50 @@ class HttpBodyPreparedCacheSpec extends AnyFlatSpecLike with Matchers with CoreD
     )
 
     preparedCacheSize(mockResponse("""<html><body><p id="foo">FOO</p><p id="bar">BAR</p></body></html>"""), checks) shouldBe 1
+  }
+
+  private def preparers(checks: List[HttpCheck]): List[Any] =
+    checks.map(_.wrapped).collect { case default: Check.Default[_, _, _] => default.preparer }
+
+  private val largeResponse = """{"meta":{"code":"OK","page":2},"data":[{"id":1,"name":"a"},{"id":2,"name":"b"}],"padding":[this is not JSON"""
+
+  "JSON checks only reading simple paths" should "share a Preparer only building the subset they read" in {
+    val checks = HttpBodyPartialJson.restrictToSubset(
+      List(
+        jsonPath("$.meta.code").is("OK"),
+        jsonPath("$.data[1].name").saveAs("name"),
+        jsonPath("$.data[*].id").count.is(2),
+        jmesPath("meta.page").ofType[Int].is(2),
+        status.is(200)
+      )
+    )
+
+    val jsonPreparers = preparers(checks).filter(_.isInstanceOf[HttpBodyPartialJsonPreparer])
+    jsonPreparers should have size 4
+    jsonPreparers.distinct should have size 1
+
+    // the rest of the body isn't parsed, so the invalid JSON after the read values doesn't make the checks fail
+    val preparedCache = Check.newPreparedCache
+    val (session, failure) = Check.applyChecks(mockResponse(largeResponse), emptySession, checks, preparedCache)
+    failure shouldBe None
+    session.attributes.get("name") shouldBe Some("b")
+    // a single parse for the 4 JSON checks, and no full parse
+    preparedCache.keySet.asScala.count(_.isInstanceOf[HttpBodyPartialJsonPreparer]) shouldBe 1
+    preparedCache.keySet.asScala.count(_.isInstanceOf[HttpBodyJsonPreparer]) shouldBe 0
+  }
+
+  they should "be left untouched when one of them may read anything" in {
+    val checks = List[HttpCheck](jsonPath("$.meta.code").is("OK"), jsonPath("$..id").count.is(2))
+    HttpBodyPartialJson.restrictToSubset(checks) shouldBe checks
+  }
+
+  they should "be left untouched when one of them has a dynamic path" in {
+    val checks = List[HttpCheck](jsonPath("$.meta.code").is("OK"), jsonPath("#{path}").exists)
+    HttpBodyPartialJson.restrictToSubset(checks) shouldBe checks
+  }
+
+  "checks that don't parse JSON" should "be left untouched" in {
+    val checks = List[HttpCheck](status.is(200), css("#foo").exists, bodyString.exists)
+    HttpBodyPartialJson.restrictToSubset(checks) shouldBe checks
   }
 }
