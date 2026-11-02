@@ -83,9 +83,22 @@ private final class JmsTracker private (actorName: String, statsEngine: StatsEng
   override def init(): Behavior[JmsTracker.Command] = {
     // message was sent; add the timestamps to the map
     case messageSent: MessageSent =>
-      sentMessages += messageSent.matchId -> messageSent
-      if (messageSent.replyTimeoutInMs > 0) {
-        triggerPeriodicTimeoutScan()
+      if (sentMessages.contains(messageSent.matchId)) {
+        // never overwrite an in-flight request, otherwise its virtual user would be lost
+        executeNext(
+          messageSent.session.markAsFailed,
+          messageSent.sent,
+          clock.nowMillis,
+          KO,
+          messageSent.next,
+          messageSent.requestName,
+          Some(s"Duplicate matchId ${messageSent.matchId}: another request with the same id is already waiting for a reply")
+        )
+      } else {
+        sentMessages += messageSent.matchId -> messageSent
+        if (messageSent.replyTimeoutInMs > 0) {
+          triggerPeriodicTimeoutScan()
+        }
       }
       stay
 

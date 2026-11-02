@@ -37,7 +37,10 @@ object MessageIdMessageMatcher extends JmsMessageMatcher {
 }
 
 object CorrelationIdMessageMatcher extends JmsMessageMatcher {
-  override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(FastUUID.toString(UUID.randomUUID))
+  override def prepareRequest(msg: Message): Unit =
+    if (msg.getJMSCorrelationID == null) {
+      msg.setJMSCorrelationID(FastUUID.toString(UUID.randomUUID))
+    }
   override def requestMatchId(msg: Message): String = msg.getJMSCorrelationID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }

@@ -36,7 +36,12 @@ import jakarta.jms.{ Session => JmsSession, _ }
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 
-class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
+class Replier(
+    connectionFactory: ConnectionFactory,
+    destination: JmsDestination,
+    response: PartialFunction[(Message, JmsSession), Message],
+    replyCorrelationId: Message => String
+) {
   private val t = new Thread(() => {
     val connection = connectionFactory.createConnection()
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
@@ -53,7 +58,7 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
     val producer = jmsSession.createProducer(null)
     consumer.setMessageListener { request =>
       response.lift(request, jmsSession).foreach { response =>
-        response.setJMSCorrelationID(request.getJMSCorrelationID)
+        response.setJMSCorrelationID(replyCorrelationId(request))
         producer.send(request.getJMSReplyTo, response)
       }
     }
@@ -108,7 +113,12 @@ trait JmsSpec extends ActorSpec with JmsDsl with EmptySession {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocol.indexByType(Seq(jmsProtocol)))(implicit
       configuration: GatlingConfiguration
-  ): Session = {
+  ): Session =
+    runScenarioWithSessions(sb, Seq(emptySession), timeout, protocols).head
+
+  def runScenarioWithSessions(sb: ScenarioBuilder, sessions: Seq[Session], timeout: FiniteDuration, protocols: Protocols)(implicit
+      configuration: GatlingConfiguration
+  ): Seq[Session] = {
     val clock = new DefaultClock
     val coreComponents =
       new CoreComponents(actorSystem, null, null, None, NoopStatsEngine, clock, null, configuration)
@@ -116,12 +126,13 @@ trait JmsSpec extends ActorSpec with JmsDsl with EmptySession {
     val next = new ActorDelegatingAction("next", nextActor)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val actor = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! emptySession
-    val session = nextActor.expectMsgType[Session](timeout)
-
-    session
+    sessions.foreach(actor ! _)
+    sessions.map(_ => nextActor.expectMsgType[Session](timeout))
   }
 
   def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message]): Replier =
-    new Replier(cf, queue, f)
+    replier(queue, f, _.getJMSCorrelationID)
+
+  def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message], replyCorrelationId: Message => String): Replier =
+    new Replier(cf, queue, f, replyCorrelationId)
 }

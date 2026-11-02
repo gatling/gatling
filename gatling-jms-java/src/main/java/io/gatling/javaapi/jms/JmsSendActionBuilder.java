@@ -113,6 +113,27 @@ public final class JmsSendActionBuilder implements ActionBuilder {
   }
 
   /**
+   * Set the JMSCorrelationID
+   *
+   * @param correlationId the correlation id, expressed as a Gatling Expression Language String
+   * @return a new JmsSendActionBuilder instance
+   */
+  public @NonNull JmsSendActionBuilder correlationId(@NonNull String correlationId) {
+    return new JmsSendActionBuilder(wrapped.correlationId(toStringExpression(correlationId)));
+  }
+
+  /**
+   * Set the JMSCorrelationID
+   *
+   * @param correlationId the correlation id, expressed as a function
+   * @return a new JmsSendActionBuilder instance
+   */
+  public @NonNull JmsSendActionBuilder correlationId(
+      @NonNull Function<Session, String> correlationId) {
+    return new JmsSendActionBuilder(wrapped.correlationId(javaFunctionToExpression(correlationId)));
+  }
+
+  /**
    * Set the JMS priority
    *
    * @param priority the static JMS priority, from 0 (lowest) to 9 (highest)

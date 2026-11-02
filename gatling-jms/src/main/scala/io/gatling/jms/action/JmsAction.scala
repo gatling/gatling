@@ -60,6 +60,7 @@ abstract class JmsAction(
     for {
       reqName <- requestName(session)
       jmsType <- resolveOptionalExpression(attributes.jmsType, session)
+      correlationId <- resolveOptionalExpression(attributes.correlationId, session)
       priority <- resolvePriority(session)
       timeToLive <- resolveOptionalExpression(attributes.timeToLive, session)
       props <- resolveProperties(attributes.messageProperties, session)
@@ -69,6 +70,7 @@ abstract class JmsAction(
       _ = {
         props.foreachEntry((key, value) => message.setObjectProperty(key, value))
         jmsType.foreach(message.setJMSType)
+        correlationId.foreach(message.setJMSCorrelationID)
       }
       around <- aroundSend(reqName, session, message)
     } yield throttler match {

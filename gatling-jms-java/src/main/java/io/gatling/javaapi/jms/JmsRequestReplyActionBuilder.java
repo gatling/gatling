@@ -122,6 +122,35 @@ public final class JmsRequestReplyActionBuilder implements ActionBuilder {
   }
 
   /**
+   * Set the JMSCorrelationID
+   *
+   * <p>When the protocol matches by correlation id, this value is used for matching the reply
+   * instead of a random UUID, so it must be unique among in-flight requests.
+   *
+   * @param correlationId the correlation id, expressed as a Gatling Expression Language String
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder correlationId(@NonNull String correlationId) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.correlationId(toStringExpression(correlationId)));
+  }
+
+  /**
+   * Set the JMSCorrelationID
+   *
+   * <p>When the protocol matches by correlation id, this value is used for matching the reply
+   * instead of a random UUID, so it must be unique among in-flight requests.
+   *
+   * @param correlationId the correlation id, expressed as a function
+   * @return a new JmsRequestReplyActionBuilder instance
+   */
+  public @NonNull JmsRequestReplyActionBuilder correlationId(
+      @NonNull Function<Session, String> correlationId) {
+    return new JmsRequestReplyActionBuilder(
+        wrapped.correlationId(javaFunctionToExpression(correlationId)));
+  }
+
+  /**
    * Set the JMS priority
    *
    * @param priority the static JMS priority, from 0 (lowest) to 9 (highest)

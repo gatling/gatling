@@ -99,4 +99,22 @@ class JmsTrackerSpec extends ActorSpec with CoreDsl with JmsDsl with MockMessage
     nextSession1 shouldBe newSession
     nextSession2 shouldBe newSession.logGroupRequestTimings(25, 50).markAsFailed
   }
+
+  it should "fail the new request and keep the in-flight one when matchId is a duplicate" in {
+    val statsEngine = new MockStatsEngine
+    val firstActor = mockActorRef[Session]("first")
+    val secondActor = mockActorRef[Session]("second")
+    val tracker = actorSystem.actorOf(JmsTracker.actor("jms-tracker", statsEngine, clock, configuration))
+
+    tracker ! JmsTracker.Command.MessageSent("1", 15, 0, Nil, Nil, emptySession, new ActorDelegatingAction("first", firstActor), "first")
+    tracker ! JmsTracker.Command.MessageSent("1", 20, 0, Nil, Nil, emptySession, new ActorDelegatingAction("second", secondActor), "second")
+
+    secondActor.expectMsgType[Session]() shouldBe emptySession.markAsFailed
+
+    tracker ! JmsTracker.Command.MessageReceived("1", 30, textMessage("test"))
+
+    firstActor.expectMsgType[Session]() shouldBe emptySession
+    statsEngine.messages should contain(MockStatsEngine.Message.Response(emptySession.scenario, Nil, "first", 15, 30, OK, None, None))
+    statsEngine.messages.collect { case r: MockStatsEngine.Message.Response if r.requestName == "second" => r.status } shouldBe Seq(KO)
+  }
 }

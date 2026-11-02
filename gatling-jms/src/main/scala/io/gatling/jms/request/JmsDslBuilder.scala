@@ -61,6 +61,11 @@ final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttribute
   def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
   /**
+   * Set the JMSCorrelationID of the outbound message
+   */
+  def correlationId(correlationId: Expression[String]): SendDslBuilder = this.modify(_.attributes.correlationId).setTo(Some(correlationId))
+
+  /**
    * Set the JMS priority of the outbound message, from 0 (lowest) to 9 (highest)
    */
   def priority(priority: Expression[Int]): SendDslBuilder = this.modify(_.attributes.priority).setTo(Some(priority))
@@ -125,6 +130,12 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   def property(key: Expression[String], value: Expression[Any]): RequestReplyDslBuilder = this.modify(_.attributes.messageProperties)(_ + (key -> value))
 
   def jmsType(jmsType: Expression[String]): RequestReplyDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+
+  /**
+   * Set the JMSCorrelationID of the outbound message. When the protocol matches by correlation id, this value is used for matching the reply instead of a
+   * random UUID, so it must be unique among in-flight requests.
+   */
+  def correlationId(correlationId: Expression[String]): RequestReplyDslBuilder = this.modify(_.attributes.correlationId).setTo(Some(correlationId))
 
   /**
    * Set the JMS priority of the outbound message, from 0 (lowest) to 9 (highest)
