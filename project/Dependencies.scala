@@ -58,7 +58,7 @@ object Dependencies {
   private val bouncyCastle                   = "io.gatling"                    % "gatling-recorder-bc-shaded"  % "1.85.0"
 
   // Test dependencies
-  private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.3.2"        % Test
+  private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.3.3"        % Test
   private val h2                             = "com.h2database"                % "h2"                          % "2.5.252"      % Test
   private val jetty                          = "org.eclipse.jetty"             % "jetty-server"                % "12.1.14"      % Test
   private val jettyProxy                     = jetty.withName("jetty-proxy")
