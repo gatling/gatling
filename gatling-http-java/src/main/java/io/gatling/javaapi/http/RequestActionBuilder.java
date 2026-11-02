@@ -321,6 +321,16 @@ public abstract class RequestActionBuilder<
   }
 
   /**
+   * Ignore the Basic or Digest Auth set in the Http protocol configuration. Auth set on this
+   * request with {@link #basicAuth} or {@link #digestAuth} still applies.
+   *
+   * @return a new DSL instance
+   */
+  public @NonNull T ignoreProtocolAuth() {
+    return make(io.gatling.http.request.builder.RequestBuilder::ignoreProtocolAuth);
+  }
+
+  /**
    * Set the authorization header for Basic Auth
    *
    * @param username the username, expressed as a Gatling Expression Language String

@@ -213,7 +213,12 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  private val maybeRealm = commonAttributes.realm.orElse(httpProtocol.requestPart.realm)
+  private val maybeRealm =
+    if (commonAttributes.ignoreProtocolAuth) {
+      commonAttributes.realm
+    } else {
+      commonAttributes.realm.orElse(httpProtocol.requestPart.realm)
+    }
   private def configureRealm(session: Session, requestBuilder: ClientRequestBuilder): Validation[_] =
     maybeRealm match {
       case Some(realm) =>

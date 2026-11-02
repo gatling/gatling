@@ -290,6 +290,7 @@ public class HttpJavaCompileTest extends Simulation {
                       session -> "token",
                       session -> "tokenSecret")
                   .ignoreProtocolSignatureCalculators()
+                  .ignoreProtocolAuth()
                   .ignoreProtocolChecks()
                   .silent()
                   .notSilent()

@@ -347,6 +347,7 @@ class HttpCompileTest extends Simulation {
         .get("/foo/bar?baz=qix")
         .sign(signatureCalculator)
         .ignoreProtocolSignatureCalculators
+        .ignoreProtocolAuth
     )
     // proxy
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).https))

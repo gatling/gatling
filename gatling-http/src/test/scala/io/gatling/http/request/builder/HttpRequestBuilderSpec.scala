@@ -37,6 +37,7 @@ import io.gatling.http.check.body.HttpBodyPartialJsonPreparer
 import io.gatling.http.client.{ HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
+import io.gatling.http.client.realm.BasicRealm
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
@@ -338,6 +339,30 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
       Chunks,
       Body
     )
+  }
+
+  private val protocolWithBasicAuth = http(configuration).basicAuth("protocolUser", "protocolPassword").build
+
+  private def realmUsername(f: HttpRequestBuilder => HttpRequestBuilder): Option[String] =
+    httpRequestDef(f, protocolWithBasicAuth)
+      .build(sessionBase)
+      .map(httpRequest => Option(httpRequest.clientRequest.getRealm).collect { case realm: BasicRealm => realm.getUsername })
+      .succeeded
+
+  "auth" should "apply the protocol realm by default" in {
+    realmUsername(identity) shouldBe Some("protocolUser")
+  }
+
+  it should "let the request realm override the protocol one" in {
+    realmUsername(_.basicAuth("requestUser", "requestPassword")) shouldBe Some("requestUser")
+  }
+
+  it should "not apply the protocol realm when ignoreProtocolAuth is set" in {
+    realmUsername(_.ignoreProtocolAuth) shouldBe None
+  }
+
+  it should "still apply the request realm when ignoreProtocolAuth is set" in {
+    realmUsername(_.ignoreProtocolAuth.basicAuth("requestUser", "requestPassword")) shouldBe Some("requestUser")
   }
 
   // Not possible to check prior of default over protocol, as only default added value is status

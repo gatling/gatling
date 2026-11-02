@@ -45,7 +45,8 @@ object CommonAttributes {
       proxy = None,
       signatureCalculators = Nil,
       ignoreProtocolHeaders = false,
-      ignoreProtocolSignatureCalculators = false
+      ignoreProtocolSignatureCalculators = false,
+      ignoreProtocolAuth = false
     )
 }
 
@@ -60,7 +61,8 @@ final case class CommonAttributes(
     proxy: Option[Proxy],
     signatureCalculators: List[(Request, Session) => Validation[Request]],
     ignoreProtocolHeaders: Boolean,
-    ignoreProtocolSignatureCalculators: Boolean
+    ignoreProtocolSignatureCalculators: Boolean,
+    ignoreProtocolAuth: Boolean
 )
 
 object RequestBuilder {
@@ -154,6 +156,12 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   private def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.modify(_.realm).setTo(Some(realm)))
+
+  /**
+   * Don't apply the BASIC or DIGEST authentication set in the HTTP protocol configuration to this request. Authentication set on this request with basicAuth or
+   * digestAuth still applies.
+   */
+  def ignoreProtocolAuth: B = newInstance(commonAttributes.modify(_.ignoreProtocolAuth).setTo(true))
 
   def disableUrlEncoding: B = newInstance(commonAttributes.modify(_.disableUrlEncoding).setTo(Some(true)))
 
