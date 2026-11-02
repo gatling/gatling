@@ -53,8 +53,10 @@ object JmsCheckMaterializer {
 
   private val JsonPreparerErrorMapper: String => String = "Could not parse response into a JSON: " + _
 
-  private def jsonPreparer(jsonParsers: JsonParsers): Preparer[Message, JsonNode] =
-    replyMessage =>
+  // a case class so that all instances built for the same JsonParsers are equal, hence share the same entry in the PreparedCache:
+  // the message only gets parsed once for all the JsonPath and JMESPath checks
+  private final case class JsonPreparer(jsonParsers: JsonParsers) extends Preparer[Message, JsonNode] {
+    override def apply(replyMessage: Message): Validation[JsonNode] =
       safely(JsonPreparerErrorMapper) {
         replyMessage match {
           case tm: TextMessage          => jsonParsers.safeParse(tm.getText)
@@ -62,6 +64,7 @@ object JmsCheckMaterializer {
           case _                        => "Unsupported message type".failure
         }
       }
+  }
 
   private def stringBodyPreparer(charset: Charset): Preparer[Message, String] = {
     case tm: TextMessage          => tm.getText.success
@@ -82,10 +85,10 @@ object JmsCheckMaterializer {
     new JmsCheckMaterializer(stringBodyPreparer(charset))
 
   def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsCheckMaterializer(jsonPreparer(jsonParsers))
+    new JmsCheckMaterializer(JsonPreparer(jsonParsers))
 
   def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsCheckMaterializer(jsonPreparer(jsonParsers))
+    new JmsCheckMaterializer(JsonPreparer(jsonParsers))
 
   val Xpath: CheckMaterializer[XPathCheckType, JmsCheck, Message, XdmNode] = {
     val errorMapper: String => String = "Could not parse response into a DOM Document: " + _

@@ -28,8 +28,11 @@ import jodd.lagarto.dom.NodeSelector
 object HttpBodyCssCheckMaterializer {
   private val ErrorMapper: String => String = "Could not parse response into a Jodd NodeSelector: " + _
 
-  def instance(selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] = {
-    val preparer: Preparer[Response, NodeSelector] = response => safely(ErrorMapper)(selectors.parse(response.body.chars).success)
-    new HttpCheckMaterializer[CssCheckType, NodeSelector](Body, preparer)
+  // a case class so that all instances built for the same CssSelectors share the same entry in the PreparedCache
+  private final case class CssPreparer(selectors: CssSelectors) extends Preparer[Response, NodeSelector] {
+    override def apply(response: Response): Validation[NodeSelector] = safely(ErrorMapper)(selectors.parse(response.body.chars).success)
   }
+
+  def instance(selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
+    new HttpCheckMaterializer[CssCheckType, NodeSelector](Body, CssPreparer(selectors))
 }

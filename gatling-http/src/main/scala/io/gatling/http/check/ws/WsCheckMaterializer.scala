@@ -17,7 +17,7 @@
 package io.gatling.http.check.ws
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ identityPreparer, CheckMaterializer, Preparer }
+import io.gatling.core.check.{ identityPreparer, CheckMaterializer, Preparer, StringJsonPreparer }
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
@@ -46,10 +46,10 @@ object WsCheckMaterializer {
       new Text[BodyStringCheckType, String](identityPreparer)
 
     def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, WsCheck.Text, String, JsonNode] =
-      new Text[JmesPathCheckType, JsonNode](jsonParsers.safeParse)
+      new Text[JmesPathCheckType, JsonNode](StringJsonPreparer(jsonParsers))
 
     def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsCheck.Text, String, JsonNode] =
-      new Text[JsonPathCheckType, JsonNode](jsonParsers.safeParse)
+      new Text[JsonPathCheckType, JsonNode](StringJsonPreparer(jsonParsers))
 
     val Regex: CheckMaterializer[RegexCheckType, WsCheck.Text, String, String] =
       new Text[RegexCheckType, String](identityPreparer)

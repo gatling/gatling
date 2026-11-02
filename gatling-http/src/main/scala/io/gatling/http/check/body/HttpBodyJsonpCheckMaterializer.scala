@@ -29,13 +29,15 @@ object HttpBodyJsonpCheckMaterializer {
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 
-  def instance[T](jsonParsers: JsonParsers): CheckMaterializer[T, HttpCheck, Response, JsonNode] = {
-    val preparer: Preparer[Response, JsonNode] = response =>
+  // a case class so that all instances built for the same JsonParsers share the same entry in the PreparedCache
+  private final case class JsonpPreparer(jsonParsers: JsonParsers) extends Preparer[Response, JsonNode] {
+    override def apply(response: Response): Validation[JsonNode] =
       response.body.string match {
         case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
         case _                 => JsonpRegexFailure
       }
-
-    new HttpCheckMaterializer[T, JsonNode](Body, preparer)
   }
+
+  def instance[T](jsonParsers: JsonParsers): CheckMaterializer[T, HttpCheck, Response, JsonNode] =
+    new HttpCheckMaterializer[T, JsonNode](Body, JsonpPreparer(jsonParsers))
 }

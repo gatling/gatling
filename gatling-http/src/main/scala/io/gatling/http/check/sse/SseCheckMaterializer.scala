@@ -33,10 +33,10 @@ object SseCheckMaterializer {
     new SseCheckMaterializer[BodyStringCheckType, String](identityPreparer)
 
   def jmesPath(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] =
-    new SseCheckMaterializer[JmesPathCheckType, JsonNode](jsonParsers.safeParse)
+    new SseCheckMaterializer[JmesPathCheckType, JsonNode](StringJsonPreparer(jsonParsers))
 
   def jsonPath(jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =
-    new SseCheckMaterializer[JsonPathCheckType, JsonNode](jsonParsers.safeParse)
+    new SseCheckMaterializer[JsonPathCheckType, JsonNode](StringJsonPreparer(jsonParsers))
 
   val Regex: CheckMaterializer[RegexCheckType, SseCheck, String, String] =
     new SseCheckMaterializer[RegexCheckType, String](identityPreparer)
