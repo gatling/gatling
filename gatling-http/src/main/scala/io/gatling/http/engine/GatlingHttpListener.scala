@@ -131,6 +131,11 @@ final class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: Res
   override def onFinalClientRequest(request: Request): Unit =
     finalClientRequest = request
 
+  // when nothing reads the body bytes, decompressing it is a pure waste of CPU and memory
+  // beware: bodyLength is then the compressed length, which is fine as it's not read either
+  override val isResponseBodyDecompressionRequired: Boolean =
+    storeBodyParts || digests.nonEmpty || httpProtocol.responsePart.inferHtmlResources
+
   override def onProtocolAwareness(isHttp2: Boolean): Unit =
     this.isHttp2 = isHttp2
 

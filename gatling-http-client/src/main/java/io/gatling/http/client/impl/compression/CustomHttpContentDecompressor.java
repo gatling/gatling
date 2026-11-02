@@ -16,12 +16,27 @@
 
 package io.gatling.http.client.impl.compression;
 
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 
 public final class CustomHttpContentDecompressor extends HttpContentDecompressor {
 
+  // HTTP/1.1 channels are used by one request at a time: this flag is set by HttpAppHandler before
+  // each request write, so it never has to be reset when the channel is put back in the pool
+  private boolean enabled = true;
+
   public CustomHttpContentDecompressor() {
     super(0);
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  @Override
+  protected EmbeddedChannel newContentDecoder(String contentEncoding) throws Exception {
+    // returning null makes HttpContentDecoder pass the message through untouched
+    return enabled ? super.newContentDecoder(contentEncoding) : null;
   }
 
   @Override

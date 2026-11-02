@@ -16,6 +16,7 @@
 
 package io.gatling.http.client.impl;
 
+import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
 import io.gatling.http.client.pool.ChannelPool;
@@ -35,12 +36,17 @@ final class HttpAppHandler extends ChannelDuplexHandler {
 
   private final DefaultHttpClient client;
   private final ChannelPool channelPool;
+  private final CustomHttpContentDecompressor decompressor;
   private HttpTx tx;
   private boolean httpResponseReceived;
 
-  HttpAppHandler(DefaultHttpClient client, ChannelPool channelPool) {
+  HttpAppHandler(
+      DefaultHttpClient client,
+      ChannelPool channelPool,
+      CustomHttpContentDecompressor decompressor) {
     this.client = client;
     this.channelPool = channelPool;
+    this.decompressor = decompressor;
   }
 
   @Override
@@ -101,6 +107,7 @@ final class HttpAppHandler extends ChannelDuplexHandler {
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());
+      decompressor.setEnabled(tx.listener.isResponseBodyDecompressionRequired());
       if (HttpUtil.is100ContinueExpected(request.getRequest())) {
         LOGGER.debug("Delaying body write");
         tx.pendingRequestExpectingContinue = request;

@@ -58,4 +58,14 @@ public interface HttpListener {
   default void onProtocolAwareness(boolean isHttp2) {}
 
   default void onWrite(Channel channel) {}
+
+  /**
+   * @return false if this listener doesn't care about the response body content (only about its
+   *     arrival), in which case the HTTP client can skip decompressing it. In that case, chunks
+   *     passed to {@link #onHttpResponseBodyChunk(ByteBuf, boolean)} are the raw bytes as sent by
+   *     the server and the Content-Encoding header is kept.
+   */
+  default boolean isResponseBodyDecompressionRequired() {
+    return true;
+  }
 }

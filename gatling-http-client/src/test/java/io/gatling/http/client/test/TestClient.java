@@ -20,6 +20,7 @@ import io.gatling.http.client.GatlingHttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.test.listener.TestListener;
+import io.netty.channel.EventLoop;
 import java.util.concurrent.CompletableFuture;
 
 public class TestClient extends GatlingHttpClient {
@@ -30,6 +31,12 @@ public class TestClient extends GatlingHttpClient {
 
   public CompletableFuture<Void> test(Request request, int affinity, TestListener listener) {
     super.execute(request, affinity, true, listener);
+    return listener.getResult();
+  }
+
+  public CompletableFuture<Void> test(
+      Request request, int affinity, EventLoop eventLoop, TestListener listener) {
+    super.execute(request, affinity, true, eventLoop, listener);
     return listener.getResult();
   }
 }

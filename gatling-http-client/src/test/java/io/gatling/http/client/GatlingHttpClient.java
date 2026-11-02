@@ -21,6 +21,7 @@ import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.resolver.InetAddressNameResolverWrapper;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.netty.util.Transports;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.http.HttpMethod;
@@ -57,12 +58,21 @@ public class GatlingHttpClient implements AutoCloseable {
   }
 
   public void execute(Request request, long clientId, boolean shared, HttpListener listener) {
+    execute(request, clientId, shared, nextEventLoop(), listener);
+  }
+
+  public void execute(
+      Request request, long clientId, boolean shared, EventLoop eventLoop, HttpListener listener) {
     client.sendRequest(
         request,
         shared ? -1 : clientId,
-        eventLoopGroup.next(),
+        eventLoop,
         listener,
         new SslContextsHolder.Default(sslContext, null));
+  }
+
+  public EventLoop nextEventLoop() {
+    return (EventLoop) eventLoopGroup.next();
   }
 
   public RequestBuilder newRequestBuilder(HttpMethod method, Uri uri) {

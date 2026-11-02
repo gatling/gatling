@@ -84,6 +84,11 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     return false;
   }
 
+  boolean isResponseBodyDecompressionRequired(int streamId) {
+    HttpTx tx = txByStreamId.get(streamId);
+    return tx == null || tx.listener.isResponseBodyDecompressionRequired();
+  }
+
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
     writeReached = true;

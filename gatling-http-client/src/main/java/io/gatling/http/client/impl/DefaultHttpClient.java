@@ -107,12 +107,15 @@ public final class DefaultHttpClient implements HttpClient {
     private final ChannelPool channelPool;
 
     private void addHttpHandlers(Channel channel) {
+      CustomHttpContentDecompressor decompressor = new CustomHttpContentDecompressor();
       channel
           .pipeline()
           .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-          .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
+          .addLast(INFLATER_HANDLER, decompressor)
           .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
-          .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool));
+          .addLast(
+              APP_HTTP_HANDLER,
+              new HttpAppHandler(DefaultHttpClient.this, channelPool, decompressor));
     }
 
     private void addWsHandlers(Channel channel) {
@@ -951,23 +954,27 @@ public final class DefaultHttpClient implements HttpClient {
 
                     ChannelPool.registerHttp2Connection(channel, connection);
 
+                    CustomDelegatingDecompressorFrameListener decompressorFrameListener =
+                        new CustomDelegatingDecompressorFrameListener(
+                            connection,
+                            new NotAggregatingInboundHttp2ToHttpAdapter(connection, whenAlpn));
+
                     HttpToHttp2ConnectionHandler http2Handler =
                         new HttpToHttp2ConnectionHandlerBuilder()
                             .initialSettings(DEFAULT_HTTP2_SETTINGS)
                             .connection(connection)
-                            .frameListener(
-                                new CustomDelegatingDecompressorFrameListener(
-                                    connection,
-                                    new NotAggregatingInboundHttp2ToHttpAdapter(
-                                        connection, whenAlpn)))
+                            .frameListener(decompressorFrameListener)
                             .build();
+
+                    Http2AppHandler http2AppHandler =
+                        new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool);
+                    decompressorFrameListener.setDecompressionRequired(
+                        http2AppHandler::isResponseBodyDecompressionRequired);
 
                     ctx.pipeline()
                         .addLast(HTTP2_HANDLER, http2Handler)
                         .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
-                        .addLast(
-                            APP_HTTP2_HANDLER,
-                            new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool));
+                        .addLast(APP_HTTP2_HANDLER, http2AppHandler);
 
                     channelPool.offer(channel);
 
@@ -1003,13 +1010,15 @@ public final class DefaultHttpClient implements HttpClient {
                       throw e;
                     }
                     tx.listener.onProtocolAwareness(false);
+                    CustomHttpContentDecompressor decompressor =
+                        new CustomHttpContentDecompressor();
                     ctx.pipeline()
                         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-                        .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
+                        .addLast(INFLATER_HANDLER, decompressor)
                         .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
                         .addLast(
                             APP_HTTP_HANDLER,
-                            new HttpAppHandler(DefaultHttpClient.this, channelPool));
+                            new HttpAppHandler(DefaultHttpClient.this, channelPool, decompressor));
                     whenAlpn.setSuccess(null);
                     break;
 
