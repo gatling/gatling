@@ -561,6 +561,30 @@ public final class CoreDsl {
     return ChainBuilder.EMPTY.rendezVous(users);
   }
 
+  /**
+   * Bootstrap a new ChainBuilder with a rendez-vous action, see {@link RendezVous#rendezVous(int,
+   * long)}.
+   *
+   * @param users the number of users that have to wait
+   * @param timeout the maximum time in seconds the first user of a batch waits
+   * @return a new ChainBuilder
+   */
+  public static @NonNull ChainBuilder rendezVous(int users, long timeout) {
+    return ChainBuilder.EMPTY.rendezVous(users, timeout);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a rendez-vous action, see {@link RendezVous#rendezVous(int,
+   * Duration)}.
+   *
+   * @param users the number of users that have to wait
+   * @param timeout the maximum time the first user of a batch waits
+   * @return a new ChainBuilder
+   */
+  public static @NonNull ChainBuilder rendezVous(int users, @NonNull Duration timeout) {
+    return ChainBuilder.EMPTY.rendezVous(users, timeout);
+  }
+
   ////////// StructureBuilder.Feeds
 
   /**

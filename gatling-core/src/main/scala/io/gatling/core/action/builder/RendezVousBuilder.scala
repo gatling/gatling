@@ -16,10 +16,12 @@
 
 package io.gatling.core.action.builder
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.core.action.{ Action, RendezVous }
 import io.gatling.core.structure.ScenarioContext
 
-private[core] final class RendezVousBuilder(users: Int) extends ActionBuilder {
+private[core] final class RendezVousBuilder(users: Int, timeout: Option[FiniteDuration]) extends ActionBuilder {
   override def build(ctx: ScenarioContext, next: Action): Action =
-    RendezVous(users, ctx.coreComponents.actorSystem, next)
+    RendezVous(users, timeout, ctx.coreComponents.actorSystem, next)
 }

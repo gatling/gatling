@@ -192,6 +192,8 @@ public class CoreJavaCompileTest extends Simulation {
               pace(session -> Duration.ofSeconds(1), session -> Duration.ofSeconds(2), "counter"),
               // rendezVous
               rendezVous(5),
+              rendezVous(5, 10),
+              rendezVous(5, Duration.ofSeconds(10)),
               // repeat
               repeat(1).on(chain1, chain2),
               repeat(1, "counterName").on(chain1, chain2),

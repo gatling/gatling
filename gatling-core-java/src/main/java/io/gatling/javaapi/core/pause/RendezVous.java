@@ -16,7 +16,10 @@
 
 package io.gatling.javaapi.core.pause;
 
+import static io.gatling.javaapi.core.internal.Converters.toScalaDuration;
+
 import io.gatling.javaapi.core.StructureBuilder;
+import java.time.Duration;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
@@ -35,12 +38,41 @@ public interface RendezVous<
   T make(Function<W, W> f);
 
   /**
-   * Make virtual users wait until enough of them reach this point
+   * Make virtual users wait until enough of them reach this point. Once released, the rendez-vous
+   * re-arms and the next virtual users wait again until another batch is complete.
    *
    * @param users the number of virtual users that must reach this point
    * @return a new StructureBuilder
    */
   default @NonNull T rendezVous(int users) {
     return make(wrapped -> wrapped.rendezVous(users));
+  }
+
+  /**
+   * Make virtual users wait until enough of them reach this point, or the timeout expires. Once
+   * released, the rendez-vous re-arms and the next virtual users wait again until another batch is
+   * complete.
+   *
+   * @param users the number of virtual users that must reach this point
+   * @param timeout the maximum time in seconds the first virtual user of a batch waits, after which
+   *     the virtual users waiting so far are released even if the batch is incomplete
+   * @return a new StructureBuilder
+   */
+  default @NonNull T rendezVous(int users, long timeout) {
+    return rendezVous(users, Duration.ofSeconds(timeout));
+  }
+
+  /**
+   * Make virtual users wait until enough of them reach this point, or the timeout expires. Once
+   * released, the rendez-vous re-arms and the next virtual users wait again until another batch is
+   * complete.
+   *
+   * @param users the number of virtual users that must reach this point
+   * @param timeout the maximum time the first virtual user of a batch waits, after which the
+   *     virtual users waiting so far are released even if the batch is incomplete
+   * @return a new StructureBuilder
+   */
+  default @NonNull T rendezVous(int users, @NonNull Duration timeout) {
+    return make(wrapped -> wrapped.rendezVous(users, toScalaDuration(timeout)));
   }
 }

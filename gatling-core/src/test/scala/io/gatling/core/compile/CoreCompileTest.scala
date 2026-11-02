@@ -171,6 +171,8 @@ class CoreCompileTest extends Simulation {
     .pace(session => 1.second, session => 2.seconds, "counter")
     // rendezVous
     .rendezVous(5)
+    .rendezVous(5, 10)
+    .rendezVous(5, 10.seconds)
 
   private val loops = scenario("loops")
     // repeat

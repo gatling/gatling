@@ -17,41 +17,73 @@
 package io.gatling.core.action
 
 import scala.collection.mutable
+import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.Clock
-import io.gatling.core.actor.{ Actor, ActorRef, ActorSystem, Behavior }
+import io.gatling.core.actor.{ Actor, ActorRef, ActorSystem, Behavior, Cancellable }
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
 private object RendezVous extends NameGen {
-  def apply(users: Int, actorSystem: ActorSystem, next: Action): RendezVous = {
-    val actor = actorSystem.actorOf(new RendezVousActor(users, next, genName("rendezVous")))
-    new RendezVous(actor)
+  def apply(users: Int, timeout: Option[FiniteDuration], actorSystem: ActorSystem, next: Action): RendezVous = {
+    val name = genName("rendezVous")
+    val actor = actorSystem.actorOf(new RendezVousActor(users, timeout, next, name))
+    new RendezVous(name, actor)
   }
 }
 
-private final class RendezVous private (actor: ActorRef[Session]) extends ActorDelegatingAction(actor.name, actor)
+private final class RendezVous private (val name: String, actor: ActorRef[RendezVousActor.Command]) extends Action {
+  override def execute(session: Session): Unit = actor ! RendezVousActor.Command.Arrive(session)
+}
+
+private object RendezVousActor {
+  sealed trait Command
+
+  object Command {
+    final case class Arrive(session: Session) extends Command
+    final case class Timeout(batch: Long) extends Command
+  }
+}
 
 /**
- * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
+ * Buffer Sessions until users is reached, then unleash buffer and re-arm for the next batch.
+ *
+ * When a timeout is defined, it starts when the first Session of a batch arrives. If the batch isn't complete when it fires, the Sessions buffered so far are
+ * unleashed anyway.
  */
-private final class RendezVousActor(users: Int, val next: Action, name: String) extends Actor[Session](name) {
-  private val buffer = mutable.Queue.empty[Session]
+private final class RendezVousActor(users: Int, timeout: Option[FiniteDuration], next: Action, name: String) extends Actor[RendezVousActor.Command](name) {
+  import RendezVousActor.Command._
 
-  override def init(): Behavior[Session] = session => {
-    buffer += session
-    if (buffer.sizeIs == users) {
-      buffer.foreach(next ! _)
-      buffer.clear()
-      become(passThrough)
-    } else {
-      stay
-    }
+  private val buffer = mutable.Queue.empty[Session]
+  // identifies the current batch so a timeout that fires after its batch has been released is ignored
+  private var batch = 0L
+  private var timer: Option[Cancellable] = None
+
+  private def release(): Unit = {
+    buffer.foreach(next ! _)
+    buffer.clear()
+    timer.foreach(_.cancel())
+    timer = None
+    batch += 1
   }
 
-  private val passThrough: Behavior[Session] = session => {
-    next ! session
-    stay
+  override def init(): Behavior[RendezVousActor.Command] = {
+    case Arrive(session) =>
+      buffer += session
+      if (buffer.sizeIs == users) {
+        release()
+      } else if (buffer.sizeIs == 1) {
+        timer = timeout.map { t =>
+          val currentBatch = batch
+          scheduler.scheduleOnce(t)(self ! Timeout(currentBatch))
+        }
+      }
+      stay
+
+    case Timeout(timedOutBatch) =>
+      if (timedOutBatch == batch) {
+        logger.debug(s"Rendez-vous $name timed out with ${buffer.size}/$users users, releasing them")
+        release()
+      }
+      stay
   }
 }

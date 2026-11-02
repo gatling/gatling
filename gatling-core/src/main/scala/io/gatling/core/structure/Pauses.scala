@@ -119,5 +119,27 @@ private[structure] trait Pauses[B] extends Execs[B] {
   def pace(min: Expression[FiniteDuration], max: Expression[FiniteDuration]): B = pace(durationExpression(min, max))
   def pace(min: Expression[FiniteDuration], max: Expression[FiniteDuration], counter: String): B = pace(durationExpression(min, max), counter)
 
-  def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
+  /**
+   * Make virtual users wait until enough of them reach this point. Once released, the rendez-vous re-arms and the next virtual users wait again until another
+   * batch is complete.
+   *
+   * @param users
+   *   the number of virtual users that must reach this point
+   * @return
+   *   a new builder with a rendez-vous added to its actions
+   */
+  def rendezVous(users: Int): B = exec(new RendezVousBuilder(users, None))
+
+  /**
+   * Make virtual users wait until enough of them reach this point, or the timeout expires. Once released, the rendez-vous re-arms and the next virtual users
+   * wait again until another batch is complete.
+   *
+   * @param users
+   *   the number of virtual users that must reach this point
+   * @param timeout
+   *   the maximum time the first virtual user of a batch waits, after which the virtual users waiting so far are released even if the batch is incomplete
+   * @return
+   *   a new builder with a rendez-vous added to its actions
+   */
+  def rendezVous(users: Int, timeout: FiniteDuration): B = exec(new RendezVousBuilder(users, Some(timeout)))
 }
