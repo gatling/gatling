@@ -189,7 +189,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").requestTimeout(3.minutes))
     // misc
     .exec(
-      http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.ignoreProtocolChecks.ignoreProtocolHeaders
+      http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.enableFollowRedirect.ignoreProtocolChecks.ignoreProtocolHeaders
     )
     // check
     .exec(

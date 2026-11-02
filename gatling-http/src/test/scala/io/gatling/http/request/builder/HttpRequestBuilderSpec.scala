@@ -365,6 +365,24 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
     realmUsername(_.ignoreProtocolAuth.basicAuth("requestUser", "requestPassword")) shouldBe Some("requestUser")
   }
 
+  private def followRedirect(f: HttpRequestBuilder => HttpRequestBuilder, httpProtocol: HttpProtocol): Boolean =
+    httpRequestDef(f, httpProtocol).requestConfig.followRedirect
+
+  private val protocolWithoutFollowRedirect = http(configuration).disableFollowRedirect.build
+
+  "followRedirect" should "follow the protocol by default" in {
+    followRedirect(identity, HttpProtocol(configuration)) shouldBe true
+    followRedirect(identity, protocolWithoutFollowRedirect) shouldBe false
+  }
+
+  it should "let the request disable redirects enabled on the protocol" in {
+    followRedirect(_.disableFollowRedirect, HttpProtocol(configuration)) shouldBe false
+  }
+
+  it should "let the request enable redirects disabled on the protocol" in {
+    followRedirect(_.enableFollowRedirect, protocolWithoutFollowRedirect) shouldBe true
+  }
+
   // Not possible to check prior of default over protocol, as only default added value is status
   // and the presence of a status (for same scope priority) remove the default one.
 }

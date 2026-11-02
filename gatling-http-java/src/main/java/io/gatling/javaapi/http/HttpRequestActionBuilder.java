@@ -218,6 +218,15 @@ public final class HttpRequestActionBuilder
   }
 
   /**
+   * Follow redirects for this request even if they're disabled at the protocol level
+   *
+   * @return a new HttpRequestActionBuilder instance
+   */
+  public @NonNull HttpRequestActionBuilder enableFollowRedirect() {
+    return make(io.gatling.http.request.builder.HttpRequestBuilder::enableFollowRedirect);
+  }
+
+  /**
    * Define a transformation on the response before applying the checks.
    *
    * @param f the transformation

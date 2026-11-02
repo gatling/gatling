@@ -295,6 +295,7 @@ public class HttpJavaCompileTest extends Simulation {
                   .silent()
                   .notSilent()
                   .disableFollowRedirect()
+                  .enableFollowRedirect()
                   .transformResponse((response, session) -> response)
                   .body(StringBody("static #{dynamic} static"))
                   .resources(http("name").get("url"), http("name").get("url"))

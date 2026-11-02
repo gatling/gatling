@@ -46,7 +46,7 @@ object HttpAttributes {
       postChecks = Nil,
       ignoreProtocolChecks = false,
       silent = None,
-      followRedirect = true,
+      followRedirect = None,
       responseTransformer = None,
       explicitResources = Nil,
       requestTimeout = None
@@ -58,7 +58,7 @@ final case class HttpAttributes(
     postChecks: List[Expression[Session]],
     ignoreProtocolChecks: Boolean,
     silent: Option[Boolean],
-    followRedirect: Boolean,
+    followRedirect: Option[Boolean],
     responseTransformer: Option[ResponseBiTransformer],
     explicitResources: List[HttpRequestBuilder],
     requestTimeout: Option[FiniteDuration]
@@ -112,7 +112,12 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
 
   def notSilent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(false))
 
-  def disableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(false)
+  def disableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(Some(false))
+
+  /**
+   * Follow redirects for this request even if they're disabled at the protocol level
+   */
+  def enableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(Some(true))
 
   /**
    * @param responseTransformer
@@ -178,7 +183,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, bodyAttr
         check
       }
 
-    val resolvedFollowRedirect = httpProtocol.responsePart.followRedirect && httpAttributes.followRedirect
+    val resolvedFollowRedirect = httpAttributes.followRedirect.getOrElse(httpProtocol.responsePart.followRedirect)
 
     val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(httpProtocol.responsePart.responseTransformer)
 
