@@ -23,7 +23,7 @@ import io.gatling.core.session.{ Expression, Session }
 sealed trait WsCheck
 
 object WsCheck {
-  final class Text(wrapped: Check[String]) extends WsCheck with Check[String] {
+  final class Text(private[http] val wrapped: Check[String]) extends WsCheck with Check[String] {
     override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
       wrapped.check(message, session, preparedCache)
 

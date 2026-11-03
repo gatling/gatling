@@ -29,8 +29,10 @@ object SseMessageCheckSequenceBuilder {
       for {
         accValue <- acc
         timeout <- builder.timeout(session)
-      } yield accValue :+ SseMessageCheckSequence(timeout, builder.checks)
+      } yield accValue :+ SseMessageCheckSequence(timeout, builder.restrictedChecks)
     }
 }
 
-final case class SseMessageCheckSequenceBuilder(timeout: Expression[FiniteDuration], checks: List[SseMessageCheck])
+final case class SseMessageCheckSequenceBuilder(timeout: Expression[FiniteDuration], checks: List[SseMessageCheck]) {
+  private[sse] lazy val restrictedChecks: List[SseMessageCheck] = checks.map(_.restrictedToJsonSubset)
+}

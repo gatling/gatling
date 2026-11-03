@@ -19,6 +19,7 @@ package io.gatling.http.check.sse
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ PartialJson, StringJsonPreparers }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.internal.quicklens._
 
@@ -46,5 +47,15 @@ final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], 
   def postCheck(postCheck: Expression[Session]): SseMessageCheck = {
     require(postCheck != null, "postCheck can't be null. Forward reference issue?")
     this.modify(_.postChecks)(_ ::: List(postCheck))
+  }
+
+  /**
+   * These checks, the JSON ones sharing a Preparer that only parses the subset of the event they read, if they all only read a subset of it, see
+   * [[PartialJson.restrictToSubset]]. The match conditions and the checks share the PreparedCache, so they're restricted together.
+   */
+  private[http] lazy val restrictedToJsonSubset: SseMessageCheck = {
+    val restricted = PartialJson.restrictToSubset(matchConditions ::: checks, StringJsonPreparers)(_.wrapped, (_, wrapped) => new SseCheck(wrapped))
+    val (restrictedMatchConditions, restrictedChecks) = restricted.splitAt(matchConditions.size)
+    copy(matchConditions = restrictedMatchConditions, checks = restrictedChecks)
   }
 }

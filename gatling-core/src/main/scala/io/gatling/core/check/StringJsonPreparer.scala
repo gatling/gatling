@@ -17,7 +17,7 @@
 package io.gatling.core.check
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.json.JsonParsers
+import io.gatling.core.json.{ JsonParsers, JsonSubset }
 
 import com.fasterxml.jackson.databind.JsonNode
 
@@ -31,4 +31,22 @@ import com.fasterxml.jackson.databind.JsonNode
  */
 private[gatling] final case class StringJsonPreparer(jsonParsers: JsonParsers) extends Preparer[String, JsonNode] {
   override def apply(string: String): Validation[JsonNode] = jsonParsers.safeParse(string)
+}
+
+/** Parses a String payload into a partial Jackson tree, that only contains the subset the checks read, see [[PartialJson]]. */
+private[gatling] final case class StringPartialJsonPreparer(jsonParsers: JsonParsers, subset: JsonSubset) extends Preparer[String, JsonNode] {
+  override def apply(string: String): Validation[JsonNode] = jsonParsers.safeParsePartial(string, subset)
+}
+
+private[gatling] object StringJsonPreparers extends JsonPreparers[String] {
+  override def jsonParsers(preparer: Any): Option[JsonParsers] =
+    preparer match {
+      case StringJsonPreparer(jsonParsers)           => Some(jsonParsers)
+      case StringPartialJsonPreparer(jsonParsers, _) => Some(jsonParsers)
+      case _                                         => None
+    }
+
+  override def whole(jsonParsers: JsonParsers): Preparer[String, JsonNode] = StringJsonPreparer(jsonParsers)
+
+  override def partial(jsonParsers: JsonParsers, subset: JsonSubset): Preparer[String, JsonNode] = StringPartialJsonPreparer(jsonParsers, subset)
 }

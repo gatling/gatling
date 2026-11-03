@@ -20,7 +20,7 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.{ Expression, Session }
 
-final class SseCheck(wrapped: Check[String]) extends Check[String] {
+final class SseCheck(private[http] val wrapped: Check[String]) extends Check[String] {
   override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 

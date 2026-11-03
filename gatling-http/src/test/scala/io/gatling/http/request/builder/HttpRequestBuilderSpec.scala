@@ -22,18 +22,21 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.ValidationValues
 import io.gatling.commons.util.DefaultClock
+import io.gatling.commons.validation.Validation
 import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
-import io.gatling.core.check.Check
+import io.gatling.core.check.{ Check, CheckResult, PreparedCheck, PreparedSubset, Preparer }
 import io.gatling.core.check.jmespath.{ JmesPathCheckBuilder, JmesPaths }
 import io.gatling.core.check.jsonpath.{ JsonPathCheckBuilder, JsonPaths }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.JsonSubset
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
 import io.gatling.http.cache.{ DnsCacheSupport, Http2PriorKnowledgeSupport, HttpCaches }
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.check.body.HttpBodyPartialJsonPreparer
+import io.gatling.http.check.body.{ HttpBodyJsonPreparer, HttpBodyPartialJsonPreparer }
 import io.gatling.http.client.{ Http2FlowControlWindows, Http2PriorKnowledge, HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
@@ -41,7 +44,9 @@ import io.gatling.http.client.realm.BasicRealm
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
+import io.gatling.http.response.Response
 
+import com.fasterxml.jackson.databind.JsonNode
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -287,6 +292,44 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
     preparers.distinct should have size 1
   }
 
+  private def customJsonCheck(subset: Option[PreparedSubset]): HttpCheck =
+    HttpCheck(HttpRequestBuilderSpec.CustomJsonCheck(HttpBodyJsonPreparer(defaultJsonParsers), subset), Body)
+
+  private def jsonPreparers(checks: List[HttpCheck]): List[Any] =
+    checks.map(_.wrapped).collect { case prepared: PreparedCheck[_] => prepared.preparer: Any }.collect {
+      case preparer: HttpBodyJsonPreparer        => preparer
+      case preparer: HttpBodyPartialJsonPreparer => preparer
+    }
+
+  "checks" should "share a partial JSON Preparer with the custom JSON checks that read a subset" in {
+    val result = httpRequestDef(
+      _.check(
+        JsonPathCheckBuilder.jsonPath("$.meta.code".expressionSuccess, new JsonPaths(10)).find.is("OK".expressionSuccess),
+        customJsonCheck(JsonSubset(List(JsonSubset.Segment.Field("errors"))))
+      )
+    ).build(sessionBase)
+      .map(_.requestConfig.checks)
+      .succeeded
+
+    val preparers = jsonPreparers(result)
+    preparers should have size 2
+    preparers.distinct should have size 1
+    preparers.head shouldBe a[HttpBodyPartialJsonPreparer]
+  }
+
+  it should "keep the whole JSON Preparer when a custom JSON check may read anything" in {
+    val result = httpRequestDef(
+      _.check(
+        JsonPathCheckBuilder.jsonPath("$.meta.code".expressionSuccess, new JsonPaths(10)).find.is("OK".expressionSuccess),
+        customJsonCheck(None)
+      )
+    ).build(sessionBase)
+      .map(_.requestConfig.checks)
+      .succeeded
+
+    jsonPreparers(result) shouldBe List(HttpBodyJsonPreparer(defaultJsonParsers), HttpBodyJsonPreparer(defaultJsonParsers))
+  }
+
   "checks" should "respect their provenance priority" in {
     val result = httpRequestDef(
       _.check(bodyString.notNull),
@@ -422,5 +465,22 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
       .build(flushedSession)
       .map(_.clientRequest.getHttp2PriorKnowledge)
       .succeeded shouldBe Http2PriorKnowledge.HTTP2_SUPPORTED
+  }
+}
+
+object HttpRequestBuilderSpec {
+
+  /** A custom check reading the response body parsed into a JSON tree. */
+  private final case class CustomJsonCheck(preparer: Preparer[Response, JsonNode], preparedSubset: Option[PreparedSubset]) extends PreparedCheck[Response] {
+    override type Prepared = JsonNode
+
+    override def withPreparer(preparer: Preparer[Response, JsonNode]): CustomJsonCheck = copy(preparer = preparer)
+
+    override def check(response: Response, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+      prepare(response, preparedCache).map(_ => new CheckResult(None, None))
+
+    override def checkIf(condition: Expression[Boolean]): Check[Response] = this
+
+    override def checkIf(condition: (Response, Session) => Validation[Boolean]): Check[Response] = this
   }
 }

@@ -118,26 +118,24 @@ object Check {
       condition: Option[(R, Session) => Validation[Boolean]],
       saveAs: Option[String],
       preparedSubset: Option[PreparedSubset]
-  ) extends ConditionalCheck[R](condition) {
+  ) extends ConditionalCheck[R](condition)
+      with PreparedCheck[R] {
+    override type Prepared = P
+
     override def checkIf(condition: (R, Session) => Validation[Boolean]): Check[R] = copy(condition = Some(condition))
+
+    override def withPreparer(preparer: Preparer[R, P]): Default[R, P, X] = copy(preparer = preparer)
 
     private val unbuiltName: String = customName.getOrElse("Check")
 
     protected def check0(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] = {
-      def memoizedPrepared: Validation[P] =
-        if (preparedCache == null) {
-          preparer(response)
-        } else {
-          preparedCache.computeIfAbsent(preparer, _ => preparer(response)).asInstanceOf[Validation[P]]
-        }
-
       def builtName(extractor: Extractor[P, X], validator: Validator[X]): String =
         customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
 
       for {
         extractor <- extractorExpression(session).mapFailure(message => s"$unbuiltName extractor resolution crashed: $message")
         validator <- validatorExpression(session).mapFailure(message => s"$unbuiltName validator resolution crashed: $message")
-        prepared <- memoizedPrepared.mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
+        prepared <- prepare(response, preparedCache).mapFailure(message => s"${builtName(extractor, validator)} preparation crashed: $message")
         actual <- extractor(prepared).mapFailure(message => s"${builtName(extractor, validator)} extraction crashed: $message")
         matched <- validator(actual, logActualValueInError).mapFailure(message => s"${builtName(extractor, validator)}, $message")
       } yield new CheckResult(matched, saveAs)

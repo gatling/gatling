@@ -19,6 +19,7 @@ package io.gatling.http.check.ws
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ PartialJson, StringJsonPreparers }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.internal.quicklens._
 
@@ -96,5 +97,16 @@ object WsFrameCheck {
 
     def silent: Text =
       copy(isSilent = true)
+
+    /**
+     * These checks, the JSON ones sharing a Preparer that only parses the subset of the message they read, if they all only read a subset of it, see
+     * [[PartialJson.restrictToSubset]]. The match conditions and the checks share the PreparedCache, so they're restricted together.
+     */
+    private[http] lazy val restrictedToJsonSubset: Text = {
+      val restricted =
+        PartialJson.restrictToSubset(matchConditions ::: checks, StringJsonPreparers)(_.wrapped, (_, wrapped) => new WsCheck.Text(wrapped))
+      val (restrictedMatchConditions, restrictedChecks) = restricted.splitAt(matchConditions.size)
+      copy(matchConditions = restrictedMatchConditions, checks = restrictedChecks)
+    }
   }
 }

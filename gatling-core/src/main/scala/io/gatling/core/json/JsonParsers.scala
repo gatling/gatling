@@ -62,4 +62,17 @@ final class JsonParsers {
 
   def safeParsePartial(is: InputStream, subset: JsonSubset): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parsePartial(is, subset).success)
+
+  /** Only builds the parts of the tree the subset needs, see [[PartialJsonReader]]. */
+  def parsePartial(string: String, subset: JsonSubset): JsonNode = {
+    val parser = Json.objectMapper.createParser(string)
+    try {
+      PartialJsonReader.read(parser, subset, Json.objectMapper)
+    } finally {
+      parser.close()
+    }
+  }
+
+  def safeParsePartial(string: String, subset: JsonSubset): Validation[JsonNode] =
+    safely(JacksonErrorMapper)(parsePartial(string, subset).success)
 }

@@ -52,7 +52,7 @@ object WsFrameCheckSequenceBuilder {
         case Nil           => acc.reverse.success
         case check :: tail =>
           val resolvedCheckV = check match {
-            case text: WsFrameCheck.Text     => text.name(session).map(resolvedName => text.copy(resolvedName = resolvedName))
+            case text: WsFrameCheck.Text     => text.name(session).map(resolvedName => text.restrictedToJsonSubset.copy(resolvedName = resolvedName))
             case binary: WsFrameCheck.Binary => binary.name(session).map(resolvedName => binary.copy(resolvedName = resolvedName))
           }
 

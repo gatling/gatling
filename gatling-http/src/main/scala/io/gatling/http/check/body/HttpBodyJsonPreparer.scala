@@ -29,7 +29,8 @@ import com.fasterxml.jackson.databind.JsonNode
  * The PreparedCache is keyed by Preparer, so a response body is only parsed once for all the checks whose Preparers are equal. This is a case class so that all
  * the instances built for the same JsonParsers are equal: custom checks that need the parsed body should get it from this Preparer, built with the same
  * JsonParsers as the DSL (`io.gatling.core.Predef.defaultJsonParsers`), so the body is parsed only once for them and for the regular jsonPath and jmesPath
- * checks.
+ * checks. They should also be [[io.gatling.core.check.PreparedCheck]]s, so that when all the JSON checks of a request only read a subset of the body, they
+ * still share the parsed body, see [[HttpBodyPartialJson]].
  */
 private[gatling] final case class HttpBodyJsonPreparer(jsonParsers: JsonParsers) extends Preparer[Response, JsonNode] {
   override def apply(response: Response): Validation[JsonNode] = jsonParsers.safeParse(response.body.stream)

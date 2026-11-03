@@ -17,7 +17,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ Check, Preparer }
+import io.gatling.core.check.{ JsonPreparers, PartialJson, Preparer }
 import io.gatling.core.json.{ JsonParsers, JsonSubset }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
@@ -33,38 +33,20 @@ private[gatling] final case class HttpBodyPartialJsonPreparer(jsonParsers: JsonP
 }
 
 private[http] object HttpBodyPartialJson {
-  private def jsonCheck(check: HttpCheck): Option[(Check.Default[Response, JsonNode, Any], JsonParsers)] =
-    check.wrapped match {
-      case default: Check.Default[_, _, _] =>
-        default.preparer match {
-          case HttpBodyJsonPreparer(jsonParsers) => Some((default.asInstanceOf[Check.Default[Response, JsonNode, Any]], jsonParsers))
-          case _                                 => None
-        }
-      case _ => None
-    }
+  private object HttpBodyJsonPreparers extends JsonPreparers[Response] {
+    override def jsonParsers(preparer: Any): Option[JsonParsers] =
+      preparer match {
+        case HttpBodyJsonPreparer(jsonParsers)           => Some(jsonParsers)
+        case HttpBodyPartialJsonPreparer(jsonParsers, _) => Some(jsonParsers)
+        case _                                           => None
+      }
 
-  /**
-   * When all the checks of a request that parse the response body into a JSON tree only read a subset of it, eg `jsonPath("$.meta.code")`, make them share a
-   * Preparer that only builds the union of their subsets. Otherwise, the checks are left untouched and the whole tree gets built.
-   */
+    override def whole(jsonParsers: JsonParsers): Preparer[Response, JsonNode] = HttpBodyJsonPreparer(jsonParsers)
+
+    override def partial(jsonParsers: JsonParsers, subset: JsonSubset): Preparer[Response, JsonNode] = HttpBodyPartialJsonPreparer(jsonParsers, subset)
+  }
+
+  /** See [[PartialJson.restrictToSubset]], for the checks of a request. */
   def restrictToSubset(checks: List[HttpCheck]): List[HttpCheck] =
-    checks.flatMap(jsonCheck) match {
-      case Nil                                => checks
-      case jsonChecks @ (_, jsonParsers) :: _ =>
-        val subsets = jsonChecks.map { case (default, checkJsonParsers) =>
-          if (checkJsonParsers == jsonParsers) default.preparedSubset.collect { case subset: JsonSubset => subset } else None
-        }
-
-        if (subsets.forall(_.isDefined)) {
-          val preparer = HttpBodyPartialJsonPreparer(jsonParsers, subsets.flatten.reduce(_ ++ _))
-          checks.map { check =>
-            jsonCheck(check) match {
-              case Some((default, _)) => check.copy(wrapped = default.copy(preparer = preparer))
-              case _                  => check
-            }
-          }
-        } else {
-          checks
-        }
-    }
+    PartialJson.restrictToSubset(checks, HttpBodyJsonPreparers)(_.wrapped, (check, wrapped) => check.copy(wrapped = wrapped))
 }
