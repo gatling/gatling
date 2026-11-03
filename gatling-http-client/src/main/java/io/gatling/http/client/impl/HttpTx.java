@@ -20,6 +20,7 @@ import io.gatling.http.client.Http2PriorKnowledge;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.SslContextsHolder;
+import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.util.HttpUtils;
@@ -71,6 +72,12 @@ public final class HttpTx {
       }
       return sslContextsHolder.getAlpnSslContext();
     }
+  }
+
+  boolean isBodyReplayable() {
+    // InputStreamRequestBody can't be replayed once consumed
+    return !(request.getBody() instanceof InputStreamRequestBody
+        && ((InputStreamRequestBody) request.getBody()).isConsumed());
   }
 
   void releasePendingRequestExpectingContinue() {

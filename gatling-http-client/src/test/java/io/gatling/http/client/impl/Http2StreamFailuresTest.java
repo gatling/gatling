@@ -33,11 +33,11 @@ class Http2StreamFailuresTest {
       List<Integer> streamIds = harness.streamIdsOpenedByClient();
       assertEquals(2, streamIds.size());
 
-      harness.resetStream(streamIds.get(0), Http2Error.REFUSED_STREAM);
+      harness.resetStream(streamIds.get(0), Http2Error.INTERNAL_ERROR);
 
       assertEquals(1, listener1.failureCount, "the reset stream must be failed right away");
       assertTrue(
-          listener1.failure.getMessage().contains("REFUSED_STREAM"),
+          listener1.failure.getMessage().contains("INTERNAL_ERROR"),
           () -> "unexpected message: " + listener1.failure.getMessage());
 
       assertTrue(harness.client.isActive(), "the connection must remain usable");

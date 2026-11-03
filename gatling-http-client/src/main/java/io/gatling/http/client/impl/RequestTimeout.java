@@ -54,7 +54,11 @@ public interface RequestTimeout {
 
     @Override
     public void start(EventLoop eventLoop) {
-      f = eventLoop.schedule(this::execute, timeout, TimeUnit.MILLISECONDS);
+      // retries go through start again: keep the original deadline instead of scheduling another
+      // timeout that would notify the listener a second time
+      if (f == null) {
+        f = eventLoop.schedule(this::execute, timeout, TimeUnit.MILLISECONDS);
+      }
     }
 
     private void execute() {
@@ -83,6 +87,8 @@ public interface RequestTimeout {
     public void setChannel(Channel channel) {
       this.channel = channel;
       remoteAddress = (InetSocketAddress) channel.remoteAddress();
+      // when retrying on another connection, the previous stream id would belong to another stream
+      streamId = null;
     }
 
     public void setStreamId(int streamId) {

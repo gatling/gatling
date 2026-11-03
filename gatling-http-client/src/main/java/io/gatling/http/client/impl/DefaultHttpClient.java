@@ -17,7 +17,6 @@
 package io.gatling.http.client.impl;
 
 import io.gatling.http.client.*;
-import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.impl.chunk.ForkedChunkedWriteHandler;
 import io.gatling.http.client.impl.compression.CustomDelegatingDecompressorFrameListener;
 import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
@@ -58,6 +57,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -358,10 +358,7 @@ public final class DefaultHttpClient implements HttpClient {
   // only retry pooled keep-alive connections = when keep-alive timeout triggered server side while
   // we were writing and request can be replayed
   boolean canRetry(HttpTx tx) {
-    return tx.channelState == HttpTx.ChannelState.POOLED
-        && !(tx.request.getBody() instanceof InputStreamRequestBody
-            && ((InputStreamRequestBody) tx.request.getBody())
-                .isConsumed()); // InputStreamRequestBody can't be replayed
+    return tx.channelState == HttpTx.ChannelState.POOLED && tx.isBodyReplayable();
   }
 
   void retry(HttpTx tx, EventLoop eventLoop) {
@@ -937,7 +934,7 @@ public final class DefaultHttpClient implements HttpClient {
 
   static void installHttp2Handlers(
       ChannelPipeline pipeline,
-      DefaultHttpClient client,
+      BiConsumer<List<HttpTx>, EventLoop> retry,
       ChannelPool channelPool,
       Promise<Void> whenAlpn) {
     Http2Connection connection = new DefaultHttp2Connection(false);
@@ -957,7 +954,7 @@ public final class DefaultHttpClient implements HttpClient {
             .encoderEnforceMaxConcurrentStreams(true)
             .build();
 
-    Http2AppHandler http2AppHandler = new Http2AppHandler(client, http2Handler, channelPool);
+    Http2AppHandler http2AppHandler = new Http2AppHandler(retry, http2Handler, channelPool);
     decompressorFrameListener.setDecompressionRequired(
         http2AppHandler::isResponseBodyDecompressionRequired);
 
@@ -987,7 +984,7 @@ public final class DefaultHttpClient implements HttpClient {
                         "ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
                     tx.listener.onProtocolAwareness(true);
                     installHttp2Handlers(
-                        ctx.pipeline(), DefaultHttpClient.this, channelPool, whenAlpn);
+                        ctx.pipeline(), DefaultHttpClient.this::retryHttp2, channelPool, whenAlpn);
                     channelPool.offer(channel);
 
                     SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);

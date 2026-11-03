@@ -55,18 +55,20 @@ class Http2MaxConcurrentStreamsTest {
   }
 
   @Test
-  void shouldNotifyQueuedStreamOnlyOnceOnGoAway() throws Exception {
+  void shouldRetryQueuedStreamDroppedByGoAwayWithoutFailingIt() throws Exception {
     try (Http2ClientHarness harness = new Http2ClientHarness(1)) {
       RecordingListener listener1 = harness.sendRequest();
       RecordingListener listener2 = harness.sendRequest();
       List<Integer> streamIds = harness.streamIdsOpenedByClient();
       assertEquals(1, streamIds.size());
 
-      // not NO_ERROR, so the dropped queued stream is failed instead of retried
       harness.goAway(streamIds.get(0), Http2Error.INTERNAL_ERROR);
 
       assertEquals(0, listener1.failureCount, "the stream processed by the server must go on");
-      assertEquals(1, listener2.failureCount, "the queued stream must be failed exactly once");
+      assertEquals(1, harness.retried.size(), "the queued stream must be retried");
+      assertSame(listener2, harness.retried.get(0).listener);
+      // StreamBufferingEncoder fails the queued stream's write after we retried it
+      assertEquals(0, listener2.failureCount, "the retried stream must not be failed");
     }
   }
 }

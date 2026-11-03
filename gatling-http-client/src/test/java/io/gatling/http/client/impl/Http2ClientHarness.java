@@ -71,6 +71,10 @@ final class Http2ClientHarness implements AutoCloseable {
   private static final Uri URI = Uri.create("https://gatling.io/");
 
   final EmbeddedChannel client = new EmbeddedChannel();
+
+  /** transactions the client retried, in order */
+  final List<HttpTx> retried = new ArrayList<>();
+
   private final EmbeddedChannel server = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
   private final ChannelHandlerContext serverCtx = server.pipeline().firstContext();
   private final Http2FrameWriter serverWriter = new DefaultHttp2FrameWriter();
@@ -79,7 +83,16 @@ final class Http2ClientHarness implements AutoCloseable {
   Http2ClientHarness(int maxConcurrentStreams) {
     ChannelPool.registerPoolKey(client, new ChannelPoolKey(1, RemoteKey.newKey(URI, null)));
     DefaultHttpClient.installHttp2Handlers(
-        client.pipeline(), null, new ChannelPool(), client.eventLoop().newPromise());
+        client.pipeline(),
+        // like DefaultHttpClient#retryHttp2, without sending
+        (txs, eventLoop) ->
+            txs.forEach(
+                tx -> {
+                  tx.channelState = HttpTx.ChannelState.RETRY;
+                  retried.add(tx);
+                }),
+        new ChannelPool(),
+        client.eventLoop().newPromise());
 
     // skip the client preface
     client.flush();
@@ -122,6 +135,11 @@ final class Http2ClientHarness implements AutoCloseable {
             new ChannelPoolKey(1, RemoteKey.newKey(URI, null)),
             null));
     return listener;
+  }
+
+  /** Sends a retried transaction again, on this same connection. */
+  void resend(HttpTx tx) {
+    client.write(tx);
   }
 
   private void sendToClient() {

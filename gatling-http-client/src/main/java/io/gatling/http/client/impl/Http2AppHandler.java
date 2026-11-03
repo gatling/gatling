@@ -25,9 +25,11 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
   private static final IOException CONNECTION_CLOSED_EXCEPTION =
       new IOException("Connection was closed while the stream was in flight");
 
-  private final DefaultHttpClient client;
+  private final BiConsumer<List<HttpTx>, EventLoop> retry;
   private final Http2ConnectionHandler http2ConnectionHandler;
   private final ChannelPool channelPool;
 
@@ -88,12 +90,19 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
   private final Map<Integer, HttpTx> txByStreamId = new HashMap<>();
 
   Http2AppHandler(
-      DefaultHttpClient client,
+      BiConsumer<List<HttpTx>, EventLoop> retry,
       Http2ConnectionHandler http2ConnectionHandler,
       ChannelPool channelPool) {
-    this.client = client;
+    this.retry = retry;
     this.http2ConnectionHandler = http2ConnectionHandler;
     this.channelPool = channelPool;
+  }
+
+  // streams dropped by a GOAWAY or refused with REFUSED_STREAM were not processed by the server, so
+  // they can be retried whatever the request (RFC 9113 section 8.7), but only once to avoid
+  // looping, and only if the body can be replayed
+  private static boolean canRetryUnprocessedStream(HttpTx tx) {
+    return tx.channelState != HttpTx.ChannelState.RETRY && tx.isBodyReplayable();
   }
 
   @Override
@@ -307,15 +316,17 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
           entry -> {
             txByStreamId.remove(entry.getKey());
             HttpTx tx = entry.getValue();
-            if (goAway.errorCode == Http2Error.NO_ERROR.code() && client.canRetry(tx)) {
+            tx.releasePendingRequestExpectingContinue();
+            if (canRetryUnprocessedStream(tx)) {
               retryTxs.add(tx);
             } else {
+              tx.requestTimeout.cancel();
               tx.listener.onThrowable(REMOTELY_CLOSED_EXCEPTION);
             }
           });
 
       if (!retryTxs.isEmpty()) {
-        client.retryHttp2(retryTxs, ctx.channel().eventLoop());
+        retry.accept(retryTxs, ctx.channel().eventLoop());
       }
 
     } else if (evt instanceof RstStreamFrame) {
@@ -325,12 +336,17 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
         LOGGER.debug("Received RST_STREAM frame: {}", rstStream);
         // Netty closes the stream after notifying us
         tx.releasePendingRequestExpectingContinue();
-        tx.requestTimeout.cancel();
-        Http2Error error = Http2Error.valueOf(rstStream.errorCode);
-        tx.listener.onThrowable(
-            new IOException(
-                "Stream was reset by the server with error code "
-                    + (error != null ? error : rstStream.errorCode)));
+        if (rstStream.errorCode == Http2Error.REFUSED_STREAM.code()
+            && canRetryUnprocessedStream(tx)) {
+          retry.accept(Collections.singletonList(tx), ctx.channel().eventLoop());
+        } else {
+          tx.requestTimeout.cancel();
+          Http2Error error = Http2Error.valueOf(rstStream.errorCode);
+          tx.listener.onThrowable(
+              new IOException(
+                  "Stream was reset by the server with error code "
+                      + (error != null ? error : rstStream.errorCode)));
+        }
         channelPool.offer(ctx.channel());
       }
 
