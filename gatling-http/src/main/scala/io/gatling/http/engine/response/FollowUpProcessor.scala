@@ -22,17 +22,77 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.core.session.Session
 import io.gatling.http.auth.DigestAuthSupport
+import io.gatling.http.cache.Http2PriorKnowledgeSupport
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, Remote }
 
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpMethod._
 import io.netty.handler.codec.http.HttpResponseStatus._
 
 object FollowUpProcessor {
+
+  /**
+   * Builds a follow-up request that keeps the original request's settings: only the request line, the headers and the body differ, and the cookies and the
+   * HTTP/2 prior knowledge are the ones for the follow-up's remote.
+   */
+  private def followUpRequestBuilder(
+      name: String,
+      method: HttpMethod,
+      uri: Uri,
+      headers: HttpHeaders,
+      originalRequest: Request,
+      session: Session,
+      defaultCharset: Charset,
+      useProxy: Boolean
+  ): RequestBuilder = {
+    val requestBuilder =
+      new RequestBuilder(name, method, uri, originalRequest.getNameResolver)
+        .setHeaders(headers)
+        .setAutoOrigin(originalRequest.isAutoOrigin)
+        .setLocalAddresses(originalRequest.getLocalAddresses)
+        .setRealm(originalRequest.getRealm)
+        .setRequestTimeout(originalRequest.getRequestTimeout)
+        .setSignatureCalculator(originalRequest.getSignatureCalculator)
+        .setHttp2Enabled(originalRequest.isHttp2Enabled)
+        .setHttp2PriorKnowledge(Http2PriorKnowledgeSupport.findHttp2PriorKnowledge(session, Remote(uri)).orNull)
+        .setHttp2FlowControlWindows(originalRequest.getHttp2FlowControlWindows)
+        .setDefaultCharset(defaultCharset)
+
+    if (useProxy) {
+      requestBuilder.setProxyServer(originalRequest.getProxyServer)
+      requestBuilder.setProxyProtocolSourceIpV4Address(originalRequest.getProxyProtocolSourceIpV4Address)
+      requestBuilder.setProxyProtocolSourceIpV6Address(originalRequest.getProxyProtocolSourceIpV6Address)
+    }
+
+    val cookies = CookieSupport.getStoredCookies(session, uri)
+    if (cookies.nonEmpty) {
+      requestBuilder.setCookies(cookies.asJava)
+    }
+
+    requestBuilder
+  }
+
+  /**
+   * A copy of the original request's headers, so the original request isn't altered, without the ones the follow-up recomputes.
+   */
+  private def followUpHeaders(originalRequest: Request): HttpHeaders = {
+    val headers = originalRequest.getHeaders
+      .copy()
+      .remove(HttpHeaderNames.CONTENT_LENGTH)
+      .remove(HttpHeaderNames.COOKIE)
+
+    if (originalRequest.getRealm != null) {
+      // remove Authorization header if there's a realm as it will be recomputed
+      headers.remove(HttpHeaderNames.AUTHORIZATION)
+    }
+
+    headers
+  }
+
   def redirectRequest(
       requestName: String,
       originalRequest: Request,
@@ -50,96 +110,29 @@ object FollowUpProcessor {
     val keepBody =
       responseStatus == TEMPORARY_REDIRECT || responseStatus == PERMANENT_REDIRECT || (responseStatus == FOUND && httpProtocol.responsePart.strict302Handling)
 
-    val newHeaders = originalRequest.getHeaders
+    val headers = followUpHeaders(originalRequest)
+      // the remote might be different
       .remove(HttpHeaderNames.HOST)
-      .remove(HttpHeaderNames.CONTENT_LENGTH)
-      .remove(HttpHeaderNames.COOKIE)
       .remove(HttpHeaderNames.ORIGIN)
 
-    if (originalRequest.getRealm != null) {
-      // remove Authorization header if there's a realm as it will be recomputed
-      newHeaders.remove(HttpHeaderNames.AUTHORIZATION)
-    }
-
     if (!keepBody) {
-      newHeaders.remove(HttpHeaderNames.CONTENT_TYPE)
+      headers.remove(HttpHeaderNames.CONTENT_TYPE)
     }
 
     val requestBuilder =
-      new RequestBuilder(
+      followUpRequestBuilder(
         httpProtocol.responsePart.redirectNamingStrategy(redirectUri, requestName, redirectCount),
         if (switchToGet) GET else originalMethod,
         redirectUri,
-        originalRequest.getNameResolver
+        headers,
+        originalRequest,
+        session,
+        defaultCharset,
+        useProxy = !httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)
       )
-        .setHeaders(newHeaders)
-        .setHttp2Enabled(originalRequest.isHttp2Enabled)
-        .setLocalAddresses(originalRequest.getLocalAddresses)
-        .setRealm(originalRequest.getRealm)
-        .setRequestTimeout(originalRequest.getRequestTimeout)
-        .setDefaultCharset(defaultCharset)
-
-    if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
-      requestBuilder.setProxyServer(originalRequest.getProxyServer)
-      requestBuilder.setProxyProtocolSourceIpV4Address(originalRequest.getProxyProtocolSourceIpV4Address)
-      requestBuilder.setProxyProtocolSourceIpV6Address(originalRequest.getProxyProtocolSourceIpV6Address)
-    }
 
     if (keepBody) {
       Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
-    }
-
-    val cookies = CookieSupport.getStoredCookies(session, redirectUri)
-    if (cookies.nonEmpty) {
-      requestBuilder.setCookies(cookies.asJava)
-    }
-
-    requestBuilder.build
-  }
-
-  val ExpectationFailedSuffix = " Retry Without Expect"
-
-  /**
-   * RFC 9110 section 10.1.1: a 417 in response to a 100-continue expectation means the chain doesn't support expectations, so the request should be repeated
-   * without it.
-   */
-  def expectationFailedRequest(originalRequest: Request, session: Session, defaultCharset: Charset): Request = {
-    val newHeaders = originalRequest.getHeaders
-      .copy()
-      .remove(HttpHeaderNames.EXPECT)
-      .remove(HttpHeaderNames.CONTENT_LENGTH)
-      .remove(HttpHeaderNames.COOKIE)
-
-    if (originalRequest.getRealm != null) {
-      // remove Authorization header if there's a realm as it will be recomputed
-      newHeaders.remove(HttpHeaderNames.AUTHORIZATION)
-    }
-
-    val requestBuilder =
-      new RequestBuilder(
-        originalRequest.getName + ExpectationFailedSuffix,
-        originalRequest.getMethod,
-        originalRequest.getUri,
-        originalRequest.getNameResolver
-      )
-        .setHeaders(newHeaders)
-        .setHttp2Enabled(originalRequest.isHttp2Enabled)
-        .setHttp2PriorKnowledge(originalRequest.getHttp2PriorKnowledge)
-        .setHttp2FlowControlWindows(originalRequest.getHttp2FlowControlWindows)
-        .setLocalAddresses(originalRequest.getLocalAddresses)
-        .setRealm(originalRequest.getRealm)
-        .setRequestTimeout(originalRequest.getRequestTimeout)
-        .setSignatureCalculator(originalRequest.getSignatureCalculator)
-        .setProxyServer(originalRequest.getProxyServer)
-        .setProxyProtocolSourceIpV4Address(originalRequest.getProxyProtocolSourceIpV4Address)
-        .setProxyProtocolSourceIpV6Address(originalRequest.getProxyProtocolSourceIpV6Address)
-        .setDefaultCharset(defaultCharset)
-
-    Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
-
-    val cookies = CookieSupport.getStoredCookies(session, originalRequest.getUri)
-    if (cookies.nonEmpty) {
-      requestBuilder.setCookies(cookies.asJava)
     }
 
     requestBuilder.build
@@ -152,35 +145,46 @@ object FollowUpProcessor {
       digestRealm: DigestRealm,
       defaultCharset: Charset
   ): Request = {
-    val newHeaders = originalRequest.getHeaders
-      .remove(HttpHeaderNames.HOST)
-      .remove(HttpHeaderNames.CONTENT_LENGTH)
-      .remove(HttpHeaderNames.COOKIE)
-      .remove(HttpHeaderNames.ORIGIN)
-      // remove Authorization header if there's a realm as it will be recomputed
-      .remove(HttpHeaderNames.AUTHORIZATION)
-
     val requestBuilder =
-      new RequestBuilder(
+      followUpRequestBuilder(
         requestName,
         originalRequest.getMethod,
         originalRequest.getUri,
-        originalRequest.getNameResolver
+        followUpHeaders(originalRequest)
+          // always recomputed from the challenge
+          .remove(HttpHeaderNames.AUTHORIZATION),
+        originalRequest,
+        session,
+        defaultCharset,
+        useProxy = true
       )
-        .setHeaders(newHeaders)
-        .setHttp2Enabled(originalRequest.isHttp2Enabled)
-        .setLocalAddresses(originalRequest.getLocalAddresses)
-        .setRealm(originalRequest.getRealm)
-        .setRequestTimeout(originalRequest.getRequestTimeout)
-        .setDefaultCharset(defaultCharset)
         .setRealm(DigestAuthSupport.realmWithAuthorizationGen(session, digestRealm))
 
     Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
 
-    val cookies = CookieSupport.getStoredCookies(session, originalRequest.getUri)
-    if (cookies.nonEmpty) {
-      requestBuilder.setCookies(cookies.asJava)
-    }
+    requestBuilder.build
+  }
+
+  val ExpectationFailedSuffix = " Retry Without Expect"
+
+  /**
+   * RFC 9110 section 10.1.1: a 417 in response to a 100-continue expectation means the chain doesn't support expectations, so the request should be repeated
+   * without it.
+   */
+  def expectationFailedRequest(originalRequest: Request, session: Session, defaultCharset: Charset): Request = {
+    val requestBuilder =
+      followUpRequestBuilder(
+        originalRequest.getName + ExpectationFailedSuffix,
+        originalRequest.getMethod,
+        originalRequest.getUri,
+        followUpHeaders(originalRequest).remove(HttpHeaderNames.EXPECT),
+        originalRequest,
+        session,
+        defaultCharset,
+        useProxy = true
+      )
+
+    Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
 
     requestBuilder.build
   }

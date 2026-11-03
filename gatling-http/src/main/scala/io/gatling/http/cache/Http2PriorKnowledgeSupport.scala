@@ -51,4 +51,13 @@ private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
     val priorKnowledgeMap = session.attributes(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asInstanceOf[Map[Remote, Http2PriorKnowledge]]
     priorKnowledgeMap.get(remote)
   }
+
+  /**
+   * Like getHttp2PriorKnowledge, but None instead of crashing when the session doesn't hold the prior knowledge cache, eg because HTTP/2 isn't enabled.
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  def findHttp2PriorKnowledge(session: Session, remote: Remote): Option[Http2PriorKnowledge] =
+    session.attributes
+      .get(Http2PriorKnowledgeAttributeName)
+      .flatMap(_.asInstanceOf[Map[Remote, Http2PriorKnowledge]].get(remote))
 }
