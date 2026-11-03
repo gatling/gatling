@@ -224,7 +224,8 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
         return;
 
       } else {
-        // TODO implement 417 support
+        // eg a 417, Gatling then sends the request again without expectation, see ResponseProcessor
+        // the stream is reset once the response completes, as we didn't send the body
         LOGGER.debug(
             "Request was sent with Expect:100-Continue but received response with status {}, dropping",
             status);

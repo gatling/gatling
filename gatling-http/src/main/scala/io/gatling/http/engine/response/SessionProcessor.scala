@@ -81,6 +81,11 @@ sealed abstract class SessionProcessor(
     cacheRedirect(sessionWithGroupUpdate, response, redirectUri)
   }
 
+  def updatedExpectationFailedSession(session: Session, response: Response): Session = {
+    val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, response.endTimestamp)
+    updateSessionStats(sessionWithCookieStoreUpdate, response.startTimestamp, response.endTimestamp, OK)
+  }
+
   def updatedDigestChallengeSession(session: Session, response: Response, challenges: Seq[DigestAuth.Challenge]): Session = {
     val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, response.endTimestamp)
     val sessionWihUpdatedStore = DigestAuthSupport.storeChallenges(sessionWithCookieStoreUpdate, challenges)

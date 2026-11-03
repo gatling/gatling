@@ -97,6 +97,54 @@ object FollowUpProcessor {
     requestBuilder.build
   }
 
+  val ExpectationFailedSuffix = " Retry Without Expect"
+
+  /**
+   * RFC 9110 section 10.1.1: a 417 in response to a 100-continue expectation means the chain doesn't support expectations, so the request should be repeated
+   * without it.
+   */
+  def expectationFailedRequest(originalRequest: Request, session: Session, defaultCharset: Charset): Request = {
+    val newHeaders = originalRequest.getHeaders
+      .copy()
+      .remove(HttpHeaderNames.EXPECT)
+      .remove(HttpHeaderNames.CONTENT_LENGTH)
+      .remove(HttpHeaderNames.COOKIE)
+
+    if (originalRequest.getRealm != null) {
+      // remove Authorization header if there's a realm as it will be recomputed
+      newHeaders.remove(HttpHeaderNames.AUTHORIZATION)
+    }
+
+    val requestBuilder =
+      new RequestBuilder(
+        originalRequest.getName + ExpectationFailedSuffix,
+        originalRequest.getMethod,
+        originalRequest.getUri,
+        originalRequest.getNameResolver
+      )
+        .setHeaders(newHeaders)
+        .setHttp2Enabled(originalRequest.isHttp2Enabled)
+        .setHttp2PriorKnowledge(originalRequest.getHttp2PriorKnowledge)
+        .setHttp2FlowControlWindows(originalRequest.getHttp2FlowControlWindows)
+        .setLocalAddresses(originalRequest.getLocalAddresses)
+        .setRealm(originalRequest.getRealm)
+        .setRequestTimeout(originalRequest.getRequestTimeout)
+        .setSignatureCalculator(originalRequest.getSignatureCalculator)
+        .setProxyServer(originalRequest.getProxyServer)
+        .setProxyProtocolSourceIpV4Address(originalRequest.getProxyProtocolSourceIpV4Address)
+        .setProxyProtocolSourceIpV6Address(originalRequest.getProxyProtocolSourceIpV6Address)
+        .setDefaultCharset(defaultCharset)
+
+    Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
+
+    val cookies = CookieSupport.getStoredCookies(session, originalRequest.getUri)
+    if (cookies.nonEmpty) {
+      requestBuilder.setCookies(cookies.asJava)
+    }
+
+    requestBuilder.build
+  }
+
   def digestChallengeRequest(
       requestName: String,
       originalRequest: Request,

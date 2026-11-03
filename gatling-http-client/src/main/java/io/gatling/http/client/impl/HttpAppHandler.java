@@ -139,7 +139,7 @@ final class HttpAppHandler extends ChannelDuplexHandler {
         return;
 
       } else {
-        // TODO implement 417 support
+        // eg a 417, Gatling then sends the request again without expectation, see ResponseProcessor
         LOGGER.debug(
             "Request was sent with Expect:100-Continue but received response with status {}, dropping",
             status);

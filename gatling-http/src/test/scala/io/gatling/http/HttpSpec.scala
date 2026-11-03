@@ -32,7 +32,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
-import io.gatling.core.stats.NoopStatsEngine
+import io.gatling.core.stats.{ NoopStatsEngine, StatsEngine }
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.client.resolver.InetAddressNameResolver
@@ -56,8 +56,9 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
   private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
 
-  protected def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit): Unit = {
-    val httpServer = new HttpServer(requestHandler, mockHttpPort)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  protected def runWithHttpServer(requestHandler: Handler, rejectExpectations: Boolean = false)(f: HttpServer => Unit): Unit = {
+    val httpServer = new HttpServer(requestHandler, mockHttpPort, rejectExpectations)
     try {
       f(httpServer)
     } finally {
@@ -69,11 +70,12 @@ abstract class HttpSpec extends ActorSpec with BeforeAndAfter with EmptySession 
   def runScenario(
       sb: ScenarioBuilder,
       timeout: FiniteDuration = 10.seconds,
-      protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
+      protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity,
+      statsEngine: StatsEngine = NoopStatsEngine
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(actorSystem, eventLoopGroup, null, None, NoopStatsEngine, clock, null, configuration)
+      new CoreComponents(actorSystem, eventLoopGroup, null, None, statsEngine, clock, null, configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)

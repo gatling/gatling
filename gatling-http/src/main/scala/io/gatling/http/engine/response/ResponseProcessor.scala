@@ -33,7 +33,7 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION
 
 sealed trait ProcessorResult
@@ -76,6 +76,19 @@ object ResponseProcessor extends StrictLogging {
             )
           }
         }
+      } else if (
+        response.status == HttpResponseStatus.EXPECTATION_FAILED &&
+        tx.request.clientRequest.getHeaders.containsValue(HttpHeaderNames.EXPECT, HttpHeaderValues.CONTINUE, true)
+      ) {
+        // reported like redirects, the request being sent again without expectation as a follow-up
+        val newSession = sessionProcessor.updatedExpectationFailedSession(tx.currentSession, response)
+        val retryRequest = FollowUpProcessor.expectationFailedRequest(tx.request.clientRequest, newSession, defaultCharset)
+        FollowUp(
+          tx.copy(
+            session = newSession,
+            request = tx.request.copy(clientRequest = retryRequest)
+          )
+        )
       } else {
         val digestAuthChallenges = DigestAuthSupport.extractChallenges(response.headers, tx.request.clientRequest.getUri)
         tx.request.clientRequest.getRealm match {

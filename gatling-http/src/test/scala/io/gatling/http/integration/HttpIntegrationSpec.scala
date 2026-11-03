@@ -18,9 +18,10 @@ package io.gatling.http.integration
 
 import java.nio.charset.StandardCharsets
 
+import io.gatling.commons.stats.OK
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.{ HttpDsl, HttpSpec }
+import io.gatling.http.{ HttpDsl, HttpSpec, RecordingStatsEngine }
 
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelFutureListener
@@ -121,6 +122,45 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       verifyRequestTo("/resourceTest/script.js")
       verifyRequestTo("/resourceTest/img.png")
       verifyRequestTo("/resourceTest/bad_resource.png", 0)
+    }
+  }
+
+  it should "send requests again without expectation when receiving a 417, reporting both" in {
+    val handler: Handler = { case request @ HttpRequest(HttpMethod.POST, "/expect") =>
+      val response =
+        new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.copiedBuffer(request.content))
+      response.headers.set(NettyHttpHeaderName.CONTENT_LENGTH, response.content.readableBytes)
+      ctx => ctx.channel.writeAndFlush(response)
+    }
+
+    runWithHttpServer(handler, rejectExpectations = true) { implicit httpServer =>
+      val statsEngine = new RecordingStatsEngine
+      val session = runScenario(
+        scenario("Expect")
+          .exec(
+            http("expect")
+              .post("/expect")
+              .header(NettyHttpHeaderName.EXPECT, "100-continue")
+              .body(StringBody("Hello World"))
+              .check(bodyString.is("Hello World"))
+          ),
+        statsEngine = statsEngine
+      )
+
+      session.isFailed shouldBe false
+      httpServer.rejectedExpectations.get shouldBe 1
+      verifyRequestTo(
+        "/expect",
+        1,
+        request => {
+          request.headers.contains(NettyHttpHeaderName.EXPECT) shouldBe false
+          request.content.toString(StandardCharsets.UTF_8) shouldBe "Hello World"
+        }
+      )
+      statsEngine.responses shouldBe List(
+        ("expect", OK, Some("417")),
+        ("expect Retry Without Expect", OK, Some("200"))
+      )
     }
   }
 }

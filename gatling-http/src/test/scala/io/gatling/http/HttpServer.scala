@@ -18,6 +18,7 @@ package io.gatling.http
 
 import java.net.InetSocketAddress
 import java.util.concurrent.{ ConcurrentLinkedQueue, TimeUnit }
+import java.util.concurrent.atomic.{ AtomicBoolean, AtomicInteger }
 
 import scala.jdk.CollectionConverters._
 
@@ -58,9 +59,42 @@ private[http] class ServerHandler(
     }
 }
 
+/**
+ * Responds to requests with a 100-continue expectation with a 417 without reading their body, like when an HTTP/1.0 hop is involved.
+ */
+private[http] final class ExpectationRejecter(rejectedExpectations: AtomicInteger) extends ChannelInboundHandlerAdapter {
+  private val droppingBody = new AtomicBoolean
+
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
+    msg match {
+      case request: HttpRequest if HttpUtil.is100ContinueExpected(request) =>
+        rejectedExpectations.incrementAndGet()
+        // HttpServerCodec always follows with content, ending with a LastHttpContent
+        droppingBody.set(true)
+        ReferenceCountUtil.release(request)
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.EXPECTATION_FAILED)
+        response.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0)
+        ctx.writeAndFlush(response)
+
+      case content: LastHttpContent if droppingBody.get =>
+        droppingBody.set(false)
+        ReferenceCountUtil.release(content)
+
+      case content: HttpContent if droppingBody.get =>
+        ReferenceCountUtil.release(content)
+
+      case _ => ctx.fireChannelRead(msg)
+    }
+}
+
 @SuppressWarnings(Array("org.wartremover.warts.PartialFunctionApply"))
-private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int) extends LazyLogging {
+private[http] class HttpServer(
+    requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit],
+    port: Int,
+    rejectExpectations: Boolean
+) extends LazyLogging {
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
+  val rejectedExpectations = new AtomicInteger
 
   InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
 
@@ -73,12 +107,17 @@ private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, 
     .channel(classOf[NioServerSocketChannel])
     .handler(new LoggingHandler(LogLevel.DEBUG))
     .childHandler(new ChannelInitializer[Channel] {
-      override def initChannel(ch: Channel): Unit =
+      override def initChannel(ch: Channel): Unit = {
+        ch.pipeline.addLast("httpDecoder", new HttpServerCodec)
+        if (rejectExpectations) {
+          // otherwise, HttpObjectAggregator responds with 100 Continue
+          ch.pipeline.addLast("expectationRejecter", new ExpectationRejecter(rejectedExpectations))
+        }
         ch.pipeline
-          .addLast("httpDecoder", new HttpServerCodec)
           .addLast("chunkAggregator", new HttpObjectAggregator(Int.MaxValue))
           .addLast("compressor", new HttpContentCompressor)
           .addLast("serverHandler", serverHandler)
+      }
     })
 
   val ch = serverBootstrap.bind(new InetSocketAddress(port)).sync.channel
