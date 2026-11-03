@@ -28,7 +28,8 @@ private[http] object Http2PriorKnowledgeSupport extends StrictLogging {
 
   def setHttp2PriorKnowledge(httpProtocol: HttpProtocol): Session => Session =
     if (httpProtocol.enginePart.enableHttp2) {
-      _.set(Http2PriorKnowledgeAttributeName, Map.empty)
+      // seeded with the remotes configured in the protocol, completed with the protocol negotiated with the other ones
+      _.set(Http2PriorKnowledgeAttributeName, httpProtocol.enginePart.http2PriorKnowledge)
     } else {
       Session.Identity
     }

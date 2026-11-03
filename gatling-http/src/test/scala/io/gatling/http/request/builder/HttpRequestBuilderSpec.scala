@@ -34,7 +34,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.cache.{ DnsCacheSupport, Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.check.body.HttpBodyPartialJsonPreparer
-import io.gatling.http.client.{ Http2FlowControlWindows, HttpListener, Param }
+import io.gatling.http.client.{ Http2FlowControlWindows, Http2PriorKnowledge, HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.realm.BasicRealm
@@ -393,5 +393,21 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
       .build(Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol)(sessionBase))
       .map(_.clientRequest.getHttp2FlowControlWindows)
       .succeeded shouldBe new Http2FlowControlWindows(1024 * 1024, Http2FlowControlWindows.DEFAULT_CONNECTION_WINDOW_SIZE)
+  }
+
+  "HTTP/2 prior knowledge" should "be passed to the client for the remotes configured in the protocol" in {
+    val httpProtocol = HttpProtocolBuilder(configuration).enableHttp2
+      .http2PriorKnowledge(Map("gatling.io" -> true, "other.gatling.io" -> false))
+      .build
+
+    def priorKnowledge(url: String) =
+      httpRequestDef(f = identity, httpProtocol = httpProtocol, urlOrURI = Right(Uri.create(url)))
+        .build(Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol)(sessionBase))
+        .map(_.clientRequest.getHttp2PriorKnowledge)
+        .succeeded
+
+    priorKnowledge("https://gatling.io") shouldBe Http2PriorKnowledge.HTTP2_SUPPORTED
+    priorKnowledge("https://other.gatling.io") shouldBe Http2PriorKnowledge.HTTP1_ONLY
+    priorKnowledge("https://unknown.gatling.io") shouldBe null
   }
 }
