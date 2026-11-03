@@ -108,7 +108,6 @@ public final class ChannelPool {
 
       if (!channel.isActive()) {
         it.remove();
-        break;
       } else if (isHttp1(channel)) {
         it.remove();
         LOGGER.debug("Retrieved HTTP/1 channel from pool for key {}", key);
