@@ -60,7 +60,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
 
   it should "handle it correctly when all the users are active" in {
     val counters = new UserCounters(Some(11))
-    for (_ <- 1 to 11) counters.userStart()
+    for (_ <- 1 to 11) counters.userStart(0)
 
     val summary = ConsoleSummary(
       10000,
@@ -78,7 +78,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
 
   it should "handle it correctly when all the users are done" in {
     val counters = new UserCounters(Some(11))
-    for (_ <- 1 to 11) counters.userStart()
+    for (_ <- 1 to 11) counters.userStart(0)
     for (_ <- 1 to 11) counters.userDone()
 
     val summary = ConsoleSummary(
@@ -97,7 +97,7 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
 
   it should "handle it correctly when there are active and done users" in {
     val counters = new UserCounters(Some(11))
-    for (_ <- 1 to 11) counters.userStart()
+    for (_ <- 1 to 11) counters.userStart(0)
     for (_ <- 1 to 10) counters.userDone()
 
     val summary = ConsoleSummary(
@@ -179,5 +179,33 @@ class ConsoleDataWriterSpec extends AnyFlatSpecLike with Matchers {
                       |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labor   123,456   (100%)
                       |e et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ...""".stripMargin
     all(output.linesIterator.map(_.length).toSet) shouldBe <=(120)
+  }
+
+  "console summary" should "display scenarios by first user start, then declaration order for not started ones" in {
+    val started2nd = new UserCounters(Some(1))
+    started2nd.userStart(2000)
+    val started1st = new UserCounters(Some(1))
+    started1st.userStart(1000)
+
+    val usersCounters = mutable.LinkedHashMap[String, UserCounters](
+      "notStartedA" -> new UserCounters(Some(1)),
+      "started2nd" -> started2nd,
+      "notStartedB" -> new UserCounters(Some(1)),
+      "started1st" -> started1st
+    )
+
+    val summary = ConsoleSummary(
+      10000,
+      usersCounters,
+      RequestCounters.empty,
+      mutable.Map.empty,
+      mutable.Map.empty,
+      light,
+      time,
+      DateTimeFormatter.ISO_DATE_TIME
+    )
+
+    val scenarioNames = lines(summary).toSeq.collect { case s"---- $name -$_" if usersCounters.contains(name.trim) => name.trim }
+    scenarioNames shouldBe Seq("started1st", "started2nd", "notStartedA", "notStartedB")
   }
 }

@@ -110,9 +110,13 @@ private[gatling] object ConsoleSummary {
     writeDetailedRequestsCounter(sb).append(Eol)
     writeErrors(sb).append(Eol)
 
-    usersCounters.foreachEntry { (scenarioName, usersStats) =>
-      writeUsersCounters(sb, scenarioName, usersStats).append(Eol)
-    }
+    // display scenarios in the order they were triggered, consistent with the HTML reports
+    // stable sort: scenarios that haven't started yet keep their declaration order
+    usersCounters.toSeq
+      .sortBy(_._2.firstUserStart)
+      .foreach { case (scenarioName, usersStats) =>
+        writeUsersCounters(sb, scenarioName, usersStats).append(Eol)
+      }
 
     sb.append(NewBlock).append(Eol)
 

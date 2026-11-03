@@ -29,11 +29,16 @@ import io.gatling.core.config.ConsoleDataWriterConfiguration
 private[writer] final class UserCounters(val totalUserCount: Option[Long]) {
   private var _activeCount: Long = 0
   private var _doneCount: Long = 0
+  private var _firstUserStart: Long = Long.MaxValue
 
   def activeCount: Long = _activeCount
   def doneCount: Long = _doneCount
+  def firstUserStart: Long = _firstUserStart
 
-  def userStart(): Unit = _activeCount += 1
+  def userStart(timestamp: Long): Unit = {
+    _activeCount += 1
+    _firstUserStart = _firstUserStart min timestamp
+  }
   def userDone(): Unit = {
     _activeCount -= 1
     _doneCount += 1
@@ -49,7 +54,7 @@ private[writer] final class RequestCounters(var successfulCount: Int, var failed
 
 private[writer] final class ConsoleData(val startUpTime: Long, val dateTimeFormatter: DateTimeFormatter, val timer: Cancellable) extends DataWriterData {
   var complete: Boolean = false
-  val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
+  val usersCounters: mutable.Map[String, UserCounters] = mutable.LinkedHashMap.empty
   val globalRequestCounters: RequestCounters = RequestCounters.empty
   val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
@@ -107,7 +112,7 @@ private[gatling] final class ConsoleDataWriter(
     import user._
 
     usersCounters.get(scenario) match {
-      case Some(userCounters) => if (user.start) userCounters.userStart() else userCounters.userDone()
+      case Some(userCounters) => if (user.start) userCounters.userStart(timestamp) else userCounters.userDone()
       case _                  => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
     }
   }
