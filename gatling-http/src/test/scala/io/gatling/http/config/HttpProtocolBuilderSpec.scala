@@ -17,6 +17,7 @@
 package io.gatling.http.config
 
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.client.Http2FlowControlWindows
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -33,5 +34,24 @@ class HttpProtocolBuilderSpec extends AnyFlatSpecLike with Matchers {
 
     val actualPattern: String = config.requestPart.silentUri.get.toString
     actualPattern.equals(".*") shouldBe true
+  }
+
+  it should "use browser-like HTTP/2 flow-control windows by default" in {
+    httpProtocolBuilder.build.enginePart.http2FlowControlWindows shouldBe Http2FlowControlWindows.DEFAULT
+  }
+
+  it should "set the HTTP/2 stream and connection windows independently" in {
+    val windows = httpProtocolBuilder
+      .http2StreamWindowSize(1024 * 1024)
+      .http2ConnectionWindowSize(10 * 1024 * 1024)
+      .build
+      .enginePart
+      .http2FlowControlWindows
+
+    windows shouldBe new Http2FlowControlWindows(1024 * 1024, 10 * 1024 * 1024)
+  }
+
+  it should "reject an HTTP/2 connection window lower than the protocol's initial one" in {
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.http2ConnectionWindowSize(1024)
   }
 }

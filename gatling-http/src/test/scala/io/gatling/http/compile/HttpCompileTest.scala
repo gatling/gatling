@@ -135,6 +135,8 @@ class HttpCompileTest extends Simulation {
     .hostNameAliases(Map("foo" -> List("127.0.0.1")))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
+    .http2StreamWindowSize(1024 * 1024)
+    .http2ConnectionWindowSize(10 * 1024 * 1024)
     .perUserKeyManagerFactory { userId =>
       val keyStore = KeyStore.getInstance("PKCS12")
       Using(getClass.getClassLoader.getResourceAsStream("keys/pk-" + userId + ".p12")) {

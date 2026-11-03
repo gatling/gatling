@@ -86,6 +86,7 @@ class HttpTxSpec extends AnyFlatSpecLike with Matchers {
       null,
       false,
       null,
+      null,
       null
     )
 

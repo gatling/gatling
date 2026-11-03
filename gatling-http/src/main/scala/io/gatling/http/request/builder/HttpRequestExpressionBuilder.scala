@@ -144,12 +144,14 @@ final class HttpRequestExpressionBuilder(
     }
 
   private val enableHttp2 = httpProtocol.enginePart.enableHttp2
+  private val http2FlowControlWindows = httpProtocol.enginePart.http2FlowControlWindows
   private def configurePriorKnowledge(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     if (enableHttp2) {
       val http2PriorKnowledge = Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
       requestBuilder
         .setHttp2Enabled(true)
         .setHttp2PriorKnowledge(http2PriorKnowledge.orNull)
+        .setHttp2FlowControlWindows(http2FlowControlWindows)
     }
 
   private val requestTimeout = httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis

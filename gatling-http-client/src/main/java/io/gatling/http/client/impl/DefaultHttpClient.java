@@ -67,9 +67,12 @@ import org.slf4j.LoggerFactory;
 
 public final class DefaultHttpClient implements HttpClient {
 
-  // we don't support server push: without ENABLE_PUSH=0, servers are allowed to push
-  static final Http2Settings DEFAULT_HTTP2_SETTINGS =
-      Http2Settings.defaultSettings().pushEnabled(false);
+  static Http2Settings initialHttp2Settings(Http2FlowControlWindows windows) {
+    return Http2Settings.defaultSettings()
+        // we don't support server push: without ENABLE_PUSH=0, servers are allowed to push
+        .pushEnabled(false)
+        .initialWindowSize(windows.getStreamWindowSize());
+  }
 
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
@@ -949,9 +952,11 @@ public final class DefaultHttpClient implements HttpClient {
 
   static void installHttp2Handlers(
       ChannelPipeline pipeline,
+      Http2FlowControlWindows windows,
       BiConsumer<List<HttpTx>, EventLoop> retry,
       ChannelPool channelPool,
-      Promise<Void> whenAlpn) {
+      Promise<Void> whenAlpn)
+      throws Http2Exception {
     Http2Connection connection = new DefaultHttp2Connection(false);
 
     ChannelPool.registerHttp2Connection(pipeline.channel(), connection);
@@ -962,7 +967,7 @@ public final class DefaultHttpClient implements HttpClient {
 
     HttpToHttp2ConnectionHandler http2Handler =
         new HttpToHttp2ConnectionHandlerBuilder()
-            .initialSettings(DEFAULT_HTTP2_SETTINGS)
+            .initialSettings(initialHttp2Settings(windows))
             .connection(connection)
             .frameListener(decompressorFrameListener)
             // queue streams exceeding the server's MAX_CONCURRENT_STREAMS instead of failing them
@@ -978,6 +983,18 @@ public final class DefaultHttpClient implements HttpClient {
         .addLast(HTTP2_CONTENT_ENCODER, ByteBufToHttpContentEncoder.INSTANCE)
         .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
         .addLast(APP_HTTP2_HANDLER, http2AppHandler);
+
+    // the connection window isn't a setting: it always starts at 65,535 bytes and can only be
+    // enlarged with a WINDOW_UPDATE, sent right after the preface
+    int connectionWindowIncrement =
+        windows.getConnectionWindowSize() - Http2CodecUtil.DEFAULT_WINDOW_SIZE;
+    if (connectionWindowIncrement > 0) {
+      connection
+          .local()
+          .flowController()
+          .incrementWindowSize(connection.connectionStream(), connectionWindowIncrement);
+      pipeline.channel().flush();
+    }
   }
 
   private Future<Void> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
@@ -999,7 +1016,11 @@ public final class DefaultHttpClient implements HttpClient {
                         "ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
                     tx.listener.onProtocolAwareness(true);
                     installHttp2Handlers(
-                        ctx.pipeline(), DefaultHttpClient.this::retryHttp2, channelPool, whenAlpn);
+                        ctx.pipeline(),
+                        tx.request.getHttp2FlowControlWindows(),
+                        DefaultHttpClient.this::retryHttp2,
+                        channelPool,
+                        whenAlpn);
                     channelPool.offer(channel);
 
                     SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);

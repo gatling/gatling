@@ -18,6 +18,7 @@ package io.gatling.http.client.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.gatling.http.client.Http2FlowControlWindows;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,7 +40,8 @@ class Http2PushTest {
     EmbeddedChannel client =
         new EmbeddedChannel(
             new HttpToHttp2ConnectionHandlerBuilder()
-                .initialSettings(DefaultHttpClient.DEFAULT_HTTP2_SETTINGS)
+                .initialSettings(
+                    DefaultHttpClient.initialHttp2Settings(Http2FlowControlWindows.DEFAULT))
                 .connection(new DefaultHttp2Connection(false))
                 .frameListener(new Http2FrameAdapter())
                 .build());

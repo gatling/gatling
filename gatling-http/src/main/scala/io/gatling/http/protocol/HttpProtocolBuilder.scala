@@ -30,7 +30,7 @@ import io.gatling.core.session.el.El
 import io.gatling.core.util.PerUserKeyManagerFactory
 import io.gatling.http.{ ResponseBiTransformer, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.{ Http2PriorKnowledge, Request }
+import io.gatling.http.client.{ Http2FlowControlWindows, Http2PriorKnowledge, Request }
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming
@@ -167,6 +167,16 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
         }
         remote -> (if (isHttp2) Http2PriorKnowledge.HTTP2_SUPPORTED else Http2PriorKnowledge.HTTP1_ONLY)
       })
+
+  def http2StreamWindowSize(bytes: Int): HttpProtocolBuilder =
+    this
+      .modify(_.protocol.enginePart.http2FlowControlWindows)
+      .using(windows => new Http2FlowControlWindows(bytes, windows.getConnectionWindowSize))
+
+  def http2ConnectionWindowSize(bytes: Int): HttpProtocolBuilder =
+    this
+      .modify(_.protocol.enginePart.http2FlowControlWindows)
+      .using(windows => new Http2FlowControlWindows(windows.getStreamWindowSize, bytes))
 
   // responsePart
   def disableFollowRedirect: HttpProtocolBuilder = this.modify(_.protocol.responsePart.followRedirect).setTo(false)

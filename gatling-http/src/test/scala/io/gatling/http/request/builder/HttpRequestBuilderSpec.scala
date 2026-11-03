@@ -31,16 +31,16 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
-import io.gatling.http.cache.{ DnsCacheSupport, HttpCaches }
+import io.gatling.http.cache.{ DnsCacheSupport, Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.check.body.HttpBodyPartialJsonPreparer
-import io.gatling.http.client.{ HttpListener, Param }
+import io.gatling.http.client.{ Http2FlowControlWindows, HttpListener, Param }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.realm.BasicRealm
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
@@ -385,4 +385,13 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
 
   // Not possible to check prior of default over protocol, as only default added value is status
   // and the presence of a status (for same scope priority) remove the default one.
+
+  "HTTP/2 flow-control windows" should "be passed to the client when HTTP/2 is enabled" in {
+    val httpProtocol = HttpProtocolBuilder(configuration).enableHttp2.http2StreamWindowSize(1024 * 1024).build
+
+    httpRequestDef(f = identity, httpProtocol = httpProtocol, urlOrURI = Right(Uri.create("https://gatling.io")))
+      .build(Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol)(sessionBase))
+      .map(_.clientRequest.getHttp2FlowControlWindows)
+      .succeeded shouldBe new Http2FlowControlWindows(1024 * 1024, Http2FlowControlWindows.DEFAULT_CONNECTION_WINDOW_SIZE)
+  }
 }

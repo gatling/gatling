@@ -30,7 +30,7 @@ import io.gatling.core.session._
 import io.gatling.http.ResponseBiTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.{ Http2PriorKnowledge, Request }
+import io.gatling.http.client.{ Http2FlowControlWindows, Http2PriorKnowledge, Request }
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
@@ -77,6 +77,7 @@ object HttpProtocol extends StrictLogging {
         localAddresses = Nil,
         enableHttp2 = false,
         http2PriorKnowledge = Map.empty,
+        http2FlowControlWindows = Http2FlowControlWindows.DEFAULT,
         perUserKeyManagerFactory = None
       ),
       requestPart = HttpProtocolRequestPart(
@@ -165,6 +166,7 @@ final case class HttpProtocolEnginePart(
     localAddresses: List[InetAddress],
     enableHttp2: Boolean,
     http2PriorKnowledge: Map[Remote, Http2PriorKnowledge],
+    http2FlowControlWindows: Http2FlowControlWindows,
     perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 

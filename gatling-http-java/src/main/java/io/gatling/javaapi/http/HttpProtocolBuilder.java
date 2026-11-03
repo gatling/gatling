@@ -794,6 +794,28 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))));
   }
 
+  /**
+   * Define the HTTP/2 flow-control window of each stream, i.e. how many bytes the server can send
+   * on a stream before waiting for the client to acknowledge them. Defaults to 6MB, like Chrome.
+   *
+   * @param bytes the window size in bytes, must be positive
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder http2StreamWindowSize(int bytes) {
+    return new HttpProtocolBuilder(wrapped.http2StreamWindowSize(bytes));
+  }
+
+  /**
+   * Define the HTTP/2 flow-control window of each connection, shared by all its streams. Defaults
+   * to 15MB, like Chrome.
+   *
+   * @param bytes the window size in bytes, can't be lower than the protocol's initial 65,535
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder http2ConnectionWindowSize(int bytes) {
+    return new HttpProtocolBuilder(wrapped.http2ConnectionWindowSize(bytes));
+  }
+
   // responsePart
   /**
    * Disable automatically following redirects

@@ -62,6 +62,7 @@ public final class RequestBuilder {
   private Function<Request, Request> signatureCalculator;
   private boolean http2Enabled;
   private Http2PriorKnowledge http2PriorKnowledge;
+  private Http2FlowControlWindows http2FlowControlWindows = Http2FlowControlWindows.DEFAULT;
   private String wsSubprotocol;
   private Charset defaultCharset = UTF_8;
 
@@ -144,6 +145,12 @@ public final class RequestBuilder {
 
   public RequestBuilder setHttp2PriorKnowledge(Http2PriorKnowledge http2PriorKnowledge) {
     this.http2PriorKnowledge = http2PriorKnowledge;
+    return this;
+  }
+
+  public RequestBuilder setHttp2FlowControlWindows(
+      Http2FlowControlWindows http2FlowControlWindows) {
+    this.http2FlowControlWindows = http2FlowControlWindows;
     return this;
   }
 
@@ -242,6 +249,7 @@ public final class RequestBuilder {
         nameResolver,
         http2Enabled,
         http2PriorKnowledge,
+        http2FlowControlWindows,
         wsSubprotocol);
   }
 }

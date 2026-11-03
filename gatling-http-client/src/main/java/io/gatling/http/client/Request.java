@@ -46,6 +46,7 @@ public final class Request {
   private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
   private final Http2PriorKnowledge http2PriorKnowledge;
+  private final Http2FlowControlWindows http2FlowControlWindows;
   private final String wsSubprotocol;
 
   public Request(
@@ -66,6 +67,7 @@ public final class Request {
       InetAddressNameResolver nameResolver,
       boolean http2Enabled,
       Http2PriorKnowledge http2PriorKnowledge,
+      Http2FlowControlWindows http2FlowControlWindows,
       String wsSubprotocol) {
     this.name = name;
     this.method = method;
@@ -84,6 +86,7 @@ public final class Request {
     this.nameResolver = nameResolver;
     this.http2Enabled = http2Enabled;
     this.http2PriorKnowledge = http2PriorKnowledge;
+    this.http2FlowControlWindows = http2FlowControlWindows;
     this.wsSubprotocol = wsSubprotocol;
   }
 
@@ -106,6 +109,7 @@ public final class Request {
         this.nameResolver,
         this.http2Enabled,
         this.http2PriorKnowledge,
+        this.http2FlowControlWindows,
         this.wsSubprotocol);
   }
 
@@ -128,6 +132,7 @@ public final class Request {
         this.nameResolver,
         this.http2Enabled,
         this.http2PriorKnowledge,
+        this.http2FlowControlWindows,
         this.wsSubprotocol);
   }
 
@@ -150,6 +155,7 @@ public final class Request {
         this.nameResolver,
         this.http2Enabled,
         this.http2PriorKnowledge,
+        this.http2FlowControlWindows,
         this.wsSubprotocol);
   }
 
@@ -172,6 +178,7 @@ public final class Request {
         this.nameResolver,
         this.http2Enabled,
         http2PriorKnowledge,
+        this.http2FlowControlWindows,
         this.wsSubprotocol);
   }
 
@@ -243,6 +250,10 @@ public final class Request {
     return http2PriorKnowledge;
   }
 
+  public Http2FlowControlWindows getHttp2FlowControlWindows() {
+    return http2FlowControlWindows;
+  }
+
   public String getWsSubprotocol() {
     return wsSubprotocol;
   }
@@ -280,6 +291,8 @@ public final class Request {
         + http2Enabled
         + ", http2PriorKnowledge="
         + http2PriorKnowledge
+        + ", http2FlowControlWindows="
+        + http2FlowControlWindows
         + ", wsSubprotocol="
         + wsSubprotocol
         + '}';

@@ -120,6 +120,8 @@ public class HttpJavaCompileTest extends Simulation {
               session -> "tokenSecret")
           .enableHttp2()
           .http2PriorKnowledge(Map.of("host", true))
+          .http2StreamWindowSize(1024 * 1024)
+          .http2ConnectionWindowSize(10 * 1024 * 1024)
           .disableFollowRedirect()
           .maxRedirects(1)
           .strict302Handling()

@@ -170,6 +170,7 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
       null,
       false,
       null,
+      null,
       null
     )
 

@@ -16,6 +16,7 @@
 
 package io.gatling.http.client.impl;
 
+import io.gatling.http.client.Http2FlowControlWindows;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.RequestBuilder;
@@ -34,7 +35,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An HTTP/2 client channel with the same handlers as {@link DefaultHttpClient} installs, and a fake
@@ -80,10 +83,19 @@ final class Http2ClientHarness implements AutoCloseable {
   private final Http2FrameWriter serverWriter = new DefaultHttp2FrameWriter();
   private final Http2FrameReader serverReader = new DefaultHttp2FrameReader();
 
-  Http2ClientHarness(int maxConcurrentStreams) {
+  /** What the client sent before any request: the preface's SETTINGS and WINDOW_UPDATE. */
+  final ClientFrames preface;
+
+  Http2ClientHarness(int maxConcurrentStreams) throws Http2Exception {
+    this(maxConcurrentStreams, Http2FlowControlWindows.DEFAULT);
+  }
+
+  Http2ClientHarness(int maxConcurrentStreams, Http2FlowControlWindows windows)
+      throws Http2Exception {
     ChannelPool.registerPoolKey(client, new ChannelPoolKey(1, RemoteKey.newKey(URI, null)));
     DefaultHttpClient.installHttp2Handlers(
         client.pipeline(),
+        windows,
         // like DefaultHttpClient#retryHttp2, without sending
         (txs, eventLoop) ->
             txs.forEach(
@@ -94,12 +106,7 @@ final class Http2ClientHarness implements AutoCloseable {
         new ChannelPool(),
         client.eventLoop().newPromise());
 
-    // skip the client preface
-    client.flush();
-    ByteBuf chunk;
-    while ((chunk = client.readOutbound()) != null) {
-      chunk.release();
-    }
+    preface = clientFrames(true);
 
     serverWriter.writeSettings(
         serverCtx,
@@ -157,6 +164,8 @@ final class Http2ClientHarness implements AutoCloseable {
     final List<Integer> endedStreamIds = new ArrayList<>();
     final StringBuilder data = new StringBuilder();
     final List<Integer> resetStreamIds = new ArrayList<>();
+    final List<Http2Settings> settings = new ArrayList<>();
+    final Map<Integer, Integer> windowUpdates = new HashMap<>();
   }
 
   /**
@@ -167,6 +176,10 @@ final class Http2ClientHarness implements AutoCloseable {
   }
 
   ClientFrames clientFrames() throws Http2Exception {
+    return clientFrames(false);
+  }
+
+  private ClientFrames clientFrames(boolean preface) throws Http2Exception {
     client.flush();
     // frames can be split over several writes, the reader expects whole frames
     ByteBuf written = Unpooled.buffer();
@@ -174,6 +187,12 @@ final class Http2ClientHarness implements AutoCloseable {
     while ((chunk = client.readOutbound()) != null) {
       written.writeBytes(chunk);
       chunk.release();
+    }
+    if (preface) {
+      // the connection preface starts with a magic string, not a frame
+      ByteBuf magic = Http2CodecUtil.connectionPrefaceBuf();
+      written.skipBytes(magic.readableBytes());
+      magic.release();
     }
     ClientFrames frames = new ClientFrames();
     try {
@@ -226,6 +245,17 @@ final class Http2ClientHarness implements AutoCloseable {
             public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
               frames.resetStreamIds.add(streamId);
             }
+
+            @Override
+            public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings) {
+              frames.settings.add(settings);
+            }
+
+            @Override
+            public void onWindowUpdateRead(
+                ChannelHandlerContext ctx, int streamId, int windowSizeIncrement) {
+              frames.windowUpdates.merge(streamId, windowSizeIncrement, Integer::sum);
+            }
           });
     } finally {
       written.release();
@@ -257,6 +287,34 @@ final class Http2ClientHarness implements AutoCloseable {
 
   void respond(int streamId) {
     respond(streamId, 200);
+  }
+
+  /** Acknowledges the client's SETTINGS, which makes the client apply them. */
+  void ackSettings() {
+    serverWriter.writeSettingsAck(serverCtx, serverCtx.newPromise());
+    sendToClient();
+  }
+
+  void sendResponseHeaders(int streamId) {
+    serverWriter.writeHeaders(
+        serverCtx,
+        streamId,
+        new DefaultHttp2Headers().status("200"),
+        0,
+        false,
+        serverCtx.newPromise());
+    sendToClient();
+  }
+
+  void sendData(int streamId, int length, boolean endOfStream) {
+    serverWriter.writeData(
+        serverCtx,
+        streamId,
+        Unpooled.wrappedBuffer(new byte[length]),
+        0,
+        endOfStream,
+        serverCtx.newPromise());
+    sendToClient();
   }
 
   void goAway(int lastStreamId, Http2Error error) {
