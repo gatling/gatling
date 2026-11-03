@@ -144,6 +144,8 @@ final class HttpAppHandler extends ChannelDuplexHandler {
             "Request was sent with Expect:100-Continue but received response with status {}, dropping",
             status);
         tx.releasePendingRequestExpectingContinue();
+        // the server might still expect the body we didn't send, don't reuse the connection
+        tx.closeConnection = true;
       }
     }
 
