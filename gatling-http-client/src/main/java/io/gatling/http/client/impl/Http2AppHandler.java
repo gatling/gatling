@@ -131,7 +131,9 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
                 tx.requestTimeout.setStreamId(thisStreamId);
               }
 
-            } else {
+            } else if (txByStreamId.remove(thisStreamId) != null) {
+              // when a GOAWAY is received, StreamBufferingEncoder fails the promises of the
+              // queued streams after we've already retried or failed them in userEventTriggered
               tx.requestTimeout.cancel();
               tx.listener.onThrowable(f.cause());
             }

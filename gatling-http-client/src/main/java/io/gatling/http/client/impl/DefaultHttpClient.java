@@ -934,6 +934,38 @@ public final class DefaultHttpClient implements HttpClient {
     }
   }
 
+  static void installHttp2Handlers(
+      ChannelPipeline pipeline,
+      DefaultHttpClient client,
+      ChannelPool channelPool,
+      Promise<Void> whenAlpn) {
+    Http2Connection connection = new DefaultHttp2Connection(false);
+
+    ChannelPool.registerHttp2Connection(pipeline.channel(), connection);
+
+    CustomDelegatingDecompressorFrameListener decompressorFrameListener =
+        new CustomDelegatingDecompressorFrameListener(
+            connection, new NotAggregatingInboundHttp2ToHttpAdapter(connection, whenAlpn));
+
+    HttpToHttp2ConnectionHandler http2Handler =
+        new HttpToHttp2ConnectionHandlerBuilder()
+            .initialSettings(DEFAULT_HTTP2_SETTINGS)
+            .connection(connection)
+            .frameListener(decompressorFrameListener)
+            // queue streams exceeding the server's MAX_CONCURRENT_STREAMS instead of failing them
+            .encoderEnforceMaxConcurrentStreams(true)
+            .build();
+
+    Http2AppHandler http2AppHandler = new Http2AppHandler(client, http2Handler, channelPool);
+    decompressorFrameListener.setDecompressionRequired(
+        http2AppHandler::isResponseBodyDecompressionRequired);
+
+    pipeline
+        .addLast(HTTP2_HANDLER, http2Handler)
+        .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
+        .addLast(APP_HTTP2_HANDLER, http2AppHandler);
+  }
+
   private Future<Void> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
 
     Promise<Void> whenAlpn = channel.eventLoop().newPromise();
@@ -952,32 +984,8 @@ public final class DefaultHttpClient implements HttpClient {
                     LOGGER.debug(
                         "ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
                     tx.listener.onProtocolAwareness(true);
-                    Http2Connection connection = new DefaultHttp2Connection(false);
-
-                    ChannelPool.registerHttp2Connection(channel, connection);
-
-                    CustomDelegatingDecompressorFrameListener decompressorFrameListener =
-                        new CustomDelegatingDecompressorFrameListener(
-                            connection,
-                            new NotAggregatingInboundHttp2ToHttpAdapter(connection, whenAlpn));
-
-                    HttpToHttp2ConnectionHandler http2Handler =
-                        new HttpToHttp2ConnectionHandlerBuilder()
-                            .initialSettings(DEFAULT_HTTP2_SETTINGS)
-                            .connection(connection)
-                            .frameListener(decompressorFrameListener)
-                            .build();
-
-                    Http2AppHandler http2AppHandler =
-                        new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool);
-                    decompressorFrameListener.setDecompressionRequired(
-                        http2AppHandler::isResponseBodyDecompressionRequired);
-
-                    ctx.pipeline()
-                        .addLast(HTTP2_HANDLER, http2Handler)
-                        .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
-                        .addLast(APP_HTTP2_HANDLER, http2AppHandler);
-
+                    installHttp2Handlers(
+                        ctx.pipeline(), DefaultHttpClient.this, channelPool, whenAlpn);
                     channelPool.offer(channel);
 
                     SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
