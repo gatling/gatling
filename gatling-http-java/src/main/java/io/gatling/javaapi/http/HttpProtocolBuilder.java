@@ -781,9 +781,11 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Define the remote hosts that are known to support or not support HTTP/2
+   * Define the remote hosts that are known to support or not support HTTP/2. Remotes known to
+   * support HTTP/2 are also used with HTTP/2 without TLS (h2c) for clear http:// urls.
    *
-   * @param remotes the known remote hosts
+   * @param remotes the known remote hosts, as hostname or hostname:port, the port defaulting to
+   *     443, so it must be specified for clear http:// urls, eg "localhost:8080"
    * @return a new HttpProtocolBuilder instance
    */
   public HttpProtocolBuilder http2PriorKnowledge(Map<String, Boolean> remotes) {

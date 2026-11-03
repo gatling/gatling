@@ -26,7 +26,7 @@ import io.gatling.http.client.Request;
 import io.gatling.http.client.RequestBuilder;
 import io.gatling.http.client.realm.BasicRealm;
 import io.gatling.http.client.test.ConnectProxy;
-import io.gatling.http.client.test.Http2TlsTestServer;
+import io.gatling.http.client.test.Http2TestServer;
 import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.TestClient;
 import io.gatling.http.client.test.listener.TestListener;
@@ -53,7 +53,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   private static RequestBuilder request(
       TestClient client,
-      Http2TlsTestServer origin,
+      Http2TestServer origin,
       ConnectProxy proxy,
       boolean securedProxy,
       BasicRealm proxyRealm)
@@ -98,7 +98,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldNegotiateHttp2WithoutProxy() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true)) {
+    try (Http2TestServer origin = Http2TestServer.tls(true)) {
       withClient(config())
           .run(client -> assertEquals(H2, get(client, request(client, origin, null, false, null))));
     }
@@ -106,7 +106,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldNegotiateHttp2ThroughProxy() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true);
+    try (Http2TestServer origin = Http2TestServer.tls(true);
         ConnectProxy proxy = new ConnectProxy(false)) {
       withClient(config())
           .run(
@@ -119,7 +119,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldReuseHttp2ConnectionThroughProxy() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true);
+    try (Http2TestServer origin = Http2TestServer.tls(true);
         ConnectProxy proxy = new ConnectProxy(false)) {
       withClient(config())
           .run(
@@ -136,7 +136,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldFallBackToHttp1ThroughProxyWhenRemoteDoesntSupportHttp2() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(false);
+    try (Http2TestServer origin = Http2TestServer.tls(false);
         ConnectProxy proxy = new ConnectProxy(false)) {
       withClient(config())
           .run(
@@ -147,7 +147,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldAuthenticateWithProxy() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true);
+    try (Http2TestServer origin = Http2TestServer.tls(true);
         ConnectProxy proxy = new ConnectProxy(false)) {
       withClient(config())
           .run(
@@ -165,7 +165,7 @@ class Http2ThroughProxyTest extends HttpTest {
 
   @Test
   void shouldNegotiateHttp2WithRemoteButNotWithHttpsProxy() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true);
+    try (Http2TestServer origin = Http2TestServer.tls(true);
         ConnectProxy proxy = new ConnectProxy(true)) {
       withClient(config())
           .run(
@@ -182,7 +182,7 @@ class Http2ThroughProxyTest extends HttpTest {
   @Test
   @SuppressWarnings("unchecked")
   void shouldSendBatchThroughProxyForRemotesKnownToSupportHttp2() throws Throwable {
-    try (Http2TlsTestServer origin = new Http2TlsTestServer(true);
+    try (Http2TestServer origin = Http2TestServer.tls(true);
         ConnectProxy proxy = new ConnectProxy(false)) {
       withClient(config())
           .run(

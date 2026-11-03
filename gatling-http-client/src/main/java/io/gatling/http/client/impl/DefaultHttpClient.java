@@ -50,10 +50,12 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -329,7 +331,7 @@ public final class DefaultHttpClient implements HttpClient {
     }
 
     Request headRequest = requestsAndListeners[0].getLeft();
-    if (!HttpTx.isHttp2Candidate(headRequest)) {
+    if (!HttpTx.isHttp2Candidate(headRequest) && !HttpTx.isH2cCandidate(headRequest)) {
       // eg through a proxy, even when the remote is known to support HTTP/2
       for (Pair<Request, HttpListener> pair : requestsAndListeners) {
         sendRequest(pair.getLeft(), clientId, eventLoop, pair.getRight(), sslContextsHolder);
@@ -678,6 +680,17 @@ public final class DefaultHttpClient implements HttpClient {
                                       });
                             }
                           });
+                } else if (tx.isH2cCandidate()) {
+                  LOGGER.debug("Installing Http2Handler without TLS (h2c) for {}", requestUri);
+                  installH2cHandler(Collections.singletonList(tx), channel, resources.channelPool)
+                      .addListener(
+                          f -> {
+                            if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                              channel.close();
+                              return;
+                            }
+                            sendTxWithChannel(tx, channel);
+                          });
                 } else {
                   sendTxWithChannel(tx, channel);
                 }
@@ -714,6 +727,20 @@ public final class DefaultHttpClient implements HttpClient {
                 ChannelPool.registerPoolKey(channel, tx.key);
 
                 Uri requestUri = tx.request.getUri();
+                if (tx.isH2cCandidate()) {
+                  LOGGER.debug("Installing Http2Handler without TLS (h2c) for {}", requestUri);
+                  installH2cHandler(txs, channel, resources.channelPool)
+                      .addListener(
+                          f -> {
+                            if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                              channel.close();
+                              return;
+                            }
+                            sendHttp2TxsWithChannel(txs, channel);
+                          });
+                  return;
+                }
+
                 LOGGER.debug("Installing SslHandler for {}", requestUri);
                 installSslHandler(
                         tx,
@@ -762,7 +789,7 @@ public final class DefaultHttpClient implements HttpClient {
 
     if (requestUri.isWebSocket()) {
       return resources.wsBootstrap;
-    } else if (tx.isHttp2Candidate()) {
+    } else if (tx.isHttp2Candidate() || tx.isH2cCandidate()) {
       return resources.http2Bootstrap;
     } else {
       return resources.http1Bootstrap;
@@ -1026,6 +1053,50 @@ public final class DefaultHttpClient implements HttpClient {
           .incrementWindowSize(connection.connectionStream(), connectionWindowIncrement);
       pipeline.channel().flush();
     }
+  }
+
+  /**
+   * With prior knowledge, there's no negotiation: the client sends the HTTP/2 preface right away,
+   * and the server's SETTINGS tell it speaks HTTP/2.
+   */
+  private Future<Void> installH2cHandler(
+      List<HttpTx> txs, Channel channel, ChannelPool channelPool) {
+    HttpTx tx = txs.get(0);
+    Promise<Void> whenSettings = channel.eventLoop().newPromise();
+    try {
+      installHttp2Handlers(
+          channel.pipeline(),
+          tx.request.getHttp2FlowControlWindows(),
+          DefaultHttpClient.this::retryHttp2,
+          channelPool,
+          whenSettings);
+    } catch (Http2Exception e) {
+      whenSettings.tryFailure(e);
+    }
+
+    channel
+        .closeFuture()
+        .addListener(
+            f ->
+                whenSettings.tryFailure(
+                    new IOException(
+                        "Connection was closed before receiving HTTP/2 SETTINGS, does "
+                            + tx.request.getUri().getHost()
+                            + " really support HTTP/2 without TLS (h2c)?")));
+
+    whenSettings.addListener(
+        f -> {
+          if (f.isSuccess()) {
+            // only pool once the remote proved it speaks HTTP/2
+            channelPool.offer(channel);
+          } else {
+            for (HttpTx t : txs) {
+              t.requestTimeout.cancel();
+              t.listener.onThrowable(f.cause());
+            }
+          }
+        });
+    return whenSettings;
   }
 
   private Future<Void> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {

@@ -54,7 +54,7 @@ public final class ConnectProxy implements AutoCloseable {
    * @param secured true for a proxy reached over TLS
    */
   public ConnectProxy(boolean secured) throws Exception {
-    SslContext sslContext = secured ? Http2TlsTestServer.serverSslContext(true) : null;
+    SslContext sslContext = secured ? Http2TestServer.serverSslContext(true) : null;
     serverChannel =
         new ServerBootstrap()
             .group(group)

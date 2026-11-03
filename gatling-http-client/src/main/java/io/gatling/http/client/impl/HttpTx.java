@@ -86,6 +86,24 @@ public final class HttpTx {
     return isHttp2Candidate(request);
   }
 
+  /**
+   * Whether HTTP/2 should be used without TLS (h2c). Only with prior knowledge, ie when the remote
+   * is known to support HTTP/2, as the HTTP/1.1 Upgrade mechanism is deprecated (RFC 9113 section
+   * 3.1). Not through a proxy, as HTTP proxies forward clear HTTP requests themselves.
+   */
+  static boolean isH2cCandidate(Request request) {
+    Uri uri = request.getUri();
+    return request.isHttp2Enabled()
+        && request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP2_SUPPORTED
+        && !uri.isSecured()
+        && !uri.isWebSocket()
+        && request.getProxyServer() == null;
+  }
+
+  boolean isH2cCandidate() {
+    return isH2cCandidate(request);
+  }
+
   /** The SslContext for the TLS connection with the remote, with ALPN when trying HTTP/2. */
   SslContext sslContext() {
     if (isHttp2Candidate()) {

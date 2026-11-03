@@ -31,23 +31,41 @@ import io.netty.util.ReferenceCountUtil;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.KeyManagerFactory;
 
 /**
- * A TLS server that negotiates HTTP/2 or HTTP/1.1 with ALPN, and responds to every request with the
- * protocol it was received with as the body: "h2" or "http/1.1".
+ * A server that responds to every request with the protocol it was received with as the body: "h2"
+ * or "http/1.1". Over TLS, it negotiates HTTP/2 or HTTP/1.1 with ALPN. In clear, it speaks either
+ * HTTP/2 with prior knowledge (h2c) or HTTP/1.1.
  */
-public final class Http2TlsTestServer implements AutoCloseable {
+public final class Http2TestServer implements AutoCloseable {
 
   private final EventLoopGroup group =
       new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
+  private final boolean tls;
   private final Channel serverChannel;
 
+  /** the number of accepted connections */
+  public final AtomicInteger connections = new AtomicInteger();
+
   /**
-   * @param http2Supported false to emulate an origin that only supports HTTP/1.1
+   * @param http2Supported false to emulate a server that only supports HTTP/1.1
    */
-  public Http2TlsTestServer(boolean http2Supported) throws Exception {
-    SslContext sslContext = serverSslContext(http2Supported);
+  public static Http2TestServer tls(boolean http2Supported) throws Exception {
+    return new Http2TestServer(true, http2Supported);
+  }
+
+  /**
+   * @param http2Supported true for HTTP/2 with prior knowledge (h2c), false for HTTP/1.1 only
+   */
+  public static Http2TestServer cleartext(boolean http2Supported) throws Exception {
+    return new Http2TestServer(false, http2Supported);
+  }
+
+  private Http2TestServer(boolean tls, boolean http2Supported) throws Exception {
+    this.tls = tls;
+    SslContext sslContext = tls ? serverSslContext(http2Supported) : null;
     serverChannel =
         new ServerBootstrap()
             .group(group)
@@ -56,6 +74,15 @@ public final class Http2TlsTestServer implements AutoCloseable {
                 new ChannelInitializer<SocketChannel>() {
                   @Override
                   protected void initChannel(SocketChannel ch) {
+                    connections.incrementAndGet();
+                    if (sslContext == null) {
+                      if (http2Supported) {
+                        addHttp2Handlers(ch.pipeline());
+                      } else {
+                        addHttp1Handlers(ch.pipeline());
+                      }
+                      return;
+                    }
                     ch.pipeline()
                         .addLast(
                             sslContext.newHandler(ch.alloc()),
@@ -65,16 +92,9 @@ public final class Http2TlsTestServer implements AutoCloseable {
                               protected void configurePipeline(
                                   ChannelHandlerContext ctx, String protocol) {
                                 if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
-                                  ctx.pipeline()
-                                      .addLast(
-                                          Http2FrameCodecBuilder.forServer().build(),
-                                          new Http2MultiplexHandler(Http2Responder.INSTANCE));
+                                  addHttp2Handlers(ctx.pipeline());
                                 } else {
-                                  ctx.pipeline()
-                                      .addLast(
-                                          new HttpServerCodec(),
-                                          new HttpObjectAggregator(64 * 1024),
-                                          new Http1Responder());
+                                  addHttp1Handlers(ctx.pipeline());
                                 }
                               }
                             });
@@ -85,10 +105,21 @@ public final class Http2TlsTestServer implements AutoCloseable {
             .channel();
   }
 
+  private static void addHttp2Handlers(ChannelPipeline pipeline) {
+    pipeline.addLast(
+        Http2FrameCodecBuilder.forServer().build(),
+        new Http2MultiplexHandler(Http2Responder.INSTANCE));
+  }
+
+  private static void addHttp1Handlers(ChannelPipeline pipeline) {
+    pipeline.addLast(
+        new HttpServerCodec(), new HttpObjectAggregator(64 * 1024), new Http1Responder());
+  }
+
   static SslContext serverSslContext(boolean http2Supported) throws Exception {
     KeyStore keyStore = KeyStore.getInstance("JKS");
     try (InputStream is =
-        Http2TlsTestServer.class.getClassLoader().getResourceAsStream("ssltest-keystore.jks")) {
+        Http2TestServer.class.getClassLoader().getResourceAsStream("ssltest-keystore.jks")) {
       keyStore.load(is, "changeit".toCharArray());
     }
     KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -114,7 +145,7 @@ public final class Http2TlsTestServer implements AutoCloseable {
   }
 
   public String getUrl() {
-    return "https://localhost:" + getPort() + "/";
+    return (tls ? "https" : "http") + "://localhost:" + getPort() + "/";
   }
 
   @Override
