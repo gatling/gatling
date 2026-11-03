@@ -145,6 +145,10 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     Integer streamId =
         response.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
     HttpTx tx = txByStreamId.get(streamId);
+    if (tx == null) {
+      LOGGER.debug("Ignoring response headers for unknown stream {}", streamId);
+      return;
+    }
 
     if (tx.requestTimeout.isDone()) {
       tx.releasePendingRequestExpectingContinue();
@@ -174,6 +178,10 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
   private void channelReadHttp2Content(ChannelHandlerContext ctx, Http2Content content) {
     int streamId = content.streamId;
     HttpTx tx = txByStreamId.get(streamId);
+    if (tx == null) {
+      LOGGER.debug("Ignoring response content for unknown stream {}", streamId);
+      return;
+    }
 
     if (tx.requestTimeout.isDone()) {
       resetStream(ctx, streamId);

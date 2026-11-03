@@ -64,7 +64,9 @@ import org.slf4j.LoggerFactory;
 
 public final class DefaultHttpClient implements HttpClient {
 
-  private static final Http2Settings DEFAULT_HTTP2_SETTINGS = Http2Settings.defaultSettings();
+  // we don't support server push: without ENABLE_PUSH=0, servers are allowed to push
+  static final Http2Settings DEFAULT_HTTP2_SETTINGS =
+      Http2Settings.defaultSettings().pushEnabled(false);
 
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
