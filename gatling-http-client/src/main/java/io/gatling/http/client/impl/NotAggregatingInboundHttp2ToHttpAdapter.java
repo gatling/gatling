@@ -97,6 +97,11 @@ public final class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAda
   }
 
   @Override
+  public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
+    ctx.fireUserEventTriggered(new Http2AppHandler.RstStreamFrame(streamId, errorCode));
+  }
+
+  @Override
   public void onGoAwayRead(
       ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
     ctx.fireUserEventTriggered(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));

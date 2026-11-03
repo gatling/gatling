@@ -1,0 +1,204 @@
+/*
+ * Copyright 2011-2026 GatlingCorp (https://gatling.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.gatling.http.client.impl;
+
+import io.gatling.http.client.HttpListener;
+import io.gatling.http.client.Request;
+import io.gatling.http.client.RequestBuilder;
+import io.gatling.http.client.pool.ChannelPool;
+import io.gatling.http.client.pool.ChannelPoolKey;
+import io.gatling.http.client.pool.RemoteKey;
+import io.gatling.http.client.uri.Uri;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http2.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * An HTTP/2 client channel with the same handlers as {@link DefaultHttpClient} installs, and a fake
+ * server side that encodes frames for the client and decodes what the client sends.
+ */
+final class Http2ClientHarness implements AutoCloseable {
+
+  static final class RecordingListener implements HttpListener {
+    int status;
+    boolean completed;
+    Throwable failure;
+    int failureCount;
+
+    @Override
+    public void onFinalClientRequest(Request request) {}
+
+    @Override
+    public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {
+      this.status = status.code();
+    }
+
+    @Override
+    public void onHttpResponseBodyChunk(ByteBuf chunk, boolean last) {
+      completed |= last;
+    }
+
+    @Override
+    public void onThrowable(Throwable e) {
+      failure = e;
+      failureCount++;
+    }
+  }
+
+  private static final Uri URI = Uri.create("https://gatling.io/");
+
+  final EmbeddedChannel client = new EmbeddedChannel();
+  private final EmbeddedChannel server = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
+  private final ChannelHandlerContext serverCtx = server.pipeline().firstContext();
+  private final Http2FrameWriter serverWriter = new DefaultHttp2FrameWriter();
+  private final Http2FrameReader serverReader = new DefaultHttp2FrameReader();
+
+  Http2ClientHarness(int maxConcurrentStreams) {
+    ChannelPool.registerPoolKey(client, new ChannelPoolKey(1, RemoteKey.newKey(URI, null)));
+    DefaultHttpClient.installHttp2Handlers(
+        client.pipeline(), null, new ChannelPool(), client.eventLoop().newPromise());
+
+    // skip the client preface
+    client.flush();
+    ByteBuf chunk;
+    while ((chunk = client.readOutbound()) != null) {
+      chunk.release();
+    }
+
+    serverWriter.writeSettings(
+        serverCtx,
+        new Http2Settings().maxConcurrentStreams(maxConcurrentStreams),
+        serverCtx.newPromise());
+    sendToClient();
+  }
+
+  @Override
+  public void close() {
+    serverWriter.close();
+    serverReader.close();
+    server.finishAndReleaseAll();
+    client.finishAndReleaseAll();
+  }
+
+  RecordingListener sendRequest() {
+    RecordingListener listener = new RecordingListener();
+    Request request = new RequestBuilder("request", HttpMethod.GET, URI, null).build();
+    client.write(
+        new HttpTx(
+            request,
+            listener,
+            RequestTimeout.requestTimeout(0, listener),
+            new ChannelPoolKey(1, RemoteKey.newKey(URI, null)),
+            null));
+    return listener;
+  }
+
+  private void sendToClient() {
+    serverCtx.flush();
+    ByteBuf chunk;
+    while ((chunk = server.readOutbound()) != null) {
+      client.writeInbound(chunk);
+    }
+  }
+
+  /**
+   * @return the ids of the streams the client opened since the last call
+   */
+  List<Integer> streamIdsOpenedByClient() throws Http2Exception {
+    client.flush();
+    // frames can be split over several writes, the reader expects whole frames
+    ByteBuf written = Unpooled.buffer();
+    ByteBuf chunk;
+    while ((chunk = client.readOutbound()) != null) {
+      written.writeBytes(chunk);
+      chunk.release();
+    }
+    List<Integer> streamIds = new ArrayList<>();
+    try {
+      serverReader.readFrame(
+          serverCtx,
+          written,
+          new Http2FrameAdapter() {
+            @Override
+            public void onHeadersRead(
+                ChannelHandlerContext ctx,
+                int streamId,
+                Http2Headers headers,
+                int padding,
+                boolean endStream) {
+              streamIds.add(streamId);
+            }
+
+            // HttpToHttp2ConnectionHandler sends HEADERS with the PRIORITY flag
+            @Override
+            public void onHeadersRead(
+                ChannelHandlerContext ctx,
+                int streamId,
+                Http2Headers headers,
+                int streamDependency,
+                short weight,
+                boolean exclusive,
+                int padding,
+                boolean endStream) {
+              streamIds.add(streamId);
+            }
+          });
+    } finally {
+      written.release();
+    }
+    return streamIds;
+  }
+
+  void respond(int streamId) {
+    serverWriter.writeHeaders(
+        serverCtx,
+        streamId,
+        new DefaultHttp2Headers().status("200"),
+        0,
+        true,
+        serverCtx.newPromise());
+    sendToClient();
+  }
+
+  void goAway(int lastStreamId, Http2Error error) {
+    serverWriter.writeGoAway(
+        serverCtx, lastStreamId, error.code(), Unpooled.EMPTY_BUFFER, serverCtx.newPromise());
+    sendToClient();
+  }
+
+  /**
+   * Like the transport does when the peer closes the socket. Closing the channel would go through
+   * {@link Http2ConnectionHandler#close}, which waits for active streams to complete.
+   */
+  void serverDisconnects() {
+    client.unsafe().close(client.voidPromise());
+    client.runPendingTasks();
+  }
+
+  void resetStream(int streamId, Http2Error error) {
+    serverWriter.writeRstStream(serverCtx, streamId, error.code(), serverCtx.newPromise());
+    sendToClient();
+  }
+}

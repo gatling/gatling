@@ -42,6 +42,21 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     }
   }
 
+  public static final class RstStreamFrame {
+    private final int streamId;
+    private final long errorCode;
+
+    public RstStreamFrame(int streamId, long errorCode) {
+      this.streamId = streamId;
+      this.errorCode = errorCode;
+    }
+
+    @Override
+    public String toString() {
+      return "RstStreamFrame{streamId=" + streamId + ", errorCode=" + errorCode + '}';
+    }
+  }
+
   public static final class GoAwayFrame {
     private final int lastStreamId;
     private final long errorCode;
@@ -60,6 +75,8 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(Http2AppHandler.class);
   private static final IOException REMOTELY_CLOSED_EXCEPTION =
       new IOException("Channel was closed before handshake completed");
+  private static final IOException CONNECTION_CLOSED_EXCEPTION =
+      new IOException("Connection was closed while the stream was in flight");
 
   private final DefaultHttpClient client;
   private final Http2ConnectionHandler http2ConnectionHandler;
@@ -233,11 +250,14 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
       if (nonActiveStreamListener != null) {
         nonActiveStreamListener.onThrowable(cause);
       }
-      txByStreamId.forEach(
-          (id, tx) -> {
-            tx.releasePendingRequestExpectingContinue();
-            tx.listener.onThrowable(cause);
-          });
+      // clear before notifying so that late write failures and channelInactive don't notify again
+      List<HttpTx> txs = new ArrayList<>(txByStreamId.values());
+      txByStreamId.clear();
+      for (HttpTx tx : txs) {
+        tx.releasePendingRequestExpectingContinue();
+        tx.requestTimeout.cancel();
+        tx.listener.onThrowable(cause);
+      }
     } finally {
       if (close) {
         // FIXME shouldn't we close the connection?
@@ -258,9 +278,7 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
-    if (!writeReached) {
-      crash(ctx, REMOTELY_CLOSED_EXCEPTION, null, false);
-    }
+    crash(ctx, writeReached ? CONNECTION_CLOSED_EXCEPTION : REMOTELY_CLOSED_EXCEPTION, null, false);
   }
 
   @Override
@@ -291,6 +309,22 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
       if (!retryTxs.isEmpty()) {
         client.retryHttp2(retryTxs, ctx.channel().eventLoop());
+      }
+
+    } else if (evt instanceof RstStreamFrame) {
+      RstStreamFrame rstStream = (RstStreamFrame) evt;
+      HttpTx tx = txByStreamId.remove(rstStream.streamId);
+      if (tx != null) {
+        LOGGER.debug("Received RST_STREAM frame: {}", rstStream);
+        // Netty closes the stream after notifying us
+        tx.releasePendingRequestExpectingContinue();
+        tx.requestTimeout.cancel();
+        Http2Error error = Http2Error.valueOf(rstStream.errorCode);
+        tx.listener.onThrowable(
+            new IOException(
+                "Stream was reset by the server with error code "
+                    + (error != null ? error : rstStream.errorCode)));
+        channelPool.offer(ctx.channel());
       }
 
     } else if (evt instanceof StreamTimeout) {
