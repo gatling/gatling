@@ -86,7 +86,8 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
   // mutable state
   private boolean writeReached = false;
-  private int nextStreamId = 1;
+  // like Netty, client streams start at 3, as 1 is reserved for the HTTP/1.1 upgrade
+  private int lastStreamId = 1;
   private final Map<Integer, HttpTx> txByStreamId = new HashMap<>();
 
   Http2AppHandler(
@@ -124,8 +125,22 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
       channelPool.offer(ctx.channel());
       return;
     }
-    nextStreamId += 2; // that's how Netty works, 1 is reserved for the connection itself
-    int thisStreamId = nextStreamId;
+    // we can't use Http2Connection.Endpoint#incrementAndGetNextStreamId as
+    // HttpToHttp2ConnectionHandler already calls it for every request, even with an explicit stream
+    // id, but never use an id Netty already created a stream for
+    lastStreamId =
+        Math.max(lastStreamId, http2ConnectionHandler.connection().local().lastStreamCreated());
+    if (lastStreamId > Integer.MAX_VALUE - 2) {
+      // after 2^30 streams, this connection can't open new ones: the request was never sent so it
+      // can be sent on another connection, while the in-flight streams complete before closing
+      LOGGER.debug("Stream ids exhausted, closing connection and retrying on a new one");
+      ChannelPool.markAsGoAway(ctx.channel());
+      retry.accept(Collections.singletonList(tx), ctx.channel().eventLoop());
+      ctx.close();
+      return;
+    }
+    lastStreamId += 2;
+    int thisStreamId = lastStreamId;
     txByStreamId.put(thisStreamId, tx);
 
     try {

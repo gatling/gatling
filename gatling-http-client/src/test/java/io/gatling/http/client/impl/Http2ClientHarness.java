@@ -144,6 +144,10 @@ final class Http2ClientHarness implements AutoCloseable {
     return listener;
   }
 
+  Http2Connection connection() {
+    return client.pipeline().get(HttpToHttp2ConnectionHandler.class).connection();
+  }
+
   /** Sends a retried transaction again, on this same connection. */
   void resend(HttpTx tx) {
     client.write(tx);
