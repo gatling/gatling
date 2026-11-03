@@ -28,6 +28,7 @@ import io.gatling.http.client.realm.BasicRealm;
 import io.gatling.http.client.test.ConnectProxy;
 import io.gatling.http.client.test.Http2TestServer;
 import io.gatling.http.client.test.HttpTest;
+import io.gatling.http.client.test.Socks5Proxy;
 import io.gatling.http.client.test.TestClient;
 import io.gatling.http.client.test.listener.TestListener;
 import io.gatling.http.client.uri.Uri;
@@ -66,6 +67,15 @@ class Http2ThroughProxyTest extends HttpTest {
               "localhost", proxy.getPort(), proxyRealm, securedProxy, EmptyHttpHeaders.INSTANCE));
     }
     return requestBuilder;
+  }
+
+  private static RequestBuilder socksRequest(
+      TestClient client, Http2TestServer origin, Socks5Proxy proxy, BasicRealm proxyRealm)
+      throws Exception {
+    return client
+        .newRequestBuilder(HttpMethod.GET, Uri.create(origin.getUrl()))
+        .setHttp2Enabled(true)
+        .setProxyServer(new SocksProxyServer("localhost", proxy.getPort(), proxyRealm, true));
   }
 
   /** a listener that records the protocol the origin received the request with */
@@ -209,6 +219,59 @@ class Http2ThroughProxyTest extends HttpTest {
                 assertEquals(H2, protocol1.get());
                 assertEquals(H2, protocol2.get());
                 assertEquals(1, proxy.connectTargets.size(), "the batch must share one tunnel");
+              });
+    }
+  }
+
+  @Test
+  void shouldNegotiateHttp2ThroughSocks5Proxy() throws Throwable {
+    try (Http2TestServer origin = Http2TestServer.tls(true);
+        Socks5Proxy proxy = new Socks5Proxy(null, null)) {
+      withClient(config())
+          .run(
+              client -> {
+                assertEquals(H2, get(client, socksRequest(client, origin, proxy, null)));
+                assertEquals(List.of("localhost:" + origin.getPort()), proxy.connectTargets);
+              });
+    }
+  }
+
+  @Test
+  void shouldReuseHttp2ConnectionThroughSocks5Proxy() throws Throwable {
+    try (Http2TestServer origin = Http2TestServer.tls(true);
+        Socks5Proxy proxy = new Socks5Proxy(null, null)) {
+      withClient(config())
+          .run(
+              client -> {
+                EventLoop eventLoop = client.nextEventLoop();
+                assertEquals(H2, get(client, socksRequest(client, origin, proxy, null), eventLoop));
+                assertEquals(H2, get(client, socksRequest(client, origin, proxy, null), eventLoop));
+                assertEquals(1, proxy.connectTargets.size(), "only one tunnel must be opened");
+              });
+    }
+  }
+
+  @Test
+  void shouldFallBackToHttp1ThroughSocks5ProxyWhenRemoteDoesntSupportHttp2() throws Throwable {
+    try (Http2TestServer origin = Http2TestServer.tls(false);
+        Socks5Proxy proxy = new Socks5Proxy(null, null)) {
+      withClient(config())
+          .run(
+              client ->
+                  assertEquals(HTTP_1_1, get(client, socksRequest(client, origin, proxy, null))));
+    }
+  }
+
+  @Test
+  void shouldAuthenticateWithSocks5Proxy() throws Throwable {
+    try (Http2TestServer origin = Http2TestServer.tls(true);
+        Socks5Proxy proxy = new Socks5Proxy("user", "password")) {
+      withClient(config())
+          .run(
+              client -> {
+                BasicRealm realm = new BasicRealm("user", "password");
+                assertEquals(H2, get(client, socksRequest(client, origin, proxy, realm)));
+                assertEquals(List.of("user"), proxy.authenticatedUsernames);
               });
     }
   }

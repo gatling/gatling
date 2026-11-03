@@ -121,7 +121,7 @@ public final class ConnectProxy implements AutoCloseable {
       new Bootstrap()
           .group(inbound.eventLoop())
           .channel(NioSocketChannel.class)
-          .handler(new Relay(inbound))
+          .handler(new TcpRelay(inbound))
           .connect(host, port)
           .addListener(
               (ChannelFutureListener)
@@ -140,32 +140,9 @@ public final class ConnectProxy implements AutoCloseable {
                     ChannelPipeline pipeline = inbound.pipeline();
                     pipeline.remove(HttpServerCodec.class);
                     pipeline.remove(HttpObjectAggregator.class);
-                    pipeline.replace(this, "relay", new Relay(f.channel()));
+                    pipeline.replace(this, "relay", new TcpRelay(f.channel()));
                     inbound.config().setAutoRead(true);
                   });
-    }
-  }
-
-  private static final class Relay extends ChannelInboundHandlerAdapter {
-    private final Channel peer;
-
-    private Relay(Channel peer) {
-      this.peer = peer;
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-      peer.writeAndFlush(msg);
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-      peer.close();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-      ctx.close();
     }
   }
 }
