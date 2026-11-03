@@ -67,6 +67,14 @@ public final class NotAggregatingInboundHttp2ToHttpAdapter extends Http2EventAda
       int padding,
       boolean endOfStream)
       throws Http2Exception {
+    Http2Stream stream = connection.stream(streamId);
+    // the decoder flags the stream before notifying us, so trailers can be told apart from the
+    // response headers here; trailers don't have a :status pseudo-header and always end the stream
+    if (stream != null && stream.isTrailersReceived()) {
+      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId, true));
+      return;
+    }
+
     HttpResponse response = HttpConversionUtil.toHttpResponse(streamId, headers, false);
     ctx.fireChannelRead(response);
     if (endOfStream) {
