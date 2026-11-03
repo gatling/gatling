@@ -28,10 +28,10 @@ final case class ServerSentEvent(
   lazy val asJsonString: String = {
     val sb = StringBuilderPool.DEFAULT.get().append('{')
     event.foreach { value =>
-      sb.append("\"event\":\"").append(value).append("\",")
+      sb.append("\"event\":\"").append(Json.stringify(value, isRootObject = true)).append("\",")
     }
     id.foreach { value =>
-      sb.append("\"id\":\"").append(value).append("\",")
+      sb.append("\"id\":\"").append(Json.stringify(value, isRootObject = true)).append("\",")
     }
     data.foreach { value =>
       sb.append("\"data\":")

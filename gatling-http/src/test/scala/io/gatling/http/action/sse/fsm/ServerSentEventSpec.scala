@@ -47,4 +47,13 @@ class ServerSentEventSpec extends AnyFlatSpecLike with Matchers {
       retry = Option(1)
     ).asJsonString shouldBe """{"event":"EVENT","id":"ID","data":"DATA","retry":1}"""
   }
+
+  it should "escape event and id" in {
+    ServerSentEvent(
+      event = Option("EV\"ENT"),
+      data = Option("DATA"),
+      id = Option("I\\D"),
+      retry = None
+    ).asJsonString shouldBe """{"event":"EV\"ENT","id":"I\\D","data":"DATA"}"""
+  }
 }
