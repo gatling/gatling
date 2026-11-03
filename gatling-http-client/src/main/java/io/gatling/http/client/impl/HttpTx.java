@@ -23,6 +23,7 @@ import io.gatling.http.client.SslContextsHolder;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.util.HttpUtils;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.ReferenceCounted;
@@ -61,17 +62,40 @@ public final class HttpTx {
     this.closeConnection = HttpUtils.isConnectionClose(request.getHeaders());
   }
 
+  /** Whether HTTP/2 should be negotiated with ALPN for this request. */
+  static boolean isHttp2Candidate(Request request) {
+    Uri uri = request.getUri();
+    return request.isHttp2Enabled()
+        && request.getHttp2PriorKnowledge() != Http2PriorKnowledge.HTTP1_ONLY
+        && uri.isSecured()
+        && !uri.isWebSocket()
+        // HTTP/2 through a proxy isn't supported yet
+        && request.getProxyServer() == null;
+  }
+
+  boolean isHttp2Candidate() {
+    return isHttp2Candidate(request);
+  }
+
+  /** The SslContext for the TLS connection with the remote, with ALPN when trying HTTP/2. */
   SslContext sslContext() {
-    if (!request.isHttp2Enabled()
-        || request.getHttp2PriorKnowledge() == Http2PriorKnowledge.HTTP1_ONLY) {
-      return sslContextsHolder.getSslContext();
-    } else {
+    if (isHttp2Candidate()) {
       if (sslContextsHolder.getAlpnSslContext() == null) {
         throw new UnsupportedOperationException(
             "ALPN is not available (this path shouldn't be possible, please report).");
       }
       return sslContextsHolder.getAlpnSslContext();
+    } else {
+      return sslContextsHolder.getSslContext();
     }
+  }
+
+  /**
+   * The SslContext for the TLS connection with an HTTPS proxy: never with ALPN, as the CONNECT
+   * request is HTTP/1.1, the remote's own TLS connection being tunneled.
+   */
+  SslContext proxySslContext() {
+    return sslContextsHolder.getSslContext();
   }
 
   boolean isBodyReplayable() {

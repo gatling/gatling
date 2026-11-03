@@ -42,6 +42,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
@@ -143,7 +144,13 @@ public final class DefaultHttpClient implements HttpClient {
 
       if (proxyServer instanceof HttpProxyServer) {
         if (((HttpProxyServer) proxyServer).isSecured()) {
-          installSslHandler(tx, ch, proxyServer.getHost(), proxyServer.getPort(), PROXY_SSL_HANDLER)
+          installSslHandler(
+                  tx,
+                  tx.proxySslContext(),
+                  ch,
+                  proxyServer.getHost(),
+                  proxyServer.getPort(),
+                  PROXY_SSL_HANDLER)
               .addListener(
                   f -> {
                     if (tx.requestTimeout.isDone() || !f.isSuccess()) {
@@ -308,11 +315,19 @@ public final class DefaultHttpClient implements HttpClient {
     if (isClosed()) {
       return;
     }
+
+    Request headRequest = requestsAndListeners[0].getLeft();
+    if (!HttpTx.isHttp2Candidate(headRequest)) {
+      // eg through a proxy, even when the remote is known to support HTTP/2
+      for (Pair<Request, HttpListener> pair : requestsAndListeners) {
+        sendRequest(pair.getLeft(), clientId, eventLoop, pair.getRight(), sslContextsHolder);
+      }
+      return;
+    }
+
     for (Pair<Request, HttpListener> pair : requestsAndListeners) {
       pair.getRight().onSend();
     }
-
-    Request headRequest = requestsAndListeners[0].getLeft();
 
     if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && !config.isEnableSni()) {
       for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
@@ -407,8 +422,7 @@ public final class DefaultHttpClient implements HttpClient {
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
     Uri requestUri = request.getUri();
-    boolean tryHttp2 =
-        request.isHttp2Enabled() && requestUri.isSecured() && !requestUri.isWebSocket();
+    boolean tryHttp2 = tx.isHttp2Candidate();
 
     // use a fresh channel for WebSocket
     Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
@@ -626,6 +640,7 @@ public final class DefaultHttpClient implements HttpClient {
                 if (requestUri.isSecured()) {
                   installSslHandler(
                           tx,
+                          tx.sslContext(),
                           channel,
                           requestUri.getHost(),
                           requestUri.getExplicitPort(),
@@ -637,9 +652,7 @@ public final class DefaultHttpClient implements HttpClient {
                               return;
                             }
 
-                            if (!tx.request.isHttp2Enabled()
-                                || tx.request.getHttp2PriorKnowledge()
-                                    == Http2PriorKnowledge.HTTP1_ONLY) {
+                            if (!tx.isHttp2Candidate()) {
                               sendTxWithChannel(tx, channel);
                             } else {
                               LOGGER.debug("Installing Http2Handler for {}", requestUri);
@@ -693,6 +706,7 @@ public final class DefaultHttpClient implements HttpClient {
                 LOGGER.debug("Installing SslHandler for {}", requestUri);
                 installSslHandler(
                         tx,
+                        tx.sslContext(),
                         channel,
                         requestUri.getHost(),
                         requestUri.getExplicitPort(),
@@ -734,9 +748,7 @@ public final class DefaultHttpClient implements HttpClient {
 
     if (requestUri.isWebSocket()) {
       return resources.wsBootstrap;
-    } else if (requestUri.isSecured()
-        && request.isHttp2Enabled()
-        && request.getHttp2PriorKnowledge() != Http2PriorKnowledge.HTTP1_ONLY) {
+    } else if (tx.isHttp2Candidate()) {
       return resources.http2Bootstrap;
     } else {
       return resources.http1Bootstrap;
@@ -897,7 +909,12 @@ public final class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(
-      HttpTx tx, Channel channel, String peerHost, int peerPort, String sslHandlerName) {
+      HttpTx tx,
+      SslContext sslContext,
+      Channel channel,
+      String peerHost,
+      int peerPort,
+      String sslHandlerName) {
     LOGGER.debug("Installing SslHandler for {}:{}", peerHost, peerPort);
     // [e]
     //
@@ -905,7 +922,7 @@ public final class DefaultHttpClient implements HttpClient {
 
     try {
       SslHandler sslHandler =
-          SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), peerHost, peerPort, config);
+          SslHandlers.newSslHandler(sslContext, channel.alloc(), peerHost, peerPort, config);
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
