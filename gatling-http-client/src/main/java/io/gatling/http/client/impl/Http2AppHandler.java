@@ -179,7 +179,24 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
     if (tx.pendingRequestExpectingContinue != null) {
       if (status.equals(HttpResponseStatus.CONTINUE)) {
-        LOGGER.debug("Received 100-Continue");
+        // unlike with HTTP/1, 100-Continue is a HEADERS frame without END_STREAM: there's no
+        // content to wait for
+        LOGGER.debug("Received 100-Continue, sending body");
+        WritableRequest request = tx.pendingRequestExpectingContinue;
+        tx.pendingRequestExpectingContinue = null;
+        request
+            .writeContent(ctx)
+            .addListener(
+                f -> {
+                  if (!f.isSuccess() && txByStreamId.remove(streamId) != null) {
+                    tx.requestTimeout.cancel();
+                    tx.listener.onThrowable(f.cause());
+                  }
+                });
+        return;
+
+      } else if (status.codeClass() == HttpStatusClass.INFORMATIONAL) {
+        LOGGER.debug("Ignoring interim response {} while waiting for 100-Continue", status);
         return;
 
       } else {
@@ -208,16 +225,6 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     }
 
     boolean last = content.last;
-
-    if (tx.pendingRequestExpectingContinue != null) {
-      if (last) {
-        LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
-        tx.pendingRequestExpectingContinue.writeContent(ctx);
-        tx.pendingRequestExpectingContinue = null;
-      }
-      return;
-    }
-
     tx.listener.onHttpResponseBodyChunk(content.httpContent.content(), last);
     if (last) {
       tx.requestTimeout.cancel();
@@ -333,8 +340,17 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
   }
 
   private void closeStream(ChannelHandlerContext ctx, int streamId) {
+    Http2Stream stream = http2ConnectionHandler.connection().stream(streamId);
+    if (stream != null && stream.state() == Http2Stream.State.OPEN) {
+      // the server sent a complete response before we sent the whole request, eg it didn't send
+      // 100-Continue: closing the stream locally would leave it half-open on the server side
+      resetStream(ctx, streamId);
+      return;
+    }
     txByStreamId.remove(streamId);
-    http2ConnectionHandler.connection().stream(streamId).close();
+    if (stream != null) {
+      stream.close();
+    }
     channelPool.offer(ctx.channel());
   }
 
