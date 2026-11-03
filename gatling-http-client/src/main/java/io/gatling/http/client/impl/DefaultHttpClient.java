@@ -81,6 +81,7 @@ public final class DefaultHttpClient implements HttpClient {
   private static final String SSL_HANDLER = "ssl";
   public static final String HTTP_CLIENT_CODEC = "http";
   private static final String HTTP2_HANDLER = "http2";
+  private static final String HTTP2_CONTENT_ENCODER = "http2-content-encoder";
   private static final String INFLATER_HANDLER = "inflater";
   private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
   private static final String WS_OBJECT_AGGREGATOR = "ws-object-aggregator";
@@ -962,6 +963,7 @@ public final class DefaultHttpClient implements HttpClient {
 
     pipeline
         .addLast(HTTP2_HANDLER, http2Handler)
+        .addLast(HTTP2_CONTENT_ENCODER, ByteBufToHttpContentEncoder.INSTANCE)
         .addLast(CHUNKED_WRITER_HANDLER, new ForkedChunkedWriteHandler())
         .addLast(APP_HTTP2_HANDLER, http2AppHandler);
   }

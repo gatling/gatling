@@ -340,8 +340,12 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
   private void resetStream(ChannelHandlerContext ctx, int streamId) {
     txByStreamId.remove(streamId);
+    // the frame must be written from the HTTP/2 handler's context, otherwise it would go through
+    // the outbound handlers in between and be wrapped as a DATA frame by
+    // ByteBufToHttpContentEncoder
+    ChannelHandlerContext http2Ctx = ctx.pipeline().context(http2ConnectionHandler);
     http2ConnectionHandler
-        .resetStream(ctx, streamId, Http2Error.CANCEL.code(), ctx.newPromise())
+        .resetStream(http2Ctx, streamId, Http2Error.CANCEL.code(), ctx.newPromise())
         .addListener((ChannelFutureListener) future -> channelPool.offer(ctx.channel()));
   }
 }

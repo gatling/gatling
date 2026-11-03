@@ -32,6 +32,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,8 +104,16 @@ final class Http2ClientHarness implements AutoCloseable {
   }
 
   RecordingListener sendRequest() {
+    return sendRequest(new RequestBuilder("request", HttpMethod.GET, URI, null));
+  }
+
+  static RequestBuilder requestBuilder(HttpMethod method) {
+    return new RequestBuilder("request", method, URI, null);
+  }
+
+  RecordingListener sendRequest(RequestBuilder requestBuilder) {
     RecordingListener listener = new RecordingListener();
-    Request request = new RequestBuilder("request", HttpMethod.GET, URI, null).build();
+    Request request = requestBuilder.build();
     client.write(
         new HttpTx(
             request,
@@ -123,10 +132,23 @@ final class Http2ClientHarness implements AutoCloseable {
     }
   }
 
+  /** What the client sent since the last read. */
+  static final class ClientFrames {
+    final List<Integer> openedStreamIds = new ArrayList<>();
+    // streams for which the client sent END_STREAM, with HEADERS or DATA
+    final List<Integer> endedStreamIds = new ArrayList<>();
+    final StringBuilder data = new StringBuilder();
+    final List<Integer> resetStreamIds = new ArrayList<>();
+  }
+
   /**
-   * @return the ids of the streams the client opened since the last call
+   * @return the ids of the streams the client opened since the last read
    */
   List<Integer> streamIdsOpenedByClient() throws Http2Exception {
+    return clientFrames().openedStreamIds;
+  }
+
+  ClientFrames clientFrames() throws Http2Exception {
     client.flush();
     // frames can be split over several writes, the reader expects whole frames
     ByteBuf written = Unpooled.buffer();
@@ -135,7 +157,7 @@ final class Http2ClientHarness implements AutoCloseable {
       written.writeBytes(chunk);
       chunk.release();
     }
-    List<Integer> streamIds = new ArrayList<>();
+    ClientFrames frames = new ClientFrames();
     try {
       serverReader.readFrame(
           serverCtx,
@@ -148,7 +170,10 @@ final class Http2ClientHarness implements AutoCloseable {
                 Http2Headers headers,
                 int padding,
                 boolean endStream) {
-              streamIds.add(streamId);
+              frames.openedStreamIds.add(streamId);
+              if (endStream) {
+                frames.endedStreamIds.add(streamId);
+              }
             }
 
             // HttpToHttp2ConnectionHandler sends HEADERS with the PRIORITY flag
@@ -162,24 +187,58 @@ final class Http2ClientHarness implements AutoCloseable {
                 boolean exclusive,
                 int padding,
                 boolean endStream) {
-              streamIds.add(streamId);
+              onHeadersRead(ctx, streamId, headers, padding, endStream);
+            }
+
+            @Override
+            public int onDataRead(
+                ChannelHandlerContext ctx,
+                int streamId,
+                ByteBuf data,
+                int padding,
+                boolean endOfStream) {
+              frames.data.append(data.toString(StandardCharsets.UTF_8));
+              if (endOfStream) {
+                frames.endedStreamIds.add(streamId);
+              }
+              return data.readableBytes() + padding;
+            }
+
+            @Override
+            public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
+              frames.resetStreamIds.add(streamId);
             }
           });
     } finally {
       written.release();
     }
-    return streamIds;
+    return frames;
   }
 
-  void respond(int streamId) {
+  void sendInterimResponse(int streamId, int status) {
     serverWriter.writeHeaders(
         serverCtx,
         streamId,
-        new DefaultHttp2Headers().status("200"),
+        new DefaultHttp2Headers().status(String.valueOf(status)),
+        0,
+        false,
+        serverCtx.newPromise());
+    sendToClient();
+  }
+
+  void respond(int streamId, int status) {
+    serverWriter.writeHeaders(
+        serverCtx,
+        streamId,
+        new DefaultHttp2Headers().status(String.valueOf(status)),
         0,
         true,
         serverCtx.newPromise());
     sendToClient();
+  }
+
+  void respond(int streamId) {
+    respond(streamId, 200);
   }
 
   void goAway(int lastStreamId, Http2Error error) {
