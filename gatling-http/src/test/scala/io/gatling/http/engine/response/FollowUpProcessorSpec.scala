@@ -108,7 +108,7 @@ class FollowUpProcessorSpec extends AnyFlatSpecLike with Matchers with EmptySess
     val original = originalRequest()
     val originalHeaders = headersOf(original)
 
-    val challenge = FollowUpProcessor.digestChallengeRequest("original", original, session, new DigestRealm("user", "password"), UTF_8)
+    val challenge = FollowUpProcessor.digestChallengeRequest("original", original, session, httpProtocol, new DigestRealm("user", "password"), UTF_8)
 
     keepsOriginalSettings(challenge)
     challenge.getHttp2PriorKnowledge shouldBe null
@@ -119,7 +119,7 @@ class FollowUpProcessorSpec extends AnyFlatSpecLike with Matchers with EmptySess
     val original = originalRequest()
     val originalHeaders = headersOf(original)
 
-    val retry = FollowUpProcessor.expectationFailedRequest(original, session, UTF_8)
+    val retry = FollowUpProcessor.expectationFailedRequest(original, session, httpProtocol, UTF_8)
 
     keepsOriginalSettings(retry)
     retry.getName shouldBe "original Retry Without Expect"

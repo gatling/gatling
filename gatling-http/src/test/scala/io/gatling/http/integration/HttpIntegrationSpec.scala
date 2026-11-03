@@ -163,4 +163,25 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       )
     }
   }
+
+  it should "keep working with HTTP/2 enabled after flushing the HTTP cache" in {
+    val handler: Handler = { case HttpRequest(HttpMethod.GET, "/page") =>
+      val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+      response.headers.set(NettyHttpHeaderName.CONTENT_LENGTH, 0)
+      ctx => ctx.channel.writeAndFlush(response)
+    }
+
+    runWithHttpServer(handler) { implicit httpServer =>
+      val session = runScenario(
+        scenario("Flush")
+          .exec(http("before").get("/page"))
+          .exec(flushHttpCache)
+          .exec(http("after").get("/page")),
+        protocolCustomizer = _.enableHttp2
+      )
+
+      session.isFailed shouldBe false
+      verifyRequestTo("/page", 2)
+    }
+  }
 }

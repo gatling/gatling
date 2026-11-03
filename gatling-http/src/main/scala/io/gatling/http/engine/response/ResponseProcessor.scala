@@ -82,7 +82,8 @@ object ResponseProcessor extends StrictLogging {
       ) {
         // reported like redirects, the request being sent again without expectation as a follow-up
         val newSession = sessionProcessor.updatedExpectationFailedSession(tx.currentSession, response)
-        val retryRequest = FollowUpProcessor.expectationFailedRequest(tx.request.clientRequest, newSession, defaultCharset)
+        val retryRequest =
+          FollowUpProcessor.expectationFailedRequest(tx.request.clientRequest, newSession, tx.request.requestConfig.httpProtocol, defaultCharset)
         FollowUp(
           tx.copy(
             session = newSession,
@@ -105,6 +106,7 @@ object ResponseProcessor extends StrictLogging {
                 tx.request.requestName,
                 tx.request.clientRequest,
                 newSession,
+                tx.request.requestConfig.httpProtocol,
                 digestRealm,
                 defaultCharset
               )

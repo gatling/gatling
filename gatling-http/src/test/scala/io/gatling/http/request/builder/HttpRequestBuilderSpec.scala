@@ -410,4 +410,17 @@ class HttpRequestBuilderSpec extends AnyFlatSpecLike with Matchers with Validati
     priorKnowledge("https://other.gatling.io") shouldBe Http2PriorKnowledge.HTTP1_ONLY
     priorKnowledge("https://unknown.gatling.io") shouldBe null
   }
+
+  it should "still be the configured one after flushing the HTTP cache" in {
+    val httpProtocol = HttpProtocolBuilder(configuration).enableHttp2
+      .http2PriorKnowledge(Map("gatling.io" -> true))
+      .build
+
+    val flushedSession = HttpCaches.FlushCache(Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol)(sessionBase)).succeeded
+
+    httpRequestDef(f = identity, httpProtocol = httpProtocol, urlOrURI = Right(Uri.create("https://gatling.io")))
+      .build(flushedSession)
+      .map(_.clientRequest.getHttp2PriorKnowledge)
+      .succeeded shouldBe Http2PriorKnowledge.HTTP2_SUPPORTED
+  }
 }

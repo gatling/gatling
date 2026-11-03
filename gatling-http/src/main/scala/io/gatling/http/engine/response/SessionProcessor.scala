@@ -65,7 +65,7 @@ sealed abstract class SessionProcessor(
     val (sessionWithCheckSavedValues, checkError) = CheckProcessor.check(session, response, checks, postChecks)
     val sessionWithHttp2PriorKnowledge =
       if (httpProtocol.enginePart.enableHttp2) {
-        Http2PriorKnowledgeSupport.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
+        Http2PriorKnowledgeSupport.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, httpProtocol, response)
       } else {
         sessionWithCheckSavedValues
       }

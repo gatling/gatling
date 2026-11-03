@@ -147,7 +147,7 @@ final class HttpRequestExpressionBuilder(
   private val http2FlowControlWindows = httpProtocol.enginePart.http2FlowControlWindows
   private def configurePriorKnowledge(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     if (enableHttp2) {
-      val http2PriorKnowledge = Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
+      val http2PriorKnowledge = Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, httpProtocol, Remote(requestBuilder.getUri))
       requestBuilder
         .setHttp2Enabled(true)
         .setHttp2PriorKnowledge(http2PriorKnowledge.orNull)

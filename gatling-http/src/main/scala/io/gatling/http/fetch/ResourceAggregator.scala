@@ -89,7 +89,7 @@ private[fetch] final class DefaultResourceAggregator(
   // can be null
   private def getHttp2PriorKnowledge(session: Session, remote: Remote): Http2PriorKnowledge =
     if (http2Enabled) {
-      Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, remote).orNull
+      Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, httpProtocol, remote).orNull
     } else {
       Http2PriorKnowledge.HTTP1_ONLY
     }

@@ -46,6 +46,7 @@ object FollowUpProcessor {
       headers: HttpHeaders,
       originalRequest: Request,
       session: Session,
+      httpProtocol: HttpProtocol,
       defaultCharset: Charset,
       useProxy: Boolean
   ): RequestBuilder = {
@@ -58,7 +59,7 @@ object FollowUpProcessor {
         .setRequestTimeout(originalRequest.getRequestTimeout)
         .setSignatureCalculator(originalRequest.getSignatureCalculator)
         .setHttp2Enabled(originalRequest.isHttp2Enabled)
-        .setHttp2PriorKnowledge(Http2PriorKnowledgeSupport.findHttp2PriorKnowledge(session, Remote(uri)).orNull)
+        .setHttp2PriorKnowledge(Http2PriorKnowledgeSupport.getHttp2PriorKnowledge(session, httpProtocol, Remote(uri)).orNull)
         .setHttp2FlowControlWindows(originalRequest.getHttp2FlowControlWindows)
         .setDefaultCharset(defaultCharset)
 
@@ -127,6 +128,7 @@ object FollowUpProcessor {
         headers,
         originalRequest,
         session,
+        httpProtocol,
         defaultCharset,
         useProxy = !httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)
       )
@@ -142,6 +144,7 @@ object FollowUpProcessor {
       requestName: String,
       originalRequest: Request,
       session: Session,
+      httpProtocol: HttpProtocol,
       digestRealm: DigestRealm,
       defaultCharset: Charset
   ): Request = {
@@ -155,6 +158,7 @@ object FollowUpProcessor {
           .remove(HttpHeaderNames.AUTHORIZATION),
         originalRequest,
         session,
+        httpProtocol,
         defaultCharset,
         useProxy = true
       )
@@ -171,7 +175,7 @@ object FollowUpProcessor {
    * RFC 9110 section 10.1.1: a 417 in response to a 100-continue expectation means the chain doesn't support expectations, so the request should be repeated
    * without it.
    */
-  def expectationFailedRequest(originalRequest: Request, session: Session, defaultCharset: Charset): Request = {
+  def expectationFailedRequest(originalRequest: Request, session: Session, httpProtocol: HttpProtocol, defaultCharset: Charset): Request = {
     val requestBuilder =
       followUpRequestBuilder(
         originalRequest.getName + ExpectationFailedSuffix,
@@ -180,6 +184,7 @@ object FollowUpProcessor {
         followUpHeaders(originalRequest).remove(HttpHeaderNames.EXPECT),
         originalRequest,
         session,
+        httpProtocol,
         defaultCharset,
         useProxy = true
       )
