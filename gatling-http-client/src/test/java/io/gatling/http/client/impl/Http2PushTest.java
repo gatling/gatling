@@ -87,7 +87,7 @@ class Http2PushTest {
 
   @Test
   void shouldIgnoreFramesForUnknownStreams() {
-    EmbeddedChannel channel = new EmbeddedChannel(new Http2AppHandler(null, null, null));
+    EmbeddedChannel channel = new EmbeddedChannel(new Http2AppHandler(null, null, null, null));
 
     DefaultHttpResponse response =
         new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);

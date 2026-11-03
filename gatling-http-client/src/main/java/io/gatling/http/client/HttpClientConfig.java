@@ -19,8 +19,22 @@ package io.gatling.http.client;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class HttpClientConfig {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientConfig.class);
+
+  /**
+   * By default, only log: the client is a library, and an application embedding it decides what a
+   * fatal error means for the process.
+   */
+  private static final Consumer<Throwable> LOGGING_FATAL_ERROR_HANDLER =
+      e -> LOGGER.error("Fatal error", e);
+
+  private Consumer<Throwable> fatalErrorHandler = LOGGING_FATAL_ERROR_HANDLER;
 
   private long connectTimeout = 5_000;
 
@@ -98,6 +112,19 @@ public final class HttpClientConfig {
 
   public HttpClientConfig setUseIoUring(boolean useIoUring) {
     this.useIoUring = useIoUring;
+    return this;
+  }
+
+  public Consumer<Throwable> getFatalErrorHandler() {
+    return fatalErrorHandler;
+  }
+
+  /**
+   * @param fatalErrorHandler called with the {@link Error}s, eg OutOfMemoryError, crashing the
+   *     connections, once their requests have been failed
+   */
+  public HttpClientConfig setFatalErrorHandler(Consumer<Throwable> fatalErrorHandler) {
+    this.fatalErrorHandler = fatalErrorHandler;
     return this;
   }
 

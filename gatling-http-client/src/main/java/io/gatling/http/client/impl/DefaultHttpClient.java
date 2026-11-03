@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -404,6 +405,10 @@ public final class DefaultHttpClient implements HttpClient {
     tx.channelState = HttpTx.ChannelState.RETRY;
     LOGGER.debug("Retrying with new HTTP/1.1 connection");
     sendTx(tx, eventLoop);
+  }
+
+  void onFatalError(Throwable cause) {
+    config.getFatalErrorHandler().accept(cause);
   }
 
   void retryHttp2(List<HttpTx> txs, EventLoop eventLoop) {
@@ -1012,6 +1017,7 @@ public final class DefaultHttpClient implements HttpClient {
       ChannelPipeline pipeline,
       Http2FlowControlWindows windows,
       BiConsumer<List<HttpTx>, EventLoop> retry,
+      Consumer<Throwable> fatalErrorHandler,
       ChannelPool channelPool,
       Promise<Void> whenAlpn)
       throws Http2Exception {
@@ -1032,7 +1038,8 @@ public final class DefaultHttpClient implements HttpClient {
             .encoderEnforceMaxConcurrentStreams(true)
             .build();
 
-    Http2AppHandler http2AppHandler = new Http2AppHandler(retry, http2Handler, channelPool);
+    Http2AppHandler http2AppHandler =
+        new Http2AppHandler(retry, fatalErrorHandler, http2Handler, channelPool);
     decompressorFrameListener.setDecompressionRequired(
         http2AppHandler::isResponseBodyDecompressionRequired);
 
@@ -1068,6 +1075,7 @@ public final class DefaultHttpClient implements HttpClient {
           channel.pipeline(),
           tx.request.getHttp2FlowControlWindows(),
           DefaultHttpClient.this::retryHttp2,
+          DefaultHttpClient.this::onFatalError,
           channelPool,
           whenSettings);
     } catch (Http2Exception e) {
@@ -1127,6 +1135,7 @@ public final class DefaultHttpClient implements HttpClient {
                         ctx.pipeline(),
                         tx.request.getHttp2FlowControlWindows(),
                         DefaultHttpClient.this::retryHttp2,
+                        DefaultHttpClient.this::onFatalError,
                         channelPool,
                         whenAlpn);
                     channelPool.offer(channel);

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,7 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
       new IOException("Connection was closed while the stream was in flight");
 
   private final BiConsumer<List<HttpTx>, EventLoop> retry;
+  private final Consumer<Throwable> fatalErrorHandler;
   private final Http2ConnectionHandler http2ConnectionHandler;
   private final ChannelPool channelPool;
 
@@ -92,9 +94,11 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
   Http2AppHandler(
       BiConsumer<List<HttpTx>, EventLoop> retry,
+      Consumer<Throwable> fatalErrorHandler,
       Http2ConnectionHandler http2ConnectionHandler,
       ChannelPool channelPool) {
     this.retry = retry;
+    this.fatalErrorHandler = fatalErrorHandler;
     this.http2ConnectionHandler = http2ConnectionHandler;
     this.channelPool = channelPool;
   }
@@ -298,8 +302,7 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
     }
 
     if (cause instanceof Error) {
-      LOGGER.error("Fatal error", cause);
-      System.exit(1);
+      fatalErrorHandler.accept(cause);
     }
   }
 

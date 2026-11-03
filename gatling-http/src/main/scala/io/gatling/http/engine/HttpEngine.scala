@@ -50,7 +50,7 @@ import io.netty.util.concurrent.{ Promise => NettyPromise }
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
     val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.ssl, coreComponents.configuration.http.enableHostnameVerification)
-    val httpClient = new HttpClientFactory(sslContextsFactory, coreComponents.configuration).newClient
+    val httpClient = new HttpClientFactory(sslContextsFactory, coreComponents.configuration, coreComponents.controller).newClient
     new HttpEngine(sslContextsFactory, httpClient, coreComponents.eventLoopGroup, coreComponents.clock, coreComponents.configuration)
   }
 }

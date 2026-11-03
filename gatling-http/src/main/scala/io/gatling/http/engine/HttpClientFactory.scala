@@ -16,7 +16,10 @@
 
 package io.gatling.http.engine
 
+import io.gatling.commons.util.Throwables._
+import io.gatling.core.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.Controller
 import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient
 import io.gatling.http.util._
@@ -25,7 +28,8 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[gatling] final class HttpClientFactory(
     sslContextsFactory: SslContextsFactory,
-    configuration: GatlingConfiguration
+    configuration: GatlingConfiguration,
+    controller: ActorRef[Controller.Command]
 ) extends StrictLogging {
   private val httpConfig = configuration.http
   private val socketConfig = configuration.socket
@@ -45,6 +49,13 @@ private[gatling] final class HttpClientFactory(
       .setEnableSni(sslConfig.enableSni)
       .setUseNativeTransport(nettyConfig.useNativeTransport)
       .setUseIoUring(nettyConfig.useIoUring)
+      .setFatalErrorHandler(crashLoadGenerator)
+  }
+
+  // gracefully stop the run as crashed instead of exiting the JVM, as Gatling might be embedded
+  private def crashLoadGenerator(e: Throwable): Unit = {
+    logger.error(s"HTTP client crashed with a fatal error, stopping: ${e.detailedMessage}", e)
+    controller ! Controller.Command.StopLoadGenerator(Controller.Command.StopLoadGenerator.Reason.Crash.Unexpected(e))
   }
 
   def newClient: HttpClient = new DefaultHttpClient(newClientConfig())

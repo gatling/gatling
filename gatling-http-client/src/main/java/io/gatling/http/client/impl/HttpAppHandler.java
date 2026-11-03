@@ -271,14 +271,12 @@ final class HttpAppHandler extends ChannelDuplexHandler {
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     releasePendingRequestExpectingContinue();
 
-    if (cause instanceof Error) {
-      LOGGER.error("Fatal error", cause);
-      System.exit(1);
+    if (!isInactive()) {
+      crash(ctx, cause, true, tx);
     }
 
-    if (isInactive()) {
-      return;
+    if (cause instanceof Error) {
+      client.onFatalError(cause);
     }
-    crash(ctx, cause, true, tx);
   }
 }

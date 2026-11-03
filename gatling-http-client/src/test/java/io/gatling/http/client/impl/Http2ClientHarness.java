@@ -54,9 +54,15 @@ final class Http2ClientHarness implements AutoCloseable {
     @Override
     public void onFinalClientRequest(Request request) {}
 
+    /** to emulate a fatal error, eg an OutOfMemoryError, while processing the response */
+    Error errorOnResponse;
+
     @Override
     public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {
       this.status = status.code();
+      if (errorOnResponse != null) {
+        throw errorOnResponse;
+      }
     }
 
     @Override
@@ -77,6 +83,9 @@ final class Http2ClientHarness implements AutoCloseable {
 
   /** transactions the client retried, in order */
   final List<HttpTx> retried = new ArrayList<>();
+
+  /** the fatal errors the client reported */
+  final List<Throwable> fatalErrors = new ArrayList<>();
 
   private final EmbeddedChannel server = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
   private final ChannelHandlerContext serverCtx = server.pipeline().firstContext();
@@ -103,6 +112,7 @@ final class Http2ClientHarness implements AutoCloseable {
                   tx.channelState = HttpTx.ChannelState.RETRY;
                   retried.add(tx);
                 }),
+        fatalErrors::add,
         new ChannelPool(),
         client.eventLoop().newPromise());
 
