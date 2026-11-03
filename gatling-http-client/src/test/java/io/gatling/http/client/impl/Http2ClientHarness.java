@@ -54,14 +54,16 @@ final class Http2ClientHarness implements AutoCloseable {
     @Override
     public void onFinalClientRequest(Request request) {}
 
-    /** to emulate a fatal error, eg an OutOfMemoryError, while processing the response */
-    Error errorOnResponse;
+    /** to emulate a crash, eg an OutOfMemoryError, while processing the response */
+    Throwable errorOnResponse;
 
     @Override
     public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {
       this.status = status.code();
-      if (errorOnResponse != null) {
-        throw errorOnResponse;
+      if (errorOnResponse instanceof Error) {
+        throw (Error) errorOnResponse;
+      } else if (errorOnResponse != null) {
+        throw (RuntimeException) errorOnResponse;
       }
     }
 
@@ -180,6 +182,7 @@ final class Http2ClientHarness implements AutoCloseable {
     final List<Integer> resetStreamIds = new ArrayList<>();
     final List<Http2Settings> settings = new ArrayList<>();
     final Map<Integer, Integer> windowUpdates = new HashMap<>();
+    boolean goAway;
   }
 
   /**
@@ -263,6 +266,12 @@ final class Http2ClientHarness implements AutoCloseable {
             @Override
             public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings) {
               frames.settings.add(settings);
+            }
+
+            @Override
+            public void onGoAwayRead(
+                ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
+              frames.goAway = true;
             }
 
             @Override

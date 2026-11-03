@@ -75,4 +75,27 @@ class Http2StreamFailuresTest {
       assertEquals(1, listener2.failureCount, "the queued stream must be failed exactly once");
     }
   }
+
+  @Test
+  void shouldResetStreamsAndCloseRightAwayOnCrash() throws Exception {
+    try (Http2ClientHarness harness = new Http2ClientHarness(100)) {
+      RecordingListener crashing = harness.sendRequest();
+      RecordingListener inFlight = harness.sendRequest();
+      List<Integer> streamIds = harness.streamIdsOpenedByClient();
+      crashing.errorOnResponse = new IllegalStateException("emulated crash");
+
+      harness.respond(streamIds.get(0));
+
+      assertEquals(1, inFlight.failureCount, "the in-flight stream must be failed");
+      Http2ClientHarness.ClientFrames frames = harness.clientFrames();
+      // the crashing stream might also be reset, as the crash happens while it's being closed
+      assertTrue(
+          frames.resetStreamIds.contains(streamIds.get(1)),
+          "the in-flight stream must be reset, the server would keep it open otherwise");
+      assertTrue(frames.goAway, "the connection must be closed with a GOAWAY");
+      assertFalse(
+          harness.client.isActive(),
+          "the connection must be closed right away, not after the graceful shutdown timeout");
+    }
+  }
 }

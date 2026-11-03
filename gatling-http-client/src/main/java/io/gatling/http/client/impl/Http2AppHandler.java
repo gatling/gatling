@@ -296,7 +296,10 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
       }
     } finally {
       if (close) {
-        // FIXME shouldn't we close the connection?
+        // the connection is unusable: keep it from new requests, and reset the streams whose
+        // requests were just failed, otherwise the graceful close would wait for them
+        ChannelPool.markAsGoAway(ctx.channel());
+        resetActiveStreams(ctx);
         ctx.close();
       }
     }
@@ -371,6 +374,22 @@ public final class Http2AppHandler extends ChannelDuplexHandler {
 
     } else if (evt instanceof StreamTimeout) {
       resetStream(ctx, ((StreamTimeout) evt).streamId);
+    }
+  }
+
+  private void resetActiveStreams(ChannelHandlerContext ctx) {
+    ChannelHandlerContext http2Ctx = ctx.pipeline().context(http2ConnectionHandler);
+    try {
+      http2ConnectionHandler
+          .connection()
+          .forEachActiveStream(
+              stream -> {
+                http2ConnectionHandler.resetStream(
+                    http2Ctx, stream.id(), Http2Error.CANCEL.code(), http2Ctx.newPromise());
+                return true;
+              });
+    } catch (Http2Exception e) {
+      LOGGER.debug("Failed to reset active streams", e);
     }
   }
 

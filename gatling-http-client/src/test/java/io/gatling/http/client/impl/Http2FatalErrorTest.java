@@ -38,6 +38,7 @@ class Http2FatalErrorTest {
       // the JVM is still there to run these assertions
       assertEquals(List.of(error), harness.fatalErrors, "the fatal error must be reported");
       assertSame(error, inFlight.failure, "the in-flight streams must be failed");
+      assertFalse(harness.client.isActive(), "the connection must be closed");
     }
   }
 }
