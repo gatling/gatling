@@ -44,6 +44,9 @@ public final class ConnectProxy implements AutoCloseable {
   /** the CONNECT request targets, as host:port */
   public final List<String> connectTargets = new CopyOnWriteArrayList<>();
 
+  /** the Proxy-Authorization headers of the CONNECT requests, "none" when missing */
+  public final List<String> connectAuthorizations = new CopyOnWriteArrayList<>();
+
   /** the protocols negotiated with ALPN on the proxy connections, "none" without ALPN */
   public final List<String> negotiatedProtocols = new CopyOnWriteArrayList<>();
 
@@ -108,6 +111,8 @@ public final class ConnectProxy implements AutoCloseable {
 
       String target = request.uri();
       connectTargets.add(target);
+      String authorization = request.headers().get(HttpHeaderNames.PROXY_AUTHORIZATION);
+      connectAuthorizations.add(authorization != null ? authorization : "none");
       int colon = target.lastIndexOf(':');
       String host = target.substring(0, colon);
       int port = Integer.parseInt(target.substring(colon + 1));

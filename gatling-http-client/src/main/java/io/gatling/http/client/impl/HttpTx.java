@@ -68,9 +68,18 @@ public final class HttpTx {
     return request.isHttp2Enabled()
         && request.getHttp2PriorKnowledge() != Http2PriorKnowledge.HTTP1_ONLY
         && uri.isSecured()
-        && !uri.isWebSocket()
-        // HTTP/2 through a proxy isn't supported yet
-        && request.getProxyServer() == null;
+        // secured requests are always tunneled through proxies (HTTP CONNECT or SOCKS), so HTTP/2
+        // can
+        // be negotiated with the remote
+        && !uri.isWebSocket();
+  }
+
+  /**
+   * Connection coalescing relies on the remote address, which is the proxy's when using one, and is
+   * left unresolved for the proxy to resolve the remote.
+   */
+  boolean canCoalesceConnection() {
+    return isHttp2Candidate() && request.getProxyServer() == null;
   }
 
   boolean isHttp2Candidate() {

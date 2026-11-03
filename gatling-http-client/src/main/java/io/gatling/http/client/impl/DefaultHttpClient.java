@@ -241,6 +241,18 @@ public final class DefaultHttpClient implements HttpClient {
               });
     }
 
+    private Bootstrap getHttp2BootstrapWithProxy(HttpTx tx, ProxyServer proxy) {
+      return http2Bootstrap
+          .clone()
+          .handler(
+              new ChannelInitializer<>() {
+                @Override
+                protected void initChannel(Channel ch) {
+                  addProxyHandlers(ch, tx, proxy);
+                }
+              });
+    }
+
     private Bootstrap getWsBootstrapWithProxy(HttpTx tx, ProxyServer proxy) {
       return wsBootstrap
           .clone()
@@ -422,7 +434,6 @@ public final class DefaultHttpClient implements HttpClient {
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
     Uri requestUri = request.getUri();
-    boolean tryHttp2 = tx.isHttp2Candidate();
 
     // use a fresh channel for WebSocket
     Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
@@ -451,7 +462,7 @@ public final class DefaultHttpClient implements HttpClient {
                 if (whenRemoteAddresses.isSuccess()) {
                   List<InetSocketAddress> remoteAddresses = whenRemoteAddresses.getNow();
 
-                  if (tryHttp2 && tx.channelState != HttpTx.ChannelState.RETRY) {
+                  if (tx.canCoalesceConnection() && tx.channelState != HttpTx.ChannelState.RETRY) {
                     String domain = requestUri.getHost();
                     Channel coalescedChannel =
                         resources.channelPool.pollCoalescedChannel(
@@ -503,7 +514,7 @@ public final class DefaultHttpClient implements HttpClient {
 
                 String domain = requestUri.getHost();
                 Channel pooledChannel = resources.channelPool.poll(tx.key);
-                if (pooledChannel == null) {
+                if (pooledChannel == null && tx.canCoalesceConnection()) {
                   pooledChannel =
                       resources.channelPool.pollCoalescedChannel(
                           tx.key.clientId, domain, addresses);
@@ -739,9 +750,12 @@ public final class DefaultHttpClient implements HttpClient {
     if (proxyServer != null) {
       if (requestUri.isWebSocket()) {
         return resources.getWsBootstrapWithProxy(tx, proxyServer);
+      } else if (tx.isHttp2Candidate()) {
+        // the remote's TLS connection is tunneled, the HTTP/2 or HTTP/1 handlers are installed
+        // once ALPN is done
+        return resources.getHttp2BootstrapWithProxy(tx, proxyServer);
       } else {
         // HttpProxyHandler doesn't handle clear HTTP requests, only CONNECT ones
-        // FIXME HTTP/2 with proxy
         return resources.getHttp1BootstrapWithProxy(tx, proxyServer);
       }
     }
@@ -1025,8 +1039,14 @@ public final class DefaultHttpClient implements HttpClient {
             ALPN_HANDLER,
             new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
               @Override
-              protected void configurePipeline(ChannelHandlerContext ctx, String protocol)
-                  throws Exception {
+              protected void configurePipeline(
+                  ChannelHandlerContext ctx, String firstSslHandlerProtocol) throws Exception {
+                // ApplicationProtocolNegotiationHandler reads the protocol from the first
+                // SslHandler in the pipeline, which is the proxy's one with an HTTPS proxy
+                String remoteProtocol =
+                    ((SslHandler) ctx.pipeline().get(SSL_HANDLER)).applicationProtocol();
+                String protocol =
+                    remoteProtocol != null ? remoteProtocol : ApplicationProtocolNames.HTTP_1_1;
                 switch (protocol) {
                   case ApplicationProtocolNames.HTTP_2:
                     LOGGER.debug(
@@ -1049,7 +1069,7 @@ public final class DefaultHttpClient implements HttpClient {
                           sslHandler.engine().getSession().getProtocol(),
                           sslHandler.engine().getSession().getCipherSuite());
                     }
-                    if (subjectAlternativeNames.size() > 1) {
+                    if (subjectAlternativeNames.size() > 1 && tx.canCoalesceConnection()) {
                       channelPool.offerCoalescedChannel(
                           subjectAlternativeNames,
                           (InetSocketAddress) channel.remoteAddress(),
