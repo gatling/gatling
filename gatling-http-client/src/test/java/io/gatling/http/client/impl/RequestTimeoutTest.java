@@ -67,6 +67,24 @@ class RequestTimeoutTest {
   }
 
   @Test
+  void shouldFailInsteadOfSilentlyDroppingRequestSentAgainAfterCancellingTimeout() {
+    EmbeddedChannel channel = new EmbeddedChannel();
+    RecordingListener listener = new RecordingListener();
+    RequestTimeout requestTimeout = RequestTimeout.requestTimeout(TIMEOUT_MS, listener);
+
+    requestTimeout.start(channel.eventLoop());
+    requestTimeout.cancel();
+    // eg retrying a request whose timeout was cancelled, like the regression fixed in #4745
+    requestTimeout.start(channel.eventLoop());
+
+    assertEquals(1, listener.failureCount, "the listener must be notified");
+    assertInstanceOf(IllegalStateException.class, listener.failure);
+    assertTrue(requestTimeout.isDone(), "the send flow must still stop");
+
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
   void shouldNotResetPreviousConnectionStreamIdOnNewConnection() {
     List<Object> userEvents = new ArrayList<>();
     EmbeddedChannel previousChannel = socketChannel();
