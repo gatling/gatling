@@ -57,6 +57,11 @@ private abstract class Injection(
 
   protected def injectUser(delay: FiniteDuration): Unit = {
     incrementScheduledUsers()
+    scheduleUser(delay)
+  }
+
+  // overridable for tests
+  protected def scheduleUser(delay: FiniteDuration): Unit = {
     val userId = userIdGen.incrementAndGet()
     val eventLoop = eventLoopGroup.next()
     if (!eventLoop.isShutdown) {

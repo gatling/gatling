@@ -45,8 +45,10 @@ private[core] final class ClosedInjectionProfile(steps: List[ClosedInjectionStep
       steps.forall(_.isEmpty),
       scenario,
       userIdGen,
+      startTime,
       eventLoopGroup,
-      statsEngine
+      statsEngine,
+      clock
     )
 
   override def toString = s"ClosedInjectionProfile($steps)"

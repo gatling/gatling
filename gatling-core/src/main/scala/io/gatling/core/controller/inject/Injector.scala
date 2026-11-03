@@ -33,7 +33,10 @@ private[gatling] object Injector {
   private[inject] val TickPeriod: FiniteDuration = 1.second
 
   def actor(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock): Actor[Injector.Command] =
-    new Injector(eventLoopGroup, statsEngine, clock)
+    actor(eventLoopGroup, statsEngine, clock, TickPeriod)
+
+  private[inject] def actor(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock, tickPeriod: FiniteDuration): Actor[Injector.Command] =
+    new Injector(eventLoopGroup, statsEngine, clock, tickPeriod)
 
   private[gatling] sealed trait Command
   object Command {
@@ -46,24 +49,23 @@ private[gatling] object Injector {
   private final case class StartedData(
       controller: ActorRef[Controller.Command],
       inProgressInjections: Map[String, Injection],
-      readyInjections: List[Population],
       populationFlows: PopulationFlows[String, Population],
       timer: Cancellable
   )
 }
 
-private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock)
+private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock, tickPeriod: FiniteDuration)
     extends Actor[Injector.Command]("injector") {
   import Injector._
 
   override def init(): Behavior[Command] = {
     case Command.Start(controller, scenarioFlows) =>
-      val timer = scheduler.scheduleAtFixedRate(TickPeriod) {
+      val timer = scheduler.scheduleAtFixedRate(tickPeriod) {
         self ! Command.Tick
       }
       val (readyPopulations, newScenarioFlows) = scenarioFlows.unblocked
 
-      inject(StartedData(controller, Map.empty, readyPopulations, newScenarioFlows, timer), firstBatch = true)
+      startInjections(readyPopulations, StartedData(controller, Map.empty, newScenarioFlows, timer))
 
     case msg => dieOnUnexpected(msg)
   }
@@ -77,18 +79,12 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
     }.toMap
   }
 
-  private def inject(data: StartedData, firstBatch: Boolean): Effect[Command] = {
-    val newlyInProgressInjections = buildInjections(data.readyInjections)
+  // start right away instead of waiting for the next tick, so children scenarios start as soon as their parents complete
+  private def startInjections(populations: List[Population], data: StartedData): Effect[Command] = {
+    val newInjections = buildInjections(populations)
 
-    val newInProgressInjections = data.inProgressInjections ++ newlyInProgressInjections
-
-    newInProgressInjections.values.filterNot(_.isEmpty).foreach {
-      case injection: OpenInjection if firstBatch => injection.injectBatch(TickPeriod * 2) // inject 1 second ahead
-      case injection                              => injection.injectBatch(TickPeriod)
-    }
-
-    newlyInProgressInjections.values.foreach { injection =>
-      if (injection.isEmpty) {
+    newInjections.values.foreach {
+      case injection if injection.isEmpty =>
         if (injection.duration == Duration.Zero) {
           logger.info(s"Scenario ${injection.scenarioName}'s injection profile is empty, triggering possible children")
           self ! Command.EmptyInjectionComplete(injection.scenarioName)
@@ -100,30 +96,26 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
             self ! Command.EmptyInjectionComplete(injection.scenarioName)
           }
         }
-      }
+      case injection: OpenInjection => injection.injectBatch(tickPeriod * 2) // inject one tick ahead
+      case injection                => injection.injectBatch(tickPeriod)
     }
 
-    val (allUsersScheduledInjections, notAllUsersScheduledInjections) = newInProgressInjections.partition(_._2.isAllUsersScheduled)
+    afterInjection(data.copy(inProgressInjections = data.inProgressInjections ++ newInjections))
+  }
 
-    val allUsersScheduled = notAllUsersScheduledInjections.isEmpty && data.populationFlows.isEmpty
+  private def afterInjection(data: StartedData): Effect[Command] = {
+    val allUsersScheduled = data.populationFlows.isEmpty && data.inProgressInjections.values.forall(_.isAllUsersScheduled)
 
     if (allUsersScheduled) {
       logger.info("All scenarios have their users scheduled")
       data.timer.cancel()
     }
 
-    if (allUsersScheduled && allUsersScheduledInjections.values.forall(_.isAllUsersStopped)) {
+    if (allUsersScheduled && data.inProgressInjections.values.forall(_.isAllUsersStopped)) {
       logger.info("All users are already stopped")
       stopRun(data.controller)
     } else {
-      become(
-        started(
-          data.copy(
-            inProgressInjections = newInProgressInjections,
-            readyInjections = Nil
-          )
-        )
-      )
+      become(started(data))
     }
   }
 
@@ -145,30 +137,20 @@ private[gatling] final class Injector private (eventLoopGroup: EventLoopGroup, s
       onPopulationComplete(scenario, data)
 
     case Command.Tick =>
-      inject(data, firstBatch = false)
+      data.inProgressInjections.values.filterNot(_.isEmpty).foreach(_.injectBatch(tickPeriod))
+      afterInjection(data)
 
     case msg => dropUnexpected(msg)
   }
 
   private def onPopulationComplete(scenario: String, data: StartedData): Effect[Command] = {
-    val newInProgressPopulations = data.inProgressInjections - scenario
-    // children scenarios will be started on next tick
-
+    val newInProgressInjections = data.inProgressInjections - scenario
     val (newReady, newPopulationFlows) = data.populationFlows.remove(scenario).unblocked
-    val newReadyPopulations = data.readyInjections ++ newReady
 
-    if (newInProgressPopulations.isEmpty && newReadyPopulations.isEmpty) {
+    if (newInProgressInjections.isEmpty && newReady.isEmpty) {
       stopRun(data.controller)
     } else {
-      become(
-        started(
-          data.copy(
-            inProgressInjections = newInProgressPopulations,
-            readyInjections = newReadyPopulations,
-            populationFlows = newPopulationFlows
-          )
-        )
-      )
+      startInjections(newReady, data.copy(inProgressInjections = newInProgressInjections, populationFlows = newPopulationFlows))
     }
   }
 

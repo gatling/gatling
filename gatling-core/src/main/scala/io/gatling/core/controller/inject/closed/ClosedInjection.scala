@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Injection
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
@@ -27,14 +28,16 @@ import io.gatling.core.util.Shard
 
 import io.netty.channel.EventLoopGroup
 
-private[inject] final class ClosedInjection(
+private[inject] class ClosedInjection(
     steps: Iterable[ClosedInjectionStep],
     override val duration: FiniteDuration,
     override val isEmpty: Boolean,
     scenario: Scenario,
     userIdGen: AtomicLong,
+    startTime: Long,
     eventLoopGroup: EventLoopGroup,
-    statsEngine: StatsEngine
+    statsEngine: StatsEngine,
+    clock: Clock
 ) extends Injection(scenario, userIdGen, eventLoopGroup, statsEngine) {
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero
@@ -45,35 +48,42 @@ private[inject] final class ClosedInjection(
     }.toArray
   }
 
-  private var offset: FiniteDuration = Duration.Zero
   private var _thisBatchTarget = 0
-  private var _thisBatchStarted = 0
 
-  override def injectBatch(batchWindow: FiniteDuration): Unit = {
-    _thisBatchTarget = 0
-    _thisBatchStarted = 0
-    offset = offset + batchWindow
-    val currentStep: Option[(FiniteDuration, ClosedInjectionStep)] = offsetedSteps.find { case (off, _) => offset <= off }
+  private def elapsed: FiniteDuration = (clock.nowMillis - startTime).millis
 
-    currentStep match {
-      case Some((off, step)) =>
-        _thisBatchTarget = step.valueAt(offset - off + step.duration)
+  override def injectBatch(batchWindow: FiniteDuration): Unit =
+    if (!isAllUsersScheduled) {
+      // based on elapsed time rather than on the number of batches, as the injection might start in between injector ticks
+      val batchStart = elapsed
+
+      if (batchStart >= duration) {
+        _thisBatchTarget = 0
+        setAllScheduled()
+      } else {
+        // target the concurrent users at the end of this batch window, without going past the end of the injection
+        val batchEnd = (batchStart + batchWindow).min(duration)
+        _thisBatchTarget = offsetedSteps.find { case (off, _) => batchEnd <= off }.fold(0) { case (off, step) => step.valueAt(batchEnd - off + step.duration) }
         val missingUsers = _thisBatchTarget - getConcurrentUsers
 
         if (missingUsers > 0) {
           for {
-            (number, millis) <- Shard.shards(missingUsers, batchWindow.toMillis.toInt).zipWithIndex
+            (number, millis) <- Shard.shards(missingUsers, (batchEnd - batchStart).toMillis.toInt.max(1)).zipWithIndex
             if number > 0
           } (0 until number.toInt).foreach(_ => injectUser(millis.milliseconds))
         }
 
-      case _ => setAllScheduled()
+        if (batchEnd == duration) {
+          // last batch: no more batches, only replacements in endUser until the end of the injection
+          // so the scenario can complete (and its children start) as soon as its last users stop
+          setAllScheduled()
+        }
+      }
     }
-  }
 
   override def endUser(): Unit = {
     incrementStoppedUsers()
-    if (getConcurrentUsers < _thisBatchTarget && !isAllUsersScheduled) {
+    if (getConcurrentUsers < _thisBatchTarget && elapsed < duration) {
       // start a new user
       injectUser(Duration.Zero)
     }
