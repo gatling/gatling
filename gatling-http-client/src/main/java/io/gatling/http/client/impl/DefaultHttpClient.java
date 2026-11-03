@@ -52,7 +52,10 @@ import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -380,7 +383,19 @@ public final class DefaultHttpClient implements HttpClient {
       tx.channelState = HttpTx.ChannelState.RETRY;
     }
     LOGGER.debug("Retrying with new HTTP/2 connection");
-    sendHttp2Txs(txs, eventLoop);
+    for (List<HttpTx> sameRemoteTxs : groupByPoolKey(txs)) {
+      sendHttp2Txs(sameRemoteTxs, eventLoop);
+    }
+  }
+
+  // sendHttp2Txs sends all the txs to the remote of the first one, but the txs dropped by a GOAWAY
+  // on a coalesced connection can target different domains
+  static Collection<List<HttpTx>> groupByPoolKey(List<HttpTx> txs) {
+    Map<ChannelPoolKey, List<HttpTx>> txsByKey = new LinkedHashMap<>();
+    for (HttpTx tx : txs) {
+      txsByKey.computeIfAbsent(tx.key, k -> new ArrayList<>()).add(tx);
+    }
+    return txsByKey.values();
   }
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {

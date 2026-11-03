@@ -27,6 +27,19 @@ public final class ChannelPoolKey {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ChannelPoolKey that = (ChannelPoolKey) o;
+    return clientId == that.clientId && remoteKey.equals(that.remoteKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * Long.hashCode(clientId) + remoteKey.hashCode();
+  }
+
+  @Override
   public String toString() {
     return "ChannelPoolKey{" + "clientId=" + clientId + ", remoteKey=" + remoteKey + '}';
   }
