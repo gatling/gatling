@@ -224,11 +224,6 @@ This product depends on ActiveMQ, distributed by Apache Foundation:
   * License: license/LICENSE.activemq.al20.txt (Apache License v2.0)
   * Homepage: http://activemq.apache.org
 
-This product depends on H2, distributed by H2 Group:
-
-  * License: license/LICENSE.h2.epl10.txt (Eclipse Public License v1.0)
-  * Homepage: http://h2database.com
-
 This product depends on JMH, distributed by OpenJDK:
 
   * License: license/LICENSE.jmh.gpl2.txt (Gnu General Public License Version 2)

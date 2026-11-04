@@ -119,9 +119,9 @@ Both drive the same engine and produce the same reports.
 
 HTTP/1.1, HTTP/2, WebSocket, Server-Sent Events, and JMS ship here under Apache 2.0, with no limits.
 
-[gRPC](https://docs.gatling.io/reference/script/grpc/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols), [MQTT](https://docs.gatling.io/reference/script/mqtt/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols), and [GraphQL](https://docs.gatling.io/reference/script/graphql/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols) are separate dependencies under the Gatling Enterprise Component License, not Apache 2.0. With Community Edition they are capped at 5 concurrent users and 5 minute tests. GraphQL is available in the Java SDK (Java, Kotlin, Scala), not yet in the JavaScript SDK.
+[gRPC](https://docs.gatling.io/reference/script/grpc/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols), [MQTT](https://docs.gatling.io/reference/script/mqtt/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols), [GraphQL](https://docs.gatling.io/reference/script/graphql/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols), and [JDBC](https://docs.gatling.io/reference/script/jdbc/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols) are separate dependencies under the Gatling Enterprise Component License, not Apache 2.0. With Community Edition they are capped at 5 concurrent users and 5 minute tests. GraphQL and JDBC are available in the Java SDK (Java, Kotlin, Scala), not yet in the JavaScript SDK.
 
-Kafka, AMQP, SFTP, FTP, and JDBC are covered by [third-party plugins](https://docs.gatling.io/reference/script/third-parties/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols) maintained by the community, not by Gatling.
+Kafka, AMQP, SFTP, and FTP are covered by [third-party plugins](https://docs.gatling.io/reference/script/third-parties/?utm_campaign=oss&utm_source=github&utm_medium=gatling&utm_content=protocols) maintained by the community, not by Gatling.
 
 ## Community and support
 
@@ -133,7 +133,7 @@ Gatling is, and will remain, open source. Read the [contribution guidelines](CON
 
 ## License
 
-Gatling Community Edition is licensed under [Apache 2.0](LICENSE.txt). The gRPC, MQTT, and GraphQL components are distributed under the Gatling Enterprise Component License. Reports are built with [Highcharts](https://www.highcharts.com/), under a license granted by Highsoft AS.
+Gatling Community Edition is licensed under [Apache 2.0](LICENSE.txt). The gRPC, MQTT, GraphQL, and JDBC components are distributed under the Gatling Enterprise Component License. Reports are built with [Highcharts](https://www.highcharts.com/), under a license granted by Highsoft AS.
 
 ---
 

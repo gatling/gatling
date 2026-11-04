@@ -59,7 +59,6 @@ object Dependencies {
 
   // Test dependencies
   private val activemqBroker                 = "org.apache.activemq"           % "activemq-broker"             % "6.4.0"        % Test
-  private val h2                             = "com.h2database"                % "h2"                          % "2.5.252"      % Test
   private val jetty                          = "org.eclipse.jetty"             % "jetty-server"                % "12.1.14"      % Test
   private val jettyProxy                     = jetty.withName("jetty-proxy")
   private val junit                          = "org.junit.jupiter"             % "junit-jupiter-api"           % "6.1.3"        % Test
@@ -161,8 +160,6 @@ object Dependencies {
   val httpDependencies: Seq[ModuleID] = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
   val jmsDependencies: Seq[ModuleID] = Seq(jmsApi, fastUuid, activemqBroker) ++ testDeps
-
-  val jdbcDependencies: Seq[ModuleID] = h2 +: testDeps
 
   val chartsDependencies: Seq[ModuleID] = tdigest +: testDeps
 

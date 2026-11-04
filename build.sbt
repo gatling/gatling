@@ -24,8 +24,6 @@ lazy val root = Project("gatling-parent", file("."))
     quicklens,
     core,
     coreJava,
-    jdbc,
-    jdbcJava,
     redis,
     redisJava,
     httpClient,
@@ -71,14 +69,6 @@ lazy val coreJava = gatlingModule("gatling-core-java")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreJavaDependencies)
 
-lazy val jdbc = gatlingModule("gatling-jdbc")
-  .dependsOn(core % "compile->compile;test->test")
-  .settings(libraryDependencies ++= jdbcDependencies)
-
-lazy val jdbcJava = gatlingModule("gatling-jdbc-java")
-  .dependsOn(coreJava, jdbc % "compile->compile;test->test")
-  .settings(libraryDependencies ++= defaultJavaDependencies)
-
 lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
@@ -114,7 +104,7 @@ lazy val charts = gatlingModule("gatling-charts")
   .settings(chartTestsSettings)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, jdbc, jdbcJava, redis, redisJava, charts)
+  .dependsOn(core, coreJava, http, httpJava, jms, jmsJava, redis, redisJava, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)
