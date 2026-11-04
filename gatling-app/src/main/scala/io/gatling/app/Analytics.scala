@@ -41,9 +41,11 @@ object Analytics {
       Option.when(isClassLoaded("io.gatling.http.action.HttpRequestAction"))("http"),
       Option.when(isClassLoaded("io.gatling.http.action.ws.WsAction"))("ws"),
       Option.when(isClassLoaded("io.gatling.http.action.sse.SseAction"))("sse"),
-      Option.when(isClassLoaded("io.gatling.jms.protocol.JmsProtocol"))("jms"),
-      Option.when(isClassLoaded("io.gatling.mqtt.protocol.MqttProtocol"))("mqtt"),
-      Option.when(isClassLoaded("io.gatling.grpc.protocol.GrpcProtocol"))("grpc"),
+      Option.when(isClassLoaded("io.gatling.jms.protocol.JmsComponents"))("jms"),
+      Option.when(isClassLoaded("io.gatling.mqtt.protocol.MqttComponents"))("mqtt"),
+      Option.when(isClassLoaded("io.gatling.grpc.protocol.GrpcComponents"))("grpc"),
+      Option.when(isClassLoaded("io.gatling.graphql.protocol.GraphQlComponents"))("graphql"),
+      Option.when(isClassLoaded("io.gatling.jdbc.protocol.JdbcComponents"))("jdbc"),
       Option.when(isClassLoaded("io.gatling.postman.enterprise.Usage"))("postman")
     ).flatten
   }
