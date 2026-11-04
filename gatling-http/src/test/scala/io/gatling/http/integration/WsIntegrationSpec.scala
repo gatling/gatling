@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.{ HttpDsl, HttpSpec, WebSocketServer }
+import io.gatling.http.action.ws.WsInboundMessage
 
 class WsIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
@@ -70,6 +71,29 @@ class WsIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
       )
 
       session.isFailed shouldBe true
+    }
+  }
+
+  "processUnmatchedMessages" should "receive the messages that didn't match the pending check" in {
+    val handler: String => List[String] = {
+      case "go" => List("""{"n":1}""", """{"n":2}""")
+      case _    => Nil
+    }
+
+    runWithWebSocketServer(handler) { _ =>
+      val session = runScenario(
+        scenario("ws").exec(
+          ws("connect").connect(url),
+          // n=1 arrives while checking for n=2
+          ws("go").sendText("go").await(1.second)(ws.checkTextMessage("second").matching(jsonPath("$.n").ofType[Int].is(2))),
+          ws.processUnmatchedMessages((messages, session) => session.set("unmatched", messages.collect { case WsInboundMessage.Text(_, text) => text })),
+          ws("close").close
+        ),
+        protocolCustomizer = _.wsUnmatchedInboundMessageBufferSize(10)
+      )
+
+      session.isFailed shouldBe false
+      session("unmatched").as[List[String]] shouldBe List("""{"n":1}""")
     }
   }
 

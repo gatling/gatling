@@ -95,7 +95,7 @@ final case class WsPerformingCheckState(
     } else {
       currentCheck match {
         case WsFrameCheck.Text(_, matchConditions, checks, postChecks, _, _) =>
-          tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks)
+          tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks, WsInboundMessage.Text(timestamp, message))
 
         case _ =>
           // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
@@ -112,7 +112,7 @@ final case class WsPerformingCheckState(
     wsLogger.registerInboundMessage(message, timestamp)
     currentCheck match {
       case WsFrameCheck.Binary(_, matchConditions, checks, postChecks, _, _) =>
-        tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks)
+        tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks, WsInboundMessage.Binary(timestamp, message))
 
       case _ =>
         // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
@@ -147,7 +147,8 @@ final case class WsPerformingCheckState(
       timestamp: Long,
       matchConditions: List[Check[T]],
       checks: List[Check[T]],
-      postChecks: List[Expression[Session]]
+      postChecks: List[Expression[Session]],
+      inboundMessage: => WsInboundMessage
   ): NextWsState = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
@@ -257,6 +258,7 @@ final case class WsPerformingCheckState(
     } else {
       // non-matching inbound: TRACE only; keep buffered for a possible later DEBUG failure dump
       logger.trace(s"Received non-matching message $message")
+      unmatchedInboundMessageBuffer.addOne(inboundMessage)
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
       NextWsState(this)
