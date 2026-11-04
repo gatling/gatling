@@ -19,6 +19,7 @@ package io.gatling.http.protocol
 import java.net.{ InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
+import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
@@ -225,10 +226,22 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
   def wsUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.unmatchedInboundMessageBufferSize).setTo(max)
+  def wsSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder =
+    this
+      .modify(_.protocol.wsPart.setCheckBufferMaxSize)
+      .setTo(maxSize)
+      .modify(_.protocol.wsPart.setCheckBufferMaxAge)
+      .setTo(maxAge)
 
   // ssePart
   def sseUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
     this.modify(_.protocol.ssePart.unmatchedInboundMessageBufferSize).setTo(max)
+  def sseSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder =
+    this
+      .modify(_.protocol.ssePart.setCheckBufferMaxSize)
+      .setTo(maxSize)
+      .modify(_.protocol.ssePart.setCheckBufferMaxAge)
+      .setTo(maxAge)
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

@@ -36,7 +36,8 @@ public class WsJavaCompileTest extends Simulation {
           .wsMaxReconnects(1)
           .wsAutoReplyTextFrame(txt -> txt.equals("foo") ? "bar" : null)
           .wsAutoReplySocketIo4()
-          .wsUnmatchedInboundMessageBufferSize(5);
+          .wsUnmatchedInboundMessageBufferSize(5)
+          .wsSetCheckBuffer(20, Duration.ofSeconds(10));
 
   private final ChainBuilder chain =
       exec(

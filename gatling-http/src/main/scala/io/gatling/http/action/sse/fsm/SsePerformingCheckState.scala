@@ -16,13 +16,15 @@
 
 package io.gatling.http.action.sse.fsm
 
+import scala.annotation.tailrec
+
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 import io.gatling.http.action.sse.SseInboundMessage
-import io.gatling.http.check.sse.{ SseCheck, SseMessageCheck, SseMessageCheckSequence }
+import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -55,7 +57,46 @@ final case class SsePerformingCheckState(
   }
 
   override def onSseReceived(event: ServerSentEvent, timestamp: Long): NextSseState =
-    tryApplyingChecks(event, timestamp, currentCheck.matchConditions, currentCheck.checks, currentCheck.postChecks)
+    tryApplyingChecks(event, timestamp).getOrElse {
+      logger.debug(s"Received non-matching message $event")
+      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, event.asJsonString))
+      setCheckBuffer.add(BufferedServerSentEvent(timestamp, event), timestamp)
+      // server unmatched message, just log
+      logUnmatchedServerMessage(session)
+      NextSseState(this)
+    }
+
+  /**
+   * Try to match the buffered events that no check has matched yet against the current check, as if they were received now. Events that don't match are put
+   * back so a later setCheck can still match them.
+   */
+  private[fsm] def replaySetCheckBuffer(): NextSseState = {
+    @tailrec
+    def replayRec(state: SsePerformingCheckState, events: List[BufferedServerSentEvent], notMatched: List[BufferedServerSentEvent]): NextSseState =
+      events match {
+        case buffered :: tail =>
+          logger.debug(s"Replaying event=${buffered.event}")
+          // the event was received before the check was set, consider it received when the check is set so response time isn't negative
+          state.tryApplyingChecks(buffered.event, math.max(buffered.timestamp, state.checkSequenceStart)) match {
+            case None =>
+              replayRec(state, tail, buffered :: notMatched)
+            case Some(NextSseState(nextState: SsePerformingCheckState, NextSseState.DoNothing)) =>
+              // check passed, more checks to perform
+              replayRec(nextState, tail, notMatched)
+            case Some(nextSseState) =>
+              // check sequences complete or check failure
+              // restore before triggering afterStateUpdate, as next action might perform a new setCheck
+              setCheckBuffer.restore(notMatched reverse_::: tail)
+              nextSseState
+          }
+
+        case _ =>
+          setCheckBuffer.restore(notMatched.reverse)
+          NextSseState(state)
+      }
+
+    replayRec(this, setCheckBuffer.removeAll(clock.nowMillis), Nil)
+  }
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
@@ -71,29 +112,23 @@ final case class SsePerformingCheckState(
     handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }
 
-  private def tryApplyingChecks(
-      event: ServerSentEvent,
-      timestamp: Long,
-      matchConditions: List[SseCheck],
-      checks: List[SseCheck],
-      postChecks: List[Expression[Session]]
-  ): NextSseState = {
+  private def tryApplyingChecks(event: ServerSentEvent, timestamp: Long): Option[NextSseState] = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
     val eventJsonString = event.asJsonString
 
     // if matchConditions isEmpty, all messages are considered to be matching
-    val messageMatches = matchConditions.forall {
+    val messageMatches = currentCheck.matchConditions.forall {
       _.check(eventJsonString, session, preparedCache) match {
         case _: Success[_] => true
         case _             => false
       }
     }
-    if (messageMatches) {
+    Option.when(messageMatches) {
       logger.debug(s"Received matching message $event")
       // matching message, apply checks
-      val (sessionWithChecksUpdate, checksError) = Check.applyChecks(eventJsonString, session, checks, preparedCache)
-      val (sessionWithCheckUpdate, checkError) = Check.applyPostChecks(sessionWithChecksUpdate, checksError, postChecks)
+      val (sessionWithChecksUpdate, checksError) = Check.applyChecks(eventJsonString, session, currentCheck.checks, preparedCache)
+      val (sessionWithCheckUpdate, checkError) = Check.applyPostChecks(sessionWithChecksUpdate, checksError, currentCheck.postChecks)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
@@ -150,12 +185,6 @@ final case class SsePerformingCheckState(
               }
           }
       }
-    } else {
-      logger.debug(s"Received non-matching message $event")
-      unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, eventJsonString))
-      // server unmatched message, just log
-      logUnmatchedServerMessage(session)
-      NextSseState(this)
     }
   }
 

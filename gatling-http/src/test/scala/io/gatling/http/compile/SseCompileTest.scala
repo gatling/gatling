@@ -25,6 +25,7 @@ import io.gatling.http.action.sse.SseInboundMessage
 class SseCompileTest extends Simulation {
   private val httpProtocol = http
     .sseUnmatchedInboundMessageBufferSize(5)
+    .sseSetCheckBuffer(20, 10.seconds)
 
   private val scn = scenario(this.getClass.getSimpleName)
     .exec(

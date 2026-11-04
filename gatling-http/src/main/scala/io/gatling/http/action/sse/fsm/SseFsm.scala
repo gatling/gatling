@@ -25,6 +25,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.BoundedMutableDequeue
+import io.gatling.http.action.SetCheckBuffer
 import io.gatling.http.action.sse.SseInboundMessage
 import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.sse.SseMessageCheckSequence
@@ -34,6 +35,8 @@ import io.gatling.http.protocol.HttpProtocol
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoop
+
+private[fsm] final case class BufferedServerSentEvent(timestamp: Long, event: ServerSentEvent)
 
 object SseFsm {
   def apply(
@@ -87,6 +90,8 @@ final class SseFsm(
   private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] val unmatchedInboundMessageBuffer = new BoundedMutableDequeue[SseInboundMessage](httpProtocol.ssePart.unmatchedInboundMessageBufferSize)
+  private[fsm] val setCheckBuffer =
+    new SetCheckBuffer[BufferedServerSentEvent](httpProtocol.ssePart.setCheckBufferMaxSize, httpProtocol.ssePart.setCheckBufferMaxAge, _.timestamp)
 
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(

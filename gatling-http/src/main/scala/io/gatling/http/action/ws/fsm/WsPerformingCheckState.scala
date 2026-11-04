@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.ws.fsm
 
+import scala.annotation.tailrec
+
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.{ Failure, Success }
@@ -93,34 +95,20 @@ final case class WsPerformingCheckState(
     if (autoReplyTextFrames(message, webSocket)) {
       NextWsState(this)
     } else {
-      currentCheck match {
-        case WsFrameCheck.Text(_, matchConditions, checks, postChecks, _, _) =>
-          tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks, WsInboundMessage.Text(timestamp, message))
-
-        case _ =>
-          // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
-          logger.trace(s"Received unmatched text frame $message")
-          unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Text(timestamp, message))
-          // server unmatched message, just log
-          logUnmatchedServerMessage(session)
-          NextWsState(this)
+      val inboundMessage = WsInboundMessage.Text(timestamp, message)
+      applyChecks(inboundMessage, timestamp).getOrElse {
+        logger.trace(s"Received non-matching text frame $message")
+        onNonMatchingMessage(inboundMessage)
       }
     }
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
     wsLogger.registerInboundMessage(message, timestamp)
-    currentCheck match {
-      case WsFrameCheck.Binary(_, matchConditions, checks, postChecks, _, _) =>
-        tryApplyingChecks(message, timestamp, matchConditions, checks, postChecks, WsInboundMessage.Binary(timestamp, message))
-
-      case _ =>
-        // wrong frame type for the current check — TRACE traffic, retain for failed-check dump
-        logger.trace("Received unmatched binary frame")
-        unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Binary(timestamp, message))
-        // server unmatched message, just log
-        logUnmatchedServerMessage(session)
-        NextWsState(this)
+    val inboundMessage = WsInboundMessage.Binary(timestamp, message)
+    applyChecks(inboundMessage, timestamp).getOrElse {
+      logger.trace(s"Received non-matching binary frame length=${message.length}")
+      onNonMatchingMessage(inboundMessage)
     }
   }
 
@@ -135,6 +123,61 @@ final case class WsPerformingCheckState(
     handleWebSocketCheckCrash(session, next, None, t.rootMessage)
   }
 
+  /**
+   * Try to match the buffered messages that no check has matched yet against the current check, as if they were received now. Messages that don't match are put
+   * back so a later setCheck can still match them.
+   */
+  private[fsm] def replaySetCheckBuffer(): NextWsState = {
+    @tailrec
+    def replayRec(state: WsPerformingCheckState, messages: List[WsInboundMessage], notMatched: List[WsInboundMessage]): NextWsState =
+      messages match {
+        case message :: tail =>
+          logger.trace(s"Replaying $message")
+          // the message was received before the check was set, consider it received when the check is set so response time isn't negative
+          state.applyChecks(message, math.max(message.timestamp, state.checkSequenceStart)) match {
+            case None =>
+              replayRec(state, tail, message :: notMatched)
+            case Some(NextWsState(nextState: WsPerformingCheckState, NextWsState.DoNothing)) =>
+              // check passed, more checks to perform
+              replayRec(nextState, tail, notMatched)
+            case Some(nextWsState) =>
+              // check sequences complete or check failure
+              // restore before triggering afterStateUpdate, as next action might perform a new setCheck
+              setCheckBuffer.restore(notMatched reverse_::: tail)
+              nextWsState
+          }
+
+        case _ =>
+          setCheckBuffer.restore(notMatched.reverse)
+          NextWsState(state)
+      }
+
+    replayRec(this, setCheckBuffer.removeAll(clock.nowMillis), Nil)
+  }
+
+  /**
+   * @return
+   *   None if the message doesn't match the current check, either because of its frame type or because of the check's matching conditions
+   */
+  private def applyChecks(message: WsInboundMessage, timestamp: Long): Option[NextWsState] =
+    (currentCheck, message) match {
+      case (WsFrameCheck.Text(_, matchConditions, checks, postChecks, _, _), WsInboundMessage.Text(_, text)) =>
+        tryApplyingChecks(text, timestamp, matchConditions, checks, postChecks)
+      case (WsFrameCheck.Binary(_, matchConditions, checks, postChecks, _, _), WsInboundMessage.Binary(_, bytes)) =>
+        tryApplyingChecks(bytes, timestamp, matchConditions, checks, postChecks)
+      case _ =>
+        None
+    }
+
+  private def onNonMatchingMessage(message: WsInboundMessage): NextWsState = {
+    // retain for processUnmatchedMessages and for a later setCheck
+    unmatchedInboundMessageBuffer.addOne(message)
+    setCheckBuffer.add(message, message.timestamp)
+    // server unmatched message, just log
+    logUnmatchedServerMessage(session)
+    NextWsState(this)
+  }
+
   private def logCheckResult(sessionWithCheckUpdate: Session, end: Long, status: Status, code: Option[String], reason: Option[String]): Session =
     if (currentCheck.isSilent) {
       sessionWithCheckUpdate
@@ -147,9 +190,8 @@ final case class WsPerformingCheckState(
       timestamp: Long,
       matchConditions: List[Check[T]],
       checks: List[Check[T]],
-      postChecks: List[Expression[Session]],
-      inboundMessage: => WsInboundMessage
-  ): NextWsState = {
+      postChecks: List[Expression[Session]]
+  ): Option[NextWsState] = {
     // cache is used for both matching and checking
     val preparedCache = Check.newPreparedCache
 
@@ -160,7 +202,7 @@ final case class WsPerformingCheckState(
         case _             => false
       }
     }
-    if (messageMatches) {
+    Option.when(messageMatches) {
       logger.trace(s"Received matching message $message")
       // matching message, apply checks before logging so failures keep the inbound buffer
       // (WsLogger.logCheck clears it) and only dump at DEBUG when the check is KO
@@ -255,13 +297,6 @@ final case class WsPerformingCheckState(
               }
           }
       }
-    } else {
-      // non-matching inbound: TRACE only; keep buffered for a possible later DEBUG failure dump
-      logger.trace(s"Received non-matching message $message")
-      unmatchedInboundMessageBuffer.addOne(inboundMessage)
-      // server unmatched message, just log
-      logUnmatchedServerMessage(session)
-      NextWsState(this)
     }
   }
 

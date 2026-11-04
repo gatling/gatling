@@ -32,6 +32,7 @@ class WsCompileTest extends Simulation {
     .wsAutoReplyTextFrame { case "ping" => "pong"; case "1" => "2" }
     .wsAutoReplySocketIo4
     .wsUnmatchedInboundMessageBufferSize(5)
+    .wsSetCheckBuffer(20, 10.seconds)
 
   private val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))

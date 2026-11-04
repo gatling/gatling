@@ -25,6 +25,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.BoundedMutableDequeue
+import io.gatling.http.action.SetCheckBuffer
 import io.gatling.http.action.ws.WsInboundMessage
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.{ Request, WebSocket }
@@ -52,6 +53,8 @@ final class WsFsm(
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] val unmatchedInboundMessageBuffer = new BoundedMutableDequeue[WsInboundMessage](httpProtocol.wsPart.unmatchedInboundMessageBufferSize)
+  private[fsm] val setCheckBuffer =
+    new SetCheckBuffer[WsInboundMessage](httpProtocol.wsPart.setCheckBufferMaxSize, httpProtocol.wsPart.setCheckBufferMaxAge, _.timestamp)
 
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
@@ -89,8 +92,11 @@ final class WsFsm(
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit =
     execute(currentState.onPerformInitialConnect(session, initialConnectNext))
 
-  def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): Unit =
+  def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): Unit = {
+    // messages received on a previous connection are stale
+    setCheckBuffer.clear()
     execute(currentState.onWebSocketConnected(webSocket, cookies, timestamp))
+  }
 
   def onSendTextFrame(
       actionName: String,

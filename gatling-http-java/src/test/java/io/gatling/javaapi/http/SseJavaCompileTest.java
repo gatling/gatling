@@ -21,10 +21,12 @@ import static io.gatling.javaapi.http.HttpDsl.*;
 
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.Simulation;
+import java.time.Duration;
 
 public class SseJavaCompileTest extends Simulation {
 
-  private final HttpProtocolBuilder httpProtocol = http.sseUnmatchedInboundMessageBufferSize(5);
+  private final HttpProtocolBuilder httpProtocol =
+      http.sseUnmatchedInboundMessageBufferSize(5).sseSetCheckBuffer(20, Duration.ofSeconds(10));
 
   private ChainBuilder chain =
       exec(

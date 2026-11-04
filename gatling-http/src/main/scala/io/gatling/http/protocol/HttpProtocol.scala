@@ -21,6 +21,8 @@ import java.net.InetAddress
 import java.util.regex.Pattern
 import javax.net.ssl.KeyManagerFactory
 
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+
 import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -41,6 +43,10 @@ import io.gatling.http.fetch.InferredResourceNaming
 import com.typesafe.scalalogging.StrictLogging
 
 object HttpProtocol extends StrictLogging {
+  // disabled by default: a setCheck only matches messages received after it's set
+  private val DefaultSetCheckBufferMaxSize = 0
+  private val DefaultSetCheckBufferMaxAge = 5.seconds
+
   val HttpProtocolKey: ProtocolKey[HttpProtocol, HttpComponents] = new ProtocolKey[HttpProtocol, HttpComponents] {
     override def protocolClass: Class[Protocol] = classOf[HttpProtocol].asInstanceOf[Class[Protocol]]
 
@@ -107,10 +113,14 @@ object HttpProtocol extends StrictLogging {
         wsBaseUrls = Nil,
         maxReconnects = 0,
         autoReplyTextFrames = _ => None,
-        unmatchedInboundMessageBufferSize = 0
+        unmatchedInboundMessageBufferSize = 0,
+        setCheckBufferMaxSize = DefaultSetCheckBufferMaxSize,
+        setCheckBufferMaxAge = DefaultSetCheckBufferMaxAge
       ),
       ssePart = HttpProtocolSsePart(
-        unmatchedInboundMessageBufferSize = 0
+        unmatchedInboundMessageBufferSize = 0,
+        setCheckBufferMaxSize = DefaultSetCheckBufferMaxSize,
+        setCheckBufferMaxAge = DefaultSetCheckBufferMaxAge
       ),
       proxyPart = HttpProtocolProxyPart(
         proxy = None,
@@ -199,11 +209,15 @@ final case class HttpProtocolWsPart(
     wsBaseUrls: List[String],
     maxReconnects: Int,
     autoReplyTextFrames: String => Option[String],
-    unmatchedInboundMessageBufferSize: Int
+    unmatchedInboundMessageBufferSize: Int,
+    setCheckBufferMaxSize: Int,
+    setCheckBufferMaxAge: FiniteDuration
 )
 
 final case class HttpProtocolSsePart(
-    unmatchedInboundMessageBufferSize: Int
+    unmatchedInboundMessageBufferSize: Int,
+    setCheckBufferMaxSize: Int,
+    setCheckBufferMaxAge: FiniteDuration
 )
 
 final case class HttpProtocolProxyPart(

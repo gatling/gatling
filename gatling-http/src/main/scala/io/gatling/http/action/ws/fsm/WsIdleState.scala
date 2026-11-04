@@ -94,21 +94,20 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
         // [e]
         //
         // [e]
-        NextWsState(
-          WsPerformingCheckState(
-            fsm,
-            webSocket = webSocket,
-            currentCheck = currentCheck,
-            remainingChecks = remainingChecks,
-            checkSequenceStart = now,
-            remainingCheckSequences,
-            session = session,
-            remainingReconnects = remainingReconnects,
-            next = Left(next),
-            actionName = actionName,
-            requestMessage = None
-          )
-        )
+        // the expected messages might have already been received, eg as a consequence of a previous action
+        WsPerformingCheckState(
+          fsm,
+          webSocket = webSocket,
+          currentCheck = currentCheck,
+          remainingChecks = remainingChecks,
+          checkSequenceStart = now,
+          remainingCheckSequences,
+          session = session,
+          remainingReconnects = remainingReconnects,
+          next = Left(next),
+          actionName = actionName,
+          requestMessage = None
+        ).replaySetCheckBuffer()
 
       case _ =>
         NextWsState(this, () => next ! session)
@@ -163,17 +162,21 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket, prot
   }
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
-    unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Text(timestamp, message))
+    val inboundMessage = WsInboundMessage.Text(timestamp, message)
+    unmatchedInboundMessageBuffer.addOne(inboundMessage)
     wsLogger.registerInboundMessage(message, timestamp)
     // try to auto reply or log the message
     if (!autoReplyTextFrames(message, webSocket)) {
+      setCheckBuffer.add(inboundMessage, timestamp)
       logUnmatchedServerMessage(session)
     }
     NextWsState(this)
   }
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
-    unmatchedInboundMessageBuffer.addOne(WsInboundMessage.Binary(timestamp, message))
+    val inboundMessage = WsInboundMessage.Binary(timestamp, message)
+    unmatchedInboundMessageBuffer.addOne(inboundMessage)
+    setCheckBuffer.add(inboundMessage, timestamp)
     wsLogger.registerInboundMessage(message, timestamp)
     // server push message, just log
     logUnmatchedServerMessage(session)

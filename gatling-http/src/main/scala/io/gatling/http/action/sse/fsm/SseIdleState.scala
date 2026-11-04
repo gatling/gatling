@@ -37,17 +37,16 @@ final class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) wi
         // [e]
         //
         // [e]
-        NextSseState(
-          SsePerformingCheckState(
-            fsm,
-            currentCheck = currentCheck,
-            remainingChecks = remainingChecks,
-            checkSequenceStart = timestamp,
-            remainingCheckSequences,
-            session = session,
-            next = next
-          )
-        )
+        // the expected messages might have already been received, eg as a consequence of a previous action
+        SsePerformingCheckState(
+          fsm,
+          currentCheck = currentCheck,
+          remainingChecks = remainingChecks,
+          checkSequenceStart = timestamp,
+          remainingCheckSequences,
+          session = session,
+          next = next
+        ).replaySetCheckBuffer()
 
       case _ =>
         NextSseState(this, () => next ! session)
@@ -58,6 +57,7 @@ final class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) wi
     // server push message, just log
     logger.debug(s"Received unmatched event=$event")
     unmatchedInboundMessageBuffer.addOne(SseInboundMessage(timestamp, event.asJsonString))
+    setCheckBuffer.add(BufferedServerSentEvent(timestamp, event), timestamp)
     logUnmatchedServerMessage(session)
     NextSseState(this)
   }

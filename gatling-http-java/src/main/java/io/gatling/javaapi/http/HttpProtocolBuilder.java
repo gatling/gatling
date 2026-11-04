@@ -32,6 +32,7 @@ import io.gatling.javaapi.http.internal.ScalaHttpProtocolBuilderConditions;
 import io.gatling.javaapi.http.internal.SignatureCalculators;
 import io.gatling.javaapi.http.internal.WsAutoReplies;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -1185,6 +1186,20 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
+   * Enable buffering the inbound WebSocket messages that no check matched, so that a later setCheck
+   * can match a message that has already arrived. Messages are discarded when the buffer is full
+   * (oldest first) or when they're older than maxAge. Disabled by default, meaning a setCheck only
+   * matches messages received after it's set.
+   *
+   * @param maxSize the max number of buffered messages
+   * @param maxAge the max age of buffered messages
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder wsSetCheckBuffer(int maxSize, @NonNull Duration maxAge) {
+    return new HttpProtocolBuilder(wrapped.wsSetCheckBuffer(maxSize, toScalaDuration(maxAge)));
+  }
+
+  /**
    * Set the max size of the buffer for unmatched/unchecked inbound SSE messages. 0 by default,
    * meaning such messages are not buffered.
    *
@@ -1193,6 +1208,20 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    */
   public HttpProtocolBuilder sseUnmatchedInboundMessageBufferSize(int max) {
     return new HttpProtocolBuilder(wrapped.sseUnmatchedInboundMessageBufferSize(max));
+  }
+
+  /**
+   * Enable buffering the inbound SSE messages that no check matched, so that a later setCheck can
+   * match a message that has already arrived. Messages are discarded when the buffer is full
+   * (oldest first) or when they're older than maxAge. Disabled by default, meaning a setCheck only
+   * matches messages received after it's set.
+   *
+   * @param maxSize the max number of buffered messages
+   * @param maxAge the max age of buffered messages
+   * @return a new HttpProtocolBuilder instance
+   */
+  public HttpProtocolBuilder sseSetCheckBuffer(int maxSize, @NonNull Duration maxAge) {
+    return new HttpProtocolBuilder(wrapped.sseSetCheckBuffer(maxSize, toScalaDuration(maxAge)));
   }
 
   // proxyPart
