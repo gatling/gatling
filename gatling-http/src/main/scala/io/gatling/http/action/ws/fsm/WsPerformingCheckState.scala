@@ -139,7 +139,8 @@ final case class WsPerformingCheckState(
               replayRec(state, tail, message :: notMatched)
             case Some(NextWsState(nextState: WsPerformingCheckState, NextWsState.DoNothing)) =>
               // check passed, more checks to perform
-              replayRec(nextState, tail, notMatched)
+              // the messages that didn't match the previous check might match the next one, retry them, oldest first
+              replayRec(nextState, notMatched reverse_::: tail, Nil)
             case Some(nextWsState) =>
               // check sequences complete or check failure
               // restore before triggering afterStateUpdate, as next action might perform a new setCheck

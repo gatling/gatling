@@ -82,7 +82,8 @@ final case class SsePerformingCheckState(
               replayRec(state, tail, buffered :: notMatched)
             case Some(NextSseState(nextState: SsePerformingCheckState, NextSseState.DoNothing)) =>
               // check passed, more checks to perform
-              replayRec(nextState, tail, notMatched)
+              // the events that didn't match the previous check might match the next one, retry them, oldest first
+              replayRec(nextState, notMatched reverse_::: tail, Nil)
             case Some(nextSseState) =>
               // check sequences complete or check failure
               // restore before triggering afterStateUpdate, as next action might perform a new setCheck

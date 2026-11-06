@@ -120,6 +120,32 @@ class WsIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
+  it should "retry the messages that didn't match a check against the next checks of the sequence" in {
+    val handler: String => List[String] = {
+      case "go" => List("""{"n":1}""", """{"n":2}""")
+      case _    => Nil
+    }
+
+    runWithWebSocketServer(handler) { _ =>
+      val session = runScenario(
+        scenario("ws").exec(
+          ws("connect").connect(url),
+          ws("go").sendText("go"),
+          pause(500.millis),
+          // n=1 doesn't match the first check but matches the second one
+          ws("both").setCheck.await(1.second)(
+            ws.checkTextMessage("second").matching(jsonPath("$.n").ofType[Int].is(2)),
+            ws.checkTextMessage("first").matching(jsonPath("$.n").ofType[Int].is(1))
+          ),
+          ws("close").close
+        ),
+        protocolCustomizer = _.wsSetCheckBuffer(10, 5.seconds)
+      )
+
+      session.isFailed shouldBe false
+    }
+  }
+
   it should "not match messages received before the check was set by default" in {
     val handler: String => List[String] = {
       case "go" => List("""{"n":1}""")

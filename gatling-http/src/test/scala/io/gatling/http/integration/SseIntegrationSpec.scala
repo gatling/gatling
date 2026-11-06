@@ -83,6 +83,26 @@ class SseIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
+  it should "retry the events that didn't match a check against the next checks of the sequence" in {
+    runWithHttpServer(streamEvents("one", "two")) { _ =>
+      val session = runScenario(
+        scenario("sse").exec(
+          sse("connect").get("/sse"),
+          pause(500.millis),
+          // "one" doesn't match the first check but matches the second one
+          sse("both").setCheck.await(1.second)(
+            sse.checkMessage("second").matching(jsonPath("$.data").is("two")),
+            sse.checkMessage("first").matching(jsonPath("$.data").is("one"))
+          ),
+          sse("close").close
+        ),
+        protocolCustomizer = _.sseSetCheckBuffer(10, 5.seconds)
+      )
+
+      session.isFailed shouldBe false
+    }
+  }
+
   it should "not match events received before the check was set by default" in {
     runWithHttpServer(streamEvents("one")) { _ =>
       val session = runScenario(
