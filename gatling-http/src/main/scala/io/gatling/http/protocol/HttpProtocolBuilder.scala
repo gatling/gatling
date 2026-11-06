@@ -19,7 +19,7 @@ package io.gatling.http.protocol
 import java.net.{ InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{ Duration, FiniteDuration }
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
@@ -215,6 +215,11 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     nameInferredHtmlResources(InferredResourceNaming.LastPathElementInferredResourceNaming)
   def nameInferredHtmlResources(f: Uri => String): HttpProtocolBuilder = this.modify(_.protocol.responsePart.inferredHtmlResourcesNaming).setTo(f)
 
+  private def requireValidSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): Unit = {
+    require(maxSize > 0, s"setCheck buffer maxSize must be strictly positive, got $maxSize")
+    require(maxAge > Duration.Zero, s"setCheck buffer maxAge must be strictly positive, got $maxAge")
+  }
+
   // wsPart
   def wsBaseUrl(url: String): HttpProtocolBuilder = wsBaseUrls(List(url))
   def wsBaseUrls(urls: String*): HttpProtocolBuilder = wsBaseUrls(urls.toList)
@@ -226,22 +231,26 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsAutoReplySocketIo4: HttpProtocolBuilder = wsAutoReplyTextFrame { case "2" => "3" }
   def wsUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
     this.modify(_.protocol.wsPart.unmatchedInboundMessageBufferSize).setTo(max)
-  def wsSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder =
+  def wsSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder = {
+    requireValidSetCheckBuffer(maxSize, maxAge)
     this
       .modify(_.protocol.wsPart.setCheckBufferMaxSize)
       .setTo(maxSize)
       .modify(_.protocol.wsPart.setCheckBufferMaxAge)
       .setTo(maxAge)
+  }
 
   // ssePart
   def sseUnmatchedInboundMessageBufferSize(max: Int): HttpProtocolBuilder =
     this.modify(_.protocol.ssePart.unmatchedInboundMessageBufferSize).setTo(max)
-  def sseSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder =
+  def sseSetCheckBuffer(maxSize: Int, maxAge: FiniteDuration): HttpProtocolBuilder = {
+    requireValidSetCheckBuffer(maxSize, maxAge)
     this
       .modify(_.protocol.ssePart.setCheckBufferMaxSize)
       .setTo(maxSize)
       .modify(_.protocol.ssePart.setCheckBufferMaxAge)
       .setTo(maxAge)
+  }
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)

@@ -16,6 +16,8 @@
 
 package io.gatling.http.config
 
+import scala.concurrent.duration._
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.client.Http2FlowControlWindows
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
@@ -53,5 +55,13 @@ class HttpProtocolBuilderSpec extends AnyFlatSpecLike with Matchers {
 
   it should "reject an HTTP/2 connection window lower than the protocol's initial one" in {
     an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.http2ConnectionWindowSize(1024)
+  }
+
+  it should "reject a setCheck buffer with a non-positive max size or max age" in {
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.wsSetCheckBuffer(0, 5.seconds)
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.wsSetCheckBuffer(-1, 5.seconds)
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.wsSetCheckBuffer(10, Duration.Zero)
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.sseSetCheckBuffer(0, 5.seconds)
+    an[IllegalArgumentException] should be thrownBy httpProtocolBuilder.sseSetCheckBuffer(10, -1.second)
   }
 }

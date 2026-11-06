@@ -1192,8 +1192,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * reconnects, as messages received on a previous connection are stale. Disabled by default,
    * meaning a setCheck only matches messages received after it's set.
    *
-   * @param maxSize the max number of buffered messages
-   * @param maxAge the max age of buffered messages
+   * @param maxSize the max number of buffered messages, must be strictly positive
+   * @param maxAge the max age of buffered messages, must be strictly positive
    * @return a new HttpProtocolBuilder instance
    */
   public HttpProtocolBuilder wsSetCheckBuffer(int maxSize, @NonNull Duration maxAge) {
@@ -1218,8 +1218,8 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
    * when the stream automatically reconnects, as the stream resumes from the Last-Event-ID.
    * Disabled by default, meaning a setCheck only matches messages received after it's set.
    *
-   * @param maxSize the max number of buffered messages
-   * @param maxAge the max age of buffered messages
+   * @param maxSize the max number of buffered messages, must be strictly positive
+   * @param maxAge the max age of buffered messages, must be strictly positive
    * @return a new HttpProtocolBuilder instance
    */
   public HttpProtocolBuilder sseSetCheckBuffer(int maxSize, @NonNull Duration maxAge) {
