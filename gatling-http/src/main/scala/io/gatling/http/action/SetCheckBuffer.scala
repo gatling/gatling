@@ -16,6 +16,7 @@
 
 package io.gatling.http.action
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
@@ -68,4 +69,42 @@ private[http] final class SetCheckBuffer[T](maxSize: Int, maxAge: FiniteDuration
     }
 
   def clear(): Unit = queue.clear()
+
+  /**
+   * Replay the buffered messages, oldest first, against a sequence of checks, removing the ones that get consumed and putting back the others.
+   *
+   * @param initialState
+   *   the state performing the first check
+   * @param now
+   *   the current time, used to discard expired messages
+   * @param tryMessage
+   *   apply the current check of a state to a message: None if the message doesn't match, Some(Left(nextState)) if the check passed and more checks remain,
+   *   Some(Right(result)) if all the checks are complete or one failed
+   * @param noMoreMessages
+   *   the result when all messages have been replayed and checks remain
+   */
+  def replay[S, R](initialState: S, now: Long)(tryMessage: (S, T) => Option[Either[S, R]])(noMoreMessages: S => R): R = {
+    @tailrec
+    def replayRec(state: S, messages: List[T], notMatched: List[T]): R =
+      messages match {
+        case message :: tail =>
+          tryMessage(state, message) match {
+            case None =>
+              replayRec(state, tail, message :: notMatched)
+            case Some(Left(nextState)) =>
+              // the messages that didn't match the previous check might match the next one, retry them, oldest first
+              replayRec(nextState, notMatched reverse_::: tail, Nil)
+            case Some(Right(result)) =>
+              // restore before the caller triggers the result's afterStateUpdate, as the next action might perform a new setCheck
+              restore(notMatched reverse_::: tail)
+              result
+          }
+
+        case _ =>
+          restore(notMatched.reverse)
+          noMoreMessages(state)
+      }
+
+    replayRec(initialState, removeAll(now), Nil)
+  }
 }

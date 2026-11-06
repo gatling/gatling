@@ -16,8 +16,6 @@
 
 package io.gatling.http.action.ws.fsm
 
-import scala.annotation.tailrec
-
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.{ Failure, Success }
@@ -127,34 +125,17 @@ final case class WsPerformingCheckState(
    * Try to match the buffered messages that no check has matched yet against the current check, as if they were received now. Messages that don't match are put
    * back so a later setCheck can still match them.
    */
-  private[fsm] def replaySetCheckBuffer(): NextWsState = {
-    @tailrec
-    def replayRec(state: WsPerformingCheckState, messages: List[WsInboundMessage], notMatched: List[WsInboundMessage]): NextWsState =
-      messages match {
-        case message :: tail =>
-          logger.trace(s"Replaying $message")
-          // the message was received before the check was set, consider it received when the check is set so response time isn't negative
-          state.applyChecks(message, math.max(message.timestamp, state.checkSequenceStart)) match {
-            case None =>
-              replayRec(state, tail, message :: notMatched)
-            case Some(NextWsState(nextState: WsPerformingCheckState, NextWsState.DoNothing)) =>
-              // check passed, more checks to perform
-              // the messages that didn't match the previous check might match the next one, retry them, oldest first
-              replayRec(nextState, notMatched reverse_::: tail, Nil)
-            case Some(nextWsState) =>
-              // check sequences complete or check failure
-              // restore before triggering afterStateUpdate, as next action might perform a new setCheck
-              setCheckBuffer.restore(notMatched reverse_::: tail)
-              nextWsState
-          }
-
-        case _ =>
-          setCheckBuffer.restore(notMatched.reverse)
-          NextWsState(state)
+  private[fsm] def replaySetCheckBuffer(): NextWsState =
+    setCheckBuffer.replay(this, clock.nowMillis) { (state, message) =>
+      logger.trace(s"Replaying $message")
+      // the message was received before the check was set, consider it received when the check is set so response time isn't negative
+      state.applyChecks(message, math.max(message.timestamp, state.checkSequenceStart)).map {
+        // check passed, more checks to perform
+        case NextWsState(nextState: WsPerformingCheckState, NextWsState.DoNothing) => Left(nextState)
+        // check sequences complete or check failure
+        case nextWsState => Right(nextWsState)
       }
-
-    replayRec(this, setCheckBuffer.removeAll(clock.nowMillis), Nil)
-  }
+    }(NextWsState(_))
 
   /**
    * @return

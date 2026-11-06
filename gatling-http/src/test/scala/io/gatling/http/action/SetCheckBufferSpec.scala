@@ -61,4 +61,32 @@ class SetCheckBufferSpec extends AnyFlatSpecLike with Matchers {
     noAge.add(Message(1, "a"), 1)
     noAge.removeAll(1) shouldBe empty
   }
+
+  // a check sequence is modelled as the list of expected values, the result as the values left unchecked
+  private def replay(buffer: SetCheckBuffer[Message], expected: List[String]): List[String] =
+    buffer.replay[List[String], List[String]](expected, 10) { (remaining, message) =>
+      remaining match {
+        case head :: tail if head == message.value => Some(if (tail.isEmpty) Right(Nil) else Left(tail))
+        case _                                     => None
+      }
+    }(identity)
+
+  it should "retry the messages that didn't match a check against the next checks" in {
+    val buffer = newBuffer(10, 1.minute)
+    buffer.add(Message(1, "a"), 1)
+    buffer.add(Message(2, "b"), 2)
+    buffer.add(Message(3, "c"), 3)
+
+    replay(buffer, List("b", "a")) shouldBe empty
+    buffer.removeAll(10).map(_.value) shouldBe List("c")
+  }
+
+  it should "put back the messages that weren't consumed when checks remain" in {
+    val buffer = newBuffer(10, 1.minute)
+    buffer.add(Message(1, "a"), 1)
+    buffer.add(Message(2, "b"), 2)
+
+    replay(buffer, List("b", "z")) shouldBe List("z")
+    buffer.removeAll(10).map(_.value) shouldBe List("a")
+  }
 }

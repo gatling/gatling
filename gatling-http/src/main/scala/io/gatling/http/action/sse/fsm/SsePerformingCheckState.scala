@@ -16,8 +16,6 @@
 
 package io.gatling.http.action.sse.fsm
 
-import scala.annotation.tailrec
-
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
@@ -70,34 +68,17 @@ final case class SsePerformingCheckState(
    * Try to match the buffered events that no check has matched yet against the current check, as if they were received now. Events that don't match are put
    * back so a later setCheck can still match them.
    */
-  private[fsm] def replaySetCheckBuffer(): NextSseState = {
-    @tailrec
-    def replayRec(state: SsePerformingCheckState, events: List[BufferedServerSentEvent], notMatched: List[BufferedServerSentEvent]): NextSseState =
-      events match {
-        case buffered :: tail =>
-          logger.debug(s"Replaying event=${buffered.event}")
-          // the event was received before the check was set, consider it received when the check is set so response time isn't negative
-          state.tryApplyingChecks(buffered.event, math.max(buffered.timestamp, state.checkSequenceStart)) match {
-            case None =>
-              replayRec(state, tail, buffered :: notMatched)
-            case Some(NextSseState(nextState: SsePerformingCheckState, NextSseState.DoNothing)) =>
-              // check passed, more checks to perform
-              // the events that didn't match the previous check might match the next one, retry them, oldest first
-              replayRec(nextState, notMatched reverse_::: tail, Nil)
-            case Some(nextSseState) =>
-              // check sequences complete or check failure
-              // restore before triggering afterStateUpdate, as next action might perform a new setCheck
-              setCheckBuffer.restore(notMatched reverse_::: tail)
-              nextSseState
-          }
-
-        case _ =>
-          setCheckBuffer.restore(notMatched.reverse)
-          NextSseState(state)
+  private[fsm] def replaySetCheckBuffer(): NextSseState =
+    setCheckBuffer.replay(this, clock.nowMillis) { (state, buffered) =>
+      logger.debug(s"Replaying event=${buffered.event}")
+      // the event was received before the check was set, consider it received when the check is set so response time isn't negative
+      state.tryApplyingChecks(buffered.event, math.max(buffered.timestamp, state.checkSequenceStart)).map {
+        // check passed, more checks to perform
+        case NextSseState(nextState: SsePerformingCheckState, NextSseState.DoNothing) => Left(nextState)
+        // check sequences complete or check failure
+        case nextSseState => Right(nextSseState)
       }
-
-    replayRec(this, setCheckBuffer.removeAll(clock.nowMillis), Nil)
-  }
+    }(NextSseState(_))
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
