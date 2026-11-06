@@ -1188,8 +1188,9 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   /**
    * Enable buffering the inbound WebSocket messages that no check matched, so that a later setCheck
    * can match a message that has already arrived. Messages are discarded when the buffer is full
-   * (oldest first) or when they're older than maxAge. Disabled by default, meaning a setCheck only
-   * matches messages received after it's set.
+   * (oldest first) or when they're older than maxAge. The buffer is cleared when the WebSocket
+   * reconnects, as messages received on a previous connection are stale. Disabled by default,
+   * meaning a setCheck only matches messages received after it's set.
    *
    * @param maxSize the max number of buffered messages
    * @param maxAge the max age of buffered messages
@@ -1213,8 +1214,9 @@ public final class HttpProtocolBuilder implements ProtocolBuilder {
   /**
    * Enable buffering the inbound SSE messages that no check matched, so that a later setCheck can
    * match a message that has already arrived. Messages are discarded when the buffer is full
-   * (oldest first) or when they're older than maxAge. Disabled by default, meaning a setCheck only
-   * matches messages received after it's set.
+   * (oldest first) or when they're older than maxAge. Unlike with WebSocket, the buffer is kept
+   * when the stream automatically reconnects, as the stream resumes from the Last-Event-ID.
+   * Disabled by default, meaning a setCheck only matches messages received after it's set.
    *
    * @param maxSize the max number of buffered messages
    * @param maxAge the max age of buffered messages

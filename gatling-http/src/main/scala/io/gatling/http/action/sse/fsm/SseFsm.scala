@@ -90,6 +90,7 @@ final class SseFsm(
   private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] val unmatchedInboundMessageBuffer = new BoundedMutableDequeue[SseInboundMessage](httpProtocol.ssePart.unmatchedInboundMessageBufferSize)
+  // unlike with WebSocket, not cleared on reconnect: the stream resumes from the Last-Event-ID, so buffered events aren't stale
   private[fsm] val setCheckBuffer =
     new SetCheckBuffer[BufferedServerSentEvent](httpProtocol.ssePart.setCheckBufferMaxSize, httpProtocol.ssePart.setCheckBufferMaxAge, _.timestamp)
 
