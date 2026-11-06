@@ -24,11 +24,8 @@ private[gatling] class CliOptionParser[B](programName: String) extends OptionPar
 
   def opt[A: Read](constant: CliOption): OptionDef[A, B] = {
     val base = opt[A](constant.longName).abbr(constant.shortName).text(constant.text)
-    if (constant.valueName == null) {
-      base
-    } else {
-      base.valueName(constant.valueName)
-    }
+    val withValueName = if (constant.valueName == null) base else base.valueName(constant.valueName)
+    if (constant.hidden) withValueName.hidden() else withValueName
   }
 
   override def errorOnUnknownArgument: Boolean = false
