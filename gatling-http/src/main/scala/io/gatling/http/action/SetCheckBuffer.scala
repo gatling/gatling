@@ -31,6 +31,8 @@ private[http] final class SetCheckBuffer[T](maxSize: Int, maxAge: FiniteDuration
   private val enabled = maxSize > 0 && maxAgeMillis > 0
   private val queue = mutable.ArrayDeque.empty[T]
 
+  // only looks at the head: relies on the queue being ordered by timestamp, which holds as long as messages are added in arrival order
+  // and restore only puts back messages returned by removeAll, which are older than any message added since
   private def evictExpired(now: Long): Unit =
     while (queue.nonEmpty && now - timestamp(queue.head) > maxAgeMillis) {
       queue.removeHead()
