@@ -25,7 +25,7 @@ private[gatling] final class Exit(injector: ActorRef[Injector.Command]) extends 
 
   override def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
-    session.exit()
-    injector ! Injector.Command.UserEnd(session.scenario)
+    // the user only ends once the protocol components are done with it, see ProtocolComponents.onExitAsync
+    session.exitAsync(() => injector ! Injector.Command.UserEnd(session.scenario))
   }
 }

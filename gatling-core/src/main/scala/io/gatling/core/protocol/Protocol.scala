@@ -16,11 +16,16 @@
 
 package io.gatling.core.protocol
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import scala.collection.mutable
+import scala.util.control.NonFatal
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+
+import com.typesafe.scalalogging.StrictLogging
 
 object Protocol {
   def indexByType(protocols: Iterable[Protocol]): Protocols =
@@ -43,6 +48,45 @@ object ProtocolComponents {
 trait ProtocolComponents {
   def onStart: Session => Session
   def onExit: Session => Unit
+
+  /**
+   * Asynchronous variant of [[onExit]], for components that must complete some IO before the virtual user is considered terminated, e.g. flushing metrics that
+   * must be logged before the stats engine stops. The user only ends (logged as such, replaced in closed workload models, counted for the end of the
+   * simulation) once every component has called `done`.
+   *
+   * Implementations must not block, and must call `done` exactly once, from any thread, typically with a timeout as a user whose `done` is never called never
+   * ends. The default implementation calls [[onExit]], then `done`.
+   */
+  def onExitAsync(session: Session, done: () => Unit): Unit = {
+    onExit(session)
+    done()
+  }
+}
+
+/**
+ * The exit hook of the users of a scenario: a `Session => Unit` for binary compatibility with `Session#onExit`, that the Exit action calls asynchronously.
+ */
+private[gatling] final class ExitHook(components: () => Iterable[ProtocolComponents]) extends (Session => Unit) with StrictLogging {
+  override def apply(session: Session): Unit = components().foreach(_.onExit(session))
+
+  def applyAsync(session: Session, done: () => Unit): Unit = {
+    val all = components()
+    if (all.isEmpty) {
+      done()
+    } else {
+      val remaining = new AtomicInteger(all.size)
+      val countDown: () => Unit = () => if (remaining.decrementAndGet() == 0) done()
+      all.foreach { component =>
+        try {
+          component.onExitAsync(session, countDown)
+        } catch {
+          case NonFatal(e) =>
+            logger.error(s"onExitAsync of ${component.getClass.getName} crashed for user ${session.userId}", e)
+            countDown()
+        }
+      }
+    }
+  }
 }
 
 final class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
@@ -85,5 +129,5 @@ final class ProtocolComponentsRegistry(
     componentsCache.values.foldLeft(Session.Identity)(_ andThen _.onStart)
 
   def onExit: Session => Unit =
-    session => componentsCache.values.foreach(_.onExit(session))
+    new ExitHook(() => componentsCache.values)
 }

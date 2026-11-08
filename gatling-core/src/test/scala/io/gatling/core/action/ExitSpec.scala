@@ -19,6 +19,8 @@ package io.gatling.core.action
 import io.gatling.core.EmptySession
 import io.gatling.core.actor.ActorSpec
 import io.gatling.core.controller.inject.Injector
+import io.gatling.core.protocol.{ ExitHook, ProtocolComponents }
+import io.gatling.core.session.Session
 
 class ExitSpec extends ActorSpec with EmptySession {
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
@@ -33,5 +35,29 @@ class ExitSpec extends ActorSpec with EmptySession {
     hasTerminated shouldBe true
     val userMessage = mockInjector.expectMsgType[Injector.Command.UserEnd]()
     userMessage.scenario shouldBe session.scenario
+  }
+
+  it should "only notify the Injector once every protocol component is done with the user" in {
+    val mockInjector = mockActorRef[Injector.Command]("injector")
+    var pendingDone: Option[() => Unit] = None
+    var syncExits = 0
+
+    val asyncComponents = new ProtocolComponents {
+      override def onStart: Session => Session = Session.Identity
+      override def onExit: Session => Unit = _ => ()
+      override def onExitAsync(session: Session, done: () => Unit): Unit = pendingDone = Some(done)
+    }
+    val syncComponents = new ProtocolComponents {
+      override def onStart: Session => Session = Session.Identity
+      override def onExit: Session => Unit = _ => syncExits += 1
+    }
+
+    val exit = new Exit(mockInjector)
+    exit ! emptySession.copy(onExit = new ExitHook(() => List(asyncComponents, syncComponents)))
+
+    syncExits shouldBe 1
+    mockInjector.expectNoMsg()
+    pendingDone.foreach(_())
+    mockInjector.expectMsgType[Injector.Command.UserEnd]()
   }
 }

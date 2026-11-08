@@ -23,6 +23,7 @@ import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.{ TypeCaster, TypeHelper }
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
+import io.gatling.core.protocol.ExitHook
 import io.gatling.core.session.el.ElMessages
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.util.NameGen
@@ -340,4 +341,13 @@ final case class Session(
     }
 
   private[core] def exit(): Unit = onExit(this)
+
+  /** Runs the exit hook, then `done`, possibly asynchronously, see [[io.gatling.core.protocol.ProtocolComponents.onExitAsync]]. */
+  private[core] def exitAsync(done: () => Unit): Unit =
+    onExit match {
+      case hook: ExitHook => hook.applyAsync(this, done)
+      case sync           =>
+        sync(this)
+        done()
+    }
 }
