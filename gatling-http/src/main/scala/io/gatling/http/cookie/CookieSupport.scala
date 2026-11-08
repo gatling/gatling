@@ -24,7 +24,7 @@ import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
 
-private[http] object CookieSupport {
+private[gatling] object CookieSupport {
   private[cookie] val CookieJarAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cookies")
   private val NoCookieJarFailure = "No CookieJar in session".failure
 
