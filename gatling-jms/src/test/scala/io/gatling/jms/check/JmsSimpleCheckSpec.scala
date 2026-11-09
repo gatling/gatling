@@ -43,4 +43,12 @@ class JmsSimpleCheckSpec extends AnyFlatSpecLike with Matchers with JmsDsl with 
   it should "return failure if message is not TextMessage" in {
     check.check(message, emptySession, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
+
+  it should "return failure with the error message if the function throws" in {
+    val throwingCheck = simpleCheck(_ => throw new IllegalStateException("boom"))
+    throwingCheck.check(textMessage("OK"), emptySession, new JHashMap[Any, Any]) match {
+      case Failure(message) => message should include("boom")
+      case other            => fail(s"Expected a Failure, got $other")
+    }
+  }
 }

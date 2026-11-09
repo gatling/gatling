@@ -18,7 +18,7 @@ package io.gatling.jms.check
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.commons.validation.FailureWrapper
+import io.gatling.commons.validation.{ safely, FailureWrapper }
 import io.gatling.core.check._
 import io.gatling.core.check.Check.PreparedCache
 import io.gatling.core.check.bytes.BodyBytesCheckType
@@ -40,10 +40,12 @@ trait JmsCheckSupport {
   def simpleCheck(f: Message => Boolean): JmsCheck =
     Check.Simple(
       (response: Message, _: Session, _: PreparedCache) =>
-        if (f(response)) {
-          CheckResult.NoopCheckResultSuccess
-        } else {
-          "JMS check failed".failure
+        safely() {
+          if (f(response)) {
+            CheckResult.NoopCheckResultSuccess
+          } else {
+            "JMS check failed".failure
+          }
         },
       None
     )

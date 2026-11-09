@@ -18,7 +18,10 @@ package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
 
+import scala.util.control.NonFatal
+
 import io.gatling.commons.util.Clock
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.actor.{ ActorRef, ActorSystem }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
@@ -55,9 +58,19 @@ final class JmsTrackerPool(
           val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread { () =>
             val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
             consumer.setMessageListener { message =>
-              val matchId = messageMatcher.responseMatchId(message)
-              logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-              tracker ! JmsTracker.Command.MessageReceived(matchId, clock.nowMillis, message)
+              // the matcher can be user code: never let it throw into the JMS provider, which would redeliver the message or stop the consumer
+              try {
+                val matchId = messageMatcher.responseMatchId(message)
+                logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+                tracker ! JmsTracker.Command.MessageReceived(matchId, clock.nowMillis, message)
+              } catch {
+                case NonFatal(e) =>
+                  if (logger.underlying.isDebugEnabled) {
+                    logger.error("Failed to compute the matchId of a received message, ignoring it", e)
+                  } else {
+                    logger.error(s"Failed to compute the matchId of a received message, ignoring it: ${e.detailedMessage}")
+                  }
+              }
             }
           }
 

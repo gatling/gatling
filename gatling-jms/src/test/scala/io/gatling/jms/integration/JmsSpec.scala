@@ -26,7 +26,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.{ Session, StaticValueExpression }
-import io.gatling.core.stats.NoopStatsEngine
+import io.gatling.core.stats.{ NoopStatsEngine, StatsEngine }
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
 import io.gatling.jms.protocol.JmsProtocolBuilder
@@ -111,17 +111,29 @@ trait JmsSpec extends ActorSpec with JmsDsl with EmptySession {
       .matchByCorrelationId
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocol.indexByType(Seq(jmsProtocol)))(implicit
+  def runScenario(
+      sb: ScenarioBuilder,
+      timeout: FiniteDuration = 10.seconds,
+      protocols: Protocols = Protocol.indexByType(Seq(jmsProtocol)),
+      statsEngine: StatsEngine = NoopStatsEngine
+  )(implicit
       configuration: GatlingConfiguration
   ): Session =
-    runScenarioWithSessions(sb, Seq(emptySession), timeout, protocols).head
+    runScenarioWithSessions(sb, Seq(emptySession), timeout, protocols, statsEngine).head
 
-  def runScenarioWithSessions(sb: ScenarioBuilder, sessions: Seq[Session], timeout: FiniteDuration, protocols: Protocols)(implicit
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def runScenarioWithSessions(
+      sb: ScenarioBuilder,
+      sessions: Seq[Session],
+      timeout: FiniteDuration,
+      protocols: Protocols,
+      statsEngine: StatsEngine = NoopStatsEngine
+  )(implicit
       configuration: GatlingConfiguration
   ): Seq[Session] = {
     val clock = new DefaultClock
     val coreComponents =
-      new CoreComponents(actorSystem, null, null, None, NoopStatsEngine, clock, null, configuration)
+      new CoreComponents(actorSystem, null, null, None, statsEngine, clock, null, configuration)
     val nextActor = mockActorRef[Session]("next")
     val next = new ActorDelegatingAction("next", nextActor)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)

@@ -21,11 +21,14 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.stats.KO
 import io.gatling.core.CoreDsl
 import io.gatling.core.protocol.Protocol
+import io.gatling.jms.action.MockStatsEngine
+import io.gatling.jms.protocol.{ CorrelationIdMessageMatcher, JmsMessageMatcher }
 import io.gatling.jms.request.JmsDestination
 
-import jakarta.jms.TextMessage
+import jakarta.jms.{ Message, TextMessage }
 
 class JmsIntegrationSpec extends JmsSpec with CoreDsl {
   "gatling-jms" should "send and receive JMS message" in {
@@ -142,5 +145,68 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl {
     )
 
     session.isFailed shouldBe false
+  }
+
+  it should "ignore a reply whose matchId can't be computed and keep receiving the next ones" in {
+    val requestQueue = JmsDestination.Queue("throwingResponseMatchIdRequest")
+    val responseMatchIdCalls = new AtomicInteger
+
+    replier(
+      requestQueue,
+      { case (tm: TextMessage, session) => session.createTextMessage(tm.getText) }
+    )
+
+    val matcher = new JmsMessageMatcher {
+      override def prepareRequest(msg: Message): Unit = CorrelationIdMessageMatcher.prepareRequest(msg)
+      override def requestMatchId(msg: Message): String = CorrelationIdMessageMatcher.requestMatchId(msg)
+      override def responseMatchId(msg: Message): String = {
+        responseMatchIdCalls.incrementAndGet()
+        msg match {
+          case tm: TextMessage if tm.getText == "boom" => throw new IllegalStateException("boom")
+          case _                                       => msg.getJMSCorrelationID
+        }
+      }
+    }
+
+    val session = runScenario(
+      scenario("Jms throwing responseMatchId")
+        .exec(_.set("failedAfterBoom", false))
+        .exec(jms("boom").requestReply.destination(requestQueue).textMessage("boom"))
+        .exec(session => session.set("failedAfterBoom", session.isFailed).markAsSucceeded)
+        .exec(jms("ok").requestReply.destination(requestQueue).textMessage("ok")),
+      protocols = Protocol.indexByType(Seq(jms.connectionFactory(cf).messageMatcher(matcher).replyTimeout(3.seconds)))
+    )
+
+    session("failedAfterBoom").as[Boolean] shouldBe true
+    session.isFailed shouldBe false
+    // a listener exception would make the provider redeliver the reply
+    responseMatchIdCalls.get shouldBe 2
+  }
+
+  it should "fail with the error when the matchId of a sent request can't be computed" in {
+    val requestQueue = JmsDestination.Queue("throwingRequestMatchIdRequest")
+    val requestMatchIdCalls = new AtomicInteger
+
+    val matcher = new JmsMessageMatcher {
+      override def prepareRequest(msg: Message): Unit = {}
+      // null before sending, so it's called again once sent
+      override def requestMatchId(msg: Message): String =
+        if (requestMatchIdCalls.incrementAndGet() == 1) null else throw new IllegalStateException("boom")
+      override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
+    }
+
+    val statsEngine = new MockStatsEngine
+
+    val session = runScenario(
+      scenario("Jms throwing requestMatchId")
+        .exec(jms("throwingRequestMatchId").requestReply.destination(requestQueue).textMessage("hi")),
+      protocols = Protocol.indexByType(Seq(jms.connectionFactory(cf).messageMatcher(matcher))),
+      statsEngine = statsEngine
+    )
+
+    session.isFailed shouldBe true
+    statsEngine.messages should matchPattern {
+      case List(MockStatsEngine.Message.Response(_, _, "throwingRequestMatchId", _, _, KO, None, Some(message))) if message.contains("boom") =>
+    }
   }
 }
