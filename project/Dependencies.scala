@@ -28,7 +28,7 @@ object Dependencies {
   private val caffeine                       = "com.github.ben-manes.caffeine" % "caffeine"                    % "3.3.1"
   private val cfor                           = "io.github.metarank"           %% "cfor"                        % "0.4"
   private val commonsPool2                   = "org.apache.commons"            % "commons-pool2"               % "2.13.1"
-  private val config                         = "com.typesafe"                  % "config"                      % "1.4.9"
+  private val config                         = "com.typesafe"                  % "config"                      % "1.4.10"
   private val fastUuid                       = "com.eatthepath"                % "fast-uuid"                   % "0.2.0"
   private val jackson                        = "com.fasterxml.jackson.core"    % "jackson-databind"            % "2.23.0"
   private val jmespath                       = "io.burt"                       % "jmespath-jackson"            % "0.6.0"
