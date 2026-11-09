@@ -16,21 +16,17 @@
 
 package io.gatling.core.stats
 
-import java.net.InetSocketAddress
-
 import io.gatling.commons.stats.Status
 import io.gatling.core.actor.ActorRef
 import io.gatling.core.controller.Controller
 import io.gatling.core.controller.Controller.Command
 import io.gatling.core.session.GroupBlock
 
-import io.netty.channel.ChannelHandler
-
 object StatsEngine {
   val ErrorMessageMaxLength: Int = 200
 }
 
-trait StatsEngine extends EnterpriseStatsEngineExtensions {
+trait StatsEngine {
   private[gatling] def start(): Unit
 
   private[gatling] def stop(controller: ActorRef[Controller.Command], reason: Command.StopLoadGenerator.Reason): Unit
@@ -40,16 +36,6 @@ trait StatsEngine extends EnterpriseStatsEngineExtensions {
   def logUserEnd(scenario: String): Unit
 
   // [e]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
   //
   //
   //
@@ -101,42 +87,3 @@ trait StatsEngine extends EnterpriseStatsEngineExtensions {
 
   def logRequestCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit
 }
-
-// WARNING those methods only serve a purpose in Gatling Enterprise and mustn't be called from other components
-trait EnterpriseStatsEngineExtensions {
-  final def statsChannelHandler(remoteAddress: String): ChannelHandler = null
-
-  final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
-
-  final def logTcpConnect(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
-
-  final def logTlsHandshake(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
-}
-
-// [e]
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// [e]
