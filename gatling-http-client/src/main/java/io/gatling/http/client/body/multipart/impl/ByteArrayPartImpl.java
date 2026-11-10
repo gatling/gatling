@@ -19,13 +19,14 @@ package io.gatling.http.client.body.multipart.impl;
 import io.gatling.http.client.body.multipart.ByteArrayPart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.nio.charset.Charset;
 
 public final class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
 
   private final ByteBuf contentBuffer;
 
-  public ByteArrayPartImpl(ByteArrayPart part, byte[] boundary) {
-    super(part, boundary);
+  public ByteArrayPartImpl(ByteArrayPart part, byte[] boundary, Charset headerCharset) {
+    super(part, boundary, headerCharset);
     contentBuffer = Unpooled.wrappedBuffer(part.getContent());
   }
 

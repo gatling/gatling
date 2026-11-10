@@ -90,7 +90,7 @@ public abstract class Part<T> {
     return customHeaders;
   }
 
-  public abstract PartImpl toImpl(byte[] boundary);
+  public abstract PartImpl toImpl(byte[] boundary, Charset headerCharset);
 
   @Override
   public String toString() {

@@ -26,6 +26,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public abstract class PartImpl implements Closeable {
@@ -90,7 +91,11 @@ public abstract class PartImpl implements Closeable {
   private ByteBuf preContentBuffer;
   private ByteBuf postContentBuffer;
 
-  PartImpl(Part<?> part, byte[] boundary) {
+  /**
+   * @param headerCharset the form's charset, used to encode the part name and file name as per RFC
+   *     7578 and browsers' behavior; null only for {@link MessageEndPartImpl}
+   */
+  PartImpl(Part<?> part, byte[] boundary, Charset headerCharset) {
     this.part = part;
     this.boundary = boundary;
     // MessageEndPartImpl passes a null part and overrides every visit/compute method, so these
@@ -108,7 +113,10 @@ public abstract class PartImpl implements Closeable {
           part.getDispositionType() != null
               ? part.getDispositionType().getBytes(US_ASCII)
               : FORM_DATA_DISPOSITION_TYPE_BYTES;
-      this.nameBytes = part.getName() != null ? part.getName().getBytes(US_ASCII) : null;
+      this.nameBytes =
+          part.getName() != null
+              ? DispositionParamEncoder.encode(part.getName(), headerCharset)
+              : null;
       this.contentTypeBytes =
           part.getContentType() != null ? part.getContentType().getBytes(US_ASCII) : null;
       this.charsetBytes =

@@ -45,7 +45,7 @@ public final class StringPart extends Part<String> {
   }
 
   @Override
-  public PartImpl toImpl(byte[] boundary) {
-    return new StringPartImpl(this, boundary);
+  public PartImpl toImpl(byte[] boundary, Charset headerCharset) {
+    return new StringPartImpl(this, boundary, headerCharset);
   }
 }

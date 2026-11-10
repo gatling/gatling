@@ -26,7 +26,7 @@ public final class MessageEndPartImpl extends PartImpl {
   private ByteBuf contentBuffer;
 
   public MessageEndPartImpl(byte[] boundary) {
-    super(null, boundary);
+    super(null, boundary, null);
     state = PartImplState.PRE_CONTENT;
   }
 

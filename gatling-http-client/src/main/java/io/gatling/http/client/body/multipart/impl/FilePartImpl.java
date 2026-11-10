@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 
 public final class FilePartImpl extends FileLikePartImpl<FilePart> {
 
@@ -31,8 +32,8 @@ public final class FilePartImpl extends FileLikePartImpl<FilePart> {
   private FileChannel channel;
   private long position = 0L;
 
-  public FilePartImpl(FilePart part, byte[] boundary) {
-    super(part, boundary);
+  public FilePartImpl(FilePart part, byte[] boundary, Charset headerCharset) {
+    super(part, boundary, headerCharset);
     file = part.getContent();
   }
 

@@ -53,7 +53,7 @@ public final class FilePart extends FileLikePart<File> {
   }
 
   @Override
-  public PartImpl toImpl(byte[] boundary) {
-    return new FilePartImpl(this, boundary);
+  public PartImpl toImpl(byte[] boundary, Charset headerCharset) {
+    return new FilePartImpl(this, boundary, headerCharset);
   }
 }

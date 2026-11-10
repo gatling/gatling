@@ -51,6 +51,8 @@ public final class MultipartFormDataRequestBodyBuilder
               withDefault(contentType, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
     }
 
-    return new MultipartFormDataRequestBody(content, patchedContentType, boundary);
+    // RFC 7578 section 5.1 and browsers: part names and file names are encoded in the form charset
+    Charset headerCharset = charset != null ? charset : defaultCharset;
+    return new MultipartFormDataRequestBody(content, patchedContentType, boundary, headerCharset);
   }
 }

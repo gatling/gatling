@@ -17,9 +17,9 @@
 package io.gatling.http.client.body.multipart.impl;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.gatling.http.client.body.multipart.FileLikePart;
+import java.nio.charset.Charset;
 
 public abstract class FileLikePartImpl<T extends FileLikePart<?>> extends PartImpl {
 
@@ -30,13 +30,11 @@ public abstract class FileLikePartImpl<T extends FileLikePart<?>> extends PartIm
   // visit passes, instead of being re-encoded on each pass. null when the part has no file name.
   private final byte[] fileNameBytes;
 
-  FileLikePartImpl(T part, byte[] boundary) {
-    super(part, boundary);
+  FileLikePartImpl(T part, byte[] boundary, Charset headerCharset) {
+    super(part, boundary, headerCharset);
     String fileName = part.getFileName();
     this.fileNameBytes =
-        fileName != null
-            ? fileName.getBytes(part.getCharset() != null ? part.getCharset() : UTF_8)
-            : null;
+        fileName != null ? DispositionParamEncoder.encode(fileName, headerCharset) : null;
   }
 
   protected void visitContentDispositionHeader(PartVisitor visitor) {

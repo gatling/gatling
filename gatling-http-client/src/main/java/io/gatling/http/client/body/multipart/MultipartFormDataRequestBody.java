@@ -27,6 +27,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.handler.codec.http.HttpContent;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,17 +42,20 @@ public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Pa
 
   private final byte[] boundary;
   private final String patchedContentType;
+  private final Charset headerCharset;
 
-  MultipartFormDataRequestBody(List<Part<?>> content, String patchedContentType, byte[] boundary) {
+  MultipartFormDataRequestBody(
+      List<Part<?>> content, String patchedContentType, byte[] boundary, Charset headerCharset) {
     super(content);
     this.boundary = boundary;
+    this.headerCharset = headerCharset;
     this.patchedContentType = patchedContentType;
   }
 
   private MultipartChunkedInput toChunkedInput() {
     List<PartImpl> partImpls = new ArrayList<>(content.size() + 1);
     for (Part<?> part : content) {
-      partImpls.add(part.toImpl(boundary));
+      partImpls.add(part.toImpl(boundary, headerCharset));
     }
     partImpls.add(new MessageEndPartImpl(boundary));
 
