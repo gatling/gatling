@@ -52,6 +52,10 @@ public class SseJavaCompileTest extends Simulation {
               .on(sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))),
           sse("close").close(),
           sse("foo", "bar").get("url"),
+          sse(session -> "foo").get("url"),
+          sse("foo", session -> "bar").get("url"),
+          sse(session -> "foo", "bar").get("url"),
+          sse(session -> "foo", session -> "bar").get("url"),
           sse("foo", "bar").post("url").body(StringBody("")),
           sse.processUnmatchedMessages((messages, session) -> session.set("messages", messages)),
           sse.processUnmatchedMessages(

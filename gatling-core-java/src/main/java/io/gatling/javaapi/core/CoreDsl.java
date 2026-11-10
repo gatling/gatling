@@ -1473,6 +1473,19 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
+   * AsLongAsDuring#asLongAsDuring(Function, String)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration) {
+    return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
    * AsLongAsDuring#asLongAsDuring(Function, Function)}.
    *
    * @param condition the loop condition as a function
@@ -1509,6 +1522,22 @@ public final class CoreDsl {
   public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
+   * AsLongAsDuring#asLongAsDuring(Function, String, String)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param counterName the name of the loop counter
+   * @return the next DSL step
+   */
+  public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName) {
+    return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName);
   }
 
   /**
@@ -1559,6 +1588,20 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
+   * AsLongAsDuring#asLongAsDuring(Function, String, boolean)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param exitASAP if the loop must be interrupted
+   * @return the next DSL step
+   */
+  public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration, boolean exitASAP) {
+    return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
    * AsLongAsDuring#asLongAsDuring(Function, Function, boolean)}.
    *
    * @param condition the loop condition as a function
@@ -1599,6 +1642,24 @@ public final class CoreDsl {
   public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, exitASAP);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a asLongAsDuring loop, see {@link
+   * AsLongAsDuring#asLongAsDuring(Function, String, String, boolean)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param counterName the name of the loop counter
+   * @param exitASAP if the loop must be interrupted
+   * @return the next DSL step
+   */
+  public static AsLongAsDuring.@NonNull On<ChainBuilder> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName,
+      boolean exitASAP) {
+    return ChainBuilder.EMPTY.asLongAsDuring(condition, duration, counterName, exitASAP);
   }
 
   /**
@@ -1657,7 +1718,7 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
-   * DoWhileDuring#doWhileDuring(Function, Function)}.
+   * DoWhileDuring#doWhileDuring(String, String)}.
    *
    * @param condition the loop condition as a Gatling Expression Language String
    * @param duration the loop max duration as a Gatling Expression Language String
@@ -1709,7 +1770,7 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
-   * DoWhileDuring#doWhileDuring(Function, Function, String)}.
+   * DoWhileDuring#doWhileDuring(String, String, String)}.
    *
    * @param condition the loop condition as a Gatling Expression Language String
    * @param duration the loop max duration as a Gatling Expression Language String
@@ -1767,7 +1828,7 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
-   * DoWhileDuring#doWhileDuring(Function, Function, boolean)}.
+   * DoWhileDuring#doWhileDuring(String, String, boolean)}.
    *
    * @param condition the loop condition as a Gatling Expression Language String
    * @param duration the loop max duration as a Gatling Expression Language String
@@ -1823,7 +1884,7 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
-   * DoWhileDuring#doWhileDuring(Function, Function, String, boolean)}.
+   * DoWhileDuring#doWhileDuring(String, String, String, boolean)}.
    *
    * @param condition the loop condition as a Gatling Expression Language String
    * @param duration the loop max duration as a Gatling Expression Language String
@@ -1892,6 +1953,19 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
+   * DoWhileDuring#doWhileDuring(Function, String)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration) {
+    return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
    * DoWhileDuring#doWhileDuring(Function, Function)}.
    *
    * @param condition the loop condition as a function
@@ -1928,6 +2002,22 @@ public final class CoreDsl {
   public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
+   * DoWhileDuring#doWhileDuring(Function, String, String)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param counterName the name of the loop counter
+   * @return the next DSL step
+   */
+  public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName) {
+    return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName);
   }
 
   /**
@@ -1978,6 +2068,20 @@ public final class CoreDsl {
 
   /**
    * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
+   * DoWhileDuring#doWhileDuring(Function, String, boolean)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param exitASAP if the loop must be interrupted
+   * @return the next DSL step
+   */
+  public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration, boolean exitASAP) {
+    return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
    * DoWhileDuring#doWhileDuring(Function, Function, boolean)}.
    *
    * @param condition the loop condition as a function
@@ -2018,6 +2122,24 @@ public final class CoreDsl {
   public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return ChainBuilder.EMPTY.doWhileDuring(condition, duration, exitASAP);
+  }
+
+  /**
+   * Bootstrap a new ChainBuilder with a doWhileDuring loop, see {@link
+   * DoWhileDuring#doWhileDuring(Function, String, String, boolean)}.
+   *
+   * @param condition the loop condition as a function
+   * @param duration the loop max duration as a Gatling Expression Language String
+   * @param counterName the name of the loop counter
+   * @param exitASAP if the loop must be interrupted
+   * @return the next DSL step
+   */
+  public static DoWhileDuring.@NonNull On<ChainBuilder> doWhileDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName,
+      boolean exitASAP) {
+    return ChainBuilder.EMPTY.doWhileDuring(condition, duration, counterName, exitASAP);
   }
 
   /**

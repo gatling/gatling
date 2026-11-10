@@ -221,6 +221,20 @@ public abstract class RequestWithBodyActionBuilder<
    * Set an HTML form multivalued parameter
    *
    * @param key the parameter key, expressed as a function
+   * @param values the parameter values, as a Gatling EL string
+   * @return a new HttpRequestActionBuilder instance
+   */
+  public @NonNull T multivaluedFormParam(
+      @NonNull Function<Session, String> key, @NonNull String values) {
+    return make(
+        wrapped ->
+            wrapped.multivaluedFormParam(javaFunctionToExpression(key), toSeqExpression(values)));
+  }
+
+  /**
+   * Set an HTML form multivalued parameter
+   *
+   * @param key the parameter key, expressed as a function
    * @param values the static parameter values
    * @return a new HttpRequestActionBuilder instance
    */

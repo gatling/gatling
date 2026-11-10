@@ -244,6 +244,11 @@ public class CoreJavaCompileTest extends Simulation {
               asLongAsDuring("#{condition}", "#{duration}", "counterName").on(chain1, chain2),
               asLongAsDuring("#{condition}", "#{duration}", true).on(chain1, chain2),
               asLongAsDuring("#{condition}", "#{duration}", "counterName", true).on(chain1, chain2),
+              asLongAsDuring(session -> true, "#{duration}").on(chain1, chain2),
+              asLongAsDuring(session -> true, "#{duration}", "counterName").on(chain1, chain2),
+              asLongAsDuring(session -> true, "#{duration}", true).on(chain1, chain2),
+              asLongAsDuring(session -> true, "#{duration}", "counterName", true)
+                  .on(chain1, chain2),
               asLongAsDuring(session -> true, session -> Duration.ofSeconds(1)).on(chain1, chain2),
               asLongAsDuring(session -> true, session -> Duration.ofSeconds(1), "counterName")
                   .on(chain1, chain2),
@@ -255,6 +260,10 @@ public class CoreJavaCompileTest extends Simulation {
               doWhileDuring("#{condition}", "#{duration}", "counterName").on(chain1, chain2),
               doWhileDuring("#{condition}", "#{duration}", true).on(chain1, chain2),
               doWhileDuring("#{condition}", "#{duration}", "counterName", true).on(chain1, chain2),
+              doWhileDuring(session -> true, "#{duration}").on(chain1, chain2),
+              doWhileDuring(session -> true, "#{duration}", "counterName").on(chain1, chain2),
+              doWhileDuring(session -> true, "#{duration}", true).on(chain1, chain2),
+              doWhileDuring(session -> true, "#{duration}", "counterName", true).on(chain1, chain2),
               doWhileDuring(session -> true, session -> Duration.ofSeconds(1)).on(chain1, chain2),
               doWhileDuring(session -> true, session -> Duration.ofSeconds(1), "counterName")
                   .on(chain1, chain2),

@@ -116,6 +116,16 @@ public final class HttpDsl {
   /**
    * Bootstrap a WebSocket request configuration
    *
+   * @param name the WebSocket request name, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Ws ws(@NonNull Function<Session, String> name) {
+    return new Ws(io.gatling.http.action.ws.Ws.apply(javaFunctionToExpression(name)));
+  }
+
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
    * @param name the WebSocket request name, expressed as a Gatling Expression Language String
    * @param wsName the name of the WebSocket so multiple WebSockets for the same virtual users don't
    *     conflict, expressed as a Gatling Expression Language String
@@ -124,6 +134,49 @@ public final class HttpDsl {
   public static @NonNull Ws ws(@NonNull String name, @NonNull String wsName) {
     return new Ws(
         io.gatling.http.action.ws.Ws.apply(toStringExpression(name), toStringExpression(wsName)));
+  }
+
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
+   * @param name the WebSocket request name, expressed as a Gatling Expression Language String
+   * @param wsName the name of the WebSocket so multiple WebSockets for the same virtual users don't
+   *     conflict, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Ws ws(@NonNull String name, @NonNull Function<Session, String> wsName) {
+    return new Ws(
+        io.gatling.http.action.ws.Ws.apply(
+            toStringExpression(name), javaFunctionToExpression(wsName)));
+  }
+
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
+   * @param name the WebSocket request name, expressed as a function
+   * @param wsName the name of the WebSocket so multiple WebSockets for the same virtual users don't
+   *     conflict, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  public static @NonNull Ws ws(@NonNull Function<Session, String> name, @NonNull String wsName) {
+    return new Ws(
+        io.gatling.http.action.ws.Ws.apply(
+            javaFunctionToExpression(name), toStringExpression(wsName)));
+  }
+
+  /**
+   * Bootstrap a WebSocket request configuration
+   *
+   * @param name the WebSocket request name, expressed as a function
+   * @param wsName the name of the WebSocket so multiple WebSockets for the same virtual users don't
+   *     conflict, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Ws ws(
+      @NonNull Function<Session, String> name, @NonNull Function<Session, String> wsName) {
+    return new Ws(
+        io.gatling.http.action.ws.Ws.apply(
+            javaFunctionToExpression(name), javaFunctionToExpression(wsName)));
   }
 
   public static final Ws.Prefix ws = Ws.Prefix.INSTANCE;
@@ -145,6 +198,18 @@ public final class HttpDsl {
    * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
    * configuration
    *
+   * @param name the SSE request name, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Sse sse(@NonNull Function<Session, String> name) {
+    return new Sse(io.gatling.http.action.sse.Sse.apply(javaFunctionToExpression(name)));
+  }
+
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
    * @param name the SSE request name, expressed as a Gatling Expression Language String
    * @param sseName the name of the SSE stream so multiple SSE streams for the same virtual users
    *     don't conflict, expressed as a Gatling Expression Language String
@@ -154,6 +219,55 @@ public final class HttpDsl {
     return new Sse(
         io.gatling.http.action.sse.Sse.apply(
             toStringExpression(name), toStringExpression(sseName)));
+  }
+
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
+   * @param name the SSE request name, expressed as a Gatling Expression Language String
+   * @param sseName the name of the SSE stream so multiple SSE streams for the same virtual users
+   *     don't conflict, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Sse sse(@NonNull String name, @NonNull Function<Session, String> sseName) {
+    return new Sse(
+        io.gatling.http.action.sse.Sse.apply(
+            toStringExpression(name), javaFunctionToExpression(sseName)));
+  }
+
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
+   * @param name the SSE request name, expressed as a function
+   * @param sseName the name of the SSE stream so multiple SSE streams for the same virtual users
+   *     don't conflict, expressed as a Gatling Expression Language String
+   * @return the next DSL step
+   */
+  public static @NonNull Sse sse(@NonNull Function<Session, String> name, @NonNull String sseName) {
+    return new Sse(
+        io.gatling.http.action.sse.Sse.apply(
+            javaFunctionToExpression(name), toStringExpression(sseName)));
+  }
+
+  /**
+   * Bootstrap a <a
+   * href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">SSE</a> request
+   * configuration
+   *
+   * @param name the SSE request name, expressed as a function
+   * @param sseName the name of the SSE stream so multiple SSE streams for the same virtual users
+   *     don't conflict, expressed as a function
+   * @return the next DSL step
+   */
+  public static @NonNull Sse sse(
+      @NonNull Function<Session, String> name, @NonNull Function<Session, String> sseName) {
+    return new Sse(
+        io.gatling.http.action.sse.Sse.apply(
+            javaFunctionToExpression(name), javaFunctionToExpression(sseName)));
   }
 
   /** The prefix to bootstrap SSE specific DSL */

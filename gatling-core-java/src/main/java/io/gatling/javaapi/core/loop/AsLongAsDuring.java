@@ -292,6 +292,20 @@ public interface AsLongAsDuring<
    * isn't reached
    *
    * @param condition the condition, expressed as a function
+   * @param duration the maximum duration, expressed as a Gatling Expression Language String that
+   *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
+   * @return a DSL component for defining the loop content
+   */
+  default @NonNull On<T> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration) {
+    return asLongAsDuring(condition, duration, genDefaultCounterName());
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached
+   *
+   * @param condition the condition, expressed as a function
    * @param duration the maximum duration, expressed as a function
    * @return a DSL component for defining the loop content
    */
@@ -325,6 +339,23 @@ public interface AsLongAsDuring<
   default @NonNull On<T> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration) {
     return asLongAsDuring(condition, duration, genDefaultCounterName());
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration, expressed as a Gatling Expression Language String that
+   *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @return a DSL component for defining the loop content
+   */
+  default @NonNull On<T> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName) {
+    return asLongAsDuring(condition, duration, counterName, false);
   }
 
   /**
@@ -378,6 +409,22 @@ public interface AsLongAsDuring<
    * isn't reached
    *
    * @param condition the condition, expressed as a function
+   * @param duration the maximum duration, expressed as a Gatling Expression Language String that
+   *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  default @NonNull On<T> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition, @NonNull String duration, boolean exitASAP) {
+    return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached
+   *
+   * @param condition the condition, expressed as a function
    * @param duration the maximum duration, expressed as a function
    * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
    *     duration inside the loop
@@ -418,6 +465,26 @@ public interface AsLongAsDuring<
   default @NonNull On<T> asLongAsDuring(
       @NonNull Function<Session, Boolean> condition, @NonNull Duration duration, boolean exitASAP) {
     return asLongAsDuring(condition, duration, genDefaultCounterName(), exitASAP);
+  }
+
+  /**
+   * Define a loop that will iterate as long as the condition holds true and a maximum duration
+   * isn't reached
+   *
+   * @param condition the condition, expressed as a function
+   * @param duration the maximum duration, expressed as a Gatling Expression Language String that
+   *     must either evaluate to an {@link Integer} (seconds then) or a {@link Duration}
+   * @param counterName the name of the loop counter, as stored in the {@link Session}
+   * @param exitASAP if the loop must be interrupted if the condition becomes false or the maximum
+   *     duration inside the loop
+   * @return a DSL component for defining the loop content
+   */
+  default @NonNull On<T> asLongAsDuring(
+      @NonNull Function<Session, Boolean> condition,
+      @NonNull String duration,
+      @NonNull String counterName,
+      boolean exitASAP) {
+    return new On<>(ScalaAsLongAsDuring.apply(this, condition, duration, counterName, exitASAP));
   }
 
   /**

@@ -60,6 +60,15 @@ object ScalaAsLongAsDuring {
   def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
       context: AsLongAsDuring[T, W],
       condition: JavaExpression[jl.Boolean],
+      duration: String,
+      counterName: String,
+      exitASAP: Boolean
+  ): Loop[T, W] =
+    new Loop(context, javaBooleanFunctionToExpression(condition), duration.el, counterName, exitASAP)
+
+  def apply[T <: StructureBuilder[T, W], W <: io.gatling.core.structure.StructureBuilder[W]](
+      context: AsLongAsDuring[T, W],
+      condition: JavaExpression[jl.Boolean],
       duration: JavaExpression[Duration],
       counterName: String,
       exitASAP: Boolean
