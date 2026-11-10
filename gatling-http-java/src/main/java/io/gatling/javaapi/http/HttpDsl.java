@@ -493,9 +493,7 @@ public final class HttpDsl {
    * @return the next DSL step
    */
   public static @NonNull BodyPart StringBodyPart(@NonNull String string) {
-    return new BodyPart(
-        io.gatling.http.Predef.StringBodyPart(
-            toStringExpression(string), io.gatling.core.Predef.configuration()));
+    return StringBodyPart(toStringExpression(string));
   }
 
   /**
@@ -505,7 +503,13 @@ public final class HttpDsl {
    * @return the next DSL step
    */
   public static @NonNull BodyPart StringBodyPart(@NonNull Function<Session, String> string) {
-    return ElFileBodyPart(javaFunctionToExpression(string));
+    return StringBodyPart(javaFunctionToExpression(string));
+  }
+
+  private static BodyPart StringBodyPart(
+      Function1<io.gatling.core.session.Session, Validation<String>> string) {
+    return new BodyPart(
+        io.gatling.http.Predef.StringBodyPart(string, io.gatling.core.Predef.configuration()));
   }
 
   /**
