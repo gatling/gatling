@@ -338,7 +338,7 @@ class CookieJarSpec extends AnyFlatSpecLike with Matchers {
     val cookieStore2 = cookieStore.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie2), System.currentTimeMillis())
 
     val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
-    val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3), System.currentTimeMillis())
+    val cookieStore3 = cookieStore2.add(Uri.create("https://foo.org/moodle/login"), List(cookie3), System.currentTimeMillis())
 
     val cookies = cookieStore3.get(Uri.create("http://foo.org/moodle/login"))
     cookies should have size 0
@@ -353,12 +353,90 @@ class CookieJarSpec extends AnyFlatSpecLike with Matchers {
     val cookieStore2 = cookieStore.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie2), System.currentTimeMillis())
 
     val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
-    val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3), System.currentTimeMillis())
+    val cookieStore3 = cookieStore2.add(Uri.create("https://foo.org/moodle/login"), List(cookie3), System.currentTimeMillis())
 
     val cookies = cookieStore3.get(Uri.create("https://foo.org/moodle/login"))
     cookies should have size 1
     cookies.head.value shouldBe "VALUE3"
     cookies.head.isSecure shouldBe true
+  }
+
+  it should "ignore a Secure cookie set from a non-secure origin" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7
+    val cookieStore = CookieJar(Uri.create("http://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://foo.org/")) shouldBe empty
+  }
+
+  it should "accept a Secure cookie set from localhost over http" in {
+    // localhost is a secure context
+    val cookieStore = CookieJar(Uri.create("http://localhost/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://localhost/")).map(_.value) shouldBe List("VALUE1")
+  }
+
+  it should "not let a non-secure origin overwrite a Secure cookie" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+      .add(Uri.create("http://foo.org/"), List(decode("cookie1=VALUE2; Path=/")), System.currentTimeMillis())
+
+    val cookies = cookieStore.get(Uri.create("https://foo.org/"))
+    cookies.map(_.value) shouldBe List("VALUE1")
+    cookies.head.isSecure shouldBe true
+  }
+
+  it should "not let a non-secure origin delete a Secure cookie" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+      .add(Uri.create("http://foo.org/"), List(decode("cookie1=; Path=/; Max-Age=0")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://foo.org/")).map(_.value) shouldBe List("VALUE1")
+  }
+
+  it should "not let a non-secure origin shadow a Secure cookie with a more specific path" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+      .add(Uri.create("http://foo.org/bar/"), List(decode("cookie1=VALUE2; Path=/bar")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://foo.org/bar/baz")).map(_.value) shouldBe List("VALUE1")
+  }
+
+  it should "not let a non-secure origin shadow a Secure cookie from a parent domain" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7
+    val cookieStore =
+      CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Domain=foo.org; Secure")), System.currentTimeMillis())
+        .add(Uri.create("http://sub.foo.org/"), List(decode("cookie1=VALUE2; Path=/")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://sub.foo.org/")).map(_.value) shouldBe List("VALUE1")
+  }
+
+  it should "let a non-secure origin set a cookie with the same name as a Secure cookie on a less specific path" in {
+    // draft-ietf-httpbis-rfc6265bis#section-5.7: the new cookie's path doesn't path-match the Secure cookie's one
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/bar; Secure")), System.currentTimeMillis())
+      .add(Uri.create("http://foo.org/"), List(decode("cookie1=VALUE2; Path=/")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("http://foo.org/")).map(_.value) shouldBe List("VALUE2")
+  }
+
+  it should "let a non-secure origin set a cookie with the same name as a Secure cookie on an unrelated domain" in {
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+      .add(Uri.create("http://bar.org/"), List(decode("cookie1=VALUE2; Path=/")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("http://bar.org/")).map(_.value) shouldBe List("VALUE2")
+  }
+
+  it should "let a secure origin overwrite a Secure cookie with a non-secure one" in {
+    val cookieStore = CookieJar(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+      .add(Uri.create("https://foo.org/"), List(decode("cookie1=VALUE2; Path=/")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("http://foo.org/")).map(_.value) shouldBe List("VALUE2")
+  }
+
+  it should "store Secure cookies added with the DSL whatever the scheme" in {
+    // addCookie has no origin
+    val cookieStore = CookieJar.Empty.add("foo.org", "/", List(decode("cookie1=VALUE1; Path=/; Secure")), System.currentTimeMillis())
+
+    cookieStore.get(Uri.create("https://foo.org/")).map(_.value) shouldBe List("VALUE1")
   }
 
   "find" should "collect all cookies matching criteria" in {
@@ -367,8 +445,8 @@ class CookieJarSpec extends AnyFlatSpecLike with Matchers {
     val cookie3 = decode("cookie1=VALUE3; Path=/foo; Secure")
     val cookie4 = decode("cookie1=VALUE4; Path=/; Secure")
     val cookieStore =
-      CookieJar(Uri.create("http://domain1.com/moodle/"), List(cookie1, cookie2, cookie3), System.currentTimeMillis())
-        .add(Uri.create("http://domain2.com/moodle"), List(cookie4), System.currentTimeMillis())
+      CookieJar(Uri.create("https://domain1.com/moodle/"), List(cookie1, cookie2, cookie3), System.currentTimeMillis())
+        .add(Uri.create("https://domain2.com/moodle"), List(cookie4), System.currentTimeMillis())
 
     cookieStore.find("cookie1", "domain1.com", None, None).map(_.value) shouldBe List("VALUE1", "VALUE3")
     cookieStore.find("cookie1", "domain1.com", Some("/"), None).map(_.value) shouldBe List("VALUE1")

@@ -84,6 +84,11 @@ private[cookie] object CookieJar {
           // The host matches a CIDR notation of 127.0.0.0/8
           Ipv4LoopbackRegex.matcher(host).matches
       )
+
+  private def isSecureContext(uri: Uri): Boolean =
+    uri.getScheme == Uri.HTTPS ||
+      uri.getScheme == Uri.WSS ||
+      isLocalhost(uri.getHost)
 }
 
 private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
@@ -96,24 +101,48 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
    *   the cookies to store
    */
   def add(requestUri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar =
-    add(requestDomain(requestUri), requestUri.getNonEmptyPath, cookies, nowMillis)
+    add(requestDomain(requestUri), requestUri.getNonEmptyPath, isSecureContext(requestUri), cookies, nowMillis)
 
-  def add(requestDomain: String, requestPath: String, cookies: List[Cookie], nowMillis: Long): CookieJar = {
+  /**
+   * Used for cookies added by the user with the DSL: there's no origin, so the secure origin rules don't apply.
+   */
+  def add(requestDomain: String, requestPath: String, cookies: List[Cookie], nowMillis: Long): CookieJar =
+    add(requestDomain, requestPath, secureContext = true, cookies, nowMillis)
+
+  private def add(requestDomain: String, requestPath: String, secureContext: Boolean, cookies: List[Cookie], nowMillis: Long): CookieJar = {
     val newStore = cookies.foldLeft(store) { (updatedStore, cookie) =>
       val (keyDomain, hostOnly) = cookieDomain(Option(cookie.domain), requestDomain)
 
       val keyPath = cookiePath(Option(cookie.path), requestPath)
 
-      if (hasExpired(cookie)) {
-        updatedStore - CookieKey(cookie.name, keyDomain, keyPath)
+      val key = CookieKey(cookie.name, keyDomain, keyPath)
+
+      if (!secureContext && (cookie.isSecure || shadowsSecureCookie(updatedStore, key))) {
+        // draft-ietf-httpbis-rfc6265bis#section-5.7
+        // a non-secure origin can't set a Secure cookie, nor overwrite, delete or shadow an existing one
+        updatedStore
+      } else if (hasExpired(cookie)) {
+        updatedStore - key
       } else {
         val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
-        updatedStore + (CookieKey(cookie.name, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
+        updatedStore + (key -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
       }
     }
 
     CookieJar(newStore)
   }
+
+  // draft-ietf-httpbis-rfc6265bis#section-5.7
+  // an existing Secure cookie with the same name, whose domain domain-matches the new cookie's (or vice-versa),
+  // and whose path is path-matched by the new cookie's path
+  private def shadowsSecureCookie(store: Map[CookieKey, StoredCookie], key: CookieKey): Boolean =
+    store.exists { case (storedKey, storedCookie) =>
+      storedCookie.cookie.isSecure &&
+      storedKey.name == key.name &&
+      (domainsMatch(storedKey.domain, key.domain, hostOnly = false) || domainsMatch(key.domain, storedKey.domain, hostOnly = false)) &&
+      pathsMatch(storedKey.path, key.path)
+    }
+
   // used by getCookieValue
   def find(name: String, requestDomain: String, requestPath: Option[String], requestSecure: Option[Boolean]): List[Cookie] =
     if (store.isEmpty) {
@@ -157,8 +186,4 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
         .map(_._2.cookie)
     }
 
-  private def isSecureContext(uri: Uri): Boolean =
-    uri.getScheme == Uri.HTTPS ||
-      uri.getScheme == Uri.WSS ||
-      isLocalhost(uri.getHost)
 }
