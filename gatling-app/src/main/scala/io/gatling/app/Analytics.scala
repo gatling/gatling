@@ -46,7 +46,14 @@ object Analytics {
       Option.when(isClassLoaded("io.gatling.grpc.protocol.GrpcComponents"))("grpc"),
       Option.when(isClassLoaded("io.gatling.graphql.protocol.GraphQlComponents"))("graphql"),
       Option.when(isClassLoaded("io.gatling.jdbc.protocol.JdbcComponents"))("jdbc"),
-      Option.when(isClassLoaded("io.gatling.postman.enterprise.Usage"))("postman")
+      Option.when(isClassLoaded("io.gatling.kafka.protocol.KafkaComponents"))("kafka"),
+      Option.when(isClassLoaded("io.gatling.browser.protocol.BrowserComponents"))("browser"),
+      Option.when(isClassLoaded("io.gatling.postman.enterprise.Usage"))("postman"),
+      Option.when(isClassLoaded("io.github.amerousful.kafka.protocol.KafkaComponents"))("3p-amerousful-kafka"),
+      Option.when(isClassLoaded("org.galaxio.gatling.amqp.protocol.AmqpComponents"))("3p-galaxio-amqp"),
+      Option.when(isClassLoaded("org.galaxio.gatling.jdbc.protocol.JdbcComponents"))("3p-galaxio-jdbc"),
+      Option.when(isClassLoaded("org.galaxio.gatling.kafka.protocol.KafkaComponents"))("3p-galaxio-kafka"),
+      Option.when(isClassLoaded("com.github.phisgr.gatling.grpc.protocol.GrpcProtocol$GrpcComponent"))("3p-phisgr-grpc")
     ).flatten
   }
 
