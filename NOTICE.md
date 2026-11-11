@@ -88,7 +88,7 @@ This product depends on jackson, distributed by FasterXML:
 
 This product depends on Jodd, distributed by Igor Spasic:
 
-  * License: license/LICENSE.jsonpath.bsd2.txt (BSD 2-Clause License)
+  * License: license/LICENSE.jodd.bsd2.txt (BSD 2-Clause License)
   * Homepage: http://jodd.org/
 
 This product depends on scala-redis, distributed by Debasish Ghosh:
