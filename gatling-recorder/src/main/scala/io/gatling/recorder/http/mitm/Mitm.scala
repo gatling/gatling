@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.http.mitm
 
-import java.net.InetSocketAddress
+import java.net.{ InetAddress, InetSocketAddress }
 import java.util.concurrent.TimeUnit
 
 import io.gatling.commons.model.Credentials
@@ -101,7 +101,7 @@ object Mitm extends StrictLogging {
         }
       })
 
-    serverChannelGroup.add(serverBootstrap.bind(new InetSocketAddress(config.proxy.port)).sync.channel)
+    serverChannelGroup.add(serverBootstrap.bind(new InetSocketAddress(InetAddress.getLoopbackAddress, config.proxy.port)).sync.channel)
 
     new Mitm(
       serverChannelGroup,
