@@ -1,4 +1,4 @@
-addSbtPlugin("io.gatling"           % "gatling-build-plugin"  % "7.0.1")
+addSbtPlugin("io.gatling"           % "gatling-build-plugin"  % "7.2.1")
 addSbtPlugin("com.github.sbt"       % "sbt-native-packager"   % "1.13.0")
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.19.0")
 addSbtPlugin("org.wartremover"      % "sbt-wartremover"       % "3.6.3")
