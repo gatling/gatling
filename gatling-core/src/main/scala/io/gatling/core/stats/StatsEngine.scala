@@ -56,16 +56,6 @@ trait StatsEngine {
   //
   //
   //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
   // [e]
 
   def logResponse(
