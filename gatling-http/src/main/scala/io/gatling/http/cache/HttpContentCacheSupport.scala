@@ -28,8 +28,13 @@ import io.gatling.http.protocol.HttpProtocol
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod, HttpResponseStatus }
 
 object ContentCacheKey {
-  def apply(request: Request): ContentCacheKey =
-    new ContentCacheKey(request.getUri, request.getMethod.name, Cookies(request.getCookies))
+  private val GetMethodName = HttpMethod.GET.name
+
+  // like Chrome, HEAD requests use the stored GET response
+  def apply(request: Request): ContentCacheKey = {
+    val method = request.getMethod
+    new ContentCacheKey(request.getUri, if (method == HttpMethod.HEAD) GetMethodName else method.name, Cookies(request.getCookies))
+  }
 }
 
 private[cache] final case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
@@ -101,7 +106,6 @@ private[http] object HttpContentCacheSupport {
   // RFC 9110 §9.2.1
   private val SafeMethods = Set(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE)
   private val GetMethodName = HttpMethod.GET.name
-  private val HeadMethodName = HttpMethod.HEAD.name
 }
 
 private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
@@ -119,31 +123,39 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
         val requestHeaders = request.getHeaders
         val cacheExists = httpContentCacheHandler.cacheExists(session)
         lazy val cacheControl = CacheHeaders.cacheControl(responseHeaders)
-        if (!cacheExists && (!CacheHeaders.mayBeStored(status, responseHeaders) || cacheControl.exists(_.noStore))) {
+        val isHead = method == HttpMethod.HEAD
+        if (!cacheExists && (isHead || !CacheHeaders.mayBeStored(status, responseHeaders) || cacheControl.exists(_.noStore))) {
           // fast path, typically for API calls: nothing stored to update, nothing to store
           session
         } else if (RequestCacheHeaders.passThrough(requestHeaders)) {
           session
         } else {
           val key = ContentCacheKey(request)
-          if (
-            RequestCacheHeaders.hasValidators(requestHeaders) &&
-            !RequestCacheHeaders.validatorsMatch(requestHeaders, httpContentCacheHandler.getEntry(session, key))
-          ) {
+          val hasValidators = RequestCacheHeaders.hasValidators(requestHeaders)
+          if (hasValidators && !RequestCacheHeaders.validatorsMatch(requestHeaders, httpContentCacheHandler.getEntry(session, key))) {
             // the user's validators don't identify the stored response
             session
+          } else if (isHead) {
+            // like Chrome, HEAD responses are never stored, but when revalidating the stored GET response, a 304 freshens it while other responses drop it
+            if (!hasValidators) {
+              session
+            } else if (status == HttpResponseStatus.NOT_MODIFIED) {
+              storeResponse(session, key, status, responseHeaders, CacheHeaders(responseHeaders, cacheControl))
+            } else {
+              httpContentCacheHandler.removeEntry(session, key)
+            }
           } else {
             storeResponse(session, key, status, responseHeaders, CacheHeaders(responseHeaders, cacheControl))
           }
         }
-      } else if (httpContentCacheHandler.cacheExists(session) && status.code < 400 && !SafeMethods.contains(method)) {
-        // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI.
+      } else if (
+        httpContentCacheHandler.cacheExists(session) && status.code < 400 && !SafeMethods.contains(method) &&
+        // like Chrome, requests with If-Match, If-Unmodified-Since or If-Range bypass the cache, including invalidation
+        !RequestCacheHeaders.passThrough(request.getHeaders)
+      ) {
+        // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI, HEAD requests using the stored GET response.
         // Stored responses are keyed with the request cookies, and the ones of the unsafe request are the ones a subsequent request would use.
-        val key = ContentCacheKey(request)
-        httpContentCacheHandler.removeEntry(
-          httpContentCacheHandler.removeEntry(session, key.copy(method = GetMethodName)),
-          key.copy(method = HeadMethodName)
-        )
+        httpContentCacheHandler.removeEntry(session, ContentCacheKey(request).copy(method = GetMethodName))
       } else {
         session
       }

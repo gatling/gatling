@@ -432,6 +432,56 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     isFreshFor(requestWith(HttpHeaderNames.IF_MATCH -> "\"v1\"")) shouldBe false
   }
 
+  "unsafe requests with If-Match, If-Unmodified-Since or If-Range" should "not invalidate the stored response, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    Seq(
+      HttpHeaderNames.IF_MATCH -> "\"v1\"",
+      HttpHeaderNames.IF_UNMODIFIED_SINCE -> httpDate(Now - Day),
+      HttpHeaderNames.IF_RANGE -> "\"v1\""
+    ).foreach { header =>
+      storeWith(requestFor(HttpMethod.PUT, header), 200)
+      isFresh shouldBe true
+    }
+
+    storeWith(requestFor(HttpMethod.PUT, HttpHeaderNames.IF_NONE_MATCH -> "\"v1\""), 200)
+    isFresh shouldBe false
+  }
+
+  "HEAD requests" should "reuse the stored GET response, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    isFreshFor(requestFor(HttpMethod.HEAD)) shouldBe true
+  }
+
+  it should "never be stored, like Chrome" in new ContentContext {
+    respond(HttpMethod.HEAD, 200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    entry shouldBe None
+    isFreshFor(requestFor(HttpMethod.HEAD)) shouldBe false
+  }
+
+  it should "revalidate the stored GET response with its validators, a 304 freshening it, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    val head: Request = fixedHttpCaches.withValidators(session, requestFor(HttpMethod.HEAD)).getOrElse(fail("no validators"))
+    head.getHeaders.get(HttpHeaderNames.IF_NONE_MATCH) shouldBe "\"v1\""
+
+    storeWith(head, 304, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
+  }
+
+  it should "drop the stored GET response when revalidating it gets another response, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    val head: Request = fixedHttpCaches.withValidators(session, requestFor(HttpMethod.HEAD)).getOrElse(fail("no validators"))
+
+    storeWith(head, 200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry shouldBe None
+  }
+
+  it should "leave the stored GET response untouched when not revalidating it, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    storeWith(requestFor(HttpMethod.HEAD, HttpHeaderNames.CACHE_CONTROL -> "no-cache"), 200, HttpHeaderNames.ETAG -> "\"v2\"")
+    storeWith(requestFor(HttpMethod.HEAD, HttpHeaderNames.IF_NONE_MATCH -> "\"zz\""), 200, HttpHeaderNames.ETAG -> "\"v2\"")
+    entry.flatMap(_.etag) shouldBe Some("\"v1\"")
+  }
+
   "request Range and Cache-Control: no-store" should "still reuse the stored response, like Chrome" in new ContentContext {
     store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
     isFreshFor(requestWith(HttpHeaderNames.RANGE -> "bytes=0-1")) shouldBe true
