@@ -56,7 +56,7 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
 
   private def freshUntilWithStatus(status: Int, headers: (CharSequence, String)*): Option[Long] = {
     val httpHeaders = responseHeaders(headers: _*)
-    fixedHttpCaches.freshUntil(CacheHeaders(httpHeaders), ExpiresSupport.isHeuristicallyCacheable(HttpResponseStatus.valueOf(status)), httpHeaders)
+    fixedHttpCaches.freshUntil(CacheHeaders(httpHeaders), status, httpHeaders)
   }
 
   private val Minute = 60 * 1000L
@@ -66,6 +66,11 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     freshUntil(HttpHeaderNames.PRAGMA -> "no-cache") shouldBe None
     freshUntil(HttpHeaderNames.PRAGMA -> "no-cache", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600") shouldBe None
     freshUntil(HttpHeaderNames.PRAGMA -> "no-cache", HttpHeaderNames.EXPIRES -> "3600") shouldBe None
+  }
+
+  it should "only honor Pragma no-cache token, case-insensitively, like Chrome" in {
+    freshUntil(HttpHeaderNames.PRAGMA -> "foo, No-Cache", HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe None
+    freshUntil(HttpHeaderNames.PRAGMA -> "no-cache-please", HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe Some(Now + Minute)
   }
 
   it should "honor Cache-Control max-age" in {
@@ -128,8 +133,8 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     // no Date: use receive time
     freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
     freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.ETAG -> "\"foo\"") shouldBe Some(Now + Day)
-    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "must-revalidate") shouldBe Some(Now + Day)
-    freshUntilWithStatus(404, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntilWithStatus(203, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntilWithStatus(206, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
   }
 
   it should "not compute heuristic freshness without Last-Modified" in {
@@ -139,12 +144,33 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   it should "not compute heuristic freshness when forbidden" in {
     freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "no-cache") shouldBe None
     freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now + Day)) shouldBe None
-    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
-    freshUntilWithStatus(500, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    // like Chrome
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "must-revalidate") shouldBe None
   }
 
-  it should "compute heuristic freshness for non heuristically cacheable status codes when public" in {
-    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "public") shouldBe Some(Now + Day)
+  it should "only compute heuristic freshness for 200, 203 and 206, like Chrome" in {
+    freshUntilWithStatus(204, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntilWithStatus(404, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntilWithStatus(500, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "public") shouldBe None
+  }
+
+  it should "consider 300, 301, 308 and 410 fresh forever without an explicit expiration time, like Chrome" in {
+    Seq(300, 301, 308, 410).foreach { status =>
+      freshUntilWithStatus(status) shouldBe Some(Long.MaxValue)
+      freshUntilWithStatus(status, HttpHeaderNames.CACHE_CONTROL -> "must-revalidate", HttpHeaderNames.AGE -> "3600") shouldBe Some(Long.MaxValue)
+      freshUntilWithStatus(status, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Long.MaxValue)
+      freshUntilWithStatus(status, HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe Some(Now + Minute)
+      freshUntilWithStatus(status, HttpHeaderNames.CACHE_CONTROL -> "max-age=0") shouldBe None
+      freshUntilWithStatus(status, HttpHeaderNames.EXPIRES -> "0") shouldBe None
+      freshUntilWithStatus(status, HttpHeaderNames.CACHE_CONTROL -> "no-cache") shouldBe None
+    }
+  }
+
+  it should "honor explicit freshness whatever the status code, like Chrome" in {
+    freshUntilWithStatus(500, HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe Some(Now + Minute)
+    freshUntilWithStatus(418, HttpHeaderNames.EXPIRES -> httpDate(Now + Day)) shouldBe Some(Now + Day)
   }
 
   "cacheContent()" should "store a response with only Last-Modified as fresh" in new ContentContext {
@@ -171,9 +197,31 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     entry shouldBe None
   }
 
-  it should "not store a response with a status code that isn't heuristically cacheable and no explicit freshness" in new ContentContext {
+  it should "only store responses for revalidation when their status code is 200 or 206, like Chrome" in new ContentContext {
     store(500, HttpHeaderNames.ETAG -> "\"foo\"")
     entry shouldBe None
+    store(404, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry shouldBe None
+    store(203, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry shouldBe None
+    store(206, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry.flatMap(_.etag) shouldBe Some("\"foo\"")
+  }
+
+  it should "not send validators for responses that aren't 200 or 206, like Chrome" in new ContentContext {
+    store(404, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    isFresh shouldBe true
+    entry.flatMap(_.etag) shouldBe None
+  }
+
+  it should "store a response with an unknown status code and explicit freshness, like Chrome" in new ContentContext {
+    store(418, HttpHeaderNames.EXPIRES -> httpDate(Now + Day))
+    isFresh shouldBe true
+  }
+
+  it should "store a 410 response with no caching headers as fresh forever, like Chrome" in new ContentContext {
+    store(410)
+    isFresh shouldBe true
   }
 
   it should "not store responses to POST requests" in new ContentContext {

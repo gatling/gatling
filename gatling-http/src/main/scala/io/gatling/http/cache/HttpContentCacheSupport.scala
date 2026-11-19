@@ -37,13 +37,15 @@ private[cache] final case class ContentCacheKey(uri: Uri, method: String, cookie
  *   the timestamp until which the stored response can be reused without contacting the server, None if it has to be revalidated
  * @param headers
  *   the caching header fields of the stored response
- * @param heuristicallyCacheable
- *   if the status code of the stored response allows for heuristic freshness
+ * @param statusCode
+ *   the status code of the stored response
  */
-private[http] final case class ContentCacheEntry(freshUntil: Option[Long], headers: CacheHeaders, heuristicallyCacheable: Boolean) {
-  def etag: Option[String] = headers.etag
-  def lastModified: Option[String] = headers.lastModified
+private[http] final case class ContentCacheEntry(freshUntil: Option[Long], headers: CacheHeaders, statusCode: Int) {
   def isFresh(nowMillis: Long): Boolean = freshUntil.exists(nowMillis < _)
+
+  // like Chrome, only send validators for stored 200 and 206 responses
+  def etag: Option[String] = if (ExpiresSupport.isConditionalizable(statusCode)) headers.etag else None
+  def lastModified: Option[String] = if (ExpiresSupport.isConditionalizable(statusCode)) headers.lastModified else None
 }
 
 private[cache] object HttpContentCacheSupport {
@@ -86,13 +88,13 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
       // a 304 freshens the stored response it selects, RFC 9111 §4.3.4
       httpContentCacheHandler.getEntry(session, key) match {
         case Some(storedEntry) if storedEntry.headers.isSelectedBy(responseCacheHeaders) =>
-          store(session, key, storedEntry.headers.updatedWith(responseCacheHeaders), storedEntry.heuristicallyCacheable, responseHeaders)
+          store(session, key, storedEntry.headers.updatedWith(responseCacheHeaders), storedEntry.statusCode, responseHeaders)
         case _ =>
           // no stored response is selected, the 304 must not be used to update anything
           session
       }
     } else {
-      store(session, key, responseCacheHeaders, ExpiresSupport.isHeuristicallyCacheable(status), responseHeaders)
+      store(session, key, responseCacheHeaders, status.code, responseHeaders)
     }
   }
 
@@ -100,16 +102,18 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
       session: Session,
       key: ContentCacheKey,
       cacheHeaders: CacheHeaders,
-      heuristicallyCacheable: Boolean,
+      statusCode: Int,
       responseHeaders: HttpHeaders
   ): Session = {
-    // RFC 9111 §3, and §4.1 as a response with Vary: * can never be reused
-    val storable = !cacheHeaders.noStore && !cacheHeaders.varyAll && (heuristicallyCacheable || cacheHeaders.allowsStorage)
+    // a response with Vary: * can never be reused, RFC 9111 §4.1
+    // like Chrome, any status code can be stored, what matters is that the response is fresh or can be revalidated
+    val storable = !cacheHeaders.noStore && !cacheHeaders.varyAll
 
-    val freshUntilValue = if (storable) freshUntil(cacheHeaders, heuristicallyCacheable, responseHeaders) else None
+    val freshUntilValue = if (storable) freshUntil(cacheHeaders, statusCode, responseHeaders) else None
+    val revalidable = ExpiresSupport.isConditionalizable(statusCode) && (cacheHeaders.etag.isDefined || cacheHeaders.lastModified.isDefined)
 
-    if (storable && (freshUntilValue.isDefined || cacheHeaders.etag.isDefined || cacheHeaders.lastModified.isDefined)) {
-      httpContentCacheHandler.addEntry(session, key, ContentCacheEntry(freshUntilValue, cacheHeaders, heuristicallyCacheable))
+    if (storable && (freshUntilValue.isDefined || revalidable)) {
+      httpContentCacheHandler.addEntry(session, key, ContentCacheEntry(freshUntilValue, cacheHeaders, statusCode))
     } else {
       // the new response replaces the stored one, but can't be reused
       httpContentCacheHandler.removeEntry(session, key)

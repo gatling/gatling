@@ -43,15 +43,13 @@ private[http] final case class CacheHeaders(
 
   private[cache] def noStore: Boolean = directives.contains("no-store")
 
-  // RFC 9111 §5.4 deprecates Pragma, but browsers still honor it on responses
-  private[cache] def pragmaNoCache: Boolean = pragma.exists(_.contains(HttpHeaderValues.NO_CACHE.toString))
+  private[cache] def mustRevalidate: Boolean = directives.contains("must-revalidate")
+
+  // RFC 9111 §5.4 deprecates Pragma, but Chrome still honors it on responses, as a case-insensitive token
+  private[cache] def pragmaNoCache: Boolean = pragma.exists(_.split(',').exists(_.trim.equalsIgnoreCase(HttpHeaderValues.NO_CACHE.toString)))
 
   // RFC 9111 §4.1: a stored response with Vary: * always fails to match
   private[cache] def varyAll: Boolean = vary.exists(_.split(',').exists(_.trim == "*"))
-
-  // RFC 9111 §3
-  private[cache] def allowsStorage: Boolean =
-    directives.contains("max-age") || directives.contains("public") || directives.contains("private") || expires.isDefined
 
   /**
    * Check if a 304 response selects this stored response, RFC 9111 §4.3.4.
@@ -107,21 +105,26 @@ private[cache] object ExpiresSupport {
   // RFC 9111 §1.2.2
   private val MaxDeltaSeconds = 2147483648L
 
-  // RFC 9110 §15.1
-  private val HeuristicallyCacheableStatusCodes: Set[HttpResponseStatus] = Set(
-    HttpResponseStatus.OK,
-    HttpResponseStatus.NON_AUTHORITATIVE_INFORMATION,
-    HttpResponseStatus.NO_CONTENT,
-    HttpResponseStatus.PARTIAL_CONTENT,
-    HttpResponseStatus.MULTIPLE_CHOICES,
-    HttpResponseStatus.MOVED_PERMANENTLY,
-    HttpResponseStatus.PERMANENT_REDIRECT,
-    HttpResponseStatus.NOT_FOUND,
-    HttpResponseStatus.METHOD_NOT_ALLOWED,
-    HttpResponseStatus.GONE,
-    HttpResponseStatus.REQUEST_URI_TOO_LONG,
-    HttpResponseStatus.NOT_IMPLEMENTED
+  // Chrome only computes heuristic freshness for those, see HttpResponseHeaders::GetFreshnessLifetimes.
+  // This is narrower than RFC 9110 §15.1's list of heuristically cacheable status codes.
+  private val HeuristicFreshnessStatusCodes: Set[Int] = Set(
+    HttpResponseStatus.OK.code,
+    HttpResponseStatus.NON_AUTHORITATIVE_INFORMATION.code,
+    HttpResponseStatus.PARTIAL_CONTENT.code
   )
+
+  // Chrome considers those fresh forever when there's no explicit expiration time, see HttpResponseHeaders::GetFreshnessLifetimes
+  private val ImplicitlyFreshStatusCodes: Set[Int] = Set(
+    HttpResponseStatus.MULTIPLE_CHOICES.code,
+    HttpResponseStatus.MOVED_PERMANENTLY.code,
+    HttpResponseStatus.PERMANENT_REDIRECT.code,
+    HttpResponseStatus.GONE.code
+  )
+
+  // Chrome only revalidates stored 200 and 206 responses, see HttpCache::Transaction::IsResponseConditionalizable
+  private val ConditionalizableStatusCodes: Set[Int] = Set(HttpResponseStatus.OK.code, HttpResponseStatus.PARTIAL_CONTENT.code)
+
+  val FreshForever: Long = Long.MaxValue
 
   // RFC 9111 §4.2.2: "if the response has a Last-Modified header field, caches are encouraged to use a heuristic expiration value
   // that is no more than some fraction of the interval since that time. A typical setting of this fraction might be 10%."
@@ -131,7 +134,7 @@ private[cache] object ExpiresSupport {
 
   def opaqueTag(etag: String): String = if (etag.startsWith(WeakEtagPrefix)) etag.substring(WeakEtagPrefix.length) else etag
 
-  def isHeuristicallyCacheable(status: HttpResponseStatus): Boolean = HeuristicallyCacheableStatusCodes.contains(status)
+  def isConditionalizable(statusCode: Int): Boolean = ConditionalizableStatusCodes.contains(statusCode)
 
   private def unquote(s: String): String =
     if (s.length >= 2 && s.charAt(0) == '"' && s.charAt(s.length - 1) == '"') s.substring(1, s.length - 1) else s
@@ -173,14 +176,14 @@ private[cache] trait ExpiresSupport {
    *
    * @param cacheHeaders
    *   the caching header fields of the stored response
-   * @param heuristicallyCacheable
-   *   if the status code of the stored response allows for heuristic freshness
+   * @param statusCode
+   *   the status code of the stored response
    * @param responseHeaders
    *   the received response headers, where Date and Age are taken from
    * @return
    *   the timestamp until which the response is fresh, None if it has to be revalidated
    */
-  def freshUntil(cacheHeaders: CacheHeaders, heuristicallyCacheable: Boolean, responseHeaders: HttpHeaders): Option[Long] =
+  def freshUntil(cacheHeaders: CacheHeaders, statusCode: Int, responseHeaders: HttpHeaders): Option[Long] =
     if (cacheHeaders.noStore || cacheHeaders.noCache || cacheHeaders.pragmaNoCache) {
       None
     } else {
@@ -200,25 +203,30 @@ private[cache] trait ExpiresSupport {
                 // invalid dates, especially "0", mean "already expired"
                 parseHttpDate(expires).map(_ - date)
               case _ =>
-                // RFC 9111 §4.2.2: heuristic freshness when there's no explicit expiration time
-                if (heuristicallyCacheable || cacheHeaders.directives.contains("public")) {
-                  cacheHeaders.lastModified
-                    .flatMap(parseHttpDate)
-                    .filter(_ <= date)
-                    .map(lastModified => (date - lastModified) / HeuristicFraction)
-                } else {
-                  None
-                }
+                // RFC 9111 §4.2.2: heuristic freshness when there's no explicit expiration time, restricted like Chrome
+                val heuristicLifetime =
+                  if (HeuristicFreshnessStatusCodes.contains(statusCode) && !cacheHeaders.mustRevalidate) {
+                    cacheHeaders.lastModified
+                      .flatMap(parseHttpDate)
+                      .filter(_ <= date)
+                      .map(lastModified => (date - lastModified) / HeuristicFraction)
+                  } else {
+                    None
+                  }
+
+                heuristicLifetime.orElse(Option.when(ImplicitlyFreshStatusCodes.contains(statusCode))(FreshForever))
             }
         }
 
-      freshnessLifetime.flatMap { lifetime =>
-        // RFC 9111 §4.2.3, the response delay is negligible as we compute on receipt
-        val apparentAge = math.max(0L, now - date)
-        val ageValue = Option(responseHeaders.get(HttpHeaderNames.AGE)).flatMap(age => parseDeltaSeconds(age.trim)).fold(0L)(_ * 1000)
-        val currentAge = math.max(apparentAge, ageValue)
-        val deadline = now + lifetime - currentAge
-        Option.when(deadline > now)(deadline)
+      freshnessLifetime.flatMap {
+        case FreshForever => Some(FreshForever)
+        case lifetime     =>
+          // RFC 9111 §4.2.3, the response delay is negligible as we compute on receipt
+          val apparentAge = math.max(0L, now - date)
+          val ageValue = Option(responseHeaders.get(HttpHeaderNames.AGE)).flatMap(age => parseDeltaSeconds(age.trim)).fold(0L)(_ * 1000)
+          val currentAge = math.max(apparentAge, ageValue)
+          val deadline = now + lifetime - currentAge
+          Option.when(deadline > now)(deadline)
       }
     }
 }
