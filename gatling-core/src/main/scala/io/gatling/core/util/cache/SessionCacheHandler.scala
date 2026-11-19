@@ -40,6 +40,8 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
     }
   }
 
+  def cacheExists(session: Session): Boolean = session.attributes.contains(cacheName)
+
   def getEntry(session: Session, key: => K): Option[V] =
     getCache(session).flatMap(_.get(key))
 
@@ -47,19 +49,6 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
     getCache(session) match {
       case Some(cache) =>
         val newCache = cache.remove(key)
-        if (newCache eq cache) {
-          session
-        } else {
-          session.set(cacheName, newCache)
-        }
-
-      case _ => session
-    }
-
-  def removeEntries(session: Session, predicate: K => Boolean): Session =
-    getCache(session) match {
-      case Some(cache) =>
-        val newCache = cache.removeAll(predicate)
         if (newCache eq cache) {
           session
         } else {

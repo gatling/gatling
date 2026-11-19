@@ -37,19 +37,47 @@ class ExpiresSupportSpec extends AnyFlatSpecLike with Matchers {
     ExpiresSupport.parseDeltaSeconds("99999999999999999999") shouldBe Some(2147483648L)
   }
 
+  it should "ignore surrounding spaces" in {
+    ExpiresSupport.parseDeltaSeconds(" 60 ") shouldBe Some(60L)
+    ExpiresSupport.parseDeltaSeconds("   ") shouldBe None
+  }
+
   it should "ignore leading zeros" in {
     ExpiresSupport.parseDeltaSeconds("00000000060") shouldBe Some(60L)
     ExpiresSupport.parseDeltaSeconds("000") shouldBe Some(0L)
   }
 
-  "HeaderTokens.split" should "split on commas, trim whitespace and drop empty tokens" in {
-    HeaderTokens.split(" a ,\tb,, c ") shouldBe List("a", "b", "c")
-    HeaderTokens.split("") shouldBe Nil
+  private def tokens(value: String): List[String] = {
+    val tokens = scala.collection.mutable.ListBuffer.empty[String]
+    HeaderTokens.exists(value) { (start, end) =>
+      tokens += value.substring(start, end)
+      false
+    }
+    tokens.toList
+  }
+
+  "HeaderTokens.exists" should "split on commas, trim whitespace and drop empty tokens" in {
+    tokens(" a ,\tb,, c ") shouldBe List("a", "b", "c")
+    tokens("") shouldBe Nil
   }
 
   it should "ignore commas in quoted strings" in {
-    HeaderTokens.split("a=\"b, c\", d") shouldBe List("a=\"b, c\"", "d")
-    HeaderTokens.split("a=\"b\\\", c\", d") shouldBe List("a=\"b\\\", c\"", "d")
+    tokens("a=\"b, c\", d") shouldBe List("a=\"b, c\"", "d")
+    tokens("a=\"b\\\", c\", d") shouldBe List("a=\"b\\\", c\"", "d")
+  }
+
+  it should "keep the last token of malformed values" in {
+    tokens("a, b=\"c, d") shouldBe List("a", "b=\"c, d")
+    tokens("a, b=\"c\\") shouldBe List("a", "b=\"c\\")
+  }
+
+  it should "stop as soon as a token matches" in {
+    var seen = 0
+    HeaderTokens.exists("a, b, c") { (start, _) =>
+      seen += 1
+      start == 3
+    } shouldBe true
+    seen shouldBe 2
   }
 
   "CacheControl.parse" should "parse directives case-insensitively" in {

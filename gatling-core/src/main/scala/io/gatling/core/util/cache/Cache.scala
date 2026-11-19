@@ -60,12 +60,5 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
       this
     }
 
-  def removeAll(predicate: K => Boolean): Cache[K, V] =
-    if (map.keysIterator.exists(predicate)) {
-      new Cache(queue.filterNot(predicate), map.filterNot { case (key, _) => predicate(key) }, maxCapacity)
-    } else {
-      this
-    }
-
   def get(key: K): Option[V] = map.get(key)
 }

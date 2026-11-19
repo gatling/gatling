@@ -16,9 +16,6 @@
 
 package io.gatling.http.cache
 
-import scala.collection.mutable
-import scala.jdk.CollectionConverters._
-
 import io.gatling.commons.util.Clock
 
 import io.netty.handler.codec.DateFormatter
@@ -30,36 +27,61 @@ import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHead
 private[cache] object HeaderTokens {
   private def isWhitespace(c: Char): Boolean = c == ' ' || c == '\t'
 
-  def split(value: String): List[String] = {
-    val tokens = mutable.ListBuffer.empty[String]
+  /**
+   * Iterate over the tokens as [start, end) index ranges, so no substring gets allocated.
+   *
+   * @return
+   *   true as soon as a token satisfies the predicate, which is also how to iterate over all the tokens
+   */
+  def exists(value: String)(p: (Int, Int) => Boolean): Boolean =
+    if (value.indexOf('"') < 0) existsUnquoted(value, p) else existsQuoted(value, p)
 
-    def addToken(start: Int, end: Int): Unit = {
-      var s = start
-      var e = end
-      while (s < e && isWhitespace(value.charAt(s))) s += 1
-      while (e > s && isWhitespace(value.charAt(e - 1))) e -= 1
-      if (e > s) tokens += value.substring(s, e)
+  private def trimmedTokenMatches(value: String, start: Int, end: Int, p: (Int, Int) => Boolean): Boolean = {
+    var s = start
+    var e = end
+    while (s < e && isWhitespace(value.charAt(s))) s += 1
+    while (e > s && isWhitespace(value.charAt(e - 1))) e -= 1
+    e > s && p(s, e)
+  }
+
+  // fast path for the common case: no quoted strings, so commas can be looked up with the vectorized indexOf
+  private def existsUnquoted(value: String, p: (Int, Int) => Boolean): Boolean = {
+    var found = false
+    var start = 0
+    while (!found && start <= value.length) {
+      val comma = value.indexOf(',', start)
+      val end = if (comma < 0) value.length else comma
+      found = trimmedTokenMatches(value, start, end, p)
+      start = end + 1
     }
+    found
+  }
 
+  private def existsQuoted(value: String, p: (Int, Int) => Boolean): Boolean = {
+    var found = false
     var start = 0
     var inQuotes = false
     var i = 0
-    while (i < value.length) {
-      value.charAt(i) match {
-        case '\\' if inQuotes => i += 1 // skip the escaped char
-        case '"'              => inQuotes = !inQuotes
-        case ',' if !inQuotes =>
-          addToken(start, i)
-          start = i + 1
-        case _ =>
+    while (!found && i <= value.length) {
+      val c = if (i < value.length) value.charAt(i) else ','
+      if (c == '\\' && inQuotes && i + 1 < value.length) {
+        i += 1 // skip the escaped char
+      } else if (c == '"') {
+        inQuotes = !inQuotes
+      } else if (c == ',' && (!inQuotes || i == value.length)) {
+        found = trimmedTokenMatches(value, start, i, p)
+        start = i + 1
       }
       i += 1
     }
-    addToken(start, value.length)
-    tokens.toList
+    found
   }
 
-  def hasToken(value: String, token: String): Boolean = split(value).exists(_.equalsIgnoreCase(token))
+  // case-insensitive, trying the common lower case first as it's way cheaper
+  def matches(value: String, start: Int, end: Int, token: String): Boolean =
+    end - start == token.length && (value.startsWith(token, start) || value.regionMatches(true, start, token, 0, token.length))
+
+  def hasToken(value: String, token: String): Boolean = exists(value)(matches(value, _, _, token))
 }
 
 /**
@@ -81,16 +103,27 @@ private[http] object CacheControl {
     var maxAge: Option[Long] = None
 
     // directives with arguments such as no-cache="Set-Cookie" or no-store="foo" are not exact matches, hence ignored
-    HeaderTokens.split(value).foreach { token =>
-      if (token.equalsIgnoreCase("no-store")) {
-        noStore = true
-      } else if (token.equalsIgnoreCase("no-cache")) {
-        noCache = true
-      } else if (token.equalsIgnoreCase("must-revalidate")) {
-        mustRevalidate = true
-      } else if (maxAge.isEmpty && token.regionMatches(true, 0, MaxAgePrefix, 0, MaxAgePrefix.length)) {
-        maxAge = ExpiresSupport.parseDeltaSeconds(token.substring(MaxAgePrefix.length).trim)
+    HeaderTokens.exists(value) { (start, end) =>
+      // dispatch on the first char, so most tokens are only compared once
+      value.charAt(start) match {
+        case 'n' | 'N' =>
+          if (HeaderTokens.matches(value, start, end, "no-store")) {
+            noStore = true
+          } else if (HeaderTokens.matches(value, start, end, "no-cache")) {
+            noCache = true
+          }
+        case 'm' | 'M' =>
+          if (HeaderTokens.matches(value, start, end, "must-revalidate")) {
+            mustRevalidate = true
+          } else if (
+            maxAge.isEmpty && end - start >= MaxAgePrefix.length &&
+            (value.startsWith(MaxAgePrefix, start) || value.regionMatches(true, start, MaxAgePrefix, 0, MaxAgePrefix.length))
+          ) {
+            maxAge = ExpiresSupport.parseDeltaSeconds(value, start + MaxAgePrefix.length, end)
+          }
+        case _ =>
       }
+      false
     }
 
     CacheControl(noStore, noCache, mustRevalidate, maxAge)
@@ -156,14 +189,32 @@ private[http] final case class CacheHeaders(
 
 private[http] object CacheHeaders {
   // multiple field lines are combined into a single comma-separated list, RFC 9110 §5.3
-  private def combined(headers: HttpHeaders, name: CharSequence): Option[String] = {
-    val values = headers.getAll(name)
-    if (values.isEmpty) None else Some(values.asScala.mkString(","))
-  }
+  private def combined(headers: HttpHeaders, name: CharSequence): Option[String] =
+    if (!headers.contains(name)) {
+      None
+    } else {
+      val values = headers.getAll(name)
+      if (values.size == 1) Some(values.get(0)) else Some(String.join(",", values))
+    }
 
-  def apply(headers: HttpHeaders): CacheHeaders =
+  /**
+   * @return
+   *   false if the response can't be stored for sure, typically for API calls
+   */
+  def cacheControl(headers: HttpHeaders): Option[CacheControl] = combined(headers, HttpHeaderNames.CACHE_CONTROL).map(CacheControl.parse)
+
+  def mayBeStored(status: HttpResponseStatus, headers: HttpHeaders): Boolean =
+    headers.contains(HttpHeaderNames.CACHE_CONTROL) ||
+      headers.contains(HttpHeaderNames.EXPIRES) ||
+      headers.contains(HttpHeaderNames.ETAG) ||
+      headers.contains(HttpHeaderNames.LAST_MODIFIED) ||
+      ExpiresSupport.isImplicitlyFresh(status.code)
+
+  def apply(headers: HttpHeaders): CacheHeaders = apply(headers, cacheControl(headers))
+
+  def apply(headers: HttpHeaders, cacheControl: Option[CacheControl]): CacheHeaders =
     new CacheHeaders(
-      cacheControl = combined(headers, HttpHeaderNames.CACHE_CONTROL).map(CacheControl.parse),
+      cacheControl = cacheControl,
       expires = Option(headers.get(HttpHeaderNames.EXPIRES)),
       pragma = Option(headers.get(HttpHeaderNames.PRAGMA)),
       etag = Option(headers.get(HttpHeaderNames.ETAG)),
@@ -205,23 +256,41 @@ private[cache] object ExpiresSupport {
 
   def opaqueTag(etag: String): String = if (etag.startsWith(WeakEtagPrefix)) etag.substring(WeakEtagPrefix.length) else etag
 
+  def isImplicitlyFresh(statusCode: Int): Boolean = ImplicitlyFreshStatusCodes.contains(statusCode)
+
   def isConditionalizable(statusCode: Int): Boolean = ConditionalizableStatusCodes.contains(statusCode)
 
   private def unquote(s: String): String =
     if (s.length >= 2 && s.charAt(0) == '"' && s.charAt(s.length - 1) == '"') s.substring(1, s.length - 1) else s
 
-  // RFC 9111 §1.2.2
-  def parseDeltaSeconds(s: String): Option[Long] =
-    if (s.nonEmpty && s.forall(c => c >= '0' && c <= '9')) {
-      val significantDigits = s.dropWhile(_ == '0')
-      Some(
-        if (significantDigits.isEmpty) 0L
-        else if (significantDigits.length > 10) MaxDeltaSeconds
-        else math.min(significantDigits.toLong, MaxDeltaSeconds)
-      )
-    } else {
+  // RFC 9111 §1.2.2, surrounding spaces and leading zeros are ignored, like Chrome
+  def parseDeltaSeconds(s: String): Option[Long] = parseDeltaSeconds(s, 0, s.length)
+
+  def parseDeltaSeconds(value: String, start: Int, end: Int): Option[Long] = {
+    var s = start
+    var e = end
+    while (s < e && value.charAt(s) == ' ') s += 1
+    while (e > s && value.charAt(e - 1) == ' ') e -= 1
+
+    if (s == e) {
       None
+    } else {
+      var allDigits = true
+      var seconds = 0L
+      var i = s
+      while (allDigits && i < e) {
+        val c = value.charAt(i)
+        if (c >= '0' && c <= '9') {
+          // capping on the way prevents overflowing
+          seconds = math.min(seconds * 10 + (c - '0'), MaxDeltaSeconds)
+        } else {
+          allDigits = false
+        }
+        i += 1
+      }
+      Option.when(allDigits)(seconds)
     }
+  }
 
   def parseHttpDate(s: String): Option[Long] =
     Option(DateFormatter.parseHttpDate(unquote(s.trim))).map(_.getTime)
@@ -246,6 +315,11 @@ private[cache] trait ExpiresSupport {
    */
   def freshUntil(cacheHeaders: CacheHeaders, statusCode: Int, responseHeaders: HttpHeaders): Option[Long] =
     if (cacheHeaders.noStore || cacheHeaders.noCache || cacheHeaders.pragmaNoCache) {
+      None
+    } else if (
+      cacheHeaders.maxAge.isEmpty && cacheHeaders.expires.isEmpty && cacheHeaders.lastModified.isEmpty && !ImplicitlyFreshStatusCodes.contains(statusCode)
+    ) {
+      // nothing to compute freshness from, spare parsing Date
       None
     } else {
       val now = clock.nowMillis

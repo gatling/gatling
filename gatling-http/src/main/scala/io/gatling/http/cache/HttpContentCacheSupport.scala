@@ -62,7 +62,7 @@ private[cache] object RequestCacheHeaders {
   private val PassThroughHeaderNames = List(HttpHeaderNames.IF_UNMODIFIED_SINCE, HttpHeaderNames.IF_MATCH, HttpHeaderNames.IF_RANGE)
 
   private def hasToken(headers: HttpHeaders, name: CharSequence, token: String): Boolean =
-    headers.getAll(name).asScala.exists(HeaderTokens.hasToken(_, token))
+    headers.contains(name) && headers.getAll(name).asScala.exists(HeaderTokens.hasToken(_, token))
 
   def passThrough(headers: HttpHeaders): Boolean = PassThroughHeaderNames.exists(headers.contains)
 
@@ -117,7 +117,12 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
       val method = request.getMethod
       if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
         val requestHeaders = request.getHeaders
-        if (RequestCacheHeaders.passThrough(requestHeaders)) {
+        val cacheExists = httpContentCacheHandler.cacheExists(session)
+        lazy val cacheControl = CacheHeaders.cacheControl(responseHeaders)
+        if (!cacheExists && (!CacheHeaders.mayBeStored(status, responseHeaders) || cacheControl.exists(_.noStore))) {
+          // fast path, typically for API calls: nothing stored to update, nothing to store
+          session
+        } else if (RequestCacheHeaders.passThrough(requestHeaders)) {
           session
         } else {
           val key = ContentCacheKey(request)
@@ -128,13 +133,17 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
             // the user's validators don't identify the stored response
             session
           } else {
-            storeResponse(session, key, status, responseHeaders)
+            storeResponse(session, key, status, responseHeaders, CacheHeaders(responseHeaders, cacheControl))
           }
         }
-      } else if (!SafeMethods.contains(method) && status.code < 400) {
-        // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI, whatever the cookies of the stored requests
-        val uri = request.getUri
-        httpContentCacheHandler.removeEntries(session, key => key.uri == uri && (key.method == GetMethodName || key.method == HeadMethodName))
+      } else if (httpContentCacheHandler.cacheExists(session) && status.code < 400 && !SafeMethods.contains(method)) {
+        // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI.
+        // Stored responses are keyed with the request cookies, and the ones of the unsafe request are the ones a subsequent request would use.
+        val key = ContentCacheKey(request)
+        httpContentCacheHandler.removeEntry(
+          httpContentCacheHandler.removeEntry(session, key.copy(method = GetMethodName)),
+          key.copy(method = HeadMethodName)
+        )
       } else {
         session
       }
@@ -142,8 +151,13 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
       session
     }
 
-  private def storeResponse(session: Session, key: ContentCacheKey, status: HttpResponseStatus, responseHeaders: HttpHeaders): Session = {
-    val responseCacheHeaders = CacheHeaders(responseHeaders)
+  private def storeResponse(
+      session: Session,
+      key: ContentCacheKey,
+      status: HttpResponseStatus,
+      responseHeaders: HttpHeaders,
+      responseCacheHeaders: CacheHeaders
+  ): Session =
 
     if (status == HttpResponseStatus.NOT_MODIFIED) {
       // a 304 freshens the stored response it selects, RFC 9111 §4.3.4
@@ -157,7 +171,6 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
     } else {
       store(session, key, responseCacheHeaders, status.code, responseHeaders)
     }
-  }
 
   private def store(
       session: Session,
@@ -193,15 +206,15 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
    *   true if a fresh response is stored and the request allows reusing it, meaning the request doesn't have to be sent. Stale responses are kept so their
    *   validators can be used for revalidation, RFC 9111 §4.3.
    */
-  def isFresh(session: Session, request: Request): Boolean = {
-    val headers = request.getHeaders
-    // validators can only be the user's here, as the cache only adds its own when the stored response is stale or has to be revalidated
-    !RequestCacheHeaders.passThrough(headers) &&
-    !RequestCacheHeaders.forceFetch(headers) &&
-    !RequestCacheHeaders.forceValidate(headers) &&
-    !RequestCacheHeaders.hasValidators(headers) &&
-    contentCacheEntry(session, request).exists(_.isFresh(clock.nowMillis))
-  }
+  def isFresh(session: Session, request: Request): Boolean =
+    contentCacheEntry(session, request).exists(_.isFresh(clock.nowMillis)) && {
+      val headers = request.getHeaders
+      // validators can only be the user's here, as the cache only adds its own when the stored response is stale or has to be revalidated
+      !RequestCacheHeaders.passThrough(headers) &&
+      !RequestCacheHeaders.forceFetch(headers) &&
+      !RequestCacheHeaders.forceValidate(headers) &&
+      !RequestCacheHeaders.hasValidators(headers)
+    }
 
   /**
    * Add the validators of the stored response to a request that's about to be sent, when it has to be revalidated, unless the user's own request headers forbid
@@ -212,21 +225,22 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
    *   a copy of the request with the validators, as requests, such as the inferred resources ones, can be shared amongst virtual users and must never be
    *   mutated, or None if no validators were added
    */
-  def withValidators(session: Session, request: Request): Option[Request] = {
-    val headers = request.getHeaders
-    if (!RequestCacheHeaders.passThrough(headers) && !RequestCacheHeaders.forceFetch(headers) && !RequestCacheHeaders.hasValidators(headers)) {
-      contentCacheEntry(session, request) match {
-        // a fresh response will be reused, unless the user forces revalidation
-        case Some(entry)
-            if (entry.etag.isDefined || entry.lastModified.isDefined) && (RequestCacheHeaders.forceValidate(headers) || !entry.isFresh(clock.nowMillis)) =>
+  def withValidators(session: Session, request: Request): Option[Request] =
+    contentCacheEntry(session, request) match {
+      case Some(entry) if entry.etag.isDefined || entry.lastModified.isDefined =>
+        val headers = request.getHeaders
+        if (
+          !RequestCacheHeaders.passThrough(headers) && !RequestCacheHeaders.forceFetch(headers) && !RequestCacheHeaders.hasValidators(headers) &&
+          // a fresh response will be reused, unless the user forces revalidation
+          (!entry.isFresh(clock.nowMillis) || RequestCacheHeaders.forceValidate(headers))
+        ) {
           val requestWithValidators = request.copyWithCopiedHeaders()
           entry.etag.foreach(requestWithValidators.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
           entry.lastModified.foreach(requestWithValidators.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
           Some(requestWithValidators)
-        case _ => None
-      }
-    } else {
-      None
+        } else {
+          None
+        }
+      case _ => None
     }
-  }
 }
