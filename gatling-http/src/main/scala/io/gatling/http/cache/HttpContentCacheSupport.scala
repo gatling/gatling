@@ -16,6 +16,8 @@
 
 package io.gatling.http.cache
 
+import scala.jdk.CollectionConverters._
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.cache.SessionCacheHandler
@@ -23,7 +25,7 @@ import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
-import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod, HttpResponseStatus }
 
 object ContentCacheKey {
   def apply(request: Request): ContentCacheKey =
@@ -48,6 +50,41 @@ private[http] final case class ContentCacheEntry(freshUntil: Option[Long], heade
   def lastModified: Option[String] = if (ExpiresSupport.isConditionalizable(statusCode)) headers.lastModified else None
 }
 
+/**
+ * How the cache directives and conditionals set by the user on a request affect the cache, like Chrome does (see `GetLoadFlagsForExtraHeaders` in Chromium's
+ * `net/http/http_cache_util.cc`, and Chrome's behavior for user-supplied validators).
+ */
+private[cache] object RequestCacheHeaders {
+  private val NoCache = HttpHeaderValues.NO_CACHE.toString
+  private val MaxAgeZero = "max-age=0"
+
+  // the cache must neither be read nor written, as reusing a stored response would cause unexpected 412s
+  private val PassThroughHeaderNames = List(HttpHeaderNames.IF_UNMODIFIED_SINCE, HttpHeaderNames.IF_MATCH, HttpHeaderNames.IF_RANGE)
+
+  private def hasToken(headers: HttpHeaders, name: CharSequence, token: String): Boolean =
+    headers.getAll(name).asScala.exists(_.split(',').exists(_.trim.equalsIgnoreCase(token)))
+
+  def passThrough(headers: HttpHeaders): Boolean = PassThroughHeaderNames.exists(headers.contains)
+
+  // the stored response must not be reused, nor revalidated, but the new response can be stored
+  def forceFetch(headers: HttpHeaders): Boolean =
+    hasToken(headers, HttpHeaderNames.CACHE_CONTROL, NoCache) || hasToken(headers, HttpHeaderNames.PRAGMA, NoCache)
+
+  // the stored response must be revalidated before being reused
+  def forceValidate(headers: HttpHeaders): Boolean = hasToken(headers, HttpHeaderNames.CACHE_CONTROL, MaxAgeZero)
+
+  def hasValidators(headers: HttpHeaders): Boolean =
+    headers.contains(HttpHeaderNames.IF_NONE_MATCH) || headers.contains(HttpHeaderNames.IF_MODIFIED_SINCE)
+
+  // the response to a request with validators can only update the stored response they identify
+  def validatorsMatch(headers: HttpHeaders, storedEntry: Option[ContentCacheEntry]): Boolean = {
+    def matches(requestHeaderName: CharSequence, storedValue: CacheHeaders => Option[String]): Boolean =
+      Option(headers.get(requestHeaderName)).forall(value => storedEntry.exists(entry => storedValue(entry.headers).contains(value)))
+
+    matches(HttpHeaderNames.IF_NONE_MATCH, _.etag) && matches(HttpHeaderNames.IF_MODIFIED_SINCE, _.lastModified)
+  }
+}
+
 private[cache] object HttpContentCacheSupport {
   val HttpContentCacheAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.contentCache")
 
@@ -69,7 +106,21 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
       val method = request.getMethod
       if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
-        storeResponse(session, ContentCacheKey(request), status, responseHeaders)
+        val requestHeaders = request.getHeaders
+        if (RequestCacheHeaders.passThrough(requestHeaders)) {
+          session
+        } else {
+          val key = ContentCacheKey(request)
+          if (
+            RequestCacheHeaders.hasValidators(requestHeaders) &&
+            !RequestCacheHeaders.validatorsMatch(requestHeaders, httpContentCacheHandler.getEntry(session, key))
+          ) {
+            // the user's validators don't identify the stored response
+            session
+          } else {
+            storeResponse(session, key, status, responseHeaders)
+          }
+        }
       } else if (!SafeMethods.contains(method) && status.code < 400) {
         // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI, whatever the cookies of the stored requests
         val uri = request.getUri
@@ -129,9 +180,32 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
 
   /**
    * @return
-   *   true if a fresh response is stored, meaning the request doesn't have to be sent. Stale responses are kept so their validators can be used for
-   *   revalidation, RFC 9111 §4.3.
+   *   true if a fresh response is stored and the request allows reusing it, meaning the request doesn't have to be sent. Stale responses are kept so their
+   *   validators can be used for revalidation, RFC 9111 §4.3.
    */
-  def isFresh(session: Session, request: Request): Boolean =
+  def isFresh(session: Session, request: Request): Boolean = {
+    val headers = request.getHeaders
+    // validators can only be the user's here, as the cache only adds its own when the stored response is stale or has to be revalidated
+    !RequestCacheHeaders.passThrough(headers) &&
+    !RequestCacheHeaders.forceFetch(headers) &&
+    !RequestCacheHeaders.forceValidate(headers) &&
+    !RequestCacheHeaders.hasValidators(headers) &&
     contentCacheEntry(session, request).exists(_.isFresh(clock.nowMillis))
+  }
+
+  /**
+   * Add the validators of the stored response to the request when it has to be revalidated, unless the user's own request headers forbid it.
+   */
+  def addValidators(session: Session, request: Request): Unit = {
+    val headers = request.getHeaders
+    if (!RequestCacheHeaders.passThrough(headers) && !RequestCacheHeaders.forceFetch(headers) && !RequestCacheHeaders.hasValidators(headers)) {
+      contentCacheEntry(session, request).foreach { entry =>
+        // a fresh response will be reused, unless the user forces revalidation
+        if (RequestCacheHeaders.forceValidate(headers) || !entry.isFresh(clock.nowMillis)) {
+          entry.etag.foreach(headers.set(HttpHeaderNames.IF_NONE_MATCH, _))
+          entry.lastModified.foreach(headers.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
+        }
+      }
+    }
+  }
 }

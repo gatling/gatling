@@ -314,10 +314,108 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     isFresh shouldBe true
   }
 
+  private val LastModified = HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)
+
+  it should "only add validators when the stored response is stale" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    validatorsAddedTo(requestWith()) shouldBe (None -> None)
+
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    validatorsAddedTo(requestWith()) shouldBe (Some("\"v1\"") -> Some(httpDate(Now - 10 * Day)))
+  }
+
+  "request Cache-Control: no-cache or Pragma: no-cache" should "neither reuse nor revalidate the stored response, but store the new one, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+
+    Seq(HttpHeaderNames.CACHE_CONTROL -> "no-cache", HttpHeaderNames.PRAGMA -> "No-Cache", HttpHeaderNames.CACHE_CONTROL -> "foo, no-cache").foreach { header =>
+      isFreshFor(requestWith(header)) shouldBe false
+      validatorsAddedTo(requestWith(header)) shouldBe (None -> None)
+    }
+
+    storeWith(requestWith(HttpHeaderNames.CACHE_CONTROL -> "no-cache"), 200, HttpHeaderNames.ETAG -> "\"v2\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    entry.flatMap(_.etag) shouldBe Some("\"v2\"")
+    isFresh shouldBe true
+  }
+
+  "request Cache-Control: max-age=0" should "revalidate the stored response, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    val request: Request = requestWith(HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    isFreshFor(request) shouldBe false
+    validatorsAddedTo(request) shouldBe (Some("\"v1\"") -> Some(httpDate(Now - 10 * Day)))
+
+    storeWith(request, 304, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
+  }
+
+  "user validators" should "never reuse the stored response, nor be overridden or completed, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    val request: Request = requestWith(HttpHeaderNames.IF_NONE_MATCH -> "\"bar\"")
+    validatorsAddedTo(request) shouldBe (Some("\"bar\"") -> None)
+
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    isFreshFor(requestWith(HttpHeaderNames.IF_NONE_MATCH -> "\"v1\"")) shouldBe false
+    isFreshFor(requestWith(HttpHeaderNames.IF_MODIFIED_SINCE -> httpDate(Now - 10 * Day))) shouldBe false
+  }
+
+  it should "update the stored response when they identify it, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    storeWith(
+      requestWith(HttpHeaderNames.IF_NONE_MATCH -> "\"v1\""),
+      200,
+      HttpHeaderNames.ETAG -> "\"v2\"",
+      LastModified,
+      HttpHeaderNames.CACHE_CONTROL -> "max-age=3600"
+    )
+    entry.flatMap(_.etag) shouldBe Some("\"v2\"")
+
+    storeWith(requestWith(HttpHeaderNames.IF_MODIFIED_SINCE -> httpDate(Now - 10 * Day)), 200, HttpHeaderNames.ETAG -> "\"v3\"")
+    entry.flatMap(_.etag) shouldBe Some("\"v3\"")
+  }
+
+  it should "leave the cache untouched when they don't identify the stored response, like Chrome" in new ContentContext {
+    storeWith(requestWith(HttpHeaderNames.IF_NONE_MATCH -> "\"x\""), 200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    entry shouldBe None
+
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    storeWith(requestWith(HttpHeaderNames.IF_NONE_MATCH -> "\"bar\""), 200, HttpHeaderNames.ETAG -> "\"v2\"", HttpHeaderNames.CACHE_CONTROL -> "no-store")
+    storeWith(requestWith(HttpHeaderNames.IF_MODIFIED_SINCE -> httpDate(Now)), 200, HttpHeaderNames.ETAG -> "\"v3\"")
+    entry.flatMap(_.etag) shouldBe Some("\"v1\"")
+    isFresh shouldBe true
+  }
+
+  "request If-Match, If-Unmodified-Since and If-Range" should "bypass the cache, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+
+    Seq(
+      HttpHeaderNames.IF_MATCH -> "\"v1\"",
+      HttpHeaderNames.IF_UNMODIFIED_SINCE -> httpDate(Now - 10 * Day),
+      HttpHeaderNames.IF_RANGE -> "\"v1\""
+    ).foreach { header =>
+      validatorsAddedTo(requestWith(header)) shouldBe (None -> None)
+      storeWith(requestWith(header), 200, HttpHeaderNames.ETAG -> "\"v2\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+      entry.flatMap(_.etag) shouldBe Some("\"v1\"")
+    }
+
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    isFreshFor(requestWith(HttpHeaderNames.IF_MATCH -> "\"v1\"")) shouldBe false
+  }
+
+  "request Range and Cache-Control: no-store" should "still reuse the stored response, like Chrome" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    isFreshFor(requestWith(HttpHeaderNames.RANGE -> "bytes=0-1")) shouldBe true
+    isFreshFor(requestWith(HttpHeaderNames.CACHE_CONTROL -> "no-store")) shouldBe true
+  }
+
   class ContentContext {
     val method: HttpMethod = HttpMethod.GET
     private val protocol = HttpProtocol(configuration)
-    private def requestFor(method: HttpMethod): Request = new RequestBuilder("request", method, Uri.create("http://example.com/app.js"), null).build()
+    def requestFor(method: HttpMethod, headers: (CharSequence, String)*): Request = {
+      val requestBuilder = new RequestBuilder("request", method, Uri.create("http://example.com/app.js"), null)
+      headers.foreach { case (name, value) => requestBuilder.addHeader(name, value) }
+      requestBuilder.build()
+    }
+
+    def requestWith(headers: (CharSequence, String)*): Request = requestFor(HttpMethod.GET, headers: _*)
     private lazy val request = requestFor(method)
     var session: Session = emptySession
 
@@ -327,12 +425,19 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     def respond(method: HttpMethod, status: Int, headers: (CharSequence, String)*): Unit =
       storeWith(requestFor(method), status, headers: _*)
 
-    private def storeWith(request: Request, status: Int, headers: (CharSequence, String)*): Unit =
+    def storeWith(request: Request, status: Int, headers: (CharSequence, String)*): Unit =
       session = fixedHttpCaches.cacheContent(session, protocol, request, HttpResponseStatus.valueOf(status), responseHeaders(headers: _*))
 
     def entry: Option[ContentCacheEntry] = fixedHttpCaches.contentCacheEntry(session, request)
 
     def isFresh: Boolean = fixedHttpCaches.isFresh(session, request)
+
+    def isFreshFor(request: Request): Boolean = fixedHttpCaches.isFresh(session, request)
+
+    def validatorsAddedTo(request: Request): (Option[String], Option[String]) = {
+      fixedHttpCaches.addValidators(session, request)
+      (Option(request.getHeaders.get(HttpHeaderNames.IF_NONE_MATCH)), Option(request.getHeaders.get(HttpHeaderNames.IF_MODIFIED_SINCE)))
+    }
   }
 
   class RedirectContext {

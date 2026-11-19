@@ -38,8 +38,6 @@ import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
 import io.gatling.http.util.HttpHelper
 
-import io.netty.handler.codec.http.HttpHeaderNames
-
 object HttpRequestExpressionBuilder {
   private val bodyPartsToMultipartsZero: Validation[List[Part[_]]] = Nil.success
 
@@ -163,18 +161,12 @@ final class HttpRequestExpressionBuilder(
       _ <- configureBody(session, requestBuilder)
     } yield configurePriorKnowledge(session, requestBuilder)
 
-  private def configureCachingHeaders(session: Session, request: Request): Unit =
-    httpCaches.contentCacheEntry(session, request).foreach { entry =>
-      entry.etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
-      entry.lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
-    }
-
   override def build: Expression[Request] = {
     val exp = super.build
     if (httpProtocol.requestPart.cache) { session =>
       exp(session).map { request =>
         // perform here as we need the computed absolute uri
-        configureCachingHeaders(session, request)
+        httpCaches.addValidators(session, request)
         request
       }
     } else {
