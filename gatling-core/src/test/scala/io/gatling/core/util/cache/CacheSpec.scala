@@ -76,4 +76,21 @@ class CacheSpec extends AnyFlatSpecLike with Matchers {
 
     cacheWithValueRemoved should be theSameInstanceAs cacheWithSameValueRemoved
   }
+
+  "ImmutableCache.removeAll" should "remove all the keys matching the predicate" in {
+    val cache = Cache.newImmutableCache[String, String](3).put("a1", "1").put("b", "2").put("a2", "3")
+    val filteredCache = cache.removeAll(_.startsWith("a"))
+
+    filteredCache.get("a1") shouldBe None
+    filteredCache.get("a2") shouldBe None
+    filteredCache.get("b") shouldBe Some("2")
+    // freed slots can be reused without evicting b
+    filteredCache.put("c", "4").put("d", "5").get("b") shouldBe Some("2")
+  }
+
+  it should "return the same instance when no key matches the predicate" in {
+    val cache = Cache.newImmutableCache[String, String](1).put("key", "value")
+
+    cache.removeAll(_ == "other") should be theSameInstanceAs cache
+  }
 }

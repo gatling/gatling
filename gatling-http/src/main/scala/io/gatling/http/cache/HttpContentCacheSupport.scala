@@ -48,6 +48,11 @@ private[http] final case class ContentCacheEntry(freshUntil: Option[Long], heade
 
 private[cache] object HttpContentCacheSupport {
   val HttpContentCacheAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.contentCache")
+
+  // RFC 9110 §9.2.1
+  private val SafeMethods = Set(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE)
+  private val GetMethodName = HttpMethod.GET.name
+  private val HeadMethodName = HttpMethod.HEAD.name
 }
 
 private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
@@ -60,30 +65,56 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
 
   def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, status: HttpResponseStatus, responseHeaders: HttpHeaders): Session =
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
-      val key = ContentCacheKey(request)
-      val responseCacheHeaders = CacheHeaders(responseHeaders)
-
-      // a 304 freshens the stored response, RFC 9111 §4.3.4
-      val storedEntry = if (status == HttpResponseStatus.NOT_MODIFIED) httpContentCacheHandler.getEntry(session, key) else None
-      val cacheHeaders = storedEntry.fold(responseCacheHeaders)(_.headers.updatedWith(responseCacheHeaders))
-      val heuristicallyCacheable = storedEntry.fold(ExpiresSupport.isHeuristicallyCacheable(status))(_.heuristicallyCacheable)
-
-      // RFC 9111 §3
-      val storable = (request.getMethod == HttpMethod.GET || request.getMethod == HttpMethod.HEAD) &&
-        !cacheHeaders.noStore &&
-        (heuristicallyCacheable || cacheHeaders.allowsStorage)
-
-      val freshUntilValue = if (storable) freshUntil(cacheHeaders, heuristicallyCacheable, responseHeaders) else None
-
-      if (storable && (freshUntilValue.isDefined || cacheHeaders.etag.isDefined || cacheHeaders.lastModified.isDefined)) {
-        httpContentCacheHandler.addEntry(session, key, ContentCacheEntry(freshUntilValue, cacheHeaders, heuristicallyCacheable))
+      val method = request.getMethod
+      if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
+        storeResponse(session, ContentCacheKey(request), status, responseHeaders)
+      } else if (!SafeMethods.contains(method) && status.code < 400) {
+        // RFC 9111 §4.4: a non-error response to an unsafe request invalidates the target URI, whatever the cookies of the stored requests
+        val uri = request.getUri
+        httpContentCacheHandler.removeEntries(session, key => key.uri == uri && (key.method == GetMethodName || key.method == HeadMethodName))
       } else {
-        // the new response replaces the stored one, but can't be reused
-        httpContentCacheHandler.removeEntry(session, key)
+        session
       }
     } else {
       session
     }
+
+  private def storeResponse(session: Session, key: ContentCacheKey, status: HttpResponseStatus, responseHeaders: HttpHeaders): Session = {
+    val responseCacheHeaders = CacheHeaders(responseHeaders)
+
+    if (status == HttpResponseStatus.NOT_MODIFIED) {
+      // a 304 freshens the stored response it selects, RFC 9111 §4.3.4
+      httpContentCacheHandler.getEntry(session, key) match {
+        case Some(storedEntry) if storedEntry.headers.isSelectedBy(responseCacheHeaders) =>
+          store(session, key, storedEntry.headers.updatedWith(responseCacheHeaders), storedEntry.heuristicallyCacheable, responseHeaders)
+        case _ =>
+          // no stored response is selected, the 304 must not be used to update anything
+          session
+      }
+    } else {
+      store(session, key, responseCacheHeaders, ExpiresSupport.isHeuristicallyCacheable(status), responseHeaders)
+    }
+  }
+
+  private def store(
+      session: Session,
+      key: ContentCacheKey,
+      cacheHeaders: CacheHeaders,
+      heuristicallyCacheable: Boolean,
+      responseHeaders: HttpHeaders
+  ): Session = {
+    // RFC 9111 §3, and §4.1 as a response with Vary: * can never be reused
+    val storable = !cacheHeaders.noStore && !cacheHeaders.varyAll && (heuristicallyCacheable || cacheHeaders.allowsStorage)
+
+    val freshUntilValue = if (storable) freshUntil(cacheHeaders, heuristicallyCacheable, responseHeaders) else None
+
+    if (storable && (freshUntilValue.isDefined || cacheHeaders.etag.isDefined || cacheHeaders.lastModified.isDefined)) {
+      httpContentCacheHandler.addEntry(session, key, ContentCacheEntry(freshUntilValue, cacheHeaders, heuristicallyCacheable))
+    } else {
+      // the new response replaces the stored one, but can't be reused
+      httpContentCacheHandler.removeEntry(session, key)
+    }
+  }
 
   def contentCacheEntry(session: Session, request: Request): Option[ContentCacheEntry] =
     if (httpContentCacheHandler.enabled) {

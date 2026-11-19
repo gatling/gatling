@@ -55,4 +55,17 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
       case _ => session
     }
+
+  def removeEntries(session: Session, predicate: K => Boolean): Session =
+    getCache(session) match {
+      case Some(cache) =>
+        val newCache = cache.removeAll(predicate)
+        if (newCache eq cache) {
+          session
+        } else {
+          session.set(cacheName, newCache)
+        }
+
+      case _ => session
+    }
 }

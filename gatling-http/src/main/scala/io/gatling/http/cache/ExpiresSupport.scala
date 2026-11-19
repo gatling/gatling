@@ -33,7 +33,8 @@ private[http] final case class CacheHeaders(
     expires: Option[String],
     pragma: Option[String],
     etag: Option[String],
-    lastModified: Option[String]
+    lastModified: Option[String],
+    vary: Option[String]
 ) {
   private[cache] lazy val directives: Map[String, Option[String]] = cacheControl.fold(Map.empty[String, Option[String]])(ExpiresSupport.parseCacheControl)
 
@@ -45,9 +46,30 @@ private[http] final case class CacheHeaders(
   // RFC 9111 §5.4 deprecates Pragma, but browsers still honor it on responses
   private[cache] def pragmaNoCache: Boolean = pragma.exists(_.contains(HttpHeaderValues.NO_CACHE.toString))
 
+  // RFC 9111 §4.1: a stored response with Vary: * always fails to match
+  private[cache] def varyAll: Boolean = vary.exists(_.split(',').exists(_.trim == "*"))
+
   // RFC 9111 §3
   private[cache] def allowsStorage: Boolean =
     directives.contains("max-age") || directives.contains("public") || directives.contains("private") || expires.isDefined
+
+  /**
+   * Check if a 304 response selects this stored response, RFC 9111 §4.3.4.
+   */
+  def isSelectedBy(notModified: CacheHeaders): Boolean =
+    notModified.etag match {
+      case Some(newEtag) if newEtag.startsWith(ExpiresSupport.WeakEtagPrefix) =>
+        // weak comparison, RFC 9110 §8.8.3.2
+        etag.exists(storedEtag => ExpiresSupport.opaqueTag(storedEtag) == ExpiresSupport.opaqueTag(newEtag))
+      case Some(newEtag) =>
+        // strong comparison, a weak stored ETag can't match as it keeps its W/ prefix
+        etag.contains(newEtag)
+      case _ =>
+        notModified.lastModified match {
+          case Some(newLastModified) => lastModified.contains(newLastModified)
+          case _                     => true
+        }
+    }
 
   /**
    * Update the header fields of a stored response with the ones of a 304 response, RFC 9111 §4.3.4.
@@ -58,22 +80,27 @@ private[http] final case class CacheHeaders(
       expires = notModified.expires.orElse(expires),
       pragma = notModified.pragma.orElse(pragma),
       etag = notModified.etag.orElse(etag),
-      lastModified = notModified.lastModified.orElse(lastModified)
+      lastModified = notModified.lastModified.orElse(lastModified),
+      vary = notModified.vary.orElse(vary)
     )
 }
 
 private[http] object CacheHeaders {
-  def apply(headers: HttpHeaders): CacheHeaders = {
-    // multiple Cache-Control field lines are combined into a single comma-separated list, RFC 9110 §5.3
-    val cacheControls = headers.getAll(HttpHeaderNames.CACHE_CONTROL)
+  // multiple field lines are combined into a single comma-separated list, RFC 9110 §5.3
+  private def combined(headers: HttpHeaders, name: CharSequence): Option[String] = {
+    val values = headers.getAll(name)
+    if (values.isEmpty) None else Some(values.asScala.mkString(","))
+  }
+
+  def apply(headers: HttpHeaders): CacheHeaders =
     new CacheHeaders(
-      cacheControl = if (cacheControls.isEmpty) None else Some(cacheControls.asScala.mkString(",")),
+      cacheControl = combined(headers, HttpHeaderNames.CACHE_CONTROL),
       expires = Option(headers.get(HttpHeaderNames.EXPIRES)),
       pragma = Option(headers.get(HttpHeaderNames.PRAGMA)),
       etag = Option(headers.get(HttpHeaderNames.ETAG)),
-      lastModified = Option(headers.get(HttpHeaderNames.LAST_MODIFIED))
+      lastModified = Option(headers.get(HttpHeaderNames.LAST_MODIFIED)),
+      vary = combined(headers, HttpHeaderNames.VARY)
     )
-  }
 }
 
 private[cache] object ExpiresSupport {
@@ -99,6 +126,10 @@ private[cache] object ExpiresSupport {
   // RFC 9111 §4.2.2: "if the response has a Last-Modified header field, caches are encouraged to use a heuristic expiration value
   // that is no more than some fraction of the interval since that time. A typical setting of this fraction might be 10%."
   private val HeuristicFraction = 10
+
+  val WeakEtagPrefix = "W/"
+
+  def opaqueTag(etag: String): String = if (etag.startsWith(WeakEtagPrefix)) etag.substring(WeakEtagPrefix.length) else etag
 
   def isHeuristicallyCacheable(status: HttpResponseStatus): Boolean = HeuristicallyCacheableStatusCodes.contains(status)
 

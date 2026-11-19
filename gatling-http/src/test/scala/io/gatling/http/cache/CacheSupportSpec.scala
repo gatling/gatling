@@ -204,13 +204,82 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
   }
 
+  it should "not store a 304 when no response is stored" in new ContentContext {
+    store(304, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry shouldBe None
+  }
+
+  it should "not update the stored response with a 304 with a different ETag" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    store(304, HttpHeaderNames.ETAG -> "\"bar\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.etag) shouldBe Some("\"foo\"")
+    isFresh shouldBe false
+  }
+
+  it should "not update a stored response with a weak ETag with a 304 with a strong ETag" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "W/\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    store(304, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    isFresh shouldBe false
+  }
+
+  it should "update the stored response with a 304 with a matching weak ETag" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    store(304, HttpHeaderNames.ETAG -> "W/\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
+  }
+
+  it should "not update the stored response with a 304 with a different Last-Modified" in new ContentContext {
+    store(200, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    store(304, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - Day), HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.lastModified) shouldBe Some(httpDate(Now - 10 * Day))
+    isFresh shouldBe false
+  }
+
+  it should "not store a response with Vary: *, and remove the stored one" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"")
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600", HttpHeaderNames.VARY -> "Accept-Encoding, *")
+    entry shouldBe None
+  }
+
+  it should "store a response with a Vary other than *" in new ContentContext {
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600", HttpHeaderNames.VARY -> "Accept-Encoding")
+    isFresh shouldBe true
+  }
+
+  it should "invalidate the stored response on a non-error response to an unsafe method" in new ContentContext {
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    respond(HttpMethod.HEAD, 200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    respond(HttpMethod.POST, 303)
+    entry shouldBe None
+    fixedHttpCaches.isFresh(session, new RequestBuilder("request", HttpMethod.HEAD, Uri.create("http://example.com/app.js"), null).build()) shouldBe false
+  }
+
+  it should "not invalidate the stored response on an error response to an unsafe method" in new ContentContext {
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    respond(HttpMethod.DELETE, 500)
+    isFresh shouldBe true
+  }
+
+  it should "not invalidate the stored response on a response to a safe method" in new ContentContext {
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    respond(HttpMethod.OPTIONS, 200)
+    isFresh shouldBe true
+  }
+
   class ContentContext {
     val method: HttpMethod = HttpMethod.GET
     private val protocol = HttpProtocol(configuration)
-    private lazy val request = new RequestBuilder("request", method, Uri.create("http://example.com/app.js"), null).build()
+    private def requestFor(method: HttpMethod): Request = new RequestBuilder("request", method, Uri.create("http://example.com/app.js"), null).build()
+    private lazy val request = requestFor(method)
     var session: Session = emptySession
 
     def store(status: Int, headers: (CharSequence, String)*): Unit =
+      storeWith(request, status, headers: _*)
+
+    def respond(method: HttpMethod, status: Int, headers: (CharSequence, String)*): Unit =
+      storeWith(requestFor(method), status, headers: _*)
+
+    private def storeWith(request: Request, status: Int, headers: (CharSequence, String)*): Unit =
       session = fixedHttpCaches.cacheContent(session, protocol, request, HttpResponseStatus.valueOf(status), responseHeaders(headers: _*))
 
     def entry: Option[ContentCacheEntry] = fixedHttpCaches.contentCacheEntry(session, request)
