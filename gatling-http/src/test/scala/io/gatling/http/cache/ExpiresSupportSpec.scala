@@ -37,16 +37,40 @@ class ExpiresSupportSpec extends AnyFlatSpecLike with Matchers {
     ExpiresSupport.parseDeltaSeconds("99999999999999999999") shouldBe Some(2147483648L)
   }
 
-  "parseCacheControl" should "parse directives, case-insensitively" in {
-    ExpiresSupport.parseCacheControl("Public, MAX-AGE=60, no-cache=\"Set-Cookie\"") shouldBe Map(
-      "public" -> None,
-      "max-age" -> Some("60"),
-      "no-cache" -> Some("Set-Cookie")
+  it should "ignore leading zeros" in {
+    ExpiresSupport.parseDeltaSeconds("00000000060") shouldBe Some(60L)
+    ExpiresSupport.parseDeltaSeconds("000") shouldBe Some(0L)
+  }
+
+  "HeaderTokens.split" should "split on commas, trim whitespace and drop empty tokens" in {
+    HeaderTokens.split(" a ,\tb,, c ") shouldBe List("a", "b", "c")
+    HeaderTokens.split("") shouldBe Nil
+  }
+
+  it should "ignore commas in quoted strings" in {
+    HeaderTokens.split("a=\"b, c\", d") shouldBe List("a=\"b, c\"", "d")
+    HeaderTokens.split("a=\"b\\\", c\", d") shouldBe List("a=\"b\\\", c\"", "d")
+  }
+
+  "CacheControl.parse" should "parse directives case-insensitively" in {
+    CacheControl.parse("Public, MAX-AGE=60, No-Cache, must-revalidate, no-store") shouldBe CacheControl(
+      noStore = true,
+      noCache = true,
+      mustRevalidate = true,
+      maxAge = Some(60)
     )
   }
 
-  it should "keep the first occurrence of a repeated directive" in {
-    ExpiresSupport.parseCacheControl("max-age=60, max-age=10") shouldBe Map("max-age" -> Some("60"))
+  it should "only match exact no-cache and no-store, like Chrome" in {
+    CacheControl
+      .parse("no-cache=\"Set-Cookie\", no-store=\"foo\"") shouldBe CacheControl(noStore = false, noCache = false, mustRevalidate = false, maxAge = None)
+  }
+
+  it should "keep the first valid max-age, like Chrome" in {
+    CacheControl.parse("max-age=60, max-age=10").maxAge shouldBe Some(60)
+    CacheControl.parse("max-age=nicolas, max-age=10").maxAge shouldBe Some(10)
+    CacheControl.parse("max-age=\"60\"").maxAge shouldBe None
+    CacheControl.parse("max-age = 60").maxAge shouldBe None
   }
 
   "parseHttpDate" should "support the HTTP date format" in {

@@ -76,7 +76,18 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   it should "honor Cache-Control max-age" in {
     freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=1") shouldBe Some(Now + 1000)
     freshUntil(HttpHeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate") shouldBe Some(Now + 3600 * 1000)
-    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "Max-Age=\"60\"") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "MAX-AGE=60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age= 60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=00000000060") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=60, max-age=0") shouldBe Some(Now + Minute)
+  }
+
+  it should "ignore invalid max-age, like Chrome" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=\"60\"") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age = 60") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=nicolas", HttpHeaderNames.EXPIRES -> httpDate(Now + Day)) shouldBe Some(Now + Day)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=-1", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=, max-age=60") shouldBe Some(Now + Minute)
   }
 
   it should "consider responses with no-cache, no-store or invalid max-age as stale" in {
@@ -87,8 +98,12 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=nicolas") shouldBe None
   }
 
-  it should "only consider unqualified no-cache" in {
+  it should "only consider exact no-cache and no-store, like Chrome" in {
     freshUntil(HttpHeaderNames.CACHE_CONTROL -> "no-cache=\"Set-Cookie\", max-age=60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "no-cache=\"Set-Cookie, Set-Cookie2\", max-age=60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "no-store=\"foo\", max-age=60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "private=\"a, no-store, b\", max-age=60") shouldBe Some(Now + Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "NO-STORE, max-age=60") shouldBe None
   }
 
   it should "combine multiple Cache-Control field lines" in {
@@ -110,6 +125,14 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now - Day)) shouldBe None
     // no heuristic freshness when there's an explicit expiration time
     freshUntil(HttpHeaderNames.EXPIRES -> "0", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now - Day), HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+  }
+
+  it should "ignore invalid Expires other than 0, like Chrome" in {
+    freshUntil(HttpHeaderNames.EXPIRES -> "-1") shouldBe None
+    freshUntil(HttpHeaderNames.EXPIRES -> "-1", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntil(HttpHeaderNames.EXPIRES -> "garbage", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntilWithStatus(410, HttpHeaderNames.EXPIRES -> "-1") shouldBe Some(Long.MaxValue)
   }
 
   it should "honor Expires when Cache-Control has no max-age" in {

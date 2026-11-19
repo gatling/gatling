@@ -62,7 +62,7 @@ private[cache] object RequestCacheHeaders {
   private val PassThroughHeaderNames = List(HttpHeaderNames.IF_UNMODIFIED_SINCE, HttpHeaderNames.IF_MATCH, HttpHeaderNames.IF_RANGE)
 
   private def hasToken(headers: HttpHeaders, name: CharSequence, token: String): Boolean =
-    headers.getAll(name).asScala.exists(_.split(',').exists(_.trim.equalsIgnoreCase(token)))
+    headers.getAll(name).asScala.exists(HeaderTokens.hasToken(_, token))
 
   def passThrough(headers: HttpHeaders): Boolean = PassThroughHeaderNames.exists(headers.contains)
 

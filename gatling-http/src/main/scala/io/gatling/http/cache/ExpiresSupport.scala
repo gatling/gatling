@@ -16,8 +16,7 @@
 
 package io.gatling.http.cache
 
-import java.{ util => ju }
-
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Clock
@@ -26,30 +25,102 @@ import io.netty.handler.codec.DateFormatter
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpResponseStatus }
 
 /**
+ * Splits comma-separated header values, ignoring commas in quoted strings and trimming whitespace, like Chromium's `HttpUtil::ValuesIterator`.
+ */
+private[cache] object HeaderTokens {
+  private def isWhitespace(c: Char): Boolean = c == ' ' || c == '\t'
+
+  def split(value: String): List[String] = {
+    val tokens = mutable.ListBuffer.empty[String]
+
+    def addToken(start: Int, end: Int): Unit = {
+      var s = start
+      var e = end
+      while (s < e && isWhitespace(value.charAt(s))) s += 1
+      while (e > s && isWhitespace(value.charAt(e - 1))) e -= 1
+      if (e > s) tokens += value.substring(s, e)
+    }
+
+    var start = 0
+    var inQuotes = false
+    var i = 0
+    while (i < value.length) {
+      value.charAt(i) match {
+        case '\\' if inQuotes => i += 1 // skip the escaped char
+        case '"'              => inQuotes = !inQuotes
+        case ',' if !inQuotes =>
+          addToken(start, i)
+          start = i + 1
+        case _ =>
+      }
+      i += 1
+    }
+    addToken(start, value.length)
+    tokens.toList
+  }
+
+  def hasToken(value: String, token: String): Boolean = split(value).exists(_.equalsIgnoreCase(token))
+}
+
+/**
+ * The Cache-Control directives that drive Gatling's caching decisions, parsed like Chrome does, see Chromium's `HttpResponseHeaders::HasCacheRestriction` and
+ * `HttpResponseHeaders::ParseCacheControlDirectivesForFreshness`.
+ *
+ * @param maxAge
+ *   the first valid max-age, invalid ones (including quoted values and spaces around the equals sign) are ignored
+ */
+private[http] final case class CacheControl(noStore: Boolean, noCache: Boolean, mustRevalidate: Boolean, maxAge: Option[Long])
+
+private[http] object CacheControl {
+  private val MaxAgePrefix = "max-age="
+
+  def parse(value: String): CacheControl = {
+    var noStore = false
+    var noCache = false
+    var mustRevalidate = false
+    var maxAge: Option[Long] = None
+
+    // directives with arguments such as no-cache="Set-Cookie" or no-store="foo" are not exact matches, hence ignored
+    HeaderTokens.split(value).foreach { token =>
+      if (token.equalsIgnoreCase("no-store")) {
+        noStore = true
+      } else if (token.equalsIgnoreCase("no-cache")) {
+        noCache = true
+      } else if (token.equalsIgnoreCase("must-revalidate")) {
+        mustRevalidate = true
+      } else if (maxAge.isEmpty && token.regionMatches(true, 0, MaxAgePrefix, 0, MaxAgePrefix.length)) {
+        maxAge = ExpiresSupport.parseDeltaSeconds(token.substring(MaxAgePrefix.length).trim)
+      }
+    }
+
+    CacheControl(noStore, noCache, mustRevalidate, maxAge)
+  }
+}
+
+/**
  * The header fields of a stored response that drive caching decisions (RFC 9111).
  */
 private[http] final case class CacheHeaders(
-    cacheControl: Option[String],
+    cacheControl: Option[CacheControl],
     expires: Option[String],
     pragma: Option[String],
     etag: Option[String],
     lastModified: Option[String],
     vary: Option[String]
 ) {
-  private[cache] lazy val directives: Map[String, Option[String]] = cacheControl.fold(Map.empty[String, Option[String]])(ExpiresSupport.parseCacheControl)
+  private[cache] def noCache: Boolean = cacheControl.exists(_.noCache)
 
-  // only the unqualified form, the qualified one only forbids reusing the listed fields, RFC 9111 §5.2.2.4
-  private[cache] def noCache: Boolean = directives.get("no-cache").exists(_.isEmpty)
+  private[cache] def noStore: Boolean = cacheControl.exists(_.noStore)
 
-  private[cache] def noStore: Boolean = directives.contains("no-store")
+  private[cache] def mustRevalidate: Boolean = cacheControl.exists(_.mustRevalidate)
 
-  private[cache] def mustRevalidate: Boolean = directives.contains("must-revalidate")
+  private[cache] def maxAge: Option[Long] = cacheControl.flatMap(_.maxAge)
 
   // RFC 9111 §5.4 deprecates Pragma, but Chrome still honors it on responses, as a case-insensitive token
-  private[cache] def pragmaNoCache: Boolean = pragma.exists(_.split(',').exists(_.trim.equalsIgnoreCase(HttpHeaderValues.NO_CACHE.toString)))
+  private[cache] def pragmaNoCache: Boolean = pragma.exists(HeaderTokens.hasToken(_, HttpHeaderValues.NO_CACHE.toString))
 
   // RFC 9111 §4.1: a stored response with Vary: * always fails to match
-  private[cache] def varyAll: Boolean = vary.exists(_.split(',').exists(_.trim == "*"))
+  private[cache] def varyAll: Boolean = vary.exists(HeaderTokens.hasToken(_, "*"))
 
   /**
    * Check if a 304 response selects this stored response, RFC 9111 §4.3.4.
@@ -92,7 +163,7 @@ private[http] object CacheHeaders {
 
   def apply(headers: HttpHeaders): CacheHeaders =
     new CacheHeaders(
-      cacheControl = combined(headers, HttpHeaderNames.CACHE_CONTROL),
+      cacheControl = combined(headers, HttpHeaderNames.CACHE_CONTROL).map(CacheControl.parse),
       expires = Option(headers.get(HttpHeaderNames.EXPIRES)),
       pragma = Option(headers.get(HttpHeaderNames.PRAGMA)),
       etag = Option(headers.get(HttpHeaderNames.ETAG)),
@@ -139,25 +210,15 @@ private[cache] object ExpiresSupport {
   private def unquote(s: String): String =
     if (s.length >= 2 && s.charAt(0) == '"' && s.charAt(s.length - 1) == '"') s.substring(1, s.length - 1) else s
 
-  def parseCacheControl(value: String): Map[String, Option[String]] =
-    value
-      .split(',')
-      .iterator
-      .map(_.trim)
-      .filter(_.nonEmpty)
-      .map { directive =>
-        directive.indexOf('=') match {
-          case -1 => directive.toLowerCase(ju.Locale.ROOT) -> None
-          case i  => directive.substring(0, i).trim.toLowerCase(ju.Locale.ROOT) -> Some(unquote(directive.substring(i + 1).trim))
-        }
-      }
-      // RFC 9111 §4.2.1: when a directive is repeated, use the first occurrence
-      .foldLeft(Map.empty[String, Option[String]]) { case (acc, (name, value)) => if (acc.contains(name)) acc else acc.updated(name, value) }
-
   // RFC 9111 §1.2.2
   def parseDeltaSeconds(s: String): Option[Long] =
     if (s.nonEmpty && s.forall(c => c >= '0' && c <= '9')) {
-      Some(if (s.length > 10) MaxDeltaSeconds else math.min(s.toLong, MaxDeltaSeconds))
+      val significantDigits = s.dropWhile(_ == '0')
+      Some(
+        if (significantDigits.isEmpty) 0L
+        else if (significantDigits.length > 10) MaxDeltaSeconds
+        else math.min(significantDigits.toLong, MaxDeltaSeconds)
+      )
     } else {
       None
     }
@@ -191,30 +252,29 @@ private[cache] trait ExpiresSupport {
       // RFC 9110 §6.6.1: a recipient that receives a message without a Date has to use its receive time
       val date = Option(responseHeaders.get(HttpHeaderNames.DATE)).flatMap(parseHttpDate).getOrElse(now)
 
-      // RFC 9111 §4.2.1
-      val freshnessLifetime: Option[Long] =
-        cacheHeaders.directives.get("max-age") match {
-          case Some(maxAge) =>
-            // invalid max-age makes the response stale
-            maxAge.flatMap(parseDeltaSeconds).map(_ * 1000)
-          case _ =>
-            cacheHeaders.expires match {
-              case Some(expires) =>
-                // invalid dates, especially "0", mean "already expired"
-                parseHttpDate(expires).map(_ - date)
-              case _ =>
-                // RFC 9111 §4.2.2: heuristic freshness when there's no explicit expiration time, restricted like Chrome
-                val heuristicLifetime =
-                  if (HeuristicFreshnessStatusCodes.contains(statusCode) && !cacheHeaders.mustRevalidate) {
-                    cacheHeaders.lastModified
-                      .flatMap(parseHttpDate)
-                      .filter(_ <= date)
-                      .map(lastModified => (date - lastModified) / HeuristicFraction)
-                  } else {
-                    None
-                  }
+      // RFC 9111 §4.2.2: heuristic freshness when there's no explicit expiration time, restricted like Chrome
+      def heuristicLifetime: Option[Long] = {
+        val fromLastModified =
+          if (HeuristicFreshnessStatusCodes.contains(statusCode) && !cacheHeaders.mustRevalidate) {
+            cacheHeaders.lastModified
+              .flatMap(parseHttpDate)
+              .filter(_ <= date)
+              .map(lastModified => (date - lastModified) / HeuristicFraction)
+          } else {
+            None
+          }
 
-                heuristicLifetime.orElse(Option.when(ImplicitlyFreshStatusCodes.contains(statusCode))(FreshForever))
+        fromLastModified.orElse(Option.when(ImplicitlyFreshStatusCodes.contains(statusCode))(FreshForever))
+      }
+
+      // RFC 9111 §4.2.1, but like Chrome, invalid max-age and Expires other than "0" are ignored instead of meaning "already expired"
+      val freshnessLifetime: Option[Long] =
+        cacheHeaders.maxAge match {
+          case Some(maxAge) => Some(maxAge * 1000)
+          case _            =>
+            cacheHeaders.expires.map(_.trim) match {
+              case Some("0") => Some(0L)
+              case expires   => expires.flatMap(parseHttpDate).map(_ - date).orElse(heuristicLifetime)
             }
         }
 
