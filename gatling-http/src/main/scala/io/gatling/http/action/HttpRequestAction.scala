@@ -51,7 +51,8 @@ final class HttpRequestAction(
         httpRequest,
         next,
         None,
-        0
+        0,
+        cacheValidators = false
       )
 
       httpTxExecutor.execute(tx)

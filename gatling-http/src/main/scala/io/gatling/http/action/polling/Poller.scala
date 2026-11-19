@@ -54,7 +54,7 @@ private[polling] final class Poller(
     requestDef.build(session) match {
       case Success(httpRequest) =>
         httpTxExecutor.execute(
-          HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0),
+          HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0, cacheValidators = false),
           tx =>
             new ResponseProcessor() {
               override def onComplete(result: HttpResult): Unit =

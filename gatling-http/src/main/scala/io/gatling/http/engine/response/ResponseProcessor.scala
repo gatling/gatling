@@ -26,6 +26,8 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
 import io.gatling.http.auth.DigestAuthSupport
+import io.gatling.http.cache.HttpContentCacheSupport
+import io.gatling.http.client.Request
 import io.gatling.http.client.realm.DigestRealm
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
@@ -42,6 +44,10 @@ final case class FollowUp(followUpTx: HttpTx) extends ProcessorResult
 final case class Crash(error: String) extends ProcessorResult
 
 object ResponseProcessor extends StrictLogging {
+  // validators added by the cache belong to the stored response of the original request, the follow-up gets its own when sent
+  private def followUpRequest(tx: HttpTx, request: Request): Request =
+    if (tx.cacheValidators) HttpContentCacheSupport.removeValidators(request) else request
+
   @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf"))
   def processResponse(tx: HttpTx, sessionProcessor: SessionProcessor, defaultCharset: Charset, response: Response): ProcessorResult =
     try {
@@ -70,8 +76,9 @@ object ResponseProcessor extends StrictLogging {
             FollowUp(
               tx.copy(
                 session = newSession,
-                request = tx.request.copy(clientRequest = redirectRequest),
-                redirectCount = newRedirectCount
+                request = tx.request.copy(clientRequest = followUpRequest(tx, redirectRequest)),
+                redirectCount = newRedirectCount,
+                cacheValidators = false
               )
             )
           }
@@ -87,7 +94,8 @@ object ResponseProcessor extends StrictLogging {
         FollowUp(
           tx.copy(
             session = newSession,
-            request = tx.request.copy(clientRequest = retryRequest)
+            request = tx.request.copy(clientRequest = followUpRequest(tx, retryRequest)),
+            cacheValidators = false
           )
         )
       } else {
@@ -113,7 +121,8 @@ object ResponseProcessor extends StrictLogging {
             FollowUp(
               tx.copy(
                 session = newSession,
-                request = tx.request.copy(clientRequest = challengeRequest)
+                request = tx.request.copy(clientRequest = followUpRequest(tx, challengeRequest)),
+                cacheValidators = false
               )
             )
 

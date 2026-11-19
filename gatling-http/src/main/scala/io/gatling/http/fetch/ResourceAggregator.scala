@@ -104,7 +104,8 @@ private[fetch] final class DefaultResourceAggregator(
       ),
       next = this.next,
       resourceTx = Some(ResourceTx(this, resource.requestName, resource.clientRequest.getUri)),
-      redirectCount = 0
+      redirectCount = 0,
+      cacheValidators = false
     )
 
     resourceTx

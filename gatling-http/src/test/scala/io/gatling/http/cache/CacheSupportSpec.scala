@@ -347,6 +347,15 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     validatorsAddedTo(requestWith()) shouldBe (Some("\"v1\"") -> Some(httpDate(Now - 10 * Day)))
   }
 
+  it should "never mutate the request, as it can be shared amongst virtual users" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"v1\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    val sharedRequest: Request = requestWith()
+    val requestWithValidators = fixedHttpCaches.withValidators(session, sharedRequest)
+
+    requestWithValidators.map(_.getHeaders.get(HttpHeaderNames.IF_NONE_MATCH)) shouldBe Some("\"v1\"")
+    sharedRequest.getHeaders.contains(HttpHeaderNames.IF_NONE_MATCH) shouldBe false
+  }
+
   "request Cache-Control: no-cache or Pragma: no-cache" should "neither reuse nor revalidate the stored response, but store the new one, like Chrome" in new ContentContext {
     store(200, HttpHeaderNames.ETAG -> "\"v1\"", LastModified, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
 
@@ -458,8 +467,8 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     def isFreshFor(request: Request): Boolean = fixedHttpCaches.isFresh(session, request)
 
     def validatorsAddedTo(request: Request): (Option[String], Option[String]) = {
-      fixedHttpCaches.addValidators(session, request)
-      (Option(request.getHeaders.get(HttpHeaderNames.IF_NONE_MATCH)), Option(request.getHeaders.get(HttpHeaderNames.IF_MODIFIED_SINCE)))
+      val headers = fixedHttpCaches.withValidators(session, request).getOrElse(request).getHeaders
+      (Option(headers.get(HttpHeaderNames.IF_NONE_MATCH)), Option(headers.get(HttpHeaderNames.IF_MODIFIED_SINCE)))
     }
   }
 
@@ -478,6 +487,17 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
     val actualTx = httpCaches.applyPermanentRedirect(tx)
 
     actualTx shouldBe tx
+  }
+
+  it should "never mutate the original request, as it can be shared amongst virtual users" in new RedirectContext {
+    addRedirect("http://example.com/", "http://gatling.io/")
+
+    val origTx = txTo("http://example.com/", session, redirectCount = 0, cache = true)
+    origTx.request.clientRequest.getHeaders.set(HttpHeaderNames.COOKIE, "foo=bar")
+    val tx = httpCaches.applyPermanentRedirect(origTx)
+
+    tx.request.clientRequest.getHeaders.contains(HttpHeaderNames.COOKIE) shouldBe false
+    origTx.request.clientRequest.getHeaders.get(HttpHeaderNames.COOKIE) shouldBe "foo=bar"
   }
 
   it should "return updated transaction with single redirect" in new RedirectContext {
@@ -561,7 +581,8 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
       ),
       next = null,
       resourceTx = None,
-      redirectCount = redirectCount
+      redirectCount = redirectCount,
+      cacheValidators = false
     )
   }
 }

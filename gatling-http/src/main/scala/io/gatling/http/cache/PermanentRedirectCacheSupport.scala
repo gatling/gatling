@@ -80,7 +80,8 @@ private[cache] trait PermanentRedirectCacheSupport {
       namingStrategy: (Uri, String, Int) => String
   ): Request =
     new RequestBuilder(namingStrategy(redirectUri, requestName, redirectCount), request.getMethod, redirectUri, request.getNameResolver)
-      .setHeaders(request.getHeaders.remove(HttpHeaderNames.COOKIE))
+      // copy, as the original request, such as the inferred resources ones, can be shared amongst virtual users and must never be mutated
+      .setHeaders(request.getHeaders.copy().remove(HttpHeaderNames.COOKIE))
       .setCookies(CookieSupport.getStoredCookies(session, redirectUri).asJava)
       .setBodyBuilder(if (request.getBody != null) request.getBody.newBuilder else null)
       .setRequestTimeout(request.getRequestTimeout)

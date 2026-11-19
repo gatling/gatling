@@ -85,7 +85,17 @@ private[cache] object RequestCacheHeaders {
   }
 }
 
-private[cache] object HttpContentCacheSupport {
+private[http] object HttpContentCacheSupport {
+
+  /**
+   * Remove the validators added by the cache from a follow-up request, as they belong to the stored response of the original request. The follow-up request
+   * must have its own copy of the headers.
+   */
+  def removeValidators(request: Request): Request = {
+    request.getHeaders.remove(HttpHeaderNames.IF_NONE_MATCH).remove(HttpHeaderNames.IF_MODIFIED_SINCE)
+    request
+  }
+
   val HttpContentCacheAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.contentCache")
 
   // RFC 9110 §9.2.1
@@ -194,18 +204,29 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
   }
 
   /**
-   * Add the validators of the stored response to the request when it has to be revalidated, unless the user's own request headers forbid it.
+   * Add the validators of the stored response to a request that's about to be sent, when it has to be revalidated, unless the user's own request headers forbid
+   * it. Like Chrome, this is performed for every hop, so validators added for a request must be removed from its follow-ups, see
+   * `HttpContentCacheSupport.removeValidators`.
+   *
+   * @return
+   *   a copy of the request with the validators, as requests, such as the inferred resources ones, can be shared amongst virtual users and must never be
+   *   mutated, or None if no validators were added
    */
-  def addValidators(session: Session, request: Request): Unit = {
+  def withValidators(session: Session, request: Request): Option[Request] = {
     val headers = request.getHeaders
     if (!RequestCacheHeaders.passThrough(headers) && !RequestCacheHeaders.forceFetch(headers) && !RequestCacheHeaders.hasValidators(headers)) {
-      contentCacheEntry(session, request).foreach { entry =>
+      contentCacheEntry(session, request) match {
         // a fresh response will be reused, unless the user forces revalidation
-        if (RequestCacheHeaders.forceValidate(headers) || !entry.isFresh(clock.nowMillis)) {
-          entry.etag.foreach(headers.set(HttpHeaderNames.IF_NONE_MATCH, _))
-          entry.lastModified.foreach(headers.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
-        }
+        case Some(entry)
+            if (entry.etag.isDefined || entry.lastModified.isDefined) && (RequestCacheHeaders.forceValidate(headers) || !entry.isFresh(clock.nowMillis)) =>
+          val requestWithValidators = request.copyWithCopiedHeaders()
+          entry.etag.foreach(requestWithValidators.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
+          entry.lastModified.foreach(requestWithValidators.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
+          Some(requestWithValidators)
+        case _ => None
       }
+    } else {
+      None
     }
   }
 }

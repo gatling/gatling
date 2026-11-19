@@ -64,7 +64,8 @@ class HttpTxSpec extends AnyFlatSpecLike with Matchers {
       ),
       next = null,
       resourceTx = if (root) None else Some(ResourceTx(null, "resources", null)),
-      redirectCount = 0
+      redirectCount = 0,
+      cacheValidators = false
     )
 
   private def request(uri: String): Request =

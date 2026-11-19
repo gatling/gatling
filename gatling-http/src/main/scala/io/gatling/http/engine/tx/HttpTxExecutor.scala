@@ -42,13 +42,20 @@ final class HttpTxExecutor(
 
   private[http] val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
+  // performed when sending, after applying permanent redirects, so the validators are the ones of the actual target
+  private def withCacheValidators(tx: HttpTx): HttpTx =
+    httpCaches.withValidators(tx.session, tx.request.clientRequest) match {
+      case Some(clientRequest) => tx.copy(request = tx.request.copy(clientRequest = clientRequest), cacheValidators = true)
+      case _                   => tx
+    }
+
   private def executeWithCache(origTx: HttpTx)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
     val clientRequest = tx.request.clientRequest
     val uri = clientRequest.getUri
 
     if (!httpCaches.isFresh(tx.session, clientRequest)) {
-      f(tx)
+      f(withCacheValidators(tx))
     } else {
       resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
         case Some(aggregator) =>
@@ -76,7 +83,7 @@ final class HttpTxExecutor(
       if (httpCaches.isFresh(updatedTx.session, updatedTx.request.clientRequest)) {
         cached += updatedTx
       } else {
-        nonCached += updatedTx
+        nonCached += withCacheValidators(updatedTx)
       }
     }
 

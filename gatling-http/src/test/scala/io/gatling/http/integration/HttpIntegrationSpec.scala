@@ -18,6 +18,8 @@ package io.gatling.http.integration
 
 import java.nio.charset.StandardCharsets
 
+import scala.jdk.CollectionConverters._
+
 import io.gatling.commons.stats.OK
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
@@ -182,6 +184,59 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
       session.isFailed shouldBe false
       verifyRequestTo("/page", 2)
+    }
+  }
+
+  "HTTP cache" should "only send the validators of each hop's own stored response when following redirects, like Chrome" in {
+    val aRequests = new java.util.concurrent.atomic.AtomicInteger
+
+    def respond(status: HttpResponseStatus, headers: (CharSequence, String)*): ChannelProcessor = {
+      val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status)
+      headers.foreach { case (name, value) => response.headers.set(name, value) }
+      response.headers.set(NettyHttpHeaderName.CONTENT_LENGTH, 0)
+      ctx => ctx.channel.writeAndFlush(response)
+    }
+
+    val handler: Handler = {
+      case HttpRequest(HttpMethod.GET, "/a") =>
+        if (aRequests.getAndIncrement() == 0) {
+          respond(HttpResponseStatus.OK, NettyHttpHeaderName.ETAG -> "\"a1\"", NettyHttpHeaderName.CACHE_CONTROL -> "max-age=0")
+        } else {
+          respond(HttpResponseStatus.FOUND, NettyHttpHeaderName.LOCATION -> "/b", NettyHttpHeaderName.CACHE_CONTROL -> "no-store")
+        }
+      case HttpRequest(HttpMethod.GET, "/b") =>
+        respond(HttpResponseStatus.OK, NettyHttpHeaderName.ETAG -> "\"b1\"", NettyHttpHeaderName.CACHE_CONTROL -> "max-age=0")
+      case HttpRequest(HttpMethod.GET, "/permanent") =>
+        respond(HttpResponseStatus.MOVED_PERMANENTLY, NettyHttpHeaderName.LOCATION -> "/b")
+      case HttpRequest(HttpMethod.GET, "/user-redirect") =>
+        respond(HttpResponseStatus.FOUND, NettyHttpHeaderName.LOCATION -> "/user-target", NettyHttpHeaderName.CACHE_CONTROL -> "no-store")
+      case HttpRequest(HttpMethod.GET, "/user-target") =>
+        respond(HttpResponseStatus.OK, NettyHttpHeaderName.CACHE_CONTROL -> "no-store")
+    }
+
+    runWithHttpServer(handler) { implicit httpServer =>
+      val session = runScenario(
+        scenario("Cache validators and redirects")
+          .exec(http("a").get("/a"))
+          .exec(http("b").get("/b"))
+          // stale /a: revalidated with its own validators, then redirected to /b that must be revalidated with its own ones
+          .exec(http("a again").get("/a"))
+          // cached permanent redirect: the request is sent straight to /b, with /b's validators
+          .exec(http("permanent").get("/permanent"))
+          .exec(http("permanent again").get("/permanent"))
+          // user validators are carried over to the redirect target
+          .exec(http("user").get("/user-redirect").header(NettyHttpHeaderName.IF_NONE_MATCH, "\"user\""))
+      )
+
+      session.isFailed shouldBe false
+
+      def ifNoneMatch(path: String): List[String] =
+        httpServer.requests.asScala.filter(_.uri == path).map(request => Option(request.headers.get(NettyHttpHeaderName.IF_NONE_MATCH)).getOrElse("-")).toList
+
+      ifNoneMatch("/a") shouldBe List("-", "\"a1\"")
+      ifNoneMatch("/b") shouldBe List("-", "\"b1\"", "\"b1\"", "\"b1\"")
+      ifNoneMatch("/permanent") shouldBe List("-")
+      ifNoneMatch("/user-target") shouldBe List("\"user\"")
     }
   }
 }

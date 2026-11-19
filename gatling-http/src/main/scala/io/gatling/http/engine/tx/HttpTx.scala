@@ -27,7 +27,9 @@ final case class HttpTx(
     request: HttpRequest,
     next: Action,
     resourceTx: Option[ResourceTx],
-    redirectCount: Int
+    redirectCount: Int,
+    // if the HTTP cache added the stored response's validators to the request, they must not be carried over to follow-up requests
+    cacheValidators: Boolean
 ) {
   lazy val silent: Boolean = request.isSilent(resourceTx.isEmpty)
 

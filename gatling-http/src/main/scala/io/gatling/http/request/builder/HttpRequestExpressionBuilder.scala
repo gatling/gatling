@@ -161,16 +161,4 @@ final class HttpRequestExpressionBuilder(
       _ <- configureBody(session, requestBuilder)
     } yield configurePriorKnowledge(session, requestBuilder)
 
-  override def build: Expression[Request] = {
-    val exp = super.build
-    if (httpProtocol.requestPart.cache) { session =>
-      exp(session).map { request =>
-        // perform here as we need the computed absolute uri
-        httpCaches.addValidators(session, request)
-        request
-      }
-    } else {
-      exp
-    }
-  }
 }
