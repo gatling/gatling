@@ -23,7 +23,7 @@ import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
-import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders }
+import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod, HttpResponseStatus }
 
 object ContentCacheKey {
   def apply(request: Request): ContentCacheKey =
@@ -32,7 +32,19 @@ object ContentCacheKey {
 
 private[cache] final case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
 
-private[http] final case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
+/**
+ * @param freshUntil
+ *   the timestamp until which the stored response can be reused without contacting the server, None if it has to be revalidated
+ * @param headers
+ *   the caching header fields of the stored response
+ * @param heuristicallyCacheable
+ *   if the status code of the stored response allows for heuristic freshness
+ */
+private[http] final case class ContentCacheEntry(freshUntil: Option[Long], headers: CacheHeaders, heuristicallyCacheable: Boolean) {
+  def etag: Option[String] = headers.etag
+  def lastModified: Option[String] = headers.lastModified
+  def isFresh(nowMillis: Long): Boolean = freshUntil.exists(nowMillis < _)
+}
 
 private[cache] object HttpContentCacheSupport {
   val HttpContentCacheAttributeName: String = SessionPrivateAttributes.generatePrivateAttribute("http.cache.contentCache")
@@ -46,18 +58,28 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
   private[this] val httpContentCacheHandler =
     new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
-  def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, responseHeaders: HttpHeaders): Session =
+  def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, status: HttpResponseStatus, responseHeaders: HttpHeaders): Session =
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
-      val expires = getResponseExpires(responseHeaders)
-      val etag = Option(responseHeaders.get(HttpHeaderNames.ETAG))
-      val lastModified = Option(responseHeaders.get(HttpHeaderNames.LAST_MODIFIED))
+      val key = ContentCacheKey(request)
+      val responseCacheHeaders = CacheHeaders(responseHeaders)
 
-      if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
-        val key = ContentCacheKey(request)
-        val value = ContentCacheEntry(expires, etag, lastModified)
-        httpContentCacheHandler.addEntry(session, key, value)
+      // a 304 freshens the stored response, RFC 9111 §4.3.4
+      val storedEntry = if (status == HttpResponseStatus.NOT_MODIFIED) httpContentCacheHandler.getEntry(session, key) else None
+      val cacheHeaders = storedEntry.fold(responseCacheHeaders)(_.headers.updatedWith(responseCacheHeaders))
+      val heuristicallyCacheable = storedEntry.fold(ExpiresSupport.isHeuristicallyCacheable(status))(_.heuristicallyCacheable)
+
+      // RFC 9111 §3
+      val storable = (request.getMethod == HttpMethod.GET || request.getMethod == HttpMethod.HEAD) &&
+        !cacheHeaders.noStore &&
+        (heuristicallyCacheable || cacheHeaders.allowsStorage)
+
+      val freshUntilValue = if (storable) freshUntil(cacheHeaders, heuristicallyCacheable, responseHeaders) else None
+
+      if (storable && (freshUntilValue.isDefined || cacheHeaders.etag.isDefined || cacheHeaders.lastModified.isDefined)) {
+        httpContentCacheHandler.addEntry(session, key, ContentCacheEntry(freshUntilValue, cacheHeaders, heuristicallyCacheable))
       } else {
-        session
+        // the new response replaces the stored one, but can't be reused
+        httpContentCacheHandler.removeEntry(session, key)
       }
     } else {
       session
@@ -70,10 +92,11 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
       None
     }
 
-  def clearContentCache(session: Session, request: Request): Session =
-    if (httpContentCacheHandler.enabled) {
-      httpContentCacheHandler.removeEntry(session, ContentCacheKey(request))
-    } else {
-      session
-    }
+  /**
+   * @return
+   *   true if a fresh response is stored, meaning the request doesn't have to be sent. Stale responses are kept so their validators can be used for
+   *   revalidation, RFC 9111 §4.3.
+   */
+  def isFresh(session: Session, request: Request): Boolean =
+    contentCacheEntry(session, request).exists(_.isFresh(clock.nowMillis))
 }

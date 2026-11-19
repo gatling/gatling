@@ -20,16 +20,42 @@ import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class ExpiresSupportSpec extends AnyFlatSpecLike with Matchers {
-  "extractLongValue" should "throw an IllegalArgumentException if start < 0 or > the string length " in {
-    an[IllegalArgumentException] should be thrownBy ExpiresSupport.extractLongValue("1234", -1)
-    an[IllegalArgumentException] should be thrownBy ExpiresSupport.extractLongValue("1234", 4)
+  "parseDeltaSeconds" should "parse non negative integers" in {
+    ExpiresSupport.parseDeltaSeconds("0") shouldBe Some(0L)
+    ExpiresSupport.parseDeltaSeconds("567") shouldBe Some(567L)
   }
 
-  it should "be able to extract a Long from a series of digits in a string" in {
-    ExpiresSupport.extractLongValue("foo12345bar", 3) shouldBe 12345L
+  it should "reject invalid values" in {
+    ExpiresSupport.parseDeltaSeconds("") shouldBe None
+    ExpiresSupport.parseDeltaSeconds("-1") shouldBe None
+    ExpiresSupport.parseDeltaSeconds("nicolas") shouldBe None
+    ExpiresSupport.parseDeltaSeconds("1.5") shouldBe None
   }
 
-  it should "return 0 if there was no series of digit at the specified index" in {
-    ExpiresSupport.extractLongValue("foobar", 3) shouldBe 0L
+  it should "cap values to 2^31" in {
+    ExpiresSupport.parseDeltaSeconds("2147483649") shouldBe Some(2147483648L)
+    ExpiresSupport.parseDeltaSeconds("99999999999999999999") shouldBe Some(2147483648L)
+  }
+
+  "parseCacheControl" should "parse directives, case-insensitively" in {
+    ExpiresSupport.parseCacheControl("Public, MAX-AGE=60, no-cache=\"Set-Cookie\"") shouldBe Map(
+      "public" -> None,
+      "max-age" -> Some("60"),
+      "no-cache" -> Some("Set-Cookie")
+    )
+  }
+
+  it should "keep the first occurrence of a repeated directive" in {
+    ExpiresSupport.parseCacheControl("max-age=60, max-age=10") shouldBe Map("max-age" -> Some("60"))
+  }
+
+  "parseHttpDate" should "support the HTTP date format" in {
+    ExpiresSupport.parseHttpDate("Thu, 01 Dec 1994 16:00:00 GMT") shouldBe Some(786297600000L)
+    ExpiresSupport.parseHttpDate("\"Tue, 19 Jan 2038 03:14:06 GMT\"") shouldBe Some(2147483646000L)
+  }
+
+  it should "reject invalid dates" in {
+    ExpiresSupport.parseHttpDate("0") shouldBe None
+    ExpiresSupport.parseHttpDate("fail") shouldBe None
   }
 }

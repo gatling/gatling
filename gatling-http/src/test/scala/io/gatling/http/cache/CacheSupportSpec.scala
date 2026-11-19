@@ -18,7 +18,7 @@ package io.gatling.http.cache
 
 import java.{ util => ju }
 
-import io.gatling.commons.util.DefaultClock
+import io.gatling.commons.util.{ Clock, DefaultClock }
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -28,7 +28,8 @@ import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod }
+import io.netty.handler.codec.DateFormatter
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaders, HttpMethod, HttpResponseStatus }
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -36,65 +37,185 @@ class CacheSupportSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   private val configuration = GatlingConfiguration.loadForTest()
   private val httpCaches = new HttpCaches(new DefaultClock, configuration)
 
-  class CacheContext {
-    def getResponseExpire(headers: Seq[(CharSequence, CharSequence)]): Option[Long] = {
-      val httpHeaders = new DefaultHttpHeaders
-      headers.foreach { case (headerName, headerValue) => httpHeaders.add(headerName, headerValue) }
-      httpCaches.getResponseExpires(httpHeaders)
-    }
+  private val Now = 1795521600000L // Tue, 24 Nov 2026 12:00:00 GMT
+  private val fixedClock: Clock = new Clock {
+    override def nowMillis: Long = Now
+  }
+  private val fixedHttpCaches = new HttpCaches(fixedClock, configuration)
+
+  private def httpDate(millis: Long): String = DateFormatter.format(new ju.Date(millis))
+
+  private def responseHeaders(headers: (CharSequence, String)*): HttpHeaders = {
+    val httpHeaders = new DefaultHttpHeaders
+    headers.foreach { case (headerName, headerValue) => httpHeaders.add(headerName, headerValue) }
+    httpHeaders
   }
 
-  "getResponseExpires()" should "correctly support Pragma header" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.PRAGMA -> HttpHeaderValues.NO_CACHE)) shouldBe None
+  private def freshUntil(headers: (CharSequence, String)*): Option[Long] =
+    freshUntilWithStatus(200, headers: _*)
+
+  private def freshUntilWithStatus(status: Int, headers: (CharSequence, String)*): Option[Long] = {
+    val httpHeaders = responseHeaders(headers: _*)
+    fixedHttpCaches.freshUntil(CacheHeaders(httpHeaders), ExpiresSupport.isHeuristicallyCacheable(HttpResponseStatus.valueOf(status)), httpHeaders)
   }
 
-  it should "correctly support Cache-Control header" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "max-age=1")) shouldBe Symbol("defined")
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) shouldBe Symbol("defined")
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, no-cache")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=-1")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=0")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> HttpHeaderValues.NO_STORE)) shouldBe None
+  private val Minute = 60 * 1000L
+  private val Day = 24 * 60 * Minute
+
+  "freshUntil()" should "honor Pragma: no-cache" in {
+    freshUntil(HttpHeaderNames.PRAGMA -> "no-cache") shouldBe None
+    freshUntil(HttpHeaderNames.PRAGMA -> "no-cache", HttpHeaderNames.CACHE_CONTROL -> "max-age=3600") shouldBe None
+    freshUntil(HttpHeaderNames.PRAGMA -> "no-cache", HttpHeaderNames.EXPIRES -> "3600") shouldBe None
   }
 
-  it should "correctly support Expires header" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Sun, 16 Oct 2033 21:56:44 GMT")) shouldBe Symbol("defined")
+  it should "honor Cache-Control max-age" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=1") shouldBe Some(Now + 1000)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate") shouldBe Some(Now + 3600 * 1000)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "Max-Age=\"60\"") shouldBe Some(Now + Minute)
   }
 
-  it should "give priority to Cache-Control over Expires" in new CacheContext {
-    getResponseExpire(
-      List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> HttpHeaderValues.NO_STORE)
-    ) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=-1")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=567")) shouldBe Symbol(
-      "defined"
-    )
+  it should "consider responses with no-cache, no-store or invalid max-age as stale" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "public, no-cache") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "no-store") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=0") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=-1") shouldBe None
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=nicolas") shouldBe None
   }
 
-  it should "Pragma has priority over Cache-Control" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.PRAGMA -> HttpHeaderValues.NO_CACHE, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.PRAGMA -> HttpHeaderValues.NO_CACHE, HttpHeaderNames.EXPIRES -> "3600")) shouldBe None
+  it should "only consider unqualified no-cache" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "no-cache=\"Set-Cookie\", max-age=60") shouldBe Some(Now + Minute)
   }
 
-  "extractExpiresValue()" should "supports Expires field format" in {
-    httpCaches.extractExpiresValue("Thu, 01 Dec 1994 16:00:00 GMT") shouldBe Some(786297600000L)
-    httpCaches.extractExpiresValue("Tue, 19 Jan 2038 03:14:06 GMT") shouldBe Some(2147483646000L)
+  it should "combine multiple Cache-Control field lines" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "public", HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe Some(Now + Minute)
   }
 
-  it should "defaults to false if it's not Expires field format" in {
-    httpCaches.extractExpiresValue("fail") shouldBe None
+  it should "cap max-age to 2^31 seconds" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=99999999999999999999") shouldBe Some(Now + 2147483648L * 1000)
   }
 
-  "extractMaxAgeValue()" should "tell if there is a 'max-age' control and gets its value if superior to zero" in {
-    httpCaches.extractMaxAgeValue("public") shouldBe None
-    httpCaches.extractMaxAgeValue("private, max-age=3600, must-revalidate") shouldBe Some(3600)
-    httpCaches.extractMaxAgeValue("private, max-age=nicolas, must-revalidate") shouldBe None
-    httpCaches.extractMaxAgeValue("private, max-age=0, must-revalidate") shouldBe Some(0)
-    httpCaches.extractMaxAgeValue("max-age=-1") shouldBe Some(-1)
-    httpCaches.extractMaxAgeValue("max-age=-123") shouldBe Some(-1)
-    httpCaches.extractMaxAgeValue("max-age=5") shouldBe Some(5)
-    httpCaches.extractMaxAgeValue("max-age=567") shouldBe Some(567)
+  it should "compute Expires freshness relative to Date" in {
+    freshUntil(HttpHeaderNames.DATE -> httpDate(Now), HttpHeaderNames.EXPIRES -> httpDate(Now + Day)) shouldBe Some(Now + Day)
+    // origin clock is 1 hour ahead
+    freshUntil(HttpHeaderNames.DATE -> httpDate(Now + 60 * Minute), HttpHeaderNames.EXPIRES -> httpDate(Now + 90 * Minute)) shouldBe Some(Now + 30 * Minute)
+  }
+
+  it should "consider invalid or past Expires as stale" in {
+    freshUntil(HttpHeaderNames.EXPIRES -> "0") shouldBe None
+    freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now - Day)) shouldBe None
+    // no heuristic freshness when there's an explicit expiration time
+    freshUntil(HttpHeaderNames.EXPIRES -> "0", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+  }
+
+  it should "honor Expires when Cache-Control has no max-age" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "public", HttpHeaderNames.EXPIRES -> httpDate(Now + Day)) shouldBe Some(Now + Day)
+  }
+
+  it should "give priority to max-age over Expires" in {
+    freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now + Day), HttpHeaderNames.CACHE_CONTROL -> "no-store") shouldBe None
+    freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now + Day), HttpHeaderNames.CACHE_CONTROL -> "max-age=0") shouldBe None
+    freshUntil(HttpHeaderNames.EXPIRES -> httpDate(Now - Day), HttpHeaderNames.CACHE_CONTROL -> "max-age=60") shouldBe Some(Now + Minute)
+  }
+
+  it should "subtract the current age" in {
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=3600", HttpHeaderNames.AGE -> "3000") shouldBe Some(Now + 10 * Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=3600", HttpHeaderNames.DATE -> httpDate(Now - 10 * Minute)) shouldBe Some(Now + 50 * Minute)
+    freshUntil(HttpHeaderNames.CACHE_CONTROL -> "max-age=3600", HttpHeaderNames.AGE -> "3600") shouldBe None
+  }
+
+  it should "compute heuristic freshness from Last-Modified" in {
+    freshUntil(HttpHeaderNames.DATE -> httpDate(Now), HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    // no Date: use receive time
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.ETAG -> "\"foo\"") shouldBe Some(Now + Day)
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "must-revalidate") shouldBe Some(Now + Day)
+    freshUntilWithStatus(404, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe Some(Now + Day)
+  }
+
+  it should "not compute heuristic freshness without Last-Modified" in {
+    freshUntil(HttpHeaderNames.ETAG -> "\"foo\"") shouldBe None
+  }
+
+  it should "not compute heuristic freshness when forbidden" in {
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "no-cache") shouldBe None
+    freshUntil(HttpHeaderNames.LAST_MODIFIED -> httpDate(Now + Day)) shouldBe None
+    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+    freshUntilWithStatus(500, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day)) shouldBe None
+  }
+
+  it should "compute heuristic freshness for non heuristically cacheable status codes when public" in {
+    freshUntilWithStatus(302, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "public") shouldBe Some(Now + Day)
+  }
+
+  "cacheContent()" should "store a response with only Last-Modified as fresh" in new ContentContext {
+    store(200, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day))
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Day)
+    isFresh shouldBe true
+  }
+
+  it should "store a response with only ETag for revalidation" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry.flatMap(_.etag) shouldBe Some("\"foo\"")
+    isFresh shouldBe false
+  }
+
+  it should "not store a response with no-store, and remove the stored one" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"")
+    store(200, HttpHeaderNames.ETAG -> "\"bar\"", HttpHeaderNames.CACHE_CONTROL -> "no-store")
+    entry shouldBe None
+  }
+
+  it should "remove the stored response when the new one can't be reused" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"")
+    store(200)
+    entry shouldBe None
+  }
+
+  it should "not store a response with a status code that isn't heuristically cacheable and no explicit freshness" in new ContentContext {
+    store(500, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry shouldBe None
+  }
+
+  it should "not store responses to POST requests" in new ContentContext {
+    override val method: HttpMethod = HttpMethod.POST
+    store(200, HttpHeaderNames.CACHE_CONTROL -> "max-age=3600")
+    entry shouldBe None
+  }
+
+  it should "freshen the stored response on 304" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day), HttpHeaderNames.CACHE_CONTROL -> "max-age=0")
+    isFresh shouldBe false
+
+    store(304, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
+    entry.flatMap(_.lastModified) shouldBe Some(httpDate(Now - 10 * Day))
+  }
+
+  it should "keep heuristic freshness of the stored response on 304" in new ContentContext {
+    store(200, HttpHeaderNames.LAST_MODIFIED -> httpDate(Now - 10 * Day))
+    store(304, HttpHeaderNames.DATE -> httpDate(Now))
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Day)
+    entry.flatMap(_.lastModified) shouldBe Some(httpDate(Now - 10 * Day))
+  }
+
+  it should "keep the explicit freshness of the stored response on 304" in new ContentContext {
+    store(200, HttpHeaderNames.ETAG -> "\"foo\"", HttpHeaderNames.CACHE_CONTROL -> "max-age=60")
+    store(304, HttpHeaderNames.ETAG -> "\"foo\"")
+    entry.flatMap(_.freshUntil) shouldBe Some(Now + Minute)
+  }
+
+  class ContentContext {
+    val method: HttpMethod = HttpMethod.GET
+    private val protocol = HttpProtocol(configuration)
+    private lazy val request = new RequestBuilder("request", method, Uri.create("http://example.com/app.js"), null).build()
+    var session: Session = emptySession
+
+    def store(status: Int, headers: (CharSequence, String)*): Unit =
+      session = fixedHttpCaches.cacheContent(session, protocol, request, HttpResponseStatus.valueOf(status), responseHeaders(headers: _*))
+
+    def entry: Option[ContentCacheEntry] = fixedHttpCaches.contentCacheEntry(session, request)
+
+    def isFresh: Boolean = fixedHttpCaches.isFresh(session, request)
   }
 
   class RedirectContext {

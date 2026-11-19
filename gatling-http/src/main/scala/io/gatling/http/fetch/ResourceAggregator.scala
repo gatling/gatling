@@ -22,7 +22,7 @@ import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
+import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.client.Http2PriorKnowledge
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
@@ -145,17 +145,7 @@ private[fetch] final class DefaultResourceAggregator(
     alreadySeen ++= resources.map(_.clientRequest.getUri)
     pendingResourcesCount += resources.size
 
-    val (cached, nonCached) = resources.partition { resource =>
-      val request = resource.clientRequest
-      httpCaches.contentCacheEntry(session, request) match {
-        case None | Some(ContentCacheEntry(None, _, _))                              => false
-        case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
-          // beware, side effecting
-          session = httpCaches.clearContentCache(session, request)
-          false
-        case _ => true
-      }
-    }
+    val (cached, nonCached) = resources.partition(resource => httpCaches.isFresh(session, resource.clientRequest))
 
     cached.foreach(handleCachedResource)
 
@@ -191,18 +181,11 @@ private[fetch] final class DefaultResourceAggregator(
   }
 
   private def sendBufferedRequest(request: HttpRequest, remote: Remote): Unit =
-    httpCaches.contentCacheEntry(session, request.clientRequest) match {
-      case None =>
-        // recycle token, fetch a buffered resource
-        httpTxExecutor.execute(createResourceTx(request, getHttp2PriorKnowledge(session, remote)))
-
-      case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
-        // expire reached
-        session = httpCaches.clearContentCache(session, request.clientRequest)
-        httpTxExecutor.execute(createResourceTx(request, getHttp2PriorKnowledge(session, remote)))
-
-      case _ =>
-        handleCachedResource(request)
+    if (httpCaches.isFresh(session, request.clientRequest)) {
+      handleCachedResource(request)
+    } else {
+      // recycle token, fetch a buffered resource
+      httpTxExecutor.execute(createResourceTx(request, getHttp2PriorKnowledge(session, remote)))
     }
 
   private def releaseTokenAndContinue(remote: Remote, isHttp2: Boolean): Unit =

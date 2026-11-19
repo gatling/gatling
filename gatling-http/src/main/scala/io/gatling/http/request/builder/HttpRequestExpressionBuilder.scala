@@ -24,7 +24,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
+import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.client.{ Param, Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.body.RequestBodyBuilder
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
@@ -164,9 +164,9 @@ final class HttpRequestExpressionBuilder(
     } yield configurePriorKnowledge(session, requestBuilder)
 
   private def configureCachingHeaders(session: Session, request: Request): Unit =
-    httpCaches.contentCacheEntry(session, request).foreach { case ContentCacheEntry(_, etag, lastModified) =>
-      etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
-      lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
+    httpCaches.contentCacheEntry(session, request).foreach { entry =>
+      entry.etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
+      entry.lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
     }
 
   override def build: Expression[Request] = {
