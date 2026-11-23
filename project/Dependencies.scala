@@ -1,6 +1,11 @@
 import sbt.*
 
 object Dependencies {
+  // One ModuleID per classifier: sbt 2.1's PomGenerator only writes the first explicit artifact of a ModuleID,
+  // so chaining .classifier(...) drops all but one classifier from the published POM
+  private def withClassifiers(module: ModuleID, classifiers: String*): Seq[ModuleID] =
+    classifiers.map(module.classifier)
+
   // format: off
   // Compile dependencies
   private def scalaReflect(version: String)  = "org.scala-lang"                % "scala-reflect"               % version % Provided
@@ -13,12 +18,12 @@ object Dependencies {
   private val nettyHandler                   = nettyHttp.withName("netty-handler")
   private val nettyProxy                     = nettyHttp.withName("netty-handler-proxy")
   private val nettyDns                       = nettyHttp.withName("netty-resolver-dns")
-  private val nettyEpoll                     = nettyHttp.withName("netty-transport-native-epoll").classifier("linux-x86_64").classifier("linux-aarch_64")
-  private val nettyIoUring                   = nettyHttp.withName("netty-transport-native-io_uring").classifier("linux-x86_64").classifier("linux-aarch_64")
+  private val nettyEpoll                     = withClassifiers(nettyHttp.withName("netty-transport-native-epoll"), "linux-x86_64", "linux-aarch_64")
+  private val nettyIoUring                   = withClassifiers(nettyHttp.withName("netty-transport-native-io_uring"), "linux-x86_64", "linux-aarch_64")
   private val nettyHttp2                     = nettyHttp.withName("netty-codec-http2")
-  private val nettyResolverNativeOsX         = nettyHttp.withName("netty-resolver-dns-native-macos").classifier("osx-x86_64").classifier("osx-aarch_64")
+  private val nettyResolverNativeOsX         = withClassifiers(nettyHttp.withName("netty-resolver-dns-native-macos"), "osx-x86_64", "osx-aarch_64")
   private val nettyTcNative                  = "io.netty"                      % "netty-tcnative-classes"      % "2.0.86.Final"
-  private val nettyTcNativeBoringSsl         = nettyTcNative.withName("netty-tcnative-boringssl-static").classifier("linux-x86_64").classifier("linux-aarch_64").classifier("osx-x86_64").classifier("osx-aarch_64").classifier("windows-x86_64")
+  private val nettyTcNativeBoringSsl         = withClassifiers(nettyTcNative.withName("netty-tcnative-boringssl-static"), "linux-x86_64", "linux-aarch_64", "osx-x86_64", "osx-aarch_64", "windows-x86_64")
   private val brotli4j                       = "com.aayushatharva.brotli4j"    % "brotli4j"                    % "1.24.0"
   private val brotli4jLinuxArm               = brotli4j.withName("native-linux-aarch64")
   private val brotli4jLinuxX86               = brotli4j.withName("native-linux-x86_64")
@@ -87,13 +92,11 @@ object Dependencies {
     Seq(
       gatlingSharedUtil,
       nettyBuffer,
-      nettyEpoll,
-      nettyIoUring,
       junit,
       junitEngine,
       junitPlatformLauncher,
       jupiterInterface
-    )
+    ) ++ nettyEpoll ++ nettyIoUring
 
   val commonsSharedUnstableDependencies: Seq[ModuleID] = testDeps
 
@@ -116,10 +119,9 @@ object Dependencies {
       scalaParserCombinators,
       scopt,
       nettyHandler,
-      nettyTcNative,
-      nettyTcNativeBoringSsl
+      nettyTcNative
     ) ++
-      parserDeps ++ testDeps
+      nettyTcNativeBoringSsl ++ parserDeps ++ testDeps
 
   val defaultJavaDependencies: Seq[ModuleID] =
     Seq(jspecify, junit, junitEngine, junitPlatformLauncher, jupiterInterface) ++ testDeps
@@ -136,11 +138,8 @@ object Dependencies {
     nettyHandler,
     nettyProxy,
     nettyDns,
-    nettyEpoll,
     nettyHttp2,
-    nettyResolverNativeOsX,
     nettyTcNative,
-    nettyTcNativeBoringSsl,
     brotli4j,
     brotli4jLinuxX86,
     brotli4jLinuxArm,
@@ -155,7 +154,7 @@ object Dependencies {
     jettyProxy,
     slf4jApi,
     logback
-  )
+  ) ++ nettyEpoll ++ nettyResolverNativeOsX ++ nettyTcNativeBoringSsl
 
   val httpDependencies: Seq[ModuleID] = Seq(saxon, xmlresolver, xmlresolverData) ++ testDeps
 
