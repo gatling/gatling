@@ -16,7 +16,7 @@
 
 package io.gatling.core.session
 
-import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.EmptySession
 import io.gatling.core.action.Action
@@ -314,6 +314,80 @@ class SessionSpec extends AnyFlatSpecLike with Matchers with EmptySession {
 
     failedSession.baseStatus shouldBe OK
     failedSession.blockStack.head.asInstanceOf[TryMaxBlock].status shouldBe KO
+  }
+
+  private def groupStatuses(session: Session): List[Status] = session.blockStack.collect { case g: GroupBlock => g.status }
+
+  private def twoGroups: Session =
+    emptySession
+      .enterGroup("root group", System.currentTimeMillis())
+      .enterGroup("child group", System.currentTimeMillis())
+
+  "markGroupAsFailed" should "only set the innermost group's status to KO, leaving the enclosing groups and the baseStatus unmodified" in {
+    val session = twoGroups.enterLoop(counterName = "loop", condition = _ => Success(true), exitAction = null, exitASAP = false)
+    val failedSession = session.markGroupAsFailed
+
+    groupStatuses(failedSession) shouldBe List(KO, OK)
+    failedSession.blockStack.head shouldBe a[ExitOnCompleteLoopBlock]
+    failedSession.baseStatus shouldBe OK
+    failedSession.isFailed shouldBe false
+    failedSession.isGroupFailed shouldBe true
+  }
+
+  it should "leave the session unmodified if there is no group in the stack" in {
+    val session = emptySession
+    session.markGroupAsFailed should be theSameInstanceAs session
+  }
+
+  it should "target the innermost open group with the given name, with markGroupAsFailedByName" in {
+    groupStatuses(twoGroups.markGroupAsFailedByName("root group")) shouldBe List(OK, KO)
+  }
+
+  it should "leave the session unmodified if no open group has the given name" in {
+    val session = twoGroups
+    session.markGroupAsFailedByName("unknown") should be theSameInstanceAs session
+  }
+
+  "markGroupAsSucceeded" should "only set the innermost group's status to OK after a failure, leaving the enclosing groups and the baseStatus unmodified" in {
+    val succeededSession = twoGroups.markAsFailed.markGroupAsSucceeded
+
+    groupStatuses(succeededSession) shouldBe List(OK, KO)
+    succeededSession.baseStatus shouldBe KO
+    succeededSession.isGroupFailed shouldBe false
+  }
+
+  it should "be final: a later failure doesn't change the group's status" in {
+    val session = twoGroups.markAsFailed.markGroupAsSucceeded.markAsFailed
+
+    groupStatuses(session) shouldBe List(OK, KO)
+    session.baseStatus shouldBe KO
+  }
+
+  it should "be overridden by a later markGroupAsFailed" in {
+    groupStatuses(twoGroups.markGroupAsSucceeded.markGroupAsFailed) shouldBe List(KO, OK)
+  }
+
+  it should "leave the session unmodified if there is no group in the stack" in {
+    val session = emptySession
+    session.markGroupAsSucceeded should be theSameInstanceAs session
+  }
+
+  "markAllGroupsAsSucceeded" should "set all the open groups' status to OK, leaving the baseStatus unmodified" in {
+    val session = twoGroups.markAsFailed.markAllGroupsAsSucceeded.markAsFailed
+
+    groupStatuses(session) shouldBe List(OK, OK)
+    session.baseStatus shouldBe KO
+  }
+
+  "markAllGroupsAsFailed" should "set all the open groups' status to KO, leaving the baseStatus unmodified" in {
+    val session = twoGroups.markAllGroupsAsFailed
+
+    groupStatuses(session) shouldBe List(KO, KO)
+    session.baseStatus shouldBe OK
+  }
+
+  "isGroupFailed" should "be false outside a group" in {
+    emptySession.markAsFailed.isGroupFailed shouldBe false
   }
 
   "enterLoop" should "add an ExitASAPLoopBlock on top of the stack and init a counter when exitASAP = true" in {

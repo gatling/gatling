@@ -49,4 +49,8 @@ final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Bo
 
 final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status) extends LoopBlock
 
-final case class GroupBlock(groups: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status) extends Block
+/**
+ * @param forcedStatus
+ *   if the status was forced with one of the `Session#markGroupAs*` methods, in which case failures no longer change it
+ */
+final case class GroupBlock(groups: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status, forcedStatus: Boolean) extends Block

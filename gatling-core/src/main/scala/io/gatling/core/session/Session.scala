@@ -175,7 +175,7 @@ final case class Session(
       case Some(l) => l :+ groupName
       case _       => groupName :: Nil
     }
-    copy(blockStack = GroupBlock(groups, nowMillis, 0, OK) :: blockStack)
+    copy(blockStack = GroupBlock(groups, nowMillis, 0, OK, forcedStatus = false) :: blockStack)
   }
 
   private[core] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
@@ -218,7 +218,7 @@ final case class Session(
       case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == OK =>
         firstTryMaxBlockNotReached = false
         tryMaxBlock.copy(status = KO)
-      case groupBlock: GroupBlock if firstTryMaxBlockNotReached && groupBlock.status == OK =>
+      case groupBlock: GroupBlock if firstTryMaxBlockNotReached && groupBlock.status == OK && !groupBlock.forcedStatus =>
         groupBlock.copy(status = KO)
       case b => b
     }
@@ -259,6 +259,62 @@ final case class Session(
       val updatedStatus = if (isWithinTryMax) baseStatus else KO
       copy(baseStatus = updatedStatus, blockStack = failStatusUntilClosestTryMaxBlock)
     }
+
+  /**
+   * Force the status of the innermost group to succeeded, leaving the virtual user's status and the enclosing groups untouched. A forced status is final: the
+   * last `markGroupAs*` call wins over failures that happen afterwards. Does nothing outside a group.
+   */
+  def markGroupAsSucceeded: Session = forceGroupsStatus(OK, innermostGroupOnly = true, groupName = None)
+
+  /**
+   * Force the status of the innermost group to failed, leaving the virtual user's status and the enclosing groups untouched. A forced status is final: the last
+   * `markGroupAs*` call wins. Does nothing outside a group.
+   */
+  def markGroupAsFailed: Session = forceGroupsStatus(KO, innermostGroupOnly = true, groupName = None)
+
+  /**
+   * Force the status of the innermost open group with the given name to succeeded. Same semantics as [[markGroupAsSucceeded]]. Does nothing if no such group is
+   * open.
+   */
+  def markGroupAsSucceededByName(groupName: String): Session = forceGroupsStatus(OK, innermostGroupOnly = true, groupName = Some(groupName))
+
+  /**
+   * Force the status of the innermost open group with the given name to failed. Same semantics as [[markGroupAsFailed]]. Does nothing if no such group is open.
+   */
+  def markGroupAsFailedByName(groupName: String): Session = forceGroupsStatus(KO, innermostGroupOnly = true, groupName = Some(groupName))
+
+  /**
+   * Force the status of all the open groups to succeeded. Same semantics as [[markGroupAsSucceeded]]. Does nothing outside a group.
+   */
+  def markAllGroupsAsSucceeded: Session = forceGroupsStatus(OK, innermostGroupOnly = false, groupName = None)
+
+  /**
+   * Force the status of all the open groups to failed. Same semantics as [[markGroupAsFailed]]. Does nothing outside a group.
+   */
+  def markAllGroupsAsFailed: Session = forceGroupsStatus(KO, innermostGroupOnly = false, groupName = None)
+
+  /**
+   * @return
+   *   if the innermost group's status is failed, false outside a group
+   */
+  def isGroupFailed: Boolean = blockStack.collectFirst { case g: GroupBlock => g.status == KO }.getOrElse(false)
+
+  private def forceGroupsStatus(status: Status, innermostGroupOnly: Boolean, groupName: Option[String]): Session = {
+    var remaining = true
+    var changed = false
+    val newBlockStack = blockStack.map {
+      case g: GroupBlock if remaining && groupName.forall(g.groups.lastOption.contains) =>
+        remaining = !innermostGroupOnly
+        if (g.status == status && g.forcedStatus) {
+          g
+        } else {
+          changed = true
+          g.copy(status = status, forcedStatus = true)
+        }
+      case b => b
+    }
+    if (changed) copy(blockStack = newBlockStack) else this
+  }
 
   private def newBlockStack(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): List[Block] = {
     val newBlock =

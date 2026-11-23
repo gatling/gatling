@@ -392,6 +392,79 @@ public final class Session {
   }
 
   /**
+   * Create a new instance with the status of the innermost group forced to "succeeded", leaving the
+   * virtual user's status and the enclosing groups untouched. A forced status is final: the last
+   * markGroupAs* call wins over failures that happen afterwards. Does nothing outside a group.
+   *
+   * @return a new instance with the new group status
+   */
+  public @NonNull Session markGroupAsSucceeded() {
+    return new Session(wrapped.markGroupAsSucceeded());
+  }
+
+  /**
+   * Create a new instance with the status of the innermost group forced to "failed", leaving the
+   * virtual user's status and the enclosing groups untouched. A forced status is final: the last
+   * markGroupAs* call wins. Does nothing outside a group.
+   *
+   * @return a new instance with the new group status
+   */
+  public @NonNull Session markGroupAsFailed() {
+    return new Session(wrapped.markGroupAsFailed());
+  }
+
+  /**
+   * Create a new instance with the status of the innermost open group with the given name forced to
+   * "succeeded". Same semantics as {@link #markGroupAsSucceeded()}. Does nothing if no such group
+   * is open.
+   *
+   * @param groupName the name of the group
+   * @return a new instance with the new group status
+   */
+  public @NonNull Session markGroupAsSucceededByName(@NonNull String groupName) {
+    return new Session(wrapped.markGroupAsSucceededByName(groupName));
+  }
+
+  /**
+   * Create a new instance with the status of the innermost open group with the given name forced to
+   * "failed". Same semantics as {@link #markGroupAsFailed()}. Does nothing if no such group is
+   * open.
+   *
+   * @param groupName the name of the group
+   * @return a new instance with the new group status
+   */
+  public @NonNull Session markGroupAsFailedByName(@NonNull String groupName) {
+    return new Session(wrapped.markGroupAsFailedByName(groupName));
+  }
+
+  /**
+   * Create a new instance with the status of all the open groups forced to "succeeded". Same
+   * semantics as {@link #markGroupAsSucceeded()}. Does nothing outside a group.
+   *
+   * @return a new instance with the new group statuses
+   */
+  public @NonNull Session markAllGroupsAsSucceeded() {
+    return new Session(wrapped.markAllGroupsAsSucceeded());
+  }
+
+  /**
+   * Create a new instance with the status of all the open groups forced to "failed". Same semantics
+   * as {@link #markGroupAsFailed()}. Does nothing outside a group.
+   *
+   * @return a new instance with the new group statuses
+   */
+  public @NonNull Session markAllGroupsAsFailed() {
+    return new Session(wrapped.markAllGroupsAsFailed());
+  }
+
+  /**
+   * @return if the innermost group's status is failed, false outside a group
+   */
+  public boolean isGroupFailed() {
+    return wrapped.isGroupFailed();
+  }
+
+  /**
    * Provide the name of the scenario of the virtual user
    *
    * @return the virtual user's scenario name

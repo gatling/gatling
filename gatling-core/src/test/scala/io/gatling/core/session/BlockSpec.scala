@@ -31,7 +31,7 @@ class BlockSpec extends AnyFlatSpecLike with Matchers with EmptySession {
   }
 
   it should "return None if it isn't an instance of LoopBlock" in {
-    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis(), 0, OK)) shouldBe None
+    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis(), 0, OK, forcedStatus = false)) shouldBe None
   }
 
   "LoopBlock.continue" should "return true if the condition evaluation succeeds and evaluates to true" in {

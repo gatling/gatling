@@ -71,6 +71,6 @@ class ExitHereSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with 
 
     verify(exit) ! sessionWithGroup
     verify(next, never) ! any[Session]
-    verify(statsEngine).logGroupEnd(sessionWithGroup.scenario, GroupBlock(List("group"), 0, 0, KO), 1)
+    verify(statsEngine).logGroupEnd(sessionWithGroup.scenario, GroupBlock(List("group"), 0, 0, KO, forcedStatus = false), 1)
   }
 }

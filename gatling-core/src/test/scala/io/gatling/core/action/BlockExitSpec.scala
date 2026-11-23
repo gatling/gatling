@@ -68,7 +68,7 @@ class BlockExitSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with
     val blockExit = BlockExit.mustExit(session).getOrElse(fail("expected the exitASAP loop to exit"))
 
     blockExit.exitAction shouldBe exitAction
-    blockExit.groupsToClose shouldBe List(GroupBlock(List("group"), 0, 0, OK))
+    blockExit.groupsToClose shouldBe List(GroupBlock(List("group"), 0, 0, OK, forcedStatus = false))
     blockExit.session.blockStack shouldBe empty
   }
 
@@ -81,7 +81,7 @@ class BlockExitSpec extends AnyFlatSpecLike with Matchers with MockitoSugar with
     val blockExit = BlockExit.mustExit(session).getOrElse(fail("expected the exitASAP loop to exit"))
 
     blockExit.groupsToClose shouldBe empty
-    blockExit.session.blockStack shouldBe List(GroupBlock(List("group"), 0, 0, OK))
+    blockExit.session.blockStack shouldBe List(GroupBlock(List("group"), 0, 0, OK, forcedStatus = false))
   }
 
   it should "exit a failed tryMax" in {
