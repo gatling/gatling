@@ -21,8 +21,12 @@ import scala.concurrent.duration._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-class SetCheckBufferSpec extends AnyFlatSpecLike with Matchers {
+object SetCheckBufferSpec {
   private final case class Message(timestamp: Long, value: String)
+}
+
+class SetCheckBufferSpec extends AnyFlatSpecLike with Matchers {
+  import SetCheckBufferSpec._
 
   private def newBuffer(maxSize: Int, maxAge: FiniteDuration) = new SetCheckBuffer[Message](maxSize, maxAge, _.timestamp)
 
