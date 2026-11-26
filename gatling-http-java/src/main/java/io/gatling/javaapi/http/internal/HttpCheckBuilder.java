@@ -18,6 +18,7 @@ package io.gatling.javaapi.http.internal;
 
 import io.gatling.core.check.regex.GroupExtractor;
 import io.gatling.http.check.header.HttpHeaderRegexCheckType;
+import io.gatling.http.check.header.HttpRawHeadersRegexCheckType;
 import io.gatling.http.check.url.CurrentLocationRegexCheckType;
 import io.gatling.http.response.Response;
 import io.gatling.javaapi.core.CheckBuilder;
@@ -63,6 +64,27 @@ public final class HttpCheckBuilder {
           (io.gatling.http.check.header.HttpHeaderRegexCheckBuilder<String>) wrapped;
       return new io.gatling.http.check.header.HttpHeaderRegexCheckBuilder<>(
           actual.headerName(), actual.pattern(), actual.patterns(), groupExtractor);
+    }
+  }
+
+  public static final class RawHeadersRegexCheck
+      extends CheckBuilder.CaptureGroupCheckBuilder.Default<HttpRawHeadersRegexCheckType, String> {
+
+    public RawHeadersRegexCheck(
+        io.gatling.core.check.CheckBuilder.MultipleFind<
+                HttpRawHeadersRegexCheckType, String, String>
+            wrapped) {
+      super(wrapped, HttpCheckType.RawHeadersRegex);
+    }
+
+    @Override
+    protected <X>
+        io.gatling.core.check.CheckBuilder.MultipleFind<HttpRawHeadersRegexCheckType, String, X>
+            extract(GroupExtractor<X> groupExtractor) {
+      io.gatling.http.check.header.HttpRawHeadersRegexCheckBuilder<String> actual =
+          (io.gatling.http.check.header.HttpRawHeadersRegexCheckBuilder<String>) wrapped;
+      return new io.gatling.http.check.header.HttpRawHeadersRegexCheckBuilder<>(
+          actual.pattern(), actual.patterns(), groupExtractor);
     }
   }
 }

@@ -237,7 +237,9 @@ public class HttpJavaCompileTest extends Simulation {
               headerRegex(session -> HttpHeaderNames.CONTENT_TYPE, "pattern"),
               headerRegex("name", session -> "pattern"),
               headerRegex(HttpHeaderNames.CONTENT_TYPE, session -> "pattern"),
-              headerRegex(session -> HttpHeaderNames.CONTENT_TYPE, session -> "pattern"))
+              headerRegex(session -> HttpHeaderNames.CONTENT_TYPE, session -> "pattern"),
+              rawHeadersRegex("pattern").notExists(),
+              rawHeadersRegex(session -> "pattern").captureGroups(2))
           .checkIf("#{bool}")
           .then(jsonPath("$..foo"))
           .checkIf("#{bool}")

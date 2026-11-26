@@ -56,7 +56,9 @@ object ExtractedUris {
 
   private def extractCommonHostUrls(uris: List[Uri], valName: String, format: RenderingFormat): Map[String, String] =
     uris
-      .map(uri => uri.toString -> s""""${uri.getScheme}://${user(uri)}" + $valName + ${s"${port(uri)}${uri.getPath}${query(uri)}".protect(format)}""")
+      .map(uri =>
+        uri.toString -> s"""${s"${uri.getScheme}://${user(uri)}".protect(format)} + $valName + ${s"${port(uri)}${uri.getPath}${query(uri)}".protect(format)}"""
+      )
       .toMap
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =

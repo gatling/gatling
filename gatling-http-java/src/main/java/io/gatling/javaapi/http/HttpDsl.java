@@ -486,6 +486,38 @@ public final class HttpDsl {
             io.gatling.core.Predef.defaultPatterns()));
   }
 
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on the raw response headers: the status line (eg {@code HTTP/1.1
+   * 200 OK}) followed by one {@code Name: value} line per header, each terminated by {@code \n}
+   *
+   * @param pattern the regular expression, expressed as a Gatling Expression Language String
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull CaptureGroupCheckBuilder rawHeadersRegex(
+      @NonNull String pattern) {
+    return new HttpCheckBuilder.RawHeadersRegexCheck(
+        io.gatling.http.Predef.rawHeadersRegex(
+            toStringExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
+  }
+
+  /**
+   * Bootstrap a check that capture some <a
+   * href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular
+   * Expression</a> capture groups on the raw response headers: the status line (eg {@code HTTP/1.1
+   * 200 OK}) followed by one {@code Name: value} line per header, each terminated by {@code \n}
+   *
+   * @param pattern the regular expression, expressed as a function
+   * @return the next step in the check DSL
+   */
+  public static CheckBuilder.@NonNull CaptureGroupCheckBuilder rawHeadersRegex(
+      @NonNull Function<Session, String> pattern) {
+    return new HttpCheckBuilder.RawHeadersRegexCheck(
+        io.gatling.http.Predef.rawHeadersRegex(
+            javaFunctionToExpression(pattern), io.gatling.core.Predef.defaultPatterns()));
+  }
+
   ////////// SitemapFeederSupport
 
   /**

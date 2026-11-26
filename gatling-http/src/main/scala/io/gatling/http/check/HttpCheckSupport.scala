@@ -90,6 +90,13 @@ trait HttpCheckSupport {
   implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] =
     HttpHeaderRegexCheckMaterializer.Instance
 
+  def rawHeadersRegex(pattern: Expression[String])(implicit
+      patterns: Patterns
+  ): CheckBuilder.MultipleFind[HttpRawHeadersRegexCheckType, String, String] with HttpRawHeadersRegexOfType =
+    HttpRawHeadersRegexCheckBuilder.rawHeadersRegex(pattern, patterns)
+  implicit val httpRawHeadersRegexCheckMaterializer: CheckMaterializer[HttpRawHeadersRegexCheckType, HttpCheck, Response, String] =
+    HttpRawHeadersRegexCheckMaterializer.Instance
+
   implicit val httpBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer.Instance
   implicit val httpBodyLengthCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Int] = HttpBodyLengthCheckMaterializer.Instance
   implicit val httpBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] = HttpBodyStringCheckMaterializer.Instance

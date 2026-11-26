@@ -23,5 +23,6 @@ public enum HttpCheckType implements CheckBuilder.CheckType {
   CurrentLocationRegex,
   Status,
   Header,
-  HeaderRegex
+  HeaderRegex,
+  RawHeadersRegex
 }

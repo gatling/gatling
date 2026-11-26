@@ -37,7 +37,7 @@ import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.{ Predef => HttpPredef }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.header.{ HttpHeaderCheckType, HttpHeaderRegexCheckType }
+import io.gatling.http.check.header.{ HttpHeaderCheckType, HttpHeaderRegexCheckType, HttpRawHeadersRegexCheckType }
 import io.gatling.http.check.status.HttpStatusCheckType
 import io.gatling.http.check.url.{ CurrentLocationCheckType, CurrentLocationRegexCheckType }
 import io.gatling.http.response.Response
@@ -85,6 +85,8 @@ object HttpChecks {
       case HttpCheckType.Header      => scalaCheck.asInstanceOf[CheckBuilder[HttpHeaderCheckType, Response]].build(HttpPredef.httpHeaderCheckMaterializer)
       case HttpCheckType.HeaderRegex =>
         scalaCheck.asInstanceOf[CheckBuilder[HttpHeaderRegexCheckType, Response]].build(HttpPredef.httpHeaderRegexCheckMaterializer)
+      case HttpCheckType.RawHeadersRegex =>
+        scalaCheck.asInstanceOf[CheckBuilder[HttpRawHeadersRegexCheckType, String]].build(HttpPredef.httpRawHeadersRegexCheckMaterializer)
       case unknown => throw new IllegalArgumentException(s"HTTP DSL doesn't support $unknown")
     }
   }
