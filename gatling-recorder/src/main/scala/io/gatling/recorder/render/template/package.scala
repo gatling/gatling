@@ -29,22 +29,34 @@ package object template {
   private[template] implicit final class TemplateString(val string: String) extends AnyVal {
     def protect(format: RenderingFormat): String =
       format match {
-        case RenderingFormat.Scala | RenderingFormat.Kotlin => multilineString
-        case _                                              => protectJavaString
+        case RenderingFormat.Scala  => protectScalaString
+        case RenderingFormat.Kotlin => protectEscapedString(escapeDollar = true)
+        case _                      => protectEscapedString(escapeDollar = false)
       }
 
-    private def multilineString: String = {
-      val stringDelimiter = if (string.exists(isUnsafeStringChar)) TripleQuotes else SimpleQuotes
-      s"$stringDelimiter$string$stringDelimiter"
-    }
+    // triple quotes are more readable but can't contain triple quotes
+    // and would still process unicode escapes (deprecated)
+    private def canUseTripleQuotes: Boolean =
+      !string.contains(TripleQuotes) && !string.contains("\\u") && !string.contains('\r')
 
-    private def protectJavaString: String = {
+    private def protectScalaString: String =
+      if (string.exists(isUnsafeStringChar) && canUseTripleQuotes) {
+        s"$TripleQuotes$string$TripleQuotes"
+      } else {
+        protectEscapedString(escapeDollar = false)
+      }
+
+    // valid for Java, Kotlin, Scala, JavaScript and TypeScript simple quotes String literals
+    private def protectEscapedString(escapeDollar: Boolean): String = {
       val sb = new jl.StringBuilder().append(SimpleQuotes)
-      string.foreach { char =>
-        if (isUnsafeStringChar(char)) {
-          sb.append('\\')
-        }
-        sb.append(char)
+      string.foreach {
+        case '\\'                => sb.append("\\\\")
+        case '"'                 => sb.append("\\\"")
+        case '\n'                => sb.append("\\n")
+        case '\r'                => sb.append("\\r")
+        case '\t'                => sb.append("\\t")
+        case '$' if escapeDollar => sb.append("\\$")
+        case char                => sb.append(char)
       }
       sb.append(SimpleQuotes).toString
     }

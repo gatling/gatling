@@ -34,4 +34,26 @@ class PackageSpec extends AnyFlatSpecLike with Matchers {
     val string = "foobar"
     string.protect(RenderingFormat.Scala) shouldBe s"$SimpleQuotes$string$SimpleQuotes"
   }
+
+  private val WithTripleQuotes = "foo\"\"\"bar"
+
+  it should "fall back to escaped simple quotes when the String contains triple quotes" in {
+    WithTripleQuotes.protect(RenderingFormat.Scala) shouldBe "\"foo\\\"\\\"\\\"bar\""
+  }
+
+  it should "fall back to escaped simple quotes when the String contains a unicode escape" in {
+    "\\u0022".protect(RenderingFormat.Scala) shouldBe "\"\\\\u0022\""
+  }
+
+  "protectEscapedString" should "escape backslashes, double quotes and line breaks for Java" in {
+    "a\\b\"c\nd\re\tf$g".protect(RenderingFormat.Java17) shouldBe "\"a\\\\b\\\"c\\nd\\re\\tf$g\""
+  }
+
+  it should "also escape dollars for Kotlin" in {
+    "a\"$b${c}".protect(RenderingFormat.Kotlin) shouldBe "\"a\\\"\\$b\\${c}\""
+  }
+
+  it should "escape triple quotes for Kotlin" in {
+    WithTripleQuotes.protect(RenderingFormat.Kotlin) shouldBe "\"foo\\\"\\\"\\\"bar\""
+  }
 }
